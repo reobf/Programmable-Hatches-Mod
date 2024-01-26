@@ -1,0 +1,115 @@
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Build and test x
+
+on:
+  workflow_call:
+    inputs:
+      timeout:
+        description: 'Timeout for runServer (seconds)'
+        required: false
+        default: 360
+        type: number
+      workspace:
+        description: 'setupCIWorkspace/setupDecompWorkspace'
+        required: false
+        default: "setupCIWorkspace"
+        type: string
+      client-only:
+        description: 'Do not execute runServer'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout mod repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Checkout workflows repo
+      uses: actions/checkout@v4
+      with:
+        repository: GTNewHorizons/GTNH-Actions-Workflows
+        path: .gtnh-workflows
+        fetch-depth: 0
+
+    - name: Validate gradle wrapper checksum
+      uses: gradle/wrapper-validation-action@v1
+
+    - name: Set up JDK 8 and 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: |
+          8
+          17
+        distribution: 'zulu'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Setup the workspace
+      run: ./gradlew --build-cache --info --stacktrace ${{ inputs.workspace }}
+
+    - name: Compile the mod
+      run: ./gradlew --build-cache --info --stacktrace assemble
+
+    - name: Attach compilation artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-libs
+        path: build/libs/
+        retention-days: 31
+
+    - name: Run post-build checks
+      id: build_mod
+      run: ./gradlew --build-cache --info --stacktrace build
+
+    - name: Attempt to make a PR fixing spotless errors
+      if: ${{ failure() && steps.build_mod.conclusion == 'failure' && github.event_name == 'pull_request' && !github.event.pull_request.draft }}
+      run: |
+        git reset --hard
+        git checkout "${PR_BRANCH}"
+        ./gradlew --build-cache --info --stacktrace spotlessApply || exit 1
+        git diff --exit-code && exit 1
+        git config user.name "GitHub GTNH Actions"
+        git config user.email "<>"
+        git switch -c "${FIXED_BRANCH}"
+        git commit -am "spotlessApply"
+        git push --force-with-lease origin "${FIXED_BRANCH}"
+        gh pr create \
+          --head "${FIXED_BRANCH}" \
+          --base "${PR_BRANCH}" \
+          --title "Spotless apply for branch ${PR_BRANCH} for #${{ github.event.pull_request.number }}" \
+          --body "Automatic spotless apply to fix formatting errors, applies to PR #${{ github.event.pull_request.number }}" \
+          2>&1 | tee pr-message.log || true
+        gh pr comment "${PR_BRANCH}" -F pr-message.log || true
+      shell: bash # ensures set -eo pipefail
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PR_BRANCH: ${{ github.head_ref }}
+        FIXED_BRANCH: ${{ github.head_ref }}-spotless-fixes
+
+    - name: Run server for ${{ inputs.timeout }} seconds
+      if: ${{ !inputs.client-only }}
+      run: |
+        mkdir -p run
+        echo "eula=true" > run/eula.txt
+        # Set a constant seed with a village at spawn
+        echo "level-seed=-6202107849386030209\nonline-mode=true\n" > run/server.properties
+        echo "stop" > run/stop.txt
+        timeout ${{ inputs.timeout }} ./gradlew --build-cache --info --stacktrace runServer 2>&1 < run/stop.txt | tee -a server.log || true
+
+    - name: Test no errors reported during server run
+      if: ${{ !inputs.client-only }}
+      run: |
+        chmod +x .gtnh-workflows/scripts/test_no_error_reports
+        .gtnh-workflows/scripts/test_no_error_reports
+
+    - name: Test no prerelease dependencies used
+      run: |
+        ! grep -F -- "-pre" dependencies.gradle*

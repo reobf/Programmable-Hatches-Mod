@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8.5-GTNH",
+  "package": "reobf.proghatches.main.mixin.mixins",
+  "plugin": "reobf.proghatches.main.mixin.MixinPlugin", 
+  "refmap": "mixins.programmablehatches.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [],
+  "client": [],
+  "server": []
+}

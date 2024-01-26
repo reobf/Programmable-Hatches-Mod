@@ -1,0 +1,1459 @@
+package reobf.proghatches.block;
+import li.cil.oc.integration.appeng.NetworkControl;
+import li.cil.oc.integration.appeng.NetworkControl$class;
+import  li.cil.oc.server.component.traits.*;
+import li.cil.oc.util.DatabaseAccess$;
+import li.cil.oc.util.ExtendedArguments.ExtendedArguments;
+import net.minecraft.item.ItemStack;
+import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.inventory.IInventory;
+import scala.None$;
+import li.cil.oc.util.ExtendedWorld$;
+import net.minecraft.world.World;
+import scala.Option;
+import scala.Some;
+import scala.Tuple2;
+import li.cil.oc.util.InventoryUtils$;
+import li.cil.oc.util.BlockPosition;
+import li.cil.oc.util.BlockInventorySource;
+import li.cil.oc.util.InventorySource;
+import li.cil.oc.util.InventoryUtils;
+import scala.collection.GenSeq;
+import scala.collection.Seq;
+import scala.collection.immutable.IndexedSeq;
+import scala.collection.mutable.Buffer;
+import scala.reflect.ClassTag;
+import scala.runtime.BoxesRunTime;
+import scala.Unit$;
+
+import scala.Predef$;
+import li.cil.oc.server.component.package$;
+import li.cil.oc.Settings$;
+import li.cil.oc.api.machine.Callback;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
+import net.minecraftforge.fluids.IFluidTank;
+import net.minecraftforge.oredict.OreDictionary;
+import reobf.proghatches.gt.metatileentity.MappingItemHandler;
+import reobf.proghatches.item.ItemProgrammingCircuit;
+import reobf.proghatches.main.MyMod;
+import scala.Function1;
+import scala.None;
+import li.cil.oc.api.machine.Arguments;
+import li.cil.oc.api.machine.Context;
+
+import static gregtech.api.enums.GT_Values.NW;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
+
+import li.cil.oc.Settings$;
+import li.cil.oc.api.machine.Arguments;
+import li.cil.oc.api.machine.Callback;
+import li.cil.oc.api.machine.Context;
+import li.cil.oc.server.component.package$;
+import li.cil.oc.util.BlockInventorySource;
+import li.cil.oc.util.BlockPosition;
+import li.cil.oc.util.DatabaseAccess$;
+import li.cil.oc.util.ExtendedWorld$;
+import li.cil.oc.util.InventorySource;
+import li.cil.oc.util.InventoryUtils$;
+import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import scala.Function1;
+import scala.None$;
+import scala.Option;
+import scala.Predef$;
+import scala.Some;
+import scala.Unit$;
+import scala.collection.Seq;
+
+import com.gtnewhorizons.modularui.api.ModularUITextures;
+import com.gtnewhorizons.modularui.api.drawable.IDrawable;
+import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
+import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
+import com.gtnewhorizons.modularui.api.screen.ITileWithModularUI;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow;
+import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
+import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
+import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
+import com.gtnewhorizons.modularui.common.widget.Scrollable;
+import com.gtnewhorizons.modularui.common.widget.SlotGroup;
+import com.gtnewhorizons.modularui.common.widget.SlotWidget;
+import com.gtnewhorizons.modularui.common.widget.TextWidget;
+import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
+import com.mojang.authlib.GameProfile;
+
+import appeng.api.AEApi;
+import appeng.api.config.Actionable;
+import appeng.api.networking.GridFlags;
+import appeng.api.networking.IGrid;
+import appeng.api.networking.IGridNode;
+import appeng.api.networking.security.BaseActionSource;
+import appeng.api.networking.security.IActionHost;
+import appeng.api.networking.security.MachineSource;
+import appeng.api.networking.storage.IStorageGrid;
+import appeng.api.storage.IMEMonitor;
+import appeng.api.storage.data.IAEFluidStack;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.util.AECableType;
+import appeng.api.util.DimensionalCoord;
+import appeng.helpers.ICustomNameObject;
+import appeng.me.GridAccessException;
+import appeng.me.helpers.AENetworkProxy;
+import appeng.me.helpers.IGridProxyable;
+import gregtech.api.GregTech_API;
+import gregtech.api.enums.ItemList;
+import gregtech.api.enums.SoundResource;
+import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GUITextureSet;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_BasicMachine;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
+import gregtech.api.net.GT_Packet_TileEntity;
+import gregtech.api.objects.GT_ItemStack;
+import gregtech.api.util.GT_CoverBehaviorBase;
+import gregtech.api.util.GT_Log;
+import gregtech.api.util.GT_ModHandler;
+import gregtech.api.util.GT_Utility;
+import gregtech.common.covers.CoverInfo;
+import li.cil.oc.api.Driver;
+import li.cil.oc.api.Network;
+import li.cil.oc.api.driver.DeviceInfo;
+import li.cil.oc.api.internal.MultiTank;
+import li.cil.oc.api.machine.Arguments;
+import li.cil.oc.api.machine.Callback;
+import li.cil.oc.api.machine.Context;
+import li.cil.oc.api.network.Component;
+import li.cil.oc.api.network.ManagedEnvironment;
+import li.cil.oc.api.network.Message;
+import li.cil.oc.api.network.Node;
+import li.cil.oc.api.network.Visibility;
+import li.cil.oc.api.prefab.ItemStackArrayValue;
+import li.cil.oc.api.internal.Database;
+import li.cil.oc.common.tileentity.DiskDrive;
+import li.cil.oc.common.tileentity.traits.ComponentInventory;
+import li.cil.oc.common.tileentity.traits.Environment;
+import li.cil.oc.util.BlockPosition;
+import li.cil.oc.util.InventorySource;
+import li.cil.oc.util.SideTracker;
+import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import scala.Option;
+import scala.Some;
+import scala.collection.Seq;
+
+public class TileIOHub extends TileEntity implements IInventory,
+li.cil.oc.api.network.Environment,WorldInventoryAnalytics,IFluidHandler,WorldTankAnalytics,
+IGridProxyable, WorldFluidContainerAnalytics, TankInventoryControl, InventoryAnalytics, MultiTank,
+ITileWithModularUI, ICustomNameObject,InventoryTransfer, FluidContainerTransfer,IActionHost, InventoryControl, TankControl, ItemInventoryControl, InventoryWorldControlMk2, NetworkControl
+{
+	public TileIOHub(){}
+	
+	
+	@Override
+	public Node node() {
+		
+		return node;
+	}
+	Component node=li.cil.oc.api.Network.newNode(this, Visibility.Network).
+		    withComponent("iohub").
+		    create();
+	 
+	boolean init;
+	public void updateEntity() {
+		
+	         super.updateEntity();
+	         
+	         if(init==false){getProxy().onReady();init=true;}
+	         
+	         if (node != null && node.network() == null) {
+	        	 li.cil.oc.api.Network.joinOrCreateNetwork(this);
+	         }
+	     }
+
+	  boolean dead;
+	  
+	     public void onChunkUnload() {dead=true;
+	         super.onChunkUnload();
+	         if (node != null) node.remove();  
+	         this.getProxy().onChunkUnload();
+	     }
+
+	     public void invalidate() {
+	         super.invalidate();
+	         if (node != null) node.remove();this.getProxy().invalidate();
+	     }
+
+@Override
+public boolean canUpdate() {
+	dead=false;
+	return true;
+}
+
+
+	@Override
+	public void onMessage(Message message) {
+		
+		
+	}
+
+	@Override
+	public void onConnect(Node node) {
+		
+		
+	}
+
+	@Override
+	public void onDisconnect(Node node) {
+		
+		
+	}
+
+	@Override
+	public IGridNode getGridNode(ForgeDirection dir) {
+		
+		return getProxy().getNode();
+	}
+
+	@Override
+	public AECableType getCableConnectionType(ForgeDirection dir) {
+		
+		return AECableType.SMART;
+	}
+
+	@Override
+	public void securityBreak() {
+		
+		
+	} 
+	
+
+	@Override
+	public AENetworkProxy getProxy() {
+		
+		 if (gridProxy == null) {
+	            gridProxy = new AENetworkProxy(
+	                this,
+	                "proxy",
+	                new ItemStack(
+	                MyMod.iohub ,
+	                    1),
+	                true);
+	            gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
+	        gridProxy.setValidSides(EnumSet.range(ForgeDirection.DOWN,ForgeDirection.EAST));
+		   
+		 }
+		
+		 
+		 
+		 
+		 // gridProxy.setOwner();
+		 
+	        return this.gridProxy;
+	}
+
+	@Override
+	public DimensionalCoord getLocation() {
+	
+		return new DimensionalCoord(this);
+	}
+    private AENetworkProxy gridProxy;
+	@Override
+	public void gridChanged() {
+		
+		
+	}
+
+	//
+
+	
+	 @Callback(doc = "function(tankSide:number, inventorySide:number, inventorySlot:number [, count:number [, sourceTank:number [, outputSide:number[, outputSlot:number]]]]):boolean, number -- Transfer some fluid from the tank to the container. Returns operation result and filled amount")
+	    public Object[] transferFluidFromTankToContainer(final Context context, final Arguments args) {
+	        return FluidContainerTransfer$class.transferFluidFromTankToContainer(this, context, args);
+	    }
+	    
+	    @Callback(doc = "function(inventorySide:number, inventorySlot:number, tankSide:number [, count:number [, outputSide:number[, outputSlot:number]]]):boolean, number -- Transfer some fluid from the container to the tank. Returns operation result and filled amount")
+	    public Object[] transferFluidFromContainerToTank(final Context context, final Arguments args) {
+	        return FluidContainerTransfer$class.transferFluidFromContainerToTank(this, context, args);
+	    }
+	    
+	    @Callback(doc = "function(sourceSide:number, sourceSlot:number, sinkSide:number, sinkSlot:number[, count:number [, sourceOutputSide:number[, sinkOutputSide:number[, sourceOutputSlot:number[, sinkOutputSlot:number]]]]]):boolean, number -- Transfer some fluid from a container to another container. Returns operation result and filled amount")
+	    public Object[] transferFluidBetweenContainers(final Context context, final Arguments args) {
+	        return FluidContainerTransfer$class.transferFluidBetweenContainers(this, context, args);
+	    }
+	    
+	    @Callback(doc = "function(sourceSide:number, sinkSide:number[, count:number[, sourceSlot:number[, sinkSlot:number]]]):number -- Transfer some items between two inventories.")
+	    public Object[] transferItem(final Context context, final Arguments args) {
+	        return InventoryTransfer$class.transferItem(this, context, args);
+	    }
+	    
+	    @Callback(doc = "function(sourceSide:number, sinkSide:number[, count:number [, sourceTank:number]]):boolean, number -- Transfer some fluid between two tanks. Returns operation result and filled amount")
+	    public Object[] transferFluid(final Context context, final Arguments args) {
+	        return InventoryTransfer$class.transferFluid(this, context, args);
+	    }
+	    
+	    @Callback(doc = "function(side:number, slot:number):number -- Get the capacity of the fluid container in the specified slot of the inventory on the specified side of the device.")
+	    public Object[] getContainerCapacityInSlot(final Context context, final Arguments args) {
+	        return WorldFluidContainerAnalytics$class.getContainerCapacityInSlot(this, context, args);
+	    }
+	    
+	    @Callback(doc = "function(side:number, slot:number):number -- Get the capacity the fluid container in the specified slot of the inventory on the specified side of the device.")
+	    public Object[] getContainerLevelInSlot(final Context context, final Arguments args) {
+	        return WorldFluidContainerAnalytics$class.getContainerLevelInSlot(this, context, args);
+	    }
+	    
+	    @Callback(doc = "function(side:number, slot:number):table -- Get a description of the fluid in the fluid container in the specified slot of the inventory on the specified side of the device.")
+	    public Object[] getFluidInContainerInSlot(final Context context, final Arguments args) {
+	        return WorldFluidContainerAnalytics$class.getFluidInContainerInSlot(this, context, args);
+	    }
+	    
+	    @Callback(doc = "function(side:number [, tank:number]):number -- Get the amount of fluid in the specified tank on the specified side.")
+	    public Object[] getTankLevel(final Context context, final Arguments args) {
+	        return WorldTankAnalytics$class.getTankLevel(this, context, args);
+	    }
+	    
+	    @Callback(doc = "function(side:number [, tank:number]):number -- Get the capacity of the specified tank on the specified side.")
+	    public Object[] getTankCapacity(final Context context, final Arguments args) {
+	        return WorldTankAnalytics$class.getTankCapacity(this, context, args);
+	    }
+	    
+	    @Callback(doc = "function(side:number [, tank:number]):table -- Get a description of the fluid in the the specified tank on the specified side.")
+	    public Object[] getFluidInTank(final Context context, final Arguments args) {
+	        return WorldTankAnalytics$class.getFluidInTank(this, context, args);
+	    }
+	    
+	    @Callback(doc = "function(side:number):number -- Get the number of tanks available on the specified side.")
+	    public Object[] getTankCount(final Context context, final Arguments args) {
+	        return WorldTankAnalytics$class.getTankCount(this, context, args);
+	    }
+
+
+
+	    @SuppressWarnings("unchecked")
+		public Tuple2<Object, String> blockContent(final ForgeDirection side) {
+	        return (Tuple2<Object, String>)WorldAware$class.blockContent(this, side);
+	    }
+
+
+		
+
+	    @SuppressWarnings("unchecked")
+public <Type extends Entity> Buffer<Type> entitiesInBounds(final AxisAlignedBB bounds, final ClassTag<Type> evidence$1) {
+    return (Buffer<Type>)WorldAware$class.entitiesInBounds(this, bounds, evidence$1);
+}
+	    @SuppressWarnings("unchecked")
+public <Type extends Entity> Buffer<Type> entitiesInBlock(final BlockPosition blockPos, final ClassTag<Type> evidence$2) {
+    return (Buffer<Type>)WorldAware$class.entitiesInBlock(this, blockPos, evidence$2);
+}
+	    @SuppressWarnings("unchecked")
+public <Type extends Entity> Buffer<Type> entitiesOnSide(final ForgeDirection side, final ClassTag<Type> evidence$3) {
+    return (Buffer<Type>)WorldAware$class.entitiesOnSide(this, side, evidence$3);
+}
+	    @SuppressWarnings("unchecked")
+public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection side, final ClassTag<Type> evidence$4) {
+    return (Option<Type>)WorldAware$class.closestEntity(this, side, evidence$4);
+}
+
+		@Override
+		public EntityPlayer fakePlayer() {
+			
+			 return WorldAware$class.fakePlayer(this);
+		}
+
+
+
+		@Override
+		public boolean mayInteract(BlockPosition arg0, ForgeDirection arg1) {
+			
+			return true;
+		}
+
+
+
+		@Override
+		public BlockPosition position() {
+			 return BlockPosition.apply(this.xCoord,this.yCoord,this.zCoord);
+		}
+
+
+
+		@Override
+		public World world() {
+			
+			return this.worldObj;
+		}
+
+
+
+		@Override
+		public ForgeDirection checkSideForAction(Arguments arg0, int arg1) {
+			return li.cil.oc.util.ExtendedArguments$.MODULE$.extendedArguments(arg0).checkSideAny(arg1);
+		}
+
+
+
+
+		
+
+	
+		
+
+
+	
+
+
+		
+	  
+	    
+		 @Callback(doc = "function(side:number):number -- Get the number of slots in the inventory on the specified side of the device.")
+		    public Object[] getInventorySize(final Context context, final Arguments args) {
+		        return WorldInventoryAnalytics$class.getInventorySize(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(side:number, slot:number):number -- Get number of items in the specified slot of the inventory on the specified side of the device.")
+		    public Object[] getSlotStackSize(final Context context, final Arguments args) {
+		        return WorldInventoryAnalytics$class.getSlotStackSize(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(side:number, slot:number):number -- Get the maximum number of items in the specified slot of the inventory on the specified side of the device.")
+		    public Object[] getSlotMaxStackSize(final Context context, final Arguments args) {
+		        return WorldInventoryAnalytics$class.getSlotMaxStackSize(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(side:number, slotA:number, slotB:number[, checkNBT:boolean=false]):boolean -- Get whether the items in the two specified slots of the inventory on the specified side of the device are of the same type.")
+		    public Object[] compareStacks(final Context context, final Arguments args) {
+		        return WorldInventoryAnalytics$class.compareStacks(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(side:number, slot:number, dbAddress:string, dbSlot:number[, checkNBT:boolean=false]):boolean -- Compare an item in the specified slot in the inventory on the specified side with one in the database with the specified address.")
+		    public Object[] compareStackToDatabase(final Context context, final Arguments args) {
+		        return WorldInventoryAnalytics$class.compareStackToDatabase(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(side:number, slotA:number, slotB:number):boolean -- Get whether the items in the two specified slots of the inventory on the specified side of the device are equivalent (have shared OreDictionary IDs).")
+		    public Object[] areStacksEquivalent(final Context context, final Arguments args) {
+		        return WorldInventoryAnalytics$class.areStacksEquivalent(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(side:number, slot:number, label:string):boolean -- Change the display name of the stack in the inventory on the specified side of the device.")
+		    public Object[] setStackDisplayName(final Context context, final Arguments args) {
+		        return WorldInventoryAnalytics$class.setStackDisplayName(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(side:number, slot:number):table -- Get a description of the stack in the inventory on the specified side of the device.")
+		    public Object[] getStackInSlot(final Context context, final Arguments args) {
+		        return WorldInventoryAnalytics$class.getStackInSlot(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(side:number):userdata -- Get a description of all stacks in the inventory on the specified side of the device.")
+		    public Object[] getAllStacks(final Context context, final Arguments args) {
+		        return WorldInventoryAnalytics$class.getAllStacks(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(side:number):string -- Get the the name of the inventory on the specified side of the device.")
+		    public Object[] getInventoryName(final Context context, final Arguments args) {
+		        return WorldInventoryAnalytics$class.getInventoryName(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(side:number, slot:number, dbAddress:string, dbSlot:number):boolean -- Store an item stack description in the specified slot of the database with the specified address.")
+		    public Object[] store(final Context context, final Arguments args) {
+		        return WorldInventoryAnalytics$class.store(this, context, args);
+		    }
+	    
+	   
+		   
+		    
+		    @Callback(doc = "function([slot:number]):number -- Get the amount of fluid in the tank item in the specified slot or the selected slot.")
+		    public Object[] getTankLevelInSlot(final Context context, final Arguments args) {
+		        return TankInventoryControl$class.getTankLevelInSlot(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function([slot:number]):number -- Get the capacity of the tank item in the specified slot of the robot or the selected slot.")
+		    public Object[] getTankCapacityInSlot(final Context context, final Arguments args) {
+		        return TankInventoryControl$class.getTankCapacityInSlot(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function([slot:number]):table -- Get a description of the fluid in the tank item in the specified slot or the selected slot.")
+		    public Object[] getFluidInTankInSlot(final Context context, final Arguments args) {
+		        return TankInventoryControl$class.getFluidInTankInSlot(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function([tank:number]):table -- Get a description of the fluid in the tank in the specified slot or the selected slot.")
+		    public Object[] getFluidInInternalTank(final Context context, final Arguments args) {
+		        return TankInventoryControl$class.getFluidInInternalTank(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function([amount:number]):boolean -- Transfers fluid from a tank in the selected inventory slot to the selected tank.")
+		    public Object[] drain(final Context context, final Arguments args) {
+		        return TankInventoryControl$class.drain(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function([amount:number]):boolean -- Transfers fluid from the selected tank to a tank in the selected inventory slot.")
+		    public Object[] fill(final Context context, final Arguments args) {
+		        return TankInventoryControl$class.fill(this, context, args);
+		    }
+		    @Callback(doc = "function([slot:number]):table -- Get a description of the stack in the specified slot or the selected slot.")
+		    public Object[] getStackInInternalSlot(final Context context, final Arguments args) {
+		        return InventoryAnalytics$class.getStackInInternalSlot(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(otherSlot:number):boolean -- Get whether the stack in the selected slot is equivalent to the item in the specified slot (have shared OreDictionary IDs).")
+		    public Object[] isEquivalentTo(final Context context, final Arguments args) {
+		        return InventoryAnalytics$class.isEquivalentTo(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(slot:number, dbAddress:string, dbSlot:number):boolean --  an item stack description in the specified slot of the database with the specified address.")
+		    public Object[] storeInternal(final Context context, final Arguments args) {
+		        return InventoryAnalytics$class.storeInternal(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(slot:number, dbAddress:string, dbSlot:number[, checkNBT:boolean=false]):boolean -- Compare an item in the specified slot with one in the database with the specified address.")
+		    public Object[] compareToDatabase(final Context context, final Arguments args) {
+		        return InventoryAnalytics$class.compareToDatabase(this, context, args);
+		    }
+
+
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public IndexedSeq<Object> insertionSlots() {
+				  return InventoryAware$class.insertionSlots(this);
+			}
+
+
+
+			@Override
+			public IInventory inventory() {
+				  return this;
+			}
+
+
+
+			@Override
+			public int optSlot(Arguments args, int n) {
+			    return InventoryAware$class.optSlot(this, args, n);
+			}
+
+
+
+			@Override
+			public int selectedSlot() {
+				
+				return slotselected;
+			}
+
+				int slotselected=1;
+
+			@Override
+			public void selectedSlot_$eq(int arg0) {
+				
+				if(arg0<0+1||arg0>=inv.length+1){throw new RuntimeException("invalid slot");}
+				slotselected=arg0;
+				
+			}
+
+
+
+			@Override
+			public Option<ItemStack> stackInSlot(int arg0) {
+				if(arg0<0||arg0>=this.inv.length)throw new RuntimeException("invalid slot");
+				return new Some<>(this.getStackInSlot(arg0));
+			}
+
+
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public Option<FluidStack> fluidInTank(int arg0) {
+			    return TankAware$class.fluidInTank(this,arg0 );
+			}
+
+
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public Option<IFluidTank> getTank(int arg0) {
+				 return TankAware$class.getTank(this, arg0);
+			}
+
+
+
+			@Override
+			public boolean haveSameFluidType(FluidStack arg0, FluidStack arg1) {
+				return TankAware$class.haveSameFluidType(this, arg0, arg1);
+			}
+
+
+
+			@Override
+			public int optTank(Arguments arg0, int arg1) {
+				   return TankAware$class.optTank(this, arg0, arg1);
+			}
+
+int tankselected=1;
+
+			@Override
+			public int selectedTank() {
+			
+				return tankselected;
+			}
+
+
+
+			@Override
+			public void selectedTank_$eq(int arg0) {
+				if(arg0<0+1||arg0>=ft.length+1){throw new RuntimeException("invalid slot");}
+				tankselected=arg0;
+				
+				
+			}
+
+
+
+			@Override
+			public MultiTank tank() {
+			
+				return this;
+			}
+
+///////////////////////////////////////
+ItemStack[] inv=new ItemStack[32];
+FluidTank[] ft=new FluidTank[8];
+{for(int i=0;i<ft.length;i++){
+	ft[i]=new FluidTank(256_000);
+	}}
+			@Override
+			public int getSizeInventory() {
+				
+				return inv.length;
+			}
+
+
+
+			@Override
+			public ItemStack getStackInSlot(int slotIn) {
+				
+				return inv[slotIn];
+			}
+
+
+
+			@Override
+			public ItemStack decrStackSize(int index, int count) {
+				
+				return Optional.ofNullable(inv[index]).map(s->s.splitStack(count)).orElse(null);
+			}
+
+
+
+			@Override
+			public ItemStack getStackInSlotOnClosing(int index) {
+				
+				return null;
+			}
+
+
+
+			@Override
+			public void setInventorySlotContents(int index, ItemStack stack) {
+				
+				inv[index]=stack;
+			}
+
+
+
+			@Override
+			public String getInventoryName() {
+				
+				return customName==null?"IOHub":customName;
+			}
+
+
+
+			@Override
+			public boolean hasCustomInventoryName() {
+				
+				return customName!=null;
+			}
+
+
+
+			@Override
+			public int getInventoryStackLimit() {
+			
+				return 64;
+			}
+
+
+
+			@Override
+			public boolean isUseableByPlayer(EntityPlayer player) {
+				
+				return true;
+			}
+
+
+
+			@Override
+			public void openInventory() {
+				
+				
+			}
+
+
+
+			@Override
+			public void closeInventory() {
+				
+				
+			}
+
+
+
+			@Override
+			public boolean isItemValidForSlot(int index, ItemStack stack) {
+				
+				return true;
+			}
+
+
+
+			@Override
+			public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
+				for(FluidTank f:ft){
+					if(f.getFluid().getFluid()==resource.getFluid()){
+						int suc=f.fill(resource, doFill);
+						if(suc>0)return suc;
+					}
+				}
+				
+				
+				for(FluidTank f:ft){
+					int suc=f.fill(resource, doFill);
+					if(suc>0)return suc;
+				}
+				return 0;
+			}
+
+
+
+			@Override
+			public FluidStack drain(ForgeDirection from, FluidStack resource, boolean doDrain) {
+				int suc=0;
+				int todo=resource.amount;
+				for(FluidTank f:ft){
+					if(f.getFluid().getFluid()==resource.getFluid()){
+						int tmp;
+						suc+=(tmp=f.drain(todo, doDrain).amount);
+						todo-=tmp;
+					}
+				}
+				return new FluidStack(resource.getFluid(), suc);
+			}
+
+
+
+			@Override
+			public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain) {
+				for(FluidTank f:ft){
+					if(f.getFluidAmount()>0)return f.drain(maxDrain, doDrain);
+				}
+				return null;
+			}
+
+
+
+			@Override
+			public boolean canFill(ForgeDirection from, Fluid fluid) {
+				
+				return fill(from,new FluidStack(fluid,1),false)>0;
+			}
+
+
+
+			@Override
+			public boolean canDrain(ForgeDirection from, Fluid fluid) {
+		
+				return drain(from,new FluidStack(fluid,1),false).amount>0;
+			}
+
+
+
+			@Override
+			public FluidTankInfo[] getTankInfo(ForgeDirection from) {
+			return Arrays.stream(ft).map(s->new FluidTankInfo(s)).toArray(FluidTankInfo[]::new);
+				
+			}
+
+
+
+			@Override
+			public int tankCount() {
+				
+				return ft.length;
+			}
+
+@Override
+public void readFromNBT(NBTTagCompound compound) {
+	
+	IntStream.range(0,inv.length).forEach(s->{
+		Optional.ofNullable(compound.getTag("i"+s)).ifPresent(ss->inv[s]=ItemStack.loadItemStackFromNBT((NBTTagCompound) ss));
+	});;
+	for(int i=0;i<ft.length;i++){
+		ft[i].readFromNBT((NBTTagCompound) compound.getTag("f"+i));
+	}
+	
+	slotselected=compound.getInteger("slotselected");
+	tankselected=compound.getInteger("tankselected");
+	getProxy().readFromNBT(compound);
+	
+	super.readFromNBT(compound);
+}
+@Override
+public void writeToNBT(NBTTagCompound compound) {
+	
+	for(int i=0;i<inv.length;i++){final int ii=i;
+		Optional.ofNullable(inv[i]).ifPresent(s->
+		compound.setTag("i"+ii, s.writeToNBT(new NBTTagCompound())));
+	}
+	for(int i=0;i<ft.length;i++){
+		compound.setTag("f"+i,	ft[i].writeToNBT(new NBTTagCompound()));
+	}
+	compound.setInteger("slotselected", slotselected);
+	compound.setInteger("tankselected", tankselected);
+	
+	getProxy().writeToNBT(compound);
+	
+	
+	super.writeToNBT(compound);
+}
+
+			@Override
+			public IFluidTank getFluidTank(int index) {
+			
+				return ft[index];
+			}
+
+
+
+			@Override
+			public ModularWindow createWindow(UIBuildContext buildContext) {
+			
+				return new UIFactory(buildContext).createWindow();
+			}
+			 protected class UIFactory {
+
+			        private final UIBuildContext uiBuildContext;
+
+			        public UIFactory(UIBuildContext buildContext) {
+			            this.uiBuildContext = buildContext;
+			        }
+
+			        public ModularWindow createWindow() {
+			            ModularWindow.Builder builder = ModularWindow.builder(getGUIWidth(), getGUIHeight());
+			            builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
+			            // builder.setGuiTint(getUIBuildContext().getGuiColorization());
+			            if (doesBindPlayerInventory()) {
+			                builder.bindPlayerInventory(getUIBuildContext().getPlayer());
+			            }
+			            // builder.bindPlayerInventory(builder.getPlayer(), 7, getGUITextureSet().getItemSlot());
+
+			            addTitleToUI(builder);
+			            addUIWidgets(builder);
+			            /*
+			             * if (getUIBuildContext().isAnotherWindow()) {
+			             * builder.widget(
+			             * ButtonWidget.closeWindowButton(true)
+			             * .setPos(getGUIWidth() - 15, 3));
+			             * }
+			             */
+
+			            /*
+			             * final CoverInfo coverInfo = uiBuildContext.getTile()
+			             * .getCoverInfoAtSide(uiBuildContext.getCoverSide());
+			             * final GT_CoverBehaviorBase<?> behavior = coverInfo.getCoverBehavior();
+			             * if (coverInfo.getMinimumTickRate() > 0 && behavior.allowsTickRateAddition()) {
+			             * builder.widget(
+			             * new GT_CoverTickRateButton(coverInfo, builder).setPos(getGUIWidth() - 24, getGUIHeight() - 24));
+			             * }
+			             */
+			            return builder.build();
+			        }
+
+			        /**
+			         * Override this to add widgets for your UI.
+			         */
+
+			        // IItemHandlerModifiable fakeInv=new ItemHandlerModifiable();
+
+			        protected void addUIWidgets(ModularWindow.Builder builder) {
+			        	 final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(
+			        	            inv,
+			        	            0,
+			        	            32);
+			        	 Scrollable sc = new Scrollable().setVerticalScroll();
+			        	 builder.widget(new FakeSyncWidget.IntegerSyncer(()->slotselected, s->slotselected=s));
+			        	 builder.widget(new FakeSyncWidget.IntegerSyncer(()->tankselected, s->tankselected=s));   
+			        	       final IDrawable[]  background = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot() };
+			        	       final IDrawable[]  special = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot(), GT_UITextures.OVERLAY_SLOT_ARROW_ME };
+			        	        sc.widget(
+			        	            SlotGroup.ofItemHandler(inventoryHandler, 4)
+			        	               
+			        	                .startFromSlot(0)
+			        	                .endAtSlot(31)
+			        	                .background(background)
+			        	                .widgetCreator((h) -> (SlotWidget)new SlotWidget(h){
+			        	                	public IDrawable[] getBackground(){
+			        	                	//System.out.println(h.getSlotIndex()+" "+(slotselected-1));
+			        	                	if(h.getSlotIndex()==slotselected-1){
+					        	            return special;
+					        	                	};
+					        	            return background;
+			        	                		};
+					        	           }     
+			        	                	)
+			        	                
+			        	                		
+			        	                	
+			        	                
+			        	                .build()
+			        	                
+
+			        	        );
+			        	        builder.widget(sc.setPos(3+4, 3+8).setSize(18*4, 18*4));
+			        	        sc = new Scrollable().setVerticalScroll();
+			        	        
+			        	        final IDrawable[]    background0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot() };
+			        	        final IDrawable[]  special0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot(), GT_UITextures.OVERLAY_SLOT_ARROW_ME  };
+				        	       
+			        	        sc.widget(
+				        	            SlotGroup.ofFluidTanks(Arrays.asList(ft), 1)
+				        	               
+				        	                .startFromSlot(0)
+				        	                .endAtSlot(7)
+				        	                .background(background0)
+				        	                .widgetCreator((h,s) -> (FluidSlotWidget)new FluidSlotWidget(s){
+				        	                	public IDrawable[] getBackground(){
+				        	                	//System.out.println(h.getSlotIndex()+" "+(slotselected-1));
+				        	                	if(h==tankselected-1){
+						        	            return special0;
+						        	                	};
+						        	            return background0;
+				        	                		};
+						        	           }     
+				        	                	)
+				        	                
+				        	                .build()
+				        	              
+
+				        	        );
+			        	        
+			        	        builder.widget(sc  .setPos(3+18*4+4, 3+8).setSize(18, 18*4));
+			        	        builder.widget(
+			        	        		
+			        	        		TextWidget.dynamicString(()->getInventoryName())
+			        	        		.setSynced(true)
+			        	                .setMaxWidth(999)
+			        	                .setPos(3+4,3)
+			        	        		
+			        	        		);
+			        	        
+
+			        }
+
+			        public UIBuildContext getUIBuildContext() {
+			            return uiBuildContext;
+			        }
+
+			        /*
+			         * public boolean isCoverValid() {
+			         * return !getUIBuildContext().getTile()
+			         * .isDead()
+			         * && getUIBuildContext().getTile()
+			         * .getCoverBehaviorAtSideNew(getUIBuildContext().getCoverSide()) != GregTech_API.sNoBehavior;
+			         * }
+			         */
+
+			        protected void addTitleToUI(ModularWindow.Builder builder) {
+			            /*
+			             * ItemStack coverItem = GT_Utility.intToStack(getUIBuildContext().getCoverID());
+			             * if (coverItem != null) {
+			             * builder.widget(
+			             * new ItemDrawable(coverItem).asWidget()
+			             * .setPos(5, 5)
+			             * .setSize(16, 16))
+			             * .widget(
+			             * new TextWidget(coverItem.getDisplayName()).setDefaultColor(COLOR_TITLE.get())
+			             * .setPos(25, 9));
+			             * }
+			             */
+			        }
+
+			        protected int getGUIWidth() {
+			            return 176;
+			        }
+
+			        protected int getGUIHeight() {
+			            return 107+18*3+18;
+			        }
+
+			        protected boolean doesBindPlayerInventory() {
+			            return true;
+			        }
+
+			        protected int getTextColorOrDefault(String textType, int defaultColor) {
+			            return defaultColor;
+			        }
+
+			        protected final Supplier<Integer> COLOR_TITLE = () -> getTextColorOrDefault("title", 0x222222);
+			        protected final Supplier<Integer> COLOR_TEXT_GRAY = () -> getTextColorOrDefault("text_gray", 0x555555);
+			        protected final Supplier<Integer> COLOR_TEXT_WARN = () -> getTextColorOrDefault("text_warn", 0xff0000);
+			    }
+			@Override
+			public String getCustomName() {
+				
+				return customName;
+			}
+String customName;
+
+
+			@Override
+			public boolean hasCustomName() {
+			
+				return customName!=null;
+			}
+
+
+
+			@Override
+			public void setCustomName(String name) {
+				customName=name;
+				
+			}
+
+
+
+			@Override
+			public Option<String> onTransferContents() {
+			
+			 return Some.empty()
+				 ;
+			}
+
+
+
+			@Override
+			public IGridNode getActionableNode() {
+				
+				return getProxy().getNode();
+			}
+			
+			///robot
+			  
+		
+		    
+		    @Callback(doc = "function():number -- The number of tanks installed in the device.")
+		    public Object[] tankCount(final Context context, final Arguments args) {
+		        return TankControl$class.tankCount(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function([index:number]):number -- Select a tank and/or get the number of the currently selected tank.")
+		    public Object[] selectTank(final Context context, final Arguments args) {
+		    	int i=args.checkInteger(0);
+		    	this.selectedTank_$eq(i);
+		    	return new Object[]{i};
+		    }
+		    
+		    @Callback(direct = true, doc = "function([index:number]):number -- Get the fluid amount in the specified or selected tank.")
+		    public Object[] tankLevel(final Context context, final Arguments args) {
+		        return TankControl$class.tankLevel(this, context, args);
+		    }
+		    
+		    @Callback(direct = true, doc = "function([index:number]):number -- Get the remaining fluid capacity in the specified or selected tank.")
+		    public Object[] tankSpace(final Context context, final Arguments args) {
+		        return TankControl$class.tankSpace(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(index:number):boolean -- Compares the fluids in the selected and the specified tank. Returns true if equal.")
+		    public Object[] compareFluidTo(final Context context, final Arguments args) {
+		        return TankControl$class.compareFluidTo(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(index:number[, count:number=1000]):boolean -- Move the specified amount of fluid from the selected tank into the specified tank.")
+		    public Object[] transferFluidTo(final Context context, final Arguments args) {
+		        return TankControl$class.transferFluidTo(this, context, args);
+		    }
+		   
+		    @Callback(doc = "function([slot:number]):number -- Get the currently selected slot; set the selected slot if specified.")
+		    public Object[] select(final Context context, final Arguments args) {
+		    	int i=args.checkInteger(0);
+		    	this.selectedSlot_$eq(i);
+		    	return new Object[]{i};
+		    }
+		    
+		    @Callback(direct = true, doc = "function([slot:number]):number -- Get the number of items in the specified slot, otherwise in the selected slot.")
+		    public Object[] count(final Context context, final Arguments args) {
+		        return InventoryControl$class.count(this, context, args);
+		    }
+		    
+		    @Callback(direct = true, doc = "function([slot:number]):number -- Get the remaining space in the specified slot, otherwise in the selected slot.")
+		    public Object[] space(final Context context, final Arguments args) {
+		        return InventoryControl$class.space(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(otherSlot:number[, checkNBT:boolean=false]):boolean -- Compare the contents of the selected slot to the contents of the specified slot.")
+		    public Object[] compareTo(final Context context, final Arguments args) {
+		        return InventoryControl$class.compareTo(this, context, args);
+		    }
+		    
+		    @Callback(doc = "function(toSlot:number[, amount:number]):boolean -- Move up to the specified amount of items from the selected slot into the specified slot.")
+		    public Object[] transferTo(final Context context, final Arguments args) {
+		        return InventoryControl$class.transferTo(this, context, args);
+		    }
+
+
+
+		    @Callback(doc = "function():number -- The size of this device's internal inventory.")
+		    public Object[] inventorySize(final Context context, final Arguments args) {
+		        return InventoryControl$class.inventorySize(this, context, args);
+		    }
+			 @Callback(doc = "function(slot:number):number -- The size of an item inventory in the specified slot.")
+			    public Object[] getItemInventorySize(final Context context, final Arguments args) {
+			        return ItemInventoryControl$class.getItemInventorySize(this, context, args);
+			    }
+			    
+			    @Callback(doc = "function(inventorySlot:number, slot:number[, count:number=64]):number -- Drops an item into the specified slot in the item inventory.")
+			    public Object[] dropIntoItemInventory(final Context context, final Arguments args) {
+			        return ItemInventoryControl$class.dropIntoItemInventory(this, context, args);
+			    }
+			    
+			    @Callback(doc = "function(inventorySlot:number, slot:number[, count:number=64]):number -- Sucks an item out of the specified slot in the item inventory.")
+			    public Object[] suckFromItemInventory(final Context context, final Arguments args) {
+			        return ItemInventoryControl$class.suckFromItemInventory(this, context, args);
+			    }
+			    
+			   
+			    
+			    @Callback(doc = "function(facing:number, slot:number[, count:number[, fromSide:number]]):boolean -- Drops the selected item stack into the specified slot of an inventory.")
+			    public Object[] dropIntoSlot(final Context context, final Arguments args) {
+			        return InventoryWorldControlMk2$class.dropIntoSlot(this, context, args);
+			    }
+			    
+			    @Callback(doc = "function(facing:number, slot:number[, count:number[, fromSide:number]]):boolean -- Sucks items from the specified slot of an inventory.")
+			    public Object[] suckFromSlot(final Context context, final Arguments args) {
+			        return InventoryWorldControlMk2$class.suckFromSlot(this, context, args);
+			    }
+			    
+			    
+  
+			    //AE COMPAT
+			    @Callback(doc = "function():table -- Get a list of tables representing the available CPUs in the network.")
+			    public Object[] getCpus(final Context context, final Arguments args) {
+			        return NetworkControl$class.getCpus(this, context, args);
+			    }
+			    
+			    @Callback(doc = "function([filter:table]):table -- Get a list of known item recipes. These can be used to issue crafting requests.")
+			    public Object[] getCraftables(final Context context, final Arguments args) {
+			        return NetworkControl$class.getCraftables(this, context, args);
+			    }
+			    
+			    @Callback(doc = "function([filter:table]):table -- Get a list of the stored items in the network.")
+			    public Object[] getItemsInNetwork(final Context context, final Arguments args) {
+			        return NetworkControl$class.getItemsInNetwork(this, context, args);
+			    }
+			    
+			    @Callback(doc = "function():userdata -- Get an iterator object for the list of the items in the network.")
+			    public Object[] allItems(final Context context, final Arguments args) {
+			        return NetworkControl$class.allItems(this, context, args);
+			    }
+			    
+			    @Callback(doc = "function(filter:table, dbAddress:string[, startSlot:number[, count:number]]): Boolean -- Store items in the network matching the specified filter in the database with the specified address.")
+			    public Object[] storeAE(final Context context, final Arguments args) {
+			        return NetworkControl$class.store(this, context, args);
+			    }
+			    
+			    @Callback(doc = "function():table -- Get a list of the stored fluids in the network.")
+			    public Object[] getFluidsInNetwork(final Context context, final Arguments args) {
+			        return NetworkControl$class.getFluidsInNetwork(this, context, args);
+			    }
+			    
+			    @Callback(doc = "function():number -- Get the average power injection into the network.")
+			    public Object[] getAvgPowerInjection(final Context context, final Arguments args) {
+			        return NetworkControl$class.getAvgPowerInjection(this, context, args);
+			    }
+			    
+			    @Callback(doc = "function():number -- Get the average power usage of the network.")
+			    public Object[] getAvgPowerUsage(final Context context, final Arguments args) {
+			        return NetworkControl$class.getAvgPowerUsage(this, context, args);
+			    }
+			    
+			    @Callback(doc = "function():number -- Get the idle power usage of the network.")
+			    public Object[] getIdlePowerUsage(final Context context, final Arguments args) {
+			        return NetworkControl$class.getIdlePowerUsage(this, context, args);
+			    }
+			    
+			    @Callback(doc = "function():number -- Get the maximum stored power in the network.")
+			    public Object[] getMaxStoredPower(final Context context, final Arguments args) {
+			        return NetworkControl$class.getMaxStoredPower(this, context, args);
+			    }
+			    
+			    @Callback(doc = "function():number -- Get the stored power in the network. ")
+			    public Object[] getStoredPower(final Context context, final Arguments args) {
+			        return NetworkControl$class.getStoredPower(this, context, args);
+			    }
+
+
+
+				@Override
+				public TileEntity tile() {
+				
+					return this;
+				}
+			    public IMEMonitor<IAEItemStack> getItemInventory() {
+			        IGrid grid=null;
+					try {
+						grid = this.getProxy().getGrid();
+					} catch (GridAccessException e) {
+					throw new RuntimeException("Access Denied");
+					}
+			        if (grid == null) {
+			            return null;
+			        }
+			        final IStorageGrid storage = (IStorageGrid)grid.getCache(IStorageGrid.class);
+			        if (storage == null) {
+			            return null;
+			        }
+			        return (IMEMonitor<IAEItemStack>)storage.getItemInventory();
+			    }
+			    
+				@Callback(doc = "function([number:amount]):number -- Transfer selected items to your ae system.")
+			    public Object[] sendItems(final Context context, final Arguments args) {
+			    
+			        final IInventory invRobot = this;
+			        if (invRobot.getSizeInventory() <= 0) {
+			            return new Object[] { 0 };
+			        }
+			        final ItemStack stack = invRobot.getStackInSlot(selectedSlot());
+			        final IMEMonitor<IAEItemStack> inv = this.getItemInventory();
+			        if (stack == null || inv == null) {
+			            return new Object[] {0 };
+			        }
+			        final int amount = Math.min(args.optInteger(0, 64), stack.stackSize);
+			        final ItemStack stack2 = stack.copy();
+			        stack2.stackSize = amount;
+			        final IAEItemStack notInjected = (IAEItemStack) inv.injectItems(AEApi.instance().storage().createItemStack(stack2), Actionable.MODULATE, new MachineSource((IActionHost) this.tile()));
+			        Object[] array;
+			        if (notInjected == null) {
+			            stack.stackSize -= amount;
+			            if (stack.stackSize <= 0) {
+			                invRobot.setInventorySlotContents(selectedSlot(), (ItemStack)null);
+			            }
+			            else {
+			                invRobot.setInventorySlotContents(selectedSlot(), stack);
+			            }
+			            array = new Object[] { amount };
+			        }
+			        else {
+			            stack.stackSize = stack.stackSize - amount + (int)notInjected.getStackSize();
+			            if (stack.stackSize <= 0) {
+			                invRobot.setInventorySlotContents(selectedSlot(), (ItemStack)null);
+			            }
+			            else {
+			                invRobot.setInventorySlotContents(selectedSlot(), stack);
+			            }
+			            array = new Object[] { stack2.stackSize - notInjected.getStackSize() };
+			        }
+			        return array;
+			    }
+			    
+			    @Callback(doc = "function(database:address, entry:number[, number:amount]):number -- Get items from your ae system.")
+			    public Object[] requestItems(final Context context, final Arguments args) {
+			        final String address = args.checkString(0);
+			        final int entry = args.checkInteger(1);
+			        final int amount = args.optInteger(2, 64);
+			        final int selected = selectedSlot();
+			        final IInventory invRobot = this;
+			        if (invRobot.getSizeInventory() <= 0) {
+			            return new Object[] {0 };
+			        }
+			        final IMEMonitor<IAEItemStack> inv = this.getItemInventory();
+			        if (inv == null) {
+			            return new Object[] { 0};
+			        }
+			        final Node n = this.node().network().node(address);
+			        if (n == null) {
+			            throw new IllegalArgumentException("no such component");
+			        }
+			        if (!(n instanceof Component)) {
+			            throw new IllegalArgumentException("no such component");
+			        }
+			        final li.cil.oc.api.network.Environment env = n.host();
+			        if (!(env instanceof Database)) {
+			            throw new IllegalArgumentException("not a database");
+			        }
+			        final Database database = (Database)env;
+			        final ItemStack sel = invRobot.getStackInSlot(selected);
+			        final int inSlot = (sel == null) ? 0 : sel.stackSize;
+			        final int maxSize = (sel == null) ? 64 : sel.getMaxStackSize();
+			        final ItemStack stack = database.getStackInSlot(entry - 1);
+			        if (stack == null) {
+			            return new Object[] {0 };
+			        }
+			        stack.stackSize = Math.min(amount, maxSize - inSlot);
+			        final ItemStack stack2 = stack.copy();
+			        stack2.stackSize = 1;
+			        ItemStack itemStack;
+			        if (sel == null) {
+			            itemStack = null;
+			        }
+			        else {
+			            final ItemStack sel2 = sel.copy();
+			            sel2.stackSize = 1;
+			            itemStack = sel2;
+			        }
+			        final ItemStack sel3 = itemStack;
+			        if (sel != null && !ItemStack.areItemStacksEqual(sel3, stack2)) {
+			            return new Object[] { 0};
+			        }
+			        final IAEItemStack extracted = (IAEItemStack)inv.extractItems(AEApi.instance().storage().createItemStack(stack), Actionable.MODULATE, (BaseActionSource)new MachineSource((IActionHost)this.tile()));
+			        if (extracted == null) {
+			            return new Object[] { 0 };
+			        }
+			        final int ext = (int)extracted.getStackSize();
+			        stack.stackSize = inSlot + ext;
+			        invRobot.setInventorySlotContents(selected, stack);
+			        return new Object[] { ext };
+			    }
+			    public IMEMonitor<IAEFluidStack> getFluidInventory() {
+			        IGrid grid = null;
+			        try {
+						grid = this.getProxy().getGrid();
+					} catch (GridAccessException e) {
+					throw new RuntimeException("Access Denied");
+					}
+			        if (grid == null) {
+			            return null;
+			        }
+			        final IStorageGrid storage = (IStorageGrid)grid.getCache(IStorageGrid.class);
+			        if (storage == null) {
+			            return null;
+			        }
+			        return (IMEMonitor<IAEFluidStack>)storage.getFluidInventory();
+			    }
+			    @Callback(doc = "function([number:amount]):number -- Transfer selected fluid to your ae system.")
+			    public Object[] sendFluids(final Context context, final Arguments args) {
+			        final int selected =selectedTank();
+			        final MultiTank tanks = tank();
+			        if (tanks.tankCount() <= 0) {
+			            return new Object[] { 0 };
+			        }
+			        final IFluidTank tank = tanks.getFluidTank(selected);
+			        final IMEMonitor<IAEFluidStack> inv = this.getFluidInventory();
+			        if (tank == null || inv == null || tank.getFluid() == null) {
+			            return new Object[] {0 };
+			        }
+			        final int amount = Math.min(args.optInteger(0, tank.getCapacity()), tank.getFluidAmount());
+			        final FluidStack fluid = tank.getFluid();
+			        final FluidStack fluid2 = fluid.copy();
+			        fluid2.amount = amount;
+			        final IAEFluidStack notInjected = (IAEFluidStack)inv.injectItems(AEApi.instance().storage().createFluidStack(fluid2), Actionable.MODULATE, (BaseActionSource)new MachineSource((IActionHost)this.tile()));
+			        Object[] array;
+			        if (notInjected == null) {
+			            tank.drain(amount, true);
+			            array = new Object[] {amount };
+			        }
+			        else {
+			            tank.drain(amount - (int)notInjected.getStackSize(), true);
+			            array = new Object[] { amount - notInjected.getStackSize() };
+			        }
+			        return array;
+			    }
+			    
+			  
+
+
+				@Callback(doc = "function(database:address, entry:number[, number:amount]):number -- Get fluid from your ae system.")
+			    public Object[] requestFluids(final Context context, final Arguments args) {
+			        final String address = args.checkString(0);
+			        final int entry = args.checkInteger(1);
+			        final int amount = args.optInteger(2, 1000);
+			        final MultiTank tanks = tank();
+			        final int selected = selectedTank();
+			        if (tanks.tankCount() <= 0) {
+			            return new Object[] { 0 };
+			        }
+			        final IFluidTank tank = tanks.getFluidTank(selected);
+			        final IMEMonitor<IAEFluidStack> inv = this.getFluidInventory();
+			        if (tank == null || inv == null) {
+			            return new Object[] { 0};
+			        }
+			        final Node n = this.node().network().node(address);
+			        if (n == null) {
+			            throw new IllegalArgumentException("no such component");
+			        }
+			        if (!(n instanceof Component)) {
+			            throw new IllegalArgumentException("no such component");
+			        }
+			        final li.cil.oc.api.network.Environment env = n.host();
+			        if (!(env instanceof Database)) {
+			            throw new IllegalArgumentException("not a database");
+			        }
+			        final Database database = (Database)env;
+			        final FluidStack fluid = FluidContainerRegistry.getFluidForFilledItem(database.getStackInSlot(entry - 1));
+			        fluid.amount = amount;
+			        final FluidStack fluid2 = fluid.copy();
+			        fluid2.amount = tank.fill(fluid, false);
+			        if (fluid2.amount == 0) {
+			            return new Object[] { 0};
+			        }
+			        final IAEFluidStack extracted = (IAEFluidStack)inv.extractItems(AEApi.instance().storage().createFluidStack(fluid2), Actionable.MODULATE, (BaseActionSource)new MachineSource((IActionHost)this.tile()));
+			        if (extracted == null) {
+			            return new Object[] { 0 };
+			        }
+			        return new Object[] {tank.fill(extracted.getFluidStack(), true)};
+			    }
+
+
+
+			
+				
+			
+
+		
+
+			   
+
+			    @Override
+			    public void validate() {
+			        super.validate();
+			        this.getProxy().validate();
+			    }
+
+				
+}

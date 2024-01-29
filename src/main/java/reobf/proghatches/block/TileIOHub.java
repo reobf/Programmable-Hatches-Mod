@@ -2,6 +2,10 @@ package reobf.proghatches.block;
 import li.cil.oc.integration.appeng.NetworkControl;
 import li.cil.oc.integration.appeng.NetworkControl$class;
 import  li.cil.oc.server.component.traits.*;
+import li.cil.oc.server.machine.ArchitectureAPI;
+import li.cil.oc.server.machine.Machine;
+import li.cil.oc.server.machine.luac.NativeLuaAPI;
+import li.cil.oc.server.machine.luac.NativeLuaArchitecture;
 import li.cil.oc.util.DatabaseAccess$;
 import li.cil.oc.util.ExtendedArguments.ExtendedArguments;
 import net.minecraft.item.ItemStack;
@@ -28,6 +32,7 @@ import scala.collection.immutable.IndexedSeq;
 import scala.collection.mutable.Buffer;
 import scala.reflect.ClassTag;
 import scala.runtime.BoxesRunTime;
+
 import scala.Unit$;
 
 import scala.Predef$;
@@ -53,14 +58,38 @@ import li.cil.oc.api.machine.Context;
 
 import static gregtech.api.enums.GT_Values.NW;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Spliterators;
+import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.ClassNode;
+
 
 import li.cil.oc.Settings$;
 import li.cil.oc.api.machine.Arguments;
@@ -156,6 +185,8 @@ import li.cil.oc.common.tileentity.traits.Environment;
 import li.cil.oc.util.BlockPosition;
 import li.cil.oc.util.InventorySource;
 import li.cil.oc.util.SideTracker;
+import li.cil.repack.com.naef.jnlua.DefaultConverter;
+import li.cil.repack.com.naef.jnlua.LuaState;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -168,12 +199,19 @@ import scala.Option;
 import scala.Some;
 import scala.collection.Seq;
 
-public class TileIOHub extends TileEntity implements IInventory,
-li.cil.oc.api.network.Environment,WorldInventoryAnalytics,IFluidHandler,WorldTankAnalytics,
-IGridProxyable, WorldFluidContainerAnalytics, TankInventoryControl, InventoryAnalytics, MultiTank,
-ITileWithModularUI, ICustomNameObject,InventoryTransfer, FluidContainerTransfer,IActionHost, InventoryControl, TankControl, ItemInventoryControl, InventoryWorldControlMk2, NetworkControl
+public class TileIOHub extends TileEntity implements 
+li.cil.oc.api.network.Environment,
+/*WorldInventoryAnalytics,WorldTankAnalytics,
+ WorldFluidContainerAnalytics, TankInventoryControl, InventoryAnalytics, MultiTank,
+InventoryTransfer, FluidContainerTransfer, InventoryControl, TankControl, ItemInventoryControl, InventoryWorldControlMk2, NetworkControl
+,*/
+IInventory,IFluidHandler,
+IGridProxyable,ITileWithModularUI, ICustomNameObject,IActionHost
 {
-	public TileIOHub(){}
+	public TileIOHub(){
+		
+		
+	}
 	
 	
 	@Override
@@ -181,10 +219,24 @@ ITileWithModularUI, ICustomNameObject,InventoryTransfer, FluidContainerTransfer,
 		
 		return node;
 	}
-	Component node=li.cil.oc.api.Network.newNode(this, Visibility.Network).
-		    withComponent("iohub").
-		    create();
-	 
+
+	@Override
+	public void onMessage(Message message) {
+		
+		//subapi.forEach((__,s)->s.onMessage(message));
+	}
+
+	@Override
+	public void onConnect(Node node) {
+	
+		
+	}
+
+	@Override
+	public void onDisconnect(Node node) {
+	
+		
+	}
 	boolean init;
 	public void updateEntity() {
 		
@@ -194,7 +246,12 @@ ITileWithModularUI, ICustomNameObject,InventoryTransfer, FluidContainerTransfer,
 	         
 	         if (node != null && node.network() == null) {
 	        	 li.cil.oc.api.Network.joinOrCreateNetwork(this);
-	         }
+	        } 
+	         if (node != null && node.network() != null) {
+	        	subapi.values().stream().filter(s->s.node().network()==null).forEach(s->node.connect(s.node()));
+	        }
+	        
+	         
 	     }
 
 	  boolean dead;
@@ -217,23 +274,7 @@ public boolean canUpdate() {
 }
 
 
-	@Override
-	public void onMessage(Message message) {
-		
-		
-	}
-
-	@Override
-	public void onConnect(Node node) {
-		
-		
-	}
-
-	@Override
-	public void onDisconnect(Node node) {
-		
-		
-	}
+	
 
 	@Override
 	public IGridNode getGridNode(ForgeDirection dir) {
@@ -286,13 +327,132 @@ public boolean canUpdate() {
     private AENetworkProxy gridProxy;
 	@Override
 	public void gridChanged() {
+					
+		
+	}
+	
+	
+	@Callback(doc = "function():string -- Returns the custom name of this IO Hub, or 'IOHub' if absent. Use quartz cutter to (re-)name.")
+    public Object[] getName(final Context context, final Arguments args) {
+        return new Object[]{this.getInventoryName()};
+    }
+	@Callback(doc = "function():address -- Returns the address of API component provided by IO Hub(all API).")
+    public Object[] getAllAPI(final Context context, final Arguments args) {
+        return new Object[]{subapi.get("all").node().address()};
+    }
+	Map<String,li.cil.oc.api.network.Environment> subapi=new HashMap<>();
+	static private HashMap<String,Function<String,Object>> cache=new HashMap<>();
+	Component node;{
+		node=li.cil.oc.api.Network.newNode(this, Visibility.Network).
+		    withComponent("iohub").
+		    create();
+		
+		subapi.put("all",new OCApi("iohub_all"));
+		
+		subapi.put("item",(li.cil.oc.api.network.Environment) 
+		getFilteredClass("item").apply("iohub_item"));
+		
+		subapi.put("fluid",(li.cil.oc.api.network.Environment) 
+		getFilteredClass("fluid").apply("iohub_fluid"));
+	
+		subapi.put("ae",(li.cil.oc.api.network.Environment) 
+		getFilteredClass("ae").apply("iohub_ae"));
+	}
+	private Function<String, Object> getFilteredClass(String filter){
+		if(cache.containsKey(filter)){return cache.get(filter);}
+		Class<?> ev= filterAPI(filter);
+	
+		 cache.put(filter,arg->
+		 {
+		 try {
+			return ev.getConstructor(TileIOHub.class,String.class).newInstance(TileIOHub.this,arg);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		 });
+		 
+		return	getFilteredClass(filter);
 		
 		
 	}
-
-	//
-
 	
+	@Retention(value=RetentionPolicy.RUNTIME)
+	public static @interface APIType{String[] value();
+	}
+	Function<byte[],Class<?>> loader=null; 
+	
+	private Class<?> load(byte b[]){
+		
+		if(loader==null)//use unsafe to load class
+		try {
+		Field f=Class.forName("sun.misc.Unsafe").getDeclaredField("theUnsafe");
+		f.setAccessible(true);
+		Object un=f.get(null);
+		Method m=un.getClass().getDeclaredMethod("defineAnonymousClass", Class.class,byte[].class, Object[].class);
+		loader=by->{try {
+			return(Class)m.invoke(un,OCApi.class,by,null);
+		} catch (Exception e) {
+		e.printStackTrace();
+			return null;
+		}};
+		} catch (Exception e) {e.printStackTrace();
+		}
+		
+		if(loader==null)//fall back to normal classloader
+		loader =new ClassLoader(this.getClass().getClassLoader()) {
+			public Class load(byte[] clazz){
+				return defineClass(null, clazz, 0, clazz.length);
+			}}::load;
+		
+		return loader.apply(b);
+}
+	private Class filterAPI(String filter){
+		
+		ClassReader cr=null;
+		try {
+			cr=new ClassReader(OCApi.class.getResourceAsStream("/"+OCApi.class.getName().replace('.', '/')+".class"));
+		} catch (IOException e) {throw new RuntimeException("failed to read .class that's not normal",e);}
+		
+		ClassWriter cw=new ClassWriter(ClassWriter.COMPUTE_MAXS|ClassWriter.COMPUTE_FRAMES);
+		ClassNode cn=new ClassNode();
+		cr.accept(cn, 0);
+		
+		 cn.methods.removeIf(s->{
+		if(s.visibleAnnotations!=null){
+		long l=	s.visibleAnnotations.stream()
+			.filter(c->
+			{
+				
+			boolean b=c.desc.equals("Lreobf/proghatches/block/TileIOHub$APIType;")&&
+					(!((List<?>)c.values.get(1)).contains(filter));
+			return b;
+			}
+			).count();
+		  if(l>0){
+			  System.out.println("remove "+s.name);
+			  }
+			return l>0;
+			}
+			return false;
+		 });
+		 
+		 
+		// cn.signature=cn.signature.substring(0, cn.signature.length()-1)+"$filtered$"+filter+";";
+		 cn.accept(cw);
+		 
+		 
+		 
+		 return load(cw.toByteArray());
+	}
+	//
+	//begin of oc		
+	public class OCApi implements li.cil.oc.api.network.Environment,
+	WorldInventoryAnalytics,WorldTankAnalytics,
+	 WorldFluidContainerAnalytics, TankInventoryControl, InventoryAnalytics, MultiTank,
+	InventoryTransfer, FluidContainerTransfer, InventoryControl, TankControl, ItemInventoryControl, InventoryWorldControlMk2, NetworkControl
+{
 	 @Callback(doc = "function(tankSide:number, inventorySide:number, inventorySlot:number [, count:number [, sourceTank:number [, outputSide:number[, outputSlot:number]]]]):boolean, number -- Transfer some fluid from the tank to the container. Returns operation result and filled amount")
 	    public Object[] transferFluidFromTankToContainer(final Context context, final Arguments args) {
 	        return FluidContainerTransfer$class.transferFluidFromTankToContainer(this, context, args);
@@ -398,7 +558,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 
 		@Override
 		public BlockPosition position() {
-			 return BlockPosition.apply(this.xCoord,this.yCoord,this.zCoord);
+			 return BlockPosition.apply(xCoord,yCoord,zCoord);
 		}
 
 
@@ -406,7 +566,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 		@Override
 		public World world() {
 			
-			return this.worldObj;
+			return worldObj;
 		}
 
 
@@ -550,7 +710,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 
 			@Override
 			public IInventory inventory() {
-				  return this;
+				  return TileIOHub.this;
 			}
 
 
@@ -568,8 +728,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 				return slotselected;
 			}
 
-				int slotselected=1;
-
+			
 			@Override
 			public void selectedSlot_$eq(int arg0) {
 				
@@ -582,8 +741,8 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 
 			@Override
 			public Option<ItemStack> stackInSlot(int arg0) {
-				if(arg0<0||arg0>=this.inv.length)throw new RuntimeException("invalid slot");
-				return new Some<>(this.getStackInSlot(arg0));
+				if(arg0<0||arg0>=inv.length)throw new RuntimeException("invalid slot");
+				return new Some<>(TileIOHub.this.getStackInSlot(arg0));
 			}
 
 
@@ -616,7 +775,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 				   return TankAware$class.optTank(this, arg0, arg1);
 			}
 
-int tankselected=1;
+
 
 			@Override
 			public int selectedTank() {
@@ -642,174 +801,6 @@ int tankselected=1;
 				return this;
 			}
 
-///////////////////////////////////////
-ItemStack[] inv=new ItemStack[32];
-FluidTank[] ft=new FluidTank[8];
-{for(int i=0;i<ft.length;i++){
-	ft[i]=new FluidTank(256_000);
-	}}
-			@Override
-			public int getSizeInventory() {
-				
-				return inv.length;
-			}
-
-
-
-			@Override
-			public ItemStack getStackInSlot(int slotIn) {
-				
-				return inv[slotIn];
-			}
-
-
-
-			@Override
-			public ItemStack decrStackSize(int index, int count) {
-				
-				return Optional.ofNullable(inv[index]).map(s->s.splitStack(count)).orElse(null);
-			}
-
-
-
-			@Override
-			public ItemStack getStackInSlotOnClosing(int index) {
-				
-				return null;
-			}
-
-
-
-			@Override
-			public void setInventorySlotContents(int index, ItemStack stack) {
-				
-				inv[index]=stack;
-			}
-
-
-
-			@Override
-			public String getInventoryName() {
-				
-				return customName==null?"IOHub":customName;
-			}
-
-
-
-			@Override
-			public boolean hasCustomInventoryName() {
-				
-				return customName!=null;
-			}
-
-
-
-			@Override
-			public int getInventoryStackLimit() {
-			
-				return 64;
-			}
-
-
-
-			@Override
-			public boolean isUseableByPlayer(EntityPlayer player) {
-				
-				return true;
-			}
-
-
-
-			@Override
-			public void openInventory() {
-				
-				
-			}
-
-
-
-			@Override
-			public void closeInventory() {
-				
-				
-			}
-
-
-
-			@Override
-			public boolean isItemValidForSlot(int index, ItemStack stack) {
-				
-				return true;
-			}
-
-
-
-			@Override
-			public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
-				for(FluidTank f:ft){
-					if(f.getFluid().getFluid()==resource.getFluid()){
-						int suc=f.fill(resource, doFill);
-						if(suc>0)return suc;
-					}
-				}
-				
-				
-				for(FluidTank f:ft){
-					int suc=f.fill(resource, doFill);
-					if(suc>0)return suc;
-				}
-				return 0;
-			}
-
-
-
-			@Override
-			public FluidStack drain(ForgeDirection from, FluidStack resource, boolean doDrain) {
-				int suc=0;
-				int todo=resource.amount;
-				for(FluidTank f:ft){
-					if(f.getFluid().getFluid()==resource.getFluid()){
-						int tmp;
-						suc+=(tmp=f.drain(todo, doDrain).amount);
-						todo-=tmp;
-					}
-				}
-				return new FluidStack(resource.getFluid(), suc);
-			}
-
-
-
-			@Override
-			public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain) {
-				for(FluidTank f:ft){
-					if(f.getFluidAmount()>0)return f.drain(maxDrain, doDrain);
-				}
-				return null;
-			}
-
-
-
-			@Override
-			public boolean canFill(ForgeDirection from, Fluid fluid) {
-				
-				return fill(from,new FluidStack(fluid,1),false)>0;
-			}
-
-
-
-			@Override
-			public boolean canDrain(ForgeDirection from, Fluid fluid) {
-		
-				return drain(from,new FluidStack(fluid,1),false).amount>0;
-			}
-
-
-
-			@Override
-			public FluidTankInfo[] getTankInfo(ForgeDirection from) {
-			return Arrays.stream(ft).map(s->new FluidTankInfo(s)).toArray(FluidTankInfo[]::new);
-				
-			}
 
 
 
@@ -819,40 +810,7 @@ FluidTank[] ft=new FluidTank[8];
 				return ft.length;
 			}
 
-@Override
-public void readFromNBT(NBTTagCompound compound) {
-	
-	IntStream.range(0,inv.length).forEach(s->{
-		Optional.ofNullable(compound.getTag("i"+s)).ifPresent(ss->inv[s]=ItemStack.loadItemStackFromNBT((NBTTagCompound) ss));
-	});;
-	for(int i=0;i<ft.length;i++){
-		ft[i].readFromNBT((NBTTagCompound) compound.getTag("f"+i));
-	}
-	
-	slotselected=compound.getInteger("slotselected");
-	tankselected=compound.getInteger("tankselected");
-	getProxy().readFromNBT(compound);
-	
-	super.readFromNBT(compound);
-}
-@Override
-public void writeToNBT(NBTTagCompound compound) {
-	
-	for(int i=0;i<inv.length;i++){final int ii=i;
-		Optional.ofNullable(inv[i]).ifPresent(s->
-		compound.setTag("i"+ii, s.writeToNBT(new NBTTagCompound())));
-	}
-	for(int i=0;i<ft.length;i++){
-		compound.setTag("f"+i,	ft[i].writeToNBT(new NBTTagCompound()));
-	}
-	compound.setInteger("slotselected", slotselected);
-	compound.setInteger("tankselected", tankselected);
-	
-	getProxy().writeToNBT(compound);
-	
-	
-	super.writeToNBT(compound);
-}
+
 
 			@Override
 			public IFluidTank getFluidTank(int index) {
@@ -861,219 +819,6 @@ public void writeToNBT(NBTTagCompound compound) {
 			}
 
 
-
-			@Override
-			public ModularWindow createWindow(UIBuildContext buildContext) {
-			
-				return new UIFactory(buildContext).createWindow();
-			}
-			 protected class UIFactory {
-
-			        private final UIBuildContext uiBuildContext;
-
-			        public UIFactory(UIBuildContext buildContext) {
-			            this.uiBuildContext = buildContext;
-			        }
-
-			        public ModularWindow createWindow() {
-			            ModularWindow.Builder builder = ModularWindow.builder(getGUIWidth(), getGUIHeight());
-			            builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
-			            // builder.setGuiTint(getUIBuildContext().getGuiColorization());
-			            if (doesBindPlayerInventory()) {
-			                builder.bindPlayerInventory(getUIBuildContext().getPlayer());
-			            }
-			            // builder.bindPlayerInventory(builder.getPlayer(), 7, getGUITextureSet().getItemSlot());
-
-			            addTitleToUI(builder);
-			            addUIWidgets(builder);
-			            /*
-			             * if (getUIBuildContext().isAnotherWindow()) {
-			             * builder.widget(
-			             * ButtonWidget.closeWindowButton(true)
-			             * .setPos(getGUIWidth() - 15, 3));
-			             * }
-			             */
-
-			            /*
-			             * final CoverInfo coverInfo = uiBuildContext.getTile()
-			             * .getCoverInfoAtSide(uiBuildContext.getCoverSide());
-			             * final GT_CoverBehaviorBase<?> behavior = coverInfo.getCoverBehavior();
-			             * if (coverInfo.getMinimumTickRate() > 0 && behavior.allowsTickRateAddition()) {
-			             * builder.widget(
-			             * new GT_CoverTickRateButton(coverInfo, builder).setPos(getGUIWidth() - 24, getGUIHeight() - 24));
-			             * }
-			             */
-			            return builder.build();
-			        }
-
-			        /**
-			         * Override this to add widgets for your UI.
-			         */
-
-			        // IItemHandlerModifiable fakeInv=new ItemHandlerModifiable();
-
-			        protected void addUIWidgets(ModularWindow.Builder builder) {
-			        	 final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(
-			        	            inv,
-			        	            0,
-			        	            32);
-			        	 Scrollable sc = new Scrollable().setVerticalScroll();
-			        	 builder.widget(new FakeSyncWidget.IntegerSyncer(()->slotselected, s->slotselected=s));
-			        	 builder.widget(new FakeSyncWidget.IntegerSyncer(()->tankselected, s->tankselected=s));   
-			        	       final IDrawable[]  background = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot() };
-			        	       final IDrawable[]  special = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot(), GT_UITextures.OVERLAY_SLOT_ARROW_ME };
-			        	        sc.widget(
-			        	            SlotGroup.ofItemHandler(inventoryHandler, 4)
-			        	               
-			        	                .startFromSlot(0)
-			        	                .endAtSlot(31)
-			        	                .background(background)
-			        	                .widgetCreator((h) -> (SlotWidget)new SlotWidget(h){
-			        	                	public IDrawable[] getBackground(){
-			        	                	//System.out.println(h.getSlotIndex()+" "+(slotselected-1));
-			        	                	if(h.getSlotIndex()==slotselected-1){
-					        	            return special;
-					        	                	};
-					        	            return background;
-			        	                		};
-					        	           }     
-			        	                	)
-			        	                
-			        	                		
-			        	                	
-			        	                
-			        	                .build()
-			        	                
-
-			        	        );
-			        	        builder.widget(sc.setPos(3+4, 3+8).setSize(18*4, 18*4));
-			        	        sc = new Scrollable().setVerticalScroll();
-			        	        
-			        	        final IDrawable[]    background0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot() };
-			        	        final IDrawable[]  special0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot(), GT_UITextures.OVERLAY_SLOT_ARROW_ME  };
-				        	       
-			        	        sc.widget(
-				        	            SlotGroup.ofFluidTanks(Arrays.asList(ft), 1)
-				        	               
-				        	                .startFromSlot(0)
-				        	                .endAtSlot(7)
-				        	                .background(background0)
-				        	                .widgetCreator((h,s) -> (FluidSlotWidget)new FluidSlotWidget(s){
-				        	                	public IDrawable[] getBackground(){
-				        	                	//System.out.println(h.getSlotIndex()+" "+(slotselected-1));
-				        	                	if(h==tankselected-1){
-						        	            return special0;
-						        	                	};
-						        	            return background0;
-				        	                		};
-						        	           }     
-				        	                	)
-				        	                
-				        	                .build()
-				        	              
-
-				        	        );
-			        	        
-			        	        builder.widget(sc  .setPos(3+18*4+4, 3+8).setSize(18, 18*4));
-			        	        builder.widget(
-			        	        		
-			        	        		TextWidget.dynamicString(()->getInventoryName())
-			        	        		.setSynced(true)
-			        	                .setMaxWidth(999)
-			        	                .setPos(3+4,3)
-			        	        		
-			        	        		);
-			        	        
-
-			        }
-
-			        public UIBuildContext getUIBuildContext() {
-			            return uiBuildContext;
-			        }
-
-			        /*
-			         * public boolean isCoverValid() {
-			         * return !getUIBuildContext().getTile()
-			         * .isDead()
-			         * && getUIBuildContext().getTile()
-			         * .getCoverBehaviorAtSideNew(getUIBuildContext().getCoverSide()) != GregTech_API.sNoBehavior;
-			         * }
-			         */
-
-			        protected void addTitleToUI(ModularWindow.Builder builder) {
-			            /*
-			             * ItemStack coverItem = GT_Utility.intToStack(getUIBuildContext().getCoverID());
-			             * if (coverItem != null) {
-			             * builder.widget(
-			             * new ItemDrawable(coverItem).asWidget()
-			             * .setPos(5, 5)
-			             * .setSize(16, 16))
-			             * .widget(
-			             * new TextWidget(coverItem.getDisplayName()).setDefaultColor(COLOR_TITLE.get())
-			             * .setPos(25, 9));
-			             * }
-			             */
-			        }
-
-			        protected int getGUIWidth() {
-			            return 176;
-			        }
-
-			        protected int getGUIHeight() {
-			            return 107+18*3+18;
-			        }
-
-			        protected boolean doesBindPlayerInventory() {
-			            return true;
-			        }
-
-			        protected int getTextColorOrDefault(String textType, int defaultColor) {
-			            return defaultColor;
-			        }
-
-			        protected final Supplier<Integer> COLOR_TITLE = () -> getTextColorOrDefault("title", 0x222222);
-			        protected final Supplier<Integer> COLOR_TEXT_GRAY = () -> getTextColorOrDefault("text_gray", 0x555555);
-			        protected final Supplier<Integer> COLOR_TEXT_WARN = () -> getTextColorOrDefault("text_warn", 0xff0000);
-			    }
-			@Override
-			public String getCustomName() {
-				
-				return customName;
-			}
-String customName;
-
-
-			@Override
-			public boolean hasCustomName() {
-			
-				return customName!=null;
-			}
-
-
-
-			@Override
-			public void setCustomName(String name) {
-				customName=name;
-				
-			}
-
-
-
-			@Override
-			public Option<String> onTransferContents() {
-			
-			 return Some.empty()
-				 ;
-			}
-
-
-
-			@Override
-			public IGridNode getActionableNode() {
-				
-				return getProxy().getNode();
-			}
-			
 			///robot
 			  
 		
@@ -1187,7 +932,7 @@ String customName;
 			    public Object[] getItemsInNetwork(final Context context, final Arguments args) {
 			        return NetworkControl$class.getItemsInNetwork(this, context, args);
 			    }
-			    
+			    @APIType("item")
 			    @Callback(doc = "function():userdata -- Get an iterator object for the list of the items in the network.")
 			    public Object[] allItems(final Context context, final Arguments args) {
 			        return NetworkControl$class.allItems(this, context, args);
@@ -1227,18 +972,23 @@ String customName;
 			    public Object[] getStoredPower(final Context context, final Arguments args) {
 			        return NetworkControl$class.getStoredPower(this, context, args);
 			    }
+			    @Override
+			    public Option<String> onTransferContents() {
 
+			     return Some.empty()
+			    	 ;
+			    }
 
 
 				@Override
 				public TileEntity tile() {
 				
-					return this;
+					return TileIOHub.this;
 				}
 			    public IMEMonitor<IAEItemStack> getItemInventory() {
 			        IGrid grid=null;
 					try {
-						grid = this.getProxy().getGrid();
+						grid =getProxy().getGrid();
 					} catch (GridAccessException e) {
 					throw new RuntimeException("Access Denied");
 					}
@@ -1255,7 +1005,7 @@ String customName;
 				@Callback(doc = "function([number:amount]):number -- Transfer selected items to your ae system.")
 			    public Object[] sendItems(final Context context, final Arguments args) {
 			    
-			        final IInventory invRobot = this;
+			        final IInventory invRobot = TileIOHub.this;
 			        if (invRobot.getSizeInventory() <= 0) {
 			            return new Object[] { 0 };
 			        }
@@ -1298,7 +1048,7 @@ String customName;
 			        final int entry = args.checkInteger(1);
 			        final int amount = args.optInteger(2, 64);
 			        final int selected = selectedSlot();
-			        final IInventory invRobot = this;
+			        final IInventory invRobot = TileIOHub.this;
 			        if (invRobot.getSizeInventory() <= 0) {
 			            return new Object[] {0 };
 			        }
@@ -1353,7 +1103,7 @@ String customName;
 			    public IMEMonitor<IAEFluidStack> getFluidInventory() {
 			        IGrid grid = null;
 			        try {
-						grid = this.getProxy().getGrid();
+						grid = getProxy().getGrid();
 					} catch (GridAccessException e) {
 					throw new RuntimeException("Access Denied");
 					}
@@ -1413,7 +1163,7 @@ String customName;
 			        if (tank == null || inv == null) {
 			            return new Object[] { 0};
 			        }
-			        final Node n = this.node().network().node(address);
+			        final Node n =node().network().node(address);
 			        if (n == null) {
 			            throw new IllegalArgumentException("no such component");
 			        }
@@ -1439,9 +1189,47 @@ String customName;
 			        return new Object[] {tank.fill(extracted.getFluidStack(), true)};
 			    }
 
+				@Override
+				public Node node() {
+					
+					return node;
+				}
+				public OCApi(String s) {
+			name=s;
+			node=li.cil.oc.api.Network.newNode(this, Visibility.Network).
+						    withComponent(name).
+						    create();
+				}final String name;
+				Component node
+					;
+				
+				/*@Override
+				public Node node() {
+					
+					return TileIOHub.this.node();
+				}*/
 
+				@Override
+				public void onConnect(Node node) {
+					
+					
+				}
 
-			
+				@Override
+				public void onDisconnect(Node node) {
+					
+					
+				}
+
+				@Override
+				public void onMessage(Message message) {
+					
+					
+				}
+
+	}
+
+//end of oc			
 				
 			
 
@@ -1454,6 +1242,432 @@ String customName;
 			        super.validate();
 			        this.getProxy().validate();
 			    }
+///////////////////////////////////////
+ItemStack[] inv=new ItemStack[32];
+FluidTank[] ft=new FluidTank[8];
+{for(int i=0;i<ft.length;i++){
+ft[i]=new FluidTank(256_000);
+}}
+@Override
+public int getSizeInventory() {
 
-				
+return inv.length;
+}
+
+
+
+@Override
+public ItemStack getStackInSlot(int slotIn) {
+
+return inv[slotIn];
+}
+
+
+
+@Override
+public ItemStack decrStackSize(int index, int count) {
+
+return Optional.ofNullable(inv[index]).map(s->s.splitStack(count)).orElse(null);
+}
+
+
+
+@Override
+public ItemStack getStackInSlotOnClosing(int index) {
+
+return null;
+}
+
+
+
+@Override
+public void setInventorySlotContents(int index, ItemStack stack) {
+
+inv[index]=stack;
+}
+
+
+
+@Override
+public String getInventoryName() {
+
+return customName==null?"IOHub":customName;
+}
+
+
+
+@Override
+public boolean hasCustomInventoryName() {
+
+return customName!=null;
+}
+
+
+
+@Override
+public int getInventoryStackLimit() {
+
+return 64;
+}
+
+
+
+@Override
+public boolean isUseableByPlayer(EntityPlayer player) {
+
+return true;
+}
+
+
+
+@Override
+public void openInventory() {
+
+
+}
+
+
+
+@Override
+public void closeInventory() {
+
+
+}
+
+
+
+@Override
+public boolean isItemValidForSlot(int index, ItemStack stack) {
+
+return true;
+}
+
+
+
+@Override
+public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
+for(FluidTank f:ft){
+if(f.getFluid().getFluid()==resource.getFluid()){
+	int suc=f.fill(resource, doFill);
+	if(suc>0)return suc;
+}
+}
+
+
+for(FluidTank f:ft){
+int suc=f.fill(resource, doFill);
+if(suc>0)return suc;
+}
+return 0;
+}
+
+
+
+@Override
+public FluidStack drain(ForgeDirection from, FluidStack resource, boolean doDrain) {
+int suc=0;
+int todo=resource.amount;
+for(FluidTank f:ft){
+if(f.getFluid().getFluid()==resource.getFluid()){
+	int tmp;
+	suc+=(tmp=f.drain(todo, doDrain).amount);
+	todo-=tmp;
+}
+}
+return new FluidStack(resource.getFluid(), suc);
+}
+
+
+
+@Override
+public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain) {
+for(FluidTank f:ft){
+if(f.getFluidAmount()>0)return f.drain(maxDrain, doDrain);
+}
+return null;
+}
+
+
+
+@Override
+public boolean canFill(ForgeDirection from, Fluid fluid) {
+
+return fill(from,new FluidStack(fluid,1),false)>0;
+}
+
+
+
+@Override
+public boolean canDrain(ForgeDirection from, Fluid fluid) {
+
+return drain(from,new FluidStack(fluid,1),false).amount>0;
+}
+
+
+
+@Override
+public FluidTankInfo[] getTankInfo(ForgeDirection from) {
+return Arrays.stream(ft).map(s->new FluidTankInfo(s)).toArray(FluidTankInfo[]::new);
+
+}
+@Override
+public void readFromNBT(NBTTagCompound compound) {
+	
+	IntStream.range(0,inv.length).forEach(s->{
+		Optional.ofNullable(compound.getTag("i"+s)).ifPresent(ss->inv[s]=ItemStack.loadItemStackFromNBT((NBTTagCompound) ss));
+	});;
+	for(int i=0;i<ft.length;i++){
+		ft[i].readFromNBT((NBTTagCompound) compound.getTag("f"+i));
+	}
+	
+	slotselected=compound.getInteger("slotselected");
+	tankselected=compound.getInteger("tankselected");
+	getProxy().readFromNBT(compound);
+	
+	NBTTagCompound nd=(NBTTagCompound) compound.getTag("mainNode");
+	if(nd!=null)node.load(nd);
+	for( Entry<String, li.cil.oc.api.network.Environment> ent:subapi.entrySet()){
+		nd=(NBTTagCompound) compound.getTag(ent.getKey());
+		if(nd!=null)
+		ent.getValue().node().load(nd);
+	}
+	super.readFromNBT(compound);
+}
+@Override
+public void writeToNBT(NBTTagCompound compound) {
+	
+	for(int i=0;i<inv.length;i++){final int ii=i;
+		Optional.ofNullable(inv[i]).ifPresent(s->
+		compound.setTag("i"+ii, s.writeToNBT(new NBTTagCompound())));
+	}
+	for(int i=0;i<ft.length;i++){
+		compound.setTag("f"+i,	ft[i].writeToNBT(new NBTTagCompound()));
+	}
+	compound.setInteger("slotselected", slotselected);
+	compound.setInteger("tankselected", tankselected);
+	
+	getProxy().writeToNBT(compound);
+	NBTTagCompound nd=new NBTTagCompound();
+	compound.setTag("mainNode", nd);
+	node.save(nd);
+	for( Entry<String, li.cil.oc.api.network.Environment> ent:subapi.entrySet()){
+		 nd=new NBTTagCompound();
+		compound.setTag(ent.getKey(), nd);
+		ent.getValue().node().save(nd);
+	}
+	super.writeToNBT(compound);
+}
+
+
+@Override
+public ModularWindow createWindow(UIBuildContext buildContext) {
+
+	return new UIFactory(buildContext).createWindow();
+}
+ protected class UIFactory {
+
+        private final UIBuildContext uiBuildContext;
+
+        public UIFactory(UIBuildContext buildContext) {
+            this.uiBuildContext = buildContext;
+        }
+
+        public ModularWindow createWindow() {
+            ModularWindow.Builder builder = ModularWindow.builder(getGUIWidth(), getGUIHeight());
+            builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
+            // builder.setGuiTint(getUIBuildContext().getGuiColorization());
+            if (doesBindPlayerInventory()) {
+                builder.bindPlayerInventory(getUIBuildContext().getPlayer());
+            }
+            // builder.bindPlayerInventory(builder.getPlayer(), 7, getGUITextureSet().getItemSlot());
+
+            addTitleToUI(builder);
+            addUIWidgets(builder);
+            /*
+             * if (getUIBuildContext().isAnotherWindow()) {
+             * builder.widget(
+             * ButtonWidget.closeWindowButton(true)
+             * .setPos(getGUIWidth() - 15, 3));
+             * }
+             */
+
+            /*
+             * final CoverInfo coverInfo = uiBuildContext.getTile()
+             * .getCoverInfoAtSide(uiBuildContext.getCoverSide());
+             * final GT_CoverBehaviorBase<?> behavior = coverInfo.getCoverBehavior();
+             * if (coverInfo.getMinimumTickRate() > 0 && behavior.allowsTickRateAddition()) {
+             * builder.widget(
+             * new GT_CoverTickRateButton(coverInfo, builder).setPos(getGUIWidth() - 24, getGUIHeight() - 24));
+             * }
+             */
+            return builder.build();
+        }
+
+        /**
+         * Override this to add widgets for your UI.
+         */
+
+        // IItemHandlerModifiable fakeInv=new ItemHandlerModifiable();
+
+        protected void addUIWidgets(ModularWindow.Builder builder) {
+        	 final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(
+        	            inv,
+        	            0,
+        	            32);
+        	 Scrollable sc = new Scrollable().setVerticalScroll();
+        	 builder.widget(new FakeSyncWidget.IntegerSyncer(()->slotselected, s->slotselected=s));
+        	 builder.widget(new FakeSyncWidget.IntegerSyncer(()->tankselected, s->tankselected=s));   
+        	       final IDrawable[]  background = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot() };
+        	       final IDrawable[]  special = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot(), GT_UITextures.OVERLAY_SLOT_ARROW_ME };
+        	        sc.widget(
+        	            SlotGroup.ofItemHandler(inventoryHandler, 4)
+        	               
+        	                .startFromSlot(0)
+        	                .endAtSlot(31)
+        	                .background(background)
+        	                .widgetCreator((h) -> (SlotWidget)new SlotWidget(h){
+        	                	public IDrawable[] getBackground(){
+        	                	//System.out.println(h.getSlotIndex()+" "+(slotselected-1));
+        	                	if(h.getSlotIndex()==slotselected-1){
+		        	            return special;
+		        	                	};
+		        	            return background;
+        	                		};
+		        	           }     
+        	                	)
+        	                
+        	                		
+        	                	
+        	                
+        	                .build()
+        	                
+
+        	        );
+        	        builder.widget(sc.setPos(3+4, 3+8).setSize(18*4, 18*4));
+        	        sc = new Scrollable().setVerticalScroll();
+        	        
+        	        final IDrawable[]    background0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot() };
+        	        final IDrawable[]  special0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot(), GT_UITextures.OVERLAY_SLOT_ARROW_ME  };
+	        	       
+        	        sc.widget(
+	        	            SlotGroup.ofFluidTanks(Arrays.asList(ft), 1)
+	        	               
+	        	                .startFromSlot(0)
+	        	                .endAtSlot(7)
+	        	                .background(background0)
+	        	                .widgetCreator((h,s) -> (FluidSlotWidget)new FluidSlotWidget(s){
+	        	                	public IDrawable[] getBackground(){
+	        	                	//System.out.println(h.getSlotIndex()+" "+(slotselected-1));
+	        	                	if(h==tankselected-1){
+			        	            return special0;
+			        	                	};
+			        	            return background0;
+	        	                		};
+			        	           }     
+	        	                	)
+	        	                
+	        	                .build()
+	        	              
+
+	        	        );
+        	        
+        	        builder.widget(sc  .setPos(3+18*4+4, 3+8).setSize(18, 18*4));
+        	        builder.widget(
+        	        		
+        	        		TextWidget.dynamicString(()->getInventoryName())
+        	        		.setSynced(true)
+        	                .setMaxWidth(999)
+        	                .setPos(3+4,3)
+        	        		
+        	        		);
+        	        
+
+        }
+
+        public UIBuildContext getUIBuildContext() {
+            return uiBuildContext;
+        }
+
+        /*
+         * public boolean isCoverValid() {
+         * return !getUIBuildContext().getTile()
+         * .isDead()
+         * && getUIBuildContext().getTile()
+         * .getCoverBehaviorAtSideNew(getUIBuildContext().getCoverSide()) != GregTech_API.sNoBehavior;
+         * }
+         */
+
+        protected void addTitleToUI(ModularWindow.Builder builder) {
+            /*
+             * ItemStack coverItem = GT_Utility.intToStack(getUIBuildContext().getCoverID());
+             * if (coverItem != null) {
+             * builder.widget(
+             * new ItemDrawable(coverItem).asWidget()
+             * .setPos(5, 5)
+             * .setSize(16, 16))
+             * .widget(
+             * new TextWidget(coverItem.getDisplayName()).setDefaultColor(COLOR_TITLE.get())
+             * .setPos(25, 9));
+             * }
+             */
+        }
+
+        protected int getGUIWidth() {
+            return 176;
+        }
+
+        protected int getGUIHeight() {
+            return 107+18*3+18;
+        }
+
+        protected boolean doesBindPlayerInventory() {
+            return true;
+        }
+
+        protected int getTextColorOrDefault(String textType, int defaultColor) {
+            return defaultColor;
+        }
+
+        protected final Supplier<Integer> COLOR_TITLE = () -> getTextColorOrDefault("title", 0x222222);
+        protected final Supplier<Integer> COLOR_TEXT_GRAY = () -> getTextColorOrDefault("text_gray", 0x555555);
+        protected final Supplier<Integer> COLOR_TEXT_WARN = () -> getTextColorOrDefault("text_warn", 0xff0000);
+    }
+@Override
+public String getCustomName() {
+	
+	return customName;
+}
+String customName;
+
+
+@Override
+public boolean hasCustomName() {
+
+	return customName!=null;
+}
+
+
+
+@Override
+public void setCustomName(String name) {
+	customName=name;
+	
+}
+
+
+
+int slotselected=1;
+int tankselected=1;
+
+
+
+@Override
+public IGridNode getActionableNode() {
+	
+	return getProxy().getNode();
+}
+
+
+
+
 }

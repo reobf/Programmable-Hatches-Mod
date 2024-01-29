@@ -37,7 +37,6 @@ public class ProgrammingCover extends GT_CoverBehavior {
         if (!(tile instanceof IGregTechTileEntity)) {
             return;
         }
-
         if (((IGregTechTileEntity) tile).getMetaTileEntity() instanceof IProgrammingCoverBlacklisted) {
         
         	

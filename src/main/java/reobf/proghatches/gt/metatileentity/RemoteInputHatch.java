@@ -74,6 +74,7 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
     @Override
     public void onLeftclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
         if (aBaseMetaTileEntity.getWorld().isRemote) return;
+        this.markDirty();
         if (aPlayer.isSneaking() && aPlayer.getHeldItem() == null) {
             linked = false;
             aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.remote.detach"));

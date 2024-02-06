@@ -575,6 +575,41 @@ if(Config.skipRecipeAdding)return;
             .eut(480)
             .addTo(RecipeMaps.mixerRecipes);
             
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+     new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1, 33),
+     new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1, 51),
+     new ItemStack(GameRegistry.findItem("OpenComputers", "cable"), 4, 0),
+     Emitter_EV.get(1),
+     GT_Utility.getIntegratedCircuit(16)
+     
+)
+ .fluidInputs(Materials.EnderPearl.getMolten(4000))
+ .itemOutputs(new ItemStack(MyMod.pitem, 1)
+
+ ) .duration(40 * SECONDS)
+ .eut(480)
+ .addTo(RecipeMaps.assemblerRecipes);;
+ 
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+		 Casing_EV.get(1),
+		 Sensor_EV.get(1),
+		 new ItemStack(GameRegistry.findItem("OpenComputers", "cable"), 32, 0),
+		 new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1, 51),
+	new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1, 33),
+     GT_Utility.getIntegratedCircuit(17)
+     
+)
+ .fluidInputs(Materials.EnderPearl.getMolten(4000))
+ .itemOutputs(new ItemStack(MyMod.pstation, 1)
+
+ ) .duration(40 * SECONDS)
+ .eut(480)
+ .addTo(RecipeMaps.assemblerRecipes);;
+ 
+ 
+ 
         }
 
         ///////////////////////////////////

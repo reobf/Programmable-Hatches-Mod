@@ -279,6 +279,7 @@ public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p
 	
 	@Override
 	public void updateEntity() {
+		this.markDirty();
 		if (!init) {
 		init = true;
 		li.cil.oc.api.Network.joinOrCreateNetwork(this);

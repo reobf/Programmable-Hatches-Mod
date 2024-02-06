@@ -990,7 +990,7 @@ public class BufferedDualInputHatch extends DualInputHatch {
             }), builder)
             .addTooltip(StatCollector.translateToLocal("GT5U.gui.button.power_switch"))
             .setTooltipShowUpDelay(TOOLTIP_DELAY)
-            .setPos(new Pos2d(getGUIWidth()-18-6,3))
+            .setPos(new Pos2d(getGUIWidth()-18-3,3))
             .setSize(16, 16);
         return (ButtonWidget) button;
     }

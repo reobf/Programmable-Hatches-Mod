@@ -262,6 +262,7 @@ IGridProxyable,ITileWithModularUI, ICustomNameObject,IActionHost
 	}
 	boolean init;
 	public void updateEntity() {
+		this.markDirty();
 		dead=false;
 	         super.updateEntity();
 	         

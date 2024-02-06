@@ -194,14 +194,14 @@ public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.ite
 
         @Override
         public void load(NBTTagCompound nbt) {
-            // TODO Auto-generated method stub
+        	Optional.ofNullable(nbt.getTag("node")).ifPresent(s->{if(node()!=null)node().load((NBTTagCompound) s);});
 
         }
-
         @Override
         public void save(NBTTagCompound nbt) {
-            // TODO Auto-generated method stub
-
+        	NBTTagCompound t=new NBTTagCompound();
+        	Optional.ofNullable(node()).ifPresent(s->s.save(t));
+        	nbt.setTag("node", t);
         }
 
         @Override
@@ -212,14 +212,14 @@ public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.ite
 
         @Override
         public void update() {
-            // TODO Auto-generated method stub
+          
 
         }
     }
 
     @Override
     public String slot(ItemStack stack) {
-        // TODO Auto-generated method stub
+       
         return li.cil.oc.common.Slot.Card();
     }
 

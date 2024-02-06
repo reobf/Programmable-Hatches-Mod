@@ -1,13 +1,18 @@
 package reobf.proghatches.oc;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.oredict.OreDictionary;
@@ -87,8 +92,27 @@ public class ItemAPICard extends Item implements li.cil.oc.api.driver.item.HostA
             return _node;
 
         }
+        @Callback(doc = "getID(tag:string):table --parse binary deflated NBT tag as readable table", direct = false)
+        public Object[] getTag(final Context context, final Arguments args) {
+         
+        	try {
+        	
+        		
+        		  return new Object[] { CompressedStreamTools.readCompressed(new ByteArrayInputStream(
+        				  //args.checkString(0)).getBytes()  will truncate byte to 0~127 
+        				  //have no idea why that happens
+        				  (byte[]) args.checkAny(0))
+        				  )
+        		  };
+        	} catch (IOException e) {
+				e.printStackTrace();
+				throw new RuntimeException("format error");
+			}
 
-        @Callback(doc = "getID(database:address,index:number) --get item ID in number", direct = false)
+            //return new Object[] { };
+
+        }
+        @Callback(doc = "getID(database:address,index:number):string --get item ID in number", direct = false)
         public Object[] getID(final Context context, final Arguments args) {
             Node n = node().network()
                 .node(args.checkString(0));
@@ -106,7 +130,7 @@ public class ItemAPICard extends Item implements li.cil.oc.api.driver.item.HostA
             // database.GET
         }
 
-        @Callback(doc = "getOreDict(database:address,index:number) --get OreDicts", direct = false)
+        @Callback(doc = "getOreDict(database:address,index:number):string --get OreDicts", direct = false)
         public Object[] getOreDict(final Context context, final Arguments args) {
             Node n = node().network()
                 .node(args.checkString(0));
@@ -135,7 +159,7 @@ public class ItemAPICard extends Item implements li.cil.oc.api.driver.item.HostA
         }
 
         @Callback(
-            doc = "match(database:address,index:number,regex:string[,mode:string]) --check with regex to see if target has OreDict, 'mode' can be 'find'(default) or 'match'",
+            doc = "match(database:address,index:number,regex:string[,mode:string]):boolean --check with regex to see if target has OreDict, 'mode' can be 'find'(default) or 'match'",
             direct = false)
         public Object[] match(final Context context, final Arguments args) {
             Node n = node().network()
@@ -176,13 +200,13 @@ public class ItemAPICard extends Item implements li.cil.oc.api.driver.item.HostA
             // database.GET
         }
 
-        @Callback(doc = "nameToID(name:string) --string ID -> number ID", direct = false)
+        @Callback(doc = "nameToID(name:string):int --string ID -> number ID", direct = false)
         public Object[] nameToID(final Context context, final Arguments args) {
 
             return new Object[] { Item.getIdFromItem((Item) itemRegistry.getObject(args.checkString(0))) };
         }
 
-        @Callback(doc = "idToName(id:number) --number ID -> string ID", direct = false)
+        @Callback(doc = "idToName(id:number):string --number ID -> string ID", direct = false)
         public Object[] idToName(final Context context, final Arguments args) {
 
             return new Object[] { itemRegistry.getNameForObject(Item.getItemById(args.checkInteger(0))) };
@@ -197,30 +221,30 @@ public class ItemAPICard extends Item implements li.cil.oc.api.driver.item.HostA
         @Override
         public void onDisconnect(Node node) {
 
-            // System.out.println("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
+        
         }
 
         @Override
         public void onMessage(Message message) {
-            // TODO Auto-generated method stub
+          
 
         }
 
         @Override
         public void load(NBTTagCompound nbt) {
-            // TODO Auto-generated method stub
+        	Optional.ofNullable(nbt.getTag("node")).ifPresent(s->{if(node()!=null)node().load((NBTTagCompound) s);});
 
         }
-
         @Override
         public void save(NBTTagCompound nbt) {
-            // TODO Auto-generated method stub
-
+        	NBTTagCompound t=new NBTTagCompound();
+        	Optional.ofNullable(node()).ifPresent(s->s.save(t));
+        	nbt.setTag("node", t);
         }
 
         @Override
         public boolean canUpdate() {
-            // TODO Auto-generated method stub
+        
             return false;
         }
 

@@ -75,7 +75,7 @@ public class PHRecipes implements Runnable {
     public void run() {
 
        
-
+if(Config.skipRecipeAdding)return;
         ArrayList<ItemStack> pc0 = new ArrayList<>();
         HashMap<ItemStack, Integer/* item->productivity */> pc = new HashMap<>();// List<Pair<ItemStack,Integer>>
 

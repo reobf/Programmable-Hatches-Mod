@@ -97,8 +97,6 @@ public class MixinPatternEncodingCiruitSpecialTreatment2 {
      * Iterator ii, PositionedStack iii){
      * }
      * 牛的 mixin还能混出VerifyError
-     * 真想直接上coremod了
-     * 我不用localcapture还不行吗
      * cpw.mods.fml.common.LoaderException: java.lang.VerifyError: Bad local variable type
      * Exception Details:
      * Location:

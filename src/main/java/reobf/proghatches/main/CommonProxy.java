@@ -8,11 +8,13 @@ import java.util.List;
 import com.google.common.base.Optional;
 
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import gregtech.api.util.GT_ModHandler;
+import mcp.mobius.waila.api.IWailaRegistrar;
 import reobf.proghatches.Tags;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.block.ItemBlockIOHub;
@@ -27,6 +29,8 @@ import reobf.proghatches.main.registration.ProgHatchCreativeTab;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.oc.ItemAPICard;
 import reobf.proghatches.oc.ItemGTRedstoneCard;
+import reobf.proghatches.oc.ItemWirelessPeripheralCard;
+import reobf.proghatches.oc.TileWirelessPeripheralStation;
 
 public class CommonProxy {
 
@@ -40,7 +44,7 @@ public class CommonProxy {
         MyMod.LOG.info("I am " + Tags.MODNAME + " at version " + Tags.VERSION);
 
         GameRegistry.registerTileEntity(TileIOHub.class, "proghatches.iohub");
-        
+        GameRegistry.registerTileEntity(TileWirelessPeripheralStation.class, "proghatches.peripheral_station");
         GameRegistry.registerItem(
             MyMod.progcircuit = new ItemProgrammingCircuit().setUnlocalizedName("prog_circuit")
                 .setTextureName("?"),
@@ -71,15 +75,22 @@ public class CommonProxy {
                 .setUnlocalizedName("proghatches.oc.api")
                 .setTextureName("proghatches:APIcard"),
             "proghatches.oc.api");
-
+        GameRegistry.registerItem(
+        		MyMod.pitem = new ItemWirelessPeripheralCard().setMaxStackSize(1)
+                .setUnlocalizedName("proghatches.oc.peripheral_card")
+                .setTextureName("proghatches:peripheral_card"),
+            "proghatches.oc.peripheral_card");
         MyMod.iohub =GameRegistry.registerBlock(
         new BlockIOHub(),ItemBlockIOHub.class,"proghatches.iohub");
-        
+        MyMod.pstation =GameRegistry.registerBlock(
+                new TileWirelessPeripheralStation.Block(),TileWirelessPeripheralStation.ItemBlock.class,"proghatches.peripheral_station");
         
         li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.oc_redstone);
         li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.oc_api);
-      //  li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Block)MyMod.iohub);
+        li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.pitem);
         GT_ModHandler.addToRecyclerBlackList(new ItemStack(MyMod.progcircuit));
+        FMLInterModComms.sendMessage("Waila", "register", "reobf.proghatches.main.CommonProxy.callbackRegister");
+
     }
    
     public static ProgHatchCreativeTab tab;
@@ -95,9 +106,12 @@ public class CommonProxy {
     public void postInit(FMLPostInitializationEvent event) {
 
         new PHRecipes().run();
-
+       
     }
-
+    public static void callbackRegister(IWailaRegistrar registrar) {
+    	registrar.registerBodyProvider(TileWirelessPeripheralStation.provider, MyMod.pstation.getClass());
+    	registrar.registerNBTProvider(TileWirelessPeripheralStation.provider,  MyMod.pstation.getClass());
+    }
     // register server commands in this event handler (Remove if not needed)
     public void serverStarting(FMLServerStartingEvent event) {}
 }

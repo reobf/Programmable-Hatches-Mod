@@ -28,6 +28,7 @@ import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
@@ -45,6 +46,7 @@ import com.gtnewhorizons.modularui.api.math.Size;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.api.widget.IWidgetBuilder;
 import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
@@ -58,10 +60,13 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.enums.SoundResource;
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.interfaces.tileentity.IMachineProgress;
 import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_OutputBus;
 import gregtech.api.util.GT_TooltipDataCache.TooltipData;
 import gregtech.api.util.GT_Utility;
 import gregtech.api.util.extensions.ArrayExt;
@@ -608,16 +613,18 @@ public class BufferedDualInputHatch extends DualInputHatch {
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
         super.onPostTick(aBaseMetaTileEntity, aTick);
         if (aBaseMetaTileEntity.getWorld().isRemote) return;
+        
+        if(this.getBaseMetaTileEntity().isAllowedToWork())
         for (DualInvBuffer inv0 : this.sortByEmpty()) {
             if (inv0.full() == false) {
                 inv0.recordRecipeOrCalssify(this.mStoredFluid, mInventory);
                 inv0.classify(this.mStoredFluid, mInventory);
             }
         }
+        
         // BaseMetaTileEntity h;
         // h.add4by4Slots(builder, background);
-
-    }
+         }
 
     @Override
     public ItemStack getStackInSlot(int aIndex) {
@@ -814,7 +821,7 @@ public class BufferedDualInputHatch extends DualInputHatch {
 
     protected ModularWindow createWindow(final EntityPlayer player, int index) {
         DualInvBuffer inv0 = this.inv0.get(index);
-        final int WIDTH = 18 * 6 + 6;
+         final int WIDTH = 18 * 6 + 6;
         final int HEIGHT = 18 * 4 + 6;
         final int PARENT_WIDTH = getGUIWidth();
         final int PARENT_HEIGHT = getGUIHeight();
@@ -956,7 +963,37 @@ public class BufferedDualInputHatch extends DualInputHatch {
             return new NBTTagCompound();
         }
     }
-
+     ButtonWidget createPowerSwitchButton(IWidgetBuilder<?> builder) {IGregTechTileEntity  thiz=this.getBaseMetaTileEntity();
+        Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
+        	
+        	if (thiz.isAllowedToWork()) {
+        		thiz.disableWorking();
+            } else {
+            	thiz.enableWorking();
+            }
+        })
+            .setPlayClickSoundResource( () -> thiz.isAllowedToWork() ? SoundResource.GUI_BUTTON_UP.resourceLocation
+                    : SoundResource.GUI_BUTTON_DOWN.resourceLocation
+               )
+            .setBackground(() -> {
+                if (thiz.isAllowedToWork()) {
+                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
+                        GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_ON };
+                } else {
+                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+                        GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
+                }
+            })
+            .attachSyncer(new FakeSyncWidget.BooleanSyncer(thiz::isAllowedToWork, val -> {
+                if (val) thiz.enableWorking();
+                else thiz.disableWorking();
+            }), builder)
+            .addTooltip(StatCollector.translateToLocal("GT5U.gui.button.power_switch"))
+            .setTooltipShowUpDelay(TOOLTIP_DELAY)
+            .setPos(new Pos2d(getGUIWidth()-18-6,3))
+            .setSize(16, 16);
+        return (ButtonWidget) button;
+    }
     @Override
     public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 
@@ -966,6 +1003,9 @@ public class BufferedDualInputHatch extends DualInputHatch {
 
             builder.widget(createButtonBuffer(i));
         }
+        
+        builder.widget(createPowerSwitchButton(builder));
+       
         super.addUIWidgets(builder, buildContext);
         // builder.widget(widget);
 

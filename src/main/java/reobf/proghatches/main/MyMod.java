@@ -23,6 +23,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import reobf.proghatches.Tags;
 import reobf.proghatches.block.TileIOHub.OCApi;
+import reobf.proghatches.oc.WirelessPeripheralManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
 @Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.7.10]"
@@ -45,6 +46,8 @@ public class MyMod {
     public static Item oc_redstone;
     public static Item oc_api;
 	public static Block iohub;
+	public static Block pstation;
+	public static Item pitem;
 
     @Mod.EventHandler
     // preInit "Run before anything else. Read your config, create blocks, items, etc, and register them with the
@@ -92,6 +95,8 @@ public class MyMod {
     // register server commands in this event handler (Remove if not needed)
     public void serverStarting(FMLServerStartingEvent event) {
         proxy.serverStarting(event);
+        WirelessPeripheralManager.stations.clear();
+        WirelessPeripheralManager.cards.clear();
     }
 
     public static ItemStack tutorial() {

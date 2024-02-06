@@ -9,6 +9,7 @@ import li.cil.oc.server.machine.luac.NativeLuaArchitecture;
 import li.cil.oc.util.DatabaseAccess$;
 import li.cil.oc.util.ExtendedArguments.ExtendedArguments;
 import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -58,16 +59,29 @@ import li.cil.oc.api.machine.Context;
 
 import static gregtech.api.enums.GT_Values.NW;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+import java.security.CodeSource;
+import java.security.SecureClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -78,10 +92,13 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Spliterators;
 import java.util.WeakHashMap;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -173,14 +190,19 @@ import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Callback;
 import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.network.Component;
+import li.cil.oc.api.network.Connector;
 import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
+import li.cil.oc.api.prefab.AbstractValue;
 import li.cil.oc.api.prefab.ItemStackArrayValue;
 import li.cil.oc.api.internal.Database;
+import li.cil.oc.common.tileentity.Case;
 import li.cil.oc.common.tileentity.DiskDrive;
+import li.cil.oc.common.tileentity.Robot;
 import li.cil.oc.common.tileentity.traits.ComponentInventory;
+import li.cil.oc.common.tileentity.traits.Computer;
 import li.cil.oc.common.tileentity.traits.Environment;
 import li.cil.oc.util.BlockPosition;
 import li.cil.oc.util.InventorySource;
@@ -211,6 +233,7 @@ IGridProxyable,ITileWithModularUI, ICustomNameObject,IActionHost
 	public TileIOHub(){
 		
 		
+		
 	}
 	
 	
@@ -239,14 +262,16 @@ IGridProxyable,ITileWithModularUI, ICustomNameObject,IActionHost
 	}
 	boolean init;
 	public void updateEntity() {
-		
+		dead=false;
 	         super.updateEntity();
 	         
-	         if(init==false){getProxy().onReady();init=true;}
+	         if(init==false){
+	        	 getProxy().onReady();init=true;
 	         
-	         if (node != null && node.network() == null) {
+	          if (node != null ) {
 	        	 li.cil.oc.api.Network.joinOrCreateNetwork(this);
-	        } 
+	            }
+	         }
 	         if (node != null && node.network() != null) {
 	        	subapi.values().stream().filter(s->s.node().network()==null).forEach(s->node.connect(s.node()));
 	        }
@@ -269,7 +294,7 @@ IGridProxyable,ITileWithModularUI, ICustomNameObject,IActionHost
 
 @Override
 public boolean canUpdate() {
-	dead=false;
+	
 	return true;
 }
 
@@ -331,41 +356,36 @@ public boolean canUpdate() {
 		
 	}
 	
-	
-	@Callback(doc = "function():string -- Returns the custom name of this IO Hub, or 'IOHub' if absent. Use quartz cutter to (re-)name.")
-    public Object[] getName(final Context context, final Arguments args) {
-        return new Object[]{this.getInventoryName()};
-    }
-	@Callback(doc = "function():address -- Returns the address of API component provided by IO Hub(all API).")
-    public Object[] getAllAPI(final Context context, final Arguments args) {
-        return new Object[]{subapi.get("all").node().address()};
-    }
+
+
 	Map<String,li.cil.oc.api.network.Environment> subapi=new HashMap<>();
-	static private HashMap<String,Function<String,Object>> cache=new HashMap<>();
-	Component node;{
+	static private HashMap<String, BiFunction<String,TileEntity,Object>> cache=new HashMap<>();
+	Connector node;{
 		node=li.cil.oc.api.Network.newNode(this, Visibility.Network).
-		    withComponent("iohub").
+		  withConnector().
+				//  withComponent("iohub").
 		    create();
 		
-		subapi.put("all",new OCApi("iohub_all"));
+		subapi.put("all",new OCApi("iohub"));
 		
-		subapi.put("item",(li.cil.oc.api.network.Environment) 
-		getFilteredClass("item").apply("iohub_item"));
+		/*
+		 subapi.put("item",
+		(li.cil.oc.api.network.Environment) getFilteredClass("item").apply("iohub_item", this));
 		
-		subapi.put("fluid",(li.cil.oc.api.network.Environment) 
-		getFilteredClass("fluid").apply("iohub_fluid"));
+		subapi.put("fluid",
+		(li.cil.oc.api.network.Environment) getFilteredClass("fluid").apply("iohub_fluid", this));
 	
-		subapi.put("ae",(li.cil.oc.api.network.Environment) 
-		getFilteredClass("ae").apply("iohub_ae"));
-	}
-	private Function<String, Object> getFilteredClass(String filter){
+		subapi.put("ae",
+		(li.cil.oc.api.network.Environment) getFilteredClass("ae").apply("iohub_ae", this));
+	*/}
+	private static BiFunction<String,TileEntity, Object>  getFilteredClass(String filter){
 		if(cache.containsKey(filter)){return cache.get(filter);}
 		Class<?> ev= filterAPI(filter);
 	
-		 cache.put(filter,arg->
+		 cache.put(filter,(arg,arg2)->
 		 {
 		 try {
-			return ev.getConstructor(TileIOHub.class,String.class).newInstance(TileIOHub.this,arg);
+			return ev.getConstructor(TileIOHub.class,String.class).newInstance(arg2,arg);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -381,41 +401,69 @@ public boolean canUpdate() {
 	@Retention(value=RetentionPolicy.RUNTIME)
 	public static @interface APIType{String[] value();
 	}
-	Function<byte[],Class<?>> loader=null; 
+	//Function<byte[],Class<?>> loader=null; 
 	
-	private Class<?> load(byte b[]){
-		
-		if(loader==null)//use unsafe to load class
+	private static Class<?> load(byte b[],String ent,String clz){
+				
+		LaunchClassLoader cl=(LaunchClassLoader) TileIOHub.class.getClassLoader();
+	  
 		try {
-		Field f=Class.forName("sun.misc.Unsafe").getDeclaredField("theUnsafe");
-		f.setAccessible(true);
-		Object un=f.get(null);
-		Method m=un.getClass().getDeclaredMethod("defineAnonymousClass", Class.class,byte[].class, Object[].class);
-		loader=by->{try {
-			return(Class)m.invoke(un,OCApi.class,by,null);
-		} catch (Exception e) {
-		e.printStackTrace();
-			return null;
-		}};
-		} catch (Exception e) {e.printStackTrace();
+			URLStreamHandler handler=new URLStreamHandler() {
+				/*
+				 * NEI will try converting this to URI, return something of legal URI format
+				 */
+				@Override
+				protected String toExternalForm(URL u) {
+				return "file:/nonexist";//no real file anyway, just to make NEI happy
+				}
+				
+				@Override
+				protected URLConnection openConnection(URL u) throws IOException {
+					return new URLConnection(u) {
+						@Override
+						public void connect() {}
+						@Override
+						public InputStream getInputStream() throws IOException {
+						
+							
+						//System.err.println(u.getPath().substring(u.getPath().indexOf('/')+1));
+						if(!u.getPath().substring(u.getPath().indexOf('/')+1).equals(ent))
+								throw new IOException();
+						
+						//	System.err.println(u.getPath());
+						return new ByteArrayInputStream(b);
+						}
+					};
+				}
+			};
+			cl.addURL(new URL("dyngenclassproghatch", null, -1, Math.abs(ent.hashCode())+"/",handler));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
 		}
-		
-		if(loader==null)//fall back to normal classloader
-		loader =new ClassLoader(this.getClass().getClassLoader()) {
-			public Class load(byte[] clazz){
-				return defineClass(null, clazz, 0, clazz.length);
-			}}::load;
-		
-		return loader.apply(b);
+	try {
+		return cl.findClass(clz);
+	} catch (ClassNotFoundException e) {
+		e.printStackTrace();return null;
+	}
+	
 }
-	private Class filterAPI(String filter){
+	private static Class filterAPI(String filter){
 		
 		ClassReader cr=null;
 		try {
 			cr=new ClassReader(OCApi.class.getResourceAsStream("/"+OCApi.class.getName().replace('.', '/')+".class"));
 		} catch (IOException e) {throw new RuntimeException("failed to read .class that's not normal",e);}
 		
-		ClassWriter cw=new ClassWriter(ClassWriter.COMPUTE_MAXS|ClassWriter.COMPUTE_FRAMES);
+		ClassWriter cw=new ClassWriter(ClassWriter.COMPUTE_MAXS|ClassWriter.COMPUTE_FRAMES){
+			@Override
+			public int newUTF8(String value) {
+			value=value.replace("reobf/proghatches/block/TileIOHub$OCApi", 
+					"reobf/proghatches/block/TileIOHub$OCApi"+filter
+					);
+				return super.newUTF8(value);
+			}
+			
+		};
 		ClassNode cn=new ClassNode();
 		cr.accept(cn, 0);
 		
@@ -430,84 +478,101 @@ public boolean canUpdate() {
 			return b;
 			}
 			).count();
-		  if(l>0){
+		 /* if(l>0){
 			  System.out.println("remove "+s.name);
-			  }
+			  }*/
 			return l>0;
 			}
 			return false;
 		 });
 		 
-		 
-		// cn.signature=cn.signature.substring(0, cn.signature.length()-1)+"$filtered$"+filter+";";
 		 cn.accept(cw);
 		 
 		 
 		 
-		 return load(cw.toByteArray());
+		 return load(cw.toByteArray(),
+				 "reobf/proghatches/block/TileIOHub$OCApi"+filter+".class",
+				 "reobf.proghatches.block.TileIOHub$OCApi"+filter
+				 
+				 );
 	}
+
 	//
 	//begin of oc		
-	public class OCApi implements li.cil.oc.api.network.Environment,
-	WorldInventoryAnalytics,WorldTankAnalytics,
+	public class OCApi implements
+	li.cil.oc.api.network.Environment, WorldInventoryAnalytics,WorldTankAnalytics,
 	 WorldFluidContainerAnalytics, TankInventoryControl, InventoryAnalytics, MultiTank,
 	InventoryTransfer, FluidContainerTransfer, InventoryControl, TankControl, ItemInventoryControl, InventoryWorldControlMk2, NetworkControl
-{
-	 @Callback(doc = "function(tankSide:number, inventorySide:number, inventorySlot:number [, count:number [, sourceTank:number [, outputSide:number[, outputSlot:number]]]]):boolean, number -- Transfer some fluid from the tank to the container. Returns operation result and filled amount")
+{    
+		@Callback(doc = "function():string -- Returns the custom name of this IO Hub, or 'IOHub' if absent. Use quartz cutter to (re-)name.")
+	    public Object[] getCustomName(final Context context, final Arguments args) {
+	        return new Object[]{TileIOHub.this.getInventoryName()};
+	    }
+		@Callback(doc = "function(address:string):boolean -- Swap the inventory between this IO Hub and another IO Hub. Return whether operation successes.")
+	    public Object[] swap(final Context context, final Arguments args) {
+	       
+			
+			throw new UnsupportedOperationException("NYI");
+	    }
+		
+		
+		
+		@APIType({"fluid"})
+		@Callback(doc = "function(tankSide:number, inventorySide:number, inventorySlot:number [, count:number [, sourceTank:number [, outputSide:number[, outputSlot:number]]]]):boolean, number -- Transfer some fluid from the tank to the container. Returns operation result and filled amount")
 	    public Object[] transferFluidFromTankToContainer(final Context context, final Arguments args) {
 	        return FluidContainerTransfer$class.transferFluidFromTankToContainer(this, context, args);
 	    }
-	    
+		@APIType({"fluid"})
 	    @Callback(doc = "function(inventorySide:number, inventorySlot:number, tankSide:number [, count:number [, outputSide:number[, outputSlot:number]]]):boolean, number -- Transfer some fluid from the container to the tank. Returns operation result and filled amount")
 	    public Object[] transferFluidFromContainerToTank(final Context context, final Arguments args) {
 	        return FluidContainerTransfer$class.transferFluidFromContainerToTank(this, context, args);
 	    }
-	    
+		@APIType({"fluid"})
 	    @Callback(doc = "function(sourceSide:number, sourceSlot:number, sinkSide:number, sinkSlot:number[, count:number [, sourceOutputSide:number[, sinkOutputSide:number[, sourceOutputSlot:number[, sinkOutputSlot:number]]]]]):boolean, number -- Transfer some fluid from a container to another container. Returns operation result and filled amount")
 	    public Object[] transferFluidBetweenContainers(final Context context, final Arguments args) {
 	        return FluidContainerTransfer$class.transferFluidBetweenContainers(this, context, args);
 	    }
-	    
+		@APIType({"item"})
 	    @Callback(doc = "function(sourceSide:number, sinkSide:number[, count:number[, sourceSlot:number[, sinkSlot:number]]]):number -- Transfer some items between two inventories.")
 	    public Object[] transferItem(final Context context, final Arguments args) {
 	        return InventoryTransfer$class.transferItem(this, context, args);
 	    }
-	    
+		@APIType({"fluid"})
 	    @Callback(doc = "function(sourceSide:number, sinkSide:number[, count:number [, sourceTank:number]]):boolean, number -- Transfer some fluid between two tanks. Returns operation result and filled amount")
 	    public Object[] transferFluid(final Context context, final Arguments args) {
 	        return InventoryTransfer$class.transferFluid(this, context, args);
 	    }
-	    
+		@APIType({"fluid"})
 	    @Callback(doc = "function(side:number, slot:number):number -- Get the capacity of the fluid container in the specified slot of the inventory on the specified side of the device.")
 	    public Object[] getContainerCapacityInSlot(final Context context, final Arguments args) {
 	        return WorldFluidContainerAnalytics$class.getContainerCapacityInSlot(this, context, args);
 	    }
-	    
+		@APIType({"fluid"})
 	    @Callback(doc = "function(side:number, slot:number):number -- Get the capacity the fluid container in the specified slot of the inventory on the specified side of the device.")
 	    public Object[] getContainerLevelInSlot(final Context context, final Arguments args) {
 	        return WorldFluidContainerAnalytics$class.getContainerLevelInSlot(this, context, args);
 	    }
-	    
+		@APIType({"fluid"})
 	    @Callback(doc = "function(side:number, slot:number):table -- Get a description of the fluid in the fluid container in the specified slot of the inventory on the specified side of the device.")
 	    public Object[] getFluidInContainerInSlot(final Context context, final Arguments args) {
 	        return WorldFluidContainerAnalytics$class.getFluidInContainerInSlot(this, context, args);
 	    }
-	    
+		@APIType({"fluid"})
 	    @Callback(doc = "function(side:number [, tank:number]):number -- Get the amount of fluid in the specified tank on the specified side.")
 	    public Object[] getTankLevel(final Context context, final Arguments args) {
 	        return WorldTankAnalytics$class.getTankLevel(this, context, args);
 	    }
-	    
+		@APIType({"fluid"})
 	    @Callback(doc = "function(side:number [, tank:number]):number -- Get the capacity of the specified tank on the specified side.")
 	    public Object[] getTankCapacity(final Context context, final Arguments args) {
 	        return WorldTankAnalytics$class.getTankCapacity(this, context, args);
 	    }
-	    
+		@APIType({"fluid"})
 	    @Callback(doc = "function(side:number [, tank:number]):table -- Get a description of the fluid in the the specified tank on the specified side.")
 	    public Object[] getFluidInTank(final Context context, final Arguments args) {
 	        return WorldTankAnalytics$class.getFluidInTank(this, context, args);
 	    }
-	    
+		@APIType({"fluid"})
 	    @Callback(doc = "function(side:number):number -- Get the number of tanks available on the specified side.")
 	    public Object[] getTankCount(final Context context, final Arguments args) {
 	        return WorldTankAnalytics$class.getTankCount(this, context, args);
@@ -590,57 +655,64 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 
 		
 	  
-	    
+		@APIType({"item"})
 		 @Callback(doc = "function(side:number):number -- Get the number of slots in the inventory on the specified side of the device.")
 		    public Object[] getInventorySize(final Context context, final Arguments args) {
 		        return WorldInventoryAnalytics$class.getInventorySize(this, context, args);
 		    }
-		    
+		@APIType({"item"})
 		    @Callback(doc = "function(side:number, slot:number):number -- Get number of items in the specified slot of the inventory on the specified side of the device.")
 		    public Object[] getSlotStackSize(final Context context, final Arguments args) {
 		        return WorldInventoryAnalytics$class.getSlotStackSize(this, context, args);
 		    }
-		    
+		@APIType({"item"})
 		    @Callback(doc = "function(side:number, slot:number):number -- Get the maximum number of items in the specified slot of the inventory on the specified side of the device.")
 		    public Object[] getSlotMaxStackSize(final Context context, final Arguments args) {
 		        return WorldInventoryAnalytics$class.getSlotMaxStackSize(this, context, args);
 		    }
-		    
+		@APIType({"item"})
 		    @Callback(doc = "function(side:number, slotA:number, slotB:number[, checkNBT:boolean=false]):boolean -- Get whether the items in the two specified slots of the inventory on the specified side of the device are of the same type.")
 		    public Object[] compareStacks(final Context context, final Arguments args) {
 		        return WorldInventoryAnalytics$class.compareStacks(this, context, args);
-		    }
+		    }@APIType({"item"})
 		    
 		    @Callback(doc = "function(side:number, slot:number, dbAddress:string, dbSlot:number[, checkNBT:boolean=false]):boolean -- Compare an item in the specified slot in the inventory on the specified side with one in the database with the specified address.")
 		    public Object[] compareStackToDatabase(final Context context, final Arguments args) {
 		        return WorldInventoryAnalytics$class.compareStackToDatabase(this, context, args);
 		    }
-		    
+		    @APIType({"item"})
 		    @Callback(doc = "function(side:number, slotA:number, slotB:number):boolean -- Get whether the items in the two specified slots of the inventory on the specified side of the device are equivalent (have shared OreDictionary IDs).")
 		    public Object[] areStacksEquivalent(final Context context, final Arguments args) {
 		        return WorldInventoryAnalytics$class.areStacksEquivalent(this, context, args);
 		    }
-		    
+		    @APIType({"item"})
 		    @Callback(doc = "function(side:number, slot:number, label:string):boolean -- Change the display name of the stack in the inventory on the specified side of the device.")
 		    public Object[] setStackDisplayName(final Context context, final Arguments args) {
 		        return WorldInventoryAnalytics$class.setStackDisplayName(this, context, args);
 		    }
-		    
+		    @APIType({"item"})
 		    @Callback(doc = "function(side:number, slot:number):table -- Get a description of the stack in the inventory on the specified side of the device.")
 		    public Object[] getStackInSlot(final Context context, final Arguments args) {
 		        return WorldInventoryAnalytics$class.getStackInSlot(this, context, args);
 		    }
-		    
+		    @APIType({"item"})
 		    @Callback(doc = "function(side:number):userdata -- Get a description of all stacks in the inventory on the specified side of the device.")
 		    public Object[] getAllStacks(final Context context, final Arguments args) {
-		        return WorldInventoryAnalytics$class.getAllStacks(this, context, args);
+		        try{return WorldInventoryAnalytics$class.getAllStacks(this, context, args);}
+		        catch(Exception e){
+		        	e.printStackTrace();
+		        	throw e;
+		        	
+		        }
+		        
+		        
 		    }
-		    
+		   
 		    @Callback(doc = "function(side:number):string -- Get the the name of the inventory on the specified side of the device.")
 		    public Object[] getInventoryName(final Context context, final Arguments args) {
 		        return WorldInventoryAnalytics$class.getInventoryName(this, context, args);
 		    }
-		    
+		    @APIType({"item"})
 		    @Callback(doc = "function(side:number, slot:number, dbAddress:string, dbSlot:number):boolean -- Store an item stack description in the specified slot of the database with the specified address.")
 		    public Object[] store(final Context context, final Arguments args) {
 		        return WorldInventoryAnalytics$class.store(this, context, args);
@@ -648,51 +720,51 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 	    
 	   
 		   
-		    
+		    @APIType({"fluid"})
 		    @Callback(doc = "function([slot:number]):number -- Get the amount of fluid in the tank item in the specified slot or the selected slot.")
 		    public Object[] getTankLevelInSlot(final Context context, final Arguments args) {
 		        return TankInventoryControl$class.getTankLevelInSlot(this, context, args);
 		    }
-		    
+		    @APIType({"fluid"})
 		    @Callback(doc = "function([slot:number]):number -- Get the capacity of the tank item in the specified slot of the robot or the selected slot.")
 		    public Object[] getTankCapacityInSlot(final Context context, final Arguments args) {
 		        return TankInventoryControl$class.getTankCapacityInSlot(this, context, args);
 		    }
-		    
+		    @APIType({"fluid"})
 		    @Callback(doc = "function([slot:number]):table -- Get a description of the fluid in the tank item in the specified slot or the selected slot.")
 		    public Object[] getFluidInTankInSlot(final Context context, final Arguments args) {
 		        return TankInventoryControl$class.getFluidInTankInSlot(this, context, args);
 		    }
-		    
+		    @APIType({"fluid"})
 		    @Callback(doc = "function([tank:number]):table -- Get a description of the fluid in the tank in the specified slot or the selected slot.")
 		    public Object[] getFluidInInternalTank(final Context context, final Arguments args) {
 		        return TankInventoryControl$class.getFluidInInternalTank(this, context, args);
 		    }
-		    
+		    @APIType({"fluid"})
 		    @Callback(doc = "function([amount:number]):boolean -- Transfers fluid from a tank in the selected inventory slot to the selected tank.")
 		    public Object[] drain(final Context context, final Arguments args) {
 		        return TankInventoryControl$class.drain(this, context, args);
 		    }
-		    
+		    @APIType({"fluid"})
 		    @Callback(doc = "function([amount:number]):boolean -- Transfers fluid from the selected tank to a tank in the selected inventory slot.")
 		    public Object[] fill(final Context context, final Arguments args) {
 		        return TankInventoryControl$class.fill(this, context, args);
-		    }
+		    }@APIType({"item"})
 		    @Callback(doc = "function([slot:number]):table -- Get a description of the stack in the specified slot or the selected slot.")
 		    public Object[] getStackInInternalSlot(final Context context, final Arguments args) {
 		        return InventoryAnalytics$class.getStackInInternalSlot(this, context, args);
 		    }
-		    
+		    @APIType({"item"})
 		    @Callback(doc = "function(otherSlot:number):boolean -- Get whether the stack in the selected slot is equivalent to the item in the specified slot (have shared OreDictionary IDs).")
 		    public Object[] isEquivalentTo(final Context context, final Arguments args) {
 		        return InventoryAnalytics$class.isEquivalentTo(this, context, args);
 		    }
-		    
+		    @APIType({"item"})
 		    @Callback(doc = "function(slot:number, dbAddress:string, dbSlot:number):boolean --  an item stack description in the specified slot of the database with the specified address.")
 		    public Object[] storeInternal(final Context context, final Arguments args) {
 		        return InventoryAnalytics$class.storeInternal(this, context, args);
 		    }
-		    
+		    @APIType({"item"})
 		    @Callback(doc = "function(slot:number, dbAddress:string, dbSlot:number[, checkNBT:boolean=false]):boolean -- Compare an item in the specified slot with one in the database with the specified address.")
 		    public Object[] compareToDatabase(final Context context, final Arguments args) {
 		        return InventoryAnalytics$class.compareToDatabase(this, context, args);
@@ -822,94 +894,96 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 			///robot
 			  
 		
-		    
+			@APIType({"fluid"})
 		    @Callback(doc = "function():number -- The number of tanks installed in the device.")
 		    public Object[] tankCount(final Context context, final Arguments args) {
 		        return TankControl$class.tankCount(this, context, args);
 		    }
-		    
+			@APIType({"fluid"})
 		    @Callback(doc = "function([index:number]):number -- Select a tank and/or get the number of the currently selected tank.")
 		    public Object[] selectTank(final Context context, final Arguments args) {
 		    	int i=args.checkInteger(0);
 		    	this.selectedTank_$eq(i);
 		    	return new Object[]{i};
 		    }
-		    
+			@APIType({"fluid"})
 		    @Callback(direct = true, doc = "function([index:number]):number -- Get the fluid amount in the specified or selected tank.")
 		    public Object[] tankLevel(final Context context, final Arguments args) {
 		        return TankControl$class.tankLevel(this, context, args);
 		    }
-		    
+			@APIType({"fluid"})
 		    @Callback(direct = true, doc = "function([index:number]):number -- Get the remaining fluid capacity in the specified or selected tank.")
 		    public Object[] tankSpace(final Context context, final Arguments args) {
 		        return TankControl$class.tankSpace(this, context, args);
 		    }
-		    
+			@APIType({"fluid"})
 		    @Callback(doc = "function(index:number):boolean -- Compares the fluids in the selected and the specified tank. Returns true if equal.")
 		    public Object[] compareFluidTo(final Context context, final Arguments args) {
 		        return TankControl$class.compareFluidTo(this, context, args);
 		    }
-		    
+			@APIType({"fluid"})
 		    @Callback(doc = "function(index:number[, count:number=1000]):boolean -- Move the specified amount of fluid from the selected tank into the specified tank.")
 		    public Object[] transferFluidTo(final Context context, final Arguments args) {
 		        return TankControl$class.transferFluidTo(this, context, args);
 		    }
-		   
+			@APIType({"item"})
 		    @Callback(doc = "function([slot:number]):number -- Get the currently selected slot; set the selected slot if specified.")
 		    public Object[] select(final Context context, final Arguments args) {
 		    	int i=args.checkInteger(0);
 		    	this.selectedSlot_$eq(i);
 		    	return new Object[]{i};
 		    }
-		    
+			@APIType({"item"})
 		    @Callback(direct = true, doc = "function([slot:number]):number -- Get the number of items in the specified slot, otherwise in the selected slot.")
 		    public Object[] count(final Context context, final Arguments args) {
 		        return InventoryControl$class.count(this, context, args);
 		    }
-		    
+			@APIType({"item"})
 		    @Callback(direct = true, doc = "function([slot:number]):number -- Get the remaining space in the specified slot, otherwise in the selected slot.")
 		    public Object[] space(final Context context, final Arguments args) {
-		        return InventoryControl$class.space(this, context, args);
+		       
+				System.out.println(this.inventory().getInventoryStackLimit());
+				return InventoryControl$class.space(this, context, args);
 		    }
-		    
+			@APIType({"item"})
 		    @Callback(doc = "function(otherSlot:number[, checkNBT:boolean=false]):boolean -- Compare the contents of the selected slot to the contents of the specified slot.")
 		    public Object[] compareTo(final Context context, final Arguments args) {
 		        return InventoryControl$class.compareTo(this, context, args);
 		    }
-		    
+			@APIType({"item"})
 		    @Callback(doc = "function(toSlot:number[, amount:number]):boolean -- Move up to the specified amount of items from the selected slot into the specified slot.")
 		    public Object[] transferTo(final Context context, final Arguments args) {
 		        return InventoryControl$class.transferTo(this, context, args);
 		    }
 
 
-
+			@APIType({"item"})
 		    @Callback(doc = "function():number -- The size of this device's internal inventory.")
 		    public Object[] inventorySize(final Context context, final Arguments args) {
 		        return InventoryControl$class.inventorySize(this, context, args);
-		    }
+		    }@APIType({"item"})
 			 @Callback(doc = "function(slot:number):number -- The size of an item inventory in the specified slot.")
 			    public Object[] getItemInventorySize(final Context context, final Arguments args) {
 			        return ItemInventoryControl$class.getItemInventorySize(this, context, args);
 			    }
-			    
+		    @APIType({"item"})
 			    @Callback(doc = "function(inventorySlot:number, slot:number[, count:number=64]):number -- Drops an item into the specified slot in the item inventory.")
 			    public Object[] dropIntoItemInventory(final Context context, final Arguments args) {
 			        return ItemInventoryControl$class.dropIntoItemInventory(this, context, args);
 			    }
-			    
+		    @APIType({"item"})
 			    @Callback(doc = "function(inventorySlot:number, slot:number[, count:number=64]):number -- Sucks an item out of the specified slot in the item inventory.")
 			    public Object[] suckFromItemInventory(final Context context, final Arguments args) {
 			        return ItemInventoryControl$class.suckFromItemInventory(this, context, args);
 			    }
 			    
-			   
+		    @APIType({"item"})
 			    
 			    @Callback(doc = "function(facing:number, slot:number[, count:number[, fromSide:number]]):boolean -- Drops the selected item stack into the specified slot of an inventory.")
 			    public Object[] dropIntoSlot(final Context context, final Arguments args) {
 			        return InventoryWorldControlMk2$class.dropIntoSlot(this, context, args);
 			    }
-			    
+		    @APIType({"item"})
 			    @Callback(doc = "function(facing:number, slot:number[, count:number[, fromSide:number]]):boolean -- Sucks items from the specified slot of an inventory.")
 			    public Object[] suckFromSlot(final Context context, final Arguments args) {
 			        return InventoryWorldControlMk2$class.suckFromSlot(this, context, args);
@@ -918,56 +992,63 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 			    
   
 			    //AE COMPAT
+			    @APIType({"ae"})
+			    @Callback(doc="function():boolean -- Always return true since it needs no Security Terminal.")
+			    public Object[] isLinked(final Context context, final Arguments args) {
+			        return new Object[]{true};
+			    }
+		    
+			    @APIType({"ae"})
 			    @Callback(doc = "function():table -- Get a list of tables representing the available CPUs in the network.")
 			    public Object[] getCpus(final Context context, final Arguments args) {
 			        return NetworkControl$class.getCpus(this, context, args);
 			    }
-			    
+			    @APIType({"ae"})
 			    @Callback(doc = "function([filter:table]):table -- Get a list of known item recipes. These can be used to issue crafting requests.")
 			    public Object[] getCraftables(final Context context, final Arguments args) {
 			        return NetworkControl$class.getCraftables(this, context, args);
 			    }
-			    
+			    @APIType({"item","ae"})
 			    @Callback(doc = "function([filter:table]):table -- Get a list of the stored items in the network.")
 			    public Object[] getItemsInNetwork(final Context context, final Arguments args) {
 			        return NetworkControl$class.getItemsInNetwork(this, context, args);
 			    }
-			    @APIType("item")
+			    @APIType({"item","ae"})
 			    @Callback(doc = "function():userdata -- Get an iterator object for the list of the items in the network.")
 			    public Object[] allItems(final Context context, final Arguments args) {
 			        return NetworkControl$class.allItems(this, context, args);
 			    }
-			    
+			    @APIType({"item","ae"})
 			    @Callback(doc = "function(filter:table, dbAddress:string[, startSlot:number[, count:number]]): Boolean -- Store items in the network matching the specified filter in the database with the specified address.")
 			    public Object[] storeAE(final Context context, final Arguments args) {
 			        return NetworkControl$class.store(this, context, args);
 			    }
-			    
+			    @APIType({"fluid","ae"})
 			    @Callback(doc = "function():table -- Get a list of the stored fluids in the network.")
 			    public Object[] getFluidsInNetwork(final Context context, final Arguments args) {
 			        return NetworkControl$class.getFluidsInNetwork(this, context, args);
 			    }
-			    
+			    @APIType({"ae"})
 			    @Callback(doc = "function():number -- Get the average power injection into the network.")
 			    public Object[] getAvgPowerInjection(final Context context, final Arguments args) {
 			        return NetworkControl$class.getAvgPowerInjection(this, context, args);
 			    }
-			    
+			    @APIType({"ae"})
 			    @Callback(doc = "function():number -- Get the average power usage of the network.")
 			    public Object[] getAvgPowerUsage(final Context context, final Arguments args) {
 			        return NetworkControl$class.getAvgPowerUsage(this, context, args);
 			    }
-			    
+			    @APIType({"ae"})
 			    @Callback(doc = "function():number -- Get the idle power usage of the network.")
 			    public Object[] getIdlePowerUsage(final Context context, final Arguments args) {
 			        return NetworkControl$class.getIdlePowerUsage(this, context, args);
 			    }
-			    
+			    @APIType({"ae"})
 			    @Callback(doc = "function():number -- Get the maximum stored power in the network.")
 			    public Object[] getMaxStoredPower(final Context context, final Arguments args) {
 			        return NetworkControl$class.getMaxStoredPower(this, context, args);
 			    }
-			    
+			    @APIType({"ae"})
 			    @Callback(doc = "function():number -- Get the stored power in the network. ")
 			    public Object[] getStoredPower(final Context context, final Arguments args) {
 			        return NetworkControl$class.getStoredPower(this, context, args);
@@ -1001,7 +1082,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 			        }
 			        return (IMEMonitor<IAEItemStack>)storage.getItemInventory();
 			    }
-			    
+			    @APIType({"item","ae"})
 				@Callback(doc = "function([number:amount]):number -- Transfer selected items to your ae system.")
 			    public Object[] sendItems(final Context context, final Arguments args) {
 			    
@@ -1041,7 +1122,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 			        }
 			        return array;
 			    }
-			    
+			    @APIType({"item","ae"})
 			    @Callback(doc = "function(database:address, entry:number[, number:amount]):number -- Get items from your ae system.")
 			    public Object[] requestItems(final Context context, final Arguments args) {
 			        final String address = args.checkString(0);
@@ -1115,7 +1196,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 			            return null;
 			        }
 			        return (IMEMonitor<IAEFluidStack>)storage.getFluidInventory();
-			    }
+			    }@APIType({"fluid","ae"})
 			    @Callback(doc = "function([number:amount]):number -- Transfer selected fluid to your ae system.")
 			    public Object[] sendFluids(final Context context, final Arguments args) {
 			        final int selected =selectedTank();
@@ -1147,7 +1228,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 			    
 			  
 
-
+			    @APIType({"fluid","ae"})
 				@Callback(doc = "function(database:address, entry:number[, number:amount]):number -- Get fluid from your ae system.")
 			    public Object[] requestFluids(final Context context, final Arguments args) {
 			        final String address = args.checkString(0);
@@ -1188,48 +1269,48 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 			        }
 			        return new Object[] {tank.fill(extracted.getFluidStack(), true)};
 			    }
+			    public OCApi(String s) {
+			
+			    	name=s;
+			    	 node=li.cil.oc.api.Network.newNode(this, Visibility.Network).
+							    withComponent(name).
+							    
+							    create();
+			    
+			    }final String name;
 
 				@Override
 				public Node node() {
 					
 					return node;
 				}
-				public OCApi(String s) {
-			name=s;
-			node=li.cil.oc.api.Network.newNode(this, Visibility.Network).
-						    withComponent(name).
-						    create();
-				}final String name;
-				Component node
-					;
 				
-				/*@Override
-				public Node node() {
-					
-					return TileIOHub.this.node();
-				}*/
+				
+			
+				Component node;
+				
+			@Override
+			public void onConnect(Node node) {
+				// TODO Auto-generated method stub
+				
+			}
+			@Override
+			public void onDisconnect(Node node) {
+				// TODO Auto-generated method stub
+				
+			}
+			@Override
+			public void onMessage(Message message) {
+				// TODO Auto-generated method stub
+				
+			}
+				
+				
+	//end of oc						
+}
+	
 
-				@Override
-				public void onConnect(Node node) {
-					
-					
-				}
 
-				@Override
-				public void onDisconnect(Node node) {
-					
-					
-				}
-
-				@Override
-				public void onMessage(Message message) {
-					
-					
-				}
-
-	}
-
-//end of oc			
 				
 			
 
@@ -1425,10 +1506,10 @@ public void readFromNBT(NBTTagCompound compound) {
 	getProxy().readFromNBT(compound);
 	
 	NBTTagCompound nd=(NBTTagCompound) compound.getTag("mainNode");
-	if(nd!=null)node.load(nd);
+	if(nd!=null&&node!=null)node.load(nd);
 	for( Entry<String, li.cil.oc.api.network.Environment> ent:subapi.entrySet()){
 		nd=(NBTTagCompound) compound.getTag(ent.getKey());
-		if(nd!=null)
+		if(nd!=null&&ent.getValue().node()!=null)
 		ent.getValue().node().load(nd);
 	}
 	super.readFromNBT(compound);
@@ -1447,14 +1528,20 @@ public void writeToNBT(NBTTagCompound compound) {
 	compound.setInteger("tankselected", tankselected);
 	
 	getProxy().writeToNBT(compound);
-	NBTTagCompound nd=new NBTTagCompound();
+	
+	
+	final NBTTagCompound nd=new NBTTagCompound();
 	compound.setTag("mainNode", nd);
-	node.save(nd);
+	
+	Optional.ofNullable(node).ifPresent(s->s.save(nd));
+	
 	for( Entry<String, li.cil.oc.api.network.Environment> ent:subapi.entrySet()){
-		 nd=new NBTTagCompound();
-		compound.setTag(ent.getKey(), nd);
-		ent.getValue().node().save(nd);
+		final NBTTagCompound nd0=new NBTTagCompound();
+		compound.setTag(ent.getKey(), nd0);
+		Optional.ofNullable(ent.getValue().node()).ifPresent(s->s.save(nd0));
 	}
+	
+	
 	super.writeToNBT(compound);
 }
 

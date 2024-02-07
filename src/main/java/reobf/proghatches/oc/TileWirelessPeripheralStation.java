@@ -11,7 +11,9 @@ import java.util.function.IntUnaryOperator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import gregtech.api.enums.SoundResource;
 import gregtech.api.interfaces.tileentity.IGregtechWailaProvider;
+import gregtech.api.util.GT_Utility;
 import li.cil.oc.api.network.Connector;
 import li.cil.oc.api.network.EnvironmentHost;
 import li.cil.oc.api.network.ManagedEnvironment;
@@ -154,19 +156,21 @@ public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p
 			TileWirelessPeripheralStation tile=(TileWirelessPeripheralStation) worldIn.getTileEntity(x, y, z);
 			if(Wrench.holdsApplicableWrench(player, new BlockPosition(x, y, z, Some.apply(worldIn)))){
 				if(!worldIn.isRemote&&tile.oneComputer==false){
-				Wrench.wrenchUsed(player, new BlockPosition(x, y, z, Some.apply(worldIn)));
+					   GT_Utility
+	                    .sendSoundToPlayers(worldIn, SoundResource.RANDOM_ANVIL_BREAK, 1.0F, -1.0F, x, y, z);
+	          	Wrench.wrenchUsed(player, new BlockPosition(x, y, z, Some.apply(worldIn)));
 				tile.oneComputer=true;
 				}
 				return true;
 			}
 			ItemStack is;
-			if (worldIn.isRemote)
-				return false;
-			if ((is = player.getHeldItem()) != null) {
+			/*if (worldIn.isRemote)
+				return false;*/
+			if ((is = player.getHeldItem()) != null&&is.getItem() instanceof ItemWirelessPeripheralCard) {
 
 				if (is.getTagCompound() == null)
 					is.setTagCompound(new NBTTagCompound());
-
+				GT_Utility.doSoundAtClient(SoundResource.IC2_TOOLS_OD_SCANNER, 1, 1.0F, x+0.5, y+0.5, z+0.5);
 				// System.out.println(((TileWirelessPeripheralStation)worldIn.getTileEntity(x,
 				// y, z)));
 				// System.out.println(((TileWirelessPeripheralStation)worldIn.getTileEntity(x,

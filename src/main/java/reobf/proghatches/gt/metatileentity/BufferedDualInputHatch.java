@@ -65,18 +65,23 @@ import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IMachineProgress;
+import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_OutputBus;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.recipe.check.CheckRecipeResult;
+import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.util.GT_TooltipDataCache.TooltipData;
 import gregtech.api.util.GT_Utility;
 import gregtech.api.util.extensions.ArrayExt;
 import gregtech.common.tileentities.machines.IDualInputInventory;
+import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 
-public class BufferedDualInputHatch extends DualInputHatch {
+public class BufferedDualInputHatch extends DualInputHatch  {
 	
 	  
     public Widget circuitSlot(IItemHandlerModifiable inventory, int slot) {
@@ -220,15 +225,15 @@ public class BufferedDualInputHatch extends DualInputHatch {
     public void initTierBasedField() {
 
         if (mMultiFluid) {
-            mStoredFluid = new FluidTank[] {
+            mStoredFluid = new ListeningFluidTank[] {
 
-                new FluidTank((int) (1000 * Math.pow(2, mTier))), new FluidTank((int) (1000 * Math.pow(2, mTier))),
-                new FluidTank((int) (1000 * Math.pow(2, mTier))), new FluidTank((int) (1000 * Math.pow(2, mTier)))
+                new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)),this), new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)),this),
+                new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)),this), new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)),this)
 
             };
         } else {
 
-            mStoredFluid = new FluidTank[] { new FluidTank((int) (4000 * Math.pow(2, mTier))) };
+            mStoredFluid = new ListeningFluidTank[] { new ListeningFluidTank((int) (4000 * Math.pow(2, mTier)),this) };
 
         }
 
@@ -283,7 +288,16 @@ public class BufferedDualInputHatch extends DualInputHatch {
             return false;
 
         }
-
+public void updateSlots(){
+	  for (int i = 0; i < this.i ; i++)
+		 if (mStoredItemInternal[i] != null && mStoredItemInternal[i].stackSize <= 0){ 
+        	  mStoredItemInternal[i] = null;}
+	  for (int i = 0; i < this.f ; i++)
+			if(Optional.ofNullable(mStoredFluidInternal[i].getFluid()).filter(s->s.amount==0).isPresent()){
+				mStoredFluidInternal[i].setFluid(null);
+				}
+	  
+}
         public NBTTagCompound toTag() {
 
             NBTTagCompound tag = new NBTTagCompound();
@@ -414,15 +428,17 @@ public class BufferedDualInputHatch extends DualInputHatch {
 
             return true;
         }
-
-        public void firstCalssify(FluidTank[] fin, ItemStack[] iin) {
+/**
+ * classify() with less check, for better performance
+ * */
+        public void firstClassify(ListeningFluidTank[] fin, ItemStack[] iin) {
 
             for (int ix = 0; ix < f; ix++) {
                 mStoredFluidInternal[ix].setFluid(
                     Optional.ofNullable(fin[ix].getFluid())
                         .map(FluidStack::copy)
                         .orElse(null));
-                fin[ix].setFluid(null);
+                fin[ix].setFluidDirect(null);
 
             }
             for (int ix = 0; ix < i; ix++) {
@@ -467,7 +483,7 @@ public class BufferedDualInputHatch extends DualInputHatch {
 
         }
 
-        public void classify(FluidTank[] fin, ItemStack[] iin) {
+        public void classify(ListeningFluidTank[] fin, ItemStack[] iin) {
             boolean hasJob = false;
             for (int ix = 0; ix < f; ix++) {
                 if (fin[ix].getFluidAmount() > 0) {
@@ -491,7 +507,7 @@ public class BufferedDualInputHatch extends DualInputHatch {
 
             for (int ix = 0; ix < f; ix++) {
                 mStoredFluidInternal[ix].fill(mStoredFluidInternalSingle[ix].getFluid(), true);
-                fin[ix].setFluid(null);
+                fin[ix].setFluidDirect(null);
 
             }
             for (int ix = 0; ix < i; ix++) {
@@ -505,7 +521,7 @@ public class BufferedDualInputHatch extends DualInputHatch {
 
         }
 
-        public void recordRecipeOrCalssify(FluidTank[] fin, ItemStack[] iin) {
+        public boolean recordRecipeOrClassify(ListeningFluidTank[] fin, ItemStack[] iin) {
             boolean isEmpty = clearRecipeIfNeeded();
             // clearRecipeIfNeeded();
             if (recipeLocked == false && isEmpty == true) {
@@ -523,9 +539,10 @@ public class BufferedDualInputHatch extends DualInputHatch {
                     }
                 }
                 recipeLocked = actuallyFound;
-                firstCalssify(fin, iin);
+               if(actuallyFound) firstClassify(fin, iin);
+                return actuallyFound;
             }
-
+            return false;
         }
 
         @Override
@@ -608,23 +625,32 @@ public class BufferedDualInputHatch extends DualInputHatch {
             }
         }
     }
-
+public boolean highEfficiencyMode(){return false;}
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
         super.onPostTick(aBaseMetaTileEntity, aTick);
         if (aBaseMetaTileEntity.getWorld().isRemote) return;
         
-        if(this.getBaseMetaTileEntity().isAllowedToWork())
-        for (DualInvBuffer inv0 : this.sortByEmpty()) {
-            if (inv0.full() == false) {
-                inv0.recordRecipeOrCalssify(this.mStoredFluid, mInventory);
-                inv0.classify(this.mStoredFluid, mInventory);
-            }
-        }
         
-        // BaseMetaTileEntity h;
-        // h.add4by4Slots(builder, background);
-         }
+       if(dirty){updateSlots();markDirty();}
+        dirty=dirty||(!highEfficiencyMode());
+        boolean on=(this.getBaseMetaTileEntity().isAllowedToWork());
+        for (DualInvBuffer inv0 : this.sortByEmpty()) {
+             if(on&&dirty){
+            	 if (inv0.full() == false) {
+               if(!inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)){
+                inv0.classify(this.mStoredFluid, mInventory);
+                }
+            	 }
+            }
+            
+             
+             
+           inv0.clearRecipeIfNeeded();
+        }
+      
+        dirty=false;
+    }
 
     @Override
     public ItemStack getStackInSlot(int aIndex) {
@@ -657,12 +683,20 @@ public class BufferedDualInputHatch extends DualInputHatch {
         }
 
     }
-
+    boolean dirty;
+@Override
+public void onFill() {
+	//Thread.dumpStack();
+	classify();
+	markDirty();
+	dirty=true;
+}
     @Override
     public void setInventorySlotContents(int aIndex, ItemStack aStack) {
         super.setInventorySlotContents(aIndex, aStack);
 
         classify();
+    	markDirty();dirty=true;
     }
 
     public void add1by1Slot(ModularWindow.Builder builder, int index, IDrawable... background) {
@@ -970,6 +1004,8 @@ public class BufferedDualInputHatch extends DualInputHatch {
         		thiz.disableWorking();
             } else {
             	thiz.enableWorking();
+            	BufferedDualInputHatch bff =(BufferedDualInputHatch) (thiz).getMetaTileEntity();
+            	bff.dirty=true;
             }
         })
             .setPlayClickSoundResource( () -> thiz.isAllowedToWork() ? SoundResource.GUI_BUTTON_UP.resourceLocation
@@ -990,7 +1026,7 @@ public class BufferedDualInputHatch extends DualInputHatch {
             }), builder)
             .addTooltip(StatCollector.translateToLocal("GT5U.gui.button.power_switch"))
             .setTooltipShowUpDelay(TOOLTIP_DELAY)
-            .setPos(new Pos2d(getGUIWidth()-18-3,3))
+            .setPos(new Pos2d(getGUIWidth()-18-3,5))
             .setSize(16, 16);
         return (ButtonWidget) button;
     }
@@ -1018,7 +1054,7 @@ public class BufferedDualInputHatch extends DualInputHatch {
 
     @Override
     public void loadNBTData(NBTTagCompound aNBT) {
-        // inv0.clear();
+    	dirty=aNBT.getBoolean("dirty");
         for (int i = 0; i < bufferNum; i++) {
             final int ii = i;
             inv0.get(i)
@@ -1030,6 +1066,7 @@ public class BufferedDualInputHatch extends DualInputHatch {
 
     @Override
     public void saveNBTData(NBTTagCompound aNBT) {
+    	aNBT.setBoolean("dirty", dirty);
         for (int i = 0; i < bufferNum; i++)
 
             aNBT.setTag(
@@ -1119,7 +1156,7 @@ public class BufferedDualInputHatch extends DualInputHatch {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Optional<IDualInputInventory> getFirstNonEmptyInventory() {
-
+    	dirty=true;//IRecipeProcessingAwareHatch NOT working on dualhatch, so assume multi-te will consume items after calling this
         return (Optional) inv0.stream()
             .filter(not(DualInvBuffer::isEmpty))
             .findAny();
@@ -1131,7 +1168,7 @@ public class BufferedDualInputHatch extends DualInputHatch {
 
     @Override
     public Iterator<? extends IDualInputInventory> inventories() {
-
+    	dirty=true;
         return inv0.stream()
             .filter(not(DualInvBuffer::isEmpty))
             .iterator();
@@ -1252,4 +1289,12 @@ public class BufferedDualInputHatch extends DualInputHatch {
     	
     	
     }
+
+	
+@Override
+public void updateSlots() {
+	  inv0.forEach(DualInvBuffer::updateSlots);
+	super.updateSlots();
+}
+	
 }

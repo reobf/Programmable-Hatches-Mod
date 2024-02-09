@@ -101,10 +101,10 @@ String cfg=
         // GregTech5RecipeProcessor.class.getDeclaredFields();
 
         ArrayList<String> ret = new ArrayList<>();
-    	if(!"true".equals(pp.get("noRecipeFilterForDualHatch")))
-        ret.add("MixinGTRecipeFilter");
+    	if(!"true".equals(pp.get("noRecipeFilterForDualHatch"))){
+    	ret.add("MixinGTRecipeFilter");
         // GT Multiblock will not set recipe filter of DualInputHatch, set it via mixin
-        // ret.add("MixinAddProgCircuitExemptToInputFilter");
+         ret.add("MixinAddProgCircuitExemptToInputFilter");}
         // Crafting CPU cannot recognize empty-input pattern
         // bypass the check anyway
         ret.add("MixinCanCraftExempt");

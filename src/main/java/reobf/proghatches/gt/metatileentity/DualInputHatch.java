@@ -111,16 +111,16 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
 
         if (mMultiFluid) {
 
-            mStoredFluid = new FluidTank[] {
+            mStoredFluid = new ListeningFluidTank[] {
 
-                new FluidTank((int) (1000 * Math.pow(2, mTier))), new FluidTank((int) (1000 * Math.pow(2, mTier))),
-                new FluidTank((int) (1000 * Math.pow(2, mTier))), new FluidTank((int) (1000 * Math.pow(2, mTier)))
+                new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)),this), new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)),this),
+                new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)),this), new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)),this)
 
             };
 
         } else {
 
-            mStoredFluid = new FluidTank[] { new FluidTank((int) (4000 * Math.pow(2, mTier))) };
+            mStoredFluid = new ListeningFluidTank[] { new ListeningFluidTank((int) (4000 * Math.pow(2, mTier)),this) };
 
         }
 
@@ -143,7 +143,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
 
     }
 
-    public FluidTank[] mStoredFluid;
+    public ListeningFluidTank[] mStoredFluid;
 
     @Override
     public void saveNBTData(NBTTagCompound aNBT) {
@@ -513,7 +513,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
             if (decrStackSize(slot, 64).stackSize == 0) {
                 continue;
             }
-
+        	markDirty();
             setInventorySlotContents(
                 getCircuitSlot(),
                 ItemProgrammingCircuit.getCircuit(is)
@@ -541,13 +541,14 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
         super.onPostTick(aBaseMetaTileEntity, aTick);
         if (aBaseMetaTileEntity.getWorld().isRemote) return;
-        markDirty();
+     
 
         if (program) program();
         if (aBaseMetaTileEntity.isServerSide()) {
             for (int i = 0; i < getMaxType(); i++) {
                 if (mStoredFluid[i].getFluid() != null && mStoredFluid[i].getFluidAmount() <= 0) {
                     mStoredFluid[i].setFluid(null);
+                	markDirty();
                 }
             }
         }
@@ -559,7 +560,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
         super.setInventorySlotContents(aIndex, aStack);
         if (program) program();
     }
-
+    public void onFill(){}
     @Override
     public int fill(FluidStack aFluid, boolean doFill) {
         if (aFluid == null || aFluid.getFluid()

@@ -88,11 +88,11 @@ public class SuperfluidHatch extends BufferedDualInputHatch {
 
         ArrayList<FluidTank> arr = new ArrayList<>();
         for (int i = 0; i < 24; i++) {
-            arr.add(new FluidTank((int) (1000 * Math.pow(2, mTier))));
+            arr.add(new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)),this));
 
         }
 
-        mStoredFluid = arr.toArray(new FluidTank[0]);
+        mStoredFluid = arr.toArray(new ListeningFluidTank[0]);
 
         return;
     }

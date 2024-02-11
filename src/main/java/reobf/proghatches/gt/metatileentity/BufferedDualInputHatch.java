@@ -3,6 +3,7 @@ package reobf.proghatches.gt.metatileentity;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 import static reobf.proghatches.main.Config.defaultObj;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
@@ -26,6 +27,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
@@ -56,6 +58,7 @@ import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
 import com.gtnewhorizons.modularui.common.widget.Scrollable;
 import com.gtnewhorizons.modularui.common.widget.SlotGroup;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
+import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import cpw.mods.fml.relauncher.Side;
@@ -631,9 +634,11 @@ public boolean highEfficiencyMode(){return false;}
         super.onPostTick(aBaseMetaTileEntity, aTick);
         if (aBaseMetaTileEntity.getWorld().isRemote) return;
         
-        
-       if(dirty){updateSlots();markDirty();}
-        dirty=dirty||(!highEfficiencyMode());
+       
+       if(dirty){updateSlots();}
+       dirty=dirty||getBaseMetaTileEntity().hasInventoryBeenModified();
+       //System.out.println(dirty);
+        //dirty=dirty||(!highEfficiencyMode());
         boolean on=(this.getBaseMetaTileEntity().isAllowedToWork());
         for (DualInvBuffer inv0 : this.sortByEmpty()) {
              if(on&&dirty){
@@ -678,6 +683,7 @@ public boolean highEfficiencyMode(){return false;}
     }
 
     public void classify() {
+    	if(isRemote())return;
         for (DualInvBuffer inv0 : this.sortByEmpty()) {
             if (inv0.full() == false) inv0.classify(this.mStoredFluid, mInventory);
         }
@@ -987,6 +993,11 @@ public void onFill() {
                 () -> inv0.toTag()
                     .toString(),
                 s -> inv0.fromTag(cv(s))));
+
+				
+			
+      
+      
         return builder.build();
     }
 
@@ -1041,7 +1052,12 @@ public void onFill() {
         }
         
         builder.widget(createPowerSwitchButton(builder));
-       
+        builder.widget(new SyncedWidget(){  
+        	//player operation is more complicated, always set to true when GUI open
+        	public  void detectAndSendChanges(boolean init) {BufferedDualInputHatch.this.dirty=true;};	
+			@Override public void readOnClient(int id, PacketBuffer buf) throws IOException {}
+			@Override public void readOnServer(int id, PacketBuffer buf) throws IOException {}});
+			
         super.addUIWidgets(builder, buildContext);
         // builder.widget(widget);
 
@@ -1290,7 +1306,11 @@ public void onFill() {
     	
     }
 
-	
+	private Boolean isRemote;
+	public boolean isRemote(){
+		if(isRemote==null)isRemote=this.getBaseMetaTileEntity().getWorld().isRemote;
+		return isRemote;
+		}
 @Override
 public void updateSlots() {
 	  inv0.forEach(DualInvBuffer::updateSlots);

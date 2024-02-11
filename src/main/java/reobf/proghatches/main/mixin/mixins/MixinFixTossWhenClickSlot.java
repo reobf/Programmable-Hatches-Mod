@@ -23,5 +23,15 @@ public abstract class MixinFixTossWhenClickSlot {
 
         return c;
     }
+/*
+GuiContainer.java
+
+boolean flag1 = mouseX < i1 || mouseY < j1 || mouseX >= i1 + this.xSize || mouseY >= j1 + this.ySize;
+if (slot != null) {
+flag1 = this.localvar$zzg000$programmablehatches$mouseClicked(flag1);<-----------inject here
+k1 = slot.slotNumber;
+}
+
+*/
 
 }

@@ -14,11 +14,13 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import scala.None$;
 import li.cil.oc.util.ExtendedWorld$;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import scala.Option;
 import scala.Some;
 import scala.Tuple2;
@@ -259,10 +261,19 @@ IGridProxyable,ITileWithModularUI, ICustomNameObject,IActionHost
 	public void onDisconnect(Node node) {
 	
 		
-	}
+	} 
+	public void markDirty()
+    {
+		final Chunk chunk = worldObj.getChunkFromBlockCoords(xCoord, zCoord);
+    if (chunk != null) {
+        chunk.setChunkModified();
+    }
+        //this.worldObj.markTileEntityChunkModified(this.xCoord, this.yCoord, this.zCoord, this);
+
+    }
 	boolean init;
 	public void updateEntity() {
-		this.markDirty();
+		
 		dead=false;
 	         super.updateEntity();
 	         
@@ -510,37 +521,73 @@ public boolean canUpdate() {
 	        return new Object[]{TileIOHub.this.getInventoryName()};
 	    }
 		@Callback(doc = "function(address:string):boolean -- Swap the inventory between this IO Hub and another IO Hub. Return whether operation successes.")
-	    public Object[] swap(final Context context, final Arguments args) {
-	       
+	    public Object[] swap(final Context context, final Arguments args) {markDirty();
+	    final String address = args.checkString(0);
+        final int entry = args.checkInteger(1);
+        final int amount = args.optInteger(2, 1000);
+      
+        final Node n =node().network().node(address);
+        if (n == null) {
+        	  return new Object[] {false,"no such component"};
+           // throw new IllegalArgumentException("no such component");
+        }
+        if (!(n instanceof Component)) {
+        	  return new Object[] {false,"no such component"};
+            //throw new IllegalArgumentException("no such component");
+        }
+        final li.cil.oc.api.network.Environment env = n.host();
+        if (!(env instanceof TileIOHub.OCApi)) {
+        	 return new Object[] {false,"not a iohub"};
+            //throw new IllegalArgumentException("not a iohub");
+        }
+        final  TileIOHub.OCApi database = ( TileIOHub.OCApi)env;
+        database.markDirty();
+        //do not directly swap ref just in case...
+        ItemStack[] ia = Arrays.stream(inv).map(ItemStack::copy).toArray( ItemStack[]::new);
+        NBTTagCompound[] fa = Arrays.stream(ft).map(s->s.writeToNBT(new NBTTagCompound())).toArray(NBTTagCompound[]::new);
+        ItemStack[] ib = Arrays.stream(database.TileIOHubthis().inv).map(ItemStack::copy).toArray(ItemStack[]::new);
+        NBTTagCompound[] fb = Arrays.stream(database.TileIOHubthis().ft).map(s->s.writeToNBT(new NBTTagCompound())).toArray(NBTTagCompound[]::new);
+         
+        for(int i=0;i<ib.length;i++){
+        	database.TileIOHubthis().inv[i]=(ItemStack) ia[i];
+        							 inv[i]=(ItemStack) ib[i];
+        }	
+        for(int i=0;i<fb.length;i++){
+        	database.TileIOHubthis().ft[i].readFromNBT((NBTTagCompound) fa[i]);
+        							 ft[i].readFromNBT((NBTTagCompound) fb[i]);
+        }		
+        
+        
+        return new Object[] {true};
 			
-			throw new UnsupportedOperationException("NYI");
+			//throw new UnsupportedOperationException("NYI");
 	    }
-		
-		
+		private TileIOHub TileIOHubthis(){return TileIOHub.this;}
+		private void markDirty(){TileIOHub.this.markDirty();}
 		
 		@APIType({"fluid"})
 		@Callback(doc = "function(tankSide:number, inventorySide:number, inventorySlot:number [, count:number [, sourceTank:number [, outputSide:number[, outputSlot:number]]]]):boolean, number -- Transfer some fluid from the tank to the container. Returns operation result and filled amount")
-	    public Object[] transferFluidFromTankToContainer(final Context context, final Arguments args) {
+	    public Object[] transferFluidFromTankToContainer(final Context context, final Arguments args) {markDirty();
 	        return FluidContainerTransfer$class.transferFluidFromTankToContainer(this, context, args);
 	    }
 		@APIType({"fluid"})
 	    @Callback(doc = "function(inventorySide:number, inventorySlot:number, tankSide:number [, count:number [, outputSide:number[, outputSlot:number]]]):boolean, number -- Transfer some fluid from the container to the tank. Returns operation result and filled amount")
-	    public Object[] transferFluidFromContainerToTank(final Context context, final Arguments args) {
+	    public Object[] transferFluidFromContainerToTank(final Context context, final Arguments args) {markDirty();
 	        return FluidContainerTransfer$class.transferFluidFromContainerToTank(this, context, args);
 	    }
 		@APIType({"fluid"})
 	    @Callback(doc = "function(sourceSide:number, sourceSlot:number, sinkSide:number, sinkSlot:number[, count:number [, sourceOutputSide:number[, sinkOutputSide:number[, sourceOutputSlot:number[, sinkOutputSlot:number]]]]]):boolean, number -- Transfer some fluid from a container to another container. Returns operation result and filled amount")
-	    public Object[] transferFluidBetweenContainers(final Context context, final Arguments args) {
+	    public Object[] transferFluidBetweenContainers(final Context context, final Arguments args) {markDirty();
 	        return FluidContainerTransfer$class.transferFluidBetweenContainers(this, context, args);
 	    }
 		@APIType({"item"})
 	    @Callback(doc = "function(sourceSide:number, sinkSide:number[, count:number[, sourceSlot:number[, sinkSlot:number]]]):number -- Transfer some items between two inventories.")
-	    public Object[] transferItem(final Context context, final Arguments args) {
+	    public Object[] transferItem(final Context context, final Arguments args) {markDirty();
 	        return InventoryTransfer$class.transferItem(this, context, args);
 	    }
 		@APIType({"fluid"})
 	    @Callback(doc = "function(sourceSide:number, sinkSide:number[, count:number [, sourceTank:number]]):boolean, number -- Transfer some fluid between two tanks. Returns operation result and filled amount")
-	    public Object[] transferFluid(final Context context, final Arguments args) {
+	    public Object[] transferFluid(final Context context, final Arguments args) {markDirty();
 	        return InventoryTransfer$class.transferFluid(this, context, args);
 	    }
 		@APIType({"fluid"})
@@ -715,7 +762,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 		    }
 		    @APIType({"item"})
 		    @Callback(doc = "function(side:number, slot:number, dbAddress:string, dbSlot:number):boolean -- Store an item stack description in the specified slot of the database with the specified address.")
-		    public Object[] store(final Context context, final Arguments args) {
+		    public Object[] store(final Context context, final Arguments args) {markDirty();
 		        return WorldInventoryAnalytics$class.store(this, context, args);
 		    }
 	    
@@ -743,12 +790,12 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 		    }
 		    @APIType({"fluid"})
 		    @Callback(doc = "function([amount:number]):boolean -- Transfers fluid from a tank in the selected inventory slot to the selected tank.")
-		    public Object[] drain(final Context context, final Arguments args) {
+		    public Object[] drain(final Context context, final Arguments args) {markDirty();
 		        return TankInventoryControl$class.drain(this, context, args);
 		    }
 		    @APIType({"fluid"})
 		    @Callback(doc = "function([amount:number]):boolean -- Transfers fluid from the selected tank to a tank in the selected inventory slot.")
-		    public Object[] fill(final Context context, final Arguments args) {
+		    public Object[] fill(final Context context, final Arguments args) {markDirty();
 		        return TankInventoryControl$class.fill(this, context, args);
 		    }@APIType({"item"})
 		    @Callback(doc = "function([slot:number]):table -- Get a description of the stack in the specified slot or the selected slot.")
@@ -762,7 +809,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 		    }
 		    @APIType({"item"})
 		    @Callback(doc = "function(slot:number, dbAddress:string, dbSlot:number):boolean --  an item stack description in the specified slot of the database with the specified address.")
-		    public Object[] storeInternal(final Context context, final Arguments args) {
+		    public Object[] storeInternal(final Context context, final Arguments args) {markDirty();
 		        return InventoryAnalytics$class.storeInternal(this, context, args);
 		    }
 		    @APIType({"item"})
@@ -804,7 +851,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 			
 			@Override
 			public void selectedSlot_$eq(int arg0) {
-				
+				markDirty();
 				if(arg0<0+1||arg0>=inv.length+1){throw new RuntimeException("invalid slot");}
 				slotselected=arg0;
 				
@@ -860,6 +907,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 
 			@Override
 			public void selectedTank_$eq(int arg0) {
+				markDirty();
 				if(arg0<0+1||arg0>=ft.length+1){throw new RuntimeException("invalid slot");}
 				tankselected=arg0;
 				
@@ -924,7 +972,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 		    }
 			@APIType({"fluid"})
 		    @Callback(doc = "function(index:number[, count:number=1000]):boolean -- Move the specified amount of fluid from the selected tank into the specified tank.")
-		    public Object[] transferFluidTo(final Context context, final Arguments args) {
+		    public Object[] transferFluidTo(final Context context, final Arguments args) {markDirty();
 		        return TankControl$class.transferFluidTo(this, context, args);
 		    }
 			@APIType({"item"})
@@ -953,7 +1001,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 		    }
 			@APIType({"item"})
 		    @Callback(doc = "function(toSlot:number[, amount:number]):boolean -- Move up to the specified amount of items from the selected slot into the specified slot.")
-		    public Object[] transferTo(final Context context, final Arguments args) {
+		    public Object[] transferTo(final Context context, final Arguments args) {markDirty();
 		        return InventoryControl$class.transferTo(this, context, args);
 		    }
 
@@ -969,24 +1017,24 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 			    }
 		    @APIType({"item"})
 			    @Callback(doc = "function(inventorySlot:number, slot:number[, count:number=64]):number -- Drops an item into the specified slot in the item inventory.")
-			    public Object[] dropIntoItemInventory(final Context context, final Arguments args) {
+			    public Object[] dropIntoItemInventory(final Context context, final Arguments args) {markDirty();
 			        return ItemInventoryControl$class.dropIntoItemInventory(this, context, args);
 			    }
 		    @APIType({"item"})
 			    @Callback(doc = "function(inventorySlot:number, slot:number[, count:number=64]):number -- Sucks an item out of the specified slot in the item inventory.")
-			    public Object[] suckFromItemInventory(final Context context, final Arguments args) {
+			    public Object[] suckFromItemInventory(final Context context, final Arguments args) {markDirty();
 			        return ItemInventoryControl$class.suckFromItemInventory(this, context, args);
 			    }
 			    
 		    @APIType({"item"})
 			    
 			    @Callback(doc = "function(facing:number, slot:number[, count:number[, fromSide:number]]):boolean -- Drops the selected item stack into the specified slot of an inventory.")
-			    public Object[] dropIntoSlot(final Context context, final Arguments args) {
+			    public Object[] dropIntoSlot(final Context context, final Arguments args) {markDirty();
 			        return InventoryWorldControlMk2$class.dropIntoSlot(this, context, args);
 			    }
 		    @APIType({"item"})
 			    @Callback(doc = "function(facing:number, slot:number[, count:number[, fromSide:number]]):boolean -- Sucks items from the specified slot of an inventory.")
-			    public Object[] suckFromSlot(final Context context, final Arguments args) {
+			    public Object[] suckFromSlot(final Context context, final Arguments args) {markDirty();
 			        return InventoryWorldControlMk2$class.suckFromSlot(this, context, args);
 			    }
 			    
@@ -1021,7 +1069,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 			    }
 			    @APIType({"item","ae"})
 			    @Callback(doc = "function(filter:table, dbAddress:string[, startSlot:number[, count:number]]): Boolean -- Store items in the network matching the specified filter in the database with the specified address.")
-			    public Object[] storeAE(final Context context, final Arguments args) {
+			    public Object[] storeAE(final Context context, final Arguments args) {markDirty();
 			        return NetworkControl$class.store(this, context, args);
 			    }
 			    @APIType({"fluid","ae"})
@@ -1085,7 +1133,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 			    }
 			    @APIType({"item","ae"})
 				@Callback(doc = "function([number:amount]):number -- Transfer selected items to your ae system.")
-			    public Object[] sendItems(final Context context, final Arguments args) {
+			    public Object[] sendItems(final Context context, final Arguments args) {markDirty();
 			    
 			        final IInventory invRobot = TileIOHub.this;
 			        if (invRobot.getSizeInventory() <= 0) {
@@ -1125,7 +1173,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 			    }
 			    @APIType({"item","ae"})
 			    @Callback(doc = "function(database:address, entry:number[, number:amount]):number -- Get items from your ae system.")
-			    public Object[] requestItems(final Context context, final Arguments args) {
+			    public Object[] requestItems(final Context context, final Arguments args) {markDirty();
 			        final String address = args.checkString(0);
 			        final int entry = args.checkInteger(1);
 			        final int amount = args.optInteger(2, 64);
@@ -1199,7 +1247,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 			        return (IMEMonitor<IAEFluidStack>)storage.getFluidInventory();
 			    }@APIType({"fluid","ae"})
 			    @Callback(doc = "function([number:amount]):number -- Transfer selected fluid to your ae system.")
-			    public Object[] sendFluids(final Context context, final Arguments args) {
+			    public Object[] sendFluids(final Context context, final Arguments args) {markDirty();
 			        final int selected =selectedTank();
 			        final MultiTank tanks = tank();
 			        if (tanks.tankCount() <= 0) {
@@ -1231,7 +1279,7 @@ public <Type extends Entity> Option<Type> closestEntity(final ForgeDirection sid
 
 			    @APIType({"fluid","ae"})
 				@Callback(doc = "function(database:address, entry:number[, number:amount]):number -- Get fluid from your ae system.")
-			    public Object[] requestFluids(final Context context, final Arguments args) {
+			    public Object[] requestFluids(final Context context, final Arguments args) {markDirty();
 			        final String address = args.checkString(0);
 			        final int entry = args.checkInteger(1);
 			        final int amount = args.optInteger(2, 1000);

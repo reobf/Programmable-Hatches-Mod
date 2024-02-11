@@ -96,7 +96,7 @@ public class MixinPatternEncodingCiruitSpecialTreatment2 {
      * private void g(IRecipeHandler recipe, int recipeIndex, String identifier,CallbackInfoReturnable c,List cap,int i,
      * Iterator ii, PositionedStack iii){
      * }
-     * 牛的 mixin还能混出VerifyError
+     *  
      * cpw.mods.fml.common.LoaderException: java.lang.VerifyError: Bad local variable type
      * Exception Details:
      * Location:

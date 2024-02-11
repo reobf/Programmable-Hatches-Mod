@@ -458,7 +458,15 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
 
         return new ProgrammingCircuitProvider(mName, mTier, 1, mDescriptionArray, mTextures);
     }
+@Override
+public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirection side, ForgeDirection aFacing,
+		int colorIndex, boolean aActive, boolean redstoneLevel) {
 
+	return super.getTexture(aBaseMetaTileEntity, side, aFacing, colorIndex, aActive, redstoneLevel);
+
+
+
+}
     @Override
     public ITexture[] getTexturesActive(ITexture aBaseTexture) {
         return GT_Mod.gregtechproxy.mRenderIndicatorsOnHatch

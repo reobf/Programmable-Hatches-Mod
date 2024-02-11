@@ -535,7 +535,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
         super.onFirstTick(aBaseMetaTileEntity);
     }
 
-    boolean program;
+    boolean program=true;//default: ON
 
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {

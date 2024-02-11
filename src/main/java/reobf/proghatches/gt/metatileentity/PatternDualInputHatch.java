@@ -339,7 +339,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 
             }
         }
-
+        dirty=true;
         classify();
 
         justHadNewItems = true;

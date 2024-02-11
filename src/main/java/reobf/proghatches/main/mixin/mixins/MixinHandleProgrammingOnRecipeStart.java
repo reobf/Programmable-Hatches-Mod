@@ -21,7 +21,9 @@ public abstract class MixinHandleProgrammingOnRecipeStart {
     // GT_MetaTileEntity_Hatch_InputBus
 
     @SuppressWarnings("rawtypes")
-    @ModifyVariable(method = "startRecipeProcessing", at = @At(opcode = Opcodes.ASTORE, value = "STORE"), require = 1)
+    @ModifyVariable(
+    method = "startRecipeProcessing",ordinal=0/*set it to 0 to enable explicit mode or mixin will raise warnings*/,
+    at = @At(opcode = Opcodes.ASTORE, value = "STORE"/*"reobf.proghatches.main.mixin.StoreInjectionPoint"*/), require = 1)
     public GT_MetaTileEntity_Hatch_InputBus startRecipeProcessing(GT_MetaTileEntity_Hatch_InputBus a) {
 
         try {
@@ -40,7 +42,13 @@ public abstract class MixinHandleProgrammingOnRecipeStart {
         }
         return a;
 
-        // MixinCallback.handleAddedToMachineList(aTileEntity,this);
+      
     }
-
+ /*
+      
+      opcode = Opcodes.ASTORE seems to be useless?
+    [14:57:37] [Client thread/WARN] [mixin]: @At("STORE" implicit GT_MetaTileEntity_Hatch_InputBus) has invalid IMPLICIT discriminator for opcode 8 in gregtech/api/metatileentity/implementations/GT_MetaTileEntity_MultiBlockBase::startRecipeProcessing()V: Found 0 candidate variables but exactly 1 is required.
+    [14:57:37] [Client thread/WARN] [mixin]: @At("STORE" implicit GT_MetaTileEntity_Hatch_InputBus) has invalid IMPLICIT discriminator for opcode 51 in gregtech/api/metatileentity/implementations/GT_MetaTileEntity_MultiBlockBase::startRecipeProcessing()V: Found 0 candidate variables but exactly 1 is required.
+    [14:57:37] [Client thread/WARN] [mixin]: @At("STORE" implicit GT_MetaTileEntity_Hatch_InputBus) has invalid IMPLICIT discriminator for opcode 59 in gregtech/api/metatileentity/implementations/GT_MetaTileEntity_MultiBlockBase::startRecipeProcessing()V: Found 0 candidate variables but exactly 1 is required.
+*/
 }

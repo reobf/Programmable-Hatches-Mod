@@ -440,10 +440,9 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
         if (tile instanceof IFluidHandler) fh = (IFluidHandler) tile;
         else missing = true;
         AtomicBoolean fail = new AtomicBoolean(false);
-        // if(missing)return CheckRecipeResultRegistry.SUCCESSFUL;
-        // even if missing, tmp might be consumed? just check it
-        boolean fmissing = missing;
-        IFluidHandler ffh = fh;
+         // even if missing, tmp might be consumed? just check it
+        final boolean  fmissing = missing;
+        final IFluidHandler ffh = fh;
 
         tmp.forEach(s -> {
             int consume = -s.amount + s.original.amount;

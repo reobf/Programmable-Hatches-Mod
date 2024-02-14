@@ -83,6 +83,7 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
+import reobf.proghatches.util.ProghatchesUtil;
 
 public class BufferedDualInputHatch extends DualInputHatch  {
 	
@@ -1057,7 +1058,7 @@ public void onFill() {
         	public  void detectAndSendChanges(boolean init) {BufferedDualInputHatch.this.dirty=true;};	
 			@Override public void readOnClient(int id, PacketBuffer buf) throws IOException {}
 			@Override public void readOnServer(int id, PacketBuffer buf) throws IOException {}});
-			
+			ProghatchesUtil.attachZeroSizedStackRemover(builder,buildContext);
         super.addUIWidgets(builder, buildContext);
         // builder.widget(widget);
 
@@ -1195,22 +1196,22 @@ public void onFill() {
     		int z) {
     	
     	class IndexedObject<T>{private T holded;private int index;IndexedObject(int i,T obj){this.holded=obj;this.index=i;}}
-    	class RecipeTracer{
+    	class RecipeTracker{
     		boolean broken;
     		int  times;
     		boolean first=true;
-    		public void trace(ItemStack recipe,ItemStack storage){
+    		public void track(ItemStack recipe,ItemStack storage){
     			if(recipe.getItem() instanceof ItemProgrammingCircuit){return;}
     			int a=recipe.stackSize;
     			int b=Optional.ofNullable(storage).map(s->s.stackSize).orElse(0);
-    			trace(a,b);
+    			track(a,b);
     		}
-    		public void trace(FluidTank recipe, FluidTank storage) {
+    		public void track(FluidTank recipe, FluidTank storage) {
 				int a=recipe.getFluidAmount();
     			int b=storage.getFluidAmount();
-    			trace(a,b);
+    			track(a,b);
 			}
-    		public void trace(int a,int b){
+    		public void track(int a,int b){
     			int t=0;
     			if(a==0){broken=true;return;/*Actually impossible*/}
     			if(b==0){return;}
@@ -1231,17 +1232,17 @@ public void onFill() {
     		sub.setBoolean("noClear", inv.lock);
     		sub.setBoolean("locked", inv.recipeLocked);
     		sub.setBoolean("empty", inv.isEmpty());
-    		RecipeTracer rt=new RecipeTracer();
+    		RecipeTracker rt=new RecipeTracker();
     		
     		sub.setString("lock_item", IntStream.range(0,inv.mStoredItemInternalSingle.length).mapToObj(ss->new IndexedObject<>(ss,inv.mStoredItemInternalSingle[ss])).filter(ss->ss.holded!=null)
     				.map(ss->{
-    					rt.trace(ss.holded, inv.mStoredItemInternal[ss.index]);
+    					rt.track(ss.holded, inv.mStoredItemInternal[ss.index]);
     					return "#"+ss.index+":"+ss.holded.getDisplayName()+"x"+ss.holded.stackSize;}).collect(StringBuilder::new, (a,b)->a.append(((a.length()==0)?"":"\n")+b), (a,b)->a.append(b))
     				.toString()
     				);
     		sub.setString("lock_fluid", IntStream.range(0,inv.mStoredFluidInternalSingle.length).mapToObj(ss->new IndexedObject<>(ss,inv.mStoredFluidInternalSingle[ss])).filter(ss->ss.holded.getFluidAmount()>0)
     				.map(ss->{
-    					rt.trace(ss.holded, inv.mStoredFluidInternal[ss.index]);
+    					rt.track(ss.holded, inv.mStoredFluidInternal[ss.index]);
     					return "#"+ss.index+":"+ss.holded.getFluid().getLocalizedName()+"x"+ss.holded.getFluidAmount();}).collect(StringBuilder::new, (a,b)->a.append(((a.length()==0)?"":"\n")+b), (a,b)->a.append(b))
     				.toString()
     				);

@@ -3,11 +3,20 @@ package reobf.proghatches.gt.metatileentity;
 import static gregtech.api.util.GT_Utility.moveMultipleItemStacks;
 import static reobf.proghatches.main.Config.defaultObj;
 
+import java.io.IOException;
 import java.util.Optional;
+import java.util.function.Consumer;
+
+import org.jetbrains.annotations.Nullable;
+
+import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+import com.gtnewhorizons.modularui.api.widget.Widget;
+import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-
+import net.minecraft.network.PacketBuffer;
 import gregtech.api.GregTech_API;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -16,6 +25,7 @@ import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Outpu
 import gregtech.api.util.extensions.ArrayExt;
 import gregtech.common.GT_Client;
 import reobf.proghatches.main.registration.Registration;
+import reobf.proghatches.util.ProghatchesUtil;
 
 public class FilterOutputBus extends GT_MetaTileEntity_Hatch_OutputBus {
 
@@ -24,7 +34,14 @@ public class FilterOutputBus extends GT_MetaTileEntity_Hatch_OutputBus {
         super(mName, mTier, mDescriptionArray, mTextures);
         this.keepone = keepone;
     }
-
+@Override
+public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
+	
+	super.addUIWidgets(builder, buildContext);
+	ProghatchesUtil.attachZeroSizedStackRemover(builder,buildContext);
+	
+	
+}
     public FilterOutputBus(int aID, String aName, String aNameRegional, int tier, boolean keepone) {
         super(
             aID,

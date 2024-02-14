@@ -2,10 +2,18 @@ package reobf.proghatches.util;
 
 import static gregtech.api.util.GT_Utility.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+
+import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.api.widget.Widget;
+import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
@@ -13,7 +21,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-
+import net.minecraft.network.PacketBuffer;
 import gregtech.api.GregTech_API;
 import gregtech.api.util.GT_Log;
 import gregtech.api.util.GT_Utility;
@@ -167,5 +175,29 @@ public class ProghatchesUtil {
          * GregTech_API.sBookList.put(aMapping, rStack);
          */
         return copyOrNull(rStack);
+    }
+    
+    /*
+     * prevent negative stacksize dupe bug
+     */
+    
+    public static  void attachZeroSizedStackRemover(Builder builder, UIBuildContext buildContext){
+    	builder.widget(new SyncedWidget(){  
+        	Consumer<Widget> ticker=ss->{
+        		//if held stack is 0-sized, remove it
+        		Optional.ofNullable(buildContext.getPlayer().inventory.getItemStack())
+        		.filter(s->s.stackSize<=0)
+        		.ifPresent(s->buildContext.getPlayer().inventory.setItemStack(null));
+        		;};
+        		{//tick on client side
+        			this.setTicker(ticker);
+        		}
+        	    public  void detectAndSendChanges(boolean init) {
+        		//tick on server side, don't really detect changes
+        		ticker.accept(this);
+        	};	
+        	
+    		@Override public void readOnClient(int id, PacketBuffer buf) throws IOException {}
+    		@Override public void readOnServer(int id, PacketBuffer buf) throws IOException {}});
     }
 }

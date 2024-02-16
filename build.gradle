@@ -371,8 +371,8 @@ catch (Exception ignored) {
 }
 
 // Pulls version first from the VERSION env and then git tag
-String identifiedVersion = '0.0.1'
-String versionOverride = '0.0.1'
+String identifiedVersion = null
+String versionOverride = '0.0.2'
 try {
     // Produce a version based on the tag, or for branches something like 0.2.2-configurable-maven-and-extras.38+43090270b6-dirty
     if (versionOverride == null) {
@@ -402,7 +402,7 @@ catch (Exception ignored) {
             'or the VERSION override must be set! ').style(Style.SuccessHeader).text('(Do NOT download from GitHub using the ZIP option, instead\n' +
         'clone the repository, see ').style(Style.Info).text('https://gtnh.miraheze.org/wiki/Development').style(Style.SuccessHeader).println(' for details.)'
     )
-    versionOverride = '0.0.1'
+    //versionOverride = '0.0.1'
     identifiedVersion = versionOverride
 }
 version = identifiedVersion

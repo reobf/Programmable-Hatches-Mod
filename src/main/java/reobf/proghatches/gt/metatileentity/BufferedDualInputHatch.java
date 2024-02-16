@@ -23,6 +23,7 @@ import java.util.stream.IntStream;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
@@ -33,6 +34,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
@@ -61,6 +63,7 @@ import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.SoundResource;
@@ -451,7 +454,8 @@ public void updateSlots(){
                     .orElse(null);
                 iin[ix] = null;
             }
-            justHadNewItems = true;
+            justHadNewItems = true;  
+            onClassify();
             programLocal();
         }
 
@@ -521,6 +525,7 @@ public void updateSlots(){
                 iin[ix] = null;
             }
             justHadNewItems = true;
+            onClassify();
             if (program) programLocal();
 
         }
@@ -630,6 +635,7 @@ public void updateSlots(){
         }
     }
 public boolean highEfficiencyMode(){return false;}
+public boolean prevdirty;
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
         super.onPostTick(aBaseMetaTileEntity, aTick);
@@ -654,7 +660,7 @@ public boolean highEfficiencyMode(){return false;}
              
            inv0.clearRecipeIfNeeded();
         }
-      
+        prevdirty=dirty;
         dirty=false;
     }
 
@@ -796,7 +802,8 @@ public void onFill() {
 
             @Override
             public void detectAndSendChanges(boolean init) {
-                getContext().syncSlotContent(this.getMcSlot());
+              
+            	//getContext().syncSlotContent(this.getMcSlot());
                 super.detectAndSendChanges(init);
 
                 /*
@@ -1054,8 +1061,19 @@ public void onFill() {
         
         builder.widget(createPowerSwitchButton(builder));
         builder.widget(new SyncedWidget(){  
-        	//player operation is more complicated, always set to true when GUI open
-        	public  void detectAndSendChanges(boolean init) {BufferedDualInputHatch.this.dirty=true;};	
+        	
+        	@SuppressWarnings("unchecked")
+			public  void detectAndSendChanges(boolean init) {
+        		//player operation is more complicated, always set to true when GUI open
+        		BufferedDualInputHatch.this.dirty=true;
+        		
+        		//flush changes to client
+        		//sometimes vanilla detection will fail so sync it manually
+        		if(last+1>=getBaseMetaTileEntity().getTimer())
+        		getWindow().getContext().getContainer().inventorySlots
+        		.forEach(s->((Slot)s).onSlotChanged());
+        	
+        	};	
 			@Override public void readOnClient(int id, PacketBuffer buf) throws IOException {}
 			@Override public void readOnServer(int id, PacketBuffer buf) throws IOException {}});
 			ProghatchesUtil.attachZeroSizedStackRemover(builder,buildContext);
@@ -1068,7 +1086,11 @@ public void onFill() {
         return 0;
 
     }
-
+    public void onClassify(){
+    	last=getBaseMetaTileEntity().getTimer();
+    }
+    private long last;
+    
     @Override
     public void loadNBTData(NBTTagCompound aNBT) {
     	dirty=aNBT.getBoolean("dirty");
@@ -1200,8 +1222,9 @@ public void onFill() {
     		boolean broken;
     		int  times;
     		boolean first=true;
+    		boolean onceCompared;
     		public void track(ItemStack recipe,ItemStack storage){
-    			if(recipe.getItem() instanceof ItemProgrammingCircuit){return;}
+    			if(recipe.getItem() instanceof ItemProgrammingCircuit){onceCompared=true;return;}
     			int a=recipe.stackSize;
     			int b=Optional.ofNullable(storage).map(s->s.stackSize).orElse(0);
     			track(a,b);
@@ -1218,6 +1241,7 @@ public void onFill() {
     			if(b%a!=0){broken=true;return;}
     			t=b/a;
     			if(t!=times){
+    				onceCompared=true;
     				if(first){first=false;times=t;return;}
     				else {broken=true;return;}
     			}
@@ -1248,7 +1272,7 @@ public void onFill() {
     				);
     	
     		
-    		sub.setInteger("possibleCopies", rt.broken?-1:rt.times);
+    		sub.setInteger("possibleCopies", (rt.broken||(!rt.onceCompared&&!inv.isEmpty()))?-1:rt.times);
     	 });
     	
     	super.getWailaNBTData(player, tile, tag, world, x, y, z);
@@ -1309,7 +1333,7 @@ public void onFill() {
 
 	private Boolean isRemote;
 	public boolean isRemote(){
-		if(isRemote==null)isRemote=this.getBaseMetaTileEntity().getWorld().isRemote;
+		if(isRemote==null)isRemote=FMLCommonHandler.instance().getEffectiveSide()==Side.CLIENT;//this.getBaseMetaTileEntity().getWorld().isRemote;
 		return isRemote;
 		}
 @Override

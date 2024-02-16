@@ -59,8 +59,8 @@ String cfg=
 "#set to true to disable those optional mixins if it breaks someting"+System.lineSeparator()+
 "noPatternEncodingMixin=false"+System.lineSeparator()+
 "noFixTossBug=false"+System.lineSeparator()+
-"noRecipeFilterForDualHatch=false"+System.lineSeparator()
-
+"noRecipeFilterForDualHatch=false"+System.lineSeparator()+
+"noRemoveUnusedCacheInModularUIContainer=fasle"+System.lineSeparator()
 ;
     @SuppressWarnings("unused")
     @Override
@@ -95,12 +95,16 @@ String cfg=
           System.out.println(pp);
           System.out.println("ccccccccccccccccccccccccccc");
           
-        // NEE is neither coremod nor mixinmod so add it to path or mixin will fail
+        // NEE is neither coremod nor mixinmod thus it's not in URL path, so add it to path or mixin will fail
         loadJarOf(MixinPlugin::hasTrait,"NotEnoughEnergistics");
 
-        // GregTech5RecipeProcessor.class.getDeclaredFields();
+       
 
         ArrayList<String> ret = new ArrayList<>();
+        
+        if(!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))
+        ret.add("MixinRemoveUnunsedItemStackCache");
+        
     	if(!"true".equals(pp.get("noRecipeFilterForDualHatch"))){
     	ret.add("MixinGTRecipeFilter");
         // GT Multiblock will not set recipe filter of DualInputHatch, set it via mixin

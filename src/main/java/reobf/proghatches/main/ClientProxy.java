@@ -23,7 +23,7 @@ public class ClientProxy extends CommonProxy {
     @SubscribeEvent
     public void handle(TextureStitchEvent.Pre e){
     	
-    	System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+    	//System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxx");
     	
     }
 }

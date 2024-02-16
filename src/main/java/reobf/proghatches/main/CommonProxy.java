@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.google.common.base.Optional;
 
+import appeng.api.AEApi;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
@@ -17,6 +18,7 @@ import gregtech.api.util.GT_ModHandler;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import reobf.proghatches.Tags;
 import reobf.proghatches.block.BlockIOHub;
+
 import reobf.proghatches.block.ItemBlockIOHub;
 import reobf.proghatches.block.TileIOHub;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
@@ -30,6 +32,7 @@ import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.oc.ItemAPICard;
 import reobf.proghatches.oc.ItemGTRedstoneCard;
 import reobf.proghatches.oc.ItemWirelessPeripheralCard;
+import reobf.proghatches.oc.TileCoprocessor;
 import reobf.proghatches.oc.TileWirelessPeripheralStation;
 
 public class CommonProxy {
@@ -45,6 +48,9 @@ public class CommonProxy {
 
         GameRegistry.registerTileEntity(TileIOHub.class, "proghatches.iohub");
         GameRegistry.registerTileEntity(TileWirelessPeripheralStation.class, "proghatches.peripheral_station");
+        GameRegistry.registerTileEntity(TileCoprocessor.class, "proghatches.coprocessor");
+        
+        
         GameRegistry.registerItem(
             MyMod.progcircuit = new ItemProgrammingCircuit().setUnlocalizedName("prog_circuit")
                 .setTextureName("?"),
@@ -85,6 +91,8 @@ public class CommonProxy {
         MyMod.pstation =GameRegistry.registerBlock(
                 new TileWirelessPeripheralStation.Block(),TileWirelessPeripheralStation.ItemBlock.class,"proghatches.peripheral_station");
         
+      
+        
         li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.oc_redstone);
         li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.oc_api);
         li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.pitem);
@@ -98,8 +106,11 @@ public class CommonProxy {
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
     public void init(FMLInitializationEvent event) {
         tab = new ProgHatchCreativeTab("proghatches");
+       
+        //AEApi.instance().registries().gridCache().registerGridCache(null, null);;
+       // AEApi.instance().registries().interfaceTerminal().register(TileFluidInterface.class);
         new Registration().run();
-
+       
     }
 
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)

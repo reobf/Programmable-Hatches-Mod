@@ -35,10 +35,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidTank;
+import net.minecraftforge.oredict.OreDictionary;
 
 import com.google.common.collect.ImmutableList;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
@@ -66,7 +68,9 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.GregTech_API;
 import gregtech.api.enums.SoundResource;
+import gregtech.api.enums.ToolDictNames;
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -78,6 +82,7 @@ import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockB
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.util.GT_TooltipDataCache.TooltipData;
+import gregtech.api.util.GT_ModHandler;
 import gregtech.api.util.GT_Utility;
 import gregtech.api.util.extensions.ArrayExt;
 import gregtech.common.tileentities.machines.IDualInputInventory;
@@ -162,6 +167,7 @@ public class BufferedDualInputHatch extends DualInputHatch  {
     public NBTTagCompound writeToNBT(ItemStack is, NBTTagCompound tag) {
         is.writeToNBT(tag);
         tag.setInteger("ICount", is.stackSize);
+       
         return tag;
     }
 
@@ -634,14 +640,15 @@ public void updateSlots(){
             }
         }
     }
-public boolean highEfficiencyMode(){return false;}
+private boolean updateEveryTick;
+public boolean updateEveryTick(){return updateEveryTick;}
 public boolean prevdirty;
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
         super.onPostTick(aBaseMetaTileEntity, aTick);
         if (aBaseMetaTileEntity.getWorld().isRemote) return;
         
-       
+       dirty=dirty||updateEveryTick();
        if(dirty){updateSlots();}
        dirty=dirty||getBaseMetaTileEntity().hasInventoryBeenModified();
        //System.out.println(dirty);
@@ -1100,6 +1107,7 @@ public void onFill() {
                 .fromTag((NBTTagCompound) aNBT.getTag("BUFFER_" + ii));
         }
         justHadNewItems = aNBT.getBoolean("justHadNewItems");
+        updateEveryTick= aNBT.getBoolean("updateEveryTick");
         super.loadNBTData(aNBT);
     }
 
@@ -1114,6 +1122,7 @@ public void onFill() {
                     .toTag());
 
         aNBT.setBoolean("justHadNewItems", justHadNewItems);
+        aNBT.setBoolean("updateEveryTick",updateEveryTick);
         super.saveNBTData(aNBT);
     }
 
@@ -1194,8 +1203,9 @@ public void onFill() {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public Optional<IDualInputInventory> getFirstNonEmptyInventory() {
-    	dirty=true;//IRecipeProcessingAwareHatch NOT working on dualhatch, so assume multi-te will consume items after calling this
+    public Optional</*? extends */IDualInputInventory> getFirstNonEmptyInventory() {
+    	dirty=true;
+    	//IRecipeProcessingAwareHatch NOT working on dualhatch, so assume multi-te will consume items after calling this
         return (Optional) inv0.stream()
             .filter(not(DualInvBuffer::isEmpty))
             .findAny();
@@ -1341,5 +1351,56 @@ public void updateSlots() {
 	  inv0.forEach(DualInvBuffer::updateSlots);
 	super.updateSlots();
 }
-	
+
+@Override
+public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
+	BaseMetaTileEntity tile = (BaseMetaTileEntity) this.getBaseMetaTileEntity();
+	if (tile.isServerSide()) {
+         if (!tile.privateAccess() || aPlayer.getDisplayName()
+             .equalsIgnoreCase(tile.getOwnerName())) {
+             final ItemStack tCurrentItem = aPlayer.inventory.getCurrentItem();
+             if (tCurrentItem != null) {
+            	 boolean suc=false;
+            	 for(int id:OreDictionary.getOreIDs(tCurrentItem)){
+            	 if(OreDictionary.getOreName(id).equals(ToolDictNames.craftingToolFile.toString())){
+            		 suc=true;break;
+            	 };
+            	 }
+            	 if(suc){
+            	 GT_ModHandler.damageOrDechargeItem(tCurrentItem, 1, 1000, aPlayer);
+                 GT_Utility.sendSoundToPlayers(
+                     tile.getWorld(),
+                     SoundResource.IC2_TOOLS_WRENCH,
+                     1.0F,
+                     -1,
+                     tile.getXCoord(),
+                     tile.getYCoord(),
+                     tile.getZCoord());
+                 updateEveryTick=!updateEveryTick;
+                 
+                 
+                 GT_Utility
+                 .sendChatToPlayer(aPlayer,
+                "updateEveryTick:"+updateEveryTick
+                );
+                 GT_Utility
+                 .sendChatToPlayer(aPlayer,
+               StatCollector.translateToLocal("programmable_hatches.gt.updateEveryTick")
+                );
+                 
+                 
+                 
+                 markDirty();
+            	 return true;
+            	 }
+            	 
+            	 
+             }
+         }
+         }
+            	 
+            	 
+            	 
+	return super.onRightclick(aBaseMetaTileEntity, aPlayer);
+}
 }

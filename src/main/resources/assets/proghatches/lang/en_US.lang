@@ -176,3 +176,5 @@ tile.proghatches.peripheral_station.tooltip.3=Can only establish one-to-one conn
 tile.proghatches.peripheral_station.tooltip.4=Range:16 with no inter-dimension support
 tile.proghatches.peripheral_station.tooltip.5=Require no component channel.
 tile.proghatches.peripheral_station.tooltip=6
+programmable_hatches.gt.updateEveryTick=This mode is intended to force the check every tick when the hatch fails to work properly. Do not enable when unnecessary, for better server performance.
+

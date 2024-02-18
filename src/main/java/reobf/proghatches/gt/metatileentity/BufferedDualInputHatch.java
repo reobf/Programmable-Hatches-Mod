@@ -43,6 +43,7 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.oredict.OreDictionary;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
@@ -205,7 +206,7 @@ public class BufferedDualInputHatch extends DualInputHatch  {
             mMultiFluid,
 
             (optional.length > 0 ? optional
-                : defaultObj(
+                : /*defaultObj(
 
                     ArrayExt.of(
                         "Item/Fluid Input for Multiblocks",
@@ -230,9 +231,16 @@ public class BufferedDualInputHatch extends DualInputHatch  {
                             + (mMultiFluid ? " x4种流体" : ""),
                         Math.min(16, (1 + tier) * (tier + 1)) + "格",
                         "每格堆叠限制:" + (int) (64 * Math.pow(2, Math.max(tier - 3, 0))),
-                        StatCollector.translateToLocal("programmable_hatches.addedby")
-
-                    ))));
+                        StatCollector.translateToLocal("programmable_hatches.addedby"))
+*/reobf.proghatches.main.Config.get("BDH", ImmutableMap.of(
+		"bufferNum",bufferNum,
+		"cap",format.format((int) (4000 * Math.pow(4, tier) / (mMultiFluid ? 4 : 1))),
+		"mMultiFluid",mMultiFluid,
+		"slots", Math.min(16, (1 + tier) * (tier + 1)),
+		"stacksize",(int) (64 * Math.pow(2, Math.max(tier - 3, 0)))
+		))
+                    
+                    ))/*)*/;
         this.bufferNum = bufferNum;
         initBackend();
 
@@ -1321,9 +1329,13 @@ public void onFill() {
     		}
     		String cpinfo="";
     		int copies=sub.getInteger("possibleCopies");
-    		if(copies==-1)cpinfo=cpinfo+StatCollector.translateToLocal("programmable_hatches.buffer.waila.broken");
-    		if(copies>0)cpinfo=cpinfo+StatCollector.translateToLocalFormatted("programmable_hatches.buffer.waila.copies",copies+"");
-    		
+    		if(copies==-1
+    			&&(sub.getBoolean("locked"))//if not locked, do not warn about the copies
+    			)cpinfo=cpinfo+StatCollector.translateToLocal("programmable_hatches.buffer.waila.broken");
+    		if(copies>0){
+    			cpinfo=cpinfo+StatCollector.translateToLocalFormatted("programmable_hatches.buffer.waila.copies",copies+"");
+    			if(sub.getBoolean("locked")){cpinfo+="???not locked but copies>0???";}
+    		}
     		currenttip.add("#"+s+" "+info+" "+cpinfo);
     		String lock_item=sub.getString("lock_item");
     		String lock_fluid=sub.getString("lock_fluid");

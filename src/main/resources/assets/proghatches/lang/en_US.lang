@@ -178,4 +178,4 @@ tile.proghatches.peripheral_station.tooltip.5=Require no component channel.
 tile.proghatches.peripheral_station.tooltip=6
 programmable_hatches.gt.updateEveryTick=This mode is intended to force the check every tick when the hatch fails to work properly. Do not enable when unnecessary, for better server performance.
 programmable_hatches.addedby=Added by §1ProgrammableHatches§r
-
+programmable_hatches.gt.lang.dir=en_US

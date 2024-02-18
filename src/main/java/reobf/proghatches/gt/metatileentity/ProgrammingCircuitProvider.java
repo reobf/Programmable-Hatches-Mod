@@ -19,6 +19,7 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
@@ -70,8 +71,8 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
             aName,
             aNameRegional,
             aTier,
-            aInvSlotCount,
-            defaultObj(
+            aInvSlotCount,reobf.proghatches.main.Config.get("PCP", ImmutableMap.of())
+            /*defaultObj(
                 ArrayExt.of(
                     "Connect to AE network to provide Programming Circuit crafting",
                     "Each item costs 10AE",
@@ -86,7 +87,9 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
                     "放入编程电路以指定生成的编程器芯片类型",
                     "你也可以放入编程电路以外的物品",
                     "并不能从nei书签标记物品,你需要把目标物品留在提供器内",
-                    StatCollector.translateToLocal("programmable_hatches.addedby"))));
+                    StatCollector.translateToLocal("programmable_hatches.addedby")))*/
+            
+        		);
         Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
     }
 

@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import com.google.common.collect.ImmutableMap;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -49,7 +51,8 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch> ext
             aNameRegional,
             6,
             0,
-            defaultObj(
+            reobf.proghatches.main.Config.get("DHS", ImmutableMap.of())
+            /*defaultObj(
 
                 ArrayExt.of(
                     "Slave for Dual Input Hatch",
@@ -59,6 +62,8 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch> ext
                 ),
                 ArrayExt.of("二合一输入仓的镜像端", "将所绑定的样板输入总成的内容物共享过来", "闪存左键点击二合一输入仓，然后右键点击输入镜像完成链接绑定",
                 		StatCollector.translateToLocal("programmable_hatches.addedby")))
+            */
+            
 
         /*
          * new String[] { "Slave for (Buffered) Dual Input Hatch",

@@ -188,3 +188,4 @@ tile.proghatches.peripheral_station.tooltip.4=不占用组件数量
 tile.proghatches.peripheral_station.tooltip=5
 programmable_hatches.gt.updateEveryTick=此模式用于每tick强制触发仓室的转移,以防(由于bug或某些corner case)转移过程未能正确触发 如果仓室工作正常,应该关闭此功能以优化服务器负载
 programmable_hatches.addedby=Added by §1ProgrammableHatches§r
+programmable_hatches.gt.lang.dir=zh_CN

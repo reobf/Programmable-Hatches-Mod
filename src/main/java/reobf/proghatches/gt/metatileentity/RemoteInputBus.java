@@ -22,6 +22,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
@@ -173,7 +174,8 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
             nameRegional,
             0,
             0,
-            defaultObj(
+            reobf.proghatches.main.Config.get("RIB", ImmutableMap.of())
+            /*defaultObj(
 
                 ArrayExt.of(
                     "Item Input for Multiblocks, wirelessly linked to a container, just like RemoteIO interface.",
@@ -188,7 +190,7 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
                     "无法被管道抽出的物品(除了虚拟电路板,如果目标有)也不能被访问",
                     "不能跨维度链接 不会触发目标区块加载,且目标区块未加载时不工作"
 ,StatCollector.translateToLocal("programmable_hatches.addedby")
-                )));
+                ))*/);
         Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, id));
 
     }

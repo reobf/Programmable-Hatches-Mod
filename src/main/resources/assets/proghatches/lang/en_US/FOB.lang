@@ -1,0 +1,4 @@
+Item Output for Multiblocks
+{keepone?}Preserve the last stack of item when moving stacks out{keepone:}Remain a phantom item instead of clearing it when moving stacks out{keepone!}
+Use void protection to restrict recipe indirectly.
+{slots}Slots

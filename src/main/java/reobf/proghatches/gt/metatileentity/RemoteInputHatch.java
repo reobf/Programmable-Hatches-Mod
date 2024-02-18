@@ -24,6 +24,7 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
@@ -172,7 +173,8 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
             name,
             nameRegional,
             0,
-            defaultObj(
+            reobf.proghatches.main.Config.get("RIH", ImmutableMap.of())
+            /*defaultObj(
 
                 ArrayExt.of(
                     "Fluid Input for Multiblocks, wirelessly linked to a tank, just like RemoteIO interface.",
@@ -187,7 +189,9 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
                     "无法被管道抽出的流体也不能被访问",
                     "不能跨维度链接 不会触发目标区块加载,且目标区块未加载时不工作"
 ,StatCollector.translateToLocal("programmable_hatches.addedby")
-                )));
+                ))*/
+            
+        		);
         Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, id));
 
     }

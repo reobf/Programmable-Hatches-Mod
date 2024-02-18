@@ -323,17 +323,17 @@ if(Config.skipRecipeAdding)return;
                     s,
                     new ItemStack(ItemAndBlockHolder.INTERFACE),
                     new ItemStack(MyMod.toolkit, 1, OreDictionary.WILDCARD_VALUE),
-                    new ItemStack(
+                    	(
                         Api.INSTANCE.definitions()
                             .blocks()
-                            .craftingStorage1024k()
-                            .maybeItem()
+                            .craftingStorage256k()
+                            .maybeStack(1)
                             .get()),
-                    new ItemStack(
+                    	(
                         Api.INSTANCE.definitions()
                             .blocks()
-                            .craftingAccelerator16x()
-                            .maybeItem()
+                            .craftingAccelerator4x()
+                            .maybeStack(1)
                             .get()),
                     new ItemStack(
                             Api.INSTANCE.definitions()

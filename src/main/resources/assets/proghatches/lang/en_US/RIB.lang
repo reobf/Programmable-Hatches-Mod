@@ -1,0 +1,4 @@
+Item Input for Multiblocks, wirelessly linked to a container, just like RemoteIO interface.
+LMB click this block with a tricorder with target coord to link.
+Items not extractable by pipes will not be accessible, with an exception of virtual circuits.
+Cannot work across dimension. Will not load target chunk. Will not work if target chunk is unloaded.

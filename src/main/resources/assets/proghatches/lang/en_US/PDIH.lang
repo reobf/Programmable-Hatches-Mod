@@ -1,0 +1,9 @@
+Item/Fluid Input for Multiblocks
+Contents are always separated with other bus/hatch
+Programming Cover function integrated
+Blocking mode is always on
+If all pattern inputs cannot be push in one single try, it won't be pushed at all.
+Buffer: {bufferNum}
+For each buffer:
+Capacity: {cap}L{mMultiFluid?} x4 types of fluid{mMultiFluid:}{mMultiFluid!}
+Slot maximum stacksize:{stacksize}

@@ -28,6 +28,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 
+import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
@@ -81,7 +82,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
             tier,
             slot,
             (optional.length > 0 ? optional
-                : defaultObj(
+                : /*defaultObj(
 
                     ArrayExt.of(
                         "Item/Fluid Input for Multiblocks",
@@ -100,7 +101,19 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
                             + "L"
                             + (mMultiFluid ? " x4种流体" : ""),
                         Math.min(16, (1 + tier) * (tier + 1)) + "格",
-                        StatCollector.translateToLocal("programmable_hatches.addedby")))));
+                        StatCollector.translateToLocal("programmable_hatches.addedby")))*/
+                	reobf.proghatches.main.Config.get("DH", ImmutableMap.of(
+                    		
+                    		"cap",format.format((int) (4000 * Math.pow(2, tier) / (mMultiFluid ? 4 : 1))),
+                    		"mMultiFluid",mMultiFluid,
+                    		"slots", Math.min(16, (1 + tier) * (tier + 1))
+                    		
+                    		))
+                                        
+                                        )
+            		
+            		
+            		);
         this.disableSort = true;
         Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, id));
         this.mMultiFluid = mMultiFluid;

@@ -1,0 +1,4 @@
+Fluid Input for Multiblocks, wirelessly linked to a tank, just like RemoteIO interface.
+LMB click this block with a tricorder with target coord to link.
+Fluid not extractable by pipes will not be accessible.
+Cannot work across dimension. Will not load target chunk. Will not work if target chunk is unloaded.

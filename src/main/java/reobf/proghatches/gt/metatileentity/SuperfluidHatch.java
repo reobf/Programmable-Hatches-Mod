@@ -2,6 +2,8 @@ package reobf.proghatches.gt.metatileentity;
 
 import java.util.ArrayList;
 
+import com.google.common.collect.ImmutableMap;
+
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.fluids.FluidTank;
 
@@ -40,8 +42,8 @@ public class SuperfluidHatch extends BufferedDualInputHatch {
             4 + 1,
             mMultiFluid,
             bufferNum,
-
-            (String[]) Config.defaultObj(
+            reobf.proghatches.main.Config.get("SH", ImmutableMap.of())
+          /*  (String[]) Config.defaultObj(
 
                 ArrayExt.of(
                     "Dedicated to handle the siutation of many types of fluid input",
@@ -64,7 +66,7 @@ public class SuperfluidHatch extends BufferedDualInputHatch {
                     "16 格",
                     "每格堆叠限制:64"
                     ,StatCollector.translateToLocal("programmable_hatches.addedby")
-                ))
+                ))*/
 
         );
 

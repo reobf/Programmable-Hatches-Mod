@@ -20,6 +20,7 @@ import net.minecraftforge.fluids.FluidTank;
 
 import com.glodblock.github.common.item.ItemFluidPacket;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
@@ -86,7 +87,15 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
             mMultiFluid,
             bufferNum,
             (optional.length > 0 ? optional
-                : defaultObj(
+                : reobf.proghatches.main.Config.get("PDIH", ImmutableMap.of(
+                		"bufferNum",bufferNum,
+                		"cap",format.format((int) (4000 * Math.pow(4, tier) / (mMultiFluid ? 4 : 1))),
+                		"mMultiFluid",mMultiFluid,
+                		"slots", Math.min(16, (1 + tier) * (tier + 1)),
+                		"stacksize",(int) (64 * Math.pow(2, Math.max(tier - 3, 0)))
+                		))
+                	
+                	/*defaultObj(
 
                     ArrayExt.of(
                         "Item/Fluid Input for Multiblocks",
@@ -116,7 +125,11 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
                         "每格堆叠限制:" + (int) (64 * Math.pow(2, Math.max(tier - 3, 0))),
                         StatCollector.translateToLocal("programmable_hatches.addedby")
 
-                    ))));
+                    ))*/
+                
+            		
+            		
+            		));
         this.supportFluids = fluid;
     }
 
@@ -308,7 +321,8 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 
     @Override
     public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
-        if (!isActive()) return false;
+        if (!isActive()) return false;  
+        if (!isEmpty()) return false;
         if (!supportFluids) {
             for (int i = 0; i < table.getSizeInventory(); ++i) {
                 ItemStack itemStack = table.getStackInSlot(i);
@@ -316,7 +330,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
                 if (itemStack.getItem() instanceof ItemFluidPacket) return false;
             }
         }
-        if (!isEmpty()) return false;
+      
 
         int items = 0;
         int fluids = 0;

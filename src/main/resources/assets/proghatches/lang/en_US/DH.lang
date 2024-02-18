@@ -1,0 +1,5 @@
+Item/Fluid Input for Multiblocks
+Contents are always separated with other bus/hatch
+Programming Cover function integrated
+Capacity: {cap}L{mMultiFluid?} x4 types of fluid{mMultiFluid:}{mMultiFluid!}
+{slots} Slots

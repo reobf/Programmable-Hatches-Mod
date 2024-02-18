@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.gtnewhorizons.modularui.api.widget.Widget;
@@ -49,7 +50,11 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
             aName,
             aNameRegional,
             tier,
-            defaultObj(
+            reobf.proghatches.main.Config.get("FOB", ImmutableMap.of(
+           "keepone",keepone ,		
+           "slots"	,  Math.min(16, (1 + tier) * (tier + 1))
+            		))
+            /*defaultObj(
 
                 ArrayExt.of(
                     "Item Output for Multiblocks",
@@ -67,7 +72,10 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
                     Math.min(16, (1 + tier) * (tier + 1)) + "格",
                     StatCollector.translateToLocal("programmable_hatches.addedby")
 
-                )));
+                ))*/
+            
+        		
+        		);
         this.keepone = keepone;
         Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
     }

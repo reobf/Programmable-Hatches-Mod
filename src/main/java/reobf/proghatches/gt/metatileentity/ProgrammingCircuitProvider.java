@@ -15,6 +15,7 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -77,14 +78,15 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
                     "Put programmed circuit into inventory to specify the type of the programming circuit",
                     "Lens and moulds are acceptable as well",
                     "No, you cannot mark target item via NEI bookmark, you have to use REAL item"
-
+                    ,StatCollector.translateToLocal("programmable_hatches.addedby")
                 ),
                 ArrayExt.of(
                     "连入AE网络以提供编程器芯片合成",
                     "消耗10AE以生成一个物品",
                     "放入编程电路以指定生成的编程器芯片类型",
                     "你也可以放入编程电路以外的物品",
-                    "并不能从nei书签标记物品,你需要把目标物品留在提供器内")));
+                    "并不能从nei书签标记物品,你需要把目标物品留在提供器内",
+                    StatCollector.translateToLocal("programmable_hatches.addedby"))));
         Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
     }
 

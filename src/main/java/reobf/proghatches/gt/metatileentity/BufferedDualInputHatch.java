@@ -217,7 +217,9 @@ public class BufferedDualInputHatch extends DualInputHatch  {
                             + "L"
                             + (mMultiFluid ? " x4 types of fluid" : ""),
                         Math.min(16, (1 + tier) * (tier + 1)) + "Slots",
-                        "Slot maximum stacksize:" + (int) (64 * Math.pow(2, Math.max(tier - 3, 0)))),
+                        "Slot maximum stacksize:" + (int) (64 * Math.pow(2, Math.max(tier - 3, 0))),
+                        StatCollector.translateToLocal("programmable_hatches.addedby")
+                    		),
                     ArrayExt.of(
                         "多方块机器的物品/流体输入",
                         "总是与其它输入仓/输入总线隔离",
@@ -227,7 +229,8 @@ public class BufferedDualInputHatch extends DualInputHatch  {
                             + "L"
                             + (mMultiFluid ? " x4种流体" : ""),
                         Math.min(16, (1 + tier) * (tier + 1)) + "格",
-                        "每格堆叠限制:" + (int) (64 * Math.pow(2, Math.max(tier - 3, 0)))
+                        "每格堆叠限制:" + (int) (64 * Math.pow(2, Math.max(tier - 3, 0))),
+                        StatCollector.translateToLocal("programmable_hatches.addedby")
 
                     ))));
         this.bufferNum = bufferNum;

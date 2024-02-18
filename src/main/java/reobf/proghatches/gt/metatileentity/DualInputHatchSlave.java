@@ -16,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -54,9 +55,10 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch> ext
                     "Slave for Dual Input Hatch",
                     "Link with Crafting Input Buffer using Data Stick to share inventory",
                     "Left click on the Dual Input Hatch, then right click on this block to link them"
-
+                    ,StatCollector.translateToLocal("programmable_hatches.addedby")
                 ),
-                ArrayExt.of("二合一输入仓的镜像端", "将所绑定的样板输入总成的内容物共享过来", "闪存左键点击二合一输入仓，然后右键点击输入镜像完成链接绑定"))
+                ArrayExt.of("二合一输入仓的镜像端", "将所绑定的样板输入总成的内容物共享过来", "闪存左键点击二合一输入仓，然后右键点击输入镜像完成链接绑定",
+                		StatCollector.translateToLocal("programmable_hatches.addedby")))
 
         /*
          * new String[] { "Slave for (Buffered) Dual Input Hatch",

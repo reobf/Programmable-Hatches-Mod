@@ -17,6 +17,7 @@ import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.StatCollector;
 import gregtech.api.GregTech_API;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -55,14 +56,16 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
                     keepone ? "Preserve the last stack of item when moving stacks out."
                         : "Remain a phantom item instead of clearing it when moving stacks out.",
                     "Use void protection to restrict recipe indirectly.",
-                    Math.min(16, (1 + tier) * (tier + 1)) + "Slots"
+                    Math.min(16, (1 + tier) * (tier + 1)) + "Slots",
+                    StatCollector.translateToLocal("programmable_hatches.addedby")
 
                 ),
                 ArrayExt.of(
                     "多方块机器的物品输出",
                     keepone ? "自动输出时每格总是会保留一个物品" : "自动输出时留下一个虚拟物品",
                     "配合溢出保护功能间接限制配方",
-                    Math.min(16, (1 + tier) * (tier + 1)) + "格"
+                    Math.min(16, (1 + tier) * (tier + 1)) + "格",
+                    StatCollector.translateToLocal("programmable_hatches.addedby")
 
                 )));
         this.keepone = keepone;

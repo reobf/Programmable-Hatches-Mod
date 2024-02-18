@@ -179,14 +179,14 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
                     "LMB click this block with a tricorder with target coord to link.",
                     "Fluid not extractable by pipes will not be accessible.",
                     "Cannot work across dimension. Will not load target chunk. Will not work if target chunk is unloaded."
-
+,StatCollector.translateToLocal("programmable_hatches.addedby")
                 ),
                 ArrayExt.of(
                     "像RemoteIO一样远程访问某个容器中的流体 作为多方块机器的输入",
                     "三录仪记录目标坐标后,左键此方块设定坐标",
                     "无法被管道抽出的流体也不能被访问",
                     "不能跨维度链接 不会触发目标区块加载,且目标区块未加载时不工作"
-
+,StatCollector.translateToLocal("programmable_hatches.addedby")
                 )));
         Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, id));
 

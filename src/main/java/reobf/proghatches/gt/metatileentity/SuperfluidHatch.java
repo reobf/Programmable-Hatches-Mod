@@ -2,6 +2,7 @@ package reobf.proghatches.gt.metatileentity;
 
 import java.util.ArrayList;
 
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.fluids.FluidTank;
 
 import gregtech.api.interfaces.ITexture;
@@ -51,7 +52,8 @@ public class SuperfluidHatch extends BufferedDualInputHatch {
                     "For each buffer:",
                     "Capacity: 10,000,000L x24 types of fluid",
                     "16 Slots",
-                    "Slot maximum stacksize:64"),
+                    "Slot maximum stacksize:64",
+                    StatCollector.translateToLocal("programmable_hatches.addedby")),
                 ArrayExt.of(
                     "致力于解决超多种流体输入",
                     "多方块机器的物品/流体输入",
@@ -61,7 +63,7 @@ public class SuperfluidHatch extends BufferedDualInputHatch {
                     "缓冲容量: 10,000,000L x24种流体",
                     "16 格",
                     "每格堆叠限制:64"
-
+                    ,StatCollector.translateToLocal("programmable_hatches.addedby")
                 ))
 
         );

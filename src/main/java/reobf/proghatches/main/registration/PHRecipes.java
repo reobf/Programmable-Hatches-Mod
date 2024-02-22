@@ -584,7 +584,7 @@ if(Config.skipRecipeAdding)return;
      GT_Utility.getIntegratedCircuit(16)
      
 )
- .fluidInputs(Materials.EnderPearl.getMolten(4000))
+ .fluidInputs(Materials.Enderium.getMolten(144*16))
  .itemOutputs(new ItemStack(MyMod.pitem, 1)
 
  ) .duration(40 * SECONDS)
@@ -601,7 +601,7 @@ if(Config.skipRecipeAdding)return;
      GT_Utility.getIntegratedCircuit(17)
      
 )
- .fluidInputs(Materials.EnderPearl.getMolten(4000))
+ .fluidInputs(Materials.Enderium.getMolten(144*16))
  .itemOutputs(new ItemStack(MyMod.pstation, 1)
 
  ) .duration(40 * SECONDS)

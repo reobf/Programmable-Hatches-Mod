@@ -95,6 +95,8 @@ String cfg=
           System.out.println(pp);
           System.out.println("ccccccccccccccccccccccccccc");
           
+          System.out.println("following warnings like 'Error loading class: xxxx' is normal and safe to ignore");
+          
         // NEE is neither coremod nor mixinmod thus it's not in URL path, so add it to path or mixin will fail
         loadJarOf(MixinPlugin::hasTrait,"NotEnoughEnergistics");
 
@@ -104,8 +106,10 @@ String cfg=
         
         if(!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))
         ret.add("MixinRemoveUnunsedItemStackCache");
-        
-    	if(!"true".equals(pp.get("noRecipeFilterForDualHatch"))){
+         
+        //ret.add("MixinInterface");
+       // ret.add("MixinInterfacePart");
+        if(!"true".equals(pp.get("noRecipeFilterForDualHatch"))){
     	ret.add("MixinGTRecipeFilter");
         // GT Multiblock will not set recipe filter of DualInputHatch, set it via mixin
          ret.add("MixinAddProgCircuitExemptToInputFilter");}
@@ -114,11 +118,14 @@ String cfg=
         ret.add("MixinCanCraftExempt");
       
         ret.add("MixinHandleProgrammingOnRecipeStart"); 
-        if(!"true".equals(pp.get("noFixTossBug")))
-        ret.add("MixinFixTossWhenClickSlot");
+     
+       
         if (FMLLaunchHandler.side()
             .isClient()) {
-           
+        	
+            if(!"true".equals(pp.get("noFixTossBug")))
+            	  ret.add("MixinFixTossWhenClickSlot");
+            
         	if(!"true".equals(pp.get("noPatternEncodingMixin"))){
         	ret.add("MixinPatternEncodingCiruitSpecialTreatment");// For ae2fc pattern encoder
             ret.add("MixinPatternEncodingCiruitSpecialTreatment2"); // For nee pattern encoder
@@ -176,7 +183,8 @@ String cfg=
 
     }
 
-    private boolean loadJarOf(final Predicate<Path> mod,String trace) {
+    @SuppressWarnings("deprecation")
+	private boolean loadJarOf(final Predicate<Path> mod,String trace) {
         try {
             File jar = findJarOf(mod);
             if (jar == null) {

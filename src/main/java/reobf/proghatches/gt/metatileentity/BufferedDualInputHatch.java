@@ -29,6 +29,7 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
@@ -94,7 +95,7 @@ import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class BufferedDualInputHatch extends DualInputHatch  {
+public class BufferedDualInputHatch extends DualInputHatch implements IRecipeProcessingAwareDualHatch  {
 	
 	  
     public Widget circuitSlot(IItemHandlerModifiable inventory, int slot) {
@@ -653,7 +654,7 @@ public void updateSlots(){
     }
 private boolean updateEveryTick;
 public boolean updateEveryTick(){return updateEveryTick;}
-public boolean prevdirty;
+//public boolean prevdirty;
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
         super.onPostTick(aBaseMetaTileEntity, aTick);
@@ -678,7 +679,7 @@ public boolean prevdirty;
              
            inv0.clearRecipeIfNeeded();
         }
-        prevdirty=dirty;
+       // prevdirty=dirty;
         dirty=false;
     }
 
@@ -1041,8 +1042,8 @@ public void onFill() {
         		thiz.disableWorking();
             } else {
             	thiz.enableWorking();
-            	BufferedDualInputHatch bff =(BufferedDualInputHatch) (thiz).getMetaTileEntity();
-            	bff.dirty=true;
+            	//BufferedDualInputHatch bff =(BufferedDualInputHatch) (thiz).getMetaTileEntity();
+            	BufferedDualInputHatch.this.dirty=true;
             }
         })
             .setPlayClickSoundResource( () -> thiz.isAllowedToWork() ? SoundResource.GUI_BUTTON_UP.resourceLocation
@@ -1087,7 +1088,8 @@ public void onFill() {
         		
         		//flush changes to client
         		//sometimes vanilla detection will fail so sync it manually
-        		if(last+1>=getBaseMetaTileEntity().getTimer())
+        //	System.out.println(last-getBaseMetaTileEntity().getTimer());
+        		if(last>=getBaseMetaTileEntity().getTimer())
         		getWindow().getContext().getContainer().inventorySlots
         		.forEach(s->((Slot)s).onSlotChanged());
         	
@@ -1215,9 +1217,7 @@ public void onFill() {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Optional</*? extends */IDualInputInventory> getFirstNonEmptyInventory() {
-    	dirty=true;
-    	//IRecipeProcessingAwareHatch NOT working on dualhatch, so assume multi-te will consume items after calling this
-        return (Optional) inv0.stream()
+    	 return (Optional) inv0.stream()
             .filter(not(DualInvBuffer::isEmpty))
             .findAny();
     }
@@ -1228,7 +1228,7 @@ public void onFill() {
 
     @Override
     public Iterator<? extends IDualInputInventory> inventories() {
-    	dirty=true;
+    	
         return inv0.stream()
             .filter(not(DualInvBuffer::isEmpty))
             .iterator();
@@ -1417,5 +1417,16 @@ public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlaye
             	 
             	 
 	return super.onRightclick(aBaseMetaTileEntity, aPlayer);
+}
+
+@Override
+public void startRecipeProcessing() {
+
+}
+
+@Override
+public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+	dirty=true;
+	return CheckRecipeResultRegistry.SUCCESSFUL;
 }
 }

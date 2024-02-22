@@ -1,9 +1,11 @@
 package reobf.proghatches.gt.metatileentity;
 
+import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 import static reobf.proghatches.main.Config.defaultObj;
 
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -16,19 +18,25 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 
 import com.glodblock.github.common.item.ItemFluidPacket;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+import com.gtnewhorizons.modularui.api.widget.IWidgetBuilder;
+import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 
+import appeng.api.AEApi;
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
@@ -37,6 +45,12 @@ import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.crafting.ICraftingProvider;
 import appeng.api.networking.crafting.ICraftingProviderHelper;
 import appeng.api.networking.events.MENetworkCraftingPatternChange;
+import appeng.api.networking.security.BaseActionSource;
+import appeng.api.networking.security.IActionHost;
+import appeng.api.networking.security.MachineSource;
+import appeng.api.storage.IMEMonitor;
+import appeng.api.storage.data.IAEFluidStack;
+import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IInterfaceViewable;
@@ -45,8 +59,10 @@ import appeng.items.misc.ItemEncodedPattern;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
+import appeng.util.Platform;
 import gregtech.GT_Mod;
 import gregtech.api.GregTech_API;
+import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.Textures.BlockIcons;
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.ITexture;
@@ -134,10 +150,107 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
     }
 
     ItemStack[] pattern = new ItemStack[36];
+   
+    
+    ButtonWidget createRefundButton(IWidgetBuilder<?> builder) {
+    	
+    Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
+    	
+   
+        	PatternDualInputHatch.this.dirty=true;
+        	try {
+				PatternDualInputHatch.this.refundAll();
+			} catch (Exception e) {
+				
+				//e.printStackTrace();
+			}
+    })
+    		.setPlayClickSound(true)
+             .setBackground(GT_UITextures.BUTTON_STANDARD, GT_UITextures.OVERLAY_BUTTON_EXPORT)
+       
+     
+        .addTooltips(ImmutableList.of("Return all internally stored items back to AE"))
+       
+        .setPos(new Pos2d(getGUIWidth()-18-3,5+16+2))
+        .setSize(16, 16);
+    return (ButtonWidget) button;
+} 
+       MachineSource requestSource;
+    private BaseActionSource getRequest() {
+ 
+	if (requestSource == null) requestSource = new MachineSource((IActionHost) getBaseMetaTileEntity());
+    return requestSource;
+}
+    private void refundAll() throws Exception {
+    	markDirty();
+    	BaseActionSource src = getRequest();
+             IMEMonitor<IAEItemStack> sg = getProxy().getStorage()
+                 .getItemInventory();
+          abstract class Inv{abstract ItemStack[] geti();abstract FluidTank[] getf();  }
+          Consumer<Inv> consumer= inv->{
+        	  try{
+            for (ItemStack itemStack : inv.geti()) {
+                 if (itemStack == null || itemStack.stackSize == 0) continue;
+                 IAEItemStack rest = Platform.poweredInsert(
+                		 getProxy().getEnergy(),
+                     sg,
+                     AEApi.instance()
+                         .storage()
+                         .createItemStack(itemStack),
+                     src);
+                 itemStack.stackSize = rest != null && rest.getStackSize() > 0 ? (int) rest.getStackSize() : 0;
+             }
+             IMEMonitor<IAEFluidStack> fsg = getProxy().getStorage()
+                 .getFluidInventory();
+             for (FluidTank fluidStack : inv.getf()) {
+                 if (fluidStack == null || fluidStack.getFluidAmount() == 0) continue;
+                 IAEFluidStack rest = Platform.poweredInsert(
+                		 getProxy().getEnergy(),
+                     fsg,
+                     AEApi.instance()
+                         .storage()
+                         .createFluidStack(fluidStack.getFluid()),
+                     src);
+                 fluidStack.setFluid(Optional.ofNullable(rest).map(IAEFluidStack::getFluidStack).orElse(null));
+             };}
+             catch(Exception e){throw new RuntimeException(e);}
+        	  };
+        	  
+        	  inv0.stream().map(s->new Inv() {
+				@Override
+				ItemStack[] geti() {
+					return s.mStoredItemInternal;
+				}
+				
+				@Override
+				FluidTank[] getf() {
+					return s.mStoredFluidInternal;
+				}
+			}).forEach(consumer);
+        	  ;
+        	  consumer.accept(new Inv() {
+				
+				@Override
+				ItemStack[] geti() {
+					
+					return mInventory;
+				}
+				
+				@Override
+				FluidTank[] getf() {
+					
+					return mStoredFluid;
+				}
+			});
+        	  
+         }
+	
 
-    @Override
+	@Override
     public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
         buildContext.addSyncedWindow(88, this::createPatternWindow);
+       
+        builder.widget(createRefundButton(builder));
         builder.widget(
             new ButtonWidget().setOnClick(
                 (clickData, widget) -> {
@@ -151,8 +264,8 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
                 .addTooltips(
                     ImmutableList.of(StatCollector.translateToLocalFormatted("programmable_hatches.gt.pattern")))
                 .setSize(16, 16)
-                .setPos(10 + 16 * 9, 3 + 16 * 2)
-
+              //  .setPos(10 + 16 * 9, 3 + 16 * 2)
+                .setPos(new Pos2d(getGUIWidth()-18-3,5+16+2+16+2))
         );
 
         super.addUIWidgets(builder, buildContext);

@@ -7,6 +7,7 @@ import static reobf.proghatches.main.Config.defaultObj;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -40,6 +41,7 @@ import appeng.api.networking.events.MENetworkCraftingPatternChange;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.storage.IStorageGrid;
+import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
@@ -174,14 +176,20 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
             }
 
         }
-
-        toReturn.forEach(
-            s -> getStorageGrid().getItemInventory()
-                .injectItems(
-                    AEItemStack.create(s),
-                    Actionable.MODULATE,
-                    new MachineSource((IActionHost) getBaseMetaTileEntity())));
-        toReturn.clear();
+       //IMEMonitor<IAEItemStack> ae = getStorageGrid().getItemInventory();
+        toReturn.replaceAll(
+        		  s -> Optional.ofNullable(
+        		  getStorageGrid().getItemInventory()
+                  .injectItems(
+                      AEItemStack.create(s),
+                      Actionable.MODULATE,
+                      new MachineSource((IActionHost) getBaseMetaTileEntity()))
+                  )
+        		  .filter(ss->ss.getStackSize()<=0)
+        		  .map(ss->ss.getItemStack())
+        		  .orElse(null)
+        		);
+        toReturn.removeIf(Objects::isNull);
 
         super.onPostTick(aBaseMetaTileEntity, aTick);
     }

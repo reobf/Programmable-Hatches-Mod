@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Input;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
@@ -38,6 +39,7 @@ public CheckRecipeResult checkRecipeResult;
 @Inject( method = "startRecipeProcessing",at = { @At(value = "RETURN") })
    public void a(CallbackInfo c){
 	   for (IDualInputHatch hatch :(mDualInputHatches)) {
+		   if(hatch==null||!((MetaTileEntity) hatch).isValid())continue;
            if (hatch instanceof IRecipeProcessingAwareDualHatch ) {
         	   ((IRecipeProcessingAwareDualHatch) hatch).startRecipeProcessing();
            }
@@ -55,6 +57,7 @@ public CheckRecipeResult checkRecipeResult;
        };
 
        for (IDualInputHatch hatch : (mDualInputHatches)) {
+    	   if(hatch==null||!((MetaTileEntity) hatch).isValid())continue;
            if (hatch instanceof IRecipeProcessingAwareDualHatch) {
                setResultIfFailure.accept(((IRecipeProcessingAwareDualHatch)hatch).endRecipeProcessing(
             		   (GT_MetaTileEntity_MultiBlockBase)(Object)this

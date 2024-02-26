@@ -103,7 +103,7 @@ String cfg=
        
 
         ArrayList<String> ret = new ArrayList<>();
-        
+        ret.add("MixinAwarenessForDualHatch");
         if(!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))
         ret.add("MixinRemoveUnunsedItemStackCache");
          

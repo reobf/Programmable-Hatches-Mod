@@ -1419,14 +1419,11 @@ public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlaye
 	return super.onRightclick(aBaseMetaTileEntity, aPlayer);
 }
 
-@Override
-public void startRecipeProcessing() {
 
-}
 
 @Override
 public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
 	dirty=true;
-	return CheckRecipeResultRegistry.SUCCESSFUL;
+	return super.endRecipeProcessing(controller);
 }
 }

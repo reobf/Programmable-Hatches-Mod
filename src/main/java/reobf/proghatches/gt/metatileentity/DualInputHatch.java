@@ -52,6 +52,9 @@ import gregtech.api.interfaces.modularui.IAddUIWidgets;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.recipe.check.CheckRecipeResult;
+import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_TooltipDataCache;
 import gregtech.api.util.extensions.ArrayExt;
@@ -62,7 +65,7 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
 public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements IConfigurationCircuitSupport,
-    IAddGregtechLogo, IAddUIWidgets, IDualInputHatch, IProgrammingCoverBlacklisted {
+    IAddGregtechLogo, IAddUIWidgets, IDualInputHatch, IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch {
 
     static java.text.DecimalFormat format = new java.text.DecimalFormat("#,###");
     public boolean mMultiFluid;
@@ -299,6 +302,9 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
            * position=new Pos2d(position.getX(),position.getY()).add(0, 18);
            * }
            */
+        
+        
+        
     }
 
     @Override
@@ -560,14 +566,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
      
 
         if (program) program();
-        if (aBaseMetaTileEntity.isServerSide()) {
-            for (int i = 0; i < getMaxType(); i++) {
-                if (mStoredFluid[i].getFluid() != null && mStoredFluid[i].getFluidAmount() <= 0) {
-                    mStoredFluid[i].setFluid(null);
-                	markDirty();
-                }
-            }
-        }
+        
 
     }
 
@@ -803,6 +802,30 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
     public int fluidSlotsPerRow() {
         return 1;
     }
+
+	@Override
+	public void startRecipeProcessing() {
+		
+		
+	}
+@Override
+public void updateSlots() {
+	if (this.getBaseMetaTileEntity().isServerSide()) {
+        for (int i = 0; i < getMaxType(); i++) {
+            if (mStoredFluid[i].getFluid() != null && mStoredFluid[i].getFluidAmount() <= 0) {
+                mStoredFluid[i].setFluid(null);
+            	
+            }
+        }
+    }
+	super.updateSlots();
+}
+	@Override
+	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+		this.markDirty();
+		updateSlots();
+		return CheckRecipeResultRegistry.SUCCESSFUL;
+	}
 
 
 	

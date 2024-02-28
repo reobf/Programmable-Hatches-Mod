@@ -32,6 +32,7 @@ import gregtech.common.covers.redstone.GT_Cover_AdvancedRedstoneReceiverBase.Gat
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import io.netty.buffer.ByteBuf;
 import reobf.proghatches.gt.cover.SmartArmCover.Data;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
 @SuppressWarnings("hiding")
@@ -331,8 +332,8 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
                         return GT_UITextures.OVERLAY_BUTTON_REDSTONE_ON;
                     })
 
-                    .addTooltip(0, StatCollector.translateToLocal("programmable_hatches.cover.wireless.invert.false"))
-                    .addTooltip(1, StatCollector.translateToLocal("programmable_hatches.cover.wireless.invert.true"))
+                    .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.wireless.invert.false"))
+                    .addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.wireless.invert.true"))
                     .setPos(startX, startY)
 
             );
@@ -346,8 +347,8 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
                         return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
                     })
 
-                    .addTooltip(0, StatCollector.translateToLocal("programmable_hatches.cover.wireless.safe.false"))
-                    .addTooltip(1, StatCollector.translateToLocal("programmable_hatches.cover.wireless.safe.true"))
+                    .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.wireless.safe.false"))
+                    .addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.wireless.safe.true"))
                     .setPos(startX + spaceX, startY)
 
             );
@@ -361,8 +362,8 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
                         return ON;
                     })
 
-                    .addTooltip(0, StatCollector.translateToLocal("programmable_hatches.cover.wireless.crashed.false"))
-                    .addTooltip(1, StatCollector.translateToLocal("programmable_hatches.cover.wireless.crashed.true"))
+                    .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.wireless.crashed.false"))
+                    .addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.wireless.crashed.true"))
                     .setPos(startX + spaceX * 2, startY)
 
             );
@@ -378,10 +379,10 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
 
                     .addTooltip(
                         0,
-                        StatCollector.translateToLocal("programmable_hatches.cover.wireless.uuidsource.false"))
+                        LangManager.translateToLocal("programmable_hatches.cover.wireless.uuidsource.false"))
                     .addTooltip(
                         1,
-                        StatCollector.translateToLocal("programmable_hatches.cover.wireless.uuidsource.true"))
+                        LangManager.translateToLocal("programmable_hatches.cover.wireless.uuidsource.true"))
                     .setPos(startX + spaceX * 3, startY)
 
             );
@@ -395,8 +396,8 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
                         return GT_UITextures.OVERLAY_BUTTON_RECIPE_UNLOCKED;
                     })
 
-                    .addTooltip(0, StatCollector.translateToLocal("programmable_hatches.cover.wireless.private.false"))
-                    .addTooltip(1, StatCollector.translateToLocal("programmable_hatches.cover.wireless.private.true"))
+                    .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.wireless.private.false"))
+                    .addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.wireless.private.true"))
                     .setPos(startX + spaceX * 4, startY)
 
             );
@@ -422,14 +423,14 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
                         }
                     })
 
-                    .addTooltip(0, StatCollector.translateToLocal("programmable_hatches.cover.wireless.gatemode.0"))
-                    .addTooltip(1, StatCollector.translateToLocal("programmable_hatches.cover.wireless.gatemode.1"))
-                    .addTooltip(2, StatCollector.translateToLocal("programmable_hatches.cover.wireless.gatemode.2"))
-                    .addTooltip(3, StatCollector.translateToLocal("programmable_hatches.cover.wireless.gatemode.3"))
-                    // .addTooltip(4, StatCollector.translateToLocal("programmable_hatches.cover.wireless.gatemode.4"))
-                    // .addTooltip(0, StatCollector.translateToLocal("programmable_hatches.cover.wireless.gatemode.0"))
+                    .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.wireless.gatemode.0"))
+                    .addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.wireless.gatemode.1"))
+                    .addTooltip(2, LangManager.translateToLocal("programmable_hatches.cover.wireless.gatemode.2"))
+                    .addTooltip(3, LangManager.translateToLocal("programmable_hatches.cover.wireless.gatemode.3"))
+                    // .addTooltip(4, LangManager.translateToLocal("programmable_hatches.cover.wireless.gatemode.4"))
+                    // .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.wireless.gatemode.0"))
 
-                    // .addTooltip(1,StatCollector.translateToLocal("programmable_hatches.cover.wireless.private.true"))
+                    // .addTooltip(1,LangManager.translateToLocal("programmable_hatches.cover.wireless.private.true"))
                     .setPos(startX + spaceX * 5, startY)
 
             );

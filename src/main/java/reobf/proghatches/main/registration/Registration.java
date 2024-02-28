@@ -22,6 +22,7 @@ import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.RemoteInputBus;
 import reobf.proghatches.gt.metatileentity.RemoteInputHatch;
 import reobf.proghatches.gt.metatileentity.SuperfluidHatch;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 
@@ -50,9 +51,7 @@ public class Registration implements Runnable {
             new DualInputHatch(
                 Config.metaTileEntityOffset + DualInputHatchOffset + i,
                 "hatch.input.dual.tier." + i,
-                defaultName(
-                    String.format("Programmable Dual Input Hatch (%s)", GT_Values.VN[i]),
-                    String.format("编程二合一输入仓 (%s)", GT_Values.VN[i])),
+                String.format(LangManager.translateToLocal("hatch.input.dual.tier.name"), GT_Values.VN[i]),
                 i,
                 false);
 
@@ -63,9 +62,7 @@ public class Registration implements Runnable {
             new DualInputHatch(
                 Config.metaTileEntityOffset + QuadDualInputHatchOffset + i,
                 "hatch.input.dual.quad.tier." + i,
-                defaultName(
-                    String.format("Programmable Multifluid Dual Input Hatch (%s)", GT_Values.VN[i]),
-                    String.format("编程多流体二合一输入仓 (%s)", GT_Values.VN[i])),
+                String.format(LangManager.translateToLocal("hatch.input.dual.quad.tier.name"), GT_Values.VN[i]),
                 i,
                 true);
 
@@ -76,9 +73,7 @@ public class Registration implements Runnable {
             new BufferedDualInputHatch(
                 Config.metaTileEntityOffset + BufferedDualInputHatchOffset + i,
                 "hatch.input.buffered.dual.tier." + i,
-                defaultName(
-                    String.format("Programmable Buffered Dual Input Hatch (%s)", GT_Values.VN[i]),
-                    String.format("编程缓冲二合一输入仓 (%s)", GT_Values.VN[i])),
+                String.format(LangManager.translateToLocal("hatch.input.buffered.dual.tier.name"), GT_Values.VN[i]),
                 i,
                 false,
                 1);
@@ -89,9 +84,8 @@ public class Registration implements Runnable {
             new BufferedDualInputHatch(
                 Config.metaTileEntityOffset + BufferedQuadDualInputHatchOffset + i,
                 "hatch.input.buffered.dual.quad.tier." + i,
-                defaultName(
-                    String.format("Programmable Buffered Multifluid Dual Input Hatch (%s)", GT_Values.VN[i]),
-                    String.format("编程缓冲多流体二合一输入仓 (%s)", GT_Values.VN[i])),
+                String.format(LangManager.translateToLocal("hatch.input.buffered.dual.quad.tier.name"), GT_Values.VN[i]),
+                
                 i,
                 true,
                 1);
@@ -103,9 +97,7 @@ public class Registration implements Runnable {
             new BufferedDualInputHatch(
                 Config.metaTileEntityOffset + BufferedQuadDualInputHatchMKIIOffset + i,
                 "hatch.input.buffered.dual.quad.tier.mkii." + i,
-                defaultName(
-                    String.format("Programmable Advanced Buffered Multifluid Dual Input Hatch (%s)", GT_Values.VN[i]),
-                    String.format("进阶编程缓冲多流体二合一输入仓 (%s)", GT_Values.VN[i])),
+                String.format(LangManager.translateToLocal("hatch.input.buffered.dual.quad.tier.mkii.name"), GT_Values.VN[i]),
                 i,
                 true,
                 6);
@@ -115,8 +107,8 @@ public class Registration implements Runnable {
         new ProgrammingCircuitProvider(
             Config.metaTileEntityOffset + CircuitProviderOffset,
             "circuitprovider",
-            defaultName(String.format("Programming Circuit Provider"), String.format("编程器电路提供器")),
-            0,
+            LangManager.translateToLocal("circuitprovider.name"),
+             0,
             1);
         GregTech_API.registerCover(
             new ItemStack(MyMod.cover, 1, 0),
@@ -143,10 +135,7 @@ public class Registration implements Runnable {
         new DualInputHatchSlave<>(
             Config.metaTileEntityOffset + SlaveOffset,
             "hatch.dualinput.slave",
-            defaultName(
-
-                String.format("Dual Input Slave"),
-                String.format("二合一输入镜像")));
+            LangManager.translateToLocal("hatch.dualinput.slave.name"));
 
         /*
          * boolean compat;
@@ -161,25 +150,19 @@ public class Registration implements Runnable {
             new RemoteInputBus(
                 Config.metaTileEntityOffset + RemoteInputBusOffset,
                 "hatch.input.item.remote",
-                defaultName(
-
-                    String.format("Remote Input Bus"),
-                    String.format("远程输入总线")),
+                LangManager.translateToLocal("hatch.input.item.remote.name"),
                 1);
             new RemoteInputHatch(
                 Config.metaTileEntityOffset + RemoteInputHatchOffset,
                 "hatch.input.fluid.remote",
-                defaultName(
-
-                    String.format("Remote Input Hatch"),
-                    String.format("远程输入仓")),
+                LangManager.translateToLocal("hatch.input.fluid.remote.name"),
                 1);
         }
         int tier = 8;
         new SuperfluidHatch(
             Config.metaTileEntityOffset + SuperFluidHatch,
             "hatch.input.buffered.superfluid",
-            defaultName(String.format("Superfluid Dual Input Hatch"), String.format("超级流体二合一输入仓")),
+            LangManager.translateToLocal("hatch.input.buffered.superfluid.name"),
             8,
             true,
             1) {
@@ -188,9 +171,7 @@ public class Registration implements Runnable {
         new PatternDualInputHatch(
             Config.metaTileEntityOffset + PatternOffset,
             "hatch.input.buffered.me",
-            defaultName("Programmable Crafting Input Buffer", "编程样板输入总成")
-
-            ,
+            LangManager.translateToLocal("hatch.input.buffered.me.name"),
             10,
             true,
             6,
@@ -199,22 +180,14 @@ public class Registration implements Runnable {
         for (int i = 0; i < 4; i++) new FilterOutputBus(
             Config.metaTileEntityOffset + TenaciousOffset + i,
             "hatch.output.tenacious." + i,
-            defaultName(
-                String.format("Tenacious Ouput Bus (%s)", GT_Values.VN[i]),
-                String.format("吝物输出总线 (%s)", GT_Values.VN[i]))
-
-            ,
+            LangManager.translateToLocal("hatch.output.tenacious.name"),
             i,
             true);
 
         for (int i = 0; i < 4; i++) new FilterOutputBus(
             Config.metaTileEntityOffset + FilterOffset + i,
             "hatch.output.filter." + i,
-            defaultName(
-                String.format("Filter Ouput Bus (%s)", GT_Values.VN[i]),
-                String.format("过滤输出总线 (%s)", GT_Values.VN[i]))
-
-            ,
+            LangManager.translateToLocal("hatch.output.filter.name"),
             i,
             false);
 

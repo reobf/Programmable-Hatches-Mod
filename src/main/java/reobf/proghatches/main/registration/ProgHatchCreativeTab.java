@@ -36,7 +36,7 @@ public class ProgHatchCreativeTab extends CreativeTabs {
          * s->{s=s.copy();
          * s.stackTagCompound=new NBTTagCompound();
          * try {
-         * s.stackTagCompound.setTag("display",JsonToNBT.func_150315_a(String.format("{Name:%s}",StatCollector.
+         * s.stackTagCompound.setTag("display",JsonToNBT.func_150315_a(String.format("{Name:%s}",LangManager.
          * translateToLocal("programmable_hatches.prog_cover"))));
          * } catch (Exception e) {
          * e.printStackTrace();

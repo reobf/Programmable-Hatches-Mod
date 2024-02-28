@@ -50,6 +50,7 @@ import reobf.proghatches.gt.cover.parser.SimpleParser;
 import reobf.proghatches.gt.cover.parser.SimpleParser.Context;
 import reobf.proghatches.gt.cover.parser.SimpleParser.Expression;
 import reobf.proghatches.gt.cover.parser.SimpleParser.Rational;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
@@ -283,7 +284,7 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
                 )
                 .setSize(16, 16)
 
-                .addTooltip(StatCollector.translateToLocal("programmable_hatches.cover.smart.probe.move"))
+                .addTooltip(LangManager.translateToLocal("programmable_hatches.cover.smart.probe.move"))
                 .setPos(8, 8)
 
             );
@@ -340,7 +341,7 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
                     .setBackground(GT_UITextures.BUTTON_STANDARD, PROBE)
                     .addTooltips(
                         ImmutableList
-                            .of(StatCollector.translateToLocalFormatted("programmable_hatches.cover.smart.probe")))
+                            .of(LangManager.translateToLocalFormatted("programmable_hatches.cover.smart.probe")))
                     .setSize(16, 16)
                     .setPos(startX + spaceX * 6, startY + spaceY * 2));
 
@@ -368,8 +369,8 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
                         return GT_UITextures.OVERLAY_BUTTON_IMPORT;
                     })
 
-                    .addTooltip(0, StatCollector.translateToLocal("programmable_hatches.cover.smart.io.false"))
-                    .addTooltip(1, StatCollector.translateToLocal("programmable_hatches.cover.smart.io.true"))
+                    .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.smart.io.false"))
+                    .addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.smart.io.true"))
                     .setPos(startX, startY)
 
             );
@@ -378,7 +379,7 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
                     .setOnClick((s, b) -> { getCoverData().formulaprev = "\0\0\0\0"; })
                     .setBackground(GT_UITextures.BUTTON_STANDARD, GT_UITextures.OVERLAY_SLOT_RECYCLE)
 
-                    .addTooltip(StatCollector.translateToLocal("programmable_hatches.cover.smart.reset"))
+                    .addTooltip(LangManager.translateToLocal("programmable_hatches.cover.smart.reset"))
                     .setPos(startX + spaceX * 6, startY)
 
             );
@@ -397,8 +398,8 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
                     }
 
                     )
-                    .addTooltip(0, StatCollector.translateToLocal("programmable_hatches.cover.smart.mode.0"))
-                    .addTooltip(1, StatCollector.translateToLocal("programmable_hatches.cover.smart.mode.1"))
+                    .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.smart.mode.0"))
+                    .addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.smart.mode.1"))
                     .setPos(startX, startY + spaceY));
 
             CycleButtonWidget c;
@@ -420,28 +421,28 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
                     .dynamicTooltip(
                         () -> c.getState() == 0
                             ? Arrays.asList(
-                                StatCollector.translateToLocal("programmable_hatches.cover.smart.dyn.0"),
+                                LangManager.translateToLocal("programmable_hatches.cover.smart.dyn.0"),
                                 StatCollector
                                     .translateToLocal("programmable_hatches.cover.smart.dyn.shift.for.detail"))
                             : Arrays.asList(
-                                StatCollector.translateToLocal("programmable_hatches.cover.smart.dyn.1"),
+                                LangManager.translateToLocal("programmable_hatches.cover.smart.dyn.1"),
                                 StatCollector
                                     .translateToLocal("programmable_hatches.cover.smart.dyn.shift.for.detail"))
 
                     )
 
-                    // .addTooltip(0,StatCollector.translateToLocal("programmable_hatches.cover.smart.dyn.0"))
-                    // .addTooltip(0,StatCollector.translateToLocal("programmable_hatches.cover.smart.dyn.shift.for.detail"))
-                    // .addTooltip(1,StatCollector.translateToLocal("programmable_hatches.cover.smart.dyn.1"))
-                    // .addTooltip(1,StatCollector.translateToLocal("programmable_hatches.cover.smart.dyn.shift.for.detail"))
+                    // .addTooltip(0,LangManager.translateToLocal("programmable_hatches.cover.smart.dyn.0"))
+                    // .addTooltip(0,LangManager.translateToLocal("programmable_hatches.cover.smart.dyn.shift.for.detail"))
+                    // .addTooltip(1,LangManager.translateToLocal("programmable_hatches.cover.smart.dyn.1"))
+                    // .addTooltip(1,LangManager.translateToLocal("programmable_hatches.cover.smart.dyn.shift.for.detail"))
                     .dynamicTooltipShift(
                         () -> Arrays.asList(
                             rangeOf(
                                 Integer.valueOf(
-                                    StatCollector.translateToLocal(
+                                    LangManager.translateToLocal(
                                         "programmable_hatches.cover.smart.dyn.shift." + c.getState())))
                                             .map(
-                                                s -> StatCollector.translateToLocal(
+                                                s -> LangManager.translateToLocal(
                                                     "programmable_hatches.cover.smart.dyn.shift." + c.getState()
                                                         + "."
                                                         + s))
@@ -494,8 +495,8 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
              * if(i==1) return GT_UITextures.OVERLAY_BUTTON_EXPORT;
              * return GT_UITextures.OVERLAY_BUTTON_IMPORT;
              * }
-             * ).addTooltip(0, StatCollector.translateToLocal("programmable_hatches.cover.smart.io.false"))
-             * .addTooltip(1,StatCollector.translateToLocal("programmable_hatches.cover.smart.io.true"))
+             * ).addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.smart.io.false"))
+             * .addTooltip(1,LangManager.translateToLocal("programmable_hatches.cover.smart.io.true"))
              * .setPos(startX , startY );
              * }
              * );
@@ -511,8 +512,8 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
              * if(i==1) return GT_UITextures.OVERLAY_BUTTON_EXPORT;
              * return GT_UITextures.OVERLAY_BUTTON_IMPORT;
              * }
-             * ).addTooltip(0,StatCollector.translateToLocal("programmable_hatches.cover.smart.mode.0"))
-             * .addTooltip(1,StatCollector.translateToLocal("programmable_hatches.cover.smart.mode.1"))
+             * ).addTooltip(0,LangManager.translateToLocal("programmable_hatches.cover.smart.mode.0"))
+             * .addTooltip(1,LangManager.translateToLocal("programmable_hatches.cover.smart.mode.1"))
              * .setPos(startX , startY +spaceY);
              * }
              * );
@@ -541,8 +542,8 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
             UITexture.fullImage(new ResourceLocation("proghatches", "textures/formula" + getCoverData().mode + ".png"))
 
             )
-                .addTooltip(StatCollector.translateToLocal("programmable_hatches.cover.smart.tips.0"))
-                .addTooltip(StatCollector.translateToLocal("programmable_hatches.cover.smart.tips.1"))
+                .addTooltip(LangManager.translateToLocal("programmable_hatches.cover.smart.tips.0"))
+                .addTooltip(LangManager.translateToLocal("programmable_hatches.cover.smart.tips.1"))
 
                 .setPos(startX + spaceX, startY + spaceY)
                 .setSize(14 * 4, 14))
@@ -575,11 +576,11 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
             /*
              * .widget(
              * new TextWidget(
-             * StatCollector.translateToLocal("programmable_hatches.cover.smart.formula")).setDefaultColor(
+             * LangManager.translateToLocal("programmable_hatches.cover.smart.formula")).setDefaultColor(
              * COLOR_TEXT_GRAY.get())
              * .setPos(startX + spaceX * 3, 4 + startY + spaceY * 1))
              * .widget(
-             * new TextWidget(StatCollector.translateToLocal("programmable_hatches.cover.smart.formula.desc")).
+             * new TextWidget(LangManager.translateToLocal("programmable_hatches.cover.smart.formula.desc")).
              * setDefaultColor(COLOR_TEXT_GRAY.get())
              * .setPos(startX + spaceX * 3, 4 + startY + spaceY * 2));
              */ }
@@ -935,7 +936,7 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
     }
 
     private static String info(String s) {
-        return StatCollector.translateToLocal("programmable_hatches.cover.smart.info." + s);
+        return LangManager.translateToLocal("programmable_hatches.cover.smart.info." + s);
 
     }
 

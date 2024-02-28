@@ -16,6 +16,7 @@ import org.apache.http.util.ByteArrayBuffer;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.StringTranslate;
 import net.minecraftforge.common.config.Configuration;
+import reobf.proghatches.lang.LangManager;
 import scala.actors.threadpool.Arrays;
 
 import com.google.common.base.Supplier;
@@ -26,6 +27,8 @@ public static boolean appendAddedBy=true;
     public static String greeting = "Hello World";
     public static int metaTileEntityOffset = 22000;
     public static boolean skipRecipeAdding;
+   
+    
     public static void synchronizeConfiguration(File configFile) {
         Configuration configuration = new Configuration(configFile);
 
@@ -34,12 +37,15 @@ public static boolean appendAddedBy=true;
         configuration.addCustomCategoryComment("ID", "Configurable ID settings, DO NOT change it until necessary.");
         skipRecipeAdding= configuration.getBoolean("skipRecipeAddition",  Configuration.CATEGORY_GENERAL, skipRecipeAdding, "If true, this mod will not add any recipe.");
         appendAddedBy= configuration.getBoolean("appendAddedBy",  Configuration.CATEGORY_GENERAL, appendAddedBy, "Append 'Added by ProgrammableHatches' at the end of machine desc.");
+        lang=configuration.getString("language",  Configuration.CATEGORY_GENERAL, lang, "Language for dedicated server, no effect on client side. If you change it, you should delete GregTech.lang to re-generate.");
         
+        if(System.getProperty("proghatches.language")!=null){
+        lang=System.getProperty("proghatches.language");}
         if (configuration.hasChanged()) {
             configuration.save();
         }
     }
-
+/*
     static public boolean isCN;
     static {
 
@@ -47,9 +53,10 @@ public static boolean appendAddedBy=true;
         // String language = locale.getLanguage();
         isCN = System.getProperty("user.language")
             .equalsIgnoreCase("zh");
-    }
-
-    public static String defaultName(String en, String cn) {
+    }*/
+    public static String lang =  System.getProperty("user.language")
+            .equalsIgnoreCase("zh")?"zh_CN":"en_US";
+   /* public static String defaultName(String en, String cn) {
         return isCN ? cn : en;
     }
 
@@ -59,10 +66,13 @@ public static boolean appendAddedBy=true;
 
     public static <T> T defaultObj(Supplier<T> en, Supplier<T> cn) {
         return isCN ? cn.get() : en.get();
-    }
+    }*/
   
     public static String[] get(String key,Map<String,Object> fmtter){
     	try(InputStream in=getInput.apply(key)){
+    		if(in==null){
+    			return new String[]{"ERROR","language file missing:"+key};
+    		}
     		byte[] b=new byte[in.available()];
     		int off=0;
     		int tmp;
@@ -110,7 +120,7 @@ public static boolean appendAddedBy=true;
     		if(appendAddedBy){
     			t=new String[arr.length+1];
     			System.arraycopy(arr, 0, t, 0, arr.length);
-    			t[t.length-1]=StatCollector.translateToLocal("programmable_hatches.addedby");
+    			t[t.length-1]=LangManager.translateToLocal("programmable_hatches.addedby");
     			
     		}
     		return t;
@@ -128,7 +138,7 @@ public static boolean appendAddedBy=true;
 		  s->
 		  Config.class.getResourceAsStream(
 		  "/assets/proghatches/lang/"+
-		  StatCollector.translateToLocal("programmable_hatches.gt.lang.dir")+
+		  LangManager.translateToLocal("programmable_hatches.gt.lang.dir")+
 		  "/"+
 		  s+
 		  ".lang"

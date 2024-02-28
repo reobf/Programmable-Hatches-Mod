@@ -1,7 +1,7 @@
 package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.util.GT_Utility.moveMultipleItemStacks;
-import static reobf.proghatches.main.Config.defaultObj;
+
 
 import java.io.IOException;
 import java.util.Optional;
@@ -62,7 +62,7 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
                         : "Remain a phantom item instead of clearing it when moving stacks out.",
                     "Use void protection to restrict recipe indirectly.",
                     Math.min(16, (1 + tier) * (tier + 1)) + "Slots",
-                    StatCollector.translateToLocal("programmable_hatches.addedby")
+                    LangManager.translateToLocal("programmable_hatches.addedby")
 
                 ),
                 ArrayExt.of(
@@ -70,7 +70,7 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
                     keepone ? "自动输出时每格总是会保留一个物品" : "自动输出时留下一个虚拟物品",
                     "配合溢出保护功能间接限制配方",
                     Math.min(16, (1 + tier) * (tier + 1)) + "格",
-                    StatCollector.translateToLocal("programmable_hatches.addedby")
+                    LangManager.translateToLocal("programmable_hatches.addedby")
 
                 ))*/
             

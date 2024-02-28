@@ -37,6 +37,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.oc.ItemWirelessPeripheralCard.Env;
 import scala.Some;
 
@@ -46,9 +47,9 @@ public class TileWirelessPeripheralStation extends TileEntity implements li.cil.
 	@Override
 	public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
 	        IWailaConfigHandler config) {
-		currenttip.add(StatCollector.translateToLocalFormatted("tile.proghatches.oc.peripheral_station.waila.channel", accessor.getNBTData().getString("UUID")));
-		currenttip.add(StatCollector.translateToLocalFormatted("tile.proghatches.oc.peripheral_station.waila.connection",
-				StatCollector.translateToLocal("tile.proghatches.oc.peripheral_station.waila.connection."+
+		currenttip.add(LangManager.translateToLocalFormatted("tile.proghatches.oc.peripheral_station.waila.channel", accessor.getNBTData().getString("UUID")));
+		currenttip.add(LangManager.translateToLocalFormatted("tile.proghatches.oc.peripheral_station.waila.connection",
+				LangManager.translateToLocal("tile.proghatches.oc.peripheral_station.waila.connection."+
 				(accessor.getNBTData().getBoolean("connection")?"true":accessor.getNBTData().getBoolean("inrange")?
 						accessor.getNBTData().getBoolean("oneComputer")?"false":"more_than_one":"out_of_range"))
 				
@@ -114,14 +115,14 @@ public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p
 	int i = 0;
     while (true) {
         String k = "tile.proghatches.peripheral_station.tooltip";
-        if (StatCollector.translateToLocal(k)
+        if (LangManager.translateToLocal(k)
             .equals(
                 Integer.valueOf(i)
                     .toString())) {
             break;
         }
         String key = k + "." + i;
-        String trans = StatCollector.translateToLocal(key);
+        String trans = LangManager.translateToLocal(key);
 
         p_77624_3_.add(trans);
         i++;

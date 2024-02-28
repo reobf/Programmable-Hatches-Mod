@@ -11,6 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
+import reobf.proghatches.lang.LangManager;
 
 public class ItemBlockIOHub extends ItemBlock{
 
@@ -25,14 +26,14 @@ public class ItemBlockIOHub extends ItemBlock{
 	            String k = KeyboardUtil.isShiftKeyDown()?"tile.iohub.tooltip.shift":"tile.iohub.tooltip";
 	         
 	            
-	            if (StatCollector.translateToLocal(k)
+	            if (LangManager.translateToLocal(k)
 	                .equals(
 	                    Integer.valueOf(i)
 	                        .toString())) {
 	                break;
 	            }
 	            String key = k + "." + i;
-	            String trans = StatCollector.translateToLocal(key);
+	            String trans = LangManager.translateToLocal(key);
 
 	            p_77624_3_.add(trans);
 	            i++;

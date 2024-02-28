@@ -27,6 +27,7 @@ import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.item.HostAware {
@@ -46,20 +47,20 @@ public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.ite
         int i = 0;
         while (true) {
             String k = "item.proghatches.oc.redstone.tooltip";
-            if (StatCollector.translateToLocal(k)
+            if (LangManager.translateToLocal(k)
                 .equals(
                     Integer.valueOf(i)
                         .toString())) {
                 break;
             }
             String key = k + "." + i;
-            String trans = StatCollector.translateToLocal(key);
+            String trans = LangManager.translateToLocal(key);
 
             p_77624_3_.add(trans);
             i++;
         }
 
-        // p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.oc.redstone.tooltip"));
+        // p_77624_3_.add(LangManager.translateToLocal("item.proghatches.oc.redstone.tooltip"));
 
         super.addInformation(p_77624_1_, p_77624_2_, p_77624_3_, p_77624_4_);
     }
@@ -282,7 +283,7 @@ public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.ite
 
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World worldIn, EntityPlayer player) {
-        GT_Utility.sendChatToPlayer(player, StatCollector.translateToLocal("item.proghatch.oc.redstone.bind"));
+        GT_Utility.sendChatToPlayer(player, LangManager.translateToLocal("item.proghatch.oc.redstone.bind"));
         UUID uid = player.getUniqueID();
         getOrCreateTag(stack).setLong("uuid_l", uid.getLeastSignificantBits());
         getOrCreateTag(stack).setLong("uuid_m", uid.getLeastSignificantBits());

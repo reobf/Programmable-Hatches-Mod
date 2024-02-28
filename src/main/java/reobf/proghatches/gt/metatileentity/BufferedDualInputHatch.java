@@ -1,7 +1,7 @@
 package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
-import static reobf.proghatches.main.Config.defaultObj;
+
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -92,6 +92,7 @@ import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.item.ItemProgrammingCircuit;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
@@ -103,10 +104,10 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
        
         List<String> tooltip = Arrays.asList(
             EnumChatFormatting.DARK_GRAY + (
-                StatCollector.translateToLocal("GT5U.machines.select_circuit.tooltip.1")),
+                LangManager.translateToLocal("GT5U.machines.select_circuit.tooltip.1")),
           
             EnumChatFormatting.DARK_GRAY + (
-                StatCollector.translateToLocal("GT5U.machines.select_circuit.tooltip.3")));
+                LangManager.translateToLocal("GT5U.machines.select_circuit.tooltip.3")));
 
         return new SlotWidget(new BaseSlot(inventory, slot, true)) {
 
@@ -156,8 +157,8 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 
         }.setOverwriteItemStackTooltip(list -> {
             list.removeIf(
-                line -> line.contains(StatCollector.translateToLocal("gt.integrated_circuit.tooltip.0"))
-                    || line.contains(StatCollector.translateToLocal("gt.integrated_circuit.tooltip.1")));
+                line -> line.contains(LangManager.translateToLocal("gt.integrated_circuit.tooltip.0"))
+                    || line.contains(LangManager.translateToLocal("gt.integrated_circuit.tooltip.1")));
             return list;
         })
             .disableShiftInsert()
@@ -220,7 +221,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
                             + (mMultiFluid ? " x4 types of fluid" : ""),
                         Math.min(16, (1 + tier) * (tier + 1)) + "Slots",
                         "Slot maximum stacksize:" + (int) (64 * Math.pow(2, Math.max(tier - 3, 0))),
-                        StatCollector.translateToLocal("programmable_hatches.addedby")
+                        LangManager.translateToLocal("programmable_hatches.addedby")
                     		),
                     ArrayExt.of(
                         "多方块机器的物品/流体输入",
@@ -232,7 +233,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
                             + (mMultiFluid ? " x4种流体" : ""),
                         Math.min(16, (1 + tier) * (tier + 1)) + "格",
                         "每格堆叠限制:" + (int) (64 * Math.pow(2, Math.max(tier - 3, 0))),
-                        StatCollector.translateToLocal("programmable_hatches.addedby"))
+                        LangManager.translateToLocal("programmable_hatches.addedby"))
 */reobf.proghatches.main.Config.get("BDH", ImmutableMap.of(
 		"bufferNum",bufferNum,
 		"cap",format.format((int) (4000 * Math.pow(4, tier) / (mMultiFluid ? 4 : 1))),
@@ -855,7 +856,7 @@ public void onFill() {
             .setPlayClickSound(true)
             .setBackground(GT_UITextures.BUTTON_STANDARD, GT_UITextures.OVERLAY_BUTTON_PLUS_LARGE)
             .addTooltips(
-                ImmutableList.of(StatCollector.translateToLocalFormatted("programmable_hatches.gt.buffer", "" + id)))
+                ImmutableList.of(LangManager.translateToLocalFormatted("programmable_hatches.gt.buffer", "" + id)))
             .setSize(16, 16)
             .setPos(3 + 16 * (id % 3), 3 + 16 * (id / 3));
 
@@ -945,18 +946,18 @@ public void onFill() {
                         @Override
                         public List<String> getExtraTooltip() {
                             return Arrays
-                                .asList(StatCollector.translateToLocal("programmable_hatches.gt.marking.slot.1"));
+                                .asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1"));
                         }
                     }.disableShiftInsert()
                         .setHandlePhantomActionClient(true)
                         .setGTTooltip(
                             () -> new TooltipData(
                                 Arrays.asList(
-                                    StatCollector.translateToLocal("programmable_hatches.gt.marking.slot.0"),
-                                    StatCollector.translateToLocal("programmable_hatches.gt.marking.slot.1")),
+                                    LangManager.translateToLocal("programmable_hatches.gt.marking.slot.0"),
+                                    LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1")),
                                 Arrays.asList(
-                                    StatCollector.translateToLocal("programmable_hatches.gt.marking.slot.0"),
-                                    StatCollector.translateToLocal("programmable_hatches.gt.marking.slot.1")))))
+                                    LangManager.translateToLocal("programmable_hatches.gt.marking.slot.0"),
+                                    LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1")))))
                                         .setPos(0, 18 * i));
 
         builder.widget(
@@ -1062,7 +1063,7 @@ public void onFill() {
                 if (val) thiz.enableWorking();
                 else thiz.disableWorking();
             }), builder)
-            .addTooltip(StatCollector.translateToLocal("GT5U.gui.button.power_switch"))
+            .addTooltip(LangManager.translateToLocal("GT5U.gui.button.power_switch"))
             .setTooltipShowUpDelay(TOOLTIP_DELAY)
             .setPos(new Pos2d(getGUIWidth()-18-3,5))
             .setSize(16, 16);
@@ -1311,16 +1312,16 @@ public void onFill() {
     		int st=(sub.getBoolean("full")?1:0)+(sub.getBoolean("empty")?2:0)+(sub.getBoolean("locked")?4:0);
     		String info="";
     		switch (st){ 
-    		case 0b000:info=StatCollector.translateToLocal("programmable_hatches.buffer.waila.000");break;
-    		case 0b001:info=StatCollector.translateToLocal("programmable_hatches.buffer.waila.001");break;
-    		case 0b010:info=StatCollector.translateToLocal("programmable_hatches.buffer.waila.010");break;
-    		case 0b011:info=StatCollector.translateToLocal("programmable_hatches.buffer.waila.011");break;
-    		case 0b100:info=StatCollector.translateToLocal("programmable_hatches.buffer.waila.100");break;
-    		case 0b101:info=StatCollector.translateToLocal("programmable_hatches.buffer.waila.101");break;
+    		case 0b000:info=LangManager.translateToLocal("programmable_hatches.buffer.waila.000");break;
+    		case 0b001:info=LangManager.translateToLocal("programmable_hatches.buffer.waila.001");break;
+    		case 0b010:info=LangManager.translateToLocal("programmable_hatches.buffer.waila.010");break;
+    		case 0b011:info=LangManager.translateToLocal("programmable_hatches.buffer.waila.011");break;
+    		case 0b100:info=LangManager.translateToLocal("programmable_hatches.buffer.waila.100");break;
+    		case 0b101:info=LangManager.translateToLocal("programmable_hatches.buffer.waila.101");break;
     		case 0b110:info=noClear?
-    						StatCollector.translateToLocal("programmable_hatches.buffer.waila.110.0"):
-    						StatCollector.translateToLocal("programmable_hatches.buffer.waila.110.1");break;
-    		case 0b111:info=StatCollector.translateToLocal("programmable_hatches.buffer.waila.111");break;
+    						LangManager.translateToLocal("programmable_hatches.buffer.waila.110.0"):
+    						LangManager.translateToLocal("programmable_hatches.buffer.waila.110.1");break;
+    		case 0b111:info=LangManager.translateToLocal("programmable_hatches.buffer.waila.111");break;
     		
     		
     		
@@ -1331,9 +1332,9 @@ public void onFill() {
     		int copies=sub.getInteger("possibleCopies");
     		if(copies==-1
     			&&(sub.getBoolean("locked"))//if not locked, do not warn about the copies
-    			)cpinfo=cpinfo+StatCollector.translateToLocal("programmable_hatches.buffer.waila.broken");
+    			)cpinfo=cpinfo+LangManager.translateToLocal("programmable_hatches.buffer.waila.broken");
     		if(copies>0){
-    			cpinfo=cpinfo+StatCollector.translateToLocalFormatted("programmable_hatches.buffer.waila.copies",copies+"");
+    			cpinfo=cpinfo+LangManager.translateToLocalFormatted("programmable_hatches.buffer.waila.copies",copies+"");
     			if(sub.getBoolean("locked")){cpinfo+="???not locked but copies>0???";}
     		}
     		currenttip.add("#"+s+" "+info+" "+cpinfo);
@@ -1341,7 +1342,7 @@ public void onFill() {
     		String lock_fluid=sub.getString("lock_fluid");
     		if((!lock_item.isEmpty())&&(!lock_item.isEmpty())){
     			//currenttip.add();
-    			currenttip.add(" "+StatCollector.translateToLocal("programmable_hatches.buffer.waila.present"));
+    			currenttip.add(" "+LangManager.translateToLocal("programmable_hatches.buffer.waila.present"));
     			
     		}
     		if(!lock_item.isEmpty())Arrays.stream(lock_item.split("\n")).map(ss->" "+ss).forEach(currenttip::add);
@@ -1400,7 +1401,7 @@ public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlaye
                 );
                  GT_Utility
                  .sendChatToPlayer(aPlayer,
-               StatCollector.translateToLocal("programmable_hatches.gt.updateEveryTick")
+               LangManager.translateToLocal("programmable_hatches.gt.updateEveryTick")
                 );
                  
                  

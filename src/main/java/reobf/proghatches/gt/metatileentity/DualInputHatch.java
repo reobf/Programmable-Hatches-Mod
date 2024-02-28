@@ -95,7 +95,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
                             + "L"
                             + (mMultiFluid ? " x4 types of fluid" : ""),
                         Math.min(16, (1 + tier) * (tier + 1)) + "Slots",
-                        StatCollector.translateToLocal("programmable_hatches.addedby")),
+                        LangManager.translateToLocal("programmable_hatches.addedby")),
                     ArrayExt.of(
                         "多方块机器的物品/流体输入",
                         "总是与其它输入仓/输入总线隔离",
@@ -104,7 +104,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
                             + "L"
                             + (mMultiFluid ? " x4种流体" : ""),
                         Math.min(16, (1 + tier) * (tier + 1)) + "格",
-                        StatCollector.translateToLocal("programmable_hatches.addedby")))*/
+                        LangManager.translateToLocal("programmable_hatches.addedby")))*/
                 	reobf.proghatches.main.Config.get("DH", ImmutableMap.of(
                     		
                     		"cap",format.format((int) (4000 * Math.pow(2, tier) / (mMultiFluid ? 4 : 1))),

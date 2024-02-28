@@ -19,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import reobf.proghatches.lang.LangManager;
 
 public class ItemWirelessPeripheralCard extends Item implements li.cil.oc.api.driver.item.HostAware {
 	
@@ -166,14 +167,14 @@ public NBTTagCompound dataTag(ItemStack stack) {
 	int i = 0;
     while (true) {
         String k = "item.proghatches.oc.peripheral_card.tooltip";
-        if (StatCollector.translateToLocal(k)
+        if (LangManager.translateToLocal(k)
             .equals(
                 Integer.valueOf(i)
                     .toString())) {
             break;
         }
         String key = k + "." + i;
-        String trans = StatCollector.translateToLocal(key);
+        String trans = LangManager.translateToLocal(key);
 
         p_77624_3_.add(trans);
         i++;
@@ -182,12 +183,12 @@ public NBTTagCompound dataTag(ItemStack stack) {
 	
 	NBTTagCompound tag = p_77624_1_.getTagCompound();
 	if(tag==null){
-		p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.oc.peripheral_card.tooltip.unbound"));
+		p_77624_3_.add(LangManager.translateToLocal("item.proghatches.oc.peripheral_card.tooltip.unbound"));
 	}else{
 		if(tag.getBoolean("isBad")){
-			p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.oc.peripheral_card.tooltip.bad"));	
+			p_77624_3_.add(LangManager.translateToLocal("item.proghatches.oc.peripheral_card.tooltip.bad"));	
 		}else
-		p_77624_3_.add(StatCollector.translateToLocalFormatted("item.proghatches.oc.peripheral_card.tooltip.valid",tag.getString("remoteUUID")));
+		p_77624_3_.add(LangManager.translateToLocalFormatted("item.proghatches.oc.peripheral_card.tooltip.valid",tag.getString("remoteUUID")));
 	}
 	
 	

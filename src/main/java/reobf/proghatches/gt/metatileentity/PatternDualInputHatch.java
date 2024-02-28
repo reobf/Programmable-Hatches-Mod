@@ -1,7 +1,7 @@
 package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
-import static reobf.proghatches.main.Config.defaultObj;
+
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -20,6 +20,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
+import reobf.proghatches.lang.LangManager;
 
 import com.glodblock.github.common.item.ItemFluidPacket;
 import com.google.common.collect.ImmutableList;
@@ -126,7 +127,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
                             + (mMultiFluid ? " x4 types of fluid" : ""),
                         Math.min(16, (1 + tier) * (tier + 1)) + "Slots",
                         "Slot maximum stacksize:" + (int) (64 * Math.pow(2, Math.max(tier - 3, 0))),
-                        StatCollector.translateToLocal("programmable_hatches.addedby")),
+                        LangManager.translateToLocal("programmable_hatches.addedby")),
                     ArrayExt.of("多方块机器的物品/流体输入", "总是与其它输入仓/输入总线隔离"
 
                         ,
@@ -139,7 +140,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
                             + (mMultiFluid ? " x4种流体" : ""),
                         Math.min(16, (1 + tier) * (tier + 1)) + "格",
                         "每格堆叠限制:" + (int) (64 * Math.pow(2, Math.max(tier - 3, 0))),
-                        StatCollector.translateToLocal("programmable_hatches.addedby")
+                        LangManager.translateToLocal("programmable_hatches.addedby")
 
                     ))*/
                 
@@ -262,7 +263,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
                 .setPlayClickSound(true)
                 .setBackground(GT_UITextures.BUTTON_STANDARD, GT_UITextures.OVERLAY_BUTTON_PLUS_LARGE)
                 .addTooltips(
-                    ImmutableList.of(StatCollector.translateToLocalFormatted("programmable_hatches.gt.pattern")))
+                    ImmutableList.of(LangManager.translateToLocalFormatted("programmable_hatches.gt.pattern")))
                 .setSize(16, 16)
               //  .setPos(10 + 16 * 9, 3 + 16 * 2)
                 .setPos(new Pos2d(getGUIWidth()-18-3,5+16+2+16+2))

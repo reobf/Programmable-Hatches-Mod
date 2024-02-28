@@ -15,6 +15,7 @@ import net.minecraft.util.StatCollector;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.CommonProxy;
 import reobf.proghatches.main.MyMod;
 
@@ -43,7 +44,7 @@ public class ItemProgrammingCircuit extends Item {
     public String getItemStackDisplayName(ItemStack p_77653_1_) {
 
         String n = getCircuit(p_77653_1_)
-            .map(s -> StatCollector.translateToLocalFormatted("item.prog_circuit.name.format", s.getDisplayName()))
+            .map(s -> LangManager.translateToLocalFormatted("item.prog_circuit.name.format", s.getDisplayName()))
             .orElse(null);
 
         ;
@@ -63,14 +64,14 @@ public class ItemProgrammingCircuit extends Item {
         int i = 0;
         while (true) {
             String k = "item.prog_circuit.name.tooltip";
-            if (StatCollector.translateToLocal(k)
+            if (LangManager.translateToLocal(k)
                 .equals(
                     Integer.valueOf(i)
                         .toString())) {
                 break;
             }
             String key = k + "." + i;
-            String trans = StatCollector.translateToLocal(key);
+            String trans = LangManager.translateToLocal(key);
 
             p_77624_3_.add(trans);
             i++;
@@ -106,7 +107,7 @@ public class ItemProgrammingCircuit extends Item {
             if (op.get()
                 .getItem() == MyMod.progcircuit) {
 
-                p_77624_3_.add(StatCollector.translateToLocal("item.prog_circuit.name.tooltip.warn"));
+                p_77624_3_.add(LangManager.translateToLocal("item.prog_circuit.name.tooltip.warn"));
             }
 
         }

@@ -16,6 +16,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.GT_Values;
 import reobf.proghatches.gt.cover.SmartArmCover;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 
 public class ItemSmartArm extends Item {
@@ -68,7 +69,7 @@ public class ItemSmartArm extends Item {
     @Override
     public String getItemStackDisplayName(ItemStack p_77653_1_) {
 
-        return StatCollector.translateToLocal("item.proghatch.smartarm.name") + " ("
+        return LangManager.translateToLocal("item.proghatch.smartarm.name") + " ("
             + GT_Values.VN[p_77653_1_.getItemDamage()]
             + ")";
 
@@ -103,9 +104,9 @@ public class ItemSmartArm extends Item {
         int a = SmartArmCover.tier[p_77624_1_.getItemDamage()][0];
         String sec = a >= 20 ? ("" + (a / 20)) : ("1/" + 20 / a);
         String am = SmartArmCover.tier[p_77624_1_.getItemDamage()][1] + "";
-        int size = Integer.valueOf(StatCollector.translateToLocalFormatted("item.proghatch.smartarm.name.tooltip"));
+        int size = Integer.valueOf(LangManager.translateToLocalFormatted("item.proghatch.smartarm.name.tooltip"));
         for (int i = 0; i < size; i++) p_77624_3_
-            .add(StatCollector.translateToLocalFormatted("item.proghatch.smartarm.name.tooltip." + i, sec, am));
+            .add(LangManager.translateToLocalFormatted("item.proghatch.smartarm.name.tooltip." + i, sec, am));
 
     }
 
@@ -130,12 +131,12 @@ public class ItemSmartArm extends Item {
 
         if (worldIn.isRemote == false && player.isSneaking()) {
             int size = Integer
-                .valueOf(StatCollector.translateToLocalFormatted("programmable_hatches.cover.smart.desc"));
+                .valueOf(LangManager.translateToLocalFormatted("programmable_hatches.cover.smart.desc"));
             for (int i = 0; i < size; i++) player.addChatMessage(
-                new ChatComponentText(StatCollector.translateToLocal("programmable_hatches.cover.smart.desc." + i)));
+                new ChatComponentText(LangManager.translateToLocal("programmable_hatches.cover.smart.desc." + i)));
         }
         // player.addChatMessage(new
-        // ChatComponentText(StatCollector.translateToLocal("programmable_hatches.cover.smart.desc")));
+        // ChatComponentText(LangManager.translateToLocal("programmable_hatches.cover.smart.desc")));
 
         return super.onItemRightClick(itemStackIn, worldIn, player);
     }

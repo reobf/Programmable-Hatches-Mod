@@ -16,7 +16,7 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.oredict.OreDictionary;
-
+import reobf.proghatches.lang.LangManager;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import li.cil.oc.api.Network;
@@ -45,14 +45,14 @@ public class ItemAPICard extends Item implements li.cil.oc.api.driver.item.HostA
         int i = 0;
         while (true) {
             String k = "item.proghatches.oc.api.tooltip";
-            if (StatCollector.translateToLocal(k)
+            if (LangManager.translateToLocal(k)
                 .equals(
                     Integer.valueOf(i)
                         .toString())) {
                 break;
             }
             String key = k + "." + i;
-            String trans = StatCollector.translateToLocal(key);
+            String trans = LangManager.translateToLocal(key);
 
             p_77624_3_.add(trans);
             i++;

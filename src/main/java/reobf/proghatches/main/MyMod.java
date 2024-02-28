@@ -23,6 +23,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import reobf.proghatches.Tags;
 import reobf.proghatches.block.TileIOHub.OCApi;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.oc.WirelessPeripheralManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
@@ -102,14 +103,14 @@ public class MyMod {
     public static ItemStack tutorial() {
 
         ArrayList<String> pages = new ArrayList<>();
-        int size = Integer.valueOf(StatCollector.translateToLocalFormatted("programmable_hatches.tutorial.pages"));
+        int size = Integer.valueOf(LangManager.translateToLocalFormatted("programmable_hatches.tutorial.pages"));
         for (int i = 0; i < size; i++) pages.add(
-            StatCollector.translateToLocalFormatted("programmable_hatches.tutorial.pages." + i)
+            LangManager.translateToLocalFormatted("programmable_hatches.tutorial.pages." + i)
                 .replace("\\n", "\n"));
 
         ItemStack is = ProghatchesUtil.getWrittenBook(
             "ProgrammableHatchesTutorial",
-            StatCollector.translateToLocal("programmable_hatches.tutorial"),
+            LangManager.translateToLocal("programmable_hatches.tutorial"),
             "programmable_hatches",
             pages.toArray(new String[0]));
 

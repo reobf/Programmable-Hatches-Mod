@@ -1,7 +1,7 @@
 package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_CRAFTING_INPUT_SLAVE;
-import static reobf.proghatches.main.Config.defaultObj;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,10 +58,10 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch> ext
                     "Slave for Dual Input Hatch",
                     "Link with Crafting Input Buffer using Data Stick to share inventory",
                     "Left click on the Dual Input Hatch, then right click on this block to link them"
-                    ,StatCollector.translateToLocal("programmable_hatches.addedby")
+                    ,LangManager.translateToLocal("programmable_hatches.addedby")
                 ),
                 ArrayExt.of("二合一输入仓的镜像端", "将所绑定的样板输入总成的内容物共享过来", "闪存左键点击二合一输入仓，然后右键点击输入镜像完成链接绑定",
-                		StatCollector.translateToLocal("programmable_hatches.addedby")))
+                		LangManager.translateToLocal("programmable_hatches.addedby")))
             */
             
 

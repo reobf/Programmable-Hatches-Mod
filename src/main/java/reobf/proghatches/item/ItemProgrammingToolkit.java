@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import reobf.proghatches.lang.LangManager;
 
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
@@ -88,15 +89,15 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI {
         switch (p_77624_1_.getItemDamage()) {
 
             case 0: {
-                p_77624_3_.add(StatCollector.translateToLocal("item.prog_toolkit.name.tooltip.mode.0"));
+                p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.0"));
             }
                 break;
             case 1: {
-                p_77624_3_.add(StatCollector.translateToLocal("item.prog_toolkit.name.tooltip.mode.1"));
+                p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.1"));
             }
                 break;
             case 2: {
-                p_77624_3_.add(StatCollector.translateToLocal("item.prog_toolkit.name.tooltip.mode.2"));
+                p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.2"));
             }
 
         }
@@ -104,14 +105,14 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI {
         int i = 0;
         while (true) {
             String k = "item.prog_toolkit.name.tooltip";
-            if (StatCollector.translateToLocal(k)
+            if (LangManager.translateToLocal(k)
                 .equals(
                     Integer.valueOf(i)
                         .toString())) {
                 break;
             }
             String key = k + "." + i;
-            String trans = StatCollector.translateToLocal(key);
+            String trans = LangManager.translateToLocal(key);
 
             p_77624_3_.add(trans);
             i++;
@@ -211,7 +212,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI {
                                         .getStack()
                                         .copy()));
                 }
-            }.addTooltip(StatCollector.translateToLocal("item.prog_toolkit.name.tooltip.emptyinput"))
+            }.addTooltip(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.emptyinput"))
                 .setPos(3, 3));
             ItemStackHandler is = new ItemStackHandler();
             SlotWidget sw = new SlotWidget(new BaseSlot(is, 0)) {

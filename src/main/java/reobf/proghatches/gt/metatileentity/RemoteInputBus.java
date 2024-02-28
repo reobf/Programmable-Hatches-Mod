@@ -1,7 +1,7 @@
 package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.enums.Textures.BlockIcons.ITEM_IN_SIGN;
-import static reobf.proghatches.main.Config.defaultObj;
+
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -41,6 +41,7 @@ import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_Utility;
 import gregtech.api.util.extensions.ArrayExt;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
@@ -182,14 +183,14 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
                     "LMB click this block with a tricorder with target coord to link.",
                     "Items not extractable by pipes will not be accessible, with an exception of virtual circuits.",
                     "Cannot work across dimension. Will not load target chunk. Will not work if target chunk is unloaded."
-,StatCollector.translateToLocal("programmable_hatches.addedby")
+,LangManager.translateToLocal("programmable_hatches.addedby")
                 ),
                 ArrayExt.of(
                     "像RemoteIO一样远程访问某个容器中的物品 作为多方块机器的输入",
                     "三录仪记录目标坐标后,左键此方块设定坐标",
                     "无法被管道抽出的物品(除了虚拟电路板,如果目标有)也不能被访问",
                     "不能跨维度链接 不会触发目标区块加载,且目标区块未加载时不工作"
-,StatCollector.translateToLocal("programmable_hatches.addedby")
+,LangManager.translateToLocal("programmable_hatches.addedby")
                 ))*/);
         Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, id));
 
@@ -201,7 +202,7 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
         builder.widget(TextWidget.dynamicString(() -> {
 
             if (!linked) {
-                return StatCollector.translateToLocal("programmable_hatches.remote.unlinked");
+                return LangManager.translateToLocal("programmable_hatches.remote.unlinked");
             }
 
             Optional<TileEntity> opt = getTile();
@@ -209,15 +210,15 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
                 .getWorld()
                 .getChunkProvider()
                 .chunkExists(x >> 4, z >> 4) == false)
-                return StatCollector.translateToLocal("programmable_hatches.remote.chunk");
+                return LangManager.translateToLocal("programmable_hatches.remote.chunk");
 
-            if (opt.isPresent() == false) return StatCollector.translateToLocal("programmable_hatches.remote.nothing");
+            if (opt.isPresent() == false) return LangManager.translateToLocal("programmable_hatches.remote.nothing");
             if (opt.get() instanceof IInventory == false) {
-                return StatCollector.translateToLocal("programmable_hatches.remote.dummytarget");
+                return LangManager.translateToLocal("programmable_hatches.remote.dummytarget");
 
             }
 
-            return StatCollector.translateToLocal("programmable_hatches.remote.ok");
+            return LangManager.translateToLocal("programmable_hatches.remote.ok");
 
         }
 

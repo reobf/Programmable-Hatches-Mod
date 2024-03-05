@@ -4,8 +4,6 @@
 
 
 注意：
-安装此mod前请先备份你的GregTech.lang
-如果发现翻译语言不正确，请在游戏设置中调整语言(仅客户端)或更改/config/programmablehatches.cfg的lang(仅服务端)
-然后将备份的GregTech.lang覆盖原先的文件，并重启游戏即可
-
-
+安装mod后会基于你当前的游戏语言，向GregTech.lang写入翻译条目，而写入后无法自动移除条目。
+因此请先设置好游戏语言再安装此mod。
+如果在运行过mod之后想更改语言，且启用了UseThisFileAsLanguageFile=true，你需要删除GregTech.lang，或者恢复安装mod前的GregTech.lang的备份（若有）。

@@ -37,10 +37,10 @@ public static boolean appendAddedBy=true;
         configuration.addCustomCategoryComment("ID", "Configurable ID settings, DO NOT change it until necessary.");
         skipRecipeAdding= configuration.getBoolean("skipRecipeAddition",  Configuration.CATEGORY_GENERAL, skipRecipeAdding, "If true, this mod will not add any recipe.");
         appendAddedBy= configuration.getBoolean("appendAddedBy",  Configuration.CATEGORY_GENERAL, appendAddedBy, "Append 'Added by ProgrammableHatches' at the end of machine desc.");
-        lang=configuration.getString("language",  Configuration.CATEGORY_GENERAL, lang, "Language for dedicated server, no effect on client side. If you change it, you should delete GregTech.lang to re-generate.");
+       // lang=configuration.getString("language",  Configuration.CATEGORY_GENERAL, lang, "Language for dedicated server, no effect on client side. If you change it, you should delete GregTech.lang to re-generate.");
         
-        if(System.getProperty("proghatches.language")!=null){
-        lang=System.getProperty("proghatches.language");}
+        /*if(System.getProperty("proghatches.language")!=null){
+        lang=System.getProperty("proghatches.language");}*/
         if (configuration.hasChanged()) {
             configuration.save();
         }
@@ -67,11 +67,21 @@ public static boolean appendAddedBy=true;
     public static <T> T defaultObj(Supplier<T> en, Supplier<T> cn) {
         return isCN ? cn.get() : en.get();
     }*/
-  
     public static String[] get(String key,Map<String,Object> fmtter){
-    	try(InputStream in=getInput.apply(key)){
+    	return  get(key,fmtter,false);
+    }
+    public static String[] get(String key,Map<String,Object> fmtter,boolean defaulted){
+    	try(InputStream in=(defaulted? getInputEN:getInput).apply(key)){
     		if(in==null){
-    			return new String[]{"ERROR","language file missing:"+key};
+    			if(defaulted)
+    			return new String[]{
+    					"!!! FATAL !!!",
+    					"en_US language file missing:"+key+".lang",
+    					"do not remove en_US folder!",
+    				
+    			};
+    			
+    			return  get(key,fmtter,true);
     		}
     		byte[] b=new byte[in.available()];
     		int off=0;
@@ -82,15 +92,16 @@ public static boolean appendAddedBy=true;
     		}while(in.available()>0);
     		String[] arr=new String(b,"UTF-8").split("\r?\n");
     		for(int i=0;i<arr.length;i++){final int ii=i;
+    			String[] arrf = arr;
     			fmtter.forEach((k,v)->{
-    				arr[ii]=arr[ii].replace(String.format("{%s}",k),v.toString());
+    				arrf[ii]=arrf[ii].replace(String.format("{%s}",k),v.toString());
     				//arr[ii].inde
     			
     			Pattern p=Pattern.compile("\\{%s\\?\\}.*?\\{%s:\\}.*?\\{%s!\\}".replace("%s",k));
     			while(true){
-    			Matcher m=p.matcher(arr[ii]);
+    			Matcher m=p.matcher(arrf[ii]);
     			if(m.find()){
-    				String torep=arr[ii].substring(m.start(),m.end());
+    				String torep=arrf[ii].substring(m.start(),m.end());
     				String repby;
     				int ia=torep.indexOf("{"+k+"?}");
     				int ib=torep.indexOf("{"+k+":}");
@@ -102,7 +113,7 @@ public static boolean appendAddedBy=true;
     				}
     				
     				
-    				arr[ii]=arr[ii].replace(torep, repby);
+    				arrf[ii]=arrf[ii].replace(torep, repby);
     			}else{break;}
     			}
     			
@@ -116,14 +127,37 @@ public static boolean appendAddedBy=true;
     			
     		}
     		//System.out.println(Arrays.asList(arr));
-    		String[] t=arr;
+    		
     		if(appendAddedBy){
+    			String[] t=arr;
     			t=new String[arr.length+1];
     			System.arraycopy(arr, 0, t, 0, arr.length);
     			t[t.length-1]=LangManager.translateToLocal("programmable_hatches.addedby");
+    			arr=t;
+    		}
+    		if(defaulted){
+    			
+    			
+    			
+    			
+    			MyMod.LOG.fatal("Your current translation key:'programmable_hatches.gt.lang.dir' maps to:" + LangManager.translateToLocal("programmable_hatches.gt.lang.dir"));
+    			MyMod.LOG.fatal("That means yous should put translated "+key+".lang in "+
+    					 "/assets/proghatches/lang/"+
+		  				  LangManager.translateToLocal("programmable_hatches.gt.lang.dir")+
+		  				  "/"+
+		  				  key+
+		  				  ".lang"
+    					);
+    			MyMod.LOG.fatal("... then delete GregTech.lang to regenerate that file."
+   					);
+    			
+    			
+    			
     			
     		}
-    		return t;
+    		
+    		
+    		return arr;
     		
     	} catch (IOException e) {
 	    	MyMod.LOG.fatal("failed to get GT description:"+key);
@@ -134,14 +168,24 @@ public static boolean appendAddedBy=true;
     	return null;
     }
     
+    
+    
+    
+    static Function<String,InputStream> getInputEN= 
+  		  s->
+  		  Config.class.getResourceAsStream(
+  		  		  "/assets/proghatches/lang/en_US/"+
+  		  				  s+
+  		  				  ".lang"
+  		  );
   static Function<String,InputStream> getInput= 
 		  s->
 		  Config.class.getResourceAsStream(
-		  "/assets/proghatches/lang/"+
-		  LangManager.translateToLocal("programmable_hatches.gt.lang.dir")+
-		  "/"+
-		  s+
-		  ".lang"
+		  		  "/assets/proghatches/lang/"+
+		  				  LangManager.translateToLocal("programmable_hatches.gt.lang.dir")+
+		  				  "/"+
+		  				  s+
+		  				  ".lang"
 		  );
 
 

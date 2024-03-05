@@ -125,11 +125,11 @@ public class ItemSmartArm extends Item {
             p_77648_9_,
             p_77648_10_);
     }
-
+@SideOnly(Side.CLIENT)
     @Override
     public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player) {
 
-        if (worldIn.isRemote == false && player.isSneaking()) {
+        if (worldIn.isRemote == true && player.isSneaking()) {
             int size = Integer
                 .valueOf(LangManager.translateToLocalFormatted("programmable_hatches.cover.smart.desc"));
             for (int i = 0; i < size; i++) player.addChatMessage(

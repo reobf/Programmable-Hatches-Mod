@@ -27,18 +27,13 @@ public class ItemProgrammingCircuit extends Item {
 
     public IIcon overlay;
     public IIcon def;
-
+    @SideOnly(Side.CLIENT)
     public void registerIcons(net.minecraft.client.renderer.texture.IIconRegister register) {
         itemIcon = overlay = register.registerIcon("proghatches:overlay");
         def = register.registerIcon("proghatches:defaultcircuit");
 
     };
 
-    @Override
-    public IIcon getIconIndex(ItemStack p_77650_1_) {
-        // TODO Auto-generated method stub
-        return super.getIconIndex(p_77650_1_);
-    }
 
     @Override
     public String getItemStackDisplayName(ItemStack p_77653_1_) {

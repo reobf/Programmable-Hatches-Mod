@@ -11,6 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
@@ -283,7 +284,8 @@ public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.ite
 
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World worldIn, EntityPlayer player) {
-        GT_Utility.sendChatToPlayer(player, LangManager.translateToLocal("item.proghatch.oc.redstone.bind"));
+    	player.addChatMessage(new ChatComponentTranslation("item.proghatch.oc.redstone.bind"));
+       
         UUID uid = player.getUniqueID();
         getOrCreateTag(stack).setLong("uuid_l", uid.getLeastSignificantBits());
         getOrCreateTag(stack).setLong("uuid_m", uid.getLeastSignificantBits());

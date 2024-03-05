@@ -1,16 +1,21 @@
 package reobf.proghatches.main;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -68,6 +73,25 @@ public class MyMod {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
+@SubscribeEvent
+public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev){
+	 if(Optional.ofNullable(ev.entityPlayer.getHeldItem()).map(ItemStack::getItem).orElse(null)==Items.written_book){
+		if( Optional.ofNullable(
+		 ev.entityPlayer.getHeldItem().stackTagCompound
+		 ).map(s->s.getString("proghatchesSpecialTag"))
+		 .isPresent()){
+		 
+		 ev.setCanceled(true);
+	  if(ev.world.isRemote){
+		  ev.entityPlayer.displayGUIBook(tutorial());//actual contents are localized on client side
+		}  
+		  
+	  
+	}
+	   
+	 }
+	  
+}
     @SubscribeEvent
     public void giveBook(PlayerLoggedInEvent e) {
          if(e.player.getEntityData().hasKey("ProgrammableHatchesTutorialGet")==false)
@@ -79,7 +103,10 @@ public class MyMod {
                 .spawnEntityInWorld(
                     new EntityItem(e.player.getEntityWorld(), e.player.posX, e.player.posY, e.player.posZ
 
-                        , tutorial()
+                        , 
+                        Optional.of(tutorial())
+                        .map(s->{s.stackTagCompound.setString("proghatchesSpecialTag", "true");  return s;})
+                        .get()
 
                     ));
         } ;

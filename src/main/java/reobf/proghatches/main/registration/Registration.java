@@ -11,6 +11,7 @@ import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.render.TextureFactory;
 import reobf.proghatches.gt.cover.ProgrammingCover;
+import reobf.proghatches.gt.cover.RecipeOutputAwarenessCover;
 import reobf.proghatches.gt.cover.SmartArmCover;
 import reobf.proghatches.gt.cover.WirelessControlCover;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch;
@@ -122,7 +123,14 @@ public class Registration implements Runnable {
                 MACHINE_CASINGS[1][0],
                 TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
             new WirelessControlCover());
-
+        //WIP
+        GregTech_API.registerCover(
+                new ItemStack(MyMod.cover, 1, 15),
+                TextureFactory.of(
+                    MACHINE_CASINGS[1][0],
+                    TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
+                new RecipeOutputAwarenessCover());
+        
         for (int i = 0; i < 15; i++) {
             ;
             GregTech_API.registerCover(

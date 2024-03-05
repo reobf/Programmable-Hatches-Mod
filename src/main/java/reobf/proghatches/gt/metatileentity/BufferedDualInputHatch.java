@@ -31,6 +31,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
@@ -1399,11 +1400,11 @@ public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlaye
                  .sendChatToPlayer(aPlayer,
                 "updateEveryTick:"+updateEveryTick
                 );
-                 GT_Utility
+                /* GT_Utility
                  .sendChatToPlayer(aPlayer,
                LangManager.translateToLocal("programmable_hatches.gt.updateEveryTick")
-                );
-                 
+                );*/
+                 aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.gt.updateEveryTick"));
                  
                  
                  markDirty();

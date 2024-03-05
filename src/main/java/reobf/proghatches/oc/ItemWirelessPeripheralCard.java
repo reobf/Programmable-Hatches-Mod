@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.SoundResource;
 import gregtech.api.util.GT_Utility;
 import li.cil.oc.api.network.EnvironmentHost;
@@ -161,6 +163,7 @@ public NBTTagCompound dataTag(ItemStack stack) {
 		return super.onItemRightClick(itemStackIn, worldIn, player);
 	}
 @SuppressWarnings("unchecked")
+@SideOnly(value=Side.CLIENT)
 @Override
 	public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
 	

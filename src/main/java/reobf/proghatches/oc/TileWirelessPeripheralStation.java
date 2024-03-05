@@ -11,6 +11,8 @@ import java.util.function.IntUnaryOperator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.SoundResource;
 import gregtech.api.interfaces.tileentity.IGregtechWailaProvider;
 import gregtech.api.util.GT_Utility;
@@ -110,6 +112,7 @@ public class TileWirelessPeripheralStation extends TileEntity implements li.cil.
 	}
 };
 	public static class ItemBlock extends net.minecraft.item.ItemBlock{
+		@SideOnly(Side.CLIENT)
 @Override
 public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
 	int i = 0;

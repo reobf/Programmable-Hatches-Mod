@@ -27,7 +27,10 @@ public abstract class LangManager {
 	}
 	    @SidedProxy(
 	    		clientSide = "reobf.proghatches.lang.LangManager$ClientTranslation", 
-	    		serverSide = "reobf.proghatches.lang.LangManager$ServerTranslation")
+	    		//serverSide = "reobf.proghatches.lang.LangManager$ServerTranslation"
+	    		serverSide = "reobf.proghatches.lang.LangManager$ClientTranslation"
+	    		
+	    		)
 	    public static Translation proxy;
 	    
 	    public static class  ClientTranslation extends Translation{

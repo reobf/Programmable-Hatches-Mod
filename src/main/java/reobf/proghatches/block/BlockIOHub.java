@@ -15,6 +15,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.gui.modularui.GT_UIInfos;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.metatileentity.CoverableTileEntity;
 import gregtech.api.objects.GT_ItemStack;
 import gregtech.common.blocks.GT_Material_Machines;
@@ -42,7 +43,7 @@ public class BlockIOHub extends BlockContainer {
 
 	public BlockIOHub() {
 		super(new GT_Material_Machines());
-		
+	
 		
 		setHardness(1);
 	setHarvestLevel("pickaxe", 1);

@@ -102,13 +102,13 @@ public class TileWirelessPeripheralStation extends TileEntity implements li.cil.
 	public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
 			IWailaConfigHandler config) {
 		
-		return ImmutableList.of();
+		return currenttip;
 	}
 	@Override
 	public List<String> getWailaTail(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
 			IWailaConfigHandler config) {
 		
-		return ImmutableList.of();
+		return currenttip;
 	}
 };
 	public static class ItemBlock extends net.minecraft.item.ItemBlock{

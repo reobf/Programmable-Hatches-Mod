@@ -418,14 +418,15 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
         }
         return true;
     }
-
+    long lastSync;
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
         super.onPostTick(aBaseMetaTileEntity, aTimer);
 
         if (getBaseMetaTileEntity().isServerSide()) {
-            if (needPatternSync && aTimer % 10 == 0) {
+            if (needPatternSync && aTimer>lastSync+100) {
                 needPatternSync = !postMEPatternChange();
+                lastSync=aTimer;
             }
             if (aTimer % 20 == 0) {
                 getBaseMetaTileEntity().setActive(isActive());

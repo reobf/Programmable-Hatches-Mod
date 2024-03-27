@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
@@ -60,6 +63,7 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.extensions.ArrayExt;
+import reobf.proghatches.eucrafting.TileFluidInterface_EU;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
@@ -336,7 +340,7 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
          */
 
         doSnapshot();
-        if (this.mInventory[0] != null) {
+      /*  if (this.mInventory[0] != null)*/ {
 
             craftingTracker
                 .addCraftingOption(this, new CircuitProviderPatternDetial(ItemProgrammingCircuit.wrap(mInventory[0])));
@@ -345,44 +349,40 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
 
     }
 
-    /**
-     * for ae2 crafting visualizer
-     */
-    public static class FakePattern extends Item implements ICraftingPatternItem {
-
-        @SuppressWarnings({ "rawtypes", "unchecked" })
-        @Override
-        public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
-            p_77624_3_.add("Technical item, not for use.");
-            super.addInformation(p_77624_1_, p_77624_2_, p_77624_3_, p_77624_4_);
-        }
-
-        @Override
-        public ICraftingPatternDetails getPatternForItem(ItemStack is, World w) {
-            try {
-                ItemStack iss = ItemStack.loadItemStackFromNBT(is.getTagCompound());
-                return new CircuitProviderPatternDetial(iss);
-            } catch (Exception ew) {
-                ew.printStackTrace();
-                return new CircuitProviderPatternDetial(new ItemStack(Items.baked_potato));
-            }
-        }
-
-    }
 
     public static class CircuitProviderPatternDetial implements ICraftingPatternDetails {
-
+@Nonnull
         private ItemStack out;
-
+		@Override
+		public boolean equals(Object obj) {
+		if(obj ==null){return false;}
+		if(!(obj instanceof CircuitProviderPatternDetial)){return false;}
+			return ItemStack.areItemStacksEqual(out,((CircuitProviderPatternDetial)obj).out);
+		}
+		@Override
+		public int hashCode() {
+				if(out==null)return 0;
+			return out.stackTagCompound.hashCode()^
+					Integer.valueOf(Item.getIdFromItem(out.getItem())).hashCode()^
+					Integer.valueOf(out.getItemDamage());
+		}
+		
+		
         public CircuitProviderPatternDetial(ItemStack o) {
             this.out = o;
+            /*if(out ==null){
+            	Thread.dumpStack();
+            	
+            	System.exit(0);}*/
         }
 
         @Override
         public ItemStack getPattern() {
             return Optional.of(new ItemStack(MyMod.fakepattern))
                 .map(s -> {
-                    s.stackTagCompound = out.writeToNBT(new NBTTagCompound());
+                   
+                	s.stackTagCompound = out.writeToNBT(new NBTTagCompound());
+                  
                     return s;
                 })
                 .get();
@@ -392,7 +392,7 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
         @Override
         public boolean isValidItemForSlot(int slotIndex, ItemStack itemStack, World world) {
             // glad I don't have to implement this
-            throw new IllegalStateException("Only crafting recipes supported.");
+            throw new IllegalStateException("workbench crafting");
         }
 
         @Override

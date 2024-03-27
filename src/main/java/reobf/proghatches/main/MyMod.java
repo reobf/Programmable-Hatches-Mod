@@ -16,7 +16,7 @@ import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
+import appeng.me.cluster.implementations.CraftingCPUCluster;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -26,9 +26,13 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import cpw.mods.fml.relauncher.Side;
 import reobf.proghatches.Tags;
 import reobf.proghatches.block.TileIOHub.OCApi;
+import reobf.proghatches.eucrafting.BlockEUInterface;
 import reobf.proghatches.lang.LangManager;
+import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.oc.WirelessPeripheralManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
@@ -39,11 +43,11 @@ import reobf.proghatches.util.ProghatchesUtil;
  */
 )
 public class MyMod {
-	
+	public static SimpleNetworkWrapper net=new SimpleNetworkWrapper(Tags.MODID);
     public static Item progcircuit;
     public static Item toolkit;
     public static final Logger LOG = LogManager.getLogger(Tags.MODID);
-
+   static {CraftingCPUCluster.class.getDeclaredFields();}
     @SidedProxy(clientSide = "reobf.proghatches.main.ClientProxy", serverSide = "reobf.proghatches.main.CommonProxy")
     public static CommonProxy proxy;
     public static Item fakepattern;
@@ -54,12 +58,16 @@ public class MyMod {
 	public static Block iohub;
 	public static Block pstation;
 	public static Item pitem;
-
+	public static Item euupgrade;
+	
+	public static Item eu_token;
+	public static Item eu_source_part;
+	public static BlockEUInterface block_euinterface;
     @Mod.EventHandler
     // preInit "Run before anything else. Read your config, create blocks, items, etc, and register them with the
     // GameRegistry." (Remove if not needed)
     public void preInit(FMLPreInitializationEvent event) {
-        event.getSuggestedConfigurationFile();
+    	net.registerMessage(new OpenPartGuiMessage.Handler(), OpenPartGuiMessage.class, 0, Side.SERVER);
         proxy.preInit(event);
     }
 

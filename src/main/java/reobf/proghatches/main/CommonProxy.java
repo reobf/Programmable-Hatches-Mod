@@ -1,10 +1,16 @@
 package reobf.proghatches.main;
 
+import net.minecraft.block.material.Material;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.glodblock.github.common.item.FCBaseItemBlock;
+import com.glodblock.github.common.tabs.FluidCraftingTabs;
+import com.glodblock.github.common.tile.TileFluidAutoFiller;
+import com.glodblock.github.util.NameConst;
 import com.google.common.base.Optional;
 
 import appeng.api.AEApi;
@@ -21,8 +27,16 @@ import reobf.proghatches.block.BlockIOHub;
 
 import reobf.proghatches.block.ItemBlockIOHub;
 import reobf.proghatches.block.TileIOHub;
+import reobf.proghatches.eucrafting.BlockEUInterface;
+import reobf.proghatches.eucrafting.EUUtil;
+import reobf.proghatches.eucrafting.ItemBlockEUInterface;
+import reobf.proghatches.eucrafting.ItemEUToken;
+import reobf.proghatches.eucrafting.ItemPartEUSource;
+import reobf.proghatches.eucrafting.TileFluidInterface_EU;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.item.ItemDedicatedCover;
+import reobf.proghatches.item.ItemEUUpgradeModule;
+import reobf.proghatches.item.ItemFakePattern;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.item.ItemProgrammingToolkit;
 import reobf.proghatches.item.ItemSmartArm;
@@ -49,14 +63,24 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(TileIOHub.class, "proghatches.iohub");
         GameRegistry.registerTileEntity(TileWirelessPeripheralStation.class, "proghatches.peripheral_station");
         GameRegistry.registerTileEntity(TileCoprocessor.class, "proghatches.coprocessor");
+       
+        GameRegistry.registerTileEntity(TileFluidInterface_EU.class, "proghatches.euinterface");
+       
         
+        // setCreativeTab(FluidCraftingTabs.INSTANCE);
+        
+        
+        GameRegistry.registerItem(
+                MyMod.euupgrade = new ItemEUUpgradeModule().setUnlocalizedName("proghatches.eu_upgrade_module")
+                    .setTextureName("?"),
+                "proghatches.eu_upgrade_module");
         
         GameRegistry.registerItem(
             MyMod.progcircuit = new ItemProgrammingCircuit().setUnlocalizedName("prog_circuit")
                 .setTextureName("?"),
             "prog_circuit");
         GameRegistry.registerItem(
-            MyMod.fakepattern = new ProgrammingCircuitProvider.FakePattern().setUnlocalizedName("fake_pattern")
+            MyMod.fakepattern = new ItemFakePattern().setUnlocalizedName("fake_pattern")
                 .setTextureName("?"),
             "fake_pattern");
         GameRegistry.registerItem(
@@ -86,6 +110,15 @@ public class CommonProxy {
                 .setUnlocalizedName("proghatches.oc.peripheral_card")
                 .setTextureName("proghatches:peripheral_card"),
             "proghatches.oc.peripheral_card");
+        GameRegistry.registerItem(
+                MyMod.eu_token = new ItemEUToken().setUnlocalizedName("eu_token")
+                    .setTextureName("?"),
+                "eu_token");
+       
+        
+        
+        
+        
         MyMod.iohub =GameRegistry.registerBlock(
         new BlockIOHub(),ItemBlockIOHub.class,"proghatches.iohub");
         MyMod.pstation =GameRegistry.registerBlock(
@@ -103,25 +136,34 @@ public class CommonProxy {
    
     public static ProgHatchCreativeTab tab;
 
-    // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
     public void init(FMLInitializationEvent event) {
         tab = new ProgHatchCreativeTab("proghatches");
        
         //AEApi.instance().registries().gridCache().registerGridCache(null, null);;
        // AEApi.instance().registries().interfaceTerminal().register(TileFluidInterface.class);
         new Registration().run();
+        EUUtil.register();
        
     }
 
-    // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
-    public void postInit(FMLPostInitializationEvent event) {
-
+      public void postInit(FMLPostInitializationEvent event) {
+    	//cannot be done in preinit
+    	GameRegistry.registerBlock(
+    			 MyMod.block_euinterface =
+    			 new BlockEUInterface(Material.iron,"proghatches.euinterface"), ItemBlockEUInterface.class, "proghatches.euinterface");
+    	 GameRegistry.registerItem(
+                 MyMod.eu_source_part = new ItemPartEUSource().setUnlocalizedName("proghatches.part.eu.source")
+                     .setTextureName("?"),
+                 "proghatches.part.eu.source");
         new PHRecipes().run();
        
     }
     public static void callbackRegister(IWailaRegistrar registrar) {
     	registrar.registerBodyProvider(TileWirelessPeripheralStation.provider, MyMod.pstation.getClass());
     	registrar.registerNBTProvider(TileWirelessPeripheralStation.provider,  MyMod.pstation.getClass());
+    	registrar.registerBodyProvider(TileFluidInterface_EU.provider,BlockEUInterface.class);
+    	registrar.registerNBTProvider(TileFluidInterface_EU.provider,BlockEUInterface.class);
+    	
     }
     // register server commands in this event handler (Remove if not needed)
     public void serverStarting(FMLServerStartingEvent event) {}

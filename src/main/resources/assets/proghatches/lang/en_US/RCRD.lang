@@ -1,0 +1,4 @@
+Emits a 1-tick redstone pulse when a running Multiblock turn off due to no recipe found.
+Redstone wire cannot pass 1-tick pulse? Try Redstone P2P or Redstone Conduit!
+Put in a normal Input Bus position.
+Cannot be shared between Multiblocks!

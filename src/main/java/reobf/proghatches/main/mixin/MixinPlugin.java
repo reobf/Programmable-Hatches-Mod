@@ -26,6 +26,7 @@ import org.spongepowered.asm.lib.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
+import appeng.me.cluster.implementations.CraftingCPUCluster;
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import reobf.proghatches.Tags;
 import ru.timeconqueror.spongemixins.MinecraftURLClassPath;
@@ -65,7 +66,7 @@ String cfg=
     @SuppressWarnings("unused")
     @Override
     public List<String> getMixins() {
-        
+       
           File f=new File( System.getProperty("user.dir")+File.separator+"config","proghatches.mixin.properties");
           if(f.exists()==false){
           try {
@@ -93,7 +94,7 @@ String cfg=
           }finally{}
           
           System.out.println(pp);
-          System.out.println("ccccccccccccccccccccccccccc");
+         // System.out.println("ccccccccccccccccccccccccccc");
           
           System.out.println("following warnings like 'Error loading class: xxxx' is normal and safe to ignore");
           
@@ -103,12 +104,18 @@ String cfg=
        
 
         ArrayList<String> ret = new ArrayList<>();
+        
+     
+        ret.add("eucrafting."+"MixinInterface");
+        ret.add("eucrafting."+"MixinInterfacePart");
+        ret.add("eucrafting."+"MixinUpgrade");
+        ret.add("eucrafting."+"MixinInstantComplete");
+        
         ret.add("MixinAwarenessForDualHatch");
         if(!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))
         ret.add("MixinRemoveUnunsedItemStackCache");
          
-        //ret.add("MixinInterface");
-       // ret.add("MixinInterfacePart");
+        
         if(!"true".equals(pp.get("noRecipeFilterForDualHatch"))){
     	ret.add("MixinGTRecipeFilter");
         // GT Multiblock will not set recipe filter of DualInputHatch, set it via mixin

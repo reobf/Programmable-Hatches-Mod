@@ -492,7 +492,7 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
              * widget ->{
              * widget
              * .setLength(2) .setTextureGetter( i->{
-             * if(i==1) return GT_UITextures.OVERLAY_BUTTON_EXPORT;
+             * if(i==1) return GT_UITextures.OVERLAY__EXPORT;
              * return GT_UITextures.OVERLAY_BUTTON_IMPORT;
              * }
              * ).addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.smart.io.false"))

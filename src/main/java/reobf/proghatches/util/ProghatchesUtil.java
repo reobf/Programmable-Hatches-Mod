@@ -200,4 +200,16 @@ public class ProghatchesUtil {
     		@Override public void readOnClient(int id, PacketBuffer buf) throws IOException {}
     		@Override public void readOnServer(int id, PacketBuffer buf) throws IOException {}});
     }
+    
+    
+    
+    public static UUID deser(NBTTagCompound tag,String name){
+    	return new UUID(tag.getLong(name+"_UUID_M"), tag.getLong(name+"_UUID_L"));
+    }
+    public static void ser(NBTTagCompound tag, UUID id,String name){
+    	tag.setLong(name+"_UUID_M", id.getMostSignificantBits());
+    	tag.setLong(name+"_UUID_L", id.getLeastSignificantBits());
+    }
+    
+    
 }

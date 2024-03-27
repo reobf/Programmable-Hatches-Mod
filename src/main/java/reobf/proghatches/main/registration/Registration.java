@@ -11,6 +11,7 @@ import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.render.TextureFactory;
 import reobf.proghatches.gt.cover.ProgrammingCover;
+import reobf.proghatches.gt.cover.RecipeCheckResultCover;
 import reobf.proghatches.gt.cover.RecipeOutputAwarenessCover;
 import reobf.proghatches.gt.cover.SmartArmCover;
 import reobf.proghatches.gt.cover.WirelessControlCover;
@@ -20,6 +21,7 @@ import reobf.proghatches.gt.metatileentity.DualInputHatchSlave;
 import reobf.proghatches.gt.metatileentity.FilterOutputBus;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
+import reobf.proghatches.gt.metatileentity.RecipeCheckResultDetector;
 import reobf.proghatches.gt.metatileentity.RemoteInputBus;
 import reobf.proghatches.gt.metatileentity.RemoteInputHatch;
 import reobf.proghatches.gt.metatileentity.SuperfluidHatch;
@@ -41,8 +43,9 @@ public class Registration implements Runnable {
     public final static int RemoteInputHatchOffset = 67;
     public final static int SuperFluidHatch = 68;
     public final static int PatternOffset = 69;
-    public final static int TenaciousOffset = 70;
-    public final static int FilterOffset = 74;
+    public final static int TenaciousOffset = 70;// -73
+    public final static int FilterOffset = 74;// -77
+	private static final int RecipeCheckResultDetectorOffset = 78;
 
     @Override
     public void run() {
@@ -130,6 +133,13 @@ public class Registration implements Runnable {
                     MACHINE_CASINGS[1][0],
                     TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
                 new RecipeOutputAwarenessCover());
+        GregTech_API.registerCover(
+        		new ItemStack(MyMod.cover, 1, 14),
+        TextureFactory.of(
+            MACHINE_CASINGS[1][0],
+            TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
+        
+        new RecipeCheckResultCover());
         
         for (int i = 0; i < 15; i++) {
             ;
@@ -188,16 +198,22 @@ public class Registration implements Runnable {
         for (int i = 0; i < 4; i++) new FilterOutputBus(
             Config.metaTileEntityOffset + TenaciousOffset + i,
             "hatch.output.tenacious." + i,
-            LangManager.translateToLocal("hatch.output.tenacious.name"),
+            LangManager.translateToLocalFormatted("hatch.output.tenacious.name", GT_Values.VN[i]),
             i,
             true);
 
         for (int i = 0; i < 4; i++) new FilterOutputBus(
             Config.metaTileEntityOffset + FilterOffset + i,
             "hatch.output.filter." + i,
-            LangManager.translateToLocal("hatch.output.filter.name"),
+            LangManager.translateToLocalFormatted("hatch.output.filter.name", GT_Values.VN[i]),
             i,
             false);
+        
+        new RecipeCheckResultDetector(
+                Config.metaTileEntityOffset + RecipeCheckResultDetectorOffset,
+                "recipe_check_result_detector",
+                LangManager.translateToLocal("recipe_check_result_detector.name"),
+                 0);
 
     }
 

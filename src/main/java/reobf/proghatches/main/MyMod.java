@@ -3,6 +3,8 @@ package reobf.proghatches.main;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Items;
@@ -58,7 +60,7 @@ public class MyMod {
 	public static Block iohub;
 	public static Block pstation;
 	public static Item pitem;
-	public static Item euupgrade;
+	@Nullable public static Item euupgrade;
 	
 	public static Item eu_token;
 	public static Item eu_source_part;

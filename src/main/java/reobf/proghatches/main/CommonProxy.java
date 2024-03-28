@@ -40,6 +40,7 @@ import reobf.proghatches.item.ItemFakePattern;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.item.ItemProgrammingToolkit;
 import reobf.proghatches.item.ItemSmartArm;
+import reobf.proghatches.main.registration.EUCraftingCreativeTab;
 import reobf.proghatches.main.registration.PHRecipes;
 import reobf.proghatches.main.registration.ProgHatchCreativeTab;
 import reobf.proghatches.main.registration.Registration;
@@ -70,10 +71,10 @@ public class CommonProxy {
         // setCreativeTab(FluidCraftingTabs.INSTANCE);
         
         
-        GameRegistry.registerItem(
+        /*GameRegistry.registerItem(
                 MyMod.euupgrade = new ItemEUUpgradeModule().setUnlocalizedName("proghatches.eu_upgrade_module")
                     .setTextureName("?"),
-                "proghatches.eu_upgrade_module");
+                "proghatches.eu_upgrade_module");*/
         
         GameRegistry.registerItem(
             MyMod.progcircuit = new ItemProgrammingCircuit().setUnlocalizedName("prog_circuit")
@@ -138,7 +139,7 @@ public class CommonProxy {
 
     public void init(FMLInitializationEvent event) {
         tab = new ProgHatchCreativeTab("proghatches");
-       
+        new EUCraftingCreativeTab("proghatches.eucrafting");
         //AEApi.instance().registries().gridCache().registerGridCache(null, null);;
        // AEApi.instance().registries().interfaceTerminal().register(TileFluidInterface.class);
         new Registration().run();

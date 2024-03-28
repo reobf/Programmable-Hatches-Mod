@@ -5,12 +5,20 @@ import java.util.Optional;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class ItemEUToken extends Item{
+	private IIcon bound;
+
+
+
+
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@SideOnly(Side.CLIENT)
 	@Override
@@ -30,6 +38,27 @@ public class ItemEUToken extends Item{
 		});
 	
 	}
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public IIcon getIconFromDamage( int d) {
+		if(d==1){
+			
+			
+			return bound;}
+		return itemIcon;
+	}@SideOnly(Side.CLIENT)
+	@Override
+	public void registerIcons(IIconRegister register) {
+		
+		 this.itemIcon=register.registerIcon("proghatches:eu");
+		 this.bound=register.registerIcon("proghatches:eu_bound");
+	}
+	
+	
+	
+	
+	
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
 		if(stack.getItemDamage()==1){

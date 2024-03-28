@@ -31,6 +31,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -50,7 +51,12 @@ public class BlockEUInterface extends AEBaseTileBlock{
 
 
 
-	 @Override
+	 private IIcon back;
+	private IIcon arr;
+
+
+
+	@Override
 	    protected boolean hasCustomRotation() {
 	        return true;
 	    }
@@ -61,6 +67,18 @@ public class BlockEUInterface extends AEBaseTileBlock{
 	            ((TileInterface) rotatable).setSide(axis);
 	        }
 	    }
+@Override@SideOnly(Side.CLIENT)
+public void registerBlockIcons(IIconRegister i) {
+	super.registerBlockIcons(i);
+	this.blockIcon = i.registerIcon("proghatches:eu_interface");
+	this.back = i.registerIcon("proghatches:eu_interface_a");
+	this.arr = i.registerIcon("proghatches:eu_interface_arrow");
+	
+}@Override
+public String getTextureName() {
+	
+	return "proghatches:eu_interface";
+}
 
 	    @Override
 	    @SideOnly(Side.CLIENT)
@@ -78,9 +96,9 @@ public class BlockEUInterface extends AEBaseTileBlock{
 	        	        final BlockRenderInfo info = block.getRendererInstance();
 
 	        	        if (ti != null && ti.getForward() != ForgeDirection.UNKNOWN) {
-	        	            final IIcon side = FCPartsTexture.BlockFluidInterfaceAlternate_Arrow.getIcon();
+	        	            final IIcon side = arr;
 	        	            info.setTemporaryRenderIcons(
-	        	                    FCPartsTexture.BlockInterfaceAlternate.getIcon(),
+	        	                   back,
 	        	                    block.getIcon(0, 0),
 	        	                    side,
 	        	                    side,

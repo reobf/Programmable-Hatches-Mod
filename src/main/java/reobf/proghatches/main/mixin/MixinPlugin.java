@@ -105,9 +105,9 @@ String cfg=
 
         ArrayList<String> ret = new ArrayList<>();
         
-     
-        ret.add("eucrafting."+"MixinInterface");
-        ret.add("eucrafting."+"MixinInterfacePart");
+        ret.add("eucrafting."+"MixinRecipeStateDetect");
+        //ret.add("eucrafting."+"MixinInterface");
+        //ret.add("eucrafting."+"MixinInterfacePart");
         ret.add("eucrafting."+"MixinUpgrade");
         ret.add("eucrafting."+"MixinInstantComplete");
         

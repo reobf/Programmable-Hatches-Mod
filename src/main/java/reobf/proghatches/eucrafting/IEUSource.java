@@ -58,6 +58,7 @@ public interface IEUSource extends IGridCache{
 
 		
 		public long inject(ISource s,long amp,long v){
+			if(amp==0){return 0;}
 			//long v=s.getVoltage(); //use actual voltage
 			long[] a=new long[]{amp};
 			cache.get(s.getVoltage()).stream().map(d->{

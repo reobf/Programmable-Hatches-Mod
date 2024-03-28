@@ -32,6 +32,7 @@ import reobf.proghatches.main.MyMod;
 public class Registration implements Runnable {
 
     public static ArrayList<ItemStack> items = new ArrayList<ItemStack>();
+    public static ArrayList<ItemStack> items_eucrafting = new ArrayList<ItemStack>();
     public final static int DualInputHatchOffset = 0;// -15
     public final static int QuadDualInputHatchOffset = 16;// -31
     public final static int BufferedQuadDualInputHatchOffset = 100;
@@ -134,7 +135,7 @@ public class Registration implements Runnable {
                     TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
                 new RecipeOutputAwarenessCover());
         GregTech_API.registerCover(
-        		new ItemStack(MyMod.cover, 1, 14),
+        		new ItemStack(MyMod.cover, 1, 2),
         TextureFactory.of(
             MACHINE_CASINGS[1][0],
             TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),

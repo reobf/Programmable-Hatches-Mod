@@ -1,6 +1,7 @@
 package reobf.proghatches.item;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
@@ -34,10 +35,13 @@ public class ItemDedicatedCover extends Item {
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
-        if(LangManager.canTranslate("item.proghatch.cover.dedicated.tooltips." + p_77624_1_.getItemDamage()))
-        p_77624_3_.add(
-            LangManager.translateToLocal("item.proghatch.cover.dedicated.tooltips." + p_77624_1_.getItemDamage()));
-        super.addInformation(p_77624_1_, p_77624_2_, p_77624_3_, p_77624_4_);
+       
+    	IntStream.range(0,Integer.valueOf( StatCollector.translateToLocal("item.proghatch.cover.dedicated.tooltips." + p_77624_1_.getItemDamage()))
+    	).forEach(s->
+    	p_77624_3_.add(LangManager.translateToLocal("item.proghatch.cover.dedicated.tooltips." + p_77624_1_.getItemDamage()+"."+s)));
+       
+    	
+    	super.addInformation(p_77624_1_, p_77624_2_, p_77624_3_, p_77624_4_);
     }
 
     @Override

@@ -120,14 +120,14 @@ ICraftingProvider,IGridTickable,IInstantCompletable
 	                sideTexture);
 	        rh.renderInventoryBox(renderer);
 
-	        rh.setInvColor(this.getColor().whiteVariant);
-	        rh.renderInventoryFace(this.getFrontBright(), ForgeDirection.SOUTH, renderer);
+	       // rh.setInvColor(this.getColor().whiteVariant);
+	       // rh.renderInventoryFace(this.getFrontBright(), ForgeDirection.SOUTH, renderer);
 
 	        rh.setInvColor(this.getColor().mediumVariant);
 	        rh.renderInventoryFace(this.getFrontBright(), ForgeDirection.SOUTH, renderer);
 
-	        rh.setInvColor(this.getColor().blackVariant);
-	        rh.renderInventoryFace(this.getFrontColored(), ForgeDirection.SOUTH, renderer);
+	       // rh.setInvColor(this.getColor().blackVariant);
+	       // rh.renderInventoryFace(this.getFrontColored(), ForgeDirection.SOUTH, renderer);
 
 	        rh.setBounds(4, 4, 13, 12, 12, 14);
 	        rh.renderInventoryBox(renderer);
@@ -170,14 +170,14 @@ public boolean onPartActivate(EntityPlayer player, Vec3 pos) {
 	        renderer.uvRotateBottom = renderer.uvRotateEast = renderer.uvRotateNorth = renderer.uvRotateSouth = renderer.uvRotateTop = renderer.uvRotateWest = this
 	                .getSpin();
 
-	        Tessellator.instance.setColorOpaque_I(this.getColor().whiteVariant);
-	        rh.renderFace(x, y, z, this.getFrontBright(), ForgeDirection.SOUTH, renderer);
+	      //  Tessellator.instance.setColorOpaque_I(this.getColor().whiteVariant);
+	      //  rh.renderFace(x, y, z, this.getFrontBright(), ForgeDirection.SOUTH, renderer);
 
 	        Tessellator.instance.setColorOpaque_I(this.getColor().mediumVariant);
 	        rh.renderFace(x, y, z, this.getFrontBright(), ForgeDirection.SOUTH, renderer);
 
-	        Tessellator.instance.setColorOpaque_I(this.getColor().blackVariant);
-	        rh.renderFace(x, y, z, this.getFrontColored(), ForgeDirection.SOUTH, renderer);
+	     //   Tessellator.instance.setColorOpaque_I(this.getColor().blackVariant);
+	     //  rh.renderFace(x, y, z, this.getFrontColored(), ForgeDirection.SOUTH, renderer);
 
 	        renderer.uvRotateBottom = renderer.uvRotateEast = renderer.uvRotateNorth = renderer.uvRotateSouth = renderer.uvRotateTop = renderer.uvRotateWest = 0;
 
@@ -236,7 +236,7 @@ public boolean onPartActivate(EntityPlayer player, Vec3 pos) {
 
 		public static void registerIcons(IIconRegister _iconRegister) {
 		
-			a=_iconRegister.registerIcon("sss");
+			a=_iconRegister.registerIcon("proghatches:eu_interface");
 		}
 		
 	

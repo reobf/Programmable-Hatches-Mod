@@ -28,7 +28,7 @@ implements IRecipeProcessingAwareHatch
 		super(id, name, nameRegional, tier, 1, 
 				
 				reobf.proghatches.main.Config.get("RCRD", ImmutableMap.of()));
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, id));
+		Registration.items_eucrafting.add(new ItemStack(GregTech_API.sBlockMachines, 1, id));
 	
 	}   public RecipeCheckResultDetector(String aName, int aTier, String[] aDescription,
 	        ITexture[][][] aTextures) {

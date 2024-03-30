@@ -1,10 +1,14 @@
 package reobf.proghatches.gt.metatileentity;
 
+import static gregtech.api.enums.Textures.BlockIcons.ITEM_IN_SIGN;
+import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_PIPE_IN;
+
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
 import com.google.common.collect.ImmutableMap;
 
+import gregtech.GT_Mod;
 import gregtech.api.GregTech_API;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -14,14 +18,22 @@ import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Input
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
+import gregtech.api.render.TextureFactory;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.main.registration.Registration;
 
 public class RecipeCheckResultDetector extends GT_MetaTileEntity_Hatch_InputBus
 implements IRecipeProcessingAwareHatch
 {
+@Override
+public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
+	
+	return false;//no gui!
+}
 
 	public RecipeCheckResultDetector(int id, String name, String nameRegional, int tier
 			) {
@@ -112,6 +124,19 @@ implements IRecipeProcessingAwareHatch
 			
 		}
 	}
+	   @Override
+	    public ITexture[] getTexturesActive(ITexture aBaseTexture) {
+	        return GT_Mod.gregtechproxy.mRenderIndicatorsOnHatch
+	            ? new ITexture[] { aBaseTexture, TextureFactory.of(OVERLAY_PIPE_IN), TextureFactory.of(ITEM_IN_SIGN) }
+	            : new ITexture[] { aBaseTexture, TextureFactory.of(OVERLAY_PIPE_IN) };
+	    }
+
+	    @Override
+	    public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
+	        return GT_Mod.gregtechproxy.mRenderIndicatorsOnHatch
+	            ? new ITexture[] { aBaseTexture, TextureFactory.of(OVERLAY_PIPE_IN), TextureFactory.of(ITEM_IN_SIGN) }
+	            : new ITexture[] { aBaseTexture, TextureFactory.of(OVERLAY_PIPE_IN) };
+	    }
 	
 	@Override
 	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {

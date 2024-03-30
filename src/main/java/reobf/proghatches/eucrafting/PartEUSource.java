@@ -173,7 +173,7 @@ public boolean onPartActivate(EntityPlayer player, Vec3 pos) {
 	      //  Tessellator.instance.setColorOpaque_I(this.getColor().whiteVariant);
 	      //  rh.renderFace(x, y, z, this.getFrontBright(), ForgeDirection.SOUTH, renderer);
 
-	        Tessellator.instance.setColorOpaque_I(this.getColor().mediumVariant);
+	        Tessellator.instance.setColorOpaque_I(this.getColor().whiteVariant);
 	        rh.renderFace(x, y, z, this.getFrontBright(), ForgeDirection.SOUTH, renderer);
 
 	     //   Tessellator.instance.setColorOpaque_I(this.getColor().blackVariant);
@@ -233,10 +233,10 @@ public boolean onPartActivate(EntityPlayer player, Vec3 pos) {
 			// TODO Auto-generated method stub
 			return 0;
 		}
-
+		@SideOnly(value=Side.CLIENT)
 		public static void registerIcons(IIconRegister _iconRegister) {
 		
-			a=_iconRegister.registerIcon("proghatches:eu_interface");
+			a=_iconRegister.registerIcon("proghatches:eu");
 		}
 		
 	

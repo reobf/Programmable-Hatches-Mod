@@ -17,11 +17,13 @@ import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.PacketBuffer;
+import reobf.proghatches.main.MyMod;
 import gregtech.api.GregTech_API;
 import gregtech.api.util.GT_Log;
 import gregtech.api.util.GT_Utility;
@@ -132,13 +134,13 @@ public class ProghatchesUtil {
 
     }
 
-    public static ItemStack getWrittenBook(String aMapping, String aTitle, String aAuthor, String... aPages) {
+    public static ItemStack getWrittenBook(Item it, String aMapping, String aTitle, String aAuthor, String... aPages) {
         if (isStringInvalid(aMapping)) return null;
         ItemStack rStack = null;// GregTech_API.sBookList.get(aMapping);
         if (rStack != null) return copyAmount(1, rStack);
         if (isStringInvalid(aTitle) || isStringInvalid(aAuthor) || aPages.length == 0) return null;
         // sBookCount++;
-        rStack = new ItemStack(Items.written_book, 1);
+        rStack = new ItemStack(it, 1);
         NBTTagCompound tNBT = new NBTTagCompound();
         tNBT.setString("title", aTitle);
         tNBT.setString("author", aAuthor);
@@ -206,9 +208,10 @@ public class ProghatchesUtil {
     public static UUID deser(NBTTagCompound tag,String name){
     	return new UUID(tag.getLong(name+"_UUID_M"), tag.getLong(name+"_UUID_L"));
     }
-    public static void ser(NBTTagCompound tag, UUID id,String name){
+    public static NBTTagCompound ser(NBTTagCompound tag, UUID id,String name){
     	tag.setLong(name+"_UUID_M", id.getMostSignificantBits());
     	tag.setLong(name+"_UUID_L", id.getLeastSignificantBits());
+		return tag;
     }
     
     

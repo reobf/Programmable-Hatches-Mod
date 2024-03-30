@@ -141,7 +141,7 @@ public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p
 		
 	}
 	public static class Block extends net.minecraft.block.BlockContainer {
-		@Override
+		@Override@SideOnly(value=Side.CLIENT)
 		public void registerBlockIcons(IIconRegister reg) {
 		super.registerBlockIcons(reg);
 		a=reg.registerIcon("proghatches:pstation");
@@ -149,7 +149,7 @@ public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p
 		c=reg.registerIcon("proghatches:pstation_1");
 		}
 		IIcon a,b,c;
-		@Override
+		@Override@SideOnly(value=Side.CLIENT)
 		public IIcon getIcon(int side, int meta) {
 		if(side<=1)return a;//top bottom
 		if(meta==0)return b;else return c;

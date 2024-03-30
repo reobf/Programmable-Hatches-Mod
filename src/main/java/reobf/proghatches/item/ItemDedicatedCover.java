@@ -28,7 +28,7 @@ public class ItemDedicatedCover extends Item {
     public void registerIcons(IIconRegister register) {
         icons[0] = register.registerIcon("proghatches:cover0");
         icons[1] = register.registerIcon("proghatches:cover1");
-
+        icons[2] = register.registerIcon("proghatches:cover2");
     }
 
     @SuppressWarnings("unchecked")

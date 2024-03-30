@@ -30,7 +30,9 @@ public interface IEUSource extends IGridCache{
 		public void refund(long amp);
 		public long providing();*/
 	}
+	
 	public interface IDrain{
+		public default boolean isP2POut(){return false;}
 		public long getVoltage();
 		
 		public default long inject(long a,long v){
@@ -61,7 +63,9 @@ public interface IEUSource extends IGridCache{
 			if(amp==0){return 0;}
 			//long v=s.getVoltage(); //use actual voltage
 			long[] a=new long[]{amp};
-			cache.get(s.getVoltage()).stream().map(d->{
+			cache.get(s.getVoltage()).stream()
+			.filter(sx->!sx.isP2POut())
+			.map(d->{
 				long val=Math.min(a[0], d.expectedAmp());
 				return (a[0]-=d.inject( val,v));
 			})

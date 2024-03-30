@@ -25,6 +25,7 @@ import appeng.api.parts.IPartHost;
 import appeng.tile.AEBaseTile;
 import cpw.mods.fml.common.network.internal.FMLNetworkHandler;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -87,14 +88,24 @@ public static IGuiProvidingPart select(EntityPlayer player ,int x, int y, int z)
 }public static final String key="proghatches.last.part.direction";
 
 public static void open(EntityPlayer player, World world, int x, int y, int z,ForgeDirection dir) {
-	 if (NetworkUtils.isClient()==false||player instanceof FakePlayer) {return;}
+	 if (NetworkUtils.isClient()||player instanceof FakePlayer) {return;}
 	NBTTagCompound tag = player.getEntityData();
 	tag.setInteger(key,dir.ordinal());
-	
-	
-	
-	MyMod.net.sendToServer(new OpenPartGuiMessage(x,y,z,dir));
+	MyMod.net.sendTo(new OpenPartGuiMessage(x,y,z,dir), (EntityPlayerMP) player);
+	EUUtil.PART_MODULAR_UI
+	.open(player, player.worldObj, x, y, z);
 }
+public static void open(EntityPlayer player, World world, int x, int y, int z,ForgeDirection dir,boolean isout) {
+	 if (NetworkUtils.isClient()||player instanceof FakePlayer) {return;}
+		NBTTagCompound tag = player.getEntityData();
+		tag.setInteger(key,dir.ordinal());
+		tag.setBoolean("extraarg",isout);
+		MyMod.net.sendTo(new OpenPartGuiMessage(x,y,z,dir).mark(isout), (EntityPlayerMP) player);
+		EUUtil.PART_MODULAR_UI
+		.open(player, player.worldObj, x, y, z);
+}
+
+
 
 public static final UIInfo<?, ?> PART_MODULAR_UI   = UIBuilder.of().container((player, world, x, y, z) -> {
   return Optional.ofNullable(select(player,  x, y, z)).map(part->{

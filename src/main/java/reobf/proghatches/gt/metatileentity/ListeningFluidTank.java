@@ -2,6 +2,7 @@ package reobf.proghatches.gt.metatileentity;
 
 import java.util.Optional;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
@@ -48,7 +49,19 @@ public class ListeningFluidTank extends FluidTank{
 	}
 	
 	
-	
+	@Override
+	public FluidTank readFromNBT(NBTTagCompound nbt) {
+		if (!nbt.hasKey("Empty"))
+        {
+            FluidStack fluid = FluidStack.loadFluidStackFromNBT(nbt);
+            setFluidDirect(fluid);
+        }
+        else
+        {
+        	setFluidDirect(null);
+        }
+        return this;
+	}
 	
 	
 

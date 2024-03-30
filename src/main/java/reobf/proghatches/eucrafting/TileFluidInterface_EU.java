@@ -95,7 +95,7 @@ public class TileFluidInterface_EU extends TileFluidInterface implements ITileWi
 				IWailaConfigHandler config) {
 			
 			 currenttip.add(
-					ProghatchesUtil.deser(accessor.getNBTData(), "EUFI").toString()
+					StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.UUID",ProghatchesUtil.deser(accessor.getNBTData(), "EUFI").toString())
 					);return currenttip;
 		}
 
@@ -690,21 +690,23 @@ public int hashCode() {
 		 ModularWindow.Builder builder = ModularWindow.builder(176,107);
          builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
         
-       /*  builder.widget(
-                 ((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(false, true))
-                     .setGetter(() -> recycle ? 1 : 0)
-                     .setSetter(s -> recycle = s == 1)
+         builder.widget(
+                 ((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(true, true))
+                     .setGetter(() -> (redstoneticks>0) ? 1 : 0)
+                     .setSetter(s -> redstoneticks = s)
                      .setLength(2)
                      .setTextureGetter(i -> {
                          if (i == 1) return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
+         
                          return GT_UITextures.OVERLAY_BUTTON_CROSS;
                      })
 
-                     .addTooltip(0, LangManager.translateToLocal("proghatches.part.recycle.false"))
-                     .addTooltip(1, LangManager.translateToLocal("proghatches.part.recycle.true"))
+                     .addTooltip(0, LangManager.translateToLocal("proghatches.eucreafting.finish.false"))
+                     .addTooltip(1, LangManager.translateToLocal("proghatches.eucreafting.finish.true"))
+                    
                      .setPos(8, 80)
 
-             );
+             );/*
          builder.widget(
                  ((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(false, true))
                      .setGetter(() -> onoff ? 1 : 0)

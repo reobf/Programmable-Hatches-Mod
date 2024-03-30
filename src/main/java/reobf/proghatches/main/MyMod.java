@@ -9,6 +9,7 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemEditableBook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.MinecraftForge;
@@ -65,11 +66,13 @@ public class MyMod {
 	public static Item eu_token;
 	public static Item eu_source_part;
 	public static BlockEUInterface block_euinterface;
+	public static Item euinterface_p2p;
+	public static Item book;
     @Mod.EventHandler
     // preInit "Run before anything else. Read your config, create blocks, items, etc, and register them with the
     // GameRegistry." (Remove if not needed)
     public void preInit(FMLPreInitializationEvent event) {
-    	net.registerMessage(new OpenPartGuiMessage.Handler(), OpenPartGuiMessage.class, 0, Side.SERVER);
+    	net.registerMessage(new OpenPartGuiMessage.Handler(), OpenPartGuiMessage.class, 0, Side.CLIENT);
         proxy.preInit(event);
     }
 
@@ -85,7 +88,7 @@ public class MyMod {
 
 @SubscribeEvent
 public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev){
-	 if(Optional.ofNullable(ev.entityPlayer.getHeldItem()).map(ItemStack::getItem).orElse(null)==Items.written_book){
+	 if(Optional.ofNullable(ev.entityPlayer.getHeldItem()).map(ItemStack::getItem).orElse(Items.apple) instanceof ItemEditableBook){
 		if( Optional.ofNullable(
 		 ev.entityPlayer.getHeldItem().stackTagCompound
 		 ).map(s->s.getString("proghatchesSpecialTag"))
@@ -93,7 +96,7 @@ public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev){
 		 
 		 ev.setCanceled(true);
 	  if(ev.world.isRemote){
-		  ev.entityPlayer.displayGUIBook(tutorial());//actual contents are localized on client side
+		  ev.entityPlayer.displayGUIBook(tutorial(Items.written_book,ev.entityPlayer.getHeldItem().getTagCompound().getString("title")));//actual contents are localized on client side
 		}  
 		  
 	  
@@ -102,12 +105,15 @@ public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev){
 	 }
 	  
 }
+
+
+
     @SubscribeEvent
     public void giveBook(PlayerLoggedInEvent e) {
-         if(e.player.getEntityData().hasKey("ProgrammableHatchesTutorialGet")==false)
+         if(e.player.getEntityData().hasKey("ProgrammableHatchesTutorialGet1")==false)
         {
             e.player.getEntityData()
-                .setBoolean("ProgrammableHatchesTutorialGet", true);
+                .setBoolean("ProgrammableHatchesTutorialGet1", true);
 
             e.player.getEntityWorld()
                 .spawnEntityInWorld(
@@ -119,6 +125,19 @@ public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev){
                         .get()
 
                     ));
+            e.player.getEntityWorld()
+            .spawnEntityInWorld(
+                new EntityItem(e.player.getEntityWorld(), e.player.posX, e.player.posY, e.player.posZ
+
+                    , 
+                    Optional.of(tutorial("programmable_hatches.eucreafting.tutorial"))
+                    .map(s->{s.stackTagCompound.setString("proghatchesSpecialTag", "true");  return s;})
+                    .get()
+
+                ));
+            
+            
+            
         } ;
 
     }
@@ -136,18 +155,24 @@ public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev){
         WirelessPeripheralManager.stations.clear();
         WirelessPeripheralManager.cards.clear();
     }
-
-    public static ItemStack tutorial() {
+    
+    public static ItemStack tutorial() {return tutorial(book,"programmable_hatches.tutorial");}
+    public static ItemStack tutorial(Item it) {
+    	return tutorial(book,"programmable_hatches.tutorial");
+    	
+    }
+    public static ItemStack tutorial(String key) {return tutorial(book,key);}
+    public static ItemStack tutorial(Item it,String key) {
 
         ArrayList<String> pages = new ArrayList<>();
-        int size = Integer.valueOf(LangManager.translateToLocalFormatted("programmable_hatches.tutorial.pages"));
+        int size = Integer.valueOf(LangManager.translateToLocalFormatted(key+".pages"));
         for (int i = 0; i < size; i++) pages.add(
-            LangManager.translateToLocalFormatted("programmable_hatches.tutorial.pages." + i)
+            LangManager.translateToLocalFormatted(key+".pages." + i)
                 .replace("\\n", "\n"));
 
-        ItemStack is = ProghatchesUtil.getWrittenBook(
+        ItemStack is = ProghatchesUtil.getWrittenBook(it,
             "ProgrammableHatchesTutorial",
-            LangManager.translateToLocal("programmable_hatches.tutorial"),
+            key,
             "programmable_hatches",
             pages.toArray(new String[0]));
 

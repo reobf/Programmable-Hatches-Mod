@@ -2,6 +2,7 @@ package reobf.proghatches.main;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemEditableBook;
 import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
@@ -31,9 +32,11 @@ import reobf.proghatches.eucrafting.BlockEUInterface;
 import reobf.proghatches.eucrafting.EUUtil;
 import reobf.proghatches.eucrafting.ItemBlockEUInterface;
 import reobf.proghatches.eucrafting.ItemEUToken;
+import reobf.proghatches.eucrafting.ItemPartEUP2PInterface;
 import reobf.proghatches.eucrafting.ItemPartEUSource;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
+import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemDedicatedCover;
 import reobf.proghatches.item.ItemEUUpgradeModule;
 import reobf.proghatches.item.ItemFakePattern;
@@ -117,8 +120,10 @@ public class CommonProxy {
                 "eu_token");
        
         
-        
-        
+        GameRegistry.registerItem(MyMod.book = 
+        new ItemBookTutorial().setUnlocalizedName("writtenBook").setTextureName("book_written").setMaxStackSize(16),
+        "book_tutorial"
+        	);
         
         MyMod.iohub =GameRegistry.registerBlock(
         new BlockIOHub(),ItemBlockIOHub.class,"proghatches.iohub");
@@ -156,6 +161,12 @@ public class CommonProxy {
                  MyMod.eu_source_part = new ItemPartEUSource().setUnlocalizedName("proghatches.part.eu.source")
                      .setTextureName("?"),
                  "proghatches.part.eu.source");
+    	 
+    	 GameRegistry.registerItem(
+                 MyMod.euinterface_p2p = new ItemPartEUP2PInterface().setUnlocalizedName("proghatches.euinterface.p2p")
+                     .setTextureName("?"),
+                 "proghatches.euinterface.p2p");
+    	 
         new PHRecipes().run();
        
     }

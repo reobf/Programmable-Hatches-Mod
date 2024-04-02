@@ -665,5 +665,12 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
     public boolean isPowered() {
         return getProxy() != null && getProxy().isPowered();
     }
+@Override
+public ItemStack getCrafterIcon() {
+	ItemStack is = this.getMachineCraftingIcon();
+	return is==null?
+			new ItemStack(GregTech_API.sBlockMachines, 1,  getBaseMetaTileEntity().getMetaTileID()):
+			is;
+}
 
 }

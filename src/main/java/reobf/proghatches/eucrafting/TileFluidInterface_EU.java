@@ -3,6 +3,7 @@ package reobf.proghatches.eucrafting;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -325,6 +326,9 @@ int redstoneticks;
 		final ItemStack extraOut0;
 		public WrappedPatternDetail(ICraftingPatternDetails i,ItemStack extraIn,
 				ItemStack extraOut){
+			Objects.requireNonNull(extraIn);
+			Objects.requireNonNull(extraOut);
+			Objects.requireNonNull(i);
 			if(i.isCraftable()){ throw new IllegalArgumentException("workbench crafting");}
 			original=i;
 			this.extraIn=AEItemStack.create(extraIn);extraIn0=extraIn;
@@ -412,6 +416,9 @@ int redstoneticks;
 	public static class PatternDetail implements ICraftingPatternDetails {
 
 		public PatternDetail(ItemStack in, ItemStack out) {
+			Objects.requireNonNull(in);
+			Objects.requireNonNull(out);
+			
 			this.in = in;
 			this.out = out;
 			i = new IAEItemStack[] { AEApi.instance().storage().createItemStack(in) };
@@ -496,13 +503,13 @@ public int hashCode() {
 
 		@Override
 		public int getPriority() {
-			// TODO Auto-generated method stub
+			
 			return Integer.MAX_VALUE;
 		}
 
 		@Override
 		public void setPriority(int priority) {
-			// TODO Auto-generated method stub
+			
 
 		}
 	}

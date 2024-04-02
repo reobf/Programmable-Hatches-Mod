@@ -352,7 +352,9 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
 
     public static class CircuitProviderPatternDetial implements ICraftingPatternDetails {
 @Nonnull
-        private ItemStack out;
+final private ItemStack out;
+@Nonnull
+final int  hash;
 		@Override
 		public boolean equals(Object obj) {
 		if(obj ==null){return false;}
@@ -362,14 +364,18 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
 		@Override
 		public int hashCode() {
 				if(out==null)return 0;
-			return out.stackTagCompound.hashCode()^
+			return 
+					hash;
+					/*
+					Optional.ofNullable(out.stackTagCompound).map(Object::hashCode).orElse(0)^
 					Integer.valueOf(Item.getIdFromItem(out.getItem())).hashCode()^
-					Integer.valueOf(out.getItemDamage());
+					Integer.valueOf(out.getItemDamage());*/
 		}
 		
 		
-        public CircuitProviderPatternDetial(ItemStack o) {
-            this.out = o;
+        public CircuitProviderPatternDetial(@Nonnull ItemStack o) {
+        	if(o==null)throw new IllegalArgumentException("null");
+            this.out = o;hash=AEItemStack.create(out).hashCode()^0x1234abcd;
             /*if(out ==null){
             	Thread.dumpStack();
             	
@@ -543,5 +549,10 @@ public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirec
         }
         getProxy().readFromNBT(aNBT);;
     }
+@Override
+public ItemStack getCrafterIcon() {
+	
+	return new ItemStack(GregTech_API.sBlockMachines, 1,  getBaseMetaTileEntity().getMetaTileID());
+}
 
 }

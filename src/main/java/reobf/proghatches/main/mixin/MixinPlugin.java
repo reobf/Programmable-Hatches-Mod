@@ -106,6 +106,7 @@ String cfg=
         ArrayList<String> ret = new ArrayList<>();
         ret.add("eucrafting."+"MixinWailaProvider");
         ret.add("eucrafting."+"MixinRecipeStateDetect");
+        ret.add("eucrafting."+"MixinCpuClusterAccess");
         //ret.add("eucrafting."+"MixinInterface");
         //ret.add("eucrafting."+"MixinInterfacePart");
         //ret.add("eucrafting."+"MixinUpgrade");

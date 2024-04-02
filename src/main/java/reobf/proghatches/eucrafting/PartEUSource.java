@@ -552,6 +552,10 @@ public boolean onPartActivate(EntityPlayer player, Vec3 pos) {
 			
 		}
 		
-		
+		@Override
+		public ItemStack getCrafterIcon() {
+			
+			return new ItemStack(MyMod.eu_source_part).setStackDisplayName(this.voltage+"V");
+		}
 
 }

@@ -137,7 +137,7 @@ public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlaye
 	            ? new ITexture[] { aBaseTexture, TextureFactory.of(OVERLAY_PIPE_IN), TextureFactory.of(ITEM_IN_SIGN) }
 	            : new ITexture[] { aBaseTexture, TextureFactory.of(OVERLAY_PIPE_IN) };
 	    }
-	
+	//TODO: call this via mixin @Return, because other ProcessingAwareHatch might fail the recipecheck
 	@Override
 	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
 		try {

@@ -10,41 +10,24 @@ import reobf.proghatches.gt.metatileentity.DualInputHatch;
 
 public class MixinCallback {
 
-    public static boolean encodingSpecialBehaviour = true;
+	public static boolean encodingSpecialBehaviour = true;
 
-    public static MethodHandle hanlde;
-    static {
+	public static void handleAddedToMachineList(IGregTechTileEntity aTileEntity, Object o) {
+		GT_MetaTileEntity_MultiBlockBase thiz = (GT_MetaTileEntity_MultiBlockBase) o;
+		try {
+			if (aTileEntity == null)
+				return;
+			IMetaTileEntity aMetaTileEntity = aTileEntity.getMetaTileEntity();
+			if (aMetaTileEntity != null && aMetaTileEntity instanceof DualInputHatch) {
 
-        try {
-            hanlde = MethodHandles.lookup()
-                .unreflect(GT_MetaTileEntity_MultiBlockBase.class.getMethod("getRecipeMap"));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+				((DualInputHatch) aMetaTileEntity).setFilter(thiz.getRecipeMap());
 
-    public static void handleAddedToMachineList(IGregTechTileEntity aTileEntity, Object o) {
+			}
 
-        try {
-            if (aTileEntity == null) return;
-            IMetaTileEntity aMetaTileEntity = aTileEntity.getMetaTileEntity();
-            if (aMetaTileEntity != null && aMetaTileEntity instanceof DualInputHatch) {
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
 
-                // ( (GT_MetaTileEntity_MultiBlockBase)o).mInputBusses.add((GT_MetaTileEntity_Hatch_InputBus)
-                // aMetaTileEntity);
-                // ( (GT_MetaTileEntity_MultiBlockBase)o).mInputHatches.add(((DualInputHatch)
-                // aMetaTileEntity).delegateInputHatch);
-
-                ((DualInputHatch) aMetaTileEntity)
-                    .setFilter(MixinCallback.hanlde.invoke((GT_MetaTileEntity_MultiBlockBase) (Object) o));
-                // must cast to GT_MetaTileEntity_MultiBlockBase or else polymorphic invoke signature will be
-                // MixinGTRecipeFilter
-            }
-
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
-
-    }
+	}
 
 }

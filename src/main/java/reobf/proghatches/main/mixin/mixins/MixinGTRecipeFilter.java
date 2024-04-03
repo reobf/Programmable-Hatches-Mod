@@ -24,4 +24,5 @@ public abstract class MixinGTRecipeFilter {
         MixinCallback.handleAddedToMachineList(aTileEntity, this);
     }
 
+    
 }

@@ -53,6 +53,7 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
@@ -730,29 +731,11 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
 
     }
 
-    private static MethodHandle mh;
+    
 
-    static {
-        try {
-            mh = MethodHandles.lookup()
-                .findSetter(
-                    DualInputHatch.class,
+    public void setFilter(RecipeMap<?> recipemap) {
 
-                    "mRecipeMap",
-                    DualInputHatch.class.getField("mRecipeMap")
-                        .getType());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void setFilter(Object recipemap) {
-
-        try {
-            mh.invoke(this, recipemap);
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
+        this.mRecipeMap=recipemap;
 
     }
 

@@ -57,7 +57,7 @@ public  class ItemFakePattern extends Item implements ICraftingPatternItem {
             
         } catch (Exception ew) {
             ew.printStackTrace();
-            return new CircuitProviderPatternDetial(new ItemStack(Items.baked_potato));
+            return new CircuitProviderPatternDetial(new ItemStack(Items.baked_potato).setStackDisplayName("ERROR"));
         }
     }
 

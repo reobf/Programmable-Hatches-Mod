@@ -886,7 +886,7 @@ public void onFill() {
          */
     }
 
-    private final int BUFFER_0 = 1001;
+    static private final int BUFFER_0 = 1001;
 
     protected ModularWindow createWindow(final EntityPlayer player, int index) {
         DualInvBuffer inv0 = this.inv0.get(index);

@@ -38,7 +38,6 @@ import reobf.proghatches.eucrafting.TileFluidInterface_EU;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemDedicatedCover;
-import reobf.proghatches.item.ItemEUUpgradeModule;
 import reobf.proghatches.item.ItemFakePattern;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.item.ItemProgrammingToolkit;

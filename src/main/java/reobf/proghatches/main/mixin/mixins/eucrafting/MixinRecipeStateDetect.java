@@ -27,71 +27,51 @@ import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.gt.cover.ProgrammingCover;
 import reobf.proghatches.gt.cover.RecipeCheckResultCover;
 import reobf.proghatches.gt.cover.RecipeCheckResultCover.Data;
+
 @Mixin(value = GT_MetaTileEntity_MultiBlockBase.class, remap = false)
 public class MixinRecipeStateDetect {
-	@Shadow public ArrayList<GT_MetaTileEntity_Hatch_InputBus> mInputBusses = new ArrayList<>();
-	@Shadow public ArrayList<GT_MetaTileEntity_Hatch_Input> mInputHatches = new ArrayList<>();
-	@Shadow  public ArrayList<IDualInputHatch> mDualInputHatches = new ArrayList<>();
-	@Shadow CheckRecipeResult checkRecipeResult;
-   
-    @Inject(
-    method = "endRecipeProcessing",
-    at = @At( value = "RETURN"), require = 1)
-    public void endRecipeProcessing(CallbackInfo a) {
-        for (GT_MetaTileEntity_Hatch_InputBus hatch : filterValidMTEs(mInputBusses)) {
-        	updateCover(hatch);
-        }
-        for (GT_MetaTileEntity_Hatch_Input hatch : filterValidMTEs(mInputHatches)) {
-        	updateCover(hatch);
-        }
-        for (IDualInputHatch hatch : mDualInputHatches) {
-        	if(hatch!=null&&((MetaTileEntity)hatch).isValid()){
-        		
-        	updateCover((MetaTileEntity) hatch);
-        	};
-        	
-        }
-        
-        
-       /* try {
-            GT_MetaTileEntity_Hatch_InputBus bus = (GT_MetaTileEntity_Hatch_InputBus) a;
-            Arrays.stream(ForgeDirection.VALID_DIRECTIONS)
-                .map(
-                    s -> bus.getBaseMetaTileEntity()
-                        .getCoverBehaviorAtSideNew(s))
-                .filter(Objects::nonNull)
-                .filter(s -> s instanceof ProgrammingCover)
-                .forEach(s -> ((ProgrammingCover) s).impl(bus.getBaseMetaTileEntity()));;
+	@Shadow
+	public ArrayList<GT_MetaTileEntity_Hatch_InputBus> mInputBusses = new ArrayList<>();
+	@Shadow
+	public ArrayList<GT_MetaTileEntity_Hatch_Input> mInputHatches = new ArrayList<>();
+	@Shadow
+	public ArrayList<IDualInputHatch> mDualInputHatches = new ArrayList<>();
+	@Shadow
+	CheckRecipeResult checkRecipeResult;
 
-        } catch (Exception e) {
-            // huh?
-            e.printStackTrace();
-        }
-        return a;
-*/
-      
-    }
-    
-    public void updateCover(MetaTileEntity bus){
-    	
-    	
-    	Arrays.stream(ForgeDirection.VALID_DIRECTIONS)
-        .filter(
-            s -> Optional.ofNullable(bus.getBaseMetaTileEntity()
-            	.getCoverBehaviorAtSideNew(s)).map(sx->sx instanceof RecipeCheckResultCover).orElse(false))
-        .forEach(s -> 
-        RecipeCheckResultCover.update(checkRecipeResult,  (Data) bus.getBaseMetaTileEntity().getCoverInfoAtSide(s).getCoverData())
-        
-        		);
-        
-        
-        ;
-       
-       /* .forEach(s -> bus.getBaseMetaTileEntity().getCoverInfoAtSide(null)
-        		
-        		));;*/
+	@Inject(method = "endRecipeProcessing", at = @At(value = "RETURN"), require = 1)
+	public void endRecipeProcessing(CallbackInfo a) {
+		for (GT_MetaTileEntity_Hatch_InputBus hatch : filterValidMTEs(mInputBusses)) {
+			updateCover(hatch);
+		}
+		for (GT_MetaTileEntity_Hatch_Input hatch : filterValidMTEs(mInputHatches)) {
+			updateCover(hatch);
+		}
+		for (IDualInputHatch hatch : mDualInputHatches) {
+			if (hatch != null && ((MetaTileEntity) hatch).isValid()) {
 
-    	
-    }
-    
+				updateCover((MetaTileEntity) hatch);
+			}
+			;
+
+		}
+
+	}
+
+	public void updateCover(MetaTileEntity bus) {
+
+		Arrays.stream(ForgeDirection.VALID_DIRECTIONS)
+				.filter(s -> Optional.ofNullable(bus.getBaseMetaTileEntity().getCoverBehaviorAtSideNew(s))
+						.map(sx -> sx instanceof RecipeCheckResultCover).orElse(false))
+				.forEach(s -> RecipeCheckResultCover.update(checkRecipeResult,
+						(Data) bus.getBaseMetaTileEntity().getCoverInfoAtSide(s).getCoverData())
+
+		);
+
+		;
+
+		
+
+	}
+
 }

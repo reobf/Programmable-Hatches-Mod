@@ -20,27 +20,19 @@ import reobf.proghatches.main.MyMod;
  * 
  * 
  */
-@Pseudo
-@Mixin(targets = { "gregtech.api.recipe.RecipeMap", "gregtech.api.util.GT_Recipe$GT_Recipe_Map" }, remap = false)
+
+@Mixin(value=gregtech.api.recipe.RecipeMap.class , remap = false)
 public abstract class MixinAddProgCircuitExemptToInputFilter {
 
-    @SuppressWarnings("unchecked")
+    
     @Inject(method = "containsInput", at = @At("RETURN"), require = 1, cancellable = true)
-    public void containsInput(ItemStack aStack, CallbackInfoReturnable c) {
-        boolean ret = c.getReturnValueZ();
+    public void containsInput(ItemStack aStack, CallbackInfoReturnable<Boolean> c) {
+        if(aStack==null)return;
+    	boolean ret = c.getReturnValueZ();
         if (ret) return;
         if (aStack.getItem() != MyMod.progcircuit) return;
-        boolean specialCheckPassed = false;
-
-        check: {
-            if (aStack == null) break check;
-            Optional<ItemStack> op = ItemProgrammingCircuit.getCircuit(aStack);
-
-            specialCheckPassed = specialCheckPassed || containsInput(op.orElse(null));
-
-        }
-
-        c.setReturnValue(ret || specialCheckPassed);
+        Optional<ItemStack> op = ItemProgrammingCircuit.getCircuit(aStack);
+        c.setReturnValue( containsInput(op.orElse(null)));
     }
 
     @Shadow

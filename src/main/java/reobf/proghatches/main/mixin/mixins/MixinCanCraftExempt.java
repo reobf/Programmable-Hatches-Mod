@@ -52,7 +52,7 @@ public class MixinCanCraftExempt {
 
     }
     
-   // @Surrogate
+
 
     @ModifyVariable(
         method = "executeCrafting",

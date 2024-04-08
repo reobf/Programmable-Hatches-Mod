@@ -67,4 +67,9 @@ public class ItemEUToken extends Item{
 		}
 		return super.getUnlocalizedName(stack);
 	}
+	
+	
+	
+	
+	
 }

@@ -8,11 +8,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRedstoneWire;
@@ -36,7 +39,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
-import reobf.proghatches.eucrafting.IEUSource.IDrain;
+import reobf.proghatches.eucrafting.IEUManager.IDrain;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.PatternDetail;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.WrappedPatternDetail;
 import reobf.proghatches.lang.LangManager;
@@ -69,6 +72,7 @@ import appeng.api.config.Actionable;
 import appeng.api.config.Upgrades;
 import appeng.api.implementations.tiles.ITileStorageMonitorable;
 import appeng.api.networking.IGridNode;
+import appeng.api.networking.crafting.ICraftingCPU;
 import appeng.api.networking.crafting.ICraftingLink;
 import appeng.api.networking.crafting.ICraftingMedium;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
@@ -85,6 +89,7 @@ import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
 import appeng.api.parts.IPart;
+import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.IStorageMonitorable;
 import appeng.api.storage.data.IAEFluidStack;
@@ -96,6 +101,7 @@ import appeng.helpers.IPriorityHost;
 import appeng.integration.modules.waila.part.BasePartWailaDataProvider;
 import appeng.integration.modules.waila.part.IPartWailaDataProvider;
 import appeng.me.GridAccessException;
+import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.parts.automation.UpgradeInventory;
 import appeng.parts.p2p.IPartGT5Power;
 import appeng.parts.p2p.PartP2PTunnel;
@@ -188,7 +194,11 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
             	initTokenTemplate();
                 super.updateCraftingList();
                 try {
-                    for (PartEUP2PInterface p2p : getOutputs()) p2p.duality.updateCraftingList();
+                    for (PartEUP2PInterface p2p : getOutputs()) {
+                    	
+                    	
+                    	
+                    	p2p.duality.updateCraftingList();}
                 } catch (GridAccessException e) {
                     // ?
                 }
@@ -368,47 +378,110 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
             }
         
     }
-    
+    public boolean refund(IMEInventory<IAEItemStack> inv,IMEInventory<IAEItemStack> recver){
+		IAEItemStack ret =inv.extractItems(
+				AEItemStack.create(token).setStackSize(amp)
+				
+				, Actionable.SIMULATE,new MachineSource(this));
+		
+		if(ret!=null){
+			
+			if(ret.getStackSize()==amp)
+			{
+			inv.extractItems(
+					AEItemStack.create(token).setStackSize(amp)
+					,Actionable.MODULATE,new MachineSource(this));
+			
+			recver.injectItems(
+					AEItemStack.create(blank_token).setStackSize(amp)
+					,Actionable.MODULATE,new MachineSource(this));
+			
+			return true;
+			}
+			
+		}
+		return false;
+	}
+    boolean prevPower;
+   
     @Override
     public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
        
     	returnItems();
-    	if(redstone()){
+    	/*if(redstone()){
     		if(this.isOutput())
     		Optional.ofNullable( this.getInput()).ifPresent(
     				s->s.redstoneticks++
     				);
     		else this.redstoneticks++;
+    	}*/
+    	boolean ok=false;
+    	if(!this.isOutput()){
+    		
+    	
+    		boolean red=this.redstone();	
+			try {
+				for (PartEUP2PInterface o : this.getOutputs()) {
+					red = red | o.redstone();
+				}
+			} catch (GridAccessException e) {
+
+				e.printStackTrace();
+			}
+    			
+    			if(prevPower==true&&red==false){
+    				ok=true;
+    				
+    			}
+    			
+    			prevPower=red;
+    		
+    		
+    		
     	}
-    	 if(redstoneticks>0){
-    		   try {
-    			   IMEMonitor<IAEItemStack> inv = getProxy().getStorage().getItemInventory();
-    			   IAEItemStack ret =inv.extractItems(
-    						AEItemStack.create(token).setStackSize(amp)
-    						
-    						, Actionable.SIMULATE,new MachineSource(this));
+    	
+    	 if(ok||redstoneticks>0){
+    			
+    		  try { 
+    			  
+    			  IMEMonitor<IAEItemStack> store = getProxy().getStorage().getItemInventory();
+    			
+    			
+    			 for( ICraftingCPU cluster:  getProxy().getCrafting().getCpus()){
+    				if(cluster instanceof CraftingCPUCluster==false){continue;}
     				
-    				if(ret!=null){
+    				
+    				  IMEInventory<IAEItemStack> inv = ((CraftingCPUCluster)cluster)
+    				.getInventory();
+    				  long prevamp=amp;
+    				  
+    				  if(refund(inv,store)){
     					
-    					if(ret.getStackSize()==amp)
-    					{redstoneticks=0;
-    					inv.extractItems(
-    							AEItemStack.create(token).setStackSize(amp)
-    							,Actionable.MODULATE,new MachineSource(this));
-    					
-    					inv.injectItems(
-    							AEItemStack.create(blank_token).setStackSize(amp)
-    							,Actionable.MODULATE,new MachineSource(this));
-    					amp=0;
-    					}
-    					
-    				}
-    				
-    				
-    				
-    			} catch (GridAccessException e) {}
+    					  ((CraftingCPUCluster)cluster).addCrafting(new PatternDetail(blank_token.copy(),
+    					   token.copy()), prevamp);
+    					  
+    					  
+    					  
+    					  ((CraftingCPUCluster)cluster).addEmitable(AEItemStack.create(blank_token.copy()).setStackSize(prevamp));
+    					  redstoneticks=0;
+    					  amp=0;
+    					 break;
+    				 }
+    			}
+    			  
+    			  
+    			  
     		   
+    		   
+    		  if( refund(store,store)){
+    		   amp=0;
+    		   redstoneticks=0;
     		  }
+    		} catch (GridAccessException e) {
+    			e.printStackTrace();
+    		}
+    	   
+    	  }
     	TickRateModulation item = duality.tickingRequest(node, ticksSinceLastCall);
         TickRateModulation fluid = dualityFluid.tickingRequest(node, ticksSinceLastCall);
         /*if (item.ordinal() >= fluid.ordinal()) {
@@ -676,14 +749,23 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 				ItemStack a=token.copy();
 				
 				ItemStack b=token.copy();
-				
+				ItemStack c=blank_token.copy();
 				if(expectedamp>0)
 					{
-					a.stackSize=b.stackSize=(int) expectedamp;
-					craftingTracker.addCraftingOption(PartEUP2PInterface.this,TileFluidInterface_EU.wrap(api, 
-						a,  
-						b
+					c.stackSize=a.stackSize=b.stackSize=(int) expectedamp;
+					
+					
+				/*	craftingTracker.addCraftingOption(PartEUP2PInterface.this,TileFluidInterface_EU.wrap(api, 
+						c,  
+						b,0
 						));
+					*/
+					craftingTracker.addCraftingOption(PartEUP2PInterface.this,TileFluidInterface_EU.wrap(api, 
+							a,  
+							b,Integer.MAX_VALUE-1
+							));
+					
+					
 				}
 				else{
 					craftingTracker.addCraftingOption(medium, api);
@@ -692,10 +774,18 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 
 			@Override
 			public void setEmitable(IAEItemStack what) {craftingTracker.setEmitable(what);}};
-			duality.provideCrafting(collector);
-		craftingTracker.addCraftingOption(this, new PatternDetail(blank_token.copy(),
+			 this.duality.provideCrafting(collector);
+			 
+			 if(!this.isOutput())
+			 craftingTracker.addCraftingOption(this, new PatternDetail(blank_token.copy(),
+						token.copy()
+					));
+			 
+			 
+		/*craftingTracker.addCraftingOption(this, new PatternDetail(blank_token.copy(),
 				token.copy()
-			));  
+			));*/
+
     }
     private void returnItems() {
 		is.removeIf(s -> {
@@ -1055,9 +1145,9 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
         return builder.build();
 	}
 	private void onChange() {
-		IEUSource e;
+		IEUManager e;
 		try {
-			e = this.getProxy().getGrid().getCache(IEUSource.class);
+			e = this.getProxy().getGrid().getCache(IEUManager.class);
 			e.removeNode(this.getProxy().getNode(),this);
 			e.addNode(this.getProxy().getNode(),this);
 			
@@ -1065,15 +1155,28 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 		}
 		
 		initTokenTemplate();
-		if(this.isP2POut())setPassive();
+		if(this.isP2POut()){
+		PartEUP2PInterface p2p = this.getInput();
+		if(p2p!=null){
+		voltage=p2p.voltage;
+         inputid=p2p.id;//id is unique, so do not modify it
+         expectedamp=p2p.expectedamp;
+         }
+		}
+		else{
+			
+			try {
+				getOutputs().forEach(s->s.onChange());
+			} catch (GridAccessException e1) {
+				e1.printStackTrace();
+			}
+			
+		}
 		postEvent();
 		
 	}
 
-private void setPassive() {
-	
-		
-}
+
 UUID inputid=zero;
 private void initTokenTemplate(){
 	token=Optional.of(new ItemStack(MyMod.eu_token, 1, 1)).map(s -> {
@@ -1299,6 +1402,18 @@ private void initTokenTemplate(){
 		if (super.getCustomName() == null) {
 			setCustomName("EU Interface");
 		}
+	}
+
+	@Override
+	public UUID getUUID() {
+		if(this.isOutput())return zero;
+		return this.id;
+	}
+
+	@Override
+	public void refund(long amp) {
+		this.amp-=amp;
+		
 	}
 	   
 	

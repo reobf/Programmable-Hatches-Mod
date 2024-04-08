@@ -3,6 +3,7 @@ package reobf.proghatches.eucrafting;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
@@ -20,7 +21,7 @@ import appeng.api.networking.IGridStorage;
 import gregtech.api.enums.GT_Values;
 import reobf.proghatches.main.MyMod;
 
-public interface IEUSource extends IGridCache{
+public interface IEUManager extends IGridCache{
 	public long inject(ISource s,long amp,long v);
 	public void voltageChanged(IDrain gridNode);
 	public interface ISource{
@@ -29,8 +30,9 @@ public interface IEUSource extends IGridCache{
 		/*public long request(long amp);
 		public void refund(long amp);
 		public long providing();*/
+		
 	}
-	
+	public void refund(UUID id,long amount);
 	public interface IDrain{
 		public default boolean isP2POut(){return false;}
 		public long getVoltage();
@@ -40,6 +42,8 @@ public interface IEUSource extends IGridCache{
 			return doInject(a,v);
 		};
 		
+		public UUID getUUID();
+		public void refund(long amp);
 		
 		public long doInject(long a, long v);
 		public long expectedAmp();
@@ -49,11 +53,11 @@ public interface IEUSource extends IGridCache{
 		
 	}
 	
-	public static class EUSource implements IEUSource{
+	public static class EUManager implements IEUManager{
 		 public IGrid myGrid;
 		 public Multimap<Long,IDrain> cache=HashMultimap.create();
 		 public ArrayList<ISource> cache2=new ArrayList<>();
-		public EUSource(final IGrid g) {
+		public EUManager(final IGrid g) {
 		        this.myGrid = g;
 		      
 		    }
@@ -129,6 +133,28 @@ public void voltageChanged(IDrain gridNode){
 		@Override
 		public void populateGridStorage(IGridStorage destinationStorage) {
 			// TODO Auto-generated method stub
+			
+		}
+
+
+		@Override
+		public void refund(UUID id, long amount) {
+		if(id.getLeastSignificantBits()==0&&0==id.getMostSignificantBits()){
+			return;
+		}
+	
+	     for(IDrain	s:cache.values()){
+			
+			if(s.getUUID().equals(id)){
+				
+				s.refund(amount);
+				return;
+			}
+			
+		};
+		
+		
+		
 			
 		}
 }

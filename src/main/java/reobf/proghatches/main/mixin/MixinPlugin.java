@@ -108,6 +108,10 @@ String cfg=
         ret.add("eucrafting."+"MixinRecipeStateDetect");
         ret.add("eucrafting."+"MixinCpuClusterAccess");
         ret.add("eucrafting."+"MixinInstantComplete");
+        ret.add("eucrafting."+"MixinCraftingRecursiveWorkaround");
+        ret.add("eucrafting."+"MixinCpuClusterEUAutoRequest");
+        ret.add("eucrafting."+"MixinRemoveExcessiveEU");
+        
         
         ret.add("MixinAwarenessForDualHatch");
         if(!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))

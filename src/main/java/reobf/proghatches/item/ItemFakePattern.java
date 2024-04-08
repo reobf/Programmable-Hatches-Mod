@@ -20,7 +20,7 @@ import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitPro
 public  class ItemFakePattern extends Item implements ICraftingPatternItem {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Override
+    @Override 
     public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
         p_77624_3_.add("Technical item, not for use.");
         super.addInformation(p_77624_1_, p_77624_2_, p_77624_3_, p_77624_4_);
@@ -43,7 +43,7 @@ public  class ItemFakePattern extends Item implements ICraftingPatternItem {
                 
         		return new TileFluidInterface_EU.WrappedPatternDetail(
         				((ItemEncodedPattern)p.getItem()).getPatternForItem(p, w)
-        				,i,o);
+        				,i,o,is.getTagCompound().getInteger("pr"));
         	}
         	
         	

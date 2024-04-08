@@ -352,7 +352,7 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
 
     public static class CircuitProviderPatternDetial implements ICraftingPatternDetails {
 @Nonnull
-final private ItemStack out;
+final public  ItemStack out;
 @Nonnull
 final int  hash;
 		@Override
@@ -452,7 +452,7 @@ final int  hash;
         @Override
         public int getPriority() {
 
-            return Integer.MAX_VALUE;
+            return Integer.MIN_VALUE;
         }
 
         @Override

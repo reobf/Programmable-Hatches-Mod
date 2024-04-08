@@ -30,6 +30,7 @@ import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
+import appeng.api.networking.crafting.ICraftingCPU;
 import appeng.api.networking.crafting.ICraftingMedium;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.crafting.ICraftingProviderHelper;
@@ -37,9 +38,11 @@ import appeng.api.networking.events.MENetworkCraftingPatternChange;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.ticking.TickRateModulation;
+import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.me.GridAccessException;
+import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.tile.TileEvent;
 import appeng.tile.events.TileEventType;
 import appeng.util.item.AEItemStack;
@@ -68,7 +71,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import reobf.proghatches.eucrafting.IEUSource.IDrain;
+import reobf.proghatches.eucrafting.IEUManager.IDrain;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
@@ -191,11 +194,20 @@ private void initTokenTemplate(){
 		};
 		
 	}
-
-
+@Override
+public void setPriority(int newValue) {
+	if(newValue>=Integer.MAX_VALUE-16)newValue=Integer.MAX_VALUE-16;
+	if(newValue==Integer.MIN_VALUE)newValue=Integer.MIN_VALUE+1;
 	
-	public ArrayList<ItemStack> is = new ArrayList<>();
+	super.setPriority(newValue);
+	
+}
 
+
+
+public ArrayList<ItemStack> phantomis= new ArrayList<>();
+	public ArrayList<ItemStack> is = new ArrayList<>();
+boolean prevPower;
 	@TileEvent(TileEventType.TICK)
 
 	public void tick() {
@@ -203,16 +215,61 @@ private void initTokenTemplate(){
 			return;
 		}
 		returnItems();
-   if(this.getWorldObj().isBlockIndirectlyGettingPowered(xCoord,yCoord,zCoord)){
-	   
-	   this.redstoneticks++;
-	   
-   }  
+		
+		boolean pw=this.getWorldObj().isBlockIndirectlyGettingPowered(xCoord,yCoord,zCoord);
+		boolean downedge=pw==false&&prevPower==true;
+		prevPower=pw;
    
-  if(redstoneticks>0){
-   try {
-	   IMEMonitor<IAEItemStack> inv = getProxy().getStorage().getItemInventory();
-	   IAEItemStack ret =inv.extractItems(
+   
+  if(downedge||redstoneticks>0){
+	
+	  try { 
+		  
+		  IMEMonitor<IAEItemStack> store = getProxy().getStorage().getItemInventory();
+		
+		
+		 for( ICraftingCPU cluster:  getProxy().getCrafting().getCpus()){
+			if(cluster instanceof CraftingCPUCluster==false){continue;}
+			
+			
+			  IMEInventory<IAEItemStack> inv = ((CraftingCPUCluster)cluster)
+			.getInventory();
+			  long prevamp=amp;
+			  
+			  if(refund(inv,store)){
+				
+				  
+				 /* ((CraftingCPUCluster)cluster).addCrafting(new PatternDetail(blank_token.copy(),
+				   token.copy()), prevamp);
+				  */
+				  
+				  
+				//  ((CraftingCPUCluster)cluster).addEmitable(AEItemStack.create(blank_token.copy()).setStackSize(prevamp));
+				 redstoneticks=0;
+				  amp=0;
+				 break;
+			 }
+		}
+		  
+		  
+		  
+	   
+	   
+	  if( refund(store,store)){
+	   amp=0;
+	   redstoneticks=0;
+	  }
+	} catch (GridAccessException e) {
+		e.printStackTrace();
+	}
+   
+  }
+	
+	}
+	
+	
+	public boolean refund(IMEInventory<IAEItemStack> inv,IMEInventory<IAEItemStack> recver){
+		IAEItemStack ret =inv.extractItems(
 				AEItemStack.create(token).setStackSize(amp)
 				
 				, Actionable.SIMULATE,new MachineSource(this));
@@ -220,40 +277,40 @@ private void initTokenTemplate(){
 		if(ret!=null){
 			
 			if(ret.getStackSize()==amp)
-			{redstoneticks=0;
+			{
 			inv.extractItems(
 					AEItemStack.create(token).setStackSize(amp)
 					,Actionable.MODULATE,new MachineSource(this));
 			
-			inv.injectItems(
+			recver.injectItems(
 					AEItemStack.create(blank_token).setStackSize(amp)
 					,Actionable.MODULATE,new MachineSource(this));
-			amp=0;
+			
+			return true;
 			}
 			
 		}
-		
-		
-		
-	} catch (GridAccessException e) {}
-   
-  }
-	
+		return false;
 	}
+	
 int redstoneticks;
 	@Override
 	public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
 
 		returnItems();
 		if (patternDetails instanceof PatternDetail) {
+			
+		
+			
 			is.add(((PatternDetail) patternDetails).out);
 			// do not call returnItems() here, or items returned will not be considered
 			// as output
 			return true;
 		}
 		if (patternDetails instanceof WrappedPatternDetail) {
+		
+			WrappedPatternDetail p=(WrappedPatternDetail) patternDetails;	
 			
-			WrappedPatternDetail p=(WrappedPatternDetail) patternDetails;
 			int[] count=new int[1];
 			int size=table.getSizeInventory();
 			for(int i=0;i<size;i++){
@@ -277,6 +334,10 @@ int redstoneticks;
 	}
 
 	private void returnItems() {
+		
+		
+		
+		
 		is.removeIf(s -> {
 
 			try {
@@ -295,10 +356,50 @@ int redstoneticks;
 			}
 		});
 
+		phantomis.removeIf(s -> {
+
+			try {boolean suc;
+			suc= Optional.ofNullable(
+
+						this.getProxy().getStorage().getItemInventory().injectItems(AEItemStack.create(s)
+
+								, Actionable.MODULATE, new MachineSource(this))
+
+				).map(IAEItemStack::getStackSize).orElse(0L) == 0L;
+				//inject items to inv to clear waitingFor
+				if(suc){
+					
+					for(ICraftingCPU x:this.getProxy().getCrafting().getCpus()){
+					ok:if(x instanceof CraftingCPUCluster){
+						CraftingCPUCluster cc=(CraftingCPUCluster) x;
+						IAEItemStack all = cc.getInventory().extractItems(AEItemStack.create(s).setStackSize(Integer.MAX_VALUE),Actionable.SIMULATE, new MachineSource(this));
+						if(all!=null&&all.getStackSize()>this.expectedamp){
+							cc.getInventory().extractItems(AEItemStack.create(s).setStackSize(1),Actionable.MODULATE, new MachineSource(this));
+						break ok;
+						}
+				//remove from cpu internal inv
+					}
+					}
+					
+					this.getProxy().getStorage().getItemInventory().injectItems(AEItemStack.create(this.blank_token)
+							,Actionable.MODULATE, new MachineSource(this));
+				//inject items to inv for eusource to recycle
+					
+					
+					
+				
+				
+				}
+				
+				return suc;
+			} catch (GridAccessException e) {
+				return false;
+			}
+		});
 	}
-	public static ICraftingPatternDetails wrap(ICraftingPatternDetails d,ItemStack extraIn,ItemStack extraOut){
+	public static ICraftingPatternDetails wrap(ICraftingPatternDetails d,ItemStack extraIn,ItemStack extraOut,int priority){
 		if(d.isCraftable())return d;
-		return new WrappedPatternDetail(d, extraIn, extraOut);
+		return new WrappedPatternDetail(d, extraIn, extraOut,priority);
 	}
 	
 	public static class WrappedPatternDetail implements ICraftingPatternDetails {
@@ -320,12 +421,13 @@ int redstoneticks;
 		
 		
 		ICraftingPatternDetails original;
-		final IAEItemStack extraIn;
-		final IAEItemStack extraOut;
-		final ItemStack extraIn0;
-		final ItemStack extraOut0;
+		public final IAEItemStack extraIn;
+		public final IAEItemStack extraOut;
+		public final ItemStack extraIn0;
+		public final ItemStack extraOut0;
 		public WrappedPatternDetail(ICraftingPatternDetails i,ItemStack extraIn,
-				ItemStack extraOut){
+				ItemStack extraOut,int priority){
+			this.priority=priority;
 			Objects.requireNonNull(extraIn);
 			Objects.requireNonNull(extraOut);
 			Objects.requireNonNull(i);
@@ -343,7 +445,7 @@ int redstoneticks;
 				s.stackTagCompound.setTag("i", extraIn0.writeToNBT(new NBTTagCompound()));
 				s.stackTagCompound.setTag("o", extraOut0.writeToNBT(new NBTTagCompound()));
 				s.stackTagCompound.setTag("p", original.getPattern().writeToNBT(new NBTTagCompound()));
-			
+				s.stackTagCompound.setInteger("pr",this.priority);
 				
 				return s;
 			}).get();
@@ -395,7 +497,11 @@ int redstoneticks;
 			
 			return original.canSubstitute();
 		}
-
+@Override
+public boolean canBeSubstitute() {
+	// TODO Auto-generated method stub
+	return true;//priority==Integer.MAX_VALUE;
+}
 		@Override
 		public ItemStack getOutput(InventoryCrafting craftingInv, World world) {
 			
@@ -405,13 +511,15 @@ int redstoneticks;
 		@Override
 		public int getPriority() {
 			
-			return original.getPriority();
+			return Integer.MAX_VALUE;//priority;
 		}
-
+		int priority=0;
 		@Override
 		public void setPriority(int priority) {
+			if(priority>=Integer.MAX_VALUE-16)priority=Integer.MAX_VALUE-16;
+			if(priority==Integer.MIN_VALUE)priority=Integer.MIN_VALUE+1;
 			original.setPriority(priority);
-			
+			this.priority=priority;
 		}}
 	public static class PatternDetail implements ICraftingPatternDetails {
 
@@ -438,9 +546,9 @@ public int hashCode() {
 	return i[0].hashCode()^o[0].hashCode();
 }
 
-		final ItemStack in;
-		final ItemStack out;
-		IAEItemStack[] i, o;
+public final ItemStack in;
+public final ItemStack out;
+public IAEItemStack[] i, o;
 
 		@Override
 		public ItemStack getPattern() {
@@ -492,7 +600,7 @@ public int hashCode() {
 		@Override
 		public boolean canSubstitute() {
 
-			return true;
+			return false;
 		}
 
 		@Override
@@ -504,7 +612,7 @@ public int hashCode() {
 		@Override
 		public int getPriority() {
 			
-			return Integer.MAX_VALUE;
+			return Integer.MAX_VALUE-1;
 		}
 
 		@Override
@@ -531,14 +639,23 @@ public int hashCode() {
 				ItemStack a=token.copy();
 				
 				ItemStack b=token.copy();
-				
+				ItemStack c=blank_token.copy();
 				if(expectedamp>0)
 					{
-					a.stackSize=b.stackSize=(int) expectedamp;
+					c.stackSize=a.stackSize=b.stackSize=(int) expectedamp;
+					
+					
+					/*craftingTracker.addCraftingOption(TileFluidInterface_EU.this,wrap(api, 
+						c,  
+						b,0
+						));*/
+					
 					craftingTracker.addCraftingOption(TileFluidInterface_EU.this,wrap(api, 
-						a,  
-						b
-						));
+							a,  
+							b,Integer.MAX_VALUE-1
+							));
+					
+					
 				}
 				else{
 					craftingTracker.addCraftingOption(medium, api);
@@ -826,9 +943,9 @@ public int hashCode() {
 			
 	}
 public void onChange(){
-	IEUSource e;
+	IEUManager e;
 	try {
-		e = this.getProxy().getGrid().getCache(IEUSource.class);
+		e = this.getProxy().getGrid().getCache(IEUManager.class);
 		e.removeNode(this.getProxy().getNode(),this);
 		e.addNode(this.getProxy().getNode(),this);
 		
@@ -944,6 +1061,16 @@ private long doOutput(long aVoltage, long aAmperage,ForgeDirection side) {
             }
         }
     }
+}
+@Override
+public UUID getUUID() {
+	
+	return this.id;
+}
+@Override
+public void refund(long amp) {
+	this.amp-=amp;
+	
 }
 
 

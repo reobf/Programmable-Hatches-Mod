@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.render.TextureFactory;
+import reobf.proghatches.gt.cover.LastWorktimeCover;
 import reobf.proghatches.gt.cover.ProgrammingCover;
 import reobf.proghatches.gt.cover.RecipeCheckResultCover;
 import reobf.proghatches.gt.cover.RecipeOutputAwarenessCover;
@@ -141,6 +142,13 @@ public class Registration implements Runnable {
             TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
         
         new RecipeCheckResultCover());
+        GregTech_API.registerCover(
+        		new ItemStack(MyMod.cover, 1, 3),
+        TextureFactory.of(
+            MACHINE_CASINGS[1][0],
+            TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
+        
+        new LastWorktimeCover());
         
         for (int i = 0; i < 15; i++) {
             ;

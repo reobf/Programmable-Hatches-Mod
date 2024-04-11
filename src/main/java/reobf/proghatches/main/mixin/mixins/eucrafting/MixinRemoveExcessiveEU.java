@@ -49,7 +49,8 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 	
 	
 	 try {
-		 Map<ICraftingPatternDetails, Object> tasks=(Map<ICraftingPatternDetails, Object>) f.get(cluster);
+		 @SuppressWarnings("unchecked")
+		Map<ICraftingPatternDetails, Object> tasks=(Map<ICraftingPatternDetails, Object>) f.get(cluster);
 		 Map<UUID,Long> num=new HashMap<>();
 	 
 	      tasks.forEach((a,b)->{
@@ -67,11 +68,11 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 			long actual=MixinCallback.getter.apply(d.getValue());
 			long excessive= actual-need;
 			if(excessive<=0)return;
-			if(!tokill.containsKey(d.getKey()))tokill.put((PatternDetail) d.getKey(), 0l);
-			tokill.computeIfPresent((PatternDetail) d.getKey(), (aa,bb)->bb+excessive);
+		//	if(!tokill.containsKey(d.getKey()))tokill.put((PatternDetail) d.getKey(), 0l);
+			tokill.merge((PatternDetail) d.getKey(),0l, (aa,bb)->aa+bb+excessive);
 			 return ;
 		});
-		// System.out.println(tokill);
+		
 		 HashMap<IAEItemStack ,Long> killnum=new HashMap();
 		 tokill.forEach((a,b)->{
 			tasks.computeIfPresent(a, 
@@ -82,8 +83,8 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 						 //killnum[0]+=b;
 						 
 						 IAEItemStack is=a.i[0].copy().setStackSize(1);
-						 if(!killnum.containsKey(is)){killnum.put(is, 0l);}
-						 killnum.computeIfPresent(is, (ax,bx)->bx+a.i[0].getStackSize());
+					
+						 killnum.merge(is,0l, (ax,bx)->ax+bx+a.i[0].getStackSize()*b);
 						 
 						 
 						 
@@ -93,15 +94,18 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 					 );
 			 
 			 });
+	
 		// HashSet<> = tokill.keySet().stream().map(S->S.i[0]).collect(Collectors.toCollection(HashSet::new));
 		 tasks.forEach((a,b)->{
 			 
 			 if(a instanceof CircuitProviderPatternDetial){
 				 CircuitProviderPatternDetial w=(CircuitProviderPatternDetial) a;
-				
+				 
+				 
+				 
+				 
 				 if(killnum.containsKey(AEItemStack.create(w.out))){
-					
-					
+					 
 					 MixinCallback.setter.accept(b,MixinCallback.getter.apply(b)-killnum.get(AEItemStack.create(w.out)));	
 					
 					
@@ -113,9 +117,15 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 			 
 		 });
 		 
-	 
+	/* tasks.forEach((s,b)->{
+		 
+		 System.out.println(s+" "+MixinCallback.getter.apply(b));
 		 
 		 
+	 });*/
+		 
+		// 
+		//			 System.out.println(killnum.get(AEItemStack.create(w.out)));
 		 
 		 
 		 

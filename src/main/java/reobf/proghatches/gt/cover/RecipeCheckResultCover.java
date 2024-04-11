@@ -23,7 +23,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import reobf.proghatches.gt.cover.WirelessControlCover.Data;
-
+@Deprecated
 public class RecipeCheckResultCover extends GT_CoverBehaviorBase<RecipeCheckResultCover.Data> {
 
 	public RecipeCheckResultCover() {

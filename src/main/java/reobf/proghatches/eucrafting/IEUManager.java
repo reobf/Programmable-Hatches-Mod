@@ -27,12 +27,14 @@ public interface IEUManager extends IGridCache{
 	public interface ISource{
 		public long getVoltage();
 		public void reset();
-		/*public long request(long amp);
-		public void refund(long amp);
-		public long providing();*/
+		
+		//directly get EU token
+		public long request(long packets);
+	
 		
 	}
 	public void refund(UUID id,long amount);
+	public long request(long v,long packets);
 	public interface IDrain{
 		public default boolean isP2POut(){return false;}
 		public long getVoltage();
@@ -156,6 +158,23 @@ public void voltageChanged(IDrain gridNode){
 		
 		
 			
+		}
+
+
+		@Override
+		public long request(long v, long packets) {
+			long req=packets;
+		
+		     for(ISource	s:cache2){
+				
+			if(s.getVoltage()!=v) continue;
+				packets-=s.request(packets);
+				if(packets==0)break;
+			};
+			
+			
+			
+			return req-packets;
 		}
 }
 	

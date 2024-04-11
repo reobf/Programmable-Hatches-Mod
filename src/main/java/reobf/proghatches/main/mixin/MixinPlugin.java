@@ -57,11 +57,14 @@ public class MixinPlugin implements IMixinConfigPlugin {
 
     }
 String cfg=
-"#set to true to disable those optional mixins if it breaks someting"+System.lineSeparator()+
+"#disable those optional mixins if it breaks someting"+System.lineSeparator()+
+"#set to true to disable otherwise apply"+System.lineSeparator()+
 "noPatternEncodingMixin=false"+System.lineSeparator()+
 "noFixTossBug=false"+System.lineSeparator()+
 "noRecipeFilterForDualHatch=false"+System.lineSeparator()+
-"noRemoveUnusedCacheInModularUIContainer=fasle"+System.lineSeparator()
+"noRemoveUnusedCacheInModularUIContainer=fasle"+System.lineSeparator()+
+"noFixRecursiveCraft=false"+System.lineSeparator()+
+"noEUCraftingMixins=false"+System.lineSeparator()
 ;
     @SuppressWarnings("unused")
     @Override
@@ -105,13 +108,16 @@ String cfg=
 
         ArrayList<String> ret = new ArrayList<>();
         ret.add("eucrafting."+"MixinWailaProvider");
-        ret.add("eucrafting."+"MixinRecipeStateDetect");
-        ret.add("eucrafting."+"MixinCpuClusterAccess");
+        //ret.add("eucrafting."+"MixinRecipeStateDetect");
+       // ret.add("eucrafting."+"MixinCpuClusterAccess");
+       
         ret.add("eucrafting."+"MixinInstantComplete");
+        if(!"true".equals(pp.get("noFixRecursiveCraft")))
         ret.add("eucrafting."+"MixinCraftingRecursiveWorkaround");
+        if(!"true".equals(pp.get("noEUCraftingMixins"))){
         ret.add("eucrafting."+"MixinCpuClusterEUAutoRequest");
         ret.add("eucrafting."+"MixinRemoveExcessiveEU");
-        
+        }
         
         ret.add("MixinAwarenessForDualHatch");
         if(!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))

@@ -712,4 +712,13 @@ int cpucount;
 		return new ItemStack(MyMod.eu_source_part).setStackDisplayName(this.voltage + "V");
 	}
 
+	@Override
+	public long request(long packets) {
+		long free=amp-consumed  ;
+		long actual=Math.min(free, packets);
+		consumed+=actual;
+		
+		return actual;
+	}
+
 }

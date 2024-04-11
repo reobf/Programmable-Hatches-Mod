@@ -457,13 +457,13 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
     				  
     				  if(refund(inv,store)){
     					
-    					  ((CraftingCPUCluster)cluster).addCrafting(new PatternDetail(blank_token.copy(),
+    					/*  ((CraftingCPUCluster)cluster).addCrafting(new PatternDetail(blank_token.copy(),
     					   token.copy()), prevamp);
     					  
     					  
     					  
     					  ((CraftingCPUCluster)cluster).addEmitable(AEItemStack.create(blank_token.copy()).setStackSize(prevamp));
-    					  redstoneticks=0;
+    					  */redstoneticks=0;
     					  amp=0;
     					 break;
     				 }
@@ -1416,6 +1416,9 @@ private void initTokenTemplate(){
 		
 	}
 	   
-	
+	@Override
+	public ItemStack getCrafterIcon() {
+	    return new ItemStack(MyMod.euinterface_p2p);
+	}
 	
 }

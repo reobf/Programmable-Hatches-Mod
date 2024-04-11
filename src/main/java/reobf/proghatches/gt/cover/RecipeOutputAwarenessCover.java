@@ -9,7 +9,7 @@ import gregtech.api.util.GT_CoverBehavior;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
-
+@Deprecated
 public class RecipeOutputAwarenessCover  extends GT_CoverBehavior{
 	  @Override
 	    public int getTickRate(ForgeDirection side, int aCoverID, int aCoverVariable, ICoverable aTileEntity) {

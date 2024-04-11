@@ -25,7 +25,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.main.registration.Registration;
-
+@Deprecated
 public class RecipeCheckResultDetector extends GT_MetaTileEntity_Hatch_InputBus
 implements IRecipeProcessingAwareHatch
 {

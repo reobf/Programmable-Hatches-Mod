@@ -49,7 +49,8 @@ public class Registration implements Runnable {
     public final static int FilterOffset = 74;// -77
 	private static final int RecipeCheckResultDetectorOffset = 78;
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public void run() {
 
         for (int i = 0; i < GT_Values.VN.length - 1; i++) {
@@ -129,19 +130,19 @@ public class Registration implements Runnable {
                 TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
             new WirelessControlCover());
         //WIP
-        GregTech_API.registerCover(
+        /*GregTech_API.registerCover(
                 new ItemStack(MyMod.cover, 1, 15),
                 TextureFactory.of(
                     MACHINE_CASINGS[1][0],
                     TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
-                new RecipeOutputAwarenessCover());
-        GregTech_API.registerCover(
+                new RecipeOutputAwarenessCover());*/
+       /* GregTech_API.registerCover(
         		new ItemStack(MyMod.cover, 1, 2),
         TextureFactory.of(
             MACHINE_CASINGS[1][0],
             TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
         
-        new RecipeCheckResultCover());
+        new RecipeCheckResultCover());*/
         GregTech_API.registerCover(
         		new ItemStack(MyMod.cover, 1, 3),
         TextureFactory.of(
@@ -218,11 +219,11 @@ public class Registration implements Runnable {
             i,
             false);
         
-        new RecipeCheckResultDetector(
+      /*  new RecipeCheckResultDetector(
                 Config.metaTileEntityOffset + RecipeCheckResultDetectorOffset,
                 "recipe_check_result_detector",
                 LangManager.translateToLocal("recipe_check_result_detector.name"),
-                 0);
+                 0);*/
 
     }
 

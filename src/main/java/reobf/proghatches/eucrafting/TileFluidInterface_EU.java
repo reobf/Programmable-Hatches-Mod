@@ -420,7 +420,7 @@ int redstoneticks;
 		}
 		
 		
-		ICraftingPatternDetails original;
+		public final ICraftingPatternDetails original;
 		public final IAEItemStack extraIn;
 		public final IAEItemStack extraOut;
 		public final ItemStack extraIn0;
@@ -1072,7 +1072,8 @@ public void refund(long amp) {
 	this.amp-=amp;
 	
 }
-
-
-
+@Override
+public ItemStack getCrafterIcon() {
+    return new ItemStack(MyMod.block_euinterface);
+}
 }

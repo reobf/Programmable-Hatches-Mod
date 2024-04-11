@@ -72,7 +72,7 @@ public class MyMod {
     // preInit "Run before anything else. Read your config, create blocks, items, etc, and register them with the
     // GameRegistry." (Remove if not needed)
     public void preInit(FMLPreInitializationEvent event) {
-    	CraftingCPUCluster.class.getFields();
+    	//CraftingCPUCluster.class.getFields();
     	net.registerMessage(new OpenPartGuiMessage.Handler(), OpenPartGuiMessage.class, 0, Side.CLIENT);
         proxy.preInit(event);
     }

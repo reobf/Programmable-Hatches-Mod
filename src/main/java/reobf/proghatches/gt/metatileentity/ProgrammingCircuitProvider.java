@@ -14,11 +14,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -63,6 +66,8 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.extensions.ArrayExt;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
@@ -554,5 +559,30 @@ public ItemStack getCrafterIcon() {
 	
 	return new ItemStack(GregTech_API.sBlockMachines, 1,  getBaseMetaTileEntity().getMetaTileID());
 }
+@Override
+public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
+		int z) {
+	//no-op  get the name on client side
+	super.getWailaNBTData(player, tile, tag, world, x, y, z);
+}
 
+@Override
+public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+		IWailaConfigHandler config) {
+	
+	currenttip.add(
+	StatCollector.translateToLocal("proghatches.provider.waila")
+			+
+	Optional.ofNullable(
+	((IInventory)accessor.getTileEntity())
+	.getStackInSlot(0)).map(s->s.getDisplayName()+"@"+s.getItemDamage()).orElse("<empty>")
+	
+			
+			);
+	
+	
+	
+	
+	super.getWailaBody(itemStack, currenttip, accessor, config);
+}
 }

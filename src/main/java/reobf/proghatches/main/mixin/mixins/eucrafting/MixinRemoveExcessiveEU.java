@@ -69,10 +69,10 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 			long excessive= actual-need;
 			if(excessive<=0)return;
 		//	if(!tokill.containsKey(d.getKey()))tokill.put((PatternDetail) d.getKey(), 0l);
-			tokill.merge((PatternDetail) d.getKey(),0l, (aa,bb)->aa+bb+excessive);
+			tokill.merge((PatternDetail) d.getKey(),excessive, Long::sum);
 			 return ;
 		});
-		
+		 System.out.println(tokill);
 		 HashMap<IAEItemStack ,Long> killnum=new HashMap();
 		 tokill.forEach((a,b)->{
 			tasks.computeIfPresent(a, 
@@ -84,7 +84,7 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 						 
 						 IAEItemStack is=a.i[0].copy().setStackSize(1);
 					
-						 killnum.merge(is,0l, (ax,bx)->ax+bx+a.i[0].getStackSize()*b);
+						 killnum.merge(is,a.i[0].getStackSize()*b, Long::sum);
 						 
 						 
 						 
@@ -94,7 +94,7 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 					 );
 			 
 			 });
-	
+		 System.out.println(killnum);
 		// HashSet<> = tokill.keySet().stream().map(S->S.i[0]).collect(Collectors.toCollection(HashSet::new));
 		 tasks.forEach((a,b)->{
 			 
@@ -117,12 +117,12 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 			 
 		 });
 		 
-	/* tasks.forEach((s,b)->{
+	 tasks.forEach((s,b)->{
 		 
 		 System.out.println(s+" "+MixinCallback.getter.apply(b));
 		 
 		 
-	 });*/
+	 });
 		 
 		// 
 		//			 System.out.println(killnum.get(AEItemStack.create(w.out)));

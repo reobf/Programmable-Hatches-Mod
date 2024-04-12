@@ -146,35 +146,78 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 				tag.setInteger("INPUT_Z",s.getTile().zCoord);
 				tag.setInteger("INPUT_DIM",s.getTile().getWorldObj().provider.dimensionId);
 			});
+		
+		PartEUP2PInterface  in = pt.isP2POut()?pt.getInput():pt;
+		Optional.ofNullable(in).ifPresent(s->{
+		tag.setLong("V", pt.voltage);
+		tag.setLong("A", pt.amp);
+		tag.setLong("EA", pt.expectedamp);
+		tag.setDouble("AA", pt.averageamp);
+		tag.setDouble("AAL",pt.injectedamp_local);
+		});
+		;
+		
+		
 		}
+	
+		
+		
 			return tag;
 		}
 		@Override
 		public List<String> getWailaBody(IPart part, List<String> currentToolTip, IWailaDataAccessor accessor,
 				IWailaConfigHandler config) {
 			if(PartEUP2PInterface.class.isInstance(part)){
-			
-			
+				currentToolTip.add(StatCollector.translateToLocalFormatted(
+						"proghatches.eu.interface.waila.V",accessor.getNBTData().getLong("V")));
+				currentToolTip.add(StatCollector.translateToLocalFormatted(
+						"proghatches.eu.interface.waila.EA",accessor.getNBTData().getLong("EA")));
+				
+				currentToolTip.add(StatCollector.translateToLocalFormatted(
+						"proghatches.eu.interface.waila.AA",String.format("%.2f",accessor.getNBTData().getDouble("AA")),accessor.getNBTData().getLong("A")));
+				//if(pt)
+				{
+				double d1=accessor.getNBTData().getDouble("AAL");
+				double d2=accessor.getNBTData().getDouble("AA");
+				
+				currentToolTip.add(StatCollector.translateToLocalFormatted(
+							"proghatches.eu.interface.waila.AAL",
+							String.format("%.2f",
+							(d1>0.01&&d1<=d2)?
+							d1/d2*100:
+						    0
+						    )
+							));
+				}
+				
+				
 			if(accessor.getNBTData().getBoolean("p2p_out")){
 				
+				UUID id=ProghatchesUtil.deser(accessor.getNBTData(), "INPUT_ID");
+				if(id.equals(zero)){return super.getWailaBody(part, currentToolTip, accessor, config);}
+			if(accessor.getNBTData().hasKey("INPUT_DIM")){
 			for(int i=0;i<4;i++)
 			currentToolTip.add(
 			StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.UUID.out."+i,
-					ProghatchesUtil.deser(accessor.getNBTData(), "INPUT_ID").toString(),
+					id.toString(),
 					accessor.getNBTData().getInteger("INPUT_X"),
 					accessor.getNBTData().getInteger("INPUT_Y"),
 					accessor.getNBTData().getInteger("INPUT_Z"),
 					accessor.getNBTData().getInteger("INPUT_DIM")
 					)
 			);
-			
+			}else{
+				
+				currentToolTip.add(StatCollector.translateToLocal("proghatches.eu.interface.waila.inputmissing"));
+			}
 			
 			
 			}else{
-				
+				UUID id=ProghatchesUtil.deser(accessor.getNBTData(), "ID");
+				if(id.equals(zero)){return super.getWailaBody(part, currentToolTip, accessor, config);}
 			currentToolTip.add(
 			StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.UUID",
-					ProghatchesUtil.deser(accessor.getNBTData(), "ID").toString())
+					id.toString())
 			
 			);	
 				
@@ -235,6 +278,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 	private boolean updatev;
 	private long instantamp;
 	private double averageamp;
+	private double averageamp_local;
 	private long amp;
 	private long minv;
 	private long maxv;
@@ -1346,6 +1390,7 @@ private void initTokenTemplate(){
 				a-=consume;
 				if(consume==0)dead.add(face);
 				injectedamp+=consume;
+				face.injectedamp_local+=consume;
 				if(a==0)break alldone;
 				
 			}
@@ -1373,11 +1418,14 @@ private void initTokenTemplate(){
 		accepted+=a;
 	}
 	long injectedamp;
+	long injectedamp_local;
 	@Override
 	public void reset() {
 		instantamp=injectedamp;
-		averageamp=(injectedamp)*0.01+averageamp*0.99;
+		averageamp=(injectedamp)/32.0+averageamp*31/32;
 		injectedamp=0;
+		averageamp_local=(injectedamp_local)/32.0+averageamp_local*31/32;
+		injectedamp_local=0;
 		accepted=0;
 		
 	}

@@ -58,6 +58,7 @@ import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.client.texture.CableBusTextures;
 import appeng.core.settings.TickRates;
+import appeng.integration.modules.waila.part.BasePartWailaDataProvider;
 import appeng.me.GridAccessException;
 import appeng.me.cache.CraftingGridCache;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
@@ -73,12 +74,15 @@ import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.tileentity.IEnergyConnected;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import io.netty.buffer.ByteBuf;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -100,6 +104,39 @@ import reobf.proghatches.util.ProghatchesUtil;
 
 public class PartEUSource extends AEBasePart
 		implements IGuiProvidingPart, ICraftingProvider, IGridTickable, IInstantCompletable, IPartGT5Power, ISource {
+	
+	public static class WailaDataProvider extends BasePartWailaDataProvider{
+		
+		@Override
+		public NBTTagCompound getNBTData(EntityPlayerMP player, IPart part, TileEntity te, NBTTagCompound tag,
+				World world, int x, int y, int z) {
+			if(PartEUSource.class.isInstance(part)){
+				PartEUSource pt = (PartEUSource) part;
+				
+				tag.setLong("V",pt.voltage);
+				tag.setLong("A",pt.amp);
+				tag.setLong("AC",pt.consumed);
+				tag.setDouble("AA",pt.averageamp);
+			}
+			return super.getNBTData(player, part, te, tag, world, x, y, z);
+		}
+		@Override
+		public List<String> getWailaBody(IPart part, List<String> currentToolTip, IWailaDataAccessor accessor,
+				IWailaConfigHandler config) {
+			if(PartEUSource.class.isInstance(part)){
+				
+				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.source.waila.V", accessor.getNBTData().getLong("V")));
+				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.source.waila.A", accessor.getNBTData().getLong("A")));
+				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.source.waila.AC", accessor.getNBTData().getLong("AC")));
+				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.source.waila.AA", String.format("%.2f",accessor.getNBTData().getDouble("AA"))));
+				
+				
+				
+			}
+			return super.getWailaBody(part, currentToolTip, accessor, config);
+		}
+		
+	}
 	@Override
 	public void markDirty() {
 		this.getTile().markDirty();
@@ -699,11 +736,12 @@ int cpucount;
 		returnItems();
 
 	}
-
+	double averageamp;
 	@Override
 	public void reset() {
+		averageamp= (ampInjectedthisTick)/32.0+averageamp*31/32;
 		ampInjectedthisTick = 0;
-
+		
 	}
 
 	@Override

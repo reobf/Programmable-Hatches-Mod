@@ -97,10 +97,23 @@ public class TileFluidInterface_EU extends TileFluidInterface implements ITileWi
 		@Override
 		public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
 				IWailaConfigHandler config) {
-			
+			UUID id=ProghatchesUtil.deser(accessor.getNBTData(), "EUFI");
+			if(id.equals(zero)){return currenttip;}
 			 currenttip.add(
-					StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.UUID",ProghatchesUtil.deser(accessor.getNBTData(), "EUFI").toString())
-					);return currenttip;
+					StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.UUID",id.toString())
+					);
+			 
+			 currenttip.add(StatCollector.translateToLocalFormatted(
+						"proghatches.eu.interface.waila.V",accessor.getNBTData().getLong("V")));
+			 currenttip.add(StatCollector.translateToLocalFormatted(
+						"proghatches.eu.interface.waila.EA",accessor.getNBTData().getLong("EA")));
+			 currenttip.add(StatCollector.translateToLocalFormatted(
+						"proghatches.eu.interface.waila.AA",String.format("%.2f",accessor.getNBTData().getDouble("AA")),accessor.getNBTData().getLong("A")));
+				System.out.println(
+			 StatCollector.translateToLocal("proghatches.eu.interface.waila.AA"));
+			 
+			 
+			 return currenttip;
 		}
 
 		@Override
@@ -114,6 +127,11 @@ public class TileFluidInterface_EU extends TileFluidInterface implements ITileWi
 		public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, int x,
 				int y, int z) {
 			ProghatchesUtil.ser(tag, ((TileFluidInterface_EU)te).id, "EUFI");
+			TileFluidInterface_EU pt=	((TileFluidInterface_EU)te);
+			tag.setLong("V", pt.voltage);
+			tag.setLong("A", pt.amp);
+			tag.setLong("EA", pt.expectedamp);
+			tag.setDouble("AA", pt.averageamp);
 			return tag;
 		}};
 	public TileFluidInterface_EU() {
@@ -804,7 +822,7 @@ public IAEItemStack[] i, o;
 	@Override
 	public void reset() {
 		instantamp=injectedamp;
-		averageamp=(injectedamp)*0.01+averageamp*0.99;
+		averageamp=(injectedamp)/32.0+averageamp*31/32;
 		injectedamp=0;
 		accepted=0;
 	}

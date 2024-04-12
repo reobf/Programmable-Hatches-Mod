@@ -124,7 +124,7 @@ inventory.getItemList().findFuzzy(type, FuzzyMode.IGNORE_ALL).forEach(s->{
 				
 				IAEItemStack u=s.copy().setStackSize(1);
 			
-				storage.merge(u,0l, (a,b)->a+b+s.getStackSize());
+				storage.merge(u,s.getStackSize(),Long::sum);
 			}
 			
 			
@@ -140,8 +140,8 @@ tasks.entrySet().forEach(s->{
 		if(d.out.getItemDamage()==1){
 			IAEItemStack key = d.o[0].copy().setStackSize(1);
 			
-			storage.merge(key, 0l,
-					(a,b)->a+b+MixinCallback.getter.apply(s.getValue())			
+			storage.merge(key, MixinCallback.getter.apply(s.getValue())	,
+					Long::sum
 					);
 			
 		}

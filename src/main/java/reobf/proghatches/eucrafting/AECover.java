@@ -1,0 +1,622 @@
+package reobf.proghatches.eucrafting;
+
+import static gregtech.api.enums.GT_Values.NW;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.EnumSet;
+import java.util.Iterator;
+
+import com.glodblock.github.common.tile.TileFluidInterface;
+import com.glodblock.github.loader.ItemAndBlockHolder;
+import com.google.common.io.ByteArrayDataInput;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+
+import appeng.api.exceptions.FailedConnection;
+import appeng.api.networking.GridFlags;
+import appeng.api.networking.IGridConnection;
+import appeng.api.networking.IGridHost;
+import appeng.api.networking.IGridNode;
+import appeng.api.networking.ticking.ITickManager;
+import appeng.api.util.AECableType;
+import appeng.api.util.DimensionalCoord;
+import appeng.core.Api;
+import appeng.core.AppEng;
+import appeng.me.GridAccessException;
+import appeng.me.GridConnection;
+import appeng.me.GridNode;
+import appeng.me.helpers.AENetworkProxy;
+import appeng.me.helpers.IGridProxyable;
+import appeng.tile.misc.TileInterface;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
+import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
+import gregtech.api.interfaces.tileentity.ICoverable;
+import gregtech.api.net.GT_Packet_SendCoverData;
+import gregtech.api.util.GT_CoverBehaviorBase;
+import gregtech.api.util.ISerializableObject;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import reobf.proghatches.eucrafting.AECover.Data;
+import reobf.proghatches.main.MyMod;
+import scala.actors.threadpool.Arrays;
+import scala.reflect.api.Trees.NewApi;
+
+public class AECover extends  GT_CoverBehaviorBase<AECover.Data>{
+	public AECover() {
+		
+		this( InterfaceData.class);
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public AECover(Class<?> c) {
+		super( Data.class);
+		clazz=c;
+	}
+	Class<?> clazz;
+	public static class DummyData implements Data {
+
+		@Override
+		public ISerializableObject copy() {
+			// TODO Auto-generated method stub
+			return this;
+		}
+
+		@Override
+		public NBTBase saveDataToNBT() {
+			// TODO Auto-generated method stub
+			return new NBTTagCompound();
+		}
+
+		@Override
+		public void writeToByteBuf(ByteBuf aBuf) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void loadDataFromNBT(NBTBase aNBT) {
+			
+			
+		}
+
+		@Override
+		public ISerializableObject readFromPacket(ByteArrayDataInput aBuf, EntityPlayerMP aPlayer) {
+			// TODO Auto-generated method stub
+			return this;
+		}
+
+		@Override
+		public AENetworkProxy getProxy() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public DimensionalCoord getLocation() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void gridChanged() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public IGridNode getGridNode(ForgeDirection dir) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public AECableType getCableConnectionType(ForgeDirection dir) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void securityBreak() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public AENetworkProxy getGridProxy() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void setGridProxy(AENetworkProxy gridProxy) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public ForgeDirection getSide() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void setSide(ForgeDirection side) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public DimensionalCoord getPos() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void setPos(DimensionalCoord pos) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public Data newInst() {
+			// TODO Auto-generated method stub
+			return this;
+		}
+
+		@Override
+		public boolean firstUpdate() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public TileEntity fakeTile() {
+			// TODO Auto-generated method stub
+			return null;
+		}}
+	
+public static interface Data extends ISerializableObject, IGridProxyable{
+	//AENetworkProxy gridProxy;
+	//ForgeDirection side=ForgeDirection.UNKNOWN;
+	//DimensionalCoord pos=new DimensionalCoord(0, 0, 0, 0);
+	default ItemStack getVisual(){
+		 return new ItemStack(
+         		ItemAndBlockHolder.FLUID_INTERFACE ,
+             1);
+		
+	}
+	default public AENetworkProxy getProxy() {
+		
+		
+		if (getGridProxy() == null) {
+	            setGridProxy ( new AENetworkProxy(
+	                this,
+	                "proxy",
+	                getVisual(),
+	                false));
+	            getGridProxy().setFlags(GridFlags.REQUIRE_CHANNEL);
+	            getGridProxy().setValidSides(EnumSet.of(getSide()));
+		   
+		 }
+		
+		 
+		 
+		 
+		 // gridProxy.setOwner();
+		 
+	        return this.getGridProxy();
+	}
+	public AENetworkProxy getGridProxy();
+	public void setGridProxy(AENetworkProxy gridProxy);
+	public ForgeDirection getSide() ;
+	public void setSide(ForgeDirection side) ;
+	public DimensionalCoord getPos() ;
+	public void setPos(DimensionalCoord pos) ;
+	@Override
+	default public ISerializableObject copy() {
+		
+		Data o=newInst();
+		o.setSide(getSide());
+		o.setPos(getPos().copy());
+		
+		
+		
+		return o;
+	}
+
+	
+	default public  Data newInst(){
+		
+		try {
+			return this.getClass().newInstance();
+		} catch (Exception e) {
+		
+			e.printStackTrace();
+		}
+		return null;
+		
+	};
+	@Override
+	default public void writeToByteBuf(ByteBuf aBuf) {
+		
+		aBuf.writeInt(getSide().ordinal());
+		DimensionalCoord loc = getLocation();
+		aBuf.writeInt(loc.x);
+		aBuf.writeInt(loc.y);
+		aBuf.writeInt(loc.z);
+		aBuf.writeInt(loc.getDimension());
+		
+	}
+	public boolean firstUpdate();
+	
+	default World getW(int dim){
+		//MinecraftServer.getServer().getEntityWorld();
+		//DimensionManager.getWorld(dim);
+		return DimensionManager.getWorld(dim);
+	}
+@Override
+default public NBTBase saveDataToNBT() {
+	NBTTagCompound tag = new NBTTagCompound();
+	NBTTagCompound ae = new NBTTagCompound();
+	getProxy().writeToNBT(ae);
+	tag.setTag("ae", ae);
+	getPos().writeToNBT(tag);
+
+	tag.setInteger("side", getSide().ordinal());
+	return tag;
+	}
+
+	@Override
+	default public void loadDataFromNBT(NBTBase aNBT) {
+		NBTTagCompound tag=(NBTTagCompound) aNBT;
+		
+		getProxy().readFromNBT(tag.getCompoundTag("ae"));
+		
+		setPos(DimensionalCoord.readFromNBT(tag));
+		setPos(new DimensionalCoord(getW(getPos().getDimension()),getPos().x,getPos().y,getPos().z));
+		setSide(ForgeDirection.getOrientation(tag.getInteger("side")));
+	}
+
+	@Override
+	default public ISerializableObject readFromPacket(ByteArrayDataInput aBuf, EntityPlayerMP aPlayer) {
+		setSide(ForgeDirection.getOrientation(aBuf.readInt()));
+		int x=aBuf.readInt();
+		int y=aBuf.readInt();
+		int z=aBuf.readInt();
+		int dim=aBuf.readInt();
+		this.setPos(new DimensionalCoord(getW(dim), x, y, z));
+		fakeTile().xCoord=x;
+		fakeTile().yCoord=y;
+		fakeTile().zCoord=z;
+		fakeTile().setWorldObj(getPos().getWorld());
+		return this;
+	}
+	public TileEntity fakeTile();
+	@Override
+	default public IGridNode getGridNode(ForgeDirection dir) {
+	
+		return getProxy().getNode();
+	}
+	@Override
+	default public AECableType getCableConnectionType(ForgeDirection dir) {
+		
+		return AECableType.SMART;
+	}
+	@Override
+	default public void securityBreak() {
+		
+		
+	}
+	@Override
+	default public DimensionalCoord getLocation() {
+		
+		return getPos();
+	}
+	@Override
+	default public void gridChanged() {
+	
+		
+	}
+	
+	default public void destroy(){
+		MyMod.LOG.info("Node destroy@"+getPos());
+		
+	try {
+		this.getProxy().getNode().getConnections().forEach(s->s.destroy());
+		this.getProxy().invalidate();
+	
+		this.getProxy().getGrid().getCache(ITickManager.class).removeNode(this.getProxy().getNode(), this);
+	} catch (GridAccessException e) {
+
+		//e.printStackTrace();
+	}}	default boolean supportFluid(){return false;}
+	default public void accept(ForgeDirection side, ICoverable aTileEntity) {
+		setPos(new DimensionalCoord((TileEntity) aTileEntity));
+		setSide(side);
+	}
+	public default void onReady(){}
+	public default boolean shiftClick(ForgeDirection side,int aCoverID,Data aCoverVariable,ICoverable aTileEntity,EntityPlayer aPlayer){return false;}
+	public default boolean nonShiftClick(ForgeDirection side,int aCoverID,Data aCoverVariable,ICoverable aTileEntity,EntityPlayer aPlayer){return false;}
+	public default void update(ICoverable aTileEntity){}
+
+	public default void addUIWidgets(Builder builder){}
+	
+}
+
+@Override
+public Data createDataObject(int aLegacyData) {
+	
+	throw new UnsupportedOperationException("no legacy");
+}
+@Override
+protected ItemStack getDisplayStackImpl(int aCoverID, Data aCoverVariable) {
+	// TODO Auto-generated method stub
+	return super.getDisplayStackImpl(aCoverID, aCoverVariable);
+}
+private Throwable t=new Throwable();
+@Override
+public Data createDataObject() {
+	
+	
+	a:if(FMLCommonHandler.instance().getEffectiveSide()==Side.CLIENT){
+		//gregtech.api.metatileentity.CoverableTileEntity.getWailaBody
+		if(!t.fillInStackTrace().getStackTrace()[4].getMethodName().equals("getWailaBody")){
+			break a;
+		}
+		//do not actually load cover data on client side
+		//or there'll be some performance issue
+		//this happens when waila trying to get cover info
+		return new DummyData();
+		
+		
+	};
+	
+	try {
+		return (Data) clazz.newInstance();
+	} catch (Exception e) {
+	
+		throw new RuntimeException(e);
+	}
+}
+
+public void chunkUnload(Data t){
+	t.getProxy().onChunkUnload();
+	
+	
+}
+@Override
+	public void placeCover(ForgeDirection side, ItemStack aCover, ICoverable aTileEntity) {
+	super.placeCover(side, aCover, aTileEntity);
+	
+	((Data)	aTileEntity.getComplexCoverDataAtSide(side))
+	.accept(side,aTileEntity);
+		
+	}
+
+
+ protected boolean onCoverRightClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity, EntityPlayer aPlayer, float aX, float aY, float aZ) {
+	 if(aCoverVariable.nonShiftClick( side,  aCoverID,  aCoverVariable,
+			 aTileEntity,  aPlayer)){return true;};
+	return false;
+};
+
+@Override
+protected boolean onCoverShiftRightClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
+		ICoverable aTileEntity, EntityPlayer aPlayer) {
+	if(aCoverVariable.shiftClick( side,  aCoverID,  aCoverVariable,
+			 aTileEntity,  aPlayer)){return true;};
+	
+	if (!aPlayer.worldObj.isRemote) 
+	{
+	NW.sendPacketToAllPlayersInRange(aPlayer.getEntityWorld(), new GT_Packet_SendCoverData(side,aCoverID,aCoverVariable,aTileEntity), aTileEntity.getXCoord(), aTileEntity.getZCoord());
+
+	aPlayer.openGui(MyMod.instance, side.ordinal(), aPlayer.getEntityWorld(),
+			aTileEntity.getXCoord(), aTileEntity.getYCoord(), aTileEntity.getZCoord());
+	}
+	return true;
+}
+
+@Override
+public boolean allowsTickRateAddition() {
+	
+	return false;
+}
+@Override
+protected int getTickRateImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity) {
+
+	return 1;
+}
+@Override
+protected boolean onCoverRemovalImpl(ForgeDirection side, int aCoverID, Data data, ICoverable aTileEntity,
+		boolean aForced) {
+	data.destroy();
+	return true;
+}
+/*
+@Override
+protected void onBaseTEDestroyedImpl(ForgeDirection side, int aCoverID, Data data,
+		ICoverable aTileEntity) {
+	data.getProxy().getNode().getConnections().forEach(s->s.destroy());
+	data.getProxy().invalidate();
+	try {
+		data.getProxy().getGrid().getCache(ITickManager.class).removeNode(data.getProxy().getNode(), data);
+	} catch (GridAccessException e) {
+	
+		e.printStackTrace();
+	}
+}*/
+static Method m;
+static{
+	try {
+		m=GridNode.class.getDeclaredMethod("isValidDirection",ForgeDirection.class);
+	    m.setAccessible(true);
+	} catch (Exception e) {
+		
+		e.printStackTrace();
+	}
+ 
+}
+
+static private boolean canConnect(Object obj,ForgeDirection dir){
+	
+	if(obj instanceof GridNode){
+		GridNode node=(GridNode) obj;
+		try {
+			return (Boolean)m.invoke(obj, dir);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	return false;
+	// private boolean canConnect(final GridNode from, final ForgeDirection dir) {
+}
+@Override
+protected Data doCoverThingsImpl(ForgeDirection side, byte aInputRedstone, int aCoverID, Data data,
+		ICoverable aTileEntity, long aTimer) {
+	if(data.firstUpdate())data.accept(side, aTileEntity);
+	
+	if(!data.getProxy().isReady())
+		{data.getProxy().onReady();
+		data.onReady();
+		}
+	data.update(aTileEntity);
+	
+	
+	TileEntity te=aTileEntity.getTileEntityAtSide(side);
+	lab:if(te!=null&&te instanceof IGridHost){
+		Iterator<IGridConnection> it = data
+		.getProxy()
+		.getNode()
+		.getConnections().iterator();
+		IGridConnection item=null;
+		IGridNode thenode = ((IGridHost)te).getGridNode(side.getOpposite());
+		if(thenode==null){break lab;}//this is possible if there're only parts no cable
+		boolean found=false;
+	 
+		
+		boolean thisSideValid=canConnect(thenode,side.getOpposite())
+			;
+			 
+	
+	    while(it.hasNext()){
+			item=it.next();
+			if(item.b()==thenode){
+				if(thisSideValid==false){item.destroy();}
+				else
+				found=true;
+				break;};
+			
+		}
+		
+		if(found==false&&thisSideValid){
+		try {
+			new GridConnection(data.getProxy().getNode(), thenode, side);
+		
+		MyMod.LOG.info("Node connect@"+data.getPos());
+		} catch (FailedConnection e) {
+			e.printStackTrace();
+		}
+		
+	};
+	
+	}
+	
+	
+	
+	
+	return super.doCoverThingsImpl(side, aInputRedstone, aCoverID, data, aTileEntity, aTimer);
+}
+
+@Override
+protected boolean letsEnergyInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity) {
+	return true;
+}@Override
+protected boolean letsEnergyOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
+		ICoverable aTileEntity) {return true;
+}@Override
+protected boolean letsFluidInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, Fluid aFluid,
+		ICoverable aTileEntity) {
+	return true;
+}@Override
+protected boolean letsFluidOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, Fluid aFluid,
+		ICoverable aTileEntity) {
+	return true;
+}@Override
+protected boolean letsItemsInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, int aSlot,
+		ICoverable aTileEntity) {
+	return true;
+}@Override
+protected boolean letsItemsOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, int aSlot,
+		ICoverable aTileEntity) {
+	return true;
+}@Override
+protected boolean letsRedstoneGoInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
+		ICoverable aTileEntity) {
+	return true;
+}@Override
+protected boolean letsRedstoneGoOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
+		ICoverable aTileEntity) {
+	return true;
+}
+
+@Override
+public boolean hasCoverGUI() {
+	
+	return true;
+}
+@Override
+public boolean useModularUI() {
+	// TODO Auto-generated method stub
+	return true;
+}
+@Override
+public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
+	return new AECoverUIFactory(buildContext, ((Data)buildContext.getTile().getComplexCoverDataAtSide(buildContext.getCoverSide()))).createWindow()
+	 ;
+}
+
+
+private class AECoverUIFactory extends UIFactory {
+	  private static final int startX = 10;
+      private static final int startY = 25;
+      private static final int spaceX = 18;
+      private static final int spaceY = 18;
+	public AECoverUIFactory(GT_CoverUIBuildContext buildContext,Data d) {
+		super(buildContext);
+	this.data=d;
+	}
+	Data data;
+	@Override
+	public ModularWindow createWindow() {
+		// TODO Auto-generated method stub
+		return super.createWindow();
+	}
+	@Override
+	protected void addUIWidgets(Builder builder) {
+		
+		data.addUIWidgets(builder);
+	}
+}
+@Override
+public boolean isCoverPlaceable(ForgeDirection side, ItemStack aStack, ICoverable aTileEntity) {
+	if(aTileEntity instanceof IGridProxyable&&
+			((IGridProxyable)aTileEntity).getProxy()!=null
+	){return false;}//cannot be placed on ME hatches
+	return super.isCoverPlaceable(side, aStack, aTileEntity);
+}
+}

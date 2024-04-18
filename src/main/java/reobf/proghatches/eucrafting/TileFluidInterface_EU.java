@@ -86,7 +86,7 @@ public class TileFluidInterface_EU extends TileFluidInterface implements ITileWi
 			
 			return null;
 		}
-
+		
 		@Override
 		public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
 				IWailaConfigHandler config) {
@@ -109,9 +109,9 @@ public class TileFluidInterface_EU extends TileFluidInterface implements ITileWi
 						"proghatches.eu.interface.waila.EA",accessor.getNBTData().getLong("EA")));
 			 currenttip.add(StatCollector.translateToLocalFormatted(
 						"proghatches.eu.interface.waila.AA",String.format("%.2f",accessor.getNBTData().getDouble("AA")),accessor.getNBTData().getLong("A")));
-				System.out.println(
+				/*System.out.println(
 			 StatCollector.translateToLocal("proghatches.eu.interface.waila.AA"));
-			 
+			 */
 			 
 			 return currenttip;
 		}
@@ -139,7 +139,11 @@ public class TileFluidInterface_EU extends TileFluidInterface implements ITileWi
 		id = UUID.randomUUID();
 		initTokenTemplate();
 	}
-
+@Override
+public ItemStack getSelfRep() {
+	
+	return new ItemStack(MyMod.block_euinterface);
+}
 	private UUID id;
 	final static UUID zero = new UUID(0, 0);
 
@@ -1093,5 +1097,10 @@ public void refund(long amp) {
 @Override
 public ItemStack getCrafterIcon() {
     return new ItemStack(MyMod.block_euinterface);
+}
+@Override
+protected ItemStack getItemFromTile(Object obj) {
+	// TODO Auto-generated method stub
+	return getCrafterIcon();
 }
 }

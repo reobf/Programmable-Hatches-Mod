@@ -1,25 +1,67 @@
 package reobf.proghatches.main;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.WeakHashMap;
 
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemEditableBook;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
+import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.event.world.WorldEvent;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.glodblock.github.client.gui.GuiDualInterface;
+import com.glodblock.github.client.gui.container.ContainerDualInterface;
+import com.glodblock.github.common.Config;
+import com.glodblock.github.common.parts.PartFluidP2PInterface;
+import com.glodblock.github.inventory.FluidConvertingInventoryAdaptor;
+import com.glodblock.github.loader.ItemAndBlockHolder;
+import com.glodblock.github.util.ModAndClassUtil;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+
+import appeng.api.config.Upgrades;
+import appeng.client.gui.implementations.GuiPriority;
+import appeng.client.gui.widgets.ITooltip;
+import appeng.container.AEBaseContainer;
+import appeng.container.implementations.ContainerPriority;
+import appeng.container.slot.AppEngSlot;
+import appeng.container.slot.AppEngSlot.hasCalculatedValidness;
+import appeng.container.slot.SlotDisabled;
+import appeng.container.slot.SlotFake;
+import appeng.container.slot.SlotNormal;
+import appeng.core.localization.GuiText;
+import appeng.helpers.DualityInterface;
+import appeng.helpers.IInterfaceHost;
+import appeng.helpers.IPriorityHost;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
+import appeng.tile.inventory.AppEngInternalAEInventory;
+import appeng.tile.inventory.AppEngInternalInventory;
+import appeng.transformer.annotations.Integration.Interface;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -29,13 +71,22 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import cpw.mods.fml.common.network.IGuiHandler;
+import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
+import gregtech.api.interfaces.tileentity.ICoverable;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.common.blocks.GT_Block_Machines;
+import gregtech.common.covers.CoverInfo;
 import reobf.proghatches.Tags;
 import reobf.proghatches.block.TileIOHub.OCApi;
 import reobf.proghatches.eucrafting.BlockEUInterface;
+import reobf.proghatches.eucrafting.AECover;
+import reobf.proghatches.eucrafting.InterfaceData;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.net.OpenPartGuiMessage;
+import reobf.proghatches.net.PriorityMessage;
 import reobf.proghatches.oc.WirelessPeripheralManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
@@ -46,6 +97,8 @@ import reobf.proghatches.util.ProghatchesUtil;
  */
 )
 public class MyMod {
+	public static MyMod instance;
+	{instance=this;}
 	public static SimpleNetworkWrapper net=new SimpleNetworkWrapper(Tags.MODID);
     public static Item progcircuit;
     public static Item toolkit;
@@ -72,9 +125,11 @@ public class MyMod {
     // preInit "Run before anything else. Read your config, create blocks, items, etc, and register them with the
     // GameRegistry." (Remove if not needed)
     public void preInit(FMLPreInitializationEvent event) {
-    	//CraftingCPUCluster.class.getFields();
+    	FluidConvertingInventoryAdaptor.class.getFields();
     	net.registerMessage(new OpenPartGuiMessage.Handler(), OpenPartGuiMessage.class, 0, Side.CLIENT);
-        proxy.preInit(event);
+    	net.registerMessage(new PriorityMessage.Handler(), PriorityMessage.class, 1, Side.SERVER);
+        
+    	proxy.preInit(event);
     }
 
     @Mod.EventHandler
@@ -147,6 +202,115 @@ public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev){
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
+        NetworkRegistry.INSTANCE.registerGuiHandler(this, new IGuiHandler(){
+        	public  IInterfaceHost getHost(int ID,World world, int x, int y, int z){
+        		
+        		CoverInfo info=((ICoverable)world.getTileEntity(x, y, z)).getCoverInfoAtSide(ForgeDirection.getOrientation(ID&0b111));
+				
+        		
+        		
+        		return new FakeHost(world.getTileEntity(x, y, z),(IInterfaceHost) info.getCoverData());
+        		
+        	}
+			@Override
+			public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+				 IInterfaceHost host = getHost(ID, world, x, y, z);
+				  if((ID&0b1000)>0){
+				 if(host instanceof IPriorityHost)
+				 return new ContainerPriority(player.inventory, (IPriorityHost) host);
+				  return null;
+				  }
+				 return new ContainerDualInterface(player.inventory,host);
+			}
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+				IInterfaceHost host = getHost(ID, world, x, y, z);
+			
+				  if((ID&0b1000)>0){
+				 if(host instanceof IPriorityHost)
+				 return new GuiPriority(player.inventory, (IPriorityHost) host);
+				  return null;
+				  }
+				 return new GuiDualInterface(player.inventory, host){
+					 @Override
+					public void initGui() {
+						super.initGui();
+							this.buttonList.removeIf(s->{
+						    return ((ITooltip)s).getMessage().equals(StatCollector.translateToLocal("ae2fc.tooltip.switch_fluid_interface"));});
+							this.inventorySlots.inventorySlots.replaceAll(s->{
+							//	
+								if(s instanceof SlotNormal||s instanceof SlotFake){
+									AppEngSlot ss=(AppEngSlot) s;
+									
+									
+									if(ss.inventory instanceof InterfaceData.DisabledInventory||
+											((getTileOf(ss.inventory))))
+											
+											{
+										return new SlotDisabled(ss.inventory, ss.getSlotIndex(), ss.getX(), ss.getY());
+									}
+								}
+								
+								return s;
+							});
+					
+					 
+					 }
+					 private boolean getTileOf(IInventory inventory) {
+						if(inventory instanceof AppEngInternalInventory)
+						 try {
+							Field f=AppEngInternalInventory.class.getDeclaredField("te");
+							f.setAccessible(true);
+							//System.out.println(((DualityInterface)f.get(inventory)).getHost());
+							return ((DualityInterface)f.get(inventory)).getHost()  instanceof InterfaceData.DisabledInventory;
+							
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						if(inventory instanceof AppEngInternalAEInventory)
+						 try {
+								Field f=AppEngInternalAEInventory.class.getDeclaredField("te");
+								f.setAccessible(true);
+								//System.out.println(((DualityInterface)f.get(inventory)).getHost());
+								return ((DualityInterface)f.get(inventory)).getHost()  instanceof InterfaceData.DisabledInventory;
+								
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						 
+						 
+						return false;
+					}
+					@Override
+					protected void actionPerformed(GuiButton btn) {
+					
+					if(	((ITooltip)btn).getMessage().equals( GuiText.Priority.getLocal())){
+						MyMod.net.sendToServer(new PriorityMessage(x,y,z,ForgeDirection.getOrientation(ID&0b111)));
+						
+						return;
+						
+					}
+						super.actionPerformed(btn);
+					}
+					 
+				 };
+			}});
+       for(ItemStack s:new ItemStack[]{new ItemStack(block_euinterface),new ItemStack(euinterface_p2p)})
+      
+        {
+        Upgrades.CRAFTING.registerItem(s, 1);
+        
+        Upgrades.PATTERN_CAPACITY.registerItem(s, 3);
+      
+   
+       // Upgrades.CRAFTING.registerItem(s, 1);
+     
+        Upgrades.ADVANCED_BLOCKING.registerItem(s, 1);
+        }
+      
+        
     }
 
     @Mod.EventHandler
@@ -155,6 +319,8 @@ public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev){
         proxy.serverStarting(event);
         WirelessPeripheralManager.stations.clear();
         WirelessPeripheralManager.cards.clear();
+        //call.clear();
+        //call2.clear();
     }
     
     public static ItemStack tutorial() {return tutorial(book,"programmable_hatches.tutorial");}
@@ -180,5 +346,61 @@ public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev){
         return is;
 
     }
-
+   
+    
+   /* public static WeakHashMap<World,Collection<Runnable>> call=new WeakHashMap<>();
+    public static WeakHashMap<Chunk,Collection<Runnable>> call2=new WeakHashMap<>();
+     @SubscribeEvent
+    public void onWorldUnload(WorldEvent.Unload event) {
+    	if(event.world.isRemote)return;
+    	call.get(event.world).forEach(Runnable::run);
+    	call.remove(event.world);
+    	
+    }
+    @SubscribeEvent
+    public void onChunkUnload(ChunkEvent.Unload event) {
+    	if(event.world.isRemote)return;
+    	call2.get(event.getChunk()).forEach(Runnable::run);
+    	call2.remove(event.getChunk());
+    }
+    public static void reg(TileEntity host,Runnable cb){
+    	call.computeIfAbsent(host.getWorldObj(), s->new ArrayList<>());
+    	call.get(host).add(cb);
+    	call2.computeIfAbsent(host.getc, s->new ArrayList<>());
+    	call2.get(host).add(cb);
+    	
+    	
+    	
+    	
+    }*/
+    @SubscribeEvent
+    public void breakBlock(BlockEvent.BreakEvent b){
+    	System.out.println(b.block);
+    	
+    	if(b.block instanceof GT_Block_Machines){
+    		TileEntity te=b.world.getTileEntity(b.x, b.y, b.z);
+    		if(te instanceof ICoverable){
+    			ICoverable c=(ICoverable) te;
+    			for(ForgeDirection dir:ForgeDirection.VALID_DIRECTIONS){
+    			Optional.ofNullable(
+    			c.getComplexCoverDataAtSide(dir))
+    			.ifPresent(s->{
+    				if(s instanceof AECover.Data){
+    					((AECover.Data)s).destroy();
+    					
+    				}
+    				
+    				
+    			});
+    			
+    			
+    			}
+    		}
+    		
+    	}
+    	
+    	
+    }
+    
+    
 }

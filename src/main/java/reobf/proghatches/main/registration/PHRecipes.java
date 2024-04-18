@@ -23,6 +23,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.OreDictionary.OreRegisterEvent;
 
 import com.glodblock.github.loader.ItemAndBlockHolder;
 
@@ -539,7 +540,7 @@ if(Config.skipRecipeAdding)return;
         pc0.forEach((s) -> {
             GT_Values.RA.stdBuilder()
                 .itemInputs(new ItemStack(Items.book), s)
-                .fluidInputs(Materials.SolderingAlloy.getMolten(4000))
+                .fluidInputs(Materials.SolderingAlloy.getMolten(144))
                 .itemOutputs(MyMod.tutorial()
 
                 )
@@ -547,7 +548,25 @@ if(Config.skipRecipeAdding)return;
                 .eut(GT_Values.VP[2])
                 .addTo(RecipeMaps.assemblerRecipes);
         });
+      
+            GT_Values.RA.stdBuilder()
+                .itemInputs(new ItemStack(Items.book), new ItemStack(GameRegistry.findItem("IC2","itemBatREDischarged"),0,OreDictionary.WILDCARD_VALUE))
+                .fluidInputs(Materials.BatteryAlloy.getMolten(144))
+                .itemOutputs(MyMod.tutorial("programmable_hatches.eucreafting.tutorial")
 
+                )
+                .duration(20 * SECONDS)
+                .eut(GT_Values.VP[2])
+                .addTo(RecipeMaps.assemblerRecipes);
+            GT_Values.RA.stdBuilder()
+            .itemInputs(new ItemStack(Items.book), new ItemStack(GameRegistry.findItem("IC2","itemBatRE"),0,OreDictionary.WILDCARD_VALUE))
+            .fluidInputs(Materials.BatteryAlloy.getMolten(144))
+            .itemOutputs(MyMod.tutorial("programmable_hatches.eucreafting.tutorial")
+
+            )
+            .duration(20 * SECONDS)
+            .eut(GT_Values.VP[2])
+            .addTo(RecipeMaps.assemblerRecipes);
       //////////////
       
        

@@ -8,13 +8,17 @@ import net.minecraft.item.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import com.glodblock.github.common.item.FCBaseItemBlock;
 import com.glodblock.github.common.tabs.FluidCraftingTabs;
 import com.glodblock.github.common.tile.TileFluidAutoFiller;
+import com.glodblock.github.loader.ItemAndBlockHolder;
+import com.glodblock.github.util.ModAndClassUtil;
 import com.glodblock.github.util.NameConst;
 import com.google.common.base.Optional;
 
 import appeng.api.AEApi;
+import appeng.api.config.Upgrades;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
@@ -167,6 +171,8 @@ public class CommonProxy {
                  "proghatches.euinterface.p2p");
     	 
         new PHRecipes().run();
+        
+        
        
     }
     public static void callbackRegister(IWailaRegistrar registrar) {

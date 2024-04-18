@@ -290,7 +290,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 	private long accepted;
 	private int redstoneticks;
 	private ArrayList<ItemStack> is=new ArrayList<>();;
-
+	
     public PartEUP2PInterface(ItemStack is) {
         super(is);
         id = UUID.randomUUID();
@@ -402,7 +402,10 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 
     
     public boolean redstone() {int power;//=0;
-       
+       if(data!=null){
+    	  
+    	    return data.getRedstone();
+       }
             final int x = this.getTile().xCoord + this.getSide().offsetX;
             final int y = this.getTile().yCoord + this.getSide().offsetY;
             final int z = this.getTile().zCoord + this.getSide().offsetZ;
@@ -912,6 +915,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
+      
         duality.readFromNBT(data);
         id = ProghatchesUtil.deser(data, "EUFI");
 		if (id.equals(zero)) {
@@ -925,6 +929,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 		averageamp=data.getDouble("averageamp");
 		redstoneticks=data.getInteger("redstoneticks");
 		expectedamp=data.getLong("expectedamp");
+		redstoneOverride=data.getBoolean("redstoneOverride");
 		is.clear();
 		IntStream.range(0, data.getInteger("pending_size")).forEach(s->{
 			
@@ -934,10 +939,11 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 		
 		initTokenTemplate();
     }
-
+public boolean redstoneOverride;
     @Override
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
+     
         duality.writeToNBT(data);
         ProghatchesUtil.ser(data, id, "EUFI");
         ProghatchesUtil.ser(data,inputid,"EUFI_INPUT");
@@ -948,6 +954,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 		data.setDouble("averageamp", averageamp);
 		data.setInteger("redstoneticks",redstoneticks);
 		data.setLong("expectedamp",expectedamp);
+		data.setBoolean("redstoneOverride",redstoneOverride);
 		for(int i=0;i<is.size();i++)
 		{
 			data.setTag("pending_"+i,is.get(i).writeToNBT(new NBTTagCompound()));
@@ -1003,13 +1010,13 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 	@Override
 	public IInventory getPatterns() {
 		// TODO Auto-generated method stub
-		return null;
+		return duality.getPatterns();
 	}
 
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
-		return null;
+		return "xx";
 	}
 
 	@Override
@@ -1284,6 +1291,12 @@ private void initTokenTemplate(){
 	private long doOutput(long aVoltage, long aAmperage,ForgeDirection side) {
 		   
 	     {
+	    	 if(data!=null){
+	    		 
+	    		 return data.doOutput(aVoltage,aAmperage);
+	    	 }
+	    	 
+	    	 
 	        TileEntity te = this.getTarget(side);
 	        if (te == null) {
 	            return 0L;
@@ -1467,6 +1480,16 @@ private void initTokenTemplate(){
 	@Override
 	public ItemStack getCrafterIcon() {
 	    return new ItemStack(MyMod.euinterface_p2p);
+	}
+	InterfaceP2PEUData data;
+	public PartEUP2PInterface markCoverData(InterfaceP2PEUData interfaceP2PEUData) {
+		data=interfaceP2PEUData;
+		return this;
+	}
+	@Override
+	public ItemStack getSelfRep() {
+		// TODO Auto-generated method stub
+		return new ItemStack(MyMod.euinterface_p2p);
 	}
 	
 }

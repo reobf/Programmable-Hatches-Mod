@@ -4,12 +4,29 @@ import static gregtech.api.enums.Textures.BlockIcons.MACHINE_CASINGS;
 import static reobf.proghatches.main.Config.*;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
+import com.glodblock.github.loader.ItemAndBlockHolder;
+
+import appeng.api.AEApi;
+import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-
+import net.minecraft.util.IIcon;
+import net.minecraftforge.common.util.ForgeDirection;
 import gregtech.api.GregTech_API;
+import gregtech.api.enums.Dyes;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.render.TextureFactory;
+import gregtech.api.util.LightingHelper;
+import gregtech.common.render.GT_CopiedBlockTexture;
+import reobf.proghatches.eucrafting.AECover;
+import reobf.proghatches.eucrafting.InterfaceData;
+import reobf.proghatches.eucrafting.InterfaceP2PData;
+import reobf.proghatches.eucrafting.InterfaceP2PEUData;
+import reobf.proghatches.eucrafting.InterfaceP2PNoFluidData;
 import reobf.proghatches.gt.cover.LastWorktimeCover;
 import reobf.proghatches.gt.cover.ProgrammingCover;
 import reobf.proghatches.gt.cover.RecipeCheckResultCover;
@@ -159,7 +176,40 @@ public class Registration implements Runnable {
                     .of(MACHINE_CASINGS[i][0], TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_ARM)),
                 new SmartArmCover(i));
         }
-
+        
+        GregTech_API.registerCover(
+        		new ItemStack(MyMod.cover,1,32),
+        		TextureFactory.of(
+                		AEApi.instance().blocks().blockInterface.block())
+        ,
+        
+        new AECover(InterfaceData.class));
+        
+        
+        GregTech_API.registerCover(
+        		new ItemStack(MyMod.cover,1,33),
+        		TextureFactory.of(
+                		ItemAndBlockHolder.INTERFACE),
+        
+        new AECover(InterfaceData.FluidInterfaceData_TileFluidInterface.class));
+        GregTech_API.registerCover(
+        		new ItemStack(MyMod.cover,1,34),
+        		TextureFactory.of(
+        				AEApi.instance().blocks().blockInterface.block()),
+        
+        new AECover(InterfaceP2PNoFluidData.class));
+        GregTech_API.registerCover(
+        		new ItemStack(MyMod.cover,1,35),
+        		TextureFactory.of(
+                		ItemAndBlockHolder.INTERFACE),
+        
+        new AECover(InterfaceP2PData.class));
+        GregTech_API.registerCover(
+        		new ItemStack(MyMod.cover,1,36),
+        		new DeferredGetterTexture(()->MyMod.block_euinterface,ForgeDirection.UP, 0, Dyes._NULL.mRGBa, false),
+        
+        new AECover(InterfaceP2PEUData.class));
+        
         new DualInputHatchSlave<>(
             Config.metaTileEntityOffset + SlaveOffset,
             "hatch.dualinput.slave",
@@ -226,5 +276,91 @@ public class Registration implements Runnable {
                  0);*/
 
     }
+   // new GT_CopiedBlockTexture(null,ForgeDirection.UP, 0, Dyes._NULL.mRGBa, false){
+		public class DeferredGetterTexture extends GT_CopiedBlockTexture{
+			  private IIcon getIcon(int ordinalSide) {
+			       
+			        return getBlock().getIcon(ordinalSide, 0);
+			    }
+			@Override
+			    public void renderXPos(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
+			        final IIcon aIcon = getIcon(ForgeDirection.EAST.ordinal());
+			        aRenderer.field_152631_f = true;
+			        startDrawingQuads(aRenderer, 1.0f, 0.0f, 0.0f);
+			        new LightingHelper(aRenderer).setupLightingXPos(aBlock, aX, aY, aZ)
+			            .setupColor(ForgeDirection.EAST, 0xffffff);
+			        aRenderer.renderFaceXPos(aBlock, aX, aY, aZ, aIcon);
+			        draw(aRenderer);
+			        aRenderer.field_152631_f = false;
+			    }
 
+			    @Override
+			    public void renderXNeg(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
+			        startDrawingQuads(aRenderer, -1.0f, 0.0f, 0.0f);
+			        final IIcon aIcon = getIcon(ForgeDirection.WEST.ordinal());
+			        new LightingHelper(aRenderer).setupLightingXNeg(aBlock, aX, aY, aZ)
+			            .setupColor(ForgeDirection.WEST, 0xffffff);
+			        aRenderer.renderFaceXNeg(aBlock, aX, aY, aZ, aIcon);
+			        draw(aRenderer);
+			    }
+
+			    @Override
+			    public void renderYPos(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
+			        startDrawingQuads(aRenderer, 0.0f, 1.0f, 0.0f);
+			        final IIcon aIcon = getIcon(ForgeDirection.UP.ordinal());
+			        new LightingHelper(aRenderer).setupLightingYPos(aBlock, aX, aY, aZ)
+			            .setupColor(ForgeDirection.UP, 0xffffff);
+			        aRenderer.renderFaceYPos(aBlock, aX, aY, aZ, aIcon);
+			        draw(aRenderer);
+			    }
+
+			    @Override
+			    public void renderYNeg(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
+			        startDrawingQuads(aRenderer, 0.0f, -1.0f, 0.0f);
+			        final IIcon aIcon = getIcon(ForgeDirection.DOWN.ordinal());
+			        new LightingHelper(aRenderer).setupLightingYNeg(aBlock, aX, aY, aZ)
+			            .setupColor(ForgeDirection.DOWN, 0xffffff);
+			        aRenderer.renderFaceYNeg(aBlock, aX, aY, aZ, aIcon);
+			        draw(aRenderer);
+			    }
+
+			    @Override
+			    public void renderZPos(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
+			        startDrawingQuads(aRenderer, 0.0f, 0.0f, 1.0f);
+			        final IIcon aIcon = getIcon(ForgeDirection.SOUTH.ordinal());
+			        new LightingHelper(aRenderer).setupLightingZPos(aBlock, aX, aY, aZ)
+			            .setupColor(ForgeDirection.SOUTH, 0xffffff);
+			        aRenderer.renderFaceZPos(aBlock, aX, aY, aZ, aIcon);
+			        draw(aRenderer);
+			    }
+
+			    @Override
+			    public void renderZNeg(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
+			        startDrawingQuads(aRenderer, 0.0f, 0.0f, -1.0f);
+			        final IIcon aIcon = getIcon(ForgeDirection.NORTH.ordinal());
+			        aRenderer.field_152631_f = true;
+			        new LightingHelper(aRenderer).setupLightingZNeg(aBlock, aX, aY, aZ)
+			            .setupColor(ForgeDirection.NORTH, 0xffffff);
+			        aRenderer.renderFaceZNeg(aBlock, aX, aY, aZ, aIcon);
+			        draw(aRenderer);
+			        aRenderer.field_152631_f = false;
+			    }
+
+	protected DeferredGetterTexture(Supplier<Block> aBlock, ForgeDirection up, int aMeta, short[] aRGBa, boolean allowAlpha) {
+		super(null, up.ordinal(), aMeta, aRGBa, allowAlpha); 
+		block=aBlock;
+	}Supplier<Block> block;
+	@Override
+    public boolean isValidTexture() {
+        return true;
+    }
+
+    @Override
+    public Block getBlock() {
+        return block.get();
+    }
+	
+	
+	
+	}
 }

@@ -26,6 +26,7 @@ import li.cil.oc.api.network.SimpleComponent.SkipInjection;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.PatternDetail;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.WrappedPatternDetail;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
+import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.mixin.MixinCallback;
 import reobf.proghatches.util.ProghatchesUtil;
 
@@ -72,13 +73,13 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 			tokill.merge((PatternDetail) d.getKey(),excessive, Long::sum);
 			 return ;
 		});
-		 System.out.println(tokill);
+		// System.out.println(tokill);
 		 HashMap<IAEItemStack ,Long> killnum=new HashMap();
 		 tokill.forEach((a,b)->{
 			tasks.computeIfPresent(a, 
 					 
 					 (x,y)->{
-						 
+						 MyMod.LOG.info("Removing Excessive EU Request:"+b);
 						 MixinCallback.setter.accept(y,MixinCallback.getter.apply(y)-b);
 						 //killnum[0]+=b;
 						 
@@ -94,7 +95,7 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 					 );
 			 
 			 });
-		 System.out.println(killnum);
+		// System.out.println(killnum);
 		// HashSet<> = tokill.keySet().stream().map(S->S.i[0]).collect(Collectors.toCollection(HashSet::new));
 		 tasks.forEach((a,b)->{
 			 
@@ -117,12 +118,12 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 			 
 		 });
 		 
-	 tasks.forEach((s,b)->{
+	/* tasks.forEach((s,b)->{
 		 
 		 System.out.println(s+" "+MixinCallback.getter.apply(b));
 		 
 		 
-	 });
+	 });*/
 		 
 		// 
 		//			 System.out.println(killnum.get(AEItemStack.create(w.out)));

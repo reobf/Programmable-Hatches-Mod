@@ -17,7 +17,7 @@ import reobf.proghatches.main.CommonProxy;
 
 public class ItemDedicatedCover extends Item {
 
-    private IIcon[] icons = new IIcon[16];
+    private IIcon[] icons = new IIcon[64];
 
     public ItemDedicatedCover() {
         this.setCreativeTab(CommonProxy.tab);
@@ -29,6 +29,12 @@ public class ItemDedicatedCover extends Item {
         icons[0] = register.registerIcon("proghatches:cover0");
         icons[1] = register.registerIcon("proghatches:cover1");
         icons[2] = register.registerIcon("proghatches:cover2");
+        icons[3] = register.registerIcon("proghatches:cover2");
+        icons[32] = register.registerIcon("proghatches:cover32");
+        icons[33] = register.registerIcon("proghatches:cover33");
+        icons[34] = register.registerIcon("proghatches:cover34");
+        icons[35] = register.registerIcon("proghatches:cover35");
+        icons[36] = register.registerIcon("proghatches:cover36");
     }
 
     @SuppressWarnings("unchecked")

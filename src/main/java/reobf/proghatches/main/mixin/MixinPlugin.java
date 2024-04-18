@@ -117,12 +117,14 @@ String cfg=
         if(!"true".equals(pp.get("noEUCraftingMixins"))){
         ret.add("eucrafting."+"MixinCpuClusterEUAutoRequest");
         ret.add("eucrafting."+"MixinRemoveExcessiveEU");
+        ret.add("eucrafting."+"MixinCoverInsertion");
+        ret.add("eucrafting."+ "MixinEUSourceCoverChunkUnloadNotification");
         }
         
         ret.add("MixinAwarenessForDualHatch");
         if(!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))
         ret.add("MixinRemoveUnunsedItemStackCache");
-         
+        ret.add("MixinAE2FCCompat");
         
         if(!"true".equals(pp.get("noRecipeFilterForDualHatch"))){
     	ret.add("MixinGTRecipeFilter");

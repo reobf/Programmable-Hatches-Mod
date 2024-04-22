@@ -137,12 +137,8 @@ public class PartEUSource extends AEBasePart
 		}
 		
 	}
-	@Override
-	public void markDirty() {
-		this.getTile().markDirty();
-
-	}
-
+	
+	
 	boolean onoff = true;
 	long voltage;
 	long amp;

@@ -115,6 +115,7 @@ String cfg=
         if(!"true".equals(pp.get("noFixRecursiveCraft")))
         ret.add("eucrafting."+"MixinCraftingRecursiveWorkaround");
         if(!"true".equals(pp.get("noEUCraftingMixins"))){
+        	
         ret.add("eucrafting."+"MixinCpuClusterEUAutoRequest");
         ret.add("eucrafting."+"MixinRemoveExcessiveEU");
         ret.add("eucrafting."+"MixinCoverInsertion");

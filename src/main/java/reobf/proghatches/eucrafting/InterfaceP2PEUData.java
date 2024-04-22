@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.glodblock.github.common.parts.PartFluidP2PInterface;
 import com.glodblock.github.inventory.IDualHost;
@@ -24,10 +25,13 @@ import com.glodblock.github.util.DualityFluidInterface;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteArrayDataInput;
+import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.math.Alignment;
 import com.gtnewhorizons.modularui.api.math.Color;
+import com.gtnewhorizons.modularui.api.screen.IWindowCreator;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
+import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
@@ -111,6 +115,7 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
@@ -121,18 +126,46 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
+import reobf.proghatches.Tags;
 import reobf.proghatches.eucrafting.AECover.Data;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.FakeHost;
 import reobf.proghatches.main.MyMod;
 
-public class InterfaceP2PEUData  implements Data,IInterfaceHost, IGridTickable,IUpgradeableHost,ICustomNameObject,IConfigurableObject,IPriorityHost{
-			public InterfaceP2PEUData(){}
+public class InterfaceP2PEUData  implements AECover.IMemoryCardSensitive,Data,IInterfaceHost, IGridTickable,IUpgradeableHost,ICustomNameObject,IConfigurableObject,IPriorityHost{
+	 public void setTag(NBTTagCompound tagCompound) {tag=tagCompound;
+		}
+		 public NBTTagCompound getTag() {
+			return tag;
+		}
+		 NBTTagCompound tag;
+		 public  boolean shiftClick(EntityPlayer entityPlayer){
+		entityPlayer.addChatComponentMessage(new ChatComponentTranslation("programmable_hatches.cover.ae.memorycard"));
+		
+	
+		
+		
+		return false;};	
+		
+		@Override
+		public ISerializableObject readFromPacket(ByteArrayDataInput aBuf, EntityPlayerMP aPlayer) {
+			tmpout=aBuf.readBoolean();
+			return Data.super.readFromPacket(aBuf, aPlayer);
+		}
+		boolean tmpout;//tell client if this is output side, nested interface itself(including in/out state) is not written to packet
+		@Override
+		public void writeToByteBuf(ByteBuf aBuf) {
+			aBuf.writeBoolean(tmpout=duality.isOutput());
+			Data.super.writeToByteBuf(aBuf);
+		}
+		
+		
+		public InterfaceP2PEUData(){}
 			private TileEntity faketile=new TileEntity();
 			public boolean supportFluid(){return true;}
 			 
 			 IPartHost fakehost=new Host();
-					 public class Host implements IPartHost,InterfaceData.IActualSideProvider {
+					 public class Host implements IPartHost,InterfaceData.IActualSideProvider,InterfaceData.DisabledInventory {
 					
 					@Override
 					public SelectedPart selectPart(Vec3 pos) {
@@ -365,12 +398,12 @@ public void jobStateChange(ICraftingLink link) {
 @Override
 public IGridNode getActionableNode() {
 	
-	return this.gridProxy.getNode();
+	return this.getProxy().getNode();
 }
 @Override
 public IGridNode getGridNode(ForgeDirection dir) {
 	
-	return this.gridProxy.getNode();
+	return this.getProxy().getNode();
 }
 
 @Override
@@ -393,7 +426,7 @@ public IInventory getPatterns() {
 @Override
 public String getName() {
 	
-	return "xxx";
+	return getCustomName();
 }
 @Override
 public boolean shouldDisplay() {
@@ -436,6 +469,7 @@ duality.writeToNBT((NBTTagCompound) t);
 t.setBoolean("inputdetect",inputdetect);
 t.setBoolean("delay",delay);
 t.setBoolean("worksensitive",worksensitive);
+
 return t;
 }
 @Override
@@ -443,7 +477,7 @@ public void loadDataFromNBT(NBTBase aNBT) {
 	  delay=((NBTTagCompound) aNBT).getBoolean("delay");
       inputdetect=((NBTTagCompound) aNBT).getBoolean("inputdetect");
       worksensitive=((NBTTagCompound) aNBT).getBoolean("worksensitive");
-  
+      
      
 		Data.super.loadDataFromNBT(aNBT);
 	//System.out.println(pos.getWorld());
@@ -456,7 +490,11 @@ public void loadDataFromNBT(NBTBase aNBT) {
 	
 		duality.readFromNBT((NBTTagCompound) aNBT);
 	
-	}/*else{
+	}
+	
+	
+	
+	/*else{
 		duality.delay=((NBTTagCompound) aNBT).getBoolean("delay");
 		duality.inputdetect=((NBTTagCompound) aNBT).getBoolean("inputdetect");
 		
@@ -473,7 +511,7 @@ public  void update(ICoverable aTileEntity){
 			IGridNode thenode = this.duality.getProxy().getNode();
 			boolean found=false;
 			while(it.hasNext() ){item=it.next();
-				if(item.b()==thenode){found=true;break;};
+			if(item.b()==thenode||item.a()==thenode){found=true;break;};
 				
 			}
 			
@@ -546,15 +584,17 @@ public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall)
 	
 	return duality.tickingRequest(node, TicksSinceLastCall);
 }
-public String getCustomName() {
-	return supportFluid()?"Dual Interface":"ME Interface";
+public String getCustomName() {if(name!=null)return name;
+	return "P2P - EU Interface";
 }
 
 public boolean hasCustomName() {
 	return true;
 }
 
-public void setCustomName(String name) {
+private String name;
+public void setCustomName(String name) {this.name=name;
+	
 }
 
  
@@ -674,6 +714,7 @@ EntityPlayer aPlayer) {
 	{
 		if(click(aPlayer)){return true;}
 	} 
+	//if(!this.duality.isOutput())
 	GT_UIInfos.openCoverUI(aTileEntity, aPlayer, side);
 
 
@@ -686,8 +727,8 @@ public long doOutput(long aVoltage, long aAmperage) {
 	
 ICoverable cble=	(ICoverable) this.pos.getWorld().getTileEntity(pos.x,pos.y,pos.z);
 
-if(cble.inputEnergyFrom(side.getOpposite()))
-	return cble.injectEnergyUnits(side.getOpposite(), aVoltage, aAmperage);
+if(cble.inputEnergyFrom(side))
+	return cble.injectEnergyUnits(side, aVoltage, aAmperage);
 return 0;
 }
 
@@ -701,7 +742,50 @@ private static final int startX = 10;
 private static final int startY = 25;
 private static final int spaceX = 18;
 private static final int spaceY = 18;
-public  void addUIWidgets(Builder builder){
+public static final UITexture ICON = UITexture.fullImage("proghatches", "items/cover2");
+
+@Override
+public  void addUIWidgets(Builder builder,GT_CoverUIBuildContext ss){
+	
+	 
+    builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
+    if (ss.isAnotherWindow() == false) {
+    	int rgb=ss.getGuiColorization();
+       ss.addSyncedWindow(777, (s) -> createWindow(s,rgb));
+
+        builder.widget(new ButtonWidget().setOnClick((clickData, widget) -> {
+            if (clickData.mouseButton == 0) {
+                if (!widget.isClient())
+
+                    widget.getContext()
+                        .openSyncedWindow(777);
+            }
+        })
+            .setPlayClickSound(true)
+            .setBackground(GT_UITextures.BUTTON_STANDARD, ICON)
+            .addTooltips(
+                ImmutableList
+                    .of(LangManager.translateToLocalFormatted("programmable_hatches.cover.ae.configure")))
+            .setSize(16, 16)
+            .setPos(startX + spaceX * 6, startY + spaceY * 3));
+
+    }//System.out.println("aaaaaaaaaaaaaa"+tmpout);
+   /* if(duality.isOutput())
+    if(duality.getInput()!=null)
+    	duality.getInput().addWidgets(builder,16);
+    else
+	
+	*/
+    if(!tmpout)
+	duality.addWidgets(builder,16);
+    else
+    duality.addWidgetsOut(builder,16);
+    
+	if(2>1)
+	return ;
+	
+	
+	
 	builder.widget(((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(true, true))
             .setGetter(() -> worksensitive ? 1 : 0)
             .setSetter(s ->  {worksensitive = s == 1;})
@@ -742,6 +826,55 @@ public  void addUIWidgets(Builder builder){
             .setPos(startX+spaceX+spaceX, startY));
 	
 }
+
+private ModularWindow createWindow(EntityPlayer ss, int rgb) {
+	ModularWindow.Builder builder = ModularWindow.builder(176,107);
+	builder.setDraggable(false);
+	builder.setGuiTint(rgb);
+	builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
+	builder.widget(((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(true, true))
+            .setGetter(() -> worksensitive ? 1 : 0)
+            .setSetter(s ->  {worksensitive = s == 1;})
+            .setLength(2)
+            .setTextureGetter(i -> {
+                if (i == 1) return GT_UITextures.OVERLAY_BUTTON_EXPORT;
+                return GT_UITextures.OVERLAY_BUTTON_IMPORT;
+            })
+
+            .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.ae.worksensitive.false"))
+            .addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.ae.worksensitive.true"))
+            .setPos(startX, startY));
+	
+	builder.widget(((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(true, true))
+            .setGetter(() -> delay ? 1 : 0)
+            .setSetter(s ->  {delay = s == 1;})
+            .setLength(2)
+            .setTextureGetter(i -> {
+                if (i == 1) return GT_UITextures.OVERLAY_BUTTON_EXPORT;
+                return GT_UITextures.OVERLAY_BUTTON_IMPORT;
+            })
+
+            .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.ae.delay.false"))
+            .addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.ae.delay.true"))
+            .setPos(startX+spaceX, startY));
+	
+	builder.widget(((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(true, true))
+            .setGetter(() -> inputdetect ? 1 : 0)
+            .setSetter(s ->  {inputdetect = s == 1;})
+            .setLength(2)
+            .setTextureGetter(i -> {
+                if (i == 1) return GT_UITextures.OVERLAY_BUTTON_EXPORT;
+                return GT_UITextures.OVERLAY_BUTTON_IMPORT;
+            })
+
+            .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.ae.inputdetect.false"))
+            .addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.ae.inputdetect.true"))
+            .setPos(startX+spaceX+spaceX, startY));
+	
+	
+	
+	return builder.build();
+}
 public boolean delay;
 public boolean inputdetect;
 public boolean worksensitive;
@@ -752,5 +885,5 @@ return new ItemStack(MyMod.cover,1,36);
 }@Override
 public TileEntity fakeTile() {
 return faketile;
-}
+} public boolean requireChannel(){return false;}//internal node will require
 }

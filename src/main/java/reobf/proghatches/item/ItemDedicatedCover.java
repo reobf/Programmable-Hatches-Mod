@@ -17,12 +17,16 @@ import reobf.proghatches.main.CommonProxy;
 
 public class ItemDedicatedCover extends Item {
 
-    private IIcon[] icons = new IIcon[64];
+    public  static  IIcon[] icons = new IIcon[64];
 
     public ItemDedicatedCover() {
         this.setCreativeTab(CommonProxy.tab);
     }
-
+    @Override
+    public boolean getHasSubtypes() {
+    	// TODO Auto-generated method stub
+    	return true;
+    }
     @SideOnly(Side.CLIENT)
     @Override
     public void registerIcons(IIconRegister register) {
@@ -35,6 +39,9 @@ public class ItemDedicatedCover extends Item {
         icons[34] = register.registerIcon("proghatches:cover34");
         icons[35] = register.registerIcon("proghatches:cover35");
         icons[36] = register.registerIcon("proghatches:cover36");
+        icons[37] = register.registerIcon("proghatches:cover37");
+        
+      
     }
 
     @SuppressWarnings("unchecked")

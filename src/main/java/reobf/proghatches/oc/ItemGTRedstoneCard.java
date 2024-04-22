@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import com.gtnewhorizon.structurelib.util.XSTR;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -17,6 +19,7 @@ import net.minecraft.world.World;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.enums.GT_Values;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.covers.redstone.GT_Cover_AdvancedRedstoneReceiverBase.GateMode;
 import li.cil.oc.api.Network;
@@ -171,8 +174,11 @@ public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.ite
         @Callback(doc = "getUUID() --get bound owner's UUID, or nil if absent", direct = false)
         public Object[] getOwnerUUID(final Context context, final Arguments args) {
 
-            return new Object[] { ItemGTRedstoneCard.this.getUUID(stack)
-                .toString() };
+            return new Object[] { 
+            		Optional.ofNullable(ItemGTRedstoneCard.this.getUUID(stack))
+            		.map(Object::toString)
+            		.orElse(null)
+                };
         }
 
         @Override
@@ -251,7 +257,7 @@ public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.ite
 
         Optional.of(getOrCreateTag(stack))
             .filter(s -> s.hasKey("signalSource") == false)
-            .ifPresent(s -> s.setLong("signalSource", new Random().nextLong()));
+            .ifPresent(s -> s.setLong("signalSource",XSTR.XSTR_INSTANCE.nextLong()));
 
         return getOrCreateTag(stack).getLong("signalSource");
 
@@ -284,12 +290,13 @@ public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.ite
 
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World worldIn, EntityPlayer player) {
+    	if(worldIn.isRemote==false){
     	player.addChatMessage(new ChatComponentTranslation("item.proghatch.oc.redstone.bind"));
        
         UUID uid = player.getUniqueID();
         getOrCreateTag(stack).setLong("uuid_l", uid.getLeastSignificantBits());
-        getOrCreateTag(stack).setLong("uuid_m", uid.getLeastSignificantBits());
-
+        getOrCreateTag(stack).setLong("uuid_m", uid.getMostSignificantBits());
+    	}
         return super.onItemRightClick(stack, worldIn, player);
     }
 

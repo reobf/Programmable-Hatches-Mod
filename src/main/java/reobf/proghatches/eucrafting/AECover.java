@@ -4,8 +4,11 @@ import static gregtech.api.enums.GT_Values.NW;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.Optional;
 
 import com.glodblock.github.common.tile.TileFluidInterface;
 import com.glodblock.github.loader.ItemAndBlockHolder;
@@ -21,6 +24,7 @@ import appeng.api.networking.IGridNode;
 import appeng.api.networking.ticking.ITickManager;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
+import appeng.api.util.IReadOnlyCollection;
 import appeng.core.Api;
 import appeng.core.AppEng;
 import appeng.me.GridAccessException;
@@ -31,12 +35,14 @@ import appeng.me.helpers.IGridProxyable;
 import appeng.tile.misc.TileInterface;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.net.GT_Packet_SendCoverData;
 import gregtech.api.util.GT_CoverBehaviorBase;
 import gregtech.api.util.ISerializableObject;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -54,6 +60,7 @@ import scala.actors.threadpool.Arrays;
 import scala.reflect.api.Trees.NewApi;
 
 public class AECover extends  GT_CoverBehaviorBase<AECover.Data>{
+	public static interface IMemoryCardSensitive{public  boolean shiftClick(EntityPlayer entityPlayer);}
 	public AECover() {
 		
 		this( InterfaceData.class);
@@ -67,7 +74,11 @@ public class AECover extends  GT_CoverBehaviorBase<AECover.Data>{
 	}
 	Class<?> clazz;
 	public static class DummyData implements Data {
-
+		 public void setTag(NBTTagCompound tagCompound) {
+		}
+		 public NBTTagCompound getTag() {
+			return null;
+		}
 		@Override
 		public ISerializableObject copy() {
 			// TODO Auto-generated method stub
@@ -198,6 +209,7 @@ public static interface Data extends ISerializableObject, IGridProxyable{
              1);
 		
 	}
+	default public boolean requireChannel(){return true;}
 	default public AENetworkProxy getProxy() {
 		
 		
@@ -207,7 +219,7 @@ public static interface Data extends ISerializableObject, IGridProxyable{
 	                "proxy",
 	                getVisual(),
 	                false));
-	            getGridProxy().setFlags(GridFlags.REQUIRE_CHANNEL);
+	            if(requireChannel())getGridProxy().setFlags(GridFlags.REQUIRE_CHANNEL);
 	            getGridProxy().setValidSides(EnumSet.of(getSide()));
 		   
 		 }
@@ -263,13 +275,25 @@ public static interface Data extends ISerializableObject, IGridProxyable{
 	public boolean firstUpdate();
 	
 	default World getW(int dim){
-		//MinecraftServer.getServer().getEntityWorld();
-		//DimensionManager.getWorld(dim);
-		return DimensionManager.getWorld(dim);
+	
+		return getter.get(dim);
+	}
+	static Getter getter=new ClientGetter();
+	public interface Getter{
+		public default World get(int dim){return DimensionManager.getWorld(dim);};
+	}
+	public class ClientGetter implements Getter{
+		@SideOnly(Side.CLIENT) public  World get(int dim){
+			if(FMLCommonHandler.instance().getEffectiveSide()==Side.SERVER){return Getter.super.get(dim);}
+			return Minecraft.getMinecraft().theWorld;};
 	}
 @Override
 default public NBTBase saveDataToNBT() {
 	NBTTagCompound tag = new NBTTagCompound();
+	
+	
+	Optional.ofNullable(getTag()).ifPresent(s->
+	tag.setTag("itemtag",s));
 	NBTTagCompound ae = new NBTTagCompound();
 	getProxy().writeToNBT(ae);
 	tag.setTag("ae", ae);
@@ -283,11 +307,12 @@ default public NBTBase saveDataToNBT() {
 	default public void loadDataFromNBT(NBTBase aNBT) {
 		NBTTagCompound tag=(NBTTagCompound) aNBT;
 		
-		getProxy().readFromNBT(tag.getCompoundTag("ae"));
+		setTag(tag.getCompoundTag("itemtag"));
 		
 		setPos(DimensionalCoord.readFromNBT(tag));
 		setPos(new DimensionalCoord(getW(getPos().getDimension()),getPos().x,getPos().y,getPos().z));
 		setSide(ForgeDirection.getOrientation(tag.getInteger("side")));
+		getProxy().readFromNBT(tag.getCompoundTag("ae"));
 	}
 
 	@Override
@@ -298,10 +323,10 @@ default public NBTBase saveDataToNBT() {
 		int z=aBuf.readInt();
 		int dim=aBuf.readInt();
 		this.setPos(new DimensionalCoord(getW(dim), x, y, z));
-		fakeTile().xCoord=x;
+		if(fakeTile()!=null){fakeTile().xCoord=x;
 		fakeTile().yCoord=y;
 		fakeTile().zCoord=z;
-		fakeTile().setWorldObj(getPos().getWorld());
+		fakeTile().setWorldObj(getPos().getWorld());}
 		return this;
 	}
 	public TileEntity fakeTile();
@@ -335,7 +360,12 @@ default public NBTBase saveDataToNBT() {
 		MyMod.LOG.info("Node destroy@"+getPos());
 		
 	try {
-		this.getProxy().getNode().getConnections().forEach(s->s.destroy());
+		IReadOnlyCollection<IGridConnection> col = this.getProxy().getNode().getConnections();
+		Collection<IGridConnection> a=new ArrayList<>(col.size());//make a copy or get ConcurrentModException
+		col.forEach(a::add);
+		a.forEach(ax->ax.destroy());
+		
+		
 		this.getProxy().invalidate();
 	
 		this.getProxy().getGrid().getCache(ITickManager.class).removeNode(this.getProxy().getNode(), this);
@@ -346,14 +376,23 @@ default public NBTBase saveDataToNBT() {
 	default public void accept(ForgeDirection side, ICoverable aTileEntity) {
 		setPos(new DimensionalCoord((TileEntity) aTileEntity));
 		setSide(side);
+		Optional.ofNullable(
+		aTileEntity.getCoverItemAtSide(side))
+		.filter(s->s.hasDisplayName())
+		.ifPresent(s->setCustomName(s.getDisplayName()));
+		;
+		
 	}
+	public default void setCustomName(String s){}
 	public default void onReady(){}
 	public default boolean shiftClick(ForgeDirection side,int aCoverID,Data aCoverVariable,ICoverable aTileEntity,EntityPlayer aPlayer){return false;}
 	public default boolean nonShiftClick(ForgeDirection side,int aCoverID,Data aCoverVariable,ICoverable aTileEntity,EntityPlayer aPlayer){return false;}
 	public default void update(ICoverable aTileEntity){}
 
-	public default void addUIWidgets(Builder builder){}
-	
+	public default void addUIWidgets(Builder builder, GT_CoverUIBuildContext gt_CoverUIBuildContext){}
+	default boolean hasAEGUI(){return true;}
+	 void setTag(NBTTagCompound tagCompound);
+	 NBTTagCompound getTag();
 }
 
 @Override
@@ -363,8 +402,9 @@ public Data createDataObject(int aLegacyData) {
 }
 @Override
 protected ItemStack getDisplayStackImpl(int aCoverID, Data aCoverVariable) {
-	// TODO Auto-generated method stub
-	return super.getDisplayStackImpl(aCoverID, aCoverVariable);
+	ItemStack is=super.getDisplayStackImpl(aCoverID, aCoverVariable);
+	is.setTagCompound(aCoverVariable.getTag());
+	return is;
 }
 private Throwable t=new Throwable();
 @Override
@@ -401,9 +441,10 @@ public void chunkUnload(Data t){
 	public void placeCover(ForgeDirection side, ItemStack aCover, ICoverable aTileEntity) {
 	super.placeCover(side, aCover, aTileEntity);
 	
-	((Data)	aTileEntity.getComplexCoverDataAtSide(side))
-	.accept(side,aTileEntity);
-		
+	Data data=((Data)	aTileEntity.getComplexCoverDataAtSide(side));
+	data.accept(side,aTileEntity);
+	data.setTag(aCover.getTagCompound());
+	
 	}
 
 
@@ -419,7 +460,7 @@ protected boolean onCoverShiftRightClickImpl(ForgeDirection side, int aCoverID, 
 	if(aCoverVariable.shiftClick( side,  aCoverID,  aCoverVariable,
 			 aTileEntity,  aPlayer)){return true;};
 	
-	if (!aPlayer.worldObj.isRemote) 
+	if (aCoverVariable.hasAEGUI()&&!aPlayer.worldObj.isRemote) 
 	{
 	NW.sendPacketToAllPlayersInRange(aPlayer.getEntityWorld(), new GT_Packet_SendCoverData(side,aCoverID,aCoverVariable,aTileEntity), aTileEntity.getXCoord(), aTileEntity.getZCoord());
 
@@ -470,7 +511,7 @@ static{
  
 }
 
-static private boolean canConnect(Object obj,ForgeDirection dir){
+static public boolean canConnect(Object obj,ForgeDirection dir){
 	
 	if(obj instanceof GridNode){
 		GridNode node=(GridNode) obj;
@@ -515,7 +556,7 @@ protected Data doCoverThingsImpl(ForgeDirection side, byte aInputRedstone, int a
 	
 	    while(it.hasNext()){
 			item=it.next();
-			if(item.b()==thenode){
+			if(item.a()==thenode||item.b()==thenode){
 				if(thisSideValid==false){item.destroy();}
 				else
 				found=true;
@@ -524,11 +565,15 @@ protected Data doCoverThingsImpl(ForgeDirection side, byte aInputRedstone, int a
 		}
 		
 		if(found==false&&thisSideValid){
-		try {
-			new GridConnection(data.getProxy().getNode(), thenode, side);
+		try {IGridNode thiz = data.getProxy().getNode();
+			new GridConnection(thiz, thenode, side);
 		
 		MyMod.LOG.info("Node connect@"+data.getPos());
 		} catch (FailedConnection e) {
+			
+			System.out.println(item.a());
+			System.out.println(item.b());
+			System.out.println(thenode);
 			e.printStackTrace();
 		}
 		
@@ -609,9 +654,10 @@ private class AECoverUIFactory extends UIFactory {
 	@Override
 	protected void addUIWidgets(Builder builder) {
 		
-		data.addUIWidgets(builder);
+		data.addUIWidgets(builder,getUIBuildContext());
 	}
 }
+
 @Override
 public boolean isCoverPlaceable(ForgeDirection side, ItemStack aStack, ICoverable aTileEntity) {
 	if(aTileEntity instanceof IGridProxyable&&

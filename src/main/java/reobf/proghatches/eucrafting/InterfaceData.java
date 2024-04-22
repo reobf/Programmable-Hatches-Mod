@@ -69,7 +69,14 @@ import reobf.proghatches.eucrafting.AECover.Data;
 import reobf.proghatches.main.FakeHost;
 
 public class InterfaceData  implements Data,IInterfaceHost, IGridTickable,IUpgradeableHost,ICustomNameObject,IConfigurableObject,IPriorityHost{
-			public InterfaceData(){}
+	 public void setTag(NBTTagCompound tagCompound) {tag=tagCompound;
+		}
+		 public NBTTagCompound getTag() {
+			return tag;
+		}
+		 NBTTagCompound tag;
+		 
+		 public InterfaceData(){}
 			//hostName.contains("TileFluidInterface")->TRUE
 			public static class  FluidInterfaceData_TileFluidInterface extends InterfaceData{
 				public FluidInterfaceData_TileFluidInterface(){}
@@ -233,12 +240,12 @@ public void jobStateChange(ICraftingLink link) {
 @Override
 public IGridNode getActionableNode() {
 	
-	return this.gridProxy.getNode();
+	return this.getProxy().getNode();
 }
 @Override
 public IGridNode getGridNode(ForgeDirection dir) {
 	
-	return this.gridProxy.getNode();
+	return this.getProxy().getNode();
 }
 
 @Override
@@ -261,7 +268,7 @@ public IInventory getPatterns() {
 @Override
 public String getName() {
 	
-	return "xxx";
+	return getCustomName();
 }
 @Override
 public boolean shouldDisplay() {
@@ -300,6 +307,7 @@ public void saveChanges() {
 public NBTBase saveDataToNBT() {
 NBTBase t=Data.super.saveDataToNBT();
 ((NBTTagCompound) t).setInteger("p",p);
+((NBTTagCompound) t).setString("name",name);
 duality.writeToNBT((NBTTagCompound) t);
 
 return t;
@@ -309,6 +317,7 @@ public void loadDataFromNBT(NBTBase aNBT) {
 	Data.super.loadDataFromNBT(aNBT);
 	//System.out.println(pos.getWorld());
 	p=((NBTTagCompound) aNBT).getInteger("p");
+	name=((NBTTagCompound) aNBT).getString("name");
 	faketile.xCoord=pos.x;
 	faketile.yCoord=pos.y;
 	faketile.zCoord=pos.z;
@@ -335,14 +344,16 @@ public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall)
 	return duality.tickingRequest(node, TicksSinceLastCall);
 }
 public String getCustomName() {
+	if(name!=null)return name;
 	return supportFluid()?"Dual Interface":"ME Interface";
 }
 
 public boolean hasCustomName() {
 	return true;
 }
-
-public void setCustomName(String name) {
+private String name;
+public void setCustomName(String name) {this.name=name;
+	
 }
 
  
@@ -381,4 +392,6 @@ boolean first=true;
 public TileEntity fakeTile() {
 return faketile;
 }
+
+
 }

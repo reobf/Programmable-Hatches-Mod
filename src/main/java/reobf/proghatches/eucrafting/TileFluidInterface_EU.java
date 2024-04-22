@@ -345,9 +345,10 @@ int redstoneticks;
 					break;
 				};
 			}
-			amp=Math.max(amp, count[0]);
 			boolean succ=super.pushPattern(p.original, table);
-			if(succ)is.add(p.extraOut0);
+			if(succ)
+			{amp=Math.max(amp, count[0]);
+			is.add(p.extraOut0);}
 			
 			return succ;
 		}
@@ -719,31 +720,9 @@ public IAEItemStack[] i, o;
 			setName("EU Interface");
 		}
 	}
-	@Override
-	public int rows() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	@Override
-	public int rowSize() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	@Override
-	public IInventory getPatterns() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public boolean shouldDisplay() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	
+
+	
 	@Override
 	public void complete() {
 		returnItems();

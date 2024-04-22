@@ -12,15 +12,19 @@ import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Input
 import gregtech.common.blocks.GT_Material_Machines;
 
 import net.minecraft.block.BlockContainer;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
 
 public class BlockIOHub extends BlockContainer {
 	
+	public static  IIcon me_overlay;
+
 	public BlockIOHub() {
 		super(new GT_Material_Machines());
 		//GT_MetaTileEntity_Hatch_InputBus j;
@@ -36,6 +40,11 @@ public class BlockIOHub extends BlockContainer {
 		
 		return new TileIOHub();
 	}
+	@Override
+	public IIcon getIcon(int side, int meta) {
+		if(meta==0x7f)return me_overlay;
+		return super.getIcon(side, meta);
+	}
 	   @Override
 	@SideOnly(Side.CLIENT)
 	    protected String getTextureName()
@@ -43,6 +52,11 @@ public class BlockIOHub extends BlockContainer {
 	        return this.textureName = "proghatches:iohub";
 	    }
 	
+	   @Override
+	public void registerBlockIcons(IIconRegister reg) {
+		   me_overlay=  reg.registerIcon("proghatches:me_overlay");
+		super.registerBlockIcons(reg);
+	}
 @Override
 public void onBlockPlacedBy(World worldIn, int x, int y, int z, EntityLivingBase placer, ItemStack itemIn) {
 	// TODO Auto-generated method stub

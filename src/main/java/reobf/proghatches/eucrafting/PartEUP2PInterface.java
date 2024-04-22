@@ -63,6 +63,7 @@ import com.gtnewhorizons.modularui.api.math.Color;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.widget.Widget;
+import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
@@ -117,6 +118,7 @@ import appeng.util.item.AEItemStack;
 import cofh.api.energy.IEnergyReceiver;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
+import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.tileentity.IEnergyConnected;
 import gregtech.api.util.GT_Utility;
@@ -323,17 +325,20 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
     			TileEntity t=this.getTile();
     			if(!t.getWorldObj().isRemote){
     			
-    				if(this.isOutput()){
+    				/*if(this.isOutput()){
     					PartEUP2PInterface  p2p=this.getInput();
     					
     					if(p2p!=null){TileEntity te = p2p.getTileEntity();
-    						EUUtil.open(player, player.getEntityWorld(),te.xCoord,te.yCoord,te.zCoord, p2p.getSide(),false);
-    		    		}else{
+    					 if(p2p.data==null)
+    					  EUUtil.open(player, player.getEntityWorld(),te.xCoord,te.yCoord,te.zCoord, p2p.getSide(),false);
+    		    		
+    					
+    					}else{
     		    			
     		    			player.addChatComponentMessage(new ChatComponentTranslation("proghatches.eucreafting.p2p.connection"));
     		    			
     		    		}
-    				} else   				
+    				} else  */ 				
     				EUUtil.open(player, player.getEntityWorld(),t.xCoord,t.yCoord,t.zCoord, getSide(),isP2POut());
     			
     			}
@@ -640,7 +645,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
     public void markDirty() {
         duality.markDirty();
     }
-
+   
     @Override
     public boolean isUseableByPlayer(EntityPlayer player) {
         return duality.getStorage().isUseableByPlayer(player);
@@ -823,7 +828,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 			public void setEmitable(IAEItemStack what) {craftingTracker.setEmitable(what);}};
 			 this.duality.provideCrafting(collector);
 			 
-			 if(!this.isOutput())
+			// if(!this.isOutput())
 			 craftingTracker.addCraftingOption(this, new PatternDetail(blank_token.copy(),
 						token.copy()
 					));
@@ -882,9 +887,11 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 			if(isP2POut()){
 				face=this.getInput();
 			}
-			if(face!=null)face.amp=Math.max(face.amp, count[0]);
 			boolean succ=duality.pushPattern(p.original, table);
-			if(succ)is.add(p.extraOut0);
+			if(succ){
+			if(face!=null)face.amp=Math.max(face.amp, count[0]);
+			is.add(p.extraOut0);
+			}
 			
 			return succ;
 		}
@@ -995,18 +1002,7 @@ public boolean redstoneOverride;
         return IInterfaceHost.super.shouldDisplay() && !isOutput();
     }
 
-	@Override
-	public int rows() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int rowSize() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
+	
 	@Override
 	public IInventory getPatterns() {
 		// TODO Auto-generated method stub
@@ -1015,8 +1011,8 @@ public boolean redstoneOverride;
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return "xx";
+		
+		return duality.getTermName();
 	}
 
 	@Override
@@ -1044,15 +1040,98 @@ public boolean redstoneOverride;
 		NBTTagCompound tag = buildContext.getPlayer().getEntityData();
 		
 		
-		return tag.getBoolean("extraarg")?createWindowOut(buildContext):createWindowIn(buildContext);
+		return tag.getBoolean("extraarg")?createWindowOut(buildContext,0):createWindowIn(buildContext);
 	}
 	
-	
 	public ModularWindow createWindowIn(UIBuildContext buildContext) {
+		ModularWindow.Builder builder = ModularWindow.builder(176,107);
+		//builder.setGuiTint(buildContext.getGuiColorization);
+		builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
+		return addWidgets(builder,0).build();
+	}
+	public ModularWindow.Builder addWidgetsOut(ModularWindow.Builder builder,int yshift) {
+		
+		builder.widget(TextWidget.localised("proghatches.eu.interface.hint.input.title") .setPos(58,30));
+		builder.widget(
+                TextWidget.dynamicString(() ->{
+                	// PartEUP2PInterface in = PartEUP2PInterface.this.getInput();
+                 	//if(in==null)return "Connection Lost";
+                	
+                	return instantamp_local+"/"+String.format("%.2f",averageamp_local)+"/"+ amp+"A";
+                })
+                    .setSynced(true)
+                    .setPos(58,60)
+                    .addTooltips(
+                  		  
+                  		 ImmutableList.of(
+                  		  LangManager.translateToLocal("proghatches.eu.interface.hint.amp.local")
+                  		 
+                  		  )
+                  		)
+      		  );
+		builder.widget(
+                      TextWidget.dynamicString(() ->{
+                     	 PartEUP2PInterface in = PartEUP2PInterface.this.getInput();
+                      	if(in==null)return "Connection Lost";
+                     	
+                     	return in.voltage+"V"+"/"+in.expectedamp+"A";
+                     })
+                         .setSynced(true)
+                         .setPos(58,70)
+                         .addTooltips(
+                       		  
+                       		 ImmutableList.of(
+                       		  LangManager.translateToLocal("proghatches.eu.interface.hint.input")
+                       		 
+                       		 
+                       		  )
+                       		)
+           		  );
+		builder.widget(
+                TextWidget.dynamicString(() ->{
+                	 PartEUP2PInterface in = PartEUP2PInterface.this.getInput();
+                 	if(in==null)return "Connection Lost";
+                	
+                	return in.instantamp+"/"+String.format("%.2f",in.averageamp)+"/"+ in.amp+"A";
+                })
+                    .setSynced(true)
+                    .setPos(58,80)
+                    .addTooltips(
+                  		  
+                  		 ImmutableList.of(
+                  		  LangManager.translateToLocal("proghatches.eu.interface.hint.amp")
+                  		
+                  		 
+                  		  )
+                  		)
+      		  );
+       
+		builder.widget(
+                TextWidget.dynamicString(() ->{
+                	 PartEUP2PInterface in = PartEUP2PInterface.this.getInput();
+                	if(in==null)return "Connection Lost";
+                	return String.format("[%d~%d]V",in.minv,in.maxv);
+                	})
+                    .setSynced(true)
+                    .setPos(58,90)
+                    .addTooltips(
+                  		  
+                  		 ImmutableList.of(
+                  		  LangManager.translateToLocal("proghatches.eu.interface.hint.volt")
+                  		 // , LangManager.translateToLocal("proghatches.eu.interface.hint")
+                  		 
+                  		  )
+                  		)
+      		  );
+          
+        
+		
+			return builder;
+	}
+	public ModularWindow.Builder addWidgets(ModularWindow.Builder builder,int yshift) {
 		
 		updatev=true;
-		 ModularWindow.Builder builder = ModularWindow.builder(176,107);
-        builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
+		
         builder.widget(
                 ((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(true, true))
                     .setGetter(() -> (redstoneticks>0) ? 1 : 0)
@@ -1165,12 +1244,12 @@ public boolean redstoneOverride;
                     .setTextColor(Color.WHITE.dark(1))
 
                     .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
-                    .setPos(16,16)
+                    .setPos(16,16+yshift)
                     .setSize(16*8,16);
         
         return o;
         };
-        builder.widget(gen.apply(()->this.voltage,a->{this.voltage=a;}).setPos(16,16).dynamicTooltip(()->{
+        builder.widget(gen.apply(()->this.voltage,a->{this.voltage=a;}).setPos(16,16+yshift).dynamicTooltip(()->{
        String a=GT_Values.VN[0],b;
        long v=8;
        for(int i=0;i<GT_Values.V.length-1;i++){
@@ -1188,12 +1267,12 @@ public boolean redstoneOverride;
         );}
       		  
       		  ));
-        builder.widget(gen.apply(()->this.expectedamp,a->this.expectedamp=Math.min(a,Integer.MAX_VALUE/*stacksize limit*/)).setPos(16,16+16+2).addTooltip(StatCollector.translateToLocal("proghatches.eu.interface.tooltip.amp")));
-        builder.widget(new TextWidget("V:").setPos(8,16));
-        builder.widget(new TextWidget("A:").setPos(8,16+16+2));
+        builder.widget(gen.apply(()->this.expectedamp,a->this.expectedamp=Math.min(a,Integer.MAX_VALUE/*stacksize limit*/)).setPos(16,16+16+2+yshift).addTooltip(StatCollector.translateToLocal("proghatches.eu.interface.tooltip.amp")));
+        builder.widget(new TextWidget("V:").setPos(8,16+yshift));
+        builder.widget(new TextWidget("A:").setPos(8,16+16+2+yshift));
             //builder.bindPlayerInventory(buildContext.getPlayer());
        
-        return builder.build();
+        return builder;
 	}
 	private void onChange() {
 		IEUManager e;
@@ -1258,10 +1337,12 @@ private void initTokenTemplate(){
         return false;
     }
 }
-	public ModularWindow createWindowOut(UIBuildContext buildContext) {
+	public ModularWindow createWindowOut(UIBuildContext buildContext,int yshift) {
 		 ModularWindow.Builder builder = ModularWindow.builder(176,107);
 	        builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
-		return builder.build();
+	        
+	        
+		return addWidgetsOut(builder,yshift).build();
 	}
 	
 	
@@ -1432,13 +1513,16 @@ private void initTokenTemplate(){
 	}
 	long injectedamp;
 	long injectedamp_local;
+	long instantamp_local;
 	@Override
 	public void reset() {
 		instantamp=injectedamp;
 		averageamp=(injectedamp)/32.0+averageamp*31/32;
 		injectedamp=0;
+		instantamp_local=injectedamp_local;
 		averageamp_local=(injectedamp_local)/32.0+averageamp_local*31/32;
 		injectedamp_local=0;
+		
 		accepted=0;
 		
 	}

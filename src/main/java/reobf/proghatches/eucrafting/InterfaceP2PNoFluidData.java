@@ -83,6 +83,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -96,13 +97,22 @@ import reobf.proghatches.eucrafting.InterfaceP2PData.Host;
 import reobf.proghatches.main.FakeHost;
 import reobf.proghatches.main.MyMod;
 
-public class InterfaceP2PNoFluidData  implements Data,IInterfaceHost, IGridTickable,IUpgradeableHost,ICustomNameObject,IConfigurableObject,IPriorityHost{
-			public InterfaceP2PNoFluidData(){}
+public class InterfaceP2PNoFluidData  implements AECover.IMemoryCardSensitive,Data,IInterfaceHost, IGridTickable,IUpgradeableHost,ICustomNameObject,IConfigurableObject,IPriorityHost{
+	 public void setTag(NBTTagCompound tagCompound) {tag=tagCompound;
+		}
+		 public NBTTagCompound getTag() {
+			return tag;
+		}
+		 NBTTagCompound tag;
+		 public  boolean shiftClick(EntityPlayer entityPlayer){entityPlayer.addChatComponentMessage(new ChatComponentTranslation("programmable_hatches.cover.ae.memorycard"));
+	
+		return false;};		
+		public InterfaceP2PNoFluidData(){}
 			private TileEntity faketile=new TileEntity();
 			public boolean supportFluid(){return false;}
 			
 			 IPartHost fakehost=new Host();
-			 public class Host implements IPartHost,InterfaceData.IActualSideProvider {
+			 public class Host implements IPartHost,InterfaceData.IActualSideProvider,InterfaceData.DisabledInventory {
 			
 			@Override
 			public SelectedPart selectPart(Vec3 pos) {
@@ -340,12 +350,12 @@ public void jobStateChange(ICraftingLink link) {
 @Override
 public IGridNode getActionableNode() {
 	
-	return this.gridProxy.getNode();
+	return this.getProxy().getNode();
 }
 @Override
 public IGridNode getGridNode(ForgeDirection dir) {
 	
-	return this.gridProxy.getNode();
+	return this.getProxy().getNode();
 }
 
 @Override
@@ -368,7 +378,7 @@ public IInventory getPatterns() {
 @Override
 public String getName() {
 	
-	return "xxx";
+	return getCustomName();
 }
 @Override
 public boolean shouldDisplay() {
@@ -438,7 +448,7 @@ public  void update(ICoverable aTileEntity){
 			IGridNode thenode = this.duality.getProxy().getNode();
 			boolean found=false;
 			while(it.hasNext() ){item=it.next();
-				if(item.b()==thenode){found=true;break;};
+			if(item.b()==thenode||item.a()==thenode){found=true;break;};
 				
 			}
 			
@@ -470,16 +480,19 @@ public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall)
 	
 	return duality.tickingRequest(node, TicksSinceLastCall);
 }
-public String getCustomName() {
-	return supportFluid()?"Dual Interface":"ME Interface";
+public String getCustomName() {if(name!=null)return name;
+	return "P2P - ME Interface";
 }
 
 public boolean hasCustomName() {
 	return true;
 }
 
-public void setCustomName(String name) {
+private String name;
+public void setCustomName(String name) {this.name=name;
+	
 }
+
 
  
  public int getPriority(){return p;};
@@ -610,5 +623,5 @@ return new ItemStack(MyMod.cover,1,34);
 }@Override
 public TileEntity fakeTile() {
 return faketile;
-}
+} public boolean requireChannel(){return false;}//internal node will require
 }

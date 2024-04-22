@@ -38,7 +38,11 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI {
      * }
      */
     IIcon[] icons = new IIcon[16];
-
+    @Override
+    public boolean getHasSubtypes() {
+    	// TODO Auto-generated method stub
+    	return true;
+    }
     @SideOnly(Side.CLIENT)
     @Override
     public void registerIcons(IIconRegister register) {

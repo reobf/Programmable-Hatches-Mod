@@ -18,7 +18,11 @@ public class ItemEUToken extends Item{
 
 
 
-
+	  @Override
+	    public boolean getHasSubtypes() {
+	    	// TODO Auto-generated method stub
+	    	return true;
+	    }
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@SideOnly(Side.CLIENT)
 	@Override

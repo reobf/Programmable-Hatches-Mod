@@ -10,6 +10,7 @@ import com.glodblock.github.common.parts.PartFluidP2PInterface;
 
 import appeng.helpers.DualityInterface;
 import appeng.helpers.IInterfaceHost;
+import appeng.parts.AEBasePart;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.eucrafting.InterfaceData;
 
@@ -43,8 +44,8 @@ public class MixinCoverInsertion {
 	}
 	
 	
-	if(PartFluidP2PInterface.class.isInstance(iHost)){
-	PartFluidP2PInterface host = (PartFluidP2PInterface)iHost;
+	if(AEBasePart.class.isInstance(iHost)){
+		AEBasePart host = (AEBasePart)iHost;
 	if(host.getHost() instanceof InterfaceData.IActualSideProvider){
 		
 	return((InterfaceData.IActualSideProvider)host.getHost()).getActualSide().getOpposite();

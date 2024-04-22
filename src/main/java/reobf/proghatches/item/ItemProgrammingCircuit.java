@@ -24,7 +24,11 @@ public class ItemProgrammingCircuit extends Item {
     public ItemProgrammingCircuit() {
         this.setCreativeTab(CommonProxy.tab);
     }
-
+    @Override
+    public boolean getHasSubtypes() {
+    	// TODO Auto-generated method stub
+    	return true;
+    }
     public IIcon overlay;
     public IIcon def;
     @SideOnly(Side.CLIENT)

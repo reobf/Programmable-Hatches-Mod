@@ -21,6 +21,7 @@ import com.gtnewhorizons.modularui.common.internal.wrapper.ModularUIContainer;
 
 import appeng.api.AEApi;
 import appeng.api.implementations.tiles.ISegmentedInventory;
+import appeng.api.parts.IPart;
 import appeng.api.parts.IPartHost;
 import appeng.tile.AEBaseTile;
 import cpw.mods.fml.common.network.internal.FMLNetworkHandler;
@@ -67,6 +68,7 @@ public static boolean  check(ISegmentedInventory inv){
 	return false;
 }
 
+@SuppressWarnings("unchecked")
 @Nullable
 public static IGuiProvidingPart select(EntityPlayer player ,int x, int y, int z){
 	
@@ -115,7 +117,8 @@ ModularWindow window = part.createWindow(buildContext);
 return new ModularUIContainer(
                 new ModularUIContext(buildContext, () -> {
                 	player.inventoryContainer.detectAndSendChanges();
-                	part.markDirty();
+                	if(part instanceof IInventory)
+                	((IInventory)part).markDirty();
                 }),
                 window,
                 null);

@@ -41,6 +41,7 @@ public  class EUCraftingCreativeTab extends CreativeTabs {
 	    p_78018_1_.add(new ItemStack(MyMod.cover, 1, 34));
 	    p_78018_1_.add(new ItemStack(MyMod.cover, 1, 35));
 	    p_78018_1_.add(new ItemStack(MyMod.cover, 1, 36));
+	    p_78018_1_.add(new ItemStack(MyMod.cover, 1, 37));
 		super.displayAllReleventItems(p_78018_1_);
 	}
 }

@@ -657,7 +657,11 @@ private class AECoverUIFactory extends UIFactory {
 		data.addUIWidgets(builder,getUIBuildContext());
 	}
 }
-
+@Override
+public boolean allowsCopyPasteTool() {
+	
+	return false;//no!
+}
 @Override
 public boolean isCoverPlaceable(ForgeDirection side, ItemStack aStack, ICoverable aTileEntity) {
 	if(aTileEntity instanceof IGridProxyable&&

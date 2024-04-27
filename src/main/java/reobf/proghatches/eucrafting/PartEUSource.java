@@ -94,7 +94,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.eucrafting.IEUManager.EUManager;
 import reobf.proghatches.eucrafting.IEUManager.ISource;
-import reobf.proghatches.eucrafting.TileFluidInterface_EU.PatternDetail;
+import reobf.proghatches.eucrafting.TileFluidInterface_EU.SISOPatternDetail;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.WrappedPatternDetail;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
 import reobf.proghatches.item.ItemProgrammingCircuit;

@@ -23,7 +23,7 @@ import appeng.crafting.v2.CraftingJobV2;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.util.item.AEItemStack;
 import li.cil.oc.api.network.SimpleComponent.SkipInjection;
-import reobf.proghatches.eucrafting.TileFluidInterface_EU.PatternDetail;
+import reobf.proghatches.eucrafting.TileFluidInterface_EU.SISOPatternDetail;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.WrappedPatternDetail;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
 import reobf.proghatches.main.MyMod;
@@ -44,11 +44,47 @@ public class MixinRemoveExcessiveEU {
 				}
 		 
 	 }
+	 private boolean removeAll=true;
 @Inject(method="startCrafting", at = { @At("RETURN") },remap=false)
 public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, BaseActionSource src,CallbackInfo c){
 	  CraftingCPUCluster cluster = (CraftingCPUCluster) rawCluster;
 	
 	
+	  
+	  if(removeAll){ try {
+		  @SuppressWarnings("unchecked")
+		Map<ICraftingPatternDetails, Object> tasks=(Map<ICraftingPatternDetails, Object>) f.get(cluster);
+			
+		  tasks.forEach((a,b)->{
+			 
+			 
+				 if(a instanceof CircuitProviderPatternDetial){
+					CircuitProviderPatternDetial w=(CircuitProviderPatternDetial) a;
+					  MyMod.LOG.info("Removing EU Source Pattern Request: "+w.out.getTagCompound());
+					 if(w.out.getItem()==MyMod.eu_token){
+					 MixinCallback.setter.accept(b,0l);	
+					}	
+				}
+				 if(a instanceof SISOPatternDetail){
+					 SISOPatternDetail w=(SISOPatternDetail) a;
+					 MyMod.LOG.info("Removing EU Interface Binding Pattern Request: "+w.out.getTagCompound());
+					 if(w.in.getItem()==MyMod.eu_token&&w.out.getItem()==MyMod.eu_token){
+					 MixinCallback.setter.accept(b,0l);	
+					}	
+				}
+				 
+			});	 
+				 
+				 
+				 
+				 
+			 
+		  return;
+		  }catch(Exception e){e.printStackTrace();}
+	  }
+	  
+	  
+	  
 	 try {
 		 @SuppressWarnings("unchecked")
 		Map<ICraftingPatternDetails, Object> tasks=(Map<ICraftingPatternDetails, Object>) f.get(cluster);
@@ -60,19 +96,23 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 			UUID id=ProghatchesUtil.deser( pattern.extraIn0.getTagCompound(),"EUFI");
 			num.put(id, pattern.extraIn.getStackSize());
 		}});
-		 //System.out.println(num);
-		 Map<PatternDetail,Long> tokill=new HashMap<>();
+		
+		
+	      
+	      Map<SISOPatternDetail,Long> tokill=new HashMap<>();
 		 tasks.entrySet().forEach((d)->{
-			if(d.getKey() instanceof PatternDetail==false)return;
-			UUID id=ProghatchesUtil.deser(((PatternDetail)d.getKey()).out.getTagCompound(),"EUFI");
+			if(d.getKey() instanceof SISOPatternDetail==false)return;
+			UUID id=ProghatchesUtil.deser(((SISOPatternDetail)d.getKey()).out.getTagCompound(),"EUFI");
 			long need= num.getOrDefault(id, 0l);
 			long actual=MixinCallback.getter.apply(d.getValue());
 			long excessive= actual-need;
 			if(excessive<=0)return;
-		//	if(!tokill.containsKey(d.getKey()))tokill.put((PatternDetail) d.getKey(), 0l);
-			tokill.merge((PatternDetail) d.getKey(),excessive, Long::sum);
+			tokill.merge((SISOPatternDetail) d.getKey(),excessive, Long::sum);
 			 return ;
 		});
+		 
+		 
+		 
 		// System.out.println(tokill);
 		 HashMap<IAEItemStack ,Long> killnum=new HashMap();
 		 tokill.forEach((a,b)->{
@@ -80,7 +120,8 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 					 
 					 (x,y)->{
 						 MyMod.LOG.info("Removing Excessive EU Request:"+b);
-						 MixinCallback.setter.accept(y,MixinCallback.getter.apply(y)-b);
+						 //MixinCallback.setter.accept(y,MixinCallback.getter.apply(y)-b);
+						 MixinCallback.setter.accept(y,0l);
 						 //killnum[0]+=b;
 						 
 						 IAEItemStack is=a.i[0].copy().setStackSize(1);
@@ -107,8 +148,8 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, 
 				 
 				 if(killnum.containsKey(AEItemStack.create(w.out))){
 					 
-					 MixinCallback.setter.accept(b,MixinCallback.getter.apply(b)-killnum.get(AEItemStack.create(w.out)));	
-					
+					// MixinCallback.setter.accept(b,MixinCallback.getter.apply(b)-killnum.get(AEItemStack.create(w.out)));	
+					 MixinCallback.setter.accept(b,0l);	
 					
 				}
 				 

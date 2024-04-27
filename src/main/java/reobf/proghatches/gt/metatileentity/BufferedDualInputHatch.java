@@ -1336,7 +1336,7 @@ public void onFill() {
     			)cpinfo=cpinfo+LangManager.translateToLocal("programmable_hatches.buffer.waila.broken");
     		if(copies>0){
     			cpinfo=cpinfo+LangManager.translateToLocalFormatted("programmable_hatches.buffer.waila.copies",copies+"");
-    			if(sub.getBoolean("locked")){cpinfo+="???not locked but copies>0???";}
+    			if(!sub.getBoolean("locked")){cpinfo+="???STRANGE SITUATION???";}
     		}
     		currenttip.add("#"+s+" "+info+" "+cpinfo);
     		String lock_item=sub.getString("lock_item");

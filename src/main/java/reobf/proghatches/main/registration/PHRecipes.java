@@ -111,7 +111,7 @@ if(Config.skipRecipeAdding)return;
         pc.forEach((s, i) -> {
             GT_Values.RA.stdBuilder()
                 .itemInputs(s, Materials.Titanium.getPlates(1))
-                .fluidInputs(Materials.TungstenSteel.getMolten(4000L))
+                .fluidInputs(Materials.TungstenSteel.getMolten(144*20L))
                 .itemOutputs(new ItemStack(MyMod.cover, 4 * i, 0))
                 .duration(1 * SECONDS)
                 .eut(480)
@@ -265,7 +265,7 @@ if(Config.skipRecipeAdding)return;
                     ,
                     null// CHANCE
                     ,
-                    new FluidStack[] { Materials.Osmiridium.getMolten(16000) }// FI
+                    new FluidStack[] { Materials.Osmiridium.getMolten(144*20) }// FI
                     ,
                     null// FO
                     ,
@@ -301,7 +301,7 @@ if(Config.skipRecipeAdding)return;
                     ,
                     null// CHANCE
                     ,
-                    new FluidStack[] { Materials.Neutronium.getMolten(64000) }// FI
+                    new FluidStack[] { Materials.Neutronium.getMolten(144*60) }// FI
                     ,
                     null// FO
                     ,
@@ -497,7 +497,7 @@ if(Config.skipRecipeAdding)return;
                 Machine_HV_Scanner.get(1),
                 new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 2, 25),
                 new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 2, 78))
-            .fluidInputs(Materials.SolderingAlloy.getMolten(4000))
+            .fluidInputs(Materials.SolderingAlloy.getMolten(144*20))
             .itemOutputs(new ItemStack(MyMod.oc_api, 1)
 
             )
@@ -510,7 +510,7 @@ if(Config.skipRecipeAdding)return;
                 GT_Utility.getIntegratedCircuit(15),
                 Cover_AdvancedRedstoneReceiverInternal.get(1),
                 Cover_AdvancedRedstoneTransmitterInternal.get(1))
-            .fluidInputs(Materials.SolderingAlloy.getMolten(4000))
+            .fluidInputs(Materials.SolderingAlloy.getMolten(144*20))
             .itemOutputs(new ItemStack(MyMod.oc_redstone, 1)
 
             )
@@ -626,6 +626,60 @@ if(Config.skipRecipeAdding)return;
  ) .duration(40 * SECONDS)
  .eut(480)
  .addTo(RecipeMaps.assemblerRecipes);;
+ 
+ 
+ 
+
+ 
+ for(ItemStack[] io:new ItemStack[][]{
+	 {Api.INSTANCE.definitions().parts().iface().maybeStack(1).get(),new ItemStack(MyMod.cover, 1,32)},
+	 {new ItemStack(ItemAndBlockHolder.FLUID_INTERFACE),new ItemStack(MyMod.cover, 1,33)},
+	 {Api.INSTANCE.definitions().parts().p2PTunnelMEInterface().maybeStack(1).get(),new ItemStack(MyMod.cover, 1,34)},
+	 {new ItemStack(ItemAndBlockHolder.FLUID_INTERFACE_P2P),new ItemStack(MyMod.cover, 1,35)}
+		
+	 
+ })
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+		 io[0] ,
+		 new ItemStack(MyMod.cover, 1,37),
+     GT_Utility.getIntegratedCircuit(18)
+     
+)
+ 
+ .itemOutputs(io[1])
+
+  .duration(40 * SECONDS)
+ .eut(480)
+ .addTo(RecipeMaps.formingPressRecipes);;
+ 
+ 
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+ GT_Utility.getIntegratedCircuit(19),
+ Api.INSTANCE.definitions().blocks().fluix().maybeStack(1).get()
+)
+ 
+ .itemOutputs( new ItemStack(MyMod.cover, 4,37))
+
+  .duration(256 * SECONDS)
+ .eut(480)
+ .addTo(RecipeMaps.cutterRecipes);;
+ 
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+ GT_Utility.getIntegratedCircuit(19),
+ Materials.Iron.getPlates(1),
+ new ItemStack(Items.comparator),
+ Emitter_MV.get(1)
+)
+ .fluidInputs(Iron.getMolten(144*2))
+ .itemOutputs( new ItemStack(MyMod.cover, 1,3))
+
+  .duration(40 * SECONDS)
+ .eut(480)
+ .addTo(RecipeMaps.assemblerRecipes);;
+ 
  
  
  

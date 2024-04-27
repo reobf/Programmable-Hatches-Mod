@@ -49,7 +49,7 @@ import appeng.util.item.HashBasedItemList;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import reobf.proghatches.eucrafting.IEUManager;
-import reobf.proghatches.eucrafting.TileFluidInterface_EU.PatternDetail;
+import reobf.proghatches.eucrafting.TileFluidInterface_EU.SISOPatternDetail;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.WrappedPatternDetail;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.mixin.MixinCallback;
@@ -65,8 +65,18 @@ public abstract class MixinCpuClusterEUAutoRequest {
 	 @Shadow   private final LinkedList<TileCraftingTile> tiles = new LinkedList<>();
 	@Shadow Map<ICraftingPatternDetails, Object>  tasks;
 
-private WeakHashMap<WrappedPatternDetail, int[]> cooldown=new WeakHashMap<>();
+private HashMap<WrappedPatternDetail, int[]> cooldown=new HashMap<>();
 @Shadow   abstract boolean canCraft(final ICraftingPatternDetails details, final IAEItemStack[] condensedInputs) ;
+
+@Inject(at = @At(value="HEAD"),method = {"cancel","completeJob"})
+private void endJob(CallbackInfo __){
+		
+	
+	cooldown.clear(); 
+	
+}
+
+
 /**
 if (!this.canCraft(details, details.getCondensedInputs())) {
    //INJECT HERE Shift.BY.3
@@ -80,7 +90,7 @@ private ICraftingPatternDetails executeCrafting2(ICraftingPatternDetails pattern
 		){//collect failed WrappedPatternDetail
 		if(pattern instanceof WrappedPatternDetail){
 			WrappedPatternDetail p=(WrappedPatternDetail) pattern;
-			int cd[]=cooldown.computeIfAbsent(p, (s)->new int[1]);
+			int cd[]=cooldown.computeIfAbsent(p, (s)->new int[2]);
 			if(cd[0]>0){cd[0]--;return pattern;}
 			boolean isOnlyEUTokenMissing=false;
 			  //cannot craft, but original one can, means that only eu token is missing
@@ -91,8 +101,11 @@ private ICraftingPatternDetails executeCrafting2(ICraftingPatternDetails pattern
 			needed.put(p.extraIn.copy().setStackSize(1),p.extraIn0.stackSize+0l);
 			cooldown.remove(p);
 			}
-			else
-			cooldown.get(p)[0]+=20;
+			else{
+			cooldown.get(p)[0]+=Math.min((10+2*cooldown.get(p)[1]++),100);
+			
+			//MyMod.LOG.info("Cannot craft, blacklist for "+cooldown.get(p)[0]+" ticks:"+p.extraIn0.getTagCompound());	
+			}
 		}	
 	
 	return pattern;
@@ -135,8 +148,8 @@ inventory.getItemList().findFuzzy(type, FuzzyMode.IGNORE_ALL).forEach(s->{
 tasks.entrySet().forEach(s->{
 	
 	
-	if(s.getKey() instanceof PatternDetail){
-		PatternDetail d=(PatternDetail) s.getKey();
+	if(s.getKey() instanceof SISOPatternDetail){
+		SISOPatternDetail d=(SISOPatternDetail) s.getKey();
 		if(d.out.getItemDamage()==1){
 			IAEItemStack key = d.o[0].copy().setStackSize(1);
 			
@@ -160,7 +173,7 @@ tasks.entrySet().forEach(s->{
 		long num=Optional.ofNullable(storage.get(s.getKey())).orElse(0l);
 		long missing=s.getValue()-num;
 		if(missing<=0)return;
-		Object o=this;
+		//Object o=this;
 		//CraftingCPUCluster thiz=(CraftingCPUCluster) o;
 		//System.out.println(s.getValue()+" "+num);
 		//System.out.println(missing);
@@ -171,11 +184,12 @@ tasks.entrySet().forEach(s->{
 			long get=man.request(
 					s.getKey().getTagCompound().getNBTTagCompoundCopy().getLong("voltage")
 					, missing);
+			
 			inventory.injectItems(
-		s.getKey().copy().setStackSize(get),
-		Actionable.MODULATE,machineSrc
+			s.getKey().copy().setStackSize(get),
+			Actionable.MODULATE,machineSrc);
+			 MyMod.LOG.info("Auto Request:"+get+"*"+s.getKey().getTagCompound().getNBTTagCompoundCopy());	
 				
-				);
 		} catch (Exception e) {
 			
 			e.printStackTrace();

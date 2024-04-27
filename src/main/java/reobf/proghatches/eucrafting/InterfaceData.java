@@ -307,7 +307,7 @@ public void saveChanges() {
 public NBTBase saveDataToNBT() {
 NBTBase t=Data.super.saveDataToNBT();
 ((NBTTagCompound) t).setInteger("p",p);
-((NBTTagCompound) t).setString("name",name);
+//((NBTTagCompound) t).setString("name",name);
 duality.writeToNBT((NBTTagCompound) t);
 
 return t;
@@ -317,7 +317,7 @@ public void loadDataFromNBT(NBTBase aNBT) {
 	Data.super.loadDataFromNBT(aNBT);
 	//System.out.println(pos.getWorld());
 	p=((NBTTagCompound) aNBT).getInteger("p");
-	name=((NBTTagCompound) aNBT).getString("name");
+	//name=((NBTTagCompound) aNBT).getString("name");
 	faketile.xCoord=pos.x;
 	faketile.yCoord=pos.y;
 	faketile.zCoord=pos.z;
@@ -345,7 +345,7 @@ public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall)
 }
 public String getCustomName() {
 	if(name!=null)return name;
-	return supportFluid()?"Dual Interface":"ME Interface";
+	return supportFluid()?"Dual ME Interface":"ME Interface";
 }
 
 public boolean hasCustomName() {

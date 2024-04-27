@@ -634,7 +634,7 @@ public void accept(ForgeDirection side, ICoverable aTileEntity) {
 Data.super.accept(side, aTileEntity);
 this.duality.setPartHostInfo(ForgeDirection.UNKNOWN, fakehost
 , getTile());
-
+this.duality.setCustomName(this.getCustomName());
 }
 
 public boolean click(EntityPlayer player){

@@ -240,7 +240,11 @@ public class InterfaceP2PData  implements AECover.IMemoryCardSensitive,Data,IInt
 					public ForgeDirection getActualSide() {
 						// TODO Auto-generated method stub
 						return side;
-					}};;
+					}
+
+					
+					
+					 };;
 			AENetworkProxy gridProxy;
 		    ForgeDirection side=ForgeDirection.UNKNOWN;
 			DimensionalCoord pos=new DimensionalCoord(0, 0, 0, 0);
@@ -529,7 +533,7 @@ public void accept(ForgeDirection side, ICoverable aTileEntity) {
 Data.super.accept(side, aTileEntity);
 this.duality.setPartHostInfo(ForgeDirection.UNKNOWN, fakehost
 , getTile());
-
+this.duality.setCustomName(this.getCustomName());
 }
 
 public boolean click(EntityPlayer player){

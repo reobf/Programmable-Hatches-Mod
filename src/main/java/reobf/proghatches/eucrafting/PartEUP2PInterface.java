@@ -40,7 +40,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import reobf.proghatches.eucrafting.IEUManager.IDrain;
-import reobf.proghatches.eucrafting.TileFluidInterface_EU.PatternDetail;
+import reobf.proghatches.eucrafting.TileFluidInterface_EU.SISOPatternDetail;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.WrappedPatternDetail;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
@@ -151,11 +151,11 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 		
 		PartEUP2PInterface  in = pt.isP2POut()?pt.getInput():pt;
 		Optional.ofNullable(in).ifPresent(s->{
-		tag.setLong("V", pt.voltage);
-		tag.setLong("A", pt.amp);
-		tag.setLong("EA", pt.expectedamp);
-		tag.setDouble("AA", pt.averageamp);
-		tag.setDouble("AAL",pt.injectedamp_local);
+		tag.setLong("V", in.voltage);
+		tag.setLong("A", in.amp);
+		tag.setLong("EA", in.expectedamp);
+		tag.setDouble("AA", in.averageamp);
+		tag.setDouble("AAL",pt.averageamp_local);
 		});
 		;
 		
@@ -829,7 +829,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
 			 this.duality.provideCrafting(collector);
 			 
 			// if(!this.isOutput())
-			 craftingTracker.addCraftingOption(this, new PatternDetail(blank_token.copy(),
+			 craftingTracker.addCraftingOption(this, new SISOPatternDetail(blank_token.copy(),
 						token.copy()
 					));
 			 
@@ -862,8 +862,8 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface>
     @Override
     public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
     	returnItems();
-		if (patternDetails instanceof PatternDetail) {
-			is.add(((PatternDetail) patternDetails).out);
+		if (patternDetails instanceof SISOPatternDetail) {
+			is.add(((SISOPatternDetail) patternDetails).out);
 			// do not call returnItems() here, or items returned will not be considered
 			// as output
 			return true;
@@ -1543,7 +1543,7 @@ private void initTokenTemplate(){
 
 	@Override
 	public void setCustomName(String name) {
-		setCustomName(name);
+		//setCustomName(name);
 		if (super.getCustomName() == null) {
 			setCustomName("EU Interface");
 		}

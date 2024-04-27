@@ -320,11 +320,11 @@ int redstoneticks;
 	public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
 
 		returnItems();
-		if (patternDetails instanceof PatternDetail) {
+		if (patternDetails instanceof SISOPatternDetail) {
 			
 		
 			
-			is.add(((PatternDetail) patternDetails).out);
+			is.add(((SISOPatternDetail) patternDetails).out);
 			// do not call returnItems() here, or items returned will not be considered
 			// as output
 			return true;
@@ -544,9 +544,9 @@ public boolean canBeSubstitute() {
 			original.setPriority(priority);
 			this.priority=priority;
 		}}
-	public static class PatternDetail implements ICraftingPatternDetails {
+	public static class SISOPatternDetail implements ICraftingPatternDetails {
 
-		public PatternDetail(ItemStack in, ItemStack out) {
+		public SISOPatternDetail(ItemStack in, ItemStack out) {
 			Objects.requireNonNull(in);
 			Objects.requireNonNull(out);
 			
@@ -559,8 +559,8 @@ public boolean canBeSubstitute() {
 @Override
 public boolean equals(Object obj) {
 	if(obj ==null){return false;}
-	if(!(obj instanceof PatternDetail)){return false;}
-	PatternDetail p=(PatternDetail) obj;
+	if(!(obj instanceof SISOPatternDetail)){return false;}
+	SISOPatternDetail p=(SISOPatternDetail) obj;
 	return i[0].equals(p.i[0])&&o[0].equals(p.o[0]);
 }
 
@@ -688,7 +688,8 @@ public IAEItemStack[] i, o;
 			@Override
 			public void setEmitable(IAEItemStack what) {craftingTracker.setEmitable(what);}};
 		super.provideCrafting(collector);
-		craftingTracker.addCraftingOption(this, new PatternDetail(blank_token.copy(),
+	
+		craftingTracker.addCraftingOption(this, new SISOPatternDetail(blank_token.copy(),
 				token.copy()
 			));
 

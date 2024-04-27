@@ -19,6 +19,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemEditableBook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -82,9 +84,12 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import gregtech.api.enums.GT_Values;
+import gregtech.api.enums.ItemList;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.items.GT_MetaBase_Item;
 import gregtech.api.net.GT_Packet_SendCoverData;
+import gregtech.api.util.GT_Utility;
 import gregtech.api.util.ISerializableObject;
 import gregtech.common.blocks.GT_Block_Machines;
 import gregtech.common.covers.CoverInfo;
@@ -248,6 +253,11 @@ public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev){
 				  }
 				 return new GuiDualInterface(player.inventory, host){
 					 @Override
+					protected String getGuiDisplayName(String in) {
+						// TODO Auto-generated method stub
+						return super.getGuiDisplayName(in);
+					}
+					 @Override
 					public void initGui() {
 						super.initGui();
 							this.buttonList.removeIf(s->{
@@ -340,7 +350,7 @@ public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev){
     }
     @SubscribeEvent(priority=EventPriority.HIGH,receiveCanceled=false)
     public void playerInteract(final PlayerInteractEvent event) {
-       
+    	
     	a:if (event.action == Action.RIGHT_CLICK_BLOCK&&!event.world.isRemote)
     	{
     		TileEntity te= event.world.getTileEntity(event.x, event.y, event.z);

@@ -33,7 +33,7 @@ public  class ItemFakePattern extends Item implements ICraftingPatternItem {
         	if(is.getTagCompound().getByte("type")==1){
         		ItemStack i = ItemStack.loadItemStackFromNBT((NBTTagCompound) is.getTagCompound().getTag("i"));
         		ItemStack o = ItemStack.loadItemStackFromNBT((NBTTagCompound) is.getTagCompound().getTag("o"));
-                return new TileFluidInterface_EU.PatternDetail(i,o);
+                return new TileFluidInterface_EU.SISOPatternDetail(i,o);
         	}
         	
         	if(is.getTagCompound().getByte("type")==2){

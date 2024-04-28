@@ -40,6 +40,7 @@ import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
 import reobf.proghatches.gt.metatileentity.DualInputHatchSlave;
 import reobf.proghatches.gt.metatileentity.FilterOutputBus;
+import reobf.proghatches.gt.metatileentity.IngredientBuffer;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.RecipeCheckResultDetector;
@@ -70,6 +71,7 @@ public class Registration implements Runnable {
     public final static int TenaciousOffset = 70;// -73
     public final static int FilterOffset = 74;// -77
 	private static final int RecipeCheckResultDetectorOffset = 78;
+	public final static int IngBufferOffset = 79;// -80
 
     @SuppressWarnings("deprecation")
 	@Override
@@ -289,7 +291,13 @@ public class Registration implements Runnable {
                 "recipe_check_result_detector",
                 LangManager.translateToLocal("recipe_check_result_detector.name"),
                  0);*/
-
+        for (int[] i:IngredientBuffer.tiers)
+        new IngredientBuffer(
+                Config.metaTileEntityOffset + IngBufferOffset + i[0],
+                "buffer.ingredientbuffer." + i[0],
+                LangManager.translateToLocal("buffer.ingredientbuffer.name."+i[0]),
+                i[1], new String[]{});
+        
     }
 public class IIconTexture0 extends IIconTexture{
 

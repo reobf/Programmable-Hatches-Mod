@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Function;
@@ -71,6 +72,24 @@ public static boolean appendAddedBy=true;
     	return  get(key,fmtter,false);
     }
     public static String[] get(String key,Map<String,Object> fmtter,boolean defaulted){
+    	
+    	if(fmtter.containsKey("int format")){
+    		fmtter=new HashMap<>(fmtter);
+    	Object optfmt=fmtter.remove("int format");
+    	if(optfmt!=null){
+    		java.text.DecimalFormat format = new java.text.DecimalFormat(optfmt.toString());
+    		fmtter.replaceAll((k,v)->{
+    			if(v instanceof Integer){
+    				
+    				return format.format(((Integer)v).intValue());
+    			}
+    			
+    			return v;
+    		});
+    	}	
+    	}
+    	
+    	
     	try(InputStream in=(defaulted? getInputEN:getInput).apply(key)){
     		if(in==null){
     			if(defaulted)

@@ -122,7 +122,7 @@ private static AEItemStack type=AEItemStack.create(new ItemStack(MyMod.eu_token,
 @Inject(at = @At("RETURN"),method = "executeCrafting",cancellable=true)
 private void executeCrafting1(final IEnergyGrid eg, final CraftingGridCache cc,CallbackInfo RE
 		){
-	if(needed.isEmpty()){storage.clear();;return;}
+	if(needed.isEmpty()){storage.clear();return;}
 	
 	//ArrayList<Object> arr=new ArrayList();
 	

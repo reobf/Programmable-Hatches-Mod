@@ -324,3 +324,5 @@ item.proghatch.cover.dedicated.tooltips.37=3
 item.proghatch.cover.dedicated.tooltips.37.0=允许ME频道直接穿透仓室
 item.proghatch.cover.dedicated.tooltips.37.1=将所有仓室上的覆盖版连入同一个ME网络
 item.proghatch.cover.dedicated.tooltips.37.2=最多传递8个频道
+buffer.ingredientbuffer.name.0=原材料缓存仓 (T0)
+buffer.ingredientbuffer.name.1=原材料缓存仓 (T1)

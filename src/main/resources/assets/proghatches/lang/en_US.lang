@@ -291,3 +291,6 @@ item.proghatch.cover.dedicated.tooltips.37=3
 item.proghatch.cover.dedicated.tooltips.37.0=Let ME Channels go through Hatches.
 item.proghatch.cover.dedicated.tooltips.37.1=Make all Covers on the attached Hatch shares the same ME network.
 item.proghatch.cover.dedicated.tooltips.37.2=Carry 8 Channels.
+buffer.ingredientbuffer.name.0=Ingredient Buffer (T0)
+buffer.ingredientbuffer.name.1=Ingredient Buffer (T1)
+

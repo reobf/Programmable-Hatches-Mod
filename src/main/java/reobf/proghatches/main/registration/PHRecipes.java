@@ -681,9 +681,41 @@ if(Config.skipRecipeAdding)return;
  .addTo(RecipeMaps.assemblerRecipes);;
  
  
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+new ItemStack(ItemAndBlockHolder.BUFFER),
+ Conveyor_Module_HV.get(1),
+ Electric_Pump_HV.get(1),
+ Casing_HV.get(1)
+)
  
+ .itemOutputs( new ItemStack(
+         GregTech_API.sBlockMachines,
+         1,
+         Config.metaTileEntityOffset + Registration.IngBufferOffset))
+
+  .duration(10 * SECONDS)
+ .eut(480)
+ .addTo(RecipeMaps.assemblerRecipes);
  
-        }
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+new ItemStack(ItemAndBlockHolder.LARGE_BUFFER),
+ Conveyor_Module_IV.get(1),
+ Electric_Pump_IV.get(1),
+ Casing_IV.get(1)
+)
+ 
+ .itemOutputs( new ItemStack(
+         GregTech_API.sBlockMachines,
+         1,
+         Config.metaTileEntityOffset + Registration.IngBufferOffset+1))
+
+  .duration(10 * SECONDS)
+ .eut(480*4*4)
+ .addTo(RecipeMaps.assemblerRecipes);
+ 
+  }
 
         ///////////////////////////////////
 

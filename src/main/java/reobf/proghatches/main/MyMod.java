@@ -184,31 +184,24 @@ public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev){
 
     @SubscribeEvent
     public void giveBook(PlayerLoggedInEvent e) {
-         if(e.player.getEntityData().hasKey("ProgrammableHatchesTutorialGet1")==false)
+         if(e.player.getEntityData().hasKey("ProgrammableHatchesTutorialGet3")==false)
         {
             e.player.getEntityData()
-                .setBoolean("ProgrammableHatchesTutorialGet1", true);
+                .setBoolean("ProgrammableHatchesTutorialGet3", true);
 
-            e.player.getEntityWorld()
-                .spawnEntityInWorld(
-                    new EntityItem(e.player.getEntityWorld(), e.player.posX, e.player.posY, e.player.posZ
-
-                        , 
-                        Optional.of(tutorial())
-                        .map(s->{s.stackTagCompound.setString("proghatchesSpecialTag", "true");  return s;})
-                        .get()
-
-                    ));
-            e.player.getEntityWorld()
-            .spawnEntityInWorld(
-                new EntityItem(e.player.getEntityWorld(), e.player.posX, e.player.posY, e.player.posZ
-
-                    , 
-                    Optional.of(tutorial("programmable_hatches.eucreafting.tutorial"))
+        
+           
+            EntityItem entityitem = e.player.dropPlayerItemWithRandomChoice(  Optional.of(tutorial("programmable_hatches.eucreafting.tutorial"))
                     .map(s->{s.stackTagCompound.setString("proghatchesSpecialTag", "true");  return s;})
-                    .get()
-
-                ));
+                    .get(), false);
+            entityitem.delayBeforeCanPickup = 0;
+            entityitem.func_145797_a(e.player.getCommandSenderName());
+             entityitem = e.player.dropPlayerItemWithRandomChoice(  Optional.of(tutorial())
+                    .map(s->{s.stackTagCompound.setString("proghatchesSpecialTag", "true");  return s;})
+                    .get(), false);
+            entityitem.delayBeforeCanPickup = 0;
+            entityitem.func_145797_a(e.player.getCommandSenderName());
+          
             
             
             

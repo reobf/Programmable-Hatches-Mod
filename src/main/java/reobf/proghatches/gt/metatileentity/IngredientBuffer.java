@@ -546,7 +546,7 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 	       final IDrawable[]  background = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot() };
 	     //  final IDrawable[]  special = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot(), GT_UITextures.OVERLAY_SLOT_ARROW_ME };
 	        sc.widget(
-	            SlotGroup.ofItemHandler(inventoryHandler, 4)
+	            SlotGroup.ofItemHandler(inventoryHandler, 5)
 	               
 	                .startFromSlot(0)
 	                .endAtSlot(this.getSizeInventory()-1)
@@ -555,14 +555,14 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 	                
 
 	        );
-	        builder.widget(sc.setPos(3+4, 3+8).setSize(18*4, 18*2));
+	        builder.widget(sc.setPos(3+4, 3+8).setSize(18*5, 18*2));
 	        sc = new Scrollable().setVerticalScroll();
 	        
 	        final IDrawable[]    background0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot() };
 	    //    final IDrawable[]  special0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot(), GT_UITextures.OVERLAY_SLOT_ARROW_ME  };
  	       
 	        sc.widget(
- 	            SlotGroup.ofFluidTanks(Arrays.asList(fluidTanks), 3)
+ 	            SlotGroup.ofFluidTanks(Arrays.asList(fluidTanks), 2)
  	               
  	                .startFromSlot(0)
  	                .endAtSlot(fluidTanks.length-1)
@@ -573,7 +573,7 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 
  	        );
 	        
-	        builder.widget(sc  .setPos(3+18*4+4, 3+8).setSize(18, 18*4));
+	        builder.widget(sc  .setPos(3+18*5+4, 3+8).setSize(18*2, 18*4));
 	      /*  builder.widget(
 	        		
 	        		TextWidget.dynamicString(()->getInventoryName())

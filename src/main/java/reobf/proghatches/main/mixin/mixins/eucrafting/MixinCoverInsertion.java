@@ -20,7 +20,7 @@ public class MixinCoverInsertion {
 			,shift=Shift.BY,by=-3,
 			target="getAdaptor(Ljava/lang/Object;Lnet/minecraftforge/common/util/ForgeDirection;)Lappeng/util/InventoryAdaptor;"
 			
-			),method="pushItemsOut",remap=false)
+			),method="*",remap=false)
 	public ForgeDirection  a(ForgeDirection  old){
 		return correct(old);
 	}
@@ -29,7 +29,7 @@ public class MixinCoverInsertion {
 			,shift=Shift.BY,by=-3,
 			target="wrapInventory(Lnet/minecraft/tileentity/TileEntity;Lnet/minecraftforge/common/util/ForgeDirection;)Lappeng/util/InventoryAdaptor;"
 			
-			),method="pushItemsOut",remap=false)
+			),method="*",remap=false)
 	public ForgeDirection  b(ForgeDirection  old){
 		return correct(old);
 	}

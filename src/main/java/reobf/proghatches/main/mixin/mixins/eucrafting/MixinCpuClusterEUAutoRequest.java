@@ -144,9 +144,9 @@ inventory.getItemList().findFuzzy(type, FuzzyMode.IGNORE_ALL).forEach(s->{
 		}
 		
 	});
-//System.out.println(storage);
+
 tasks.entrySet().forEach(s->{
-	
+	//TODO remove 
 	
 	if(s.getKey() instanceof SISOPatternDetail){
 		SISOPatternDetail d=(SISOPatternDetail) s.getKey();

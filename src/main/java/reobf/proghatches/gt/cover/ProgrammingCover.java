@@ -6,6 +6,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import java.util.Optional;
+
 import gregtech.api.interfaces.IConfigurationCircuitSupport;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.ICoverable;
@@ -79,7 +81,13 @@ public class ProgrammingCover extends GT_CoverBehavior {
 	    }
 	@Override
 	public boolean isCoverPlaceable(ForgeDirection side, ItemStack aStack, ICoverable aTileEntity) {
-		if(aTileEntity instanceof IProgrammingCoverBlacklisted){return false;}
+		if(Optional.of(aTileEntity).filter(s->s instanceof IGregTechTileEntity)
+		.map(s->((IGregTechTileEntity)s).getMetaTileEntity())
+		.filter(s->s instanceof IProgrammingCoverBlacklisted)
+		.isPresent()
+		)return false;
+		
+		
 		return super.isCoverPlaceable(side, aStack, aTileEntity);
 	}
     @Override

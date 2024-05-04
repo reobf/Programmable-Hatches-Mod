@@ -89,10 +89,10 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
                 .getTagCompound()
                 .getString("dataLines0");
             String[] splits = s.split("§b|§r");
-            int x = Integer.valueOf(splits[1]);
-            int y = Integer.valueOf(splits[3]);
-            int z = Integer.valueOf(splits[5]);
-            int d = Integer.valueOf(splits[7]);
+            int x = Integer.valueOf(splits[1].replace(",", ""));
+            int y = Integer.valueOf(splits[3].replace(",", ""));
+            int z = Integer.valueOf(splits[5].replace(",", ""));
+            int d = Integer.valueOf(splits[7].replace(",", ""));
             World w = this.getBaseMetaTileEntity()
                 .getWorld();
             if (d == w.provider.dimensionId) {

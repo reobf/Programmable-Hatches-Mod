@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -29,7 +30,7 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import reobf.proghatches.Tags;
-import ru.timeconqueror.spongemixins.MinecraftURLClassPath;
+import  com.gtnewhorizon.gtnhmixins.MinecraftURLClassPath;
 
 public class MixinPlugin implements IMixinConfigPlugin {
 
@@ -102,7 +103,7 @@ String cfg=
           System.out.println("following warnings like 'Error loading class: xxxx' is normal and safe to ignore");
           
         // NEE is neither coremod nor mixinmod thus it's not in URL path, so add it to path or mixin will fail
-        loadJarOf(MixinPlugin::hasTrait,"NotEnoughEnergistics");
+        loadJarOf(MixinPlugin::hasTrait,"NotEnoughEnergistics","com/github/vfyjxf/nee/NotEnoughEnergistics.class");
 
        
 
@@ -168,7 +169,7 @@ String cfg=
 
     }
 
-    public static boolean hasTrait(Path p) {
+    public static boolean hasTrait(Path p,String name) {
         // System.err.println(p);
         try (ZipInputStream zs = new ZipInputStream(Files.newInputStream(p))) {
 
@@ -182,7 +183,7 @@ String cfg=
                  * }
                  */
                 boolean bingo = false;
-                if (entryName.contains("com/github/vfyjxf/nee/NotEnoughEnergistics.class")) {
+                if (entryName.contains(name)) {
                     bingo = true;
 
                 }
@@ -201,10 +202,10 @@ String cfg=
 
     }
 
-    @SuppressWarnings("deprecation")
-	private boolean loadJarOf(final Predicate<Path> mod,String trace) {
+   
+	private boolean loadJarOf(final BiPredicate<Path,String> mod,String trace,String classTrait) {
         try {
-            File jar = findJarOf(mod);
+            File jar = findJarOf(s->mod.test(s, classTrait));
             if (jar == null) {
                 LOG.info("Jar not found for " + trace);
                 return false;
@@ -214,7 +215,12 @@ String cfg=
             if (!jar.exists()) {
                 throw new FileNotFoundException(jar.toString());
             }
-            MinecraftURLClassPath.addJar(jar);
+            
+            if(!MinecraftURLClassPath.findJarInClassPath(jar.getName())){
+           MinecraftURLClassPath.addJar(jar);
+           }else{
+            LOG.info("Already loaded... pass.");
+            }
             return true;
         } catch (Exception e) {
             e.printStackTrace();

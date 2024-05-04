@@ -30,6 +30,10 @@ import reobf.proghatches.eucrafting.AECover.Data;
 import reobf.proghatches.main.MyMod;
 
 public class BridgingData implements Data{
+	public interface TriConsumer<a,b,c>{
+		   public void accept(a aa,b bb,c cc);
+		   
+	   }
 	 public void setTag(NBTTagCompound tagCompound) {tag=tagCompound;
 		}
 		 public NBTTagCompound getTag() {
@@ -137,11 +141,11 @@ public void update(ICoverable aTileEntity) {
 		   else a.add(s.a());
 	   });
 	   
-	   BiConsumer<IGridNode,String> tryConnect=(thenode,info)->{if(!a.contains(thenode)){
+	   TriConsumer<IGridNode,String,ForgeDirection> tryConnect=(thenode,info,dir)->{if(!a.contains(thenode)){
 			try {
 			new GridConnection(thiz, thenode, ForgeDirection.UNKNOWN);
 			
-			MyMod.LOG.info(info+" Bridging Node connect@"+this.getPos()+" "+this.side+"->"+side);
+			MyMod.LOG.info(info+" Bridging Node connect@"+this.getPos()+" "+this.side+"->"+dir);
 			} catch (FailedConnection e) {
 				System.out.println(this.getProxy().getNode());
 			    System.out.println(thenode);
@@ -160,16 +164,16 @@ public void update(ICoverable aTileEntity) {
 			if(thenode==null){continue;}
 			
 			
-			tryConnect.accept(thenode,"Internal");
+			tryConnect.accept(thenode,"Internal",side);
 	   }
 	  
-	   WorldCoord npos = this.getPos().add(side, 1);
-	   Optional.ofNullable(this.getPos().getWorld().getTileEntity(npos.x, npos.y,npos.z))
+	   WorldCoord npos = this.getPos().copy().add(side, 1);
+	  Optional.ofNullable(this.getPos().getWorld().getTileEntity(npos.x, npos.y,npos.z))
 	   .map(s->s instanceof ICoverable?(ICoverable)s:null)
 	   .map(s->s.getComplexCoverDataAtSide(side.getOpposite()))
 	   .map(s->s instanceof Data?(Data)s:null)
 	   .map(s->s.getProxy().getNode())
-	   .ifPresent(s->tryConnect.accept(s, "External"));
+	   .ifPresent(s->tryConnect.accept(s, "External",side));
 	   
 	   
 	   

@@ -29,6 +29,7 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.internal.Streams;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
@@ -398,13 +399,13 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus implements 
         }
     }
 
-    Function<FluidTank[], FluidStack[]> asFluidStack = (s) -> Arrays.asList(s)
-        .stream()
+    Function<FluidTank[], FluidStack[]> asFluidStack = (s) -> Arrays
+        .stream(s)
         .map(FluidTank::getFluid)
         .filter(a -> a != null && a.amount > 0)
         .toArray(FluidStack[]::new);
-    Function<ItemStack[], ItemStack[]> filterStack = (s) -> Arrays.asList(s)
-        .stream()
+    Function<ItemStack[], ItemStack[]> filterStack = (s) -> Arrays
+        .stream(s)
         .filter(a -> a != null)
         .toArray(ItemStack[]::new);
 

@@ -572,10 +572,14 @@ public void updateSlots(){
                 return actuallyFound;
             }
             return false;
-        }
-
+        } 
         @Override
         public ItemStack[] getItemInputs() {
+        	
+        	return filterStack.apply(getSparseItemInputs());
+        }
+       
+        public ItemStack[] getSparseItemInputs() {
             ItemStack additional = getStackInSlot(getCircuitSlot());
             if (additional == null) return mStoredItemInternal;
             int before_size = mStoredItemInternal.length;

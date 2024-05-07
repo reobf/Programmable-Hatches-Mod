@@ -1,7 +1,7 @@
 package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
-
+import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -24,6 +24,7 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Slot;
@@ -93,6 +94,7 @@ import gregtech.api.util.GT_Utility;
 import gregtech.api.util.extensions.ArrayExt;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
+import gregtech.common.tileentities.storage.GT_MetaTileEntity_QuantumChest;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.item.ItemProgrammingCircuit;
@@ -1439,5 +1441,38 @@ public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlaye
 public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
 	dirty=true;
 	return super.endRecipeProcessing(controller);
+}
+@Override
+public void onBlockDestroyed() {
+	IGregTechTileEntity te = this.getBaseMetaTileEntity();
+	World aWorld=te.getWorld();
+	int aX = te.getXCoord();
+	short aY = te.getYCoord();
+	int aZ = te.getZCoord();
+	for (DualInvBuffer inv:this.inv0)
+	for (int i = 0; i < inv.mStoredItemInternal.length; i++) {
+             final ItemStack tItem =inv.mStoredItemInternal[i];
+             if ((tItem != null) && (tItem.stackSize > 0)) {
+                 final EntityItem tItemEntity = new EntityItem(
+                     aWorld,
+                     aX + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
+                     aY + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
+                     aZ + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
+                     new ItemStack(tItem.getItem(), tItem.stackSize, tItem.getItemDamage()));
+                 if (tItem.hasTagCompound()) {
+                     tItemEntity.getEntityItem()
+                         .setTagCompound(
+                             (NBTTagCompound) tItem.getTagCompound()
+                                 .copy());
+                 }
+                 tItemEntity.motionX = (XSTR_INSTANCE.nextGaussian() * 0.05D);
+                 tItemEntity.motionY = (XSTR_INSTANCE.nextGaussian() * 0.25D);
+                 tItemEntity.motionZ = (XSTR_INSTANCE.nextGaussian() * 0.05D);
+                 aWorld.spawnEntityInWorld(tItemEntity);
+                 tItem.stackSize = 0;
+                 inv.mStoredItemInternal[i]=null;
+             }
+         }
+   super.onBlockDestroyed();
 }
 }

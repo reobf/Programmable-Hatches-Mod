@@ -630,5 +630,13 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 		ItemStack is = this.getMachineCraftingIcon();
 		return is == null ? new ItemStack(GregTech_API.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID()) : is;
 	}
-
+	@Override
+    public void onBlockDestroyed() {
+        try {
+			refundAll();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+       super.onBlockDestroyed();
+    }
 }

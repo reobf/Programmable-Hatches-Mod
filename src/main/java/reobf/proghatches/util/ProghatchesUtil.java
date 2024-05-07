@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.widget.Widget;
@@ -62,12 +63,19 @@ public class ProghatchesUtil {
         Map<Long, Byte> signals = frequencies.computeIfAbsent(frequency, k -> new ConcurrentHashMap<>());
         signals.put(hash, value);
     }
-
     public static Byte getSignalAt(UUID uuid, int frequency, GT_Cover_AdvancedRedstoneReceiverBase.GateMode mode) {
+    	return getSignalAt(uuid,frequency,mode,true);
+    }
+    public static Byte getSignalAt(UUID uuid, int frequency, GT_Cover_AdvancedRedstoneReceiverBase.GateMode mode,boolean missingAsFalse) {
         Map<Integer, Map<Long, Byte>> frequencies = GregTech_API.sAdvancedWirelessRedstone.get(String.valueOf(uuid));
-        if (frequencies == null) return 0;
-
-        Map<Long, Byte> signals = frequencies.get(frequency);
+        Map<Long, Byte> signals;
+        if (frequencies == null) {
+        	if(missingAsFalse)return 0;
+        	signals=ImmutableMap.of();
+        }else{
+        signals= frequencies.get(frequency);
+        }
+        
         if (signals == null) signals = new ConcurrentHashMap<>();
 
         switch (mode) {

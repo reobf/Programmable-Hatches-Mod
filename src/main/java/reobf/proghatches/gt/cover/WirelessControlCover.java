@@ -17,6 +17,7 @@ import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.math.Color;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
@@ -130,7 +131,7 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
 
             ,
             (int) d.freq,
-            GateMode.AND);
+            GateMode.values()[d.gateMode]);
 
     }
 
@@ -434,7 +435,26 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
                     .setPos(startX + spaceX * 5, startY)
 
             );
+/*
+ *   aInputRedstone = getRedstone(d, aTileEntity);
+        if (d.invert) aInputRedstone = (byte) (15 - aInputRedstone);
 
+ * */
+            
+            builder.widget(TextWidget.dynamicString(()->{
+            	ICoverable aTileEntity = getUIBuildContext().getTile();
+            	Data d = getCoverData();
+            	int aInputRedstone = getRedstone(d, aTileEntity);
+                if (d.invert) aInputRedstone = (byte) (15 - aInputRedstone);
+            	return "redstone:"+aInputRedstone;
+            }) .setPos(startX, startY + spaceY * 3)
+               .setSize(spaceX * 2 + 5, 12)
+                    
+            		
+            		);
+            
+            
+            
             builder.widget(
                 Optional.of(new TextFieldWidget())
                     .filter(s -> {

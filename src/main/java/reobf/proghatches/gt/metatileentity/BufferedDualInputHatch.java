@@ -21,6 +21,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Slot;
@@ -575,17 +578,14 @@ public void updateSlots(){
         } 
         @Override
         public ItemStack[] getItemInputs() {
-        	
-        	return filterStack.apply(getSparseItemInputs());
-        }
-       
-        public ItemStack[] getSparseItemInputs() {
+        	ItemStack[] condensed = filterStack.apply(mStoredItemInternal);
             ItemStack additional = getStackInSlot(getCircuitSlot());
-            if (additional == null) return mStoredItemInternal;
-            int before_size = mStoredItemInternal.length;
+            if (additional == null) return condensed;
+            
+            int before_size = condensed.length;
             ItemStack[] bruh = new ItemStack[before_size + 1];
             bruh[before_size] = additional;
-            System.arraycopy(mStoredItemInternal, 0, bruh, 0, before_size);
+            System.arraycopy(condensed, 0, bruh, 0, before_size);
             return bruh;
         }
 
@@ -1250,21 +1250,29 @@ public void onFill() {
     		int  times;
     		boolean first=true;
     		boolean onceCompared;
-    		public void track(ItemStack recipe,ItemStack storage){
+    		public void track(@Nonnull ItemStack recipe,@Nullable ItemStack storage){
     			if(recipe.getItem() instanceof ItemProgrammingCircuit){onceCompared=true;return;}
+    			if(recipe.getItem() !=(storage==null?null:storage.getItem())){broken=true;onceCompared=true;return;}
     			int a=recipe.stackSize;
     			int b=Optional.ofNullable(storage).map(s->s.stackSize).orElse(0);
-    			track(a,b);
+    			track(a,b,false);
     		}
-    		public void track(FluidTank recipe, FluidTank storage) {
+    		public void track(@Nonnull FluidTank recipe,@Nonnull FluidTank storage) {
+    			if(recipe.getFluid().getFluid() !=
+    					Optional.of(storage)
+    					.map(FluidTank::getFluid)
+    					.map(FluidStack::getFluid)
+    					.orElse(null)){
+    				broken=true;onceCompared=true;return;}
+    			
 				int a=recipe.getFluidAmount();
     			int b=storage.getFluidAmount();
-    			track(a,b);
+    			track(a,b,false);
 			}
-    		public void track(int a,int b){
+    		public void track(int a,int b,boolean ignoreEmpty){
     			int t=0;
     			if(a==0){broken=true;return;/*Actually impossible*/}
-    			if(b==0){return;}
+    			if(b==0){if(!ignoreEmpty)broken=true;return;}
     			if(b%a!=0){broken=true;return;}
     			t=b/a;
     			if(t!=times){

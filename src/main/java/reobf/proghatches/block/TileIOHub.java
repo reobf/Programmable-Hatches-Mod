@@ -233,9 +233,7 @@ IInventory,IFluidHandler,
 IGridProxyable,ITileWithModularUI, ICustomNameObject,IActionHost
 {
 	public TileIOHub(){
-		
-		
-		
+	
 	}
 	
 	

@@ -2,18 +2,9 @@ package reobf.proghatches.gt.cover;
 
 
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-
 import java.util.ArrayList;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
-import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
 import gregtech.api.gui.modularui.GT_UITextures;
@@ -23,13 +14,14 @@ import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IMachineProgress;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
-import gregtech.api.multitileentity.base.MultiTileEntity;
 import gregtech.api.util.GT_CoverBehavior;
-import gregtech.api.util.GT_Utility;
 import gregtech.api.util.ISerializableObject;
 import gregtech.common.gui.modularui.widget.CoverDataControllerWidget;
 import gregtech.common.gui.modularui.widget.CoverDataFollower_CycleButtonWidget;
-import gregtech.common.gui.modularui.widget.CoverDataFollower_ToggleButtonWidget;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.StatCollector;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
 
 public class LastWorktimeCover extends GT_CoverBehavior {
 

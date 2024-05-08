@@ -3,6 +3,8 @@ package reobf.proghatches.util;
 import static gregtech.api.util.GT_Utility.*;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +27,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.PacketBuffer;
 import reobf.proghatches.main.MyMod;
+
 import gregtech.api.GregTech_API;
 import gregtech.api.util.GT_Log;
 import gregtech.api.util.GT_Utility;
@@ -193,12 +196,24 @@ public class ProghatchesUtil {
     
     public static  void attachZeroSizedStackRemover(Builder builder, UIBuildContext buildContext){
     	builder.widget(new SyncedWidget(){  
-        	Consumer<Widget> ticker=ss->{
+    
+		
+			Consumer<Widget> ticker=ss->{
         		//if held stack is 0-sized, remove it
         		Optional.ofNullable(buildContext.getPlayer().inventory.getItemStack())
         		.filter(s->s.stackSize<=0)
         		.ifPresent(s->buildContext.getPlayer().inventory.setItemStack(null));
-        		;};
+        		ItemStack[] inv=buildContext.getPlayer().inventory.mainInventory;
+        		for(int i=0;i<inv.length;i++){
+        			if(inv[i]!=null&&inv[i].stackSize<=0){
+        				inv[i]=null;
+        			}
+        			
+        		}
+        	};	
+        		
+        	
+        	
         		{//tick on client side
         			this.setTicker(ticker);
         		}

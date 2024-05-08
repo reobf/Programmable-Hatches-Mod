@@ -16,6 +16,7 @@ import com.gtnewhorizons.modularui.api.UIInfos;
 import com.gtnewhorizons.modularui.common.internal.network.NetworkUtils;
 
 import appeng.api.util.IOrientable;
+import appeng.block.AEBaseBlock;
 import appeng.block.AEBaseTileBlock;
 import appeng.client.render.BaseBlockRender;
 import appeng.client.render.BlockRenderInfo;
@@ -46,8 +47,12 @@ import net.minecraftforge.common.util.ForgeDirection;
 import com.glodblock.github.client.textures.FCPartsTexture;
 import com.glodblock.github.common.block.BlockFluidInterface;
 import com.glodblock.github.common.tile.TileFluidInterface;
-
-public class BlockEUInterface extends AEBaseTileBlock{
+/*
+Eclipse says:
+Duplicate methods named getSubBlocks with the parameters (Item, CreativeTabs, List<ItemStack>) and (Item, CreativeTabs, List<ItemStack>) are defined by the type AEBaseBlock
+replace actual superclass in coremod
+*/
+public class BlockEUInterface extends DummySuper/*appeng.block.AEBaseTileBlock*/{
 
 
 
@@ -80,19 +85,19 @@ public String getTextureName() {
 	return "proghatches:eu_interface";
 }
 
-	    @Override
+	    
 	    @SideOnly(Side.CLIENT)
-	    protected BaseBlockRender<BlockEUInterface, TileFluidInterface_EU> getRenderer() {
-	        return new BaseBlockRender<BlockEUInterface, TileFluidInterface_EU>(false, 20){
+	    protected BaseBlockRender<AEBaseBlock, TileFluidInterface_EU> getRenderer() {
+	        return new BaseBlockRender<AEBaseBlock, TileFluidInterface_EU>(false, 20){
 	        	
 	        	
 
 	        	   
 
 	        	    @Override
-	        	    public boolean renderInWorld(final BlockEUInterface block, final IBlockAccess world, final int x, final int y,
+	        	    public boolean renderInWorld(final AEBaseBlock block, final IBlockAccess world, final int x, final int y,
 	        	            final int z, final RenderBlocks renderer) {
-	        	        final TileInterface ti = block.getTileEntity(world, x, y, z);
+	        	        final TileInterface ti = ((BlockEUInterface)(Object)block).getTileEntity(world, x, y, z);
 	        	        final BlockRenderInfo info = block.getRendererInstance();
 
 	        	        if (ti != null && ti.getForward() != ForgeDirection.UNKNOWN) {
@@ -117,8 +122,10 @@ public String getTextureName() {
 	        };
 	    
 
-	    @Override
-	    public boolean onActivated(final World world, final int x, final int y, final int z, final EntityPlayer player,
+	
+	
+
+		public boolean onActivated(final World world, final int x, final int y, final int z, final EntityPlayer player,
 	            final int facing, final float hitX, final float hitY, final float hitZ) {
 	        if (player.isSneaking()) {
 	           
@@ -144,29 +151,22 @@ public String getTextureName() {
 	    }
 	  public BlockEUInterface(Material mat, String name) {
 	        super(mat);
-	        this.setBlockName(name);
-	        setFullBlock(true);
-	        setOpaque(true);
+	       super.setBlockName(name);
+	        //setFullBlock(true);
+	       // setOpaque(true);
 	        setTileEntity(TileFluidInterface_EU.class);
 	        setFeature(EnumSet.of(AEFeature.Core));
 	      //  this.setBlockTextureName(FluidCraft.MODID + ":" + name);
 	    }
 
-	    @Override
+	 
 	    public void setTileEntity(final Class<? extends TileEntity> clazz) {
-	        AEBaseTile.registerTileItem(clazz, new BlockStackSrc(this, 0, ActivityState.Enabled));
+	        AEBaseTile.registerTileItem(clazz, new BlockStackSrc((Block)(Object)this, 0, ActivityState.Enabled));
 	        super.setTileEntity(clazz);
 	    }
 
-	    public void setOpaque(boolean opaque) {
-	        this.isOpaque = opaque;
-	    }
-
-	    public void setFullBlock(boolean full) {
-	        this.isFullSize = full;
-	    }
-
-	    @Override
+	    
+	    
 	    public void setFeature(final EnumSet<AEFeature> f) {
 	        super.setFeature(f);
 	    }
@@ -181,21 +181,16 @@ public String getTextureName() {
 	    }
 
 	    public ItemStack stack(int size) {
-	        return new ItemStack(this, size);
+	        return new ItemStack((Block)(Object)this, size);
 	    }
 
 	    public ItemStack stack() {
-	        return new ItemStack(this, 1);
+	        return new ItemStack((Block)(Object)this, 1);
 	    }
 	
 
 	
-@Override
-	public void addCollisionBoxesToList(World w, int x, int y, int z, AxisAlignedBB bb, List out,
-			Entity e) {
-		// TODO Auto-generated method stub
-		super.addCollisionBoxesToList(w, x, y, z, bb, out, e);
-	}
+
 
 
 }

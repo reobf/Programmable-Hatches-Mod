@@ -433,7 +433,7 @@ public void updateSlots(){
 
         public boolean clearRecipeIfNeeded() {
             if (lock) {
-                return false;
+              return !recipeLocked;
             }
             if (isEmpty()) {
                 for (FluidTank ft : mStoredFluidInternalSingle) {
@@ -556,9 +556,9 @@ public void updateSlots(){
         }
 
         public boolean recordRecipeOrClassify(ListeningFluidTank[] fin, ItemStack[] iin) {
-            boolean isEmpty = clearRecipeIfNeeded();
+            boolean readyToRecord = clearRecipeIfNeeded();
             // clearRecipeIfNeeded();
-            if (recipeLocked == false && isEmpty == true) {
+            if (recipeLocked == false && readyToRecord == true) {
                 boolean actuallyFound = false;
                 for (int ix = 0; ix < f; ix++) {
                     if (fin[ix].getFluidAmount() > 0) {
@@ -1347,7 +1347,8 @@ public void onFill() {
     		int copies=sub.getInteger("possibleCopies");
     		if(copies==-1
     			&&(sub.getBoolean("locked"))//if not locked, do not warn about the copies
-    			)cpinfo=cpinfo+LangManager.translateToLocal("programmable_hatches.buffer.waila.broken");
+    			&&(!sub.getBoolean("empty"))//if empty, actual copies will be zero but will count as broken, so do not warn.
+    				)cpinfo=cpinfo+LangManager.translateToLocal("programmable_hatches.buffer.waila.broken");
     		if(copies>0){
     			cpinfo=cpinfo+LangManager.translateToLocalFormatted("programmable_hatches.buffer.waila.copies",copies+"");
     			if(!sub.getBoolean("locked")){cpinfo+="???STRANGE SITUATION???";}

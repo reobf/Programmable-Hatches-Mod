@@ -8,7 +8,6 @@ import appeng.core.sync.GuiBridge;
 import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
 import gregtech.common.blocks.GT_Material_Machines;
 
 import net.minecraft.block.BlockContainer;

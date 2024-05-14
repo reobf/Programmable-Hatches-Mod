@@ -373,7 +373,7 @@ catch (Exception ignored) {
 
 // Pulls version first from the VERSION env and then git tag
 String identifiedVersion = null
-String versionOverride = '0.0.13'
+String versionOverride = '0.0.14'
 try {
     // Produce a version based on the tag, or for branches something like 0.2.2-configurable-maven-and-extras.38+43090270b6-dirty
     if (versionOverride == null) {
@@ -680,7 +680,7 @@ configurations.all {
 
 dependencies {
     constraints {
-        def minGtnhLibVersion = "0.0.13"
+        def minGtnhLibVersion = "0.0.14"
         implementation("com.github.GTNewHorizons:GTNHLib:${minGtnhLibVersion}") {
             because("fixes duplicate mod errors in java 17 configurations using old gtnhlib")
         }

@@ -5,7 +5,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Function;
@@ -18,10 +26,12 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.util.StringTranslate;
 import net.minecraftforge.common.config.Configuration;
 import reobf.proghatches.lang.LangManager;
-import scala.actors.threadpool.Arrays;
+
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
+
+import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
 
 public class Config {
 public static boolean appendAddedBy=true;
@@ -68,6 +78,95 @@ public static boolean appendAddedBy=true;
     public static <T> T defaultObj(Supplier<T> en, Supplier<T> cn) {
         return isCN ? cn.get() : en.get();
     }*/
+    
+    public static void get(GT_Multiblock_Tooltip_Builder obj,String key ,boolean defaulted){
+    	try(InputStream in=(defaulted? getInputEN:getInput).apply(key)){
+    		if(in==null){
+    			if(defaulted){
+    			obj.addMachineType("!!!error!!! failed to translate").toolTipFinisher("do not remove en_US folder!");
+    			return ;}
+    			get(obj,key,true);
+    			return;
+    		}
+    		byte[] b=new byte[in.available()];
+    		int off=0;
+    		int tmp;
+    		do{
+    		tmp=in.read(b, off, b.length - off);
+    		off+=tmp;
+    		}while(in.available()>0);
+    		String[] arr=new String(b,"UTF-8").split("\r?\n");
+    		for(String str:arr){
+    		int a0=str.indexOf("(");
+    		int a1=str.lastIndexOf(")->");
+    			String func=str.substring(0, a0);
+    			String args=str.substring(a0+1, a1);
+    			String type=str.substring(a1+1+2,str.length());
+    			MethodType tp=MethodType.fromMethodDescriptorString(
+    					
+    					type+(func.equals("toolTipFinisher")?"V":"Lgregtech/api/util/GT_Multiblock_Tooltip_Builder;")
+    					
+    					, Config.class.getClassLoader());
+    			call(obj,args,
+    			MethodHandles.lookup().findVirtual(GT_Multiblock_Tooltip_Builder.class, func, tp
+    			),tp
+    			)
+    			;
+    			
+    			
+    			
+    		}
+    	
+    	
+    	
+    	}catch(Exception e){MyMod.LOG.fatal("failed to get GT description:"+key);
+    		e.printStackTrace();}
+    	
+    	if(Config.appendAddedBy)
+    		obj.toolTipFinisher( LangManager.translateToLocal("programmable_hatches.addedby"));;
+    }
+ private static void call(Object callee,String args, MethodHandle virtual,MethodType type) {
+	Object[] topass=new Object[ type.parameterArray().length+1];
+	LinkedList<String> args0=new LinkedList<>();
+	Arrays.stream(	args.split("¶")).forEach(args0::add);;
+	int index=0;
+	 topass[index++]=callee;
+	for(Class<?> c:type.parameterArray()){
+		 if(c==String.class){
+			 topass[index++]=args0.pop();
+		 }else
+		 if(c==int.class){
+			 topass[index++]=Integer.parseInt(args0.pop());
+		 }else
+		 if(c==int[].class){
+			 int[] a=new int[args0.size()];
+			 for(int i=0;i<a.length;i++){
+				 a[i]=Integer.parseInt(args0.pop());
+			}
+			 topass[index++]=a;
+		 }else
+		 if(c==boolean.class){
+			 topass[index++]=Boolean.parseBoolean(args0.pop());		 
+				 
+			 }else{
+			 throw new RuntimeException("cannot parse"+c);
+		 }
+	}
+	try {virtual=virtual.asFixedArity();
+		virtual.invokeWithArguments(topass);
+	} catch (Throwable e) {
+		e.printStackTrace();
+		throw new RuntimeException(e);
+	}
+	
+	
+	
+	
+}
+public static void get(GT_Multiblock_Tooltip_Builder obj,String key ){
+    	get(obj,key,false);
+    }
+    
     public static String[] get(String key,Map<String,Object> fmtter){
     	return  get(key,fmtter,false);
     }

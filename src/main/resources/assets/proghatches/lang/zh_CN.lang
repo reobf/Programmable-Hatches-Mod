@@ -330,3 +330,7 @@ item.proghatch.cover.dedicated.tooltips.37.1=将所有仓室上的覆盖版连�
 item.proghatch.cover.dedicated.tooltips.37.2=最多传递8个频道
 buffer.ingredientbuffer.name.0=原材料缓存仓 (T0)
 buffer.ingredientbuffer.name.1=原材料缓存仓 (T1)
+proghatches.provider.waila.disabled=作为多方块结构成型时无法连入ME网络
+GT5U.gui.text.proghatches.largepcp.running=正在提供编程器电路合成
+multimachine.largeprogrammingcircuitprovider.name=大型编程器电路提供器
+providerchainer.name=提供器访问仓

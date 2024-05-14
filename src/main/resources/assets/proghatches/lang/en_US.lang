@@ -293,4 +293,7 @@ item.proghatch.cover.dedicated.tooltips.37.1=Make all Covers on the attached Hat
 item.proghatch.cover.dedicated.tooltips.37.2=Carry 8 Channels.
 buffer.ingredientbuffer.name.0=Ingredient Buffer (T0)
 buffer.ingredientbuffer.name.1=Ingredient Buffer (T1)
-
+proghatches.provider.waila.disabled=Cannot connect ME network when working as part of a Multiblock
+GT5U.gui.text.proghatches.largepcp.running=Providing Programming Circuit Crafting
+multimachine.largeprogrammingcircuitprovider.name=Large Programming Circuit Provider
+providerchainer.name=Provider Access Hatch

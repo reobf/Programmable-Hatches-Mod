@@ -5,6 +5,7 @@ import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_PIPE_IN;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +28,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
@@ -68,13 +70,14 @@ import gregtech.api.render.TextureFactory;
 import gregtech.api.util.extensions.ArrayExt;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
+import reobf.proghatches.eucrafting.IInstantCompletable;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
 public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
-    implements IAddUIWidgets, IPowerChannelState, ICraftingProvider, IGridProxyable {
+    implements IAddUIWidgets, IPowerChannelState, ICraftingProvider, IGridProxyable,ICircuitProvider,IInstantCompletable {
 
     public ProgrammingCircuitProvider(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount) {
         super(
@@ -105,7 +108,10 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
     }
 
     private void updateValidGridProxySides() {
-
+     if(disabled){
+    	   getProxy().setValidSides(EnumSet.noneOf(ForgeDirection.class));
+    	 return;
+     }
         getProxy().setValidSides(EnumSet.of(getBaseMetaTileEntity().getFrontFacing()));
 
     }
@@ -166,16 +172,16 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
         return false;
     }
 
-    int patternCheckTimer = (int) (Math.random() * 20);
+  final private  int ran = (int) (Math.random() * 20);
 
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-        if (aBaseMetaTileEntity.getWorld().isRemote == false) lab: if (patternCheckTimer++ > 20) {// check every 1s
-            patternCheckTimer = 0;
+        if (aBaseMetaTileEntity.getWorld().isRemote == false) lab: if (aTick%20==ran) {// check every 1s
+          
             if (snapshot != null) {
                 for (int i = 0; i < snapshot.length; i++) {
                     if (ItemStack.areItemStacksEqual(snapshot[i], mInventory[i]) == false) {
-
+                    	patternDirty=true;
                         doSnapshot();
                         postEvent();
                         break lab;
@@ -186,23 +192,31 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
 
         }
        //IMEMonitor<IAEItemStack> ae = getStorageGrid().getItemInventory();
-        toReturn.replaceAll(
-        		  s -> Optional.ofNullable(
-        		  getStorageGrid().getItemInventory()
-                  .injectItems(
-                      AEItemStack.create(s),
-                      Actionable.MODULATE,
-                      new MachineSource((IActionHost) getBaseMetaTileEntity()))
-                  )
-        		  .filter(ss->ss.getStackSize()<=0)
-        		  .map(ss->ss.getItemStack())
-        		  .orElse(null)
-        		);
-        toReturn.removeIf(Objects::isNull);
+        returnItems();
 
         super.onPostTick(aBaseMetaTileEntity, aTick);
     }
 
+    public void returnItems(){
+    	 toReturn.replaceAll(
+       		  s -> Optional.ofNullable(
+       		  getStorageGrid().getItemInventory()
+                 .injectItems(
+                     AEItemStack.create(s),
+                     Actionable.MODULATE,
+                     new MachineSource((IActionHost) getBaseMetaTileEntity()))
+                 )
+       		  .filter(ss->ss.getStackSize()<=0)
+       		  .map(ss->ss.getItemStack())
+       		  .orElse(null)
+       		);
+       toReturn.removeIf(Objects::isNull);
+    	
+    	
+    }
+    
+    
+    
     @Override
     public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {
 
@@ -303,8 +317,9 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch
         .encodedPattern()
         .maybeItem()
         .orNull();
-
+    boolean patternDirty;
     private boolean postEvent() {
+    	
         try {
             this.getProxy()
                 .getGrid()
@@ -562,7 +577,7 @@ public ItemStack getCrafterIcon() {
 @Override
 public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
 		int z) {
-	//no-op  get the name on client side
+	tag.setBoolean("disabled", disabled);
 	super.getWailaNBTData(player, tile, tag, world, x, y, z);
 }
 
@@ -580,9 +595,35 @@ public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDat
 			
 			);
 	
-	
+	if(accessor.getNBTData().getBoolean("disabled")){
+		
+		currenttip.add(
+				StatCollector.translateToLocal("proghatches.provider.waila.disabled"));
+		
+	};
 	
 	
 	super.getWailaBody(itemStack, currenttip, accessor, config);
 }
+boolean disabled;
+public void disable() {
+	disabled=true;
+	updateValidGridProxySides();
+}
+
+@Override
+public Collection<ItemStack> getCircuit() {
+	
+	return Lists.newArrayList(ItemProgrammingCircuit.wrap(mInventory[0]));
+}
+
+@Override
+public void complete() {
+	   returnItems();
+	
+}	
+public void clearDirty(){patternDirty=false;
+};
+public boolean patternDirty(){return patternDirty;}
+
 }

@@ -1,5 +1,6 @@
 package reobf.proghatches.main.registration;
 
+import static gregtech.api.enums.MetaTileEntityIDs.DISTILLATION_TOWER_CONTROLLER;
 import static gregtech.api.enums.Textures.BlockIcons.MACHINE_CASINGS;
 import static reobf.proghatches.main.Config.*;
 
@@ -24,6 +25,7 @@ import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.LightingHelper;
 import gregtech.common.render.GT_CopiedBlockTexture;
+import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_DistillationTower;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.BridgingData;
 import reobf.proghatches.eucrafting.InterfaceData;
@@ -43,10 +45,12 @@ import reobf.proghatches.gt.metatileentity.FilterOutputBus;
 import reobf.proghatches.gt.metatileentity.IngredientBuffer;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
+import reobf.proghatches.gt.metatileentity.ProviderChainer;
 import reobf.proghatches.gt.metatileentity.RecipeCheckResultDetector;
 import reobf.proghatches.gt.metatileentity.RemoteInputBus;
 import reobf.proghatches.gt.metatileentity.RemoteInputHatch;
 import reobf.proghatches.gt.metatileentity.SuperfluidHatch;
+import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
 import reobf.proghatches.item.ItemDedicatedCover;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
@@ -59,7 +63,7 @@ public class Registration implements Runnable {
     public static ArrayList<ItemStack> items_eucrafting = new ArrayList<ItemStack>();
     public final static int DualInputHatchOffset = 0;// -15
     public final static int QuadDualInputHatchOffset = 16;// -31
-    public final static int BufferedQuadDualInputHatchOffset = 100;
+    public final static int BufferedQuadDualInputHatchOffset = 100;//-115
     public final static int BufferedDualInputHatchOffset = 32;// -47
     public final static int CircuitProviderOffset = 48;
     public final static int SlaveOffset = 49;
@@ -72,7 +76,8 @@ public class Registration implements Runnable {
     public final static int FilterOffset = 74;// -77
 	private static final int RecipeCheckResultDetectorOffset = 78;
 	public final static int IngBufferOffset = 79;// -80
-
+	public final static int LargeProviderOffset = 116;
+	public final static int ChainerOffset = 117;
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -297,6 +302,16 @@ public class Registration implements Runnable {
                 "buffer.ingredientbuffer." + i[0],
                 LangManager.translateToLocal("buffer.ingredientbuffer.name."+i[0]),
                 i[1], new String[]{});
+        
+        new LargeProgrammingCircuitProvider(
+        		 Config.metaTileEntityOffset + LargeProviderOffset,
+                "multimachine.largeprogrammingcircuitprovider",
+                LangManager.translateToLocalFormatted("multimachine.largeprogrammingcircuitprovider.name"));
+        new ProviderChainer(
+                Config.metaTileEntityOffset + ChainerOffset ,
+                "providerchainer" ,
+                LangManager.translateToLocal("providerchainer.name"),4,0
+              );
         
     }
 public class IIconTexture0 extends IIconTexture{

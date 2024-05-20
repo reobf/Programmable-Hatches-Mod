@@ -21,47 +21,43 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-public class ItemPartEUP2PInterface  extends Item implements IPartItem {
-	
-    public ItemPartEUP2PInterface() {
-        this.setMaxStackSize(64);
-       // this.setUnlocalizedName(NameConst.ITEM_PART_FLUID_EXPORT);
-        AEApi.instance().partHelper().setItemBusRenderer(this);
-    }
+public class ItemPartEUP2PInterface extends Item implements IPartItem {
 
-    @Nullable
-    @Override
-    public PartEUP2PInterface createPartFromItemStack(ItemStack is) {
-        return new PartEUP2PInterface(is);
-    }
+	public ItemPartEUP2PInterface() {
+		this.setMaxStackSize(64);
+		// this.setUnlocalizedName(NameConst.ITEM_PART_FLUID_EXPORT);
+		AEApi.instance().partHelper().setItemBusRenderer(this);
+	}
 
-    @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side,
-            float xOffset, float yOffset, float zOffset) {
-        return AEApi.instance().partHelper().placeBus(player.getHeldItem(), x, y, z, side, player, world);
-    }
- 
-    /*
-    public ItemPartEUSource register() {
-        //if (!Config.fluidIOBus) return null;
-        GameRegistry.registerItem(this, NameConst.ITEM_PART_FLUID_EXPORT, FluidCraft.MODID);
-        //setCreativeTab(FluidCraftingTabs.INSTANCE);
-        return this;
-    }
-*/ 
-@SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister _iconRegister) {
-	//PartEUSource.registerIcons(_iconRegister);
-	
-	
-}
+	@Nullable
+	@Override
+	public PartEUP2PInterface createPartFromItemStack(ItemStack is) {
+		return new PartEUP2PInterface(is);
+	}
 
-    @Override
-    @SideOnly(Side.CLIENT)
-    public int getSpriteNumber() {
-        return 0;
-    }
+	@Override
+	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side,
+			float xOffset, float yOffset, float zOffset) {
+		return AEApi.instance().partHelper().placeBus(player.getHeldItem(), x, y, z, side, player, world);
+	}
 
+	/*
+	 * public ItemPartEUSource register() { //if (!Config.fluidIOBus) return
+	 * null; GameRegistry.registerItem(this, NameConst.ITEM_PART_FLUID_EXPORT,
+	 * FluidCraft.MODID); //setCreativeTab(FluidCraftingTabs.INSTANCE); return
+	 * this; }
+	 */
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void registerIcons(IIconRegister _iconRegister) {
+		// PartEUSource.registerIcons(_iconRegister);
+
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public int getSpriteNumber() {
+		return 0;
+	}
 
 }

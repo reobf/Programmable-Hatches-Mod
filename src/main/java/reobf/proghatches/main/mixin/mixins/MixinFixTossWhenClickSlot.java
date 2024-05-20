@@ -13,16 +13,15 @@ import com.gtnewhorizons.modularui.common.internal.wrapper.ModularGui;
 @Mixin(value = GuiContainer.class, remap = true)
 public abstract class MixinFixTossWhenClickSlot {
 
-    @ModifyVariable(
-        method = "mouseClicked",
-        at = @At(value = "FIELD", opcode = Opcodes.GETFIELD, target = "Lnet/minecraft/inventory/Slot;slotNumber:I"),
-        ordinal = 1)
-    protected boolean mouseClicked(boolean c) {
+	@ModifyVariable(method = "mouseClicked", at = @At(value = "FIELD", opcode = Opcodes.GETFIELD, target = "Lnet/minecraft/inventory/Slot;slotNumber:I"), ordinal = 1)
+	protected boolean mouseClicked(boolean c) {
 
-        if (((Object) this) instanceof ModularGui) return false;// only applies to ModularUI
+		if (((Object) this) instanceof ModularGui)
+			return false;// only applies to ModularUI
 
-        return c;
-    }
+		return c;
+	}
+//spotless:off
 /*
 GuiContainer.java
 

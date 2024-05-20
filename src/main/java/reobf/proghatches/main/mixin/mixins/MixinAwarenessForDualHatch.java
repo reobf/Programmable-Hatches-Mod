@@ -32,39 +32,38 @@ import reobf.proghatches.gt.metatileentity.IRecipeProcessingAwareDualHatch;
 @SuppressWarnings("unused")
 @Mixin(value = GT_MetaTileEntity_MultiBlockBase.class, remap = false)
 public abstract class MixinAwarenessForDualHatch {
-@Shadow
-public ArrayList<IDualInputHatch> mDualInputHatches = new ArrayList<>();
-@Shadow
-public CheckRecipeResult checkRecipeResult;
-@Inject( method = "startRecipeProcessing",at = { @At(value = "RETURN") })
-   public void a(CallbackInfo c){
-	   for (IDualInputHatch hatch :(mDualInputHatches)) {
-		   if(hatch==null||!((MetaTileEntity) hatch).isValid())continue;
-           if (hatch instanceof IRecipeProcessingAwareDualHatch ) {
-        	   ((IRecipeProcessingAwareDualHatch) hatch).startRecipeProcessing();
-           }
-       }
-   }
-   
-   
-   
-   @Inject( method = "endRecipeProcessing",at = { @At(value = "RETURN") })
-   public void b(CallbackInfo c){
-	   Consumer<CheckRecipeResult> setResultIfFailure = result -> {
-           if (!result.wasSuccessful()) {
-               this.checkRecipeResult = result;
-           }
-       };
+	@Shadow
+	public ArrayList<IDualInputHatch> mDualInputHatches = new ArrayList<>();
+	@Shadow
+	public CheckRecipeResult checkRecipeResult;
 
-       for (IDualInputHatch hatch : (mDualInputHatches)) {
-    	   if(hatch==null||!((MetaTileEntity) hatch).isValid())continue;
-           if (hatch instanceof IRecipeProcessingAwareDualHatch) {
-               setResultIfFailure.accept(((IRecipeProcessingAwareDualHatch)hatch).endRecipeProcessing(
-            		   (GT_MetaTileEntity_MultiBlockBase)(Object)this
-            		   ));
-           }
-       }
-   }
-   
-   
+	@Inject(method = "startRecipeProcessing", at = { @At(value = "RETURN") })
+	public void a(CallbackInfo c) {
+		for (IDualInputHatch hatch : (mDualInputHatches)) {
+			if (hatch == null || !((MetaTileEntity) hatch).isValid())
+				continue;
+			if (hatch instanceof IRecipeProcessingAwareDualHatch) {
+				((IRecipeProcessingAwareDualHatch) hatch).startRecipeProcessing();
+			}
+		}
+	}
+
+	@Inject(method = "endRecipeProcessing", at = { @At(value = "RETURN") })
+	public void b(CallbackInfo c) {
+		Consumer<CheckRecipeResult> setResultIfFailure = result -> {
+			if (!result.wasSuccessful()) {
+				this.checkRecipeResult = result;
+			}
+		};
+
+		for (IDualInputHatch hatch : (mDualInputHatches)) {
+			if (hatch == null || !((MetaTileEntity) hatch).isValid())
+				continue;
+			if (hatch instanceof IRecipeProcessingAwareDualHatch) {
+				setResultIfFailure.accept(((IRecipeProcessingAwareDualHatch) hatch)
+						.endRecipeProcessing((GT_MetaTileEntity_MultiBlockBase) (Object) this));
+			}
+		}
+	}
+
 }

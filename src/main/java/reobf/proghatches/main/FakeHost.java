@@ -24,24 +24,25 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
-public class FakeHost extends TileEntity implements IInterfaceHost,IUpgradeableHost,IPriorityHost,ICustomNameObject{
+public class FakeHost extends TileEntity implements IInterfaceHost, IUpgradeableHost, IPriorityHost, ICustomNameObject {
 
-	
-	public FakeHost(TileEntity coverHost,IInterfaceHost realCover){
+	public FakeHost(TileEntity coverHost, IInterfaceHost realCover) {
 		super();
-		if(coverHost!=null){
-		this.xCoord=coverHost.xCoord;
-		this.yCoord=coverHost.yCoord;
-		this.zCoord=coverHost.zCoord;
-		this.setWorldObj(coverHost.getWorldObj());
+		if (coverHost != null) {
+			this.xCoord = coverHost.xCoord;
+			this.yCoord = coverHost.yCoord;
+			this.zCoord = coverHost.zCoord;
+			this.setWorldObj(coverHost.getWorldObj());
 		}
-		cover=realCover;
+		cover = realCover;
 	}
+
 	IInterfaceHost cover;
+
 	@Override
 	public void provideCrafting(ICraftingProviderHelper craftingTracker) {
 		cover.provideCrafting(craftingTracker);
-		
+
 	}
 
 	@Override
@@ -118,7 +119,7 @@ public class FakeHost extends TileEntity implements IInterfaceHost,IUpgradeableH
 	@Override
 	public void securityBreak() {
 		cover.securityBreak();
-		
+
 	}
 
 	@Override
@@ -178,19 +179,19 @@ public class FakeHost extends TileEntity implements IInterfaceHost,IUpgradeableH
 	@Override
 	public void saveChanges() {
 		cover.saveChanges();
-		
+
 	}
 
 	@Override
 	public int getPriority() {
-	
-		return ((IPriorityHost)cover).getPriority();
+
+		return ((IPriorityHost) cover).getPriority();
 	}
 
 	@Override
 	public void setPriority(int newValue) {
-		((IPriorityHost)cover).setPriority(newValue);
-		
+		((IPriorityHost) cover).setPriority(newValue);
+
 	}
 
 	@Override
@@ -208,7 +209,7 @@ public class FakeHost extends TileEntity implements IInterfaceHost,IUpgradeableH
 	@Override
 	public void setCustomName(String name) {
 		((ICustomNameObject) cover).setCustomName(name);
-		
+
 	}
 
 }

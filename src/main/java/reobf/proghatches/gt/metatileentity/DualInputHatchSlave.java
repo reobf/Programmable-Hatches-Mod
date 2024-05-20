@@ -2,7 +2,6 @@ package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_CRAFTING_INPUT_SLAVE;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,249 +37,228 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.main.registration.Registration;
 
 public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch> extends GT_MetaTileEntity_Hatch_InputBus
-    implements IDualInputHatch {
+		implements IDualInputHatch {
 
-    private T master; // use getMaster() to access
-    private int masterX, masterY, masterZ;
-    private boolean masterSet = false; // indicate if values of masterX, masterY, masterZ are valid
+	private T master; // use getMaster() to access
+	private int masterX, masterY, masterZ;
+	private boolean masterSet = false; // indicate if values of masterX,
+										// masterY, masterZ are valid
 
-    public DualInputHatchSlave(int aID, String aName, String aNameRegional) {
-        super(
-            aID,
-            aName,
-            aNameRegional,
-            6,
-            0,
-            reobf.proghatches.main.Config.get("DHS", ImmutableMap.of())
-            /*defaultObj(
+	public DualInputHatchSlave(int aID, String aName, String aNameRegional) {
+		super(aID, aName, aNameRegional, 6, 0, reobf.proghatches.main.Config.get("DHS", ImmutableMap.of())
+		
+		);
+		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		disableSort = true;
+	}
 
-                ArrayExt.of(
-                    "Slave for Dual Input Hatch",
-                    "Link with Crafting Input Buffer using Data Stick to share inventory",
-                    "Left click on the Dual Input Hatch, then right click on this block to link them"
-                    ,LangManager.translateToLocal("programmable_hatches.addedby")
-                ),
-                ArrayExt.of("二合一输入仓的镜像端", "将所绑定的样板输入总成的内容物共享过来", "闪存左键点击二合一输入仓，然后右键点击输入镜像完成链接绑定",
-                		LangManager.translateToLocal("programmable_hatches.addedby")))
-            */
-            
+	public DualInputHatchSlave(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures) {
+		super(aName, aTier, 0, aDescription, aTextures);
+		disableSort = true;
+	}
 
-        /*
-         * new String[] { "Slave for (Buffered) Dual Input Hatch",
-         * "Link with Crafting Input Buffer using Data Stick to share inventory",
-         * "Left click on the Crafting Input Buffer, then right click on this block to link them"
-         * , }
-         */
+	@Override
+	public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
+		return new DualInputHatchSlave<>(mName, mTier, mDescriptionArray, mTextures);
+	}
 
-        );
-        Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
-        disableSort = true;
-    }
+	@Override
+	public ITexture[] getTexturesActive(ITexture aBaseTexture) {
+		return getTexturesInactive(aBaseTexture);
+	}
 
-    public DualInputHatchSlave(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures) {
-        super(aName, aTier, 0, aDescription, aTextures);
-        disableSort = true;
-    }
+	@Override
+	public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
+		return new ITexture[] { aBaseTexture, TextureFactory.of(OVERLAY_ME_CRAFTING_INPUT_SLAVE) };
+	}
 
-    @Override
-    public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
-        return new DualInputHatchSlave<>(mName, mTier, mDescriptionArray, mTextures);
-    }
+	@Override
+	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
+		super.onPostTick(aBaseMetaTileEntity, aTimer);
+		if (aTimer % 100 == 0 && masterSet && getMaster() == null) {
+			trySetMasterFromCoord(masterX, masterY, masterZ);
+		}
+	}
 
-    @Override
-    public ITexture[] getTexturesActive(ITexture aBaseTexture) {
-        return getTexturesInactive(aBaseTexture);
-    }
+	@Override
+	public void loadNBTData(NBTTagCompound aNBT) {
+		super.loadNBTData(aNBT);
 
-    @Override
-    public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
-        return new ITexture[] { aBaseTexture, TextureFactory.of(OVERLAY_ME_CRAFTING_INPUT_SLAVE) };
-    }
+		if (aNBT.hasKey("master")) {
+			NBTTagCompound masterNBT = aNBT.getCompoundTag("master");
+			masterX = masterNBT.getInteger("x");
+			masterY = masterNBT.getInteger("y");
+			masterZ = masterNBT.getInteger("z");
+			masterSet = true;
+		}
+	}
 
-    @Override
-    public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
-        super.onPostTick(aBaseMetaTileEntity, aTimer);
-        if (aTimer % 100 == 0 && masterSet && getMaster() == null) {
-            trySetMasterFromCoord(masterX, masterY, masterZ);
-        }
-    }
+	@Override
+	public void saveNBTData(NBTTagCompound aNBT) {
+		super.saveNBTData(aNBT);
+		if (masterSet) {
+			NBTTagCompound masterNBT = new NBTTagCompound();
+			masterNBT.setInteger("x", masterX);
+			masterNBT.setInteger("y", masterY);
+			masterNBT.setInteger("z", masterZ);
+			aNBT.setTag("master", masterNBT);
+		}
+	}
 
-    @Override
-    public void loadNBTData(NBTTagCompound aNBT) {
-        super.loadNBTData(aNBT);
+	@Override
+	public boolean isGivingInformation() {
+		return true;
+	}
 
-        if (aNBT.hasKey("master")) {
-            NBTTagCompound masterNBT = aNBT.getCompoundTag("master");
-            masterX = masterNBT.getInteger("x");
-            masterY = masterNBT.getInteger("y");
-            masterZ = masterNBT.getInteger("z");
-            masterSet = true;
-        }
-    }
+	@Override
+	public String[] getInfoData() {
+		ArrayList<String> ret = new ArrayList<String>();
+		if (getMaster() != null) {
+			ret.add("This bus is linked to the Crafting Input Buffer at " + masterX + ", " + masterY + ", " + masterZ
+					+ ".");
+			ret.addAll(Arrays.asList(getMaster().getInfoData()));
+		} else
+			ret.add("This bus is not linked to any Buffered Dual Inputhatch.");
+		return ret.toArray(new String[0]);
+	}
 
-    @Override
-    public void saveNBTData(NBTTagCompound aNBT) {
-        super.saveNBTData(aNBT);
-        if (masterSet) {
-            NBTTagCompound masterNBT = new NBTTagCompound();
-            masterNBT.setInteger("x", masterX);
-            masterNBT.setInteger("y", masterY);
-            masterNBT.setInteger("z", masterZ);
-            aNBT.setTag("master", masterNBT);
-        }
-    }
+	public T getMaster() {
+		if (master == null)
+			return null;
+		if (((IMetaTileEntity) master).getBaseMetaTileEntity() == null) { // master
+																			// disappeared
+			master = null;
+		}
+		return master;
+	}
 
-    @Override
-    public boolean isGivingInformation() {
-        return true;
-    }
+	@Override
+	public boolean allowPullStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
+			ItemStack aStack) {
+		return false;
+	}
 
-    @Override
-    public String[] getInfoData() {
-        ArrayList<String> ret = new ArrayList<String>();
-        if (getMaster() != null) {
-            ret.add(
-                "This bus is linked to the Crafting Input Buffer at " + masterX
-                    + ", "
-                    + masterY
-                    + ", "
-                    + masterZ
-                    + ".");
-            ret.addAll(Arrays.asList(getMaster().getInfoData()));
-        } else ret.add("This bus is not linked to any Buffered Dual Inputhatch.");
-        return ret.toArray(new String[0]);
-    }
+	@Override
+	public boolean allowPutStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
+			ItemStack aStack) {
+		return false;
+	}
 
-    public T getMaster() {
-        if (master == null) return null;
-        if (((IMetaTileEntity) master).getBaseMetaTileEntity() == null) { // master disappeared
-            master = null;
-        }
-        return master;
-    }
+	@Override
+	public Iterator<? extends IDualInputInventory> inventories() {
+		return getMaster() != null ? getMaster().inventories() : Collections.emptyIterator();
+	}
 
-    @Override
-    public boolean allowPullStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
-        ItemStack aStack) {
-        return false;
-    }
+	@Override
+	public Optional<IDualInputInventory> getFirstNonEmptyInventory() {
+		return getMaster() != null ? getMaster().getFirstNonEmptyInventory() : Optional.empty();
+	}
 
-    @Override
-    public boolean allowPutStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
-        ItemStack aStack) {
-        return false;
-    }
+	@Override
+	public boolean supportsFluids() {
+		return getMaster() != null && getMaster().supportsFluids();
+	}
 
-    @Override
-    public Iterator<? extends IDualInputInventory> inventories() {
-        return getMaster() != null ? getMaster().inventories() : Collections.emptyIterator();
-    }
+	@Override
+	public boolean justUpdated() {
+		return getMaster() != null && getMaster().justUpdated();
+	}
 
-    @Override
-    public Optional<IDualInputInventory> getFirstNonEmptyInventory() {
-        return getMaster() != null ? getMaster().getFirstNonEmptyInventory() : Optional.empty();
-    }
+	@SuppressWarnings("unchecked")
+	public IDualInputHatch trySetMasterFromCoord(int x, int y, int z) {
+		TileEntity tileEntity = getBaseMetaTileEntity().getWorld().getTileEntity(x, y, z);
+		if (tileEntity == null)
+			return null;
+		if (!(tileEntity instanceof IGregTechTileEntity))
+			return null;
+		IMetaTileEntity metaTileEntity = ((IGregTechTileEntity) tileEntity).getMetaTileEntity();
+		if (!(metaTileEntity instanceof IDualInputHatch))
+			return null;
 
-    @Override
-    public boolean supportsFluids() {
-        return getMaster() != null && getMaster().supportsFluids();
-    }
+		if (!(metaTileEntity instanceof reobf.proghatches.gt.metatileentity.DualInputHatch))
+			return null;
 
-    @Override
-    public boolean justUpdated() {
-        return getMaster() != null && getMaster().justUpdated();
-    }
+		masterX = x;
+		masterY = y;
+		masterZ = z;
+		masterSet = true;
+		master = (T) metaTileEntity;
+		return master;
+	}
 
-    @SuppressWarnings("unchecked")
-    public IDualInputHatch trySetMasterFromCoord(int x, int y, int z) {
-        TileEntity tileEntity = getBaseMetaTileEntity().getWorld()
-            .getTileEntity(x, y, z);
-        if (tileEntity == null) return null;
-        if (!(tileEntity instanceof IGregTechTileEntity)) return null;
-        IMetaTileEntity metaTileEntity = ((IGregTechTileEntity) tileEntity).getMetaTileEntity();
-        if (!(metaTileEntity instanceof IDualInputHatch)) return null;
+	private boolean tryLinkDataStick(EntityPlayer aPlayer) {
+		ItemStack dataStick = aPlayer.inventory.getCurrentItem();
 
-        if (!(metaTileEntity instanceof reobf.proghatches.gt.metatileentity.DualInputHatch)) return null;
+		if (!ItemList.Tool_DataStick.isStackEqual(dataStick, false, true)) {
+			return false;
+		}
+		if (!dataStick.hasTagCompound()
+				|| !dataStick.stackTagCompound.getString("type").equals("ProgHatchesDualInput")) {
+			return false;
+		}
 
-        masterX = x;
-        masterY = y;
-        masterZ = z;
-        masterSet = true;
-        master = (T) metaTileEntity;
-        return master;
-    }
+		NBTTagCompound nbt = dataStick.stackTagCompound;
+		int x = nbt.getInteger("x");
+		int y = nbt.getInteger("y");
+		int z = nbt.getInteger("z");
+		if (trySetMasterFromCoord(x, y, z) != null) {
+			aPlayer.addChatMessage(new ChatComponentText("Link successful"));
+			return true;
+		}
+		aPlayer.addChatMessage(new ChatComponentText("Link failed"));
+		return true;
+	}
 
-    private boolean tryLinkDataStick(EntityPlayer aPlayer) {
-        ItemStack dataStick = aPlayer.inventory.getCurrentItem();
+	@Override
+	public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
+		if (!(aPlayer instanceof EntityPlayerMP)) {
+			return false;
+		}
+		if (tryLinkDataStick(aPlayer)) {
+			return true;
+		}
+		IDualInputHatch master = getMaster();
+		if (master != null) {
+			return ((MetaTileEntity) master).onRightclick(((IMetaTileEntity) master).getBaseMetaTileEntity(), aPlayer);
+		}
+		return false;
+	}
 
-        if (!ItemList.Tool_DataStick.isStackEqual(dataStick, false, true)) {
-            return false;
-        }
-        if (!dataStick.hasTagCompound() || !dataStick.stackTagCompound.getString("type")
-            .equals("ProgHatchesDualInput")) {
-            return false;
-        }
+	@Override
+	public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+			IWailaConfigHandler config) {
+		NBTTagCompound tag = accessor.getNBTData();
+		currenttip.add((tag.getBoolean("linked") ? "Linked" : "Not linked"));
 
-        NBTTagCompound nbt = dataStick.stackTagCompound;
-        int x = nbt.getInteger("x");
-        int y = nbt.getInteger("y");
-        int z = nbt.getInteger("z");
-        if (trySetMasterFromCoord(x, y, z) != null) {
-            aPlayer.addChatMessage(new ChatComponentText("Link successful"));
-            return true;
-        }
-        aPlayer.addChatMessage(new ChatComponentText("Link failed"));
-        return true;
-    }
+		if (tag.hasKey("masterX")) {
+			currenttip.add("Bound to " + tag.getInteger("masterX") + ", " + tag.getInteger("masterY") + ", "
+					+ tag.getInteger("masterZ"));
+		}
 
-    @Override
-    public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
-        if (!(aPlayer instanceof EntityPlayerMP)) {
-            return false;
-        }
-        if (tryLinkDataStick(aPlayer)) {
-            return true;
-        }
-        IDualInputHatch master = getMaster();
-        if (master != null) {
-            return ((MetaTileEntity) master).onRightclick(((IMetaTileEntity) master).getBaseMetaTileEntity(), aPlayer);
-        }
-        return false;
-    }
+		/*
+		 * if (tag.hasKey("masterName")) {
+		 * currenttip.add(EnumChatFormatting.GOLD + tag.getString("masterName")
+		 * + EnumChatFormatting.RESET); }
+		 */
 
-    @Override
-    public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
-        IWailaConfigHandler config) {
-        NBTTagCompound tag = accessor.getNBTData();
-        currenttip.add((tag.getBoolean("linked") ? "Linked" : "Not linked"));
+		super.getWailaBody(itemStack, currenttip, accessor, config);
+	}
 
-        if (tag.hasKey("masterX")) {
-            currenttip.add(
-                "Bound to " + tag
-                    .getInteger("masterX") + ", " + tag.getInteger("masterY") + ", " + tag.getInteger("masterZ"));
-        }
+	@Override
+	public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
+			int z) {
 
-        /*
-         * if (tag.hasKey("masterName")) {
-         * currenttip.add(EnumChatFormatting.GOLD + tag.getString("masterName") + EnumChatFormatting.RESET);
-         * }
-         */
+		tag.setBoolean("linked", getMaster() != null);
+		if (masterSet) {
+			tag.setInteger("masterX", masterX);
+			tag.setInteger("masterY", masterY);
+			tag.setInteger("masterZ", masterZ);
+		}
+		/*
+		 * if (getMaster() != null) tag.setString("masterName",
+		 * getMaster().getnam);
+		 */
 
-        super.getWailaBody(itemStack, currenttip, accessor, config);
-    }
-
-    @Override
-    public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
-        int z) {
-
-        tag.setBoolean("linked", getMaster() != null);
-        if (masterSet) {
-            tag.setInteger("masterX", masterX);
-            tag.setInteger("masterY", masterY);
-            tag.setInteger("masterZ", masterZ);
-        }
-        /* if (getMaster() != null) tag.setString("masterName", getMaster().getnam); */
-
-        super.getWailaNBTData(player, tile, tag, world, x, y, z);
-    }
+		super.getWailaNBTData(player, tile, tag, world, x, y, z);
+	}
 }

@@ -25,10 +25,7 @@ import net.minecraftforge.fluids.Fluid;
 
 public class LastWorktimeCover extends GT_CoverBehavior {
 
-    /**
-     * @deprecated use {@link #LastWorktimeCover(ITexture coverTexture)} instead
-     */
-    @Deprecated
+  
     public LastWorktimeCover() {
         this(null);
     }

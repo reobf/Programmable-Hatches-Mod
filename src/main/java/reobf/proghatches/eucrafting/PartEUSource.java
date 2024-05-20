@@ -104,41 +104,43 @@ import reobf.proghatches.util.ProghatchesUtil;
 
 public class PartEUSource extends AEBasePart
 		implements IGuiProvidingPart, ICraftingProvider, IGridTickable, IInstantCompletable, IPartGT5Power, ISource {
-	
-	public static class WailaDataProvider extends BasePartWailaDataProvider{
-		
+
+	public static class WailaDataProvider extends BasePartWailaDataProvider {
+
 		@Override
 		public NBTTagCompound getNBTData(EntityPlayerMP player, IPart part, TileEntity te, NBTTagCompound tag,
 				World world, int x, int y, int z) {
-			if(PartEUSource.class.isInstance(part)){
+			if (PartEUSource.class.isInstance(part)) {
 				PartEUSource pt = (PartEUSource) part;
-				
-				tag.setLong("V",pt.voltage);
-				tag.setLong("A",pt.amp);
-				tag.setLong("AC",pt.consumed);
-				tag.setDouble("AA",pt.averageamp);
+
+				tag.setLong("V", pt.voltage);
+				tag.setLong("A", pt.amp);
+				tag.setLong("AC", pt.consumed);
+				tag.setDouble("AA", pt.averageamp);
 			}
 			return super.getNBTData(player, part, te, tag, world, x, y, z);
 		}
+
 		@Override
 		public List<String> getWailaBody(IPart part, List<String> currentToolTip, IWailaDataAccessor accessor,
 				IWailaConfigHandler config) {
-			if(PartEUSource.class.isInstance(part)){
-				
-				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.source.waila.V", accessor.getNBTData().getLong("V")));
-				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.source.waila.A", accessor.getNBTData().getLong("A")));
-				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.source.waila.AC", accessor.getNBTData().getLong("AC")));
-				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.source.waila.AA", String.format("%.2f",accessor.getNBTData().getDouble("AA"))));
-				
-				
-				
+			if (PartEUSource.class.isInstance(part)) {
+
+				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.source.waila.V",
+						accessor.getNBTData().getLong("V")));
+				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.source.waila.A",
+						accessor.getNBTData().getLong("A")));
+				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.source.waila.AC",
+						accessor.getNBTData().getLong("AC")));
+				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.source.waila.AA",
+						String.format("%.2f", accessor.getNBTData().getDouble("AA"))));
+
 			}
 			return super.getWailaBody(part, currentToolTip, accessor, config);
 		}
-		
+
 	}
-	
-	
+
 	boolean onoff = true;
 	long voltage;
 	long amp;
@@ -403,7 +405,8 @@ public class PartEUSource extends AEBasePart
 		try {
 			long actual = Math.min(consumed - ampInjectedthisTick, aAmperage);
 
-			long consumed = ((IEUManager) getProxy().getGrid().getCache(IEUManager.class)).inject(this, actual, aVoltage);
+			long consumed = ((IEUManager) getProxy().getGrid().getCache(IEUManager.class)).inject(this, actual,
+					aVoltage);
 			ampInjectedthisTick += consumed;
 			return consumed;
 		} catch (GridAccessException e) {
@@ -514,132 +517,117 @@ public class PartEUSource extends AEBasePart
 			e.printStackTrace();
 		}
 	}
-int cpucount;
+	int cpucount;
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public TickRateModulation tickingRequest(final IGridNode node, final int ticksSinceLastCall) {
 		returnItems();
-		/*if(cpucount++>10)
-		try {cpucount=0;
-			for (ICraftingCPU cluster : getProxy().getCrafting().getCpus()) {
-				if (cluster instanceof CraftingCPUCluster == false) {
-					continue;
-				}
-
-				CraftingCPUCluster cc = (CraftingCPUCluster) cluster;
-				try {
-					HashSet<IAEItemStack> candidate=new HashSet<>();
-					Map<ICraftingPatternDetails, Object> tasks = (Map<ICraftingPatternDetails, Object>) f.get(cc);
-					IItemList<IAEItemStack> waitingFor = (IItemList<IAEItemStack>) f1.get(cc);
-
-					tasks.keySet().stream().filter(
-							s->s instanceof WrappedPatternDetail
-							)
-					.map(ICraftingPatternDetails::getCondensedInputs).flatMap(Arrays::stream)
-							.filter(s -> s.getItem() == MyMod.eu_token&&s.getItemDamage()==1)
-						    .filter(s->!Optional.ofNullable(waitingFor.findPrecise(s)).map(x->x.getStackSize()>0).orElse(false))
-							.forEach(s -> {
-								
-								candidate.add(s);
-					});
-					//required
-					;
-					tasks.keySet().stream().filter(
-							s->s instanceof PatternDetail
-							).forEach(s->{
-								candidate.removeIf(x->
-								!Objects.equals(x.getTagCompound(),s.getCondensedOutputs()[0].getTagCompound()));
-							});
-					//and no way to produce
-					
-					
-					
-					
-					
-					candidate.forEach(s->{if (consumed < amp && s.hasTagCompound() && s.getTagCompound().getNBTTagCompoundCopy()
-										.getLong("voltage") == this.voltage) {
-
-									IAEStack st = cc.getInventory().injectItems(s.copy().setStackSize(s.getStackSize()),
-											Actionable.MODULATE, new MachineSource(this));
-									if (st == null || st.getStackSize() == 0)
-										consumed++;
-								}});
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-			}
-		} catch (GridAccessException e1) {
-
-			e1.printStackTrace();
-		}*/
-		
 		/*
-		try {
-			for (ICraftingCPU cluster : getProxy().getCrafting().getCpus()) {
-				if (cluster instanceof CraftingCPUCluster == false) {
-					continue;}
-				
-				CraftingCPUCluster cc=(CraftingCPUCluster) cluster;
-				IItemList<IAEItemStack> waitingFor = (IItemList<IAEItemStack>) f1.get(cc);
-				waitingFor.forEach(s->{
-					if(s.getStackSize()==0)return;
-					if(s.getItem() !=MyMod.eu_token )return;
-					if(s.getItemDamage()==0&&s.getStackSize()>0){
-						
-						try {
-							long prev=Math.min(amp-consumed,s.getStackSize());
-							IAEItemStack  is=this.getProxy().getStorage().getItemInventory().injectItems
-							(s.copy().setStackSize(prev), Actionable .MODULATE, new MachineSource(this));
-						    
-							consumed+=prev-Optional.ofNullable(is).map(IAEItemStack::getStackSize).orElse(0l);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-						
-					}
-					
-					
-				});
-			
-			
-			}
-			
-			
-		} catch (Exception e1) {
-		
-			e1.printStackTrace();
-		}
-		*/
-		
+		 * if(cpucount++>10) try {cpucount=0; for (ICraftingCPU cluster :
+		 * getProxy().getCrafting().getCpus()) { if (cluster instanceof
+		 * CraftingCPUCluster == false) { continue; }
+		 * 
+		 * CraftingCPUCluster cc = (CraftingCPUCluster) cluster; try {
+		 * HashSet<IAEItemStack> candidate=new HashSet<>();
+		 * Map<ICraftingPatternDetails, Object> tasks =
+		 * (Map<ICraftingPatternDetails, Object>) f.get(cc);
+		 * IItemList<IAEItemStack> waitingFor = (IItemList<IAEItemStack>)
+		 * f1.get(cc);
+		 * 
+		 * tasks.keySet().stream().filter( s->s instanceof WrappedPatternDetail
+		 * ) .map(ICraftingPatternDetails::getCondensedInputs).flatMap(Arrays::
+		 * stream) .filter(s -> s.getItem() ==
+		 * MyMod.eu_token&&s.getItemDamage()==1)
+		 * .filter(s->!Optional.ofNullable(waitingFor.findPrecise(s)).map(x->x.
+		 * getStackSize()>0).orElse(false)) .forEach(s -> {
+		 * 
+		 * candidate.add(s); }); //required ; tasks.keySet().stream().filter(
+		 * s->s instanceof PatternDetail ).forEach(s->{ candidate.removeIf(x->
+		 * !Objects.equals(x.getTagCompound(),s.getCondensedOutputs()[0].
+		 * getTagCompound())); }); //and no way to produce
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * candidate.forEach(s->{if (consumed < amp && s.hasTagCompound() &&
+		 * s.getTagCompound().getNBTTagCompoundCopy() .getLong("voltage") ==
+		 * this.voltage) {
+		 * 
+		 * IAEStack st =
+		 * cc.getInventory().injectItems(s.copy().setStackSize(s.getStackSize())
+		 * , Actionable.MODULATE, new MachineSource(this)); if (st == null ||
+		 * st.getStackSize() == 0) consumed++; }});
+		 * 
+		 * } catch (Exception e) { e.printStackTrace(); }
+		 * 
+		 * } } catch (GridAccessException e1) {
+		 * 
+		 * e1.printStackTrace(); }
+		 */
+
+		/*
+		 * try { for (ICraftingCPU cluster : getProxy().getCrafting().getCpus())
+		 * { if (cluster instanceof CraftingCPUCluster == false) { continue;}
+		 * 
+		 * CraftingCPUCluster cc=(CraftingCPUCluster) cluster;
+		 * IItemList<IAEItemStack> waitingFor = (IItemList<IAEItemStack>)
+		 * f1.get(cc); waitingFor.forEach(s->{ if(s.getStackSize()==0)return;
+		 * if(s.getItem() !=MyMod.eu_token )return;
+		 * if(s.getItemDamage()==0&&s.getStackSize()>0){
+		 * 
+		 * try { long prev=Math.min(amp-consumed,s.getStackSize()); IAEItemStack
+		 * is=this.getProxy().getStorage().getItemInventory().injectItems
+		 * (s.copy().setStackSize(prev), Actionable .MODULATE, new
+		 * MachineSource(this));
+		 * 
+		 * consumed+=prev-Optional.ofNullable(is).map(IAEItemStack::getStackSize
+		 * ).orElse(0l); } catch (Exception e) { e.printStackTrace(); }
+		 * 
+		 * }
+		 * 
+		 * 
+		 * });
+		 * 
+		 * 
+		 * }
+		 * 
+		 * 
+		 * } catch (Exception e1) {
+		 * 
+		 * e1.printStackTrace(); }
+		 */
+
 		if (recycle)
 
 			try {
 				AtomicBoolean any = new AtomicBoolean();
 				IMEMonitor<IAEItemStack> inv = getProxy().getStorage().getItemInventory();
-				inv.getStorageList()
-						.forEach(s -> {
-							if(s.getItem()!=MyMod.eu_token)return;
-							if(s.getTagCompound()==null)return;
-							if(s.getTagCompound().getNBTTagCompoundCopy().getLong("voltage")!=voltage)return;
-							IAEItemStack ret = inv.extractItems(s.copy().setStackSize(consumed), Actionable.MODULATE,
-									new MachineSource(this));
-							if (ret != null) {
-								this.consumed -= ret.getStackSize();
-								
-								
-								try {
-									((IEUManager.EUManager) this.getProxy().getGrid().getCache(IEUManager.class))
-									.refund(ProghatchesUtil.deser(ret.getTagCompound().getNBTTagCompoundCopy(), "EUFI"), ret.getStackSize());
-							
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-								
-								any.set(true);
-							}
-						});
+				inv.getStorageList().forEach(s -> {
+					if (s.getItem() != MyMod.eu_token)
+						return;
+					if (s.getTagCompound() == null)
+						return;
+					if (s.getTagCompound().getNBTTagCompoundCopy().getLong("voltage") != voltage)
+						return;
+					IAEItemStack ret = inv.extractItems(s.copy().setStackSize(consumed), Actionable.MODULATE,
+							new MachineSource(this));
+					if (ret != null) {
+						this.consumed -= ret.getStackSize();
+
+						try {
+							((IEUManager.EUManager) this.getProxy().getGrid().getCache(IEUManager.class)).refund(
+									ProghatchesUtil.deser(ret.getTagCompound().getNBTTagCompoundCopy(), "EUFI"),
+									ret.getStackSize());
+
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+
+						any.set(true);
+					}
+				});
 
 				;
 
@@ -663,35 +651,31 @@ int cpucount;
 		if (consumed >= amp) {
 			return false;
 		}
-	/*	try {
-			this.getProxy().getGrid().getCache(IEUManager.class);
-			ImmutableSet<ICraftingCPU> c = this.getProxy().getCrafting().getCpus();
-		    c.forEach(cluster->{
-		    	if(cluster instanceof CraftingCPUCluster==false){return;}
-		    	CraftingCPUCluster cc=(CraftingCPUCluster) cluster;
-		    	try {
-					Map<ICraftingPatternDetails, Object> tasks = (Map<ICraftingPatternDetails, Object>) f.get(cc);
-				for(Entry<ICraftingPatternDetails, Object> ent:tasks.entrySet()){
-					
-					
-				}
-		    	
-		    	} catch (Exception e) {
-				e.printStackTrace();
-				}
-		    	
-		    	
-		    	
-		    });
-		
-		
-		} catch (Exception e) {
-		e.printStackTrace();
-		}
-		
-		
-		*/
-		
+		/*
+		 * try { this.getProxy().getGrid().getCache(IEUManager.class);
+		 * ImmutableSet<ICraftingCPU> c =
+		 * this.getProxy().getCrafting().getCpus(); c.forEach(cluster->{
+		 * if(cluster instanceof CraftingCPUCluster==false){return;}
+		 * CraftingCPUCluster cc=(CraftingCPUCluster) cluster; try {
+		 * Map<ICraftingPatternDetails, Object> tasks =
+		 * (Map<ICraftingPatternDetails, Object>) f.get(cc);
+		 * for(Entry<ICraftingPatternDetails, Object> ent:tasks.entrySet()){
+		 * 
+		 * 
+		 * }
+		 * 
+		 * } catch (Exception e) { e.printStackTrace(); }
+		 * 
+		 * 
+		 * 
+		 * });
+		 * 
+		 * 
+		 * } catch (Exception e) { e.printStackTrace(); }
+		 * 
+		 * 
+		 */
+
 		consumed++;
 
 		returnItems();
@@ -732,12 +716,14 @@ int cpucount;
 		returnItems();
 
 	}
+
 	double averageamp;
+
 	@Override
 	public void reset() {
-		averageamp= (ampInjectedthisTick)/32.0+averageamp*31/32;
+		averageamp = (ampInjectedthisTick) / 32.0 + averageamp * 31 / 32;
 		ampInjectedthisTick = 0;
-		
+
 	}
 
 	@Override
@@ -748,10 +734,10 @@ int cpucount;
 
 	@Override
 	public long request(long packets) {
-		long free=amp-consumed  ;
-		long actual=Math.min(free, packets);
-		consumed+=actual;
-		
+		long free = amp - consumed;
+		long actual = Math.min(free, packets);
+		consumed += actual;
+
 		return actual;
 	}
 

@@ -26,13 +26,11 @@ import reobf.proghatches.eucrafting.IInstantCompletable;
 
 @Mixin(value = CraftingCPUCluster.class, remap = false, priority = 1)
 public class MixinInstantComplete {
-
-	@Inject(at = { @At(value = "INVOKE", shift = Shift.BEFORE, target = "markDirty()V") }, method = "executeCrafting"
-
-			, require = 1, locals = LocalCapture.CAPTURE_FAILHARD
-
+	//spotless:off
+	@Inject(at = {@At(value = "INVOKE", shift = Shift.BEFORE, target = "markDirty()V") }, 
+			method = "executeCrafting", require = 1, locals = LocalCapture.CAPTURE_FAILHARD
 	)
-
+	//spotless:on
 	public void a(IEnergyGrid eg, CraftingGridCache cc, CallbackInfo ci, Iterator i, Map.Entry e,
 			ICraftingPatternDetails details, InventoryCrafting ic, boolean pushedPattern, Iterator var8,
 			ICraftingMedium m) {

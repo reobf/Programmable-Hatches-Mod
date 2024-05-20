@@ -12,23 +12,20 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.util.StringUtils;
 import net.minecraft.world.World;
 
-public class ItemBookTutorial extends ItemEditableBook{
-	 
+public class ItemBookTutorial extends ItemEditableBook {
+
 	@SideOnly(Side.CLIENT)
-	public String getItemStackDisplayName(ItemStack p_77653_1_)
-	    {
-	        if (p_77653_1_.hasTagCompound())
-	        {
-	            NBTTagCompound nbttagcompound = p_77653_1_.getTagCompound();
-	            String s = nbttagcompound.getString("title");
+	public String getItemStackDisplayName(ItemStack p_77653_1_) {
+		if (p_77653_1_.hasTagCompound()) {
+			NBTTagCompound nbttagcompound = p_77653_1_.getTagCompound();
+			String s = nbttagcompound.getString("title");
 
-	            if (!StringUtils.isNullOrEmpty(s))
-	            {
-	                return StatCollector.translateToLocal(s);
-	            }
-	        }
+			if (!StringUtils.isNullOrEmpty(s)) {
+				return StatCollector.translateToLocal(s);
+			}
+		}
 
-	        return super.getItemStackDisplayName(p_77653_1_);
-	    }
+		return super.getItemStackDisplayName(p_77653_1_);
+	}
 
 }

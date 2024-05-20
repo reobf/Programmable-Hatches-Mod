@@ -68,330 +68,403 @@ import net.minecraftforge.fluids.IFluidHandler;
 import reobf.proghatches.eucrafting.AECover.Data;
 import reobf.proghatches.main.FakeHost;
 
-public class InterfaceData  implements Data,IInterfaceHost, IGridTickable,IUpgradeableHost,ICustomNameObject,IConfigurableObject,IPriorityHost{
-	 public void setTag(NBTTagCompound tagCompound) {tag=tagCompound;
-		}
-		 public NBTTagCompound getTag() {
-			return tag;
-		}
-		 NBTTagCompound tag;
-		 
-		 public InterfaceData(){}
-			//hostName.contains("TileFluidInterface")->TRUE
-			public static class  FluidInterfaceData_TileFluidInterface extends InterfaceData{
-				public FluidInterfaceData_TileFluidInterface(){}
-				public boolean supportFluid(){return true;}
-			}
-			
-			
-			public boolean supportFluid(){return false;}
-			
-			
-			AENetworkProxy gridProxy;
-		    ForgeDirection side=ForgeDirection.UNKNOWN;
-			DimensionalCoord pos=new DimensionalCoord(0, 0, 0, 0);
-			public AENetworkProxy getGridProxy() {
-				return gridProxy;
-			}
-			public void setGridProxy(AENetworkProxy gridProxy) {
-				this.gridProxy=gridProxy;
-			}
-			public ForgeDirection getSide() {
-				return side;
-			}
-			public void setSide(ForgeDirection side) {
-				this.side=side;
-			}
-			public DimensionalCoord getPos() {
-				return pos;
-			}
-			public void setPos(DimensionalCoord pos) {
-				this.pos=pos;
-			}
-			
-			public  void onReady(){duality.initialize();};		
-			
-private TileEntity faketile=new TileEntity();
- private final DualityInterface duality =new DI(this.getProxy(), this);;
- public interface IActualSideProvider{
-	 public ForgeDirection getActualSide();
-	 
- }    public static class Disabled0 extends AppEngInternalAEInventory implements DisabledInventory{
- 	public Disabled0(IAEAppEngInventory te, int s) {
-			super(te, s);
-		}
- 	public void setInventorySlotContents(int slot, ItemStack newItemStack) {};
- 	public boolean isItemValidForSlot(int i, ItemStack itemstack) {return false;};}
- public static class Disabled1 extends AppEngInternalInventory implements DisabledInventory{
- 	public Disabled1(IAEAppEngInventory te, int s) {
-			super(te, s);
-		}
- 	public void setInventorySlotContents(int slot, ItemStack newItemStack) {};
- 	public boolean isItemValidForSlot(int i, ItemStack itemstack) {return false;};}
+public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgradeableHost, ICustomNameObject,
+		IConfigurableObject, IPriorityHost {
+	public void setTag(NBTTagCompound tagCompound) {
+		tag = tagCompound;
+	}
 
-public interface DisabledInventory{}
- public class DI extends DualityInterface implements IActualSideProvider{
-	
-	  private final AppEngInternalAEInventory config = new Disabled0(this, NUMBER_OF_CONFIG_SLOTS);
-	  private final AppEngInternalInventory storage =  new Disabled1(this, NUMBER_OF_CONFIG_SLOTS);
-	    
-	    
-	    public IInventory getStorage() {
-		return config;
+	public NBTTagCompound getTag() {
+		return tag;
+	}
+
+	NBTTagCompound tag;
+
+	public InterfaceData() {
+	}
+
+	// hostName.contains("TileFluidInterface")->TRUE
+	public static class FluidInterfaceData_TileFluidInterface extends InterfaceData {
+		public FluidInterfaceData_TileFluidInterface() {
+		}
+
+		public boolean supportFluid() {
+			return true;
+		}
+	}
+
+	public boolean supportFluid() {
+		return false;
+	}
+
+	AENetworkProxy gridProxy;
+	ForgeDirection side = ForgeDirection.UNKNOWN;
+	DimensionalCoord pos = new DimensionalCoord(0, 0, 0, 0);
+
+	public AENetworkProxy getGridProxy() {
+		return gridProxy;
+	}
+
+	public void setGridProxy(AENetworkProxy gridProxy) {
+		this.gridProxy = gridProxy;
+	}
+
+	public ForgeDirection getSide() {
+		return side;
+	}
+
+	public void setSide(ForgeDirection side) {
+		this.side = side;
+	}
+
+	public DimensionalCoord getPos() {
+		return pos;
+	}
+
+	public void setPos(DimensionalCoord pos) {
+		this.pos = pos;
+	}
+
+	public void onReady() {
+		duality.initialize();
+	};
+
+	private TileEntity faketile = new TileEntity();
+	private final DualityInterface duality = new DI(this.getProxy(), this);;
+
+	public interface IActualSideProvider {
+		public ForgeDirection getActualSide();
+
+	}
+
+	public static class Disabled0 extends AppEngInternalAEInventory implements DisabledInventory {
+		public Disabled0(IAEAppEngInventory te, int s) {
+			super(te, s);
+		}
+
+		public void setInventorySlotContents(int slot, ItemStack newItemStack) {
 		};
+
+		public boolean isItemValidForSlot(int i, ItemStack itemstack) {
+			return false;
+		};
+	}
+
+	public static class Disabled1 extends AppEngInternalInventory implements DisabledInventory {
+		public Disabled1(IAEAppEngInventory te, int s) {
+			super(te, s);
+		}
+
+		public void setInventorySlotContents(int slot, ItemStack newItemStack) {
+		};
+
+		public boolean isItemValidForSlot(int i, ItemStack itemstack) {
+			return false;
+		};
+	}
+
+	public interface DisabledInventory {
+	}
+
+	public class DI extends DualityInterface implements IActualSideProvider {
+
+		private final AppEngInternalAEInventory config = new Disabled0(this, NUMBER_OF_CONFIG_SLOTS);
+		private final AppEngInternalInventory storage = new Disabled1(this, NUMBER_OF_CONFIG_SLOTS);
+
+		public IInventory getStorage() {
+			return config;
+		};
+
 		public AppEngInternalAEInventory getConfig() {
 			return config;
 		}
+
 		@Override
 		public IInventory getInventoryByName(String name) {
-			  if (name.equals("storage")) {
-		            return this.storage;
-		        }
-			  if (name.equals("config")) {
-		            return this.config;
-		        }
-		return super.getInventoryByName(name);
+			if (name.equals("storage")) {
+				return this.storage;
+			}
+			if (name.equals("config")) {
+				return this.config;
+			}
+			return super.getInventoryByName(name);
 		}
-		
-		
-	    public DI(AENetworkProxy networkProxy, IInterfaceHost ih) {
-		super(networkProxy, ih);
-		
-	}
-	public ForgeDirection getActualSide(){
-		 return side;
-	 }
-	 public IUpgradeableHost getHost() {
-		return new FakeHost(getTileEntity(),InterfaceData.this);};
-		
-		public void markDirty() {
-			/*if(pos.getWorld().getChunkProvider()
-            .chunkExists(pos.x >> 4, pos.z >> 4))
-            
-            */
-			super.markDirty();
-			
+
+		public DI(AENetworkProxy networkProxy, IInterfaceHost ih) {
+			super(networkProxy, ih);
+
+		}
+
+		public ForgeDirection getActualSide() {
+			return side;
+		}
+
+		public IUpgradeableHost getHost() {
+			return new FakeHost(getTileEntity(), InterfaceData.this);
 		};
-		
-	 
- };
- @MENetworkEventSubscribe
- public void stateChange(final MENetworkChannelsChanged c) {
-     this.duality.notifyNeighbors();
- }
- @Override
- public int getInstalledUpgrades(final Upgrades u) {
-     return this.duality.getInstalledUpgrades(u);
- }
- 
- @MENetworkEventSubscribe
- public void stateChange(final MENetworkPowerStatusChange c) {
-     this.duality.notifyNeighbors();
- }
-@Override
-public void provideCrafting(ICraftingProviderHelper craftingTracker) {
-	this.duality.provideCrafting(craftingTracker);
-	
-}
-@Override
-public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
-	// TODO Auto-generated method stub
-	return this.duality.pushPattern(patternDetails, table);
-}
-@Override
-public boolean isBusy() {
-	// TODO Auto-generated method stub
-	return this.duality.isBusy();
-}
-@Override
-public void gridChanged() {
-    this.duality.gridChanged();
-}
-@Override
-public TileEntity getTile() {
-	// TODO Auto-generated method stub
-	return getTileEntity();
-}
-@Override
-public IConfigManager getConfigManager() {
-	// TODO Auto-generated method stub
-	return this.duality.getConfigManager();
-}
-@Override
-public IInventory getInventoryByName(String name) {
-	// TODO Auto-generated method stub
-	return this.duality.getInventoryByName(name);
-}
-@Override
-public ImmutableSet<ICraftingLink> getRequestedJobs() {
-	// TODO Auto-generated method stub
-	return this.duality.getRequestedJobs();
-}
-@Override
-public IAEItemStack injectCraftedItems(ICraftingLink link, IAEItemStack items, Actionable mode) {
-	// TODO Auto-generated method stub
-	return this.duality.injectCraftedItems(link, items, mode);
-}
-@Override
-public void jobStateChange(ICraftingLink link) {
-	this.duality.jobStateChange(link);
-	
-}
-@Override
-public IGridNode getActionableNode() {
-	
-	return this.getProxy().getNode();
-}
-@Override
-public IGridNode getGridNode(ForgeDirection dir) {
-	
-	return this.getProxy().getNode();
-}
 
-@Override
-public void securityBreak() {
+		public void markDirty() {
+			/*
+			 * if(pos.getWorld().getChunkProvider() .chunkExists(pos.x >> 4,
+			 * pos.z >> 4))
+			 * 
+			 */
+			super.markDirty();
 
-	
-}
-@Override
-public DimensionalCoord getLocation() {
+		};
 
-	return this.pos;
-}
-
-
-@Override
-public IInventory getPatterns() {
-
-	return this.duality.getPatterns();
-}
-@Override
-public String getName() {
-	
-	return getCustomName();
-}
-@Override
-public boolean shouldDisplay() {
-	// TODO Auto-generated method stub
-	return true;
-}
-@Override
-public DualityInterface getInterfaceDuality() {
-	// TODO Auto-generated method stub
-	return this.duality;
-}
-@Override
-public EnumSet<ForgeDirection> getTargets() {
-	// TODO Auto-generated method stub
-	return EnumSet.of(ForgeDirection.UNKNOWN);
-}
-@Override
-public TileEntity getTileEntity() {
-	
-	if(faketile.getWorldObj()==null){
-		
-		faketile.setWorldObj(pos.getWorld());
-		faketile.xCoord=pos.x;
-		faketile.yCoord=pos.y;
-		faketile.zCoord=pos.z;
 	};
 
-	 return faketile;
-}
-@Override
-public void saveChanges() {
-	duality.saveChanges();
-	
-}
-@Override
-public NBTBase saveDataToNBT() {
-NBTBase t=Data.super.saveDataToNBT();
-((NBTTagCompound) t).setInteger("p",p);
-//((NBTTagCompound) t).setString("name",name);
-duality.writeToNBT((NBTTagCompound) t);
-
-return t;
-}
-@Override
-public void loadDataFromNBT(NBTBase aNBT) {
-	Data.super.loadDataFromNBT(aNBT);
-	//System.out.println(pos.getWorld());
-	p=((NBTTagCompound) aNBT).getInteger("p");
-	//name=((NBTTagCompound) aNBT).getString("name");
-	faketile.xCoord=pos.x;
-	faketile.yCoord=pos.y;
-	faketile.zCoord=pos.z;
-	faketile.setWorldObj(pos.getWorld());
-	if(FMLCommonHandler.instance().getEffectiveSide()==Side.SERVER){
-	duality.readFromNBT((NBTTagCompound) aNBT);
-	};
-
-}
-
-
-
-@Override
-public TickingRequest getTickingRequest(IGridNode node) {
-	//
-	return duality.getTickingRequest(node);
-}
-@Override
-public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall) {
-	if(first)return TickRateModulation.SAME;
-	
-	
-	
-	return duality.tickingRequest(node, TicksSinceLastCall);
-}
-public String getCustomName() {
-	if(name!=null)return name;
-	return supportFluid()?"Dual ME Interface":"ME Interface";
-}
-
-public boolean hasCustomName() {
-	return true;
-}
-private String name;
-public void setCustomName(String name) {this.name=name;
-	
-}
-
- 
- public int getPriority(){return p;};
-int p;
- 
- public void setPriority(int newValue){p=newValue;};
-@Override
-public void destroy() {
-	 final ArrayList<ItemStack> drops = new ArrayList<>();
-	
-	for(String s:new String[]{"patterns","upgrades"}){
-	IInventory inv = duality.getInventoryByName(s);
-	for (int l = 0; l <inv.getSizeInventory() ; l++) {
-         final ItemStack is = inv.getStackInSlot(l);
-         inv.setInventorySlotContents(l, null);
-         if (is != null) {
-             drops.add(is);
-         }
-     }
+	@MENetworkEventSubscribe
+	public void stateChange(final MENetworkChannelsChanged c) {
+		this.duality.notifyNeighbors();
 	}
-	
-	
-	 Platform.spawnDrops(pos.getWorld(), pos.x, pos.y, pos.z, drops);
-	 
-Data.super.destroy();
-}
-@Override
-public boolean firstUpdate() {
-if(first){first=false;return true;}
-return false;
-}
-boolean first=true;
 
-@Override
-public TileEntity fakeTile() {
-return faketile;
-}
+	@Override
+	public int getInstalledUpgrades(final Upgrades u) {
+		return this.duality.getInstalledUpgrades(u);
+	}
 
+	@MENetworkEventSubscribe
+	public void stateChange(final MENetworkPowerStatusChange c) {
+		this.duality.notifyNeighbors();
+	}
+
+	@Override
+	public void provideCrafting(ICraftingProviderHelper craftingTracker) {
+		this.duality.provideCrafting(craftingTracker);
+
+	}
+
+	@Override
+	public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
+		// TODO Auto-generated method stub
+		return this.duality.pushPattern(patternDetails, table);
+	}
+
+	@Override
+	public boolean isBusy() {
+		// TODO Auto-generated method stub
+		return this.duality.isBusy();
+	}
+
+	@Override
+	public void gridChanged() {
+		this.duality.gridChanged();
+	}
+
+	@Override
+	public TileEntity getTile() {
+		// TODO Auto-generated method stub
+		return getTileEntity();
+	}
+
+	@Override
+	public IConfigManager getConfigManager() {
+		// TODO Auto-generated method stub
+		return this.duality.getConfigManager();
+	}
+
+	@Override
+	public IInventory getInventoryByName(String name) {
+		// TODO Auto-generated method stub
+		return this.duality.getInventoryByName(name);
+	}
+
+	@Override
+	public ImmutableSet<ICraftingLink> getRequestedJobs() {
+		// TODO Auto-generated method stub
+		return this.duality.getRequestedJobs();
+	}
+
+	@Override
+	public IAEItemStack injectCraftedItems(ICraftingLink link, IAEItemStack items, Actionable mode) {
+		// TODO Auto-generated method stub
+		return this.duality.injectCraftedItems(link, items, mode);
+	}
+
+	@Override
+	public void jobStateChange(ICraftingLink link) {
+		this.duality.jobStateChange(link);
+
+	}
+
+	@Override
+	public IGridNode getActionableNode() {
+
+		return this.getProxy().getNode();
+	}
+
+	@Override
+	public IGridNode getGridNode(ForgeDirection dir) {
+
+		return this.getProxy().getNode();
+	}
+
+	@Override
+	public void securityBreak() {
+
+	}
+
+	@Override
+	public DimensionalCoord getLocation() {
+
+		return this.pos;
+	}
+
+	@Override
+	public IInventory getPatterns() {
+
+		return this.duality.getPatterns();
+	}
+
+	@Override
+	public String getName() {
+
+		return getCustomName();
+	}
+
+	@Override
+	public boolean shouldDisplay() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public DualityInterface getInterfaceDuality() {
+		// TODO Auto-generated method stub
+		return this.duality;
+	}
+
+	@Override
+	public EnumSet<ForgeDirection> getTargets() {
+		// TODO Auto-generated method stub
+		return EnumSet.of(ForgeDirection.UNKNOWN);
+	}
+
+	@Override
+	public TileEntity getTileEntity() {
+
+		if (faketile.getWorldObj() == null) {
+
+			faketile.setWorldObj(pos.getWorld());
+			faketile.xCoord = pos.x;
+			faketile.yCoord = pos.y;
+			faketile.zCoord = pos.z;
+		}
+		;
+
+		return faketile;
+	}
+
+	@Override
+	public void saveChanges() {
+		duality.saveChanges();
+
+	}
+
+	@Override
+	public NBTBase saveDataToNBT() {
+		NBTBase t = Data.super.saveDataToNBT();
+		((NBTTagCompound) t).setInteger("p", p);
+		// ((NBTTagCompound) t).setString("name",name);
+		duality.writeToNBT((NBTTagCompound) t);
+
+		return t;
+	}
+
+	@Override
+	public void loadDataFromNBT(NBTBase aNBT) {
+		Data.super.loadDataFromNBT(aNBT);
+		// System.out.println(pos.getWorld());
+		p = ((NBTTagCompound) aNBT).getInteger("p");
+		// name=((NBTTagCompound) aNBT).getString("name");
+		faketile.xCoord = pos.x;
+		faketile.yCoord = pos.y;
+		faketile.zCoord = pos.z;
+		faketile.setWorldObj(pos.getWorld());
+		if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
+			duality.readFromNBT((NBTTagCompound) aNBT);
+		}
+		;
+
+	}
+
+	@Override
+	public TickingRequest getTickingRequest(IGridNode node) {
+		//
+		return duality.getTickingRequest(node);
+	}
+
+	@Override
+	public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall) {
+		if (first)
+			return TickRateModulation.SAME;
+
+		return duality.tickingRequest(node, TicksSinceLastCall);
+	}
+
+	public String getCustomName() {
+		if (name != null)
+			return name;
+		return supportFluid() ? "Dual ME Interface" : "ME Interface";
+	}
+
+	public boolean hasCustomName() {
+		return true;
+	}
+
+	private String name;
+
+	public void setCustomName(String name) {
+		this.name = name;
+
+	}
+
+	public int getPriority() {
+		return p;
+	};
+
+	int p;
+
+	public void setPriority(int newValue) {
+		p = newValue;
+	};
+
+	@Override
+	public void destroy() {
+		final ArrayList<ItemStack> drops = new ArrayList<>();
+
+		for (String s : new String[] { "patterns", "upgrades" }) {
+			IInventory inv = duality.getInventoryByName(s);
+			for (int l = 0; l < inv.getSizeInventory(); l++) {
+				final ItemStack is = inv.getStackInSlot(l);
+				inv.setInventorySlotContents(l, null);
+				if (is != null) {
+					drops.add(is);
+				}
+			}
+		}
+
+		Platform.spawnDrops(pos.getWorld(), pos.x, pos.y, pos.z, drops);
+
+		Data.super.destroy();
+	}
+
+	@Override
+	public boolean firstUpdate() {
+		if (first) {
+			first = false;
+			return true;
+		}
+		return false;
+	}
+
+	boolean first = true;
+
+	@Override
+	public TileEntity fakeTile() {
+		return faketile;
+	}
 
 }

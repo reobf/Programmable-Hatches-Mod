@@ -295,5 +295,5 @@ buffer.ingredientbuffer.name.0=Ingredient Buffer (T0)
 buffer.ingredientbuffer.name.1=Ingredient Buffer (T1)
 proghatches.provider.waila.disabled=Cannot connect ME network when working as part of a Multiblock
 GT5U.gui.text.proghatches.largepcp.running=Providing Programming Circuit Crafting
-multimachine.largeprogrammingcircuitprovider.name=Large Programming Circuit Provider
+multimachine.largeprogrammingcircuitprovider.name=Large Programming Circuit Provider(WIP)
 providerchainer.name=Provider Access Hatch

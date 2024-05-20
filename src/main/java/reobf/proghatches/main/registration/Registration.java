@@ -7,6 +7,8 @@ import static reobf.proghatches.main.Config.*;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
+import org.lwjgl.opengl.GL11;
+
 import com.glodblock.github.loader.ItemAndBlockHolder;
 
 import appeng.api.AEApi;
@@ -22,6 +24,7 @@ import gregtech.api.GregTech_API;
 import gregtech.api.enums.Dyes;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.interfaces.IIconContainer;
+import gregtech.api.interfaces.ITexture;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.LightingHelper;
 import gregtech.common.render.GT_CopiedBlockTexture;
@@ -34,8 +37,7 @@ import reobf.proghatches.eucrafting.InterfaceP2PEUData;
 import reobf.proghatches.eucrafting.InterfaceP2PNoFluidData;
 import reobf.proghatches.gt.cover.LastWorktimeCover;
 import reobf.proghatches.gt.cover.ProgrammingCover;
-import reobf.proghatches.gt.cover.RecipeCheckResultCover;
-import reobf.proghatches.gt.cover.RecipeOutputAwarenessCover;
+
 import reobf.proghatches.gt.cover.SmartArmCover;
 import reobf.proghatches.gt.cover.WirelessControlCover;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch;
@@ -46,7 +48,6 @@ import reobf.proghatches.gt.metatileentity.IngredientBuffer;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.ProviderChainer;
-import reobf.proghatches.gt.metatileentity.RecipeCheckResultDetector;
 import reobf.proghatches.gt.metatileentity.RemoteInputBus;
 import reobf.proghatches.gt.metatileentity.RemoteInputHatch;
 import reobf.proghatches.gt.metatileentity.SuperfluidHatch;
@@ -56,7 +57,7 @@ import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.IIconTexture;
-
+//spotless:off
 public class Registration implements Runnable {
 
     public static ArrayList<ItemStack> items = new ArrayList<ItemStack>();
@@ -314,90 +315,7 @@ public class Registration implements Runnable {
               );
         
     }
-public class IIconTexture0 extends IIconTexture{
-
-	public IIconTexture0(Supplier<IIcon> aBlock) {
-		super(null, Dyes.dyeWhite.mRGBa);
-		sup=aBlock;
-	}
-	Supplier<IIcon> sup;
-	
-	  private IIcon getIcon(int ordinalSide) {
-	       
-	        return sup.get();
-	    }
-	@Override
-	    public void renderXPos(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
-	        final IIcon aIcon = getIcon(ForgeDirection.EAST.ordinal());
-	        aRenderer.field_152631_f = true;
-	        startDrawingQuads(aRenderer, 1.0f, 0.0f, 0.0f);
-	        new LightingHelper(aRenderer).setupLightingXPos(aBlock, aX, aY, aZ)
-	            .setupColor(ForgeDirection.EAST, 0xffffff);
-	        aRenderer.renderFaceXPos(aBlock, aX, aY, aZ, aIcon);
-	        draw(aRenderer);
-	        aRenderer.field_152631_f = false;
-	    }
-
-	    @Override
-	    public void renderXNeg(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
-	        startDrawingQuads(aRenderer, -1.0f, 0.0f, 0.0f);
-	        final IIcon aIcon = getIcon(ForgeDirection.WEST.ordinal());
-	        new LightingHelper(aRenderer).setupLightingXNeg(aBlock, aX, aY, aZ)
-	            .setupColor(ForgeDirection.WEST, 0xffffff);
-	        aRenderer.renderFaceXNeg(aBlock, aX, aY, aZ, aIcon);
-	        draw(aRenderer);
-	    }
-
-	    @Override
-	    public void renderYPos(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
-	        startDrawingQuads(aRenderer, 0.0f, 1.0f, 0.0f);
-	        final IIcon aIcon = getIcon(ForgeDirection.UP.ordinal());
-	        new LightingHelper(aRenderer).setupLightingYPos(aBlock, aX, aY, aZ)
-	            .setupColor(ForgeDirection.UP, 0xffffff);
-	        aRenderer.renderFaceYPos(aBlock, aX, aY, aZ, aIcon);
-	        draw(aRenderer);
-	    }
-
-	    @Override
-	    public void renderYNeg(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
-	        startDrawingQuads(aRenderer, 0.0f, -1.0f, 0.0f);
-	        final IIcon aIcon = getIcon(ForgeDirection.DOWN.ordinal());
-	        new LightingHelper(aRenderer).setupLightingYNeg(aBlock, aX, aY, aZ)
-	            .setupColor(ForgeDirection.DOWN, 0xffffff);
-	        aRenderer.renderFaceYNeg(aBlock, aX, aY, aZ, aIcon);
-	        draw(aRenderer);
-	    }
-
-	    @Override
-	    public void renderZPos(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
-	        startDrawingQuads(aRenderer, 0.0f, 0.0f, 1.0f);
-	        final IIcon aIcon = getIcon(ForgeDirection.SOUTH.ordinal());
-	        new LightingHelper(aRenderer).setupLightingZPos(aBlock, aX, aY, aZ)
-	            .setupColor(ForgeDirection.SOUTH, 0xffffff);
-	        aRenderer.renderFaceZPos(aBlock, aX, aY, aZ, aIcon);
-	        draw(aRenderer);
-	    }
-
-	    @Override
-	    public void renderZNeg(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
-	        startDrawingQuads(aRenderer, 0.0f, 0.0f, -1.0f);
-	        final IIcon aIcon = getIcon(ForgeDirection.NORTH.ordinal());
-	        aRenderer.field_152631_f = true;
-	        new LightingHelper(aRenderer).setupLightingZNeg(aBlock, aX, aY, aZ)
-	            .setupColor(ForgeDirection.NORTH, 0xffffff);
-	        aRenderer.renderFaceZNeg(aBlock, aX, aY, aZ, aIcon);
-	        draw(aRenderer);
-	        aRenderer.field_152631_f = false;
-	    }
-    @Override
-    public boolean isValidTexture() {
-        return true;
-    }
-
-    
-
-}
-		public class DeferredGetterTexture extends GT_CopiedBlockTexture{
+public class DeferredGetterTexture extends GT_CopiedBlockTexture{
 			  private IIcon getIcon(int ordinalSide) {
 			       
 			        return getBlock().getIcon(ordinalSide, 0);

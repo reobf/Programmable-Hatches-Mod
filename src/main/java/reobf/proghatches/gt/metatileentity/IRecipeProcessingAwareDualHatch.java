@@ -5,7 +5,7 @@ import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
-
+//spotless:off
 public interface IRecipeProcessingAwareDualHatch extends 
 /*future GT Multiblock might check IDualInputHatch for 'instanceof IRecipeProcessingAwareHatch', so do not implement in case it's called twice*/
 /*IRecipeProcessingAwareHatch,*/

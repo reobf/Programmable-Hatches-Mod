@@ -30,261 +30,240 @@ import gregtech.api.gui.modularui.GT_UIInfos;
 
 public class ItemProgrammingToolkit extends Item implements IItemWithModularUI {
 
-    /*
-     * @Override
-     * public ModularWindow createWindow(UIBuildContext buildContext, ItemStack heldStack) {
-     * // TODO Auto-generated method stub
-     * return null;
-     * }
-     */
-    IIcon[] icons = new IIcon[16];
-    @Override
-    public boolean getHasSubtypes() {
-    	// TODO Auto-generated method stub
-    	return true;
-    }
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void registerIcons(IIconRegister register) {
-        icons[0] = register.registerIcon("proghatches:toolkit0");
-        icons[1] = register.registerIcon("proghatches:toolkit1");
-        icons[2] = register.registerIcon("proghatches:toolkit2");
-        // super.registerIcons(register);
-    }
+	/*
+	 * @Override public ModularWindow createWindow(UIBuildContext buildContext,
+	 * ItemStack heldStack) { // TODO Auto-generated method stub return null; }
+	 */
+	IIcon[] icons = new IIcon[16];
 
-    @SideOnly(Side.CLIENT)
-    public IIcon getIconFromDamage(int p_77617_1_) {
-        return this.icons[p_77617_1_];
-    }
+	@Override
+	public boolean getHasSubtypes() {
+		// TODO Auto-generated method stub
+		return true;
+	}
 
-    {
-        this.maxStackSize = 1;
-    }
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void registerIcons(IIconRegister register) {
+		icons[0] = register.registerIcon("proghatches:toolkit0");
+		icons[1] = register.registerIcon("proghatches:toolkit1");
+		icons[2] = register.registerIcon("proghatches:toolkit2");
+		// super.registerIcons(register);
+	}
 
-    @SideOnly(Side.CLIENT)
-    public static boolean holding() {
-        return lastholdingtick == Minecraft.getMinecraft().thePlayer.ticksExisted;
-    }
+	@SideOnly(Side.CLIENT)
+	public IIcon getIconFromDamage(int p_77617_1_) {
+		return this.icons[p_77617_1_];
+	}
 
-    @SideOnly(Side.CLIENT)
-    public static boolean addEmptyProgCiruit() {
-        return mode == 2;
-    }
+	{
+		this.maxStackSize = 1;
+	}
 
-    public static long lastholdingtick;
-    public static int mode;
+	@SideOnly(Side.CLIENT)
+	public static boolean holding() {
+		return lastholdingtick == Minecraft.getMinecraft().thePlayer.ticksExisted;
+	}
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int p_77663_4_, boolean p_77663_5_) {
-        if (stack.getItemDamage() > 0) if (entityIn == Minecraft.getMinecraft().thePlayer)
-            lastholdingtick = Minecraft.getMinecraft().thePlayer.ticksExisted;
-        mode = stack.getItemDamage();
+	@SideOnly(Side.CLIENT)
+	public static boolean addEmptyProgCiruit() {
+		return mode == 2;
+	}
 
-        super.onUpdate(stack, worldIn, entityIn, p_77663_4_, p_77663_5_);
-    }
+	public static long lastholdingtick;
+	public static int mode;
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int p_77663_4_, boolean p_77663_5_) {
+		if (stack.getItemDamage() > 0)
+			if (entityIn == Minecraft.getMinecraft().thePlayer)
+				lastholdingtick = Minecraft.getMinecraft().thePlayer.ticksExisted;
+		mode = stack.getItemDamage();
 
-        super.addInformation(p_77624_1_, p_77624_2_, p_77624_3_, p_77624_4_);
+		super.onUpdate(stack, worldIn, entityIn, p_77663_4_, p_77663_5_);
+	}
 
-        switch (p_77624_1_.getItemDamage()) {
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
 
-            case 0: {
-                p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.0"));
-            }
-                break;
-            case 1: {
-                p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.1"));
-            }
-                break;
-            case 2: {
-                p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.2"));
-            }
+		super.addInformation(p_77624_1_, p_77624_2_, p_77624_3_, p_77624_4_);
 
-        }
+		switch (p_77624_1_.getItemDamage()) {
 
-        int i = 0;
-        while (true) {
-            String k = "item.prog_toolkit.name.tooltip";
-            if (LangManager.translateToLocal(k)
-                .equals(
-                    Integer.valueOf(i)
-                        .toString())) {
-                break;
-            }
-            String key = k + "." + i;
-            String trans = LangManager.translateToLocal(key);
+		case 0: {
+			p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.0"));
+		}
+			break;
+		case 1: {
+			p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.1"));
+		}
+			break;
+		case 2: {
+			p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.2"));
+		}
 
-            p_77624_3_.add(trans);
-            i++;
+		}
 
-        }
+		int i = 0;
+		while (true) {
+			String k = "item.prog_toolkit.name.tooltip";
+			if (LangManager.translateToLocal(k).equals(Integer.valueOf(i).toString())) {
+				break;
+			}
+			String key = k + "." + i;
+			String trans = LangManager.translateToLocal(key);
 
-        ;
+			p_77624_3_.add(trans);
+			i++;
 
-    }
+		}
 
-    int maxModes = 3;
+		;
 
-    @Override
-    public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player) {
-        if (player.isSneaking()) {
+	}
 
-            itemStackIn.setItemDamage((itemStackIn.getItemDamage() + 1) % maxModes);
+	int maxModes = 3;
 
-        } else {
+	@Override
+	public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player) {
+		if (player.isSneaking()) {
 
-            GT_UIInfos.openPlayerHeldItemUI(player);
-        }
+			itemStackIn.setItemDamage((itemStackIn.getItemDamage() + 1) % maxModes);
 
-        return super.onItemRightClick(itemStackIn, worldIn, player);
-    }
+		} else {
 
-    @Override
-    public ModularWindow createWindow(UIBuildContext buildContext, ItemStack heldStack) {
+			GT_UIInfos.openPlayerHeldItemUI(player);
+		}
 
-        return new UIFactory(buildContext).createWindow();
-    }
+		return super.onItemRightClick(itemStackIn, worldIn, player);
+	}
 
-    protected class UIFactory {
+	@Override
+	public ModularWindow createWindow(UIBuildContext buildContext, ItemStack heldStack) {
 
-        private final UIBuildContext uiBuildContext;
+		return new UIFactory(buildContext).createWindow();
+	}
 
-        public UIFactory(UIBuildContext buildContext) {
-            this.uiBuildContext = buildContext;
-        }
+	protected class UIFactory {
 
-        public ModularWindow createWindow() {
-            ModularWindow.Builder builder = ModularWindow.builder(getGUIWidth(), getGUIHeight());
-            builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
-            // builder.setGuiTint(getUIBuildContext().getGuiColorization());
-            if (doesBindPlayerInventory()) {
-                builder.bindPlayerInventory(getUIBuildContext().getPlayer());
-            }
-            // builder.bindPlayerInventory(builder.getPlayer(), 7, getGUITextureSet().getItemSlot());
+		private final UIBuildContext uiBuildContext;
 
-            addTitleToUI(builder);
-            addUIWidgets(builder);
-            /*
-             * if (getUIBuildContext().isAnotherWindow()) {
-             * builder.widget(
-             * ButtonWidget.closeWindowButton(true)
-             * .setPos(getGUIWidth() - 15, 3));
-             * }
-             */
+		public UIFactory(UIBuildContext buildContext) {
+			this.uiBuildContext = buildContext;
+		}
 
-            /*
-             * final CoverInfo coverInfo = uiBuildContext.getTile()
-             * .getCoverInfoAtSide(uiBuildContext.getCoverSide());
-             * final GT_CoverBehaviorBase<?> behavior = coverInfo.getCoverBehavior();
-             * if (coverInfo.getMinimumTickRate() > 0 && behavior.allowsTickRateAddition()) {
-             * builder.widget(
-             * new GT_CoverTickRateButton(coverInfo, builder).setPos(getGUIWidth() - 24, getGUIHeight() - 24));
-             * }
-             */
-            return builder.build();
-        }
+		public ModularWindow createWindow() {
+			ModularWindow.Builder builder = ModularWindow.builder(getGUIWidth(), getGUIHeight());
+			builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
+			// builder.setGuiTint(getUIBuildContext().getGuiColorization());
+			if (doesBindPlayerInventory()) {
+				builder.bindPlayerInventory(getUIBuildContext().getPlayer());
+			}
+			// builder.bindPlayerInventory(builder.getPlayer(), 7,
+			// getGUITextureSet().getItemSlot());
 
-        /**
-         * Override this to add widgets for your UI.
-         */
+			addTitleToUI(builder);
+			addUIWidgets(builder);
+			/*
+			 * if (getUIBuildContext().isAnotherWindow()) { builder.widget(
+			 * ButtonWidget.closeWindowButton(true) .setPos(getGUIWidth() - 15,
+			 * 3)); }
+			 */
 
-        // IItemHandlerModifiable fakeInv=new ItemHandlerModifiable();
+			/*
+			 * final CoverInfo coverInfo = uiBuildContext.getTile()
+			 * .getCoverInfoAtSide(uiBuildContext.getCoverSide()); final
+			 * GT_CoverBehaviorBase<?> behavior = coverInfo.getCoverBehavior();
+			 * if (coverInfo.getMinimumTickRate() > 0 &&
+			 * behavior.allowsTickRateAddition()) { builder.widget( new
+			 * GT_CoverTickRateButton(coverInfo, builder).setPos(getGUIWidth() -
+			 * 24, getGUIHeight() - 24)); }
+			 */
+			return builder.build();
+		}
 
-        protected void addUIWidgets(ModularWindow.Builder builder) {
-            ItemStackHandler is0 = new ItemStackHandler();
-            builder.widget(new SlotWidget(new BaseSlot(is0, 0)) {
+		/**
+		 * Override this to add widgets for your UI.
+		 */
 
-                @Override
-                public void onDestroy() {
-                    // System.out.println(this.getMcSlot().getStack());
-                    EntityPlayer p = getContext().getPlayer();
-                    if (p.getEntityWorld().isRemote == false) if (this.getMcSlot()
-                        .getStack() != null)
-                        p.getEntityWorld()
-                            .spawnEntityInWorld(
+		// IItemHandlerModifiable fakeInv=new ItemHandlerModifiable();
 
-                                new EntityItem(
-                                    p.getEntityWorld(),
-                                    p.posX,
-                                    p.posY,
-                                    p.posZ,
-                                    this.getMcSlot()
-                                        .getStack()
-                                        .copy()));
-                }
-            }.addTooltip(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.emptyinput"))
-                .setPos(3, 3));
-            ItemStackHandler is = new ItemStackHandler();
-            SlotWidget sw = new SlotWidget(new BaseSlot(is, 0)) {
+		protected void addUIWidgets(ModularWindow.Builder builder) {
+			ItemStackHandler is0 = new ItemStackHandler();
+			builder.widget(new SlotWidget(new BaseSlot(is0, 0)) {
 
-                @Override
-                public void detectAndSendChanges(boolean init) {
-                    this.getMcSlot()
-                        .putStack(
-                            ItemProgrammingCircuit.wrap(
-                                Optional.ofNullable(is0.getStackInSlot(0))
-                                    .map(ItemStack::copy)
-                                    .orElse(null)));
-                    super.detectAndSendChanges(init);
-                }
+				@Override
+				public void onDestroy() {
+					// System.out.println(this.getMcSlot().getStack());
+					EntityPlayer p = getContext().getPlayer();
+					if (p.getEntityWorld().isRemote == false)
+						if (this.getMcSlot().getStack() != null)
+							p.getEntityWorld().spawnEntityInWorld(
 
-            };
-            // sw.setTicker(s->{});
-            builder.widget(sw.setPos(3 + 18, 3));
+									new EntityItem(p.getEntityWorld(), p.posX, p.posY, p.posZ,
+											this.getMcSlot().getStack().copy()));
+				}
+			}.addTooltip(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.emptyinput")).setPos(3, 3));
+			ItemStackHandler is = new ItemStackHandler();
+			SlotWidget sw = new SlotWidget(new BaseSlot(is, 0)) {
 
-        }
+				@Override
+				public void detectAndSendChanges(boolean init) {
+					this.getMcSlot().putStack(ItemProgrammingCircuit
+							.wrap(Optional.ofNullable(is0.getStackInSlot(0)).map(ItemStack::copy).orElse(null)));
+					super.detectAndSendChanges(init);
+				}
 
-        public UIBuildContext getUIBuildContext() {
-            return uiBuildContext;
-        }
+			};
+			// sw.setTicker(s->{});
+			builder.widget(sw.setPos(3 + 18, 3));
 
-        /*
-         * public boolean isCoverValid() {
-         * return !getUIBuildContext().getTile()
-         * .isDead()
-         * && getUIBuildContext().getTile()
-         * .getCoverBehaviorAtSideNew(getUIBuildContext().getCoverSide()) != GregTech_API.sNoBehavior;
-         * }
-         */
+		}
 
-        protected void addTitleToUI(ModularWindow.Builder builder) {
-            /*
-             * ItemStack coverItem = GT_Utility.intToStack(getUIBuildContext().getCoverID());
-             * if (coverItem != null) {
-             * builder.widget(
-             * new ItemDrawable(coverItem).asWidget()
-             * .setPos(5, 5)
-             * .setSize(16, 16))
-             * .widget(
-             * new TextWidget(coverItem.getDisplayName()).setDefaultColor(COLOR_TITLE.get())
-             * .setPos(25, 9));
-             * }
-             */
-        }
+		public UIBuildContext getUIBuildContext() {
+			return uiBuildContext;
+		}
 
-        protected int getGUIWidth() {
-            return 176;
-        }
+		/*
+		 * public boolean isCoverValid() { return !getUIBuildContext().getTile()
+		 * .isDead() && getUIBuildContext().getTile()
+		 * .getCoverBehaviorAtSideNew(getUIBuildContext().getCoverSide()) !=
+		 * GregTech_API.sNoBehavior; }
+		 */
 
-        protected int getGUIHeight() {
-            return 107;
-        }
+		protected void addTitleToUI(ModularWindow.Builder builder) {
+			/*
+			 * ItemStack coverItem =
+			 * GT_Utility.intToStack(getUIBuildContext().getCoverID()); if
+			 * (coverItem != null) { builder.widget( new
+			 * ItemDrawable(coverItem).asWidget() .setPos(5, 5) .setSize(16,
+			 * 16)) .widget( new
+			 * TextWidget(coverItem.getDisplayName()).setDefaultColor(
+			 * COLOR_TITLE.get()) .setPos(25, 9)); }
+			 */
+		}
 
-        protected boolean doesBindPlayerInventory() {
-            return true;
-        }
+		protected int getGUIWidth() {
+			return 176;
+		}
 
-        protected int getTextColorOrDefault(String textType, int defaultColor) {
-            return defaultColor;
-        }
+		protected int getGUIHeight() {
+			return 107;
+		}
 
-        protected final Supplier<Integer> COLOR_TITLE = () -> getTextColorOrDefault("title", 0x222222);
-        protected final Supplier<Integer> COLOR_TEXT_GRAY = () -> getTextColorOrDefault("text_gray", 0x555555);
-        protected final Supplier<Integer> COLOR_TEXT_WARN = () -> getTextColorOrDefault("text_warn", 0xff0000);
-    }
+		protected boolean doesBindPlayerInventory() {
+			return true;
+		}
+
+		protected int getTextColorOrDefault(String textType, int defaultColor) {
+			return defaultColor;
+		}
+
+		protected final Supplier<Integer> COLOR_TITLE = () -> getTextColorOrDefault("title", 0x222222);
+		protected final Supplier<Integer> COLOR_TEXT_GRAY = () -> getTextColorOrDefault("text_gray", 0x555555);
+		protected final Supplier<Integer> COLOR_TEXT_WARN = () -> getTextColorOrDefault("text_warn", 0xff0000);
+	}
 
 }

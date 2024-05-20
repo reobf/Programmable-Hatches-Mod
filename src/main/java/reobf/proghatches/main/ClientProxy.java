@@ -16,37 +16,12 @@ import reobf.proghatches.lang.LangManager;
 
 public class ClientProxy extends CommonProxy {
 
-    // Override CommonProxy methods here, if you want a different behaviour on the client (e.g. registering renders).
-    // Don't forget to call the super methods as well.
-    @Override
-    public void preInit(FMLPreInitializationEvent event) {
+	@Override
+	public void preInit(FMLPreInitializationEvent event) {
 
-        super.preInit(event);
-        MinecraftForgeClient.registerItemRenderer(MyMod.progcircuit, new CircuitSpecialRenderer());
-        MinecraftForge.EVENT_BUS.register(this);
-       // TextureStitchEvent.Pre
-        
-    }
-    @SubscribeEvent
-    public void handle(TextureStitchEvent.Pre e){
-    	
-    	//System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-    	
-    }
-    
-    @Override
-    public void postInit(FMLPostInitializationEvent event) {
-    	/* 
-    	 *  ((IReloadableResourceManager) Minecraft.getMinecraft()
-    	            .getResourceManager()).registerReloadListener(s->{
-    	            	Minecraft.getMinecraft().thePlayer.addChatComponentMessage(
-    	            	new ChatComponentTranslation("")
-    	            	
-    	            	);
-    	            	
-    	            	
-    	            });
-    	            */
-    	super.postInit(event);
-    }
+		super.preInit(event);
+		MinecraftForgeClient.registerItemRenderer(MyMod.progcircuit, new CircuitSpecialRenderer());
+
+	}
+
 }

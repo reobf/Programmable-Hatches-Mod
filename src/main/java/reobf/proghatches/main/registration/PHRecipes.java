@@ -44,7 +44,7 @@ import gregtech.api.util.GT_Utility;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
-
+//spotless:off
 public class PHRecipes implements Runnable {
     ItemStack[] arms = { Robot_Arm_LV.get(1), // GT++ deprecated ulv tier arm
             Robot_Arm_LV.get(1), Robot_Arm_MV.get(1), Robot_Arm_HV.get(1), Robot_Arm_EV.get(1), Robot_Arm_IV.get(1),
@@ -714,6 +714,55 @@ new ItemStack(ItemAndBlockHolder.LARGE_BUFFER),
   .duration(10 * SECONDS)
  .eut(480*4*4)
  .addTo(RecipeMaps.assemblerRecipes);
+ 
+ 
+ 
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+new ItemStack(ItemAndBlockHolder.LEVEL_MAINTAINER),
+//Casing_EV.get(1),
+Casing_CleanStainlessSteel.get(1),
+new ItemStack(
+        GregTech_API.sBlockMachines,
+        1,
+        Config.metaTileEntityOffset + Registration.CircuitProviderOffset)
+
+)
+ 
+ .itemOutputs( new ItemStack(
+         GregTech_API.sBlockMachines,
+         1,
+         Config.metaTileEntityOffset + Registration.LargeProviderOffset))
+
+  .duration(600 * SECONDS)
+ .eut(480*4*4)
+ .addTo(RecipeMaps.assemblerRecipes);
+ 
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+new ItemStack(ItemAndBlockHolder.LEVEL_MAINTAINER),
+Casing_EV.get(1),
+Api.INSTANCE.definitions()
+.blocks()
+.craftingStorage64k()
+.maybeStack(4)
+.get(),
+Api.INSTANCE.definitions()
+.blocks()
+.craftingAccelerator()
+.maybeStack(4)
+.get()
+)
+ 
+ .itemOutputs( new ItemStack(
+         GregTech_API.sBlockMachines,
+         1,
+         Config.metaTileEntityOffset + Registration.ChainerOffset))
+
+  .duration(60 * SECONDS)
+ .eut(480*4*4)
+ .addTo(RecipeMaps.assemblerRecipes);
+ 
  
   }
 

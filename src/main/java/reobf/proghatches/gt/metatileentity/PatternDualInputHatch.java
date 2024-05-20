@@ -107,33 +107,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 														Math.min(16, (1 + tier) * (tier + 1)), "stacksize",
 														(int) (64 * Math.pow(2, Math.max(tier - 3, 0)))))
 
-				/*
-				 * defaultObj(
-				 * 
-				 * ArrayExt.of( "Item/Fluid Input for Multiblocks",
-				 * "Contents are always separated with other bus/hatch",
-				 * "Programming Cover function integrated",
-				 * "Blocking mode is always on",
-				 * "If all pattern inputs cannot be push in one single try, it won't be pushed at all."
-				 * , "Buffer: " + bufferNum, "For each buffer:", "Capacity: " +
-				 * format.format((int) (4000 * Math.pow(4, tier)) / (mMultiFluid
-				 * ? 4 : 1)) + "L" + (mMultiFluid ? " x4 types of fluid" : ""),
-				 * Math.min(16, (1 + tier) * (tier + 1)) + "Slots",
-				 * "Slot maximum stacksize:" + (int) (64 * Math.pow(2,
-				 * Math.max(tier - 3, 0))),
-				 * LangManager.translateToLocal("programmable_hatches.addedby"))
-				 * , ArrayExt.of("多方块机器的物品/流体输入", "总是与其它输入仓/输入总线隔离"
-				 * 
-				 * , "自带编程覆盖板功能", "阻挡模式不可关闭", "样板所有原料无法单次全部输入时,将拒绝此样板的输入",
-				 * "缓冲数量: " + bufferNum, "缓冲容量: " + format.format((int) (4000 *
-				 * Math.pow(4, tier) / (mMultiFluid ? 4 : 1))) + "L" +
-				 * (mMultiFluid ? " x4种流体" : ""), Math.min(16, (1 + tier) *
-				 * (tier + 1)) + "格", "每格堆叠限制:" + (int) (64 * Math.pow(2,
-				 * Math.max(tier - 3, 0))),
-				 * LangManager.translateToLocal("programmable_hatches.addedby")
-				 * 
-				 * ))
-				 */
+				
 
 				));
 		this.supportFluids = fluid;
@@ -630,13 +604,14 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 		ItemStack is = this.getMachineCraftingIcon();
 		return is == null ? new ItemStack(GregTech_API.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID()) : is;
 	}
+
 	@Override
-    public void onBlockDestroyed() {
-        try {
+	public void onBlockDestroyed() {
+		try {
 			refundAll();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-       super.onBlockDestroyed();
-    }
+		super.onBlockDestroyed();
+	}
 }

@@ -13,16 +13,15 @@ import reobf.proghatches.main.mixin.MixinCallback;
 @Mixin(value = GT_MetaTileEntity_MultiBlockBase.class, remap = false)
 public abstract class MixinGTRecipeFilter {
 
-    @Inject(method = "addInputBusToMachineList", at = @At("RETURN"), require = 1)
-    public void addInputBusToMachineList0(IGregTechTileEntity aTileEntity, int aBaseCasingIndex,
-        CallbackInfoReturnable c) {
-        MixinCallback.handleAddedToMachineList(aTileEntity, this);
-    }
+	@Inject(method = "addInputBusToMachineList", at = @At("RETURN"), require = 1)
+	public void addInputBusToMachineList0(IGregTechTileEntity aTileEntity, int aBaseCasingIndex,
+			CallbackInfoReturnable c) {
+		MixinCallback.handleAddedToMachineList(aTileEntity, this);
+	}
 
-    @Inject(method = "addToMachineList", at = @At("RETURN"), require = 1)
-    public void addToMachineList0(IGregTechTileEntity aTileEntity, int aBaseCasingIndex, CallbackInfoReturnable c) {
-        MixinCallback.handleAddedToMachineList(aTileEntity, this);
-    }
+	@Inject(method = "addToMachineList", at = @At("RETURN"), require = 1)
+	public void addToMachineList0(IGregTechTileEntity aTileEntity, int aBaseCasingIndex, CallbackInfoReturnable c) {
+		MixinCallback.handleAddedToMachineList(aTileEntity, this);
+	}
 
-    
 }

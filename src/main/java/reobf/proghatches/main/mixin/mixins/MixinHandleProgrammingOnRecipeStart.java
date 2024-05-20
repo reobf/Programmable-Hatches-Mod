@@ -18,32 +18,29 @@ import reobf.proghatches.gt.cover.ProgrammingCover;
 @Mixin(value = GT_MetaTileEntity_MultiBlockBase.class, remap = false)
 public abstract class MixinHandleProgrammingOnRecipeStart {
 
-    // GT_MetaTileEntity_Hatch_InputBus
-
+	//spotless:off
     @SuppressWarnings("rawtypes")
     @ModifyVariable(
     method = "startRecipeProcessing",ordinal=0/*set it to 0 to enable explicit mode or mixin will raise warnings*/,
     at = @At(opcode = Opcodes.ASTORE, value = "STORE"/*"reobf.proghatches.main.mixin.StoreInjectionPoint"*/), require = 1)
     public GT_MetaTileEntity_Hatch_InputBus startRecipeProcessing(GT_MetaTileEntity_Hatch_InputBus a) {
+    	//spotless:on
+		try {
+			GT_MetaTileEntity_Hatch_InputBus bus = (GT_MetaTileEntity_Hatch_InputBus) a;
+			Arrays.stream(ForgeDirection.VALID_DIRECTIONS)
+					.map(s -> bus.getBaseMetaTileEntity().getCoverBehaviorAtSideNew(s)).filter(Objects::nonNull)
+					.filter(s -> s instanceof ProgrammingCover)
+					.forEach(s -> ((ProgrammingCover) s).impl(bus.getBaseMetaTileEntity()));
+			;
 
-        try {
-            GT_MetaTileEntity_Hatch_InputBus bus = (GT_MetaTileEntity_Hatch_InputBus) a;
-            Arrays.stream(ForgeDirection.VALID_DIRECTIONS)
-                .map(
-                    s -> bus.getBaseMetaTileEntity()
-                        .getCoverBehaviorAtSideNew(s))
-                .filter(Objects::nonNull)
-                .filter(s -> s instanceof ProgrammingCover)
-                .forEach(s -> ((ProgrammingCover) s).impl(bus.getBaseMetaTileEntity()));;
+		} catch (Exception e) {
+			// huh?
+			e.printStackTrace();
+		}
+		return a;
 
-        } catch (Exception e) {
-            // huh?
-            e.printStackTrace();
-        }
-        return a;
-
-      
-    }
+	}
+ //spotless:off
  /*
       
       opcode = Opcodes.ASTORE seems to be useless?

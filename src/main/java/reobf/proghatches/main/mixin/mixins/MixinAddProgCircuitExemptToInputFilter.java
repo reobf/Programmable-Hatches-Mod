@@ -14,28 +14,31 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 
+//spotless:off
 /**
  * make it able to insert progcurcuit into input-buses with filter-mode on
  * If item is progcurcuit, treat it as the wrapped item
  * 
  * 
  */
-
-@Mixin(value=gregtech.api.recipe.RecipeMap.class , remap = false)
+//spotless:on
+@Mixin(value = gregtech.api.recipe.RecipeMap.class, remap = false)
 public abstract class MixinAddProgCircuitExemptToInputFilter {
 
-    
-    @Inject(method = "containsInput", at = @At("RETURN"), require = 1, cancellable = true)
-    public void containsInput(ItemStack aStack, CallbackInfoReturnable<Boolean> c) {
-        if(aStack==null)return;
-    	boolean ret = c.getReturnValueZ();
-        if (ret) return;
-        if (aStack.getItem() != MyMod.progcircuit) return;
-        Optional<ItemStack> op = ItemProgrammingCircuit.getCircuit(aStack);
-        c.setReturnValue( containsInput(op.orElse(null)));
-    }
+	@Inject(method = "containsInput", at = @At("RETURN"), require = 1, cancellable = true)
+	public void containsInput(ItemStack aStack, CallbackInfoReturnable<Boolean> c) {
+		if (aStack == null)
+			return;
+		boolean ret = c.getReturnValueZ();
+		if (ret)
+			return;
+		if (aStack.getItem() != MyMod.progcircuit)
+			return;
+		Optional<ItemStack> op = ItemProgrammingCircuit.getCircuit(aStack);
+		c.setReturnValue(containsInput(op.orElse(null)));
+	}
 
-    @Shadow
-    abstract public boolean containsInput(ItemStack aStack);
+	@Shadow
+	abstract public boolean containsInput(ItemStack aStack);
 
 }

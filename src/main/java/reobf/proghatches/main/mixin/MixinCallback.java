@@ -32,39 +32,26 @@ import reobf.proghatches.main.MyMod;
 public class MixinCallback {
 
 	public static boolean encodingSpecialBehaviour = true;
-	public static Function<Object ,Long> getter;
-	public static BiConsumer<Object ,Long> setter;
-	static{
+	public static Function<Object, Long> getter;
+	public static BiConsumer<Object, Long> setter;
+	//spotless:off
+	static {
 		try {
-			Field	n=Class.forName("appeng.me.cluster.implementations.CraftingCPUCluster$TaskProgress").getDeclaredField("value");
-					n.setAccessible(true);
-					setter=(s,b)->{
-						
-						try {
-								 n.set(s,b);
-						} catch (Exception e) {
-							
-							e.printStackTrace();
-						}
-						
-						};
-					getter=s->{
-						
-					try {
-						return	(Long) n.get(s);
-					} catch (Exception e) {
-						
-						e.printStackTrace();
-					}
-					return null;
-					};
-		} catch (Exception e) {
-			
-			e.printStackTrace();
-		}
-		
-		
+			Field n = Class.forName("appeng.me.cluster.implementations.CraftingCPUCluster$TaskProgress")
+					.getDeclaredField("value");
+			n.setAccessible(true);
+			setter = (s, b) -> {
+				try {n.set(s, b);} catch (Exception e) {e.printStackTrace();}
+			};
+			getter = s -> {
+				try {return (Long) n.get(s);} catch (Exception e) {e.printStackTrace();}
+				return null;
+			};
+		} catch (Exception e) {e.printStackTrace();}
+
 	}
+	//spotless:on
+
 	public static void handleAddedToMachineList(IGregTechTileEntity aTileEntity, Object o) {
 		GT_MetaTileEntity_MultiBlockBase thiz = (GT_MetaTileEntity_MultiBlockBase) o;
 		try {
@@ -72,9 +59,7 @@ public class MixinCallback {
 				return;
 			IMetaTileEntity aMetaTileEntity = aTileEntity.getMetaTileEntity();
 			if (aMetaTileEntity != null && aMetaTileEntity instanceof DualInputHatch) {
-
 				((DualInputHatch) aMetaTileEntity).setFilter(thiz.getRecipeMap());
-
 			}
 
 		} catch (Throwable e) {
@@ -82,5 +67,5 @@ public class MixinCallback {
 		}
 
 	}
-	
+
 }

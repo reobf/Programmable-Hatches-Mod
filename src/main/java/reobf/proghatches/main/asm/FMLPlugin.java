@@ -9,48 +9,49 @@ import com.gtnewhorizon.gtnhmixins.IEarlyMixinLoader;
 
 import cpw.mods.fml.relauncher.FMLCorePlugin;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+
 @IFMLLoadingPlugin.MCVersion("1.7.10")
 @IFMLLoadingPlugin.Name("PHCoreMod")
-public class FMLPlugin implements IEarlyMixinLoader, IFMLLoadingPlugin{
-@Override
-public String[] getASMTransformerClass() {
+public class FMLPlugin implements IEarlyMixinLoader, IFMLLoadingPlugin {
+	@Override
+	public String[] getASMTransformerClass() {
 
-	return new String[]{EUInterfaceTransformer.class.getName()};
-}
+		return new String[] { EUInterfaceTransformer.class.getName() };
+	}
 
-@Override
-public String getModContainerClass() {
-	// TODO Auto-generated method stub
-	return null;
-}
+	@Override
+	public String getModContainerClass() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-@Override
-public String getSetupClass() {
-	// TODO Auto-generated method stub
-	return null;
-}
+	@Override
+	public String getSetupClass() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-@Override
-public void injectData(Map<String, Object> data) {
-	// TODO Auto-generated method stub
-	
-}
+	@Override
+	public void injectData(Map<String, Object> data) {
+		// TODO Auto-generated method stub
 
-@Override
-public String getAccessTransformerClass() {
-	// TODO Auto-generated method stub
-	return null;
-}
+	}
 
-@Override
-public String getMixinConfig() {
-	// TODO Auto-generated method stub
-	return null;
-}
+	@Override
+	public String getAccessTransformerClass() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-@Override
-public List<String> getMixins(Set<String> loadedCoreMods) {
+	@Override
+	public String getMixinConfig() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-	return new ArrayList<>();
-}
+	@Override
+	public List<String> getMixins(Set<String> loadedCoreMods) {
+
+		return new ArrayList<>();
+	}
 }

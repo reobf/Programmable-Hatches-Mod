@@ -26,50 +26,47 @@ import reobf.proghatches.main.mixin.MixinCallback;
 @Mixin(value = CPacketTransferRecipe.class, remap = false)
 public class MixinPatternEncodingCiruitSpecialTreatment {
 
-    @Shadow
-    private List<OrderStack<?>> inputs;
+	@Shadow
+	private List<OrderStack<?>> inputs;
 
-    @SuppressWarnings("unchecked")
-    @Inject(method = "toBytes", at = @At(value = "HEAD"), require = 1, cancellable = true)
+	
+	@Inject(method = "toBytes", at = @At(value = "HEAD"), require = 1, cancellable = true)
 
-    private void toBytes(ByteBuf buf, CallbackInfo c) {
-        AtomicBoolean circuit = new AtomicBoolean(false);
-        if (ItemProgrammingToolkit.holding() == false) {
-            return;
-        }
-        if (MixinCallback.encodingSpecialBehaviour == false) return;
+	private void toBytes(ByteBuf buf, CallbackInfo c) {
+		AtomicBoolean circuit = new AtomicBoolean(false);
+		if (ItemProgrammingToolkit.holding() == false) {
+			return;
+		}
+		if (MixinCallback.encodingSpecialBehaviour == false)
+			return;
 
-        AtomicInteger i = new AtomicInteger(0);
-        ArrayList<OrderStack<?>> spec = new ArrayList<>();
-        List<OrderStack<?>> ret = inputs.stream()
-            .filter(Objects::nonNull)
+		AtomicInteger i = new AtomicInteger(0);
+		ArrayList<OrderStack<?>> spec = new ArrayList<>();
+		List<OrderStack<?>> ret = inputs.stream().filter(Objects::nonNull)
 
-            .filter(orderStack -> {
-                boolean regular = !(orderStack.getStack() != null && orderStack.getStack() instanceof ItemStack
-                    && ((ItemStack) orderStack.getStack()).stackSize == 0);
-                if (regular == false) {
-                    circuit.set(true);
-                    spec.add(
-                        new OrderStack<>(
-                            ItemProgrammingCircuit.wrap(((ItemStack) orderStack.getStack())),
-                            orderStack.getIndex()));
-                    return false;
-                }
+				.filter(orderStack -> {
+					boolean regular = !(orderStack.getStack() != null && orderStack.getStack() instanceof ItemStack
+							&& ((ItemStack) orderStack.getStack()).stackSize == 0);
+					if (regular == false) {
+						circuit.set(true);
+						spec.add(new OrderStack<>(ItemProgrammingCircuit.wrap(((ItemStack) orderStack.getStack())),
+								orderStack.getIndex()));
+						return false;
+					}
 
-                return true;
-            })
-            .collect(Collectors.toList());
+					return true;
+				}).collect(Collectors.toList());
 
-        if (circuit.get() == false && ItemProgrammingToolkit.addEmptyProgCiruit()) {
-            spec.add(0, new OrderStack<>(ItemProgrammingCircuit.wrap(null), 0));
-        }
+		if (circuit.get() == false && ItemProgrammingToolkit.addEmptyProgCiruit()) {
+			spec.add(0, new OrderStack<>(ItemProgrammingCircuit.wrap(null), 0));
+		}
 
-        spec.addAll(ret);
-        spec.forEach((orderStack -> orderStack.setIndex(i.getAndIncrement())));
+		spec.addAll(ret);
+		spec.forEach((orderStack -> orderStack.setIndex(i.getAndIncrement())));
 
-        inputs = spec;
+		inputs = spec;
 
-        // c.setReturnValue(ret);
+		// c.setReturnValue(ret);
 
-    }
+	}
 }

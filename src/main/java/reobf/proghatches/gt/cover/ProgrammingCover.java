@@ -20,82 +20,80 @@ import reobf.proghatches.main.MyMod;
 
 public class ProgrammingCover extends GT_CoverBehavior {
 
-    @Override
-    public int getTickRate(ForgeDirection side, int aCoverID, int aCoverVariable, ICoverable aTileEntity) {
+	@Override
+	public int getTickRate(ForgeDirection side, int aCoverID, int aCoverVariable, ICoverable aTileEntity) {
 
-        return 1;
-    }
+		return 1;
+	}
 
-    public void impl(ICoverable aTileEntity) {
+	public void impl(ICoverable aTileEntity) {
 
-        if ((((aTileEntity instanceof IMachineProgress)) && (!((IMachineProgress) aTileEntity).isAllowedToWork()))) {
-            return;
-        }
-        TileEntity tile = (TileEntity) aTileEntity;
+		if ((((aTileEntity instanceof IMachineProgress)) && (!((IMachineProgress) aTileEntity).isAllowedToWork()))) {
+			return;
+		}
+		TileEntity tile = (TileEntity) aTileEntity;
 
-        if (!(tile instanceof ISidedInventory)) {
-            return;
-        }
-        if (!(tile instanceof IGregTechTileEntity)) {
-            return;
-        }
-        if (((IGregTechTileEntity) tile).getMetaTileEntity() instanceof IProgrammingCoverBlacklisted) {
-        
-        	
-        	
-        	return;
-        }
+		if (!(tile instanceof ISidedInventory)) {
+			return;
+		}
+		if (!(tile instanceof IGregTechTileEntity)) {
+			return;
+		}
+		if (((IGregTechTileEntity) tile).getMetaTileEntity() instanceof IProgrammingCoverBlacklisted) {
 
-        IMetaTileEntity meta = ((IGregTechTileEntity) tile).getMetaTileEntity();
+			return;
+		}
 
-        if (!(meta instanceof IConfigurationCircuitSupport)) {
-            return;
-        }
+		IMetaTileEntity meta = ((IGregTechTileEntity) tile).getMetaTileEntity();
 
-        int[] slots = ((ISidedInventory) tile).getAccessibleSlotsFromSide(ForgeDirection.UNKNOWN.ordinal());
-        for (int slot : slots) {
-            ItemStack is = ((ISidedInventory) tile).getStackInSlot(slot);
-            if (is == null) continue;
-            if (is.getItem() != MyMod.progcircuit) continue;
+		if (!(meta instanceof IConfigurationCircuitSupport)) {
+			return;
+		}
 
-            /*
-             * if(((ISidedInventory)tile).canExtractItem(slot, is, ForgeDirection.UNKNOWN.ordinal())
-             * ==false)continue;
-             */
-            if (((ISidedInventory) tile).decrStackSize(slot, 64).stackSize == 0) {
-                continue;
-            }
+		int[] slots = ((ISidedInventory) tile).getAccessibleSlotsFromSide(ForgeDirection.UNKNOWN.ordinal());
+		for (int slot : slots) {
+			ItemStack is = ((ISidedInventory) tile).getStackInSlot(slot);
+			if (is == null)
+				continue;
+			if (is.getItem() != MyMod.progcircuit)
+				continue;
 
-            ;
-            ((IInventory) tile).setInventorySlotContents(
-                ((IConfigurationCircuitSupport) meta).getCircuitSlot(),
-                ItemProgrammingCircuit.getCircuit(is)
-                    .orElse(null)
+			/*
+			 * if(((ISidedInventory)tile).canExtractItem(slot, is,
+			 * ForgeDirection.UNKNOWN.ordinal()) ==false)continue;
+			 */
+			if (((ISidedInventory) tile).decrStackSize(slot, 64).stackSize == 0) {
+				continue;
+			}
 
-            // new ItemStack(Items.apple)
+			;
+			((IInventory) tile).setInventorySlotContents(((IConfigurationCircuitSupport) meta).getCircuitSlot(),
+					ItemProgrammingCircuit.getCircuit(is).orElse(null)
 
-            );
+			// new ItemStack(Items.apple)
 
-        }
+			);
 
-	    }
+		}
+
+	}
+
 	@Override
 	public boolean isCoverPlaceable(ForgeDirection side, ItemStack aStack, ICoverable aTileEntity) {
-		if(Optional.of(aTileEntity).filter(s->s instanceof IGregTechTileEntity)
-		.map(s->((IGregTechTileEntity)s).getMetaTileEntity())
-		.filter(s->s instanceof IProgrammingCoverBlacklisted)
-		.isPresent()
-		)return false;
-		
-		
+		if (Optional.of(aTileEntity).filter(s -> s instanceof IGregTechTileEntity)
+				.map(s -> ((IGregTechTileEntity) s).getMetaTileEntity())
+				.filter(s -> s instanceof IProgrammingCoverBlacklisted).isPresent())
+			return false;
+
 		return super.isCoverPlaceable(side, aStack, aTileEntity);
 	}
-    @Override
-    public int doCoverThings(ForgeDirection side, byte aInputRedstone, int aCoverID, int aCoverVariable,
-        ICoverable aTileEntity, long aTimer) {
-        impl(aTileEntity);
 
-        return aCoverVariable;
-    }
+	@Override
+	public int doCoverThings(ForgeDirection side, byte aInputRedstone, int aCoverID, int aCoverVariable,
+			ICoverable aTileEntity, long aTimer) {
+		impl(aTileEntity);
+
+		return aCoverVariable;
+	}
 
 }

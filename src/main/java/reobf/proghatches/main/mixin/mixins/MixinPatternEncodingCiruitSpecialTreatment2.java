@@ -25,58 +25,54 @@ import reobf.proghatches.main.mixin.MixinCallback;
 @Mixin(targets = "com.github.vfyjxf.nee.processor.GregTech5RecipeProcessor", remap = false, priority = 1)
 public class MixinPatternEncodingCiruitSpecialTreatment2 {
 
-    @ModifyVariable(
-        require = 1,
-        method = "getRecipeInput",
-        at = @At(value = "INVOKE", target = "removeIf(Ljava/util/function/Predicate;)Z"))
-    private List g(List<PositionedStack> c) {
-        AtomicBoolean circuit = new AtomicBoolean(false);
-        if (ItemProgrammingToolkit.holding() == false) {
-            return c;
-        }
-        if (MixinCallback.encodingSpecialBehaviour == false) return c;
-        // AtomicInteger i = new AtomicInteger(0);
-        List<PositionedStack> spec = new ArrayList<>();
-        List<int[]> order = new ArrayList<>();
+	@ModifyVariable(require = 1, method = "getRecipeInput", at = @At(value = "INVOKE", target = "removeIf(Ljava/util/function/Predicate;)Z"))
+	private List g(List<PositionedStack> c) {
+		AtomicBoolean circuit = new AtomicBoolean(false);
+		if (ItemProgrammingToolkit.holding() == false) {
+			return c;
+		}
+		if (MixinCallback.encodingSpecialBehaviour == false)
+			return c;
+		// AtomicInteger i = new AtomicInteger(0);
+		List<PositionedStack> spec = new ArrayList<>();
+		List<int[]> order = new ArrayList<>();
 
-        List<PositionedStack> ret = c.stream()
-            .filter(Objects::nonNull)
-            .filter(s -> s.item != null && s.item.getItem() != ItemList.Display_Fluid.getItem())
-            .map(s -> s.copy())
-            .filter(orderStack -> {
-                boolean regular = !(orderStack.item != null && orderStack.item instanceof ItemStack
-                    && ((ItemStack) orderStack.item).stackSize == 0);
-                order.add(new int[] { orderStack.relx, orderStack.rely });
-                if (regular == false) {
-                    circuit.set(true);
-                    spec.add(
-                        new PositionedStack(
-                            ItemProgrammingCircuit.wrap(((ItemStack) orderStack.item)),
-                            orderStack.relx,
-                            orderStack.rely));
-                    return false;
-                }
+		List<PositionedStack> ret = c.stream().filter(Objects::nonNull)
+				.filter(s -> s.item != null && s.item.getItem() != ItemList.Display_Fluid.getItem()).map(s -> s.copy())
+				.filter(orderStack -> {
+					boolean regular = !(orderStack.item != null && orderStack.item instanceof ItemStack
+							&& ((ItemStack) orderStack.item).stackSize == 0);
+					order.add(new int[] { orderStack.relx, orderStack.rely });
+					if (regular == false) {
+						circuit.set(true);
+						spec.add(new PositionedStack(ItemProgrammingCircuit.wrap(((ItemStack) orderStack.item)),
+								orderStack.relx, orderStack.rely));
+						return false;
+					}
 
-                return true;
-            })
-            .collect(Collectors.toList());
+					return true;
+				}).collect(Collectors.toList());
 
-        if (circuit.get() == false && ItemProgrammingToolkit.addEmptyProgCiruit()) {
-            spec.add(0, new PositionedStack(ItemProgrammingCircuit.wrap(null), 0, 0));
-        }
-        spec.addAll(ret);
-        AtomicInteger cs=new AtomicInteger();
-        //Iterator<int[]> itr = order.iterator();
-        spec.forEach(s -> {
-           // int[] ii = itr.next();
-        	 int[] ii =new int[]{cs.get()%3,cs.getAndAdd(1)/3};
-            s.relx = ii[0];
-            s.rely = ii[1];
-        });
-        //System.out.println(spec);
-        return spec.subList(0, Math.min(9,spec.size()));//keep first 9 items,discard the rest
+		if (circuit.get() == false && ItemProgrammingToolkit.addEmptyProgCiruit()) {
+			spec.add(0, new PositionedStack(ItemProgrammingCircuit.wrap(null), 0, 0));
+		}
+		spec.addAll(ret);
+		AtomicInteger cs = new AtomicInteger();
+		// Iterator<int[]> itr = order.iterator();
+		spec.forEach(s -> {
+			// int[] ii = itr.next();
+			int[] ii = new int[] { cs.get() % 3, cs.getAndAdd(1) / 3 };
+			s.relx = ii[0];
+			s.rely = ii[1];
+		});
+		// System.out.println(spec);
+		return spec.subList(0, Math.min(9, spec.size()));
 
-    }
+		// keep first 9 items, discard the rest, bacause NEE's terminal only has 9 slots
+
+	}
+
+	//spotless:off
     /*
      * @Inject(
      * require=1,

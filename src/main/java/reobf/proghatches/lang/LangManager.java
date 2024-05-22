@@ -1,13 +1,6 @@
 package reobf.proghatches.lang;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import cpw.mods.fml.common.SidedProxy;
 import net.minecraft.util.StatCollector;
-import net.minecraft.util.StringTranslate;
-import reobf.proghatches.main.CommonProxy;
-import reobf.proghatches.main.Config;
 
 public abstract class LangManager {
 	public static String translateToLocal(String p_74838_0_) {

@@ -18,9 +18,10 @@ public class ItemBlockIOHub extends ItemBlock {
 		super(p_i45328_1_);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
+	public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_,  List p_77624_3_, boolean p_77624_4_) {
 		int i = 0;
 		while (true) {
 			String k = KeyboardUtil.isShiftKeyDown() ? "tile.iohub.tooltip.shift" : "tile.iohub.tooltip";

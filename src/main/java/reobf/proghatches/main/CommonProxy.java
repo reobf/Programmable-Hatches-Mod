@@ -1,23 +1,8 @@
 package reobf.proghatches.main;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemEditableBook;
 import net.minecraft.item.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.glodblock.github.common.item.FCBaseItemBlock;
-import com.glodblock.github.common.tabs.FluidCraftingTabs;
-import com.glodblock.github.common.tile.TileFluidAutoFiller;
-import com.glodblock.github.loader.ItemAndBlockHolder;
-import com.glodblock.github.util.ModAndClassUtil;
-import com.glodblock.github.util.NameConst;
-import com.google.common.base.Optional;
-
-import appeng.api.AEApi;
-import appeng.api.config.Upgrades;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
@@ -38,7 +23,6 @@ import reobf.proghatches.eucrafting.ItemEUToken;
 import reobf.proghatches.eucrafting.ItemPartEUP2PInterface;
 import reobf.proghatches.eucrafting.ItemPartEUSource;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
-import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemDedicatedCover;
 import reobf.proghatches.item.ItemFakePattern;

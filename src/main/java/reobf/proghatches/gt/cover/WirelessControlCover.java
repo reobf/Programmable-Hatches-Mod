@@ -8,7 +8,6 @@ import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 
@@ -32,7 +31,6 @@ import gregtech.api.util.ISerializableObject;
 import gregtech.common.covers.redstone.GT_Cover_AdvancedRedstoneReceiverBase.GateMode;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import io.netty.buffer.ByteBuf;
-import reobf.proghatches.gt.cover.SmartArmCover.Data;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
@@ -293,13 +291,13 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
 		private static final int spaceX = 18;
 		private static final int spaceY = 18;
 
-		private int maxSlot;
+		
 
 		protected WirelessCCUIFactory(GT_CoverUIBuildContext buildContext) {
 			super(buildContext);
 		}
 
-		@SuppressWarnings({ "rawtypes", "unchecked" })
+		
 		@Override
 		protected void addUIWidgets(ModularWindow.Builder builder) {
 

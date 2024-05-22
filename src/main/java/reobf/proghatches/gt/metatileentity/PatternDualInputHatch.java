@@ -1,7 +1,5 @@
 package reobf.proghatches.gt.metatileentity;
 
-import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
-
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -14,17 +12,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import reobf.proghatches.lang.LangManager;
 
 import com.glodblock.github.common.item.ItemFluidPacket;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
@@ -33,7 +28,6 @@ import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
-import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 
 import appeng.api.AEApi;
@@ -62,14 +56,12 @@ import appeng.me.helpers.IGridProxyable;
 import appeng.util.Platform;
 import gregtech.GT_Mod;
 import gregtech.api.GregTech_API;
-import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.Textures.BlockIcons;
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.extensions.ArrayExt;
 
 public class PatternDualInputHatch extends BufferedDualInputHatch
 		implements ICraftingProvider, IGridProxyable, ICustomNameObject, IInterfaceViewable, IPowerChannelState {
@@ -100,12 +92,12 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 						: reobf.proghatches.main.Config
 								.get("PDIH",
 										ImmutableMap
-												.of("bufferNum", bufferNum, "cap",
+												.of(/*"bufferNum", bufferNum, "cap",
 														format.format((int) (4000 * Math.pow(4, tier)
-																/ (mMultiFluid ? 4 : 1))),
+																/ (mMultiFluid ? 4 : 1))),*/
 														"mMultiFluid", mMultiFluid, "slots",
-														Math.min(16, (1 + tier) * (tier + 1)), "stacksize",
-														(int) (64 * Math.pow(2, Math.max(tier - 3, 0)))))
+														Math.min(16, (1 + tier) * (tier + 1))/*, "stacksize",
+														(int) (64 * Math.pow(2, Math.max(tier - 3, 0)))*/))
 
 				
 
@@ -613,5 +605,14 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 			e.printStackTrace();
 		}
 		super.onBlockDestroyed();
+	}
+	public int fluidLimit() {
+
+		return Integer.MAX_VALUE;
+	}
+
+	public int itemLimit() {
+
+		return Integer.MAX_VALUE;
 	}
 }

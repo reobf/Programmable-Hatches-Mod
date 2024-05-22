@@ -12,7 +12,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import reobf.proghatches.lang.LangManager;
 
@@ -84,6 +83,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI {
 		super.onUpdate(stack, worldIn, entityIn, p_77663_4_, p_77663_5_);
 	}
 
+	@SuppressWarnings("unchecked")
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {

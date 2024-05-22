@@ -3,45 +3,20 @@ package reobf.proghatches.block;
 import li.cil.oc.integration.appeng.NetworkControl;
 import li.cil.oc.integration.appeng.NetworkControl$class;
 import li.cil.oc.server.component.traits.*;
-import li.cil.oc.server.machine.ArchitectureAPI;
-import li.cil.oc.server.machine.Machine;
-import li.cil.oc.server.machine.luac.NativeLuaAPI;
-import li.cil.oc.server.machine.luac.NativeLuaArchitecture;
-import li.cil.oc.util.DatabaseAccess$;
-import li.cil.oc.util.ExtendedArguments.ExtendedArguments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.LaunchClassLoader;
-import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
-import scala.None$;
-import li.cil.oc.util.ExtendedWorld$;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import scala.Option;
 import scala.Some;
 import scala.Tuple2;
-import li.cil.oc.util.InventoryUtils$;
 import li.cil.oc.util.BlockPosition;
-import li.cil.oc.util.BlockInventorySource;
-import li.cil.oc.util.InventorySource;
-import li.cil.oc.util.InventoryUtils;
-import scala.collection.GenSeq;
-import scala.collection.Seq;
 import scala.collection.immutable.IndexedSeq;
 import scala.collection.mutable.Buffer;
 import scala.reflect.ClassTag;
-import scala.runtime.BoxesRunTime;
-
-import scala.Unit$;
-
-import scala.Predef$;
-import li.cil.oc.server.component.package$;
-import li.cil.oc.Settings$;
 import li.cil.oc.api.machine.Callback;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
@@ -51,41 +26,20 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.oredict.OreDictionary;
 import reobf.proghatches.gt.metatileentity.MappingItemHandler;
-import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
-import scala.Function1;
-import scala.None;
 import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Context;
 
-import static gregtech.api.enums.GT_Values.NW;
-
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
-import java.security.CodeSource;
-import java.security.SecureClassLoader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -93,63 +47,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Spliterators;
-import java.util.WeakHashMap;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
-
-import li.cil.oc.Settings$;
-import li.cil.oc.api.machine.Arguments;
-import li.cil.oc.api.machine.Callback;
-import li.cil.oc.api.machine.Context;
-import li.cil.oc.server.component.package$;
-import li.cil.oc.util.BlockInventorySource;
-import li.cil.oc.util.BlockPosition;
-import li.cil.oc.util.DatabaseAccess$;
-import li.cil.oc.util.ExtendedWorld$;
-import li.cil.oc.util.InventorySource;
-import li.cil.oc.util.InventoryUtils$;
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import scala.Function1;
-import scala.None$;
-import scala.Option;
-import scala.Predef$;
-import scala.Some;
-import scala.Unit$;
-import scala.collection.Seq;
 
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
-import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.screen.ITileWithModularUI;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
-import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
 import com.gtnewhorizons.modularui.common.widget.Scrollable;
 import com.gtnewhorizons.modularui.common.widget.SlotGroup;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
-import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
-import com.mojang.authlib.GameProfile;
-
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.networking.GridFlags;
@@ -162,66 +78,24 @@ import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
-import appeng.api.storage.data.IAEStack;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.helpers.ICustomNameObject;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
-import gregtech.api.GregTech_API;
-import gregtech.api.enums.ItemList;
-import gregtech.api.enums.SoundResource;
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.gui.modularui.GUITextureSet;
-import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_BasicMachine;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
-import gregtech.api.net.GT_Packet_TileEntity;
-import gregtech.api.objects.GT_ItemStack;
-import gregtech.api.util.GT_CoverBehaviorBase;
-import gregtech.api.util.GT_Log;
-import gregtech.api.util.GT_ModHandler;
-import gregtech.api.util.GT_Utility;
-import gregtech.common.covers.CoverInfo;
-import li.cil.oc.api.Driver;
-import li.cil.oc.api.Network;
-import li.cil.oc.api.driver.DeviceInfo;
 import li.cil.oc.api.internal.MultiTank;
-import li.cil.oc.api.machine.Arguments;
-import li.cil.oc.api.machine.Callback;
-import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.network.Component;
 import li.cil.oc.api.network.Connector;
-import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
-import li.cil.oc.api.prefab.AbstractValue;
-import li.cil.oc.api.prefab.ItemStackArrayValue;
 import li.cil.oc.api.internal.Database;
-import li.cil.oc.common.tileentity.Case;
-import li.cil.oc.common.tileentity.DiskDrive;
-import li.cil.oc.common.tileentity.Robot;
-import li.cil.oc.common.tileentity.traits.ComponentInventory;
-import li.cil.oc.common.tileentity.traits.Computer;
-import li.cil.oc.common.tileentity.traits.Environment;
-import li.cil.oc.util.BlockPosition;
-import li.cil.oc.util.InventorySource;
-import li.cil.oc.util.SideTracker;
-import li.cil.repack.com.naef.jnlua.DefaultConverter;
-import li.cil.repack.com.naef.jnlua.LuaState;
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.StatCollector;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import scala.Option;
-import scala.Some;
-import scala.collection.Seq;
 
 public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Environment,
 		/*
@@ -378,6 +252,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		 * getFilteredClass("ae").apply("iohub_ae", this));
 		 */}
 
+	@SuppressWarnings("unused")
 	private static BiFunction<String, TileEntity, Object> getFilteredClass(String filter) {
 		if (cache.containsKey(filter)) {
 			return cache.get(filter);
@@ -453,7 +328,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 
 	}
 
-	private static Class filterAPI(String filter) {
+	private static Class<?> filterAPI(String filter) {
 
 		ClassReader cr = null;
 		try {
@@ -504,7 +379,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 	public class OCApi implements li.cil.oc.api.network.Environment, WorldInventoryAnalytics, WorldTankAnalytics,
 			WorldFluidContainerAnalytics, TankInventoryControl, InventoryAnalytics, MultiTank, InventoryTransfer,
 			FluidContainerTransfer, InventoryControl, TankControl, ItemInventoryControl, InventoryWorldControlMk2,
-			NetworkControl {
+			NetworkControl<TileIOHub> {
 		@Callback(doc = "function():string -- Returns the custom name of this IO Hub, or 'IOHub' if absent. Use quartz cutter to (re-)name.")
 		public Object[] getCustomName(final Context context, final Arguments args) {
 			return new Object[] { TileIOHub.this.getInventoryName() };
@@ -514,8 +389,8 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		public Object[] swap(final Context context, final Arguments args) {
 			markDirty();
 			final String address = args.checkString(0);
-			final int entry = args.checkInteger(1);
-			final int amount = args.optInteger(2, 1000);
+			//final int entry = args.checkInteger(1);
+			//final int amount = args.optInteger(2, 1000);
 
 			final Node n = node().network().node(address);
 			if (n == null) {
@@ -1127,7 +1002,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		}
 
 		@Override
-		public TileEntity tile() {
+		public TileIOHub tile() {
 
 			return TileIOHub.this;
 		}

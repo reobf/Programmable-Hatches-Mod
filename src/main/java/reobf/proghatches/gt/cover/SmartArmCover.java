@@ -12,11 +12,8 @@ import java.util.stream.Stream;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -41,7 +38,6 @@ import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.util.GT_CoverBehaviorBase;
-import gregtech.api.util.GT_Utility;
 import gregtech.api.util.ISerializableObject;
 import gregtech.common.covers.redstone.GT_Cover_AdvancedRedstoneReceiverBase.GateMode;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
@@ -68,7 +64,7 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 		int mode;
 		int probe;
 
-		boolean dyn;
+		public boolean dyn;
 		String formula = "";
 		String formulaprev = "";
 		// public boolean update;
@@ -282,29 +278,23 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 			return builder.build();
 		}
 
-		private NBTTagCompound cv(String s) {
-			try {
-				return (NBTTagCompound) JsonToNBT.func_150315_a(s);
-			} catch (NBTException e) {
-				return new NBTTagCompound();
-			}
-		}
+		
 
 		private static final int startX = 10;
 		private static final int startY = 25;
 		private static final int spaceX = 18;
 		private static final int spaceY = 18;
 
-		private int maxSlot;
+		//private int maxSlot;
 
 		protected ArmUIFactory(GT_CoverUIBuildContext buildContext) {
 			super(buildContext);
 		}
 
-		@SuppressWarnings({ "rawtypes", "unchecked" })
+		
 		@Override
 		protected void addUIWidgets(ModularWindow.Builder builder) {
-			maxSlot = getMaxSlot();
+			//maxSlot = getMaxSlot();
 			// CoverDataControllerWidget<Data> o = new
 			// CoverDataControllerWidget<>(this::getCoverData,
 			// this::setCoverData, SmartRobotArmCover.this);
@@ -492,14 +482,7 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 			 * 3, 4 + startY + spaceY * 2));
 			 */ }
 
-		private int getMaxSlot() {
-			final ICoverable tile = getUIBuildContext().getTile();
-			if (tile instanceof TileEntity && !tile.isDead()) {
-				return tile.getSizeInventory() - 1;
-			} else {
-				return -1;
-			}
-		}
+		
 
 	}
 
@@ -518,15 +501,15 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 		return new ArmUIFactory(buildContext).createWindow();
 	}
 
-	@SuppressWarnings("deprecation")
+	
 	@Override
 	protected boolean onCoverRightClickImpl(ForgeDirection side, int aCoverID, Data d, ICoverable aTileEntity,
 			EntityPlayer aPlayer, float aX, float aY, float aZ) {
 
-		if (1 > 0)
+		//if (1 > 0)
 			return super.onCoverRightClickImpl(side, aCoverID, d, aTileEntity, aPlayer, aX, aY, aZ);
 		// not used
-		// System.out.println("ssssssss");
+		/*
 		if (d.dyn) {
 			GT_Utility.sendChatToPlayer(aPlayer, info("print.dyn"));
 			return true;
@@ -564,7 +547,7 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 			}
 		}
 
-		return true;
+		return true;*/
 	}
 
 	@Override

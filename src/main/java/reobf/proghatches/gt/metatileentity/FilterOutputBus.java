@@ -2,28 +2,17 @@ package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.util.GT_Utility.moveMultipleItemStacks;
 
-import java.io.IOException;
 import java.util.Optional;
-import java.util.function.Consumer;
-
-import org.jetbrains.annotations.Nullable;
-
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
-import com.gtnewhorizons.modularui.api.widget.Widget;
-import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
-
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.StatCollector;
 import gregtech.api.GregTech_API;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_OutputBus;
-import gregtech.api.util.extensions.ArrayExt;
 import gregtech.common.GT_Client;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.ProghatchesUtil;

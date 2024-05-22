@@ -7,25 +7,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.glodblock.github.common.Config;
-import com.glodblock.github.common.parts.PartFluidExportBus;
-import com.glodblock.github.common.parts.PartFluidInterface;
-import com.glodblock.github.common.parts.PartFluidP2PInterface;
-import com.glodblock.github.common.tile.TileFluidInterface;
 import com.glodblock.github.inventory.FluidConvertingInventoryAdaptor;
 import com.glodblock.github.util.BlockPos;
 import com.glodblock.github.util.Util;
 
-import appeng.tile.misc.TileInterface;
 import appeng.util.InventoryAdaptor;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.util.ISerializableObject;
-import gregtech.common.blocks.GT_Block_Machines;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.IFluidHandler;
 import reobf.proghatches.eucrafting.AECover;
-import reobf.proghatches.eucrafting.InterfaceData;
 import reobf.proghatches.eucrafting.PartEUP2PInterface;
 
 @Mixin(FluidConvertingInventoryAdaptor.class)

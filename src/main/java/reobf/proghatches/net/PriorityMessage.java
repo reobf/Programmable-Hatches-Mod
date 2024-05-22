@@ -1,11 +1,8 @@
 package reobf.proghatches.net;
 
-import static gregtech.api.enums.GT_Values.NW;
-
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import gregtech.api.net.GT_Packet_SendCoverData;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.main.MyMod;

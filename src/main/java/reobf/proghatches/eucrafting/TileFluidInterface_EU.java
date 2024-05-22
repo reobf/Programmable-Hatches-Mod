@@ -1,6 +1,5 @@
 package reobf.proghatches.eucrafting;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -10,13 +9,8 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
-
-import javax.annotation.Nullable;
-
 import com.glodblock.github.common.tile.TileFluidInterface;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.math.Color;
 import com.gtnewhorizons.modularui.api.screen.ITileWithModularUI;
@@ -35,9 +29,7 @@ import appeng.api.networking.crafting.ICraftingMedium;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.crafting.ICraftingProviderHelper;
 import appeng.api.networking.events.MENetworkCraftingPatternChange;
-import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.MachineSource;
-import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEItemStack;
@@ -47,8 +39,6 @@ import appeng.tile.TileEvent;
 import appeng.tile.events.TileEventType;
 import appeng.util.item.AEItemStack;
 import cofh.api.energy.IEnergyReceiver;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.gui.modularui.GT_UITextures;
@@ -61,22 +51,17 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaDataProvider;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.eucrafting.IEUManager.IDrain;
-import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
-import thaumcraft.common.lib.WarpEvents;
 
 // TileFluidInterface_EU.class.getName().contains("TileFluidInterface")->true
 public class TileFluidInterface_EU extends TileFluidInterface
@@ -161,7 +146,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 		if (id.equals(zero)) {
 			id = UUID.randomUUID();
 		}
-		;
+		customName=data.getString("customName");
 		amp = data.getLong("amp");
 		voltage = data.getLong("voltage");
 		accepted = data.getLong("accepted");
@@ -211,6 +196,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 	@TileEvent(TileEventType.WORLD_NBT_WRITE)
 	public void write(NBTTagCompound data) {
 		ProghatchesUtil.ser(data, id, "EUFI");
+		data.setString("customName",customName);
 		data.setLong("amp", amp);
 		data.setLong("voltage", voltage);
 		data.setLong("accepted", accepted);
@@ -264,7 +250,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 					}
 
 					IMEInventory<IAEItemStack> inv = ((CraftingCPUCluster) cluster).getInventory();
-					long prevamp = amp;
+					//long prevamp = amp;
 
 					if (refund(inv, store)) {
 
@@ -718,27 +704,23 @@ public class TileFluidInterface_EU extends TileFluidInterface
 		// TODO Auto-generated method stub
 		return super.getForward();
 	}
-
+	final static String  NAME_OVERRIDE="EU Interface";
+	String customName;
+	
 	@Override
-	public String getCustomName() {
-		if (super.getCustomName() == null) {
-			return "EU Interface";
-		}
-		return super.getCustomName();
-	}
+	    public String getCustomName() {
+	        return this.hasCustomName() ? this.customName : NAME_OVERRIDE;
+	    }
 
-	@Override
-	public boolean hasCustomName() {
-		return true;
-	}
+	    @Override
+	    public boolean hasCustomName() {
+	        return this.customName != null && this.customName.length() > 0;
+	    }
 
-	@Override
-	public void setCustomName(String name) {
-		setName(name);
-		if (super.getCustomName() == null) {
-			setName("EU Interface");
-		}
-	}
+	    @Override
+	    public void setCustomName(String name) {
+	    	 this.customName = name;
+	    }
 
 	@Override
 	public void complete() {

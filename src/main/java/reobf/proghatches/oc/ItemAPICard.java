@@ -1,7 +1,6 @@
 package reobf.proghatches.oc;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -14,7 +13,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.StatCollector;
 import net.minecraftforge.oredict.OreDictionary;
 import reobf.proghatches.lang.LangManager;
 import cpw.mods.fml.relauncher.Side;

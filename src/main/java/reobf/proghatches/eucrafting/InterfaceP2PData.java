@@ -1,36 +1,21 @@
 package reobf.proghatches.eucrafting;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-
 import com.glodblock.github.common.parts.PartFluidP2PInterface;
-import com.glodblock.github.inventory.IDualHost;
 import com.glodblock.github.loader.ItemAndBlockHolder;
-import com.glodblock.github.util.DualityFluidInterface;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.ByteArrayDataInput;
-
 import appeng.api.config.Actionable;
 import appeng.api.config.Upgrades;
 import appeng.api.exceptions.FailedConnection;
 import appeng.api.implementations.IUpgradeableHost;
-import appeng.api.implementations.guiobjects.IGuiItemObject;
 import appeng.api.implementations.items.IMemoryCard;
 import appeng.api.implementations.items.MemoryCardMessages;
-import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridConnection;
-import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingLink;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
@@ -39,7 +24,6 @@ import appeng.api.networking.events.MENetworkChannelsChanged;
 import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.networking.events.MENetworkPowerStatusChange;
 import appeng.api.networking.ticking.IGridTickable;
-import appeng.api.networking.ticking.ITickManager;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
 import appeng.api.parts.IFacadeContainer;
@@ -48,36 +32,24 @@ import appeng.api.parts.IPartHost;
 import appeng.api.parts.IPartItem;
 import appeng.api.parts.LayerFlags;
 import appeng.api.parts.SelectedPart;
-import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
-import appeng.api.util.AECableType;
 import appeng.api.util.AEColor;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IConfigManager;
 import appeng.api.util.IConfigurableObject;
-import appeng.core.Api;
 import appeng.helpers.DualityInterface;
 import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.IPriorityHost;
 import appeng.me.GridAccessException;
 import appeng.me.GridConnection;
-import appeng.me.cache.helpers.TunnelCollection;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.parts.p2p.PartP2PTunnel;
-import appeng.tile.inventory.AppEngInternalAEInventory;
-import appeng.tile.inventory.AppEngInternalInventory;
-import appeng.tile.inventory.IAEAppEngInventory;
-import appeng.tile.inventory.InvOperation;
 import appeng.util.Platform;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import gregtech.api.interfaces.tileentity.ICoverable;
-import gregtech.api.util.ISerializableObject;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
@@ -86,16 +58,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.Vec3;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
 import reobf.proghatches.eucrafting.AECover.Data;
 
-import reobf.proghatches.main.FakeHost;
 import reobf.proghatches.main.MyMod;
 
 public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IInterfaceHost, IGridTickable,
@@ -522,15 +488,16 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
 
 		return duality.tickingRequest(node, TicksSinceLastCall);
 	}
-
 	public String getCustomName() {
 		if (name != null)
 			return name;
+		return nameOverride();
+	}
+	private String nameOverride(){
 		return "P2P - Dual ME Interface";
 	}
-
 	public boolean hasCustomName() {
-		return true;
+		  return this.name != null && this.name.length() > 0;
 	}
 
 	private String name;
@@ -539,6 +506,7 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
 		this.name = name;
 
 	}
+	
 
 	public int getPriority() {
 		return p;

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.gtnewhorizons.modularui.common.internal.wrapper.ModularGui;
 
-@SuppressWarnings("unused")
+
 @Mixin(value = GuiContainer.class, remap = true)
 public abstract class MixinFixTossWhenClickSlot {
 

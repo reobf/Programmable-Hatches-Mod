@@ -4,14 +4,11 @@ import java.util.ArrayList;
 
 import com.google.common.collect.ImmutableMap;
 
-import net.minecraft.util.StatCollector;
 import net.minecraftforge.fluids.FluidTank;
 
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.util.extensions.ArrayExt;
-import reobf.proghatches.main.Config;
 
 public class SuperfluidHatch extends BufferedDualInputHatch {
 

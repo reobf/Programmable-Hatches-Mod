@@ -11,14 +11,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
@@ -33,15 +29,10 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
@@ -74,27 +65,20 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.GregTech_API;
 import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.ToolDictNames;
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.interfaces.tileentity.IMachineProgress;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
+import gregtech.api.metatileentity.CoverableTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_OutputBus;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
-import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.util.GT_TooltipDataCache.TooltipData;
 import gregtech.api.util.GT_ModHandler;
 import gregtech.api.util.GT_Utility;
-import gregtech.api.util.extensions.ArrayExt;
 import gregtech.common.tileentities.machines.IDualInputInventory;
-import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
-import gregtech.common.tileentities.storage.GT_MetaTileEntity_QuantumChest;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.item.ItemProgrammingCircuit;
@@ -285,7 +269,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	public ArrayList<DualInvBuffer> inv0 = new ArrayList<DualInvBuffer>();
 
 	public class DualInvBuffer implements IDualInputInventory {
-
+		public long tickFirstClassify=-1;
 		public FluidTank[] mStoredFluidInternal;
 		public ItemStack[] mStoredItemInternal;
 		public FluidTank[] mStoredFluidInternalSingle;
@@ -298,15 +282,29 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		// public boolean lock;
 		public boolean full() {
 
-			for (ItemStack i : mStoredItemInternal) {
+			for (int index=0;index<mStoredItemInternal.length;index++) {
+				ItemStack i =mStoredItemInternal[index]; 
+				ItemStack si =mStoredItemInternalSingle[index]; 
+				if (si!=null&&Integer.MAX_VALUE - i.stackSize <si.stackSize) {
+					return true;//over flow! count as full
+				}
+				
 				if (i != null && i.stackSize >= itemLimit()) {
 					return true;
 				}
 			}
-			for (FluidTank i : mStoredFluidInternal) {
+			
+			
+			for (int index=0;index<mStoredItemInternal.length;index++) {
+				FluidTank i =mStoredFluidInternal[index]; 
+				FluidTank si =mStoredFluidInternalSingle[index]; 
+				if (si!=null&&Integer.MAX_VALUE - i.getFluidAmount() <si.getFluidAmount()) {
+					return true;//over flow! count as full
+				}
 				if (i.getFluidAmount() >= fluidLimit()) {
 					return true;
 				}
+			
 			}
 			return false;
 
@@ -408,7 +406,13 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 			}
 			return t;
 		}
-
+		public boolean isAccessibleForMulti() {
+			
+			return !isEmpty()&&
+				tickFirstClassify+5<currentTick();
+			//wait for possible future input, to take better adventage of parallels
+		}
+		public long currentTick(){return ((CoverableTileEntity)getBaseMetaTileEntity()).mTickTimer;}
 		public boolean isEmpty() {
 
 			for (FluidTank f : mStoredFluidInternal) {
@@ -461,7 +465,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		 * classify() with less check, for better performance
 		 */
 		public void firstClassify(ListeningFluidTank[] fin, ItemStack[] iin) {
-
+			tickFirstClassify=currentTick();
 			for (int ix = 0; ix < f; ix++) {
 				mStoredFluidInternal[ix]
 						.setFluid(Optional.ofNullable(fin[ix].getFluid()).map(FluidStack::copy).orElse(null));
@@ -509,6 +513,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		}
 
 		public void classify(ListeningFluidTank[] fin, ItemStack[] iin) {
+			tickFirstClassify=-1;//make it instantly accessible
 			boolean hasJob = false;
 			for (int ix = 0; ix < f; ix++) {
 				if (fin[ix].getFluidAmount() > 0) {
@@ -753,9 +758,6 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	public void add1by1Slot(ModularWindow.Builder builder, int index, IDrawable... background) {
 		final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(inv0.get(index).mStoredItemInternal,
 				1000, 1);
-		if (inventoryHandler == null)
-			return;
-
 		if (background.length == 0) {
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
@@ -766,9 +768,6 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	public void add2by2Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
 		final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(inv0.get(index).mStoredItemInternal,
 				1000, 4);
-		if (inventoryHandler == null)
-			return;
-
 		if (background.length == 0) {
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
@@ -779,9 +778,6 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	public void add3by3Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
 		final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(inv0.get(index).mStoredItemInternal,
 				1000, 9);
-		if (inventoryHandler == null)
-			return;
-
 		if (background.length == 0) {
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
@@ -792,9 +788,6 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	public void add4by4Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
 		final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(inv0.get(index).mStoredItemInternal,
 				1000, 16);
-		if (inventoryHandler == null)
-			return;
-
 		if (background.length == 0) {
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
@@ -808,7 +801,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 
 		return s -> new SlotWidget(s) {
 
-			ItemStack is;
+			//ItemStack is;
 
 			@Override
 			public void detectAndSendChanges(boolean init) {
@@ -1166,7 +1159,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Optional</* ? extends */IDualInputInventory> getFirstNonEmptyInventory() {
-		return (Optional) inv0.stream().filter(not(DualInvBuffer::isEmpty)).findAny();
+		return (Optional) inv0.stream().filter(DualInvBuffer::isAccessibleForMulti).findAny();
 	}
 
 	private Predicate<DualInvBuffer> not(Predicate<DualInvBuffer> s) {
@@ -1176,7 +1169,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	@Override
 	public Iterator<? extends IDualInputInventory> inventories() {
 
-		return inv0.stream().filter(not(DualInvBuffer::isEmpty)).iterator();
+		return inv0.stream().filter(DualInvBuffer::isAccessibleForMulti).iterator();
 	}
 
 	@Override

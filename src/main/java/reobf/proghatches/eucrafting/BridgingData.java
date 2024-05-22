@@ -1,18 +1,10 @@
 package reobf.proghatches.eucrafting;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
-import com.google.common.io.ByteArrayDataInput;
-
 import appeng.api.exceptions.FailedConnection;
 import appeng.api.networking.IGridConnection;
-import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
-import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IReadOnlyCollection;
 import appeng.api.util.WorldCoord;
@@ -20,9 +12,6 @@ import appeng.me.GridConnection;
 import appeng.me.helpers.AENetworkProxy;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.util.ISerializableObject;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -175,9 +164,7 @@ public class BridgingData implements Data {
 		Data.super.update(aTileEntity);
 	}
 
-	private void tryConnect(IGridNode s) {
-
-	}
+	
 
 	@Override
 	public boolean firstUpdate() {

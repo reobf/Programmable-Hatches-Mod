@@ -1,34 +1,21 @@
 package reobf.proghatches.main;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.http.util.ByteArrayBuffer;
-
-import net.minecraft.util.StatCollector;
-import net.minecraft.util.StringTranslate;
 import net.minecraftforge.common.config.Configuration;
 import reobf.proghatches.lang.LangManager;
-
-import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableMap;
 
 import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
 

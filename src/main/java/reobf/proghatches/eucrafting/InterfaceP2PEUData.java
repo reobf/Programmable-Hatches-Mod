@@ -1,56 +1,27 @@
 package reobf.proghatches.eucrafting;
 
-import static gregtech.api.enums.Mods.GregTech;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import com.glodblock.github.common.parts.PartFluidP2PInterface;
-import com.glodblock.github.inventory.IDualHost;
-import com.glodblock.github.loader.ItemAndBlockHolder;
-import com.glodblock.github.util.DualityFluidInterface;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteArrayDataInput;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
-import com.gtnewhorizons.modularui.api.math.Alignment;
-import com.gtnewhorizons.modularui.api.math.Color;
-import com.gtnewhorizons.modularui.api.screen.IWindowCreator;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
-import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
-import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
-import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
-import com.gtnewhorizons.modularui.common.widget.TextWidget;
-import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
-import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
-
 import appeng.api.config.Actionable;
 import appeng.api.config.Upgrades;
 import appeng.api.exceptions.FailedConnection;
 import appeng.api.implementations.IUpgradeableHost;
-import appeng.api.implementations.guiobjects.IGuiItemObject;
 import appeng.api.implementations.items.IMemoryCard;
 import appeng.api.implementations.items.MemoryCardMessages;
-import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridConnection;
-import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingLink;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
@@ -59,7 +30,6 @@ import appeng.api.networking.events.MENetworkChannelsChanged;
 import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.networking.events.MENetworkPowerStatusChange;
 import appeng.api.networking.ticking.IGridTickable;
-import appeng.api.networking.ticking.ITickManager;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
 import appeng.api.parts.IFacadeContainer;
@@ -68,9 +38,7 @@ import appeng.api.parts.IPartHost;
 import appeng.api.parts.IPartItem;
 import appeng.api.parts.LayerFlags;
 import appeng.api.parts.SelectedPart;
-import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
-import appeng.api.util.AECableType;
 import appeng.api.util.AEColor;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IConfigManager;
@@ -81,13 +49,8 @@ import appeng.helpers.IInterfaceHost;
 import appeng.helpers.IPriorityHost;
 import appeng.me.GridAccessException;
 import appeng.me.GridConnection;
-import appeng.me.cache.helpers.TunnelCollection;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.parts.p2p.PartP2PTunnel;
-import appeng.tile.inventory.AppEngInternalAEInventory;
-import appeng.tile.inventory.AppEngInternalInventory;
-import appeng.tile.inventory.IAEAppEngInventory;
-import appeng.tile.inventory.InvOperation;
 import appeng.util.Platform;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -96,7 +59,6 @@ import gregtech.api.gui.modularui.GT_UIInfos;
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.ICoverable;
-import gregtech.api.interfaces.tileentity.IEnergyConnected;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IMachineProgress;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
@@ -106,30 +68,18 @@ import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
-import reobf.proghatches.Tags;
 import reobf.proghatches.eucrafting.AECover.Data;
 import reobf.proghatches.lang.LangManager;
-import reobf.proghatches.main.FakeHost;
 import reobf.proghatches.main.MyMod;
 
 public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, IInterfaceHost, IGridTickable,
@@ -180,127 +130,127 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 
 		@Override
 		public SelectedPart selectPart(Vec3 pos) {
-			// TODO Auto-generated method stub
+			
 			return null;
 		}
 
 		@Override
 		public void removePart(ForgeDirection side, boolean suppressUpdate) {
-			// TODO Auto-generated method stub
+			
 
 		}
 
 		@Override
 		public void partChanged() {
-			// TODO Auto-generated method stub
+			
 
 		}
 
 		@Override
 		public void notifyNeighbors() {
-			// TODO Auto-generated method stub
+			
 
 		}
 
 		@Override
 		public void markForUpdate() {
-			// TODO Auto-generated method stub
+			
 
 		}
 
 		@Override
 		public void markForSave() {
-			// TODO Auto-generated method stub
+			
 
 		}
 
 		@Override
 		public boolean isInWorld() {
-			// TODO Auto-generated method stub
+			
 			return false;
 		}
 
 		@Override
 		public boolean isEmpty() {
-			// TODO Auto-generated method stub
+			
 			return false;
 		}
 
 		@Override
 		public boolean isBlocked(ForgeDirection side) {
-			// TODO Auto-generated method stub
+			
 			return false;
 		}
 
 		@Override
 		public boolean hasRedstone(ForgeDirection side) {
-			// TODO Auto-generated method stub
+			
 			return false;
 		}
 
 		@Override
 		public TileEntity getTile() {
-			// TODO Auto-generated method stub
+			
 			return InterfaceP2PEUData.this.getTileEntity();
 		}
 
 		@Override
 		public IPart getPart(ForgeDirection side) {
-			// TODO Auto-generated method stub
+			
 			return null;
 		}
 
 		@Override
 		public DimensionalCoord getLocation() {
-			// TODO Auto-generated method stub
+			
 			return null;
 		}
 
 		@Override
 		public Set<LayerFlags> getLayerFlags() {
-			// TODO Auto-generated method stub
+			
 			return null;
 		}
 
 		@Override
 		public IFacadeContainer getFacadeContainer() {
-			// TODO Auto-generated method stub
+			
 			return null;
 		}
 
 		@Override
 		public AEColor getColor() {
-			// TODO Auto-generated method stub
+			
 			return null;
 		}
 
 		@Override
 		public void clearContainer() {
-			// TODO Auto-generated method stub
+			
 
 		}
 
 		@Override
 		public void cleanup() {
-			// TODO Auto-generated method stub
+			
 
 		}
 
 		@Override
 		public boolean canAddPart(ItemStack part, ForgeDirection side) {
-			// TODO Auto-generated method stub
+			
 			return false;
 		}
 
 		@Override
 		public ForgeDirection addPart(ItemStack is, ForgeDirection side, EntityPlayer owner) {
-			// TODO Auto-generated method stub
+			
 			return null;
 		}
 
 		@Override
 		public ForgeDirection getActualSide() {
-			// TODO Auto-generated method stub
+			
 			return side;
 		}
 	};;
@@ -374,13 +324,13 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 
 	@Override
 	public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
-		// TODO Auto-generated method stub
+		
 		return this.duality.pushPattern(patternDetails, table);
 	}
 
 	@Override
 	public boolean isBusy() {
-		// TODO Auto-generated method stub
+		
 		return this.duality.isBusy();
 	}
 
@@ -391,31 +341,31 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 
 	@Override
 	public TileEntity getTile() {
-		// TODO Auto-generated method stub
+		
 		return getTileEntity();
 	}
 
 	@Override
 	public IConfigManager getConfigManager() {
-		// TODO Auto-generated method stub
+		
 		return this.duality.getConfigManager();
 	}
 
 	@Override
 	public IInventory getInventoryByName(String name) {
-		// TODO Auto-generated method stub
+		
 		return this.duality.getInventoryByName(name);
 	}
 
 	@Override
 	public ImmutableSet<ICraftingLink> getRequestedJobs() {
-		// TODO Auto-generated method stub
+		
 		return this.duality.getRequestedJobs();
 	}
 
 	@Override
 	public IAEItemStack injectCraftedItems(ICraftingLink link, IAEItemStack items, Actionable mode) {
-		// TODO Auto-generated method stub
+		
 		return this.duality.injectCraftedItems(link, items, mode);
 	}
 
@@ -462,19 +412,19 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 
 	@Override
 	public boolean shouldDisplay() {
-		// TODO Auto-generated method stub
+		
 		return true;
 	}
 
 	@Override
 	public DualityInterface getInterfaceDuality() {
-		// TODO Auto-generated method stub
+		
 		return this.duality.getInterfaceDuality();
 	}
 
 	@Override
 	public EnumSet<ForgeDirection> getTargets() {
-		// TODO Auto-generated method stub
+		
 		return EnumSet.of(ForgeDirection.UNKNOWN);
 	}
 
@@ -623,15 +573,16 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 
 		return duality.tickingRequest(node, TicksSinceLastCall);
 	}
-
 	public String getCustomName() {
 		if (name != null)
 			return name;
+		return nameOverride();
+	}
+	private String nameOverride(){
 		return "P2P - EU Interface";
 	}
-
 	public boolean hasCustomName() {
-		return true;
+		  return this.name != null && this.name.length() > 0;
 	}
 
 	private String name;
@@ -640,6 +591,7 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 		this.name = name;
 
 	}
+
 
 	public int getPriority() {
 		return p;
@@ -800,6 +752,7 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 	private static final int spaceY = 18;
 	public static final UITexture ICON = UITexture.fullImage("proghatches", "items/cover2");
 
+
 	@Override
 	public void addUIWidgets(Builder builder, GT_CoverUIBuildContext ss) {
 
@@ -833,7 +786,7 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 		if (2 > 1)
 			return;
 
-		builder.widget(((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(true, true))
+		/*builder.widget(((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(true, true))
 				.setGetter(() -> worksensitive ? 1 : 0).setSetter(s -> {
 					worksensitive = s == 1;
 				}).setLength(2).setTextureGetter(i -> {
@@ -871,7 +824,7 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 				.addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.ae.inputdetect.false"))
 				.addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.ae.inputdetect.true"))
 				.setPos(startX + spaceX + spaceX, startY));
-
+*/
 	}
 
 	private ModularWindow createWindow(EntityPlayer ss, int rgb) {

@@ -2,17 +2,8 @@ package reobf.proghatches.eucrafting;
 
 import javax.annotation.Nullable;
 
-import com.glodblock.github.FluidCraft;
-import com.glodblock.github.common.Config;
-import com.glodblock.github.common.item.FCBaseItem;
-import com.glodblock.github.common.item.ItemFluidExportBus;
-import com.glodblock.github.common.parts.PartFluidExportBus;
-import com.glodblock.github.common.tabs.FluidCraftingTabs;
-import com.glodblock.github.util.NameConst;
-
 import appeng.api.AEApi;
 import appeng.api.parts.IPartItem;
-import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.renderer.texture.IIconRegister;

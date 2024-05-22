@@ -9,7 +9,6 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
 import reobf.proghatches.main.mixin.MixinCallback;
 
-@SuppressWarnings("unused")
 @Mixin(value = GT_MetaTileEntity_MultiBlockBase.class, remap = false)
 public abstract class MixinGTRecipeFilter {
 

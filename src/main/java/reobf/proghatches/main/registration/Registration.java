@@ -1,34 +1,23 @@
 package reobf.proghatches.main.registration;
 
-import static gregtech.api.enums.MetaTileEntityIDs.DISTILLATION_TOWER_CONTROLLER;
 import static gregtech.api.enums.Textures.BlockIcons.MACHINE_CASINGS;
-import static reobf.proghatches.main.Config.*;
-
 import java.util.ArrayList;
 import java.util.function.Supplier;
-
-import org.lwjgl.opengl.GL11;
 
 import com.glodblock.github.loader.ItemAndBlockHolder;
 
 import appeng.api.AEApi;
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.ForgeDirection;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.Dyes;
 import gregtech.api.enums.GT_Values;
-import gregtech.api.interfaces.IIconContainer;
-import gregtech.api.interfaces.ITexture;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.LightingHelper;
 import gregtech.common.render.GT_CopiedBlockTexture;
-import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_DistillationTower;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.BridgingData;
 import reobf.proghatches.eucrafting.InterfaceData;
@@ -52,11 +41,9 @@ import reobf.proghatches.gt.metatileentity.RemoteInputBus;
 import reobf.proghatches.gt.metatileentity.RemoteInputHatch;
 import reobf.proghatches.gt.metatileentity.SuperfluidHatch;
 import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
-import reobf.proghatches.item.ItemDedicatedCover;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
-import reobf.proghatches.util.IIconTexture;
 //spotless:off
 public class Registration implements Runnable {
 
@@ -145,7 +132,7 @@ public class Registration implements Runnable {
             Config.metaTileEntityOffset + CircuitProviderOffset,
             "circuitprovider",
             LangManager.translateToLocal("circuitprovider.name"),
-             0,
+             1,
             1);
         GregTech_API.registerCover(
             new ItemStack(MyMod.cover, 1, 0),
@@ -259,7 +246,7 @@ public class Registration implements Runnable {
                 LangManager.translateToLocal("hatch.input.fluid.remote.name"),
                 1);
         }
-        int tier = 8;
+        //int tier = 8;
         new SuperfluidHatch(
             Config.metaTileEntityOffset + SuperFluidHatch,
             "hatch.input.buffered.superfluid",

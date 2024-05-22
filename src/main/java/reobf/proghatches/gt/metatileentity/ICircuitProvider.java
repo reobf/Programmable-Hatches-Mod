@@ -2,8 +2,6 @@ package reobf.proghatches.gt.metatileentity;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
-
 import net.minecraft.item.ItemStack;
 
 public interface ICircuitProvider {

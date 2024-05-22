@@ -1,25 +1,16 @@
 package reobf.proghatches.eucrafting;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.glodblock.github.client.textures.FCPartsTexture;
-import com.glodblock.github.common.parts.base.FCPart;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.math.Color;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
@@ -31,56 +22,38 @@ import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
 import appeng.api.config.Actionable;
-import appeng.api.config.FuzzyMode;
-import appeng.api.config.PowerMultiplier;
-import appeng.api.config.RedstoneMode;
-import appeng.api.config.Settings;
 import appeng.api.networking.IGridNode;
-import appeng.api.networking.crafting.ICraftingCPU;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.crafting.ICraftingProvider;
 import appeng.api.networking.crafting.ICraftingProviderHelper;
 import appeng.api.networking.events.MENetworkCraftingPatternChange;
-import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
-import appeng.api.parts.BusSupport;
 import appeng.api.parts.IPart;
 import appeng.api.parts.IPartCollisionHelper;
-import appeng.api.parts.IPartHost;
 import appeng.api.parts.IPartRenderHelper;
-import appeng.api.parts.PartItemStack;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEItemStack;
-import appeng.api.storage.data.IAEStack;
-import appeng.api.storage.data.IItemList;
 import appeng.client.texture.CableBusTextures;
-import appeng.core.settings.TickRates;
 import appeng.integration.modules.waila.part.BasePartWailaDataProvider;
 import appeng.me.GridAccessException;
-import appeng.me.cache.CraftingGridCache;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 
 import appeng.parts.AEBasePart;
-import appeng.parts.PartBasicState;
 import appeng.parts.p2p.IPartGT5Power;
 import appeng.util.item.AEItemStack;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.gui.modularui.GT_UITextures;
-import gregtech.api.interfaces.tileentity.IEnergyConnected;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
-import io.netty.buffer.ByteBuf;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.InventoryCrafting;
@@ -92,12 +65,8 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import reobf.proghatches.eucrafting.IEUManager.EUManager;
 import reobf.proghatches.eucrafting.IEUManager.ISource;
-import reobf.proghatches.eucrafting.TileFluidInterface_EU.SISOPatternDetail;
-import reobf.proghatches.eucrafting.TileFluidInterface_EU.WrappedPatternDetail;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
-import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
@@ -274,10 +243,7 @@ public class PartEUSource extends AEBasePart
 		rh.renderFace(x, y, z, sideStatusLightTexture, ForgeDirection.DOWN, renderer);
 	}
 
-	private IIcon getFrontColored() {
-
-		return a;
-	}
+	
 
 	static IIcon a;
 
@@ -287,7 +253,7 @@ public class PartEUSource extends AEBasePart
 	}
 
 	private int getSpin() {
-		// TODO Auto-generated method stub
+		
 		return 0;
 	}
 
@@ -418,13 +384,13 @@ public class PartEUSource extends AEBasePart
 
 	@Override
 	public boolean inputEnergy() {
-		// TODO Auto-generated method stub
+		
 		return true;
 	}
 
 	@Override
 	public boolean outputsEnergy() {
-		// TODO Auto-generated method stub
+		
 		return false;
 	};
 
@@ -519,7 +485,7 @@ public class PartEUSource extends AEBasePart
 	}
 	int cpucount;
 
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public TickRateModulation tickingRequest(final IGridNode node, final int ticksSinceLastCall) {
 		returnItems();

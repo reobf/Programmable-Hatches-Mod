@@ -14,12 +14,10 @@ import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Input
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
 import reobf.proghatches.gt.cover.ProgrammingCover;
 
-@SuppressWarnings("unused")
 @Mixin(value = GT_MetaTileEntity_MultiBlockBase.class, remap = false)
 public abstract class MixinHandleProgrammingOnRecipeStart {
 
 	//spotless:off
-    @SuppressWarnings("rawtypes")
     @ModifyVariable(
     method = "startRecipeProcessing",ordinal=0/*set it to 0 to enable explicit mode or mixin will raise warnings*/,
     at = @At(opcode = Opcodes.ASTORE, value = "STORE"/*"reobf.proghatches.main.mixin.StoreInjectionPoint"*/), require = 1)

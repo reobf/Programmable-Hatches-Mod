@@ -3,20 +3,14 @@ package reobf.proghatches.eucrafting;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRedstoneWire;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,9 +22,6 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.ChatStyle;
-import net.minecraft.util.IChatComponent;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
@@ -52,7 +43,6 @@ import com.glodblock.github.inventory.IAEFluidTank;
 import com.glodblock.github.inventory.IDualHost;
 import com.glodblock.github.inventory.InventoryHandler;
 import com.glodblock.github.inventory.gui.GuiType;
-import com.glodblock.github.loader.ItemAndBlockHolder;
 import com.glodblock.github.util.BlockPos;
 import com.glodblock.github.util.DualityFluidInterface;
 import com.glodblock.github.util.Util;
@@ -63,7 +53,6 @@ import com.gtnewhorizons.modularui.api.math.Color;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.widget.Widget;
-import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
@@ -100,7 +89,6 @@ import appeng.helpers.DualityInterface;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.IPriorityHost;
 import appeng.integration.modules.waila.part.BasePartWailaDataProvider;
-import appeng.integration.modules.waila.part.IPartWailaDataProvider;
 import appeng.me.GridAccessException;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.parts.automation.UpgradeInventory;
@@ -118,7 +106,6 @@ import appeng.util.item.AEItemStack;
 import cofh.api.energy.IEnergyReceiver;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
-import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.tileentity.IEnergyConnected;
 import gregtech.api.util.GT_Utility;
@@ -487,7 +474,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 					}
 
 					IMEInventory<IAEItemStack> inv = ((CraftingCPUCluster) cluster).getInventory();
-					long prevamp = amp;
+					//long prevamp = amp;
 
 					if (refund(inv, store)) {
 
@@ -515,8 +502,8 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 			}
 
 		}
-		TickRateModulation item = duality.tickingRequest(node, ticksSinceLastCall);
-		TickRateModulation fluid = dualityFluid.tickingRequest(node, ticksSinceLastCall);
+		//TickRateModulation item = duality.tickingRequest(node, ticksSinceLastCall);
+		//TickRateModulation fluid = dualityFluid.tickingRequest(node, ticksSinceLastCall);
 		/*
 		 * if (item.ordinal() >= fluid.ordinal()) { return item; } else { return
 		 * fluid; }
@@ -902,7 +889,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 	@Override
 	public void readFromNBT(NBTTagCompound data) {
 		super.readFromNBT(data);
-
+		customName=data.getString("customName");
 		duality.readFromNBT(data);
 		id = ProghatchesUtil.deser(data, "EUFI");
 		if (id.equals(zero)) {
@@ -933,7 +920,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 	@Override
 	public void writeToNBT(NBTTagCompound data) {
 		super.writeToNBT(data);
-
+		data.setString("customName", customName);
 		duality.writeToNBT(data);
 		ProghatchesUtil.ser(data, id, "EUFI");
 		ProghatchesUtil.ser(data, inputid, "EUFI_INPUT");
@@ -959,7 +946,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 	}
 
 	@Override
-	public void pasteMemoryCardData(PartP2PTunnel newTunnel, NBTTagCompound data) throws GridAccessException {
+	public void pasteMemoryCardData(PartP2PTunnel<?> newTunnel, NBTTagCompound data) throws GridAccessException {
 		this.duality.getConfigManager().readFromNBT(data);
 		super.pasteMemoryCardData(newTunnel, data);
 
@@ -986,7 +973,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 
 	@Override
 	public IInventory getPatterns() {
-		// TODO Auto-generated method stub
+		
 		return duality.getPatterns();
 	}
 
@@ -1303,6 +1290,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 	}
 
 	/* modified from PartP2PGT5Power */
+	@SuppressWarnings("deprecation")
 	private long doOutput(long aVoltage, long aAmperage, ForgeDirection side) {
 
 		{
@@ -1371,7 +1359,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public long doInject(long a, long v) {
 		if (a == 0)
@@ -1448,27 +1436,25 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		accepted = 0;
 
 	}
-
+	
+	final static String  NAME_OVERRIDE="P2P - Dual ME Interface";
+	String customName;
+	
 	@Override
-	public String getCustomName() {
-		if (super.getCustomName() == null) {
-			return "EU Interface";
-		}
-		return super.getCustomName();
-	}
+	    public String getCustomName() {
+	        return this.hasCustomName() ? this.customName : NAME_OVERRIDE;
+	    }
 
-	@Override
-	public boolean hasCustomName() {
-		return true;
-	}
+	    @Override
+	    public boolean hasCustomName() {
+	        return this.customName != null && this.customName.length() > 0;
+	    }
 
-	@Override
-	public void setCustomName(String name) {
-		// setCustomName(name);
-		if (super.getCustomName() == null) {
-			setCustomName("EU Interface");
-		}
-	}
+	    @Override
+	    public void setCustomName(String name) {
+	    	 this.customName = name;
+	    }
+
 
 	@Override
 	public UUID getUUID() {

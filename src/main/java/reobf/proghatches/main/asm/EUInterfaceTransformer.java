@@ -1,16 +1,10 @@
 package reobf.proghatches.main.asm;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
 import net.minecraft.launchwrapper.IClassTransformer;
-import reobf.proghatches.block.TileIOHub.OCApi;
-import reobf.proghatches.eucrafting.BlockEUInterface;
 
 public class EUInterfaceTransformer implements IClassTransformer {
 	boolean done;

@@ -1,19 +1,11 @@
 package reobf.proghatches.gt.metatileentity.multi;
 
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.isAir;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofChain;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
 import static gregtech.api.enums.GT_HatchElement.Energy;
-import static gregtech.api.enums.GT_HatchElement.InputBus;
-import static gregtech.api.enums.GT_HatchElement.InputHatch;
 import static gregtech.api.enums.GT_HatchElement.Maintenance;
-import static gregtech.api.enums.GT_HatchElement.OutputBus;
-import static gregtech.api.enums.GT_HatchElement.OutputHatch;
 import static gregtech.api.util.GT_StructureUtility.buildHatchAdder;
-import static gregtech.api.util.GT_StructureUtility.ofHatchAdder;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -26,20 +18,14 @@ import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
-import com.gtnewhorizon.structurelib.alignment.IAlignment;
-import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
-import com.gtnewhorizon.structurelib.alignment.enumerable.Flip;
-import com.gtnewhorizon.structurelib.alignment.enumerable.Rotation;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.IStructureElementChain;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
 
-import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
 import appeng.api.networking.GridFlags;
@@ -54,14 +40,12 @@ import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.core.Api;
-import appeng.core.api.definitions.ApiBlocks;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.item.AEItemStack;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.ItemList;
-import gregtech.api.enums.TierEU;
 import gregtech.api.enums.Textures.BlockIcons;
 import gregtech.api.interfaces.IHatchElement;
 import gregtech.api.interfaces.ITexture;
@@ -69,26 +53,17 @@ import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_EnhancedMultiBlockBase;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Output;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
 import gregtech.api.util.IGT_HatchAdder;
-import gregtech.api.util.shutdown.ShutDownReason;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
-import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_DistillationTower;
-import mcp.mobius.waila.api.IWailaConfigHandler;
-import mcp.mobius.waila.api.IWailaDataAccessor;
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.eucrafting.IInstantCompletable;
@@ -97,7 +72,6 @@ import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.ProviderChainer;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
 import reobf.proghatches.item.ItemProgrammingCircuit;
-import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
@@ -454,8 +428,8 @@ public class LargeProgrammingCircuitProvider
 	}
 
 	public long getConsumption() {
-		providers.size();
-		return mCasing;
+		
+		return providers.size()*512;
 
 	}
 
@@ -469,7 +443,7 @@ public class LargeProgrammingCircuitProvider
 		if (pw < cs) {
 			return CheckRecipeResultRegistry.insufficientPower(cs);
 		}
-
+		mMaxProgresstime=100;
 		mEUt = -mEUt;
 		return SimpleCheckRecipeResult.ofSuccess("proghatches.largepcp.running");
 	}
@@ -526,6 +500,8 @@ public class LargeProgrammingCircuitProvider
 		int[] count = new int[1];
 		toReturn.forEach(s -> aNBT.setTag("toReturn" + (count[0]++), s.writeToNBT(new NBTTagCompound())));
 		aNBT.setInteger("cacheState", cacheState.ordinal());
+		count[1]=0;
+		patternCache.forEach(s -> aNBT.setTag("patternCache" + (count[0]++), s.writeToNBT(new NBTTagCompound())));
 		super.saveNBTData(aNBT);
 	}
 
@@ -533,11 +509,16 @@ public class LargeProgrammingCircuitProvider
 	public void loadNBTData(NBTTagCompound aNBT) {
 		getProxy().readFromNBT(aNBT);
 		toReturn.clear();
+		patternCache.clear();
 		int[] count = new int[1];
 		NBTTagCompound c;
 		while ((c = (NBTTagCompound) aNBT.getTag("toReturn" + (count[0]++))) != null) {
 			toReturn.add(ItemStack.loadItemStackFromNBT(c));
 		}
+		while ((c = (NBTTagCompound) aNBT.getTag("patternCache" + (count[0]++))) != null) {
+			patternCache.add(ItemStack.loadItemStackFromNBT(c));
+		}
+		
 		cacheState = CacheState.values()[aNBT.getInteger("cacheState")];
 		super.loadNBTData(aNBT);
 	}

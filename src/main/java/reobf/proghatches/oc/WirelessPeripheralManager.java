@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.WeakHashMap;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class WirelessPeripheralManager {

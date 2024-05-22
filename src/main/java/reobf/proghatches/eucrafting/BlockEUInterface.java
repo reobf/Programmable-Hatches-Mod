@@ -3,21 +3,14 @@ package reobf.proghatches.eucrafting;
 import java.util.EnumSet;
 import java.util.List;
 
-import com.glodblock.github.FluidCraft;
-import com.glodblock.github.client.render.RenderBlockFluidInterface;
-import com.glodblock.github.common.block.BlockFluidInterface;
-import com.glodblock.github.common.block.FCBaseBlock;
-import com.glodblock.github.common.tile.TileFluidInterface;
 import com.glodblock.github.inventory.InventoryHandler;
 import com.glodblock.github.inventory.gui.GuiType;
 import com.glodblock.github.util.BlockPos;
-import com.glodblock.github.util.NameConst;
 import com.gtnewhorizons.modularui.api.UIInfos;
 import com.gtnewhorizons.modularui.common.internal.network.NetworkUtils;
 
 import appeng.api.util.IOrientable;
 import appeng.block.AEBaseBlock;
-import appeng.block.AEBaseTileBlock;
 import appeng.client.render.BaseBlockRender;
 import appeng.client.render.BlockRenderInfo;
 import appeng.core.features.AEFeature;
@@ -26,27 +19,19 @@ import appeng.core.features.BlockStackSrc;
 import appeng.tile.AEBaseTile;
 import appeng.tile.misc.TileInterface;
 import appeng.util.Platform;
-import cpw.mods.fml.common.Optional.Interface;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import com.glodblock.github.client.textures.FCPartsTexture;
-import com.glodblock.github.common.block.BlockFluidInterface;
-import com.glodblock.github.common.tile.TileFluidInterface;
 
 /*
 Eclipse says:
@@ -94,7 +79,7 @@ public class BlockEUInterface
 			@Override
 			public boolean renderInWorld(final AEBaseBlock block, final IBlockAccess world, final int x, final int y,
 					final int z, final RenderBlocks renderer) {
-				final TileInterface ti = ((BlockEUInterface) (Object) block).getTileEntity(world, x, y, z);
+				final TileInterface ti = (TileInterface) ((BlockEUInterface) (Object) block).getTileEntity(world, x, y, z);
 				final BlockRenderInfo info = block.getRendererInstance();
 
 				if (ti != null && ti.getForward() != ForgeDirection.UNKNOWN) {
@@ -123,7 +108,7 @@ public class BlockEUInterface
 			}
 			return true;
 		}
-		final TileInterface tg = this.getTileEntity(world, x, y, z);
+		final TileInterface tg = (TileInterface) this.getTileEntity(world, x, y, z);
 		if (tg != null) {
 			if (Platform.isServer()) {
 				InventoryHandler.openGui(player, world, new BlockPos(x, y, z), ForgeDirection.getOrientation(facing),

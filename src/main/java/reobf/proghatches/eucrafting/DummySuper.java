@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import appeng.api.util.IOrientable;
 import appeng.client.render.BlockRenderInfo;
 import appeng.core.features.AEFeature;
+import appeng.tile.AEBaseTile;
 import appeng.tile.misc.TileInterface;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -29,7 +30,7 @@ public abstract class DummySuper extends Block {
 		return null;
 	}
 
-	protected TileInterface getTileEntity(IBlockAccess world, int x, int y, int z) {
+	protected AEBaseTile getTileEntity(IBlockAccess world, int x, int y, int z) {
 		// TODO Auto-generated method stub
 		return null;
 	}

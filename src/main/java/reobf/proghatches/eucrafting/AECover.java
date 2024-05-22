@@ -2,7 +2,6 @@ package reobf.proghatches.eucrafting;
 
 import static gregtech.api.enums.GT_Values.NW;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,7 +9,6 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Optional;
 
-import com.glodblock.github.common.tile.TileFluidInterface;
 import com.glodblock.github.loader.ItemAndBlockHolder;
 import com.google.common.io.ByteArrayDataInput;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
@@ -25,14 +23,11 @@ import appeng.api.networking.ticking.ITickManager;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IReadOnlyCollection;
-import appeng.core.Api;
-import appeng.core.AppEng;
 import appeng.me.GridAccessException;
 import appeng.me.GridConnection;
 import appeng.me.GridNode;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
-import appeng.tile.misc.TileInterface;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -48,16 +43,12 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
-import reobf.proghatches.eucrafting.AECover.Data;
 import reobf.proghatches.main.MyMod;
-import scala.actors.threadpool.Arrays;
-import scala.reflect.api.Trees.NewApi;
 
 public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 	public static interface IMemoryCardSensitive {

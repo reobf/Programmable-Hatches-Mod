@@ -14,8 +14,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.google.common.collect.ImmutableList;
@@ -24,11 +22,9 @@ import com.google.common.collect.ImmutableMap;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.crafting.v2.CraftingContext;
-import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.util.item.HashBasedItemList;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.WrappedPatternDetail;
 import reobf.proghatches.main.MyMod;
-import reobf.proghatches.main.mixin.MixinCallback;
 
 //spotless:off
 /*	getPrecisePatternsFor will ignore recursive outputs, but CraftFromPatternTask will not

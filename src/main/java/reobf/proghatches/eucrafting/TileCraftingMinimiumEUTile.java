@@ -3,7 +3,6 @@ package reobf.proghatches.eucrafting;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles.Lookup;
 import static reobf.proghatches.eucrafting.TileCraftingMinimiumEUTile.Scope.*;
-import appeng.me.cluster.IAECluster;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.tile.TileEvent;
 import appeng.tile.crafting.TileCraftingTile;

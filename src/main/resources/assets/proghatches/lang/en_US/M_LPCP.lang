@@ -3,6 +3,7 @@ addInfo(Controller block for the Large Programming Circuit Provider)->(Ljava/lan
 addInfo(Collect multiple Programming Circuit Providers into a single ME device)->(Ljava/lang/String;)
 addInfo(The controller block can directly connect ME network, uses one channel)->(Ljava/lang/String;)
 addInfo(The correct length equals the slot number in the NEI recipe)->(Ljava/lang/String;)
+addInfo(Each Provider/Access Hatch requires 512EU/t)->(Ljava/lang/String;)
 addSeparator()->()
 beginVariableStructureBlock(3¶3¶2¶12¶3¶3¶false)->(IIIIIIZ)
 addController(Front center)->(Ljava/lang/String;)

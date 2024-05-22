@@ -2,9 +2,6 @@ package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.enums.Textures.BlockIcons.*;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
-import static reobf.proghatches.main.Config.*;
-
-import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -22,14 +19,12 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.internal.Streams;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
@@ -59,7 +54,6 @@ import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_TooltipDataCache;
-import gregtech.api.util.extensions.ArrayExt;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import reobf.proghatches.item.ItemProgrammingCircuit;
@@ -268,7 +262,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 
 		{
 			Pos2d position0 = new Pos2d(0, 0);
-			int countInRow = 0;
+			//int countInRow = 0;
 			final Scrollable scrollable = new Scrollable().setVerticalScroll();
 			for (int i = 0; i < mStoredFluid.length; i++) {
 				position0 = new Pos2d((i % fluidSlotsPerRow()) * 18, (i / fluidSlotsPerRow()) * 18);

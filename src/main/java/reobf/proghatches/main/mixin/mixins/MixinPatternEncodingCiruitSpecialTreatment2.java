@@ -1,7 +1,6 @@
 package reobf.proghatches.main.mixin.mixins;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;

@@ -23,8 +23,7 @@ import net.minecraftforge.event.ForgeEventFactory;
 public class BlockIOHub extends BlockContainer {
 	public BlockIOHub() {
 		super(new GT_Material_Machines());
-		// GT_MetaTileEntity_Hatch_InputBus j;
-		// j.allowPutStack(null, lightOpacity, null, null)
+		
 
 		setHardness(1);
 		setHarvestLevel("pickaxe", 1);

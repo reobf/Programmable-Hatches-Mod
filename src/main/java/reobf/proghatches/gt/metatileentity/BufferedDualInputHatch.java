@@ -7,11 +7,15 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -87,7 +91,7 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class BufferedDualInputHatch extends DualInputHatch implements IRecipeProcessingAwareDualHatch {
-
+	public Deque<Long> scheduled=new LinkedList<>();//no randomaccess, LinkedList will work fine
 	public Widget circuitSlot(IItemHandlerModifiable inventory, int slot) {
 
 		List<String> tooltip = Arrays.asList(
@@ -174,6 +178,15 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		return (int) (64 * Math.pow(2, Math.max(mTier - 3, 0)));
 	}
 
+	private static int fluidLimit(int mTier,boolean mMultiFluid) {
+
+		return (int) ((int) (8000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1)));
+	}
+
+	private static int itemLimit(int mTier) {
+
+		return (int) (64 * Math.pow(2, Math.max(mTier - 3, 0)));
+	}
 	public BufferedDualInputHatch(int id, String name, String nameRegional, int tier, boolean mMultiFluid,
 			int bufferNum, String... optional) {
 		this(id, name, nameRegional, tier, getSlots(tier) + 1, mMultiFluid, bufferNum, optional);
@@ -213,10 +226,9 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 								.get("BDH",
 										ImmutableMap
 												.of("bufferNum", bufferNum, "cap",
-														format.format((int) (4000 * Math.pow(4, tier)
-																/ (mMultiFluid ? 4 : 1))),
+														format.format(fluidLimit(tier,mMultiFluid )),
 														"mMultiFluid", mMultiFluid, "slots",
-														Math.min(16, (1 + tier) * (tier + 1)), "stacksize",
+														itemLimit(tier), "stacksize",
 														(int) (64 * Math.pow(2, Math.max(tier - 3, 0)))))
 
 				))/* ) */;
@@ -282,20 +294,22 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		// public boolean lock;
 		public boolean full() {
 
-			for (int index=0;index<mStoredItemInternal.length;index++) {
+			for (int index=0;index<mStoredItemInternalSingle.length;index++) {
 				ItemStack i =mStoredItemInternal[index]; 
 				ItemStack si =mStoredItemInternalSingle[index]; 
+				if(i!=null){
 				if (si!=null&&Integer.MAX_VALUE - i.stackSize <si.stackSize) {
 					return true;//over flow! count as full
 				}
 				
-				if (i != null && i.stackSize >= itemLimit()) {
+				if (i.stackSize >= itemLimit()) {
 					return true;
+				}
 				}
 			}
 			
 			
-			for (int index=0;index<mStoredItemInternal.length;index++) {
+			for (int index=0;index<mStoredFluidInternalSingle.length;index++) {
 				FluidTank i =mStoredFluidInternal[index]; 
 				FluidTank si =mStoredFluidInternalSingle[index]; 
 				if (si!=null&&Integer.MAX_VALUE - i.getFluidAmount() <si.getFluidAmount()) {
@@ -476,7 +490,10 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 				mStoredItemInternal[ix] = Optional.ofNullable(iin[ix]).map(ItemStack::copy).orElse(null);
 				iin[ix] = null;
 			}
-			justHadNewItems = true;
+			Long tick=tickFirstClassify+5+1;
+			if(!tick.equals(scheduled.peekFirst()))
+			scheduled.push(tick);
+			//justHadNewItems = true;
 			onClassify();
 			programLocal();
 		}
@@ -677,7 +694,12 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		super.onPostTick(aBaseMetaTileEntity, aTick);
 		if (aBaseMetaTileEntity.getWorld().isRemote)
 			return;
-
+		Optional.ofNullable(scheduled.peekLast()).filter(s->s==aTick).ifPresent(s->{
+			scheduled.removeLast();
+			justHadNewItems=true;
+			inv0.forEach(st->System.out.println(st.isAccessibleForMulti()));
+		});
+		
 		dirty = dirty || updateEveryTick();
 		if (dirty) {
 			updateSlots();
@@ -825,7 +847,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 
 	}
 
-	private Widget createButtonBuffer(int id) {
+	private Widget createButtonBuffer(int id,int xoffset,int yoffset) {
 		// for(int i=0;i<bufferNum;i++)
 		return new ButtonWidget().setOnClick((clickData, widget) -> {
 			if (clickData.mouseButton == 0) {
@@ -835,7 +857,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		}).setPlayClickSound(true).setBackground(GT_UITextures.BUTTON_STANDARD, GT_UITextures.OVERLAY_BUTTON_PLUS_LARGE)
 				.addTooltips(ImmutableList
 						.of(LangManager.translateToLocalFormatted("programmable_hatches.gt.buffer", "" + id)))
-				.setSize(16, 16).setPos(3 + 16 * (id % 3), 3 + 16 * (id / 3));
+				.setSize(16, 16).setPos(xoffset + 16 * (id % 3), yoffset + 16 * (id / 3));
 
 		/*
 		 * return new ButtonWidget().setOnClick((clickData, widget) -> { if
@@ -1010,14 +1032,14 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 
 	@Override
 	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-
+		Scrollable sc = new Scrollable().setVerticalScroll();
 		for (int i = 0; i < bufferNum; i++) {
 			final int ii = i;
 			buildContext.addSyncedWindow(BUFFER_0 + i, (s) -> createWindow(s, ii));
-
-			builder.widget(createButtonBuffer(i));
+			sc.widget(createButtonBuffer(i,0,0));
 		}
-
+		builder.widget(sc.setSize(16*3,16*2).setPos(3,3));
+		
 		builder.widget(createPowerSwitchButton(builder));
 		builder.widget(new SyncedWidget() {
 

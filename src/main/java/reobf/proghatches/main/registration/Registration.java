@@ -124,7 +124,7 @@ public class Registration implements Runnable {
                 String.format(LangManager.translateToLocal("hatch.input.buffered.dual.quad.tier.mkii.name"), GT_Values.VN[i]),
                 i,
                 true,
-                6);
+                6+Math.max(i-4, 0)*2);
 
         }
 
@@ -239,12 +239,12 @@ public class Registration implements Runnable {
                 Config.metaTileEntityOffset + RemoteInputBusOffset,
                 "hatch.input.item.remote",
                 LangManager.translateToLocal("hatch.input.item.remote.name"),
-                1);
+                6);
             new RemoteInputHatch(
                 Config.metaTileEntityOffset + RemoteInputHatchOffset,
                 "hatch.input.fluid.remote",
                 LangManager.translateToLocal("hatch.input.fluid.remote.name"),
-                1);
+                6);
         }
         //int tier = 8;
         new SuperfluidHatch(
@@ -262,7 +262,7 @@ public class Registration implements Runnable {
             LangManager.translateToLocal("hatch.input.buffered.me.name"),
             10,
             true,
-            6,
+            24,
             true);
 
         for (int i = 0; i < 4; i++) new FilterOutputBus(

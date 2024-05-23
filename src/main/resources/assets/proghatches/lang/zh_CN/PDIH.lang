@@ -4,6 +4,6 @@
 阻挡模式不可关闭
 样板所有原料无法单次全部输入时,将拒绝此样板的输入
 缓冲数量: {bufferNum}
-缓冲容量: {2^31-1}L{mMultiFluid?} x4种流体{mMultiFluid:}{mMultiFluid!}
+缓冲容量: 2^31-1 L{mMultiFluid?} x4种流体{mMultiFluid:}{mMultiFluid!}
 {slots}格
-每格堆叠限制:{2^31-1}
+每格堆叠限制:2^31-1

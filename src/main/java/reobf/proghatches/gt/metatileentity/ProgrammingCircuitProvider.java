@@ -231,7 +231,7 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 	public AENetworkProxy getProxy() {
 
 		if (gridProxy == null) {
-			gridProxy = new AENetworkProxy(this, "proxy", ItemList.Hatch_CraftingInput_Bus_ME.get(1), true);
+			gridProxy = new AENetworkProxy(this, "proxy", visualStack(), true);
 			gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
 			updateValidGridProxySides();
 			if (getBaseMetaTileEntity().getWorld() != null)
@@ -240,6 +240,10 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 		}
 
 		return this.gridProxy;
+	}
+
+	private ItemStack visualStack() {
+		return new ItemStack(GregTech_API.sBlockMachines,1, getBaseMetaTileEntity().getMetaTileID());
 	}
 
 	@Override

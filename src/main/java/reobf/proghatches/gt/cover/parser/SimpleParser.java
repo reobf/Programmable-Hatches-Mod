@@ -813,8 +813,6 @@ public class SimpleParser {
         }
     }
 
-    public static void evaluate(Expression e, Context c) {
-
-    }
+  
 
 }

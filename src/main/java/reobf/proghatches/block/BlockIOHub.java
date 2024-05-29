@@ -8,6 +8,7 @@ import appeng.core.sync.GuiBridge;
 import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.multitileentity.multiblock.base.MultiBlockPart;
 import gregtech.common.blocks.GT_Material_Machines;
 
 import net.minecraft.block.BlockContainer;
@@ -24,12 +25,11 @@ public class BlockIOHub extends BlockContainer {
 	public BlockIOHub() {
 		super(new GT_Material_Machines());
 		
-
 		setHardness(1);
 		setHarvestLevel("pickaxe", 1);
 		setBlockName("proghatch.iohub");
 	}
-
+	
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
 

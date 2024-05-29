@@ -36,23 +36,7 @@ public class FilterOutputBus extends GT_MetaTileEntity_Hatch_OutputBus {
 	public FilterOutputBus(int aID, String aName, String aNameRegional, int tier, boolean keepone) {
 		super(aID, aName, aNameRegional, tier, reobf.proghatches.main.Config.get("FOB",
 				ImmutableMap.of("keepone", keepone, "slots", Math.min(16, (1 + tier) * (tier + 1))))
-		/*
-		 * defaultObj(
-		 * 
-		 * ArrayExt.of( "Item Output for Multiblocks", keepone ?
-		 * "Preserve the last stack of item when moving stacks out." :
-		 * "Remain a phantom item instead of clearing it when moving stacks out."
-		 * , "Use void protection to restrict recipe indirectly.", Math.min(16,
-		 * (1 + tier) * (tier + 1)) + "Slots",
-		 * LangManager.translateToLocal("programmable_hatches.addedby")
-		 * 
-		 * ), ArrayExt.of( "多方块机器的物品输出", keepone ? "自动输出时每格总是会保留一个物品" :
-		 * "自动输出时留下一个虚拟物品", "配合溢出保护功能间接限制配方", Math.min(16, (1 + tier) * (tier +
-		 * 1)) + "格",
-		 * LangManager.translateToLocal("programmable_hatches.addedby")
-		 * 
-		 * ))
-		 */
+		
 
 		);
 		this.keepone = keepone;

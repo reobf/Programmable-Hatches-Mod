@@ -12,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemEditableBook;
 import net.minecraft.item.ItemStack;
@@ -65,6 +66,9 @@ import cpw.mods.fml.relauncher.Side;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.net.GT_Packet_SendCoverData;
+import gregtech.api.util.shutdown.ShutDownReason;
+import gregtech.api.util.shutdown.ShutDownReasonRegistry;
+import gregtech.api.util.shutdown.SimpleShutDownReason;
 import gregtech.common.blocks.GT_Block_Machines;
 import gregtech.common.covers.CoverInfo;
 import reobf.proghatches.Tags;
@@ -90,6 +94,7 @@ public class MyMod {
 	{
 		instance = this;
 	}
+	public static ShutDownReason ACCESS_LOOP=new SimpleShutDownReason("proghatch.access_loop", true){public String getID() {return "proghatch.access_loop";};};
 	public static SimpleNetworkWrapper net = new SimpleNetworkWrapper(Tags.MODID);
 	public static Item progcircuit;
 	public static Item toolkit;
@@ -180,122 +185,11 @@ public class MyMod {
 	}
 
 	@Mod.EventHandler
-	// postInit "Handle interaction with other mods, complete your setup based
-	// on this." (Remove if not needed)
+	
 	public void postInit(FMLPostInitializationEvent event) {
 		proxy.postInit(event);
-		NetworkRegistry.INSTANCE.registerGuiHandler(this, new IGuiHandler() {
-			public IInterfaceHost getHost(int ID, World world, int x, int y, int z) {
-
-				CoverInfo info = ((ICoverable) world.getTileEntity(x, y, z))
-						.getCoverInfoAtSide(ForgeDirection.getOrientation(ID & 0b111));
-
-				return new FakeHost(world.getTileEntity(x, y, z), (IInterfaceHost) info.getCoverData());
-
-			}
-
-			@Override
-			public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-				IInterfaceHost host = getHost(ID, world, x, y, z);
-				if ((ID & 0b1000) > 0) {
-					if (host instanceof IPriorityHost)
-						return new ContainerPriority(player.inventory, (IPriorityHost) host);
-					return null;
-				}
-				return new ContainerDualInterface(player.inventory, host);
-			}
-
-			@SuppressWarnings("unchecked")
-			@Override
-			public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-				IInterfaceHost host = getHost(ID, world, x, y, z);
-
-				if ((ID & 0b1000) > 0) {
-					if (host instanceof IPriorityHost)
-						return new GuiPriority(player.inventory, (IPriorityHost) host);
-					return null;
-				}
-				return new GuiDualInterface(player.inventory, host) {
-					@Override
-					protected String getGuiDisplayName(String in) {
-						// TODO Auto-generated method stub
-						return super.getGuiDisplayName(in);
-					}
-
-					@Override
-					public void initGui() {
-						super.initGui();
-						this.buttonList.removeIf(s -> {
-							return ((ITooltip) s).getMessage()
-									.equals(StatCollector.translateToLocal("ae2fc.tooltip.switch_fluid_interface"));
-						});
-						this.inventorySlots.inventorySlots.replaceAll(s -> {
-							//
-							if (s instanceof SlotNormal || s instanceof SlotFake) {
-								AppEngSlot ss = (AppEngSlot) s;
-
-								if (ss.inventory instanceof InterfaceData.DisabledInventory
-										|| ((getTileOf(ss.inventory))))
-
-								{
-									return new SlotDisabled(ss.inventory, ss.getSlotIndex(), ss.getX(), ss.getY());
-								}
-							}
-
-							return s;
-						});
-
-					}
-
-					private boolean getTileOf(IInventory inventory) {
-						if (inventory instanceof AppEngInternalInventory)
-							try {
-								Field f = AppEngInternalInventory.class.getDeclaredField("te");
-								f.setAccessible(true);
-								// System.out.println(((DualityInterface)f.get(inventory)).getHost());
-								IUpgradeableHost host = ((DualityInterface) f.get(inventory)).getHost();// instanceof
-																										// InterfaceData.DisabledInventory;
-								if (host instanceof AEBasePart) {
-									return ((AEBasePart) host).getHost() instanceof InterfaceData.DisabledInventory;
-
-								}
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						if (inventory instanceof AppEngInternalAEInventory)
-							try {
-								Field f = AppEngInternalAEInventory.class.getDeclaredField("te");
-								f.setAccessible(true);
-								// System.out.println(((DualityInterface)f.get(inventory)).getHost());
-								IUpgradeableHost host = ((DualityInterface) f.get(inventory)).getHost();// instanceof
-																										// InterfaceData.DisabledInventory;
-								if (host instanceof AEBasePart) {
-									return ((AEBasePart) host).getHost() instanceof InterfaceData.DisabledInventory;
-
-								}
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-
-						return false;
-					}
-
-					@Override
-					protected void actionPerformed(GuiButton btn) {
-
-						if (((ITooltip) btn).getMessage().equals(GuiText.Priority.getLocal())) {
-							MyMod.net.sendToServer(
-									new PriorityMessage(x, y, z, ForgeDirection.getOrientation(ID & 0b111)));
-
-							return;
-
-						}
-						super.actionPerformed(btn);
-					}
-
-				};
-			}
-		});
+		ShutDownReasonRegistry.register(ACCESS_LOOP);
+		NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
 		for (ItemStack s : new ItemStack[] { new ItemStack(block_euinterface), new ItemStack(euinterface_p2p) })
 
 		{

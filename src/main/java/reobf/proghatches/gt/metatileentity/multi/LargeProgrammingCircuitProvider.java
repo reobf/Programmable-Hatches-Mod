@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 
@@ -25,6 +26,9 @@ import com.gtnewhorizon.structurelib.structure.IStructureElementChain;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
+import com.gtnewhorizons.modularui.common.widget.DynamicPositionedColumn;
+import com.gtnewhorizons.modularui.common.widget.SlotWidget;
+import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
@@ -58,12 +62,16 @@ import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
+import gregtech.api.util.GT_Utility;
 import gregtech.api.util.IGT_HatchAdder;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
+import gregtech.common.items.GT_MetaGenerated_Tool_01;
+import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_LargeTurbine;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.eucrafting.IInstantCompletable;
@@ -164,7 +172,9 @@ public class LargeProgrammingCircuitProvider
 						onElementPass(LargeProgrammingCircuitProvider::onCasingFound,
 								ofBlock(GregTech_API.sBlockCasings4, 1)))
 
-				).addElement('l', ofBlock(GregTech_API.sBlockCasings4, 1)).addElement('x', (IStructureElementChain<LargeProgrammingCircuitProvider>) () -> {
+				)
+				.addElement('l', ofBlock(GregTech_API.sBlockCasings4, 1))
+				.addElement('x', (IStructureElementChain<LargeProgrammingCircuitProvider>) () -> {
 					return buildHatchAdder(LargeProgrammingCircuitProvider.class).atLeast(providerTop)
 							.casingIndex(CASING_INDEX).dot(2)
 							.buildAndChain(ofBlock(Api.INSTANCE.definitions().blocks().fluix().maybeBlock().get(), 0),
@@ -184,33 +194,7 @@ public class LargeProgrammingCircuitProvider
 
 				)
 
-				/*
-				 * .addElement( 'l', ofChain(
-				 * buildHatchAdder(LargeProgrammingCurcuitProvider.class).
-				 * atLeast(layeredOutputHatch) .casingIndex(CASING_INDEX)
-				 * .dot(2) .disallowOnly(ForgeDirection.UP, ForgeDirection.DOWN)
-				 * .build(), ofHatchAdder(LargeProgrammingCurcuitProvider::
-				 * addEnergyInputToMachineList, CASING_INDEX, 2),
-				 * ofHatchAdder(LargeProgrammingCurcuitProvider::
-				 * addLayerOutputHatch, CASING_INDEX, 2),
-				 * ofHatchAdder(LargeProgrammingCurcuitProvider::
-				 * addMaintenanceToMachineList, CASING_INDEX, 2), onElementPass(
-				 * LargeProgrammingCurcuitProvider::onCasingFound,
-				 * ofBlock(GregTech_API.sBlockCasings4, 1)))) // hint element
-				 * only used in top layer .addElement( 'L',
-				 * buildHatchAdder(LargeProgrammingCurcuitProvider.class).
-				 * atLeast(n) .casingIndex(CASING_INDEX) .dot(2)
-				 * .disallowOnly(ForgeDirection.UP)
-				 * .buildAndChain(GregTech_API.sBlockCasings4, 1)) .addElement(
-				 * 'c', ofChain( onElementPass( t -> t.onTopLayerFound(false),
-				 * ofHatchAdder(LargeProgrammingCurcuitProvider::
-				 * addOutputToMachineList, CASING_INDEX, 3)), onElementPass( t
-				 * -> t.onTopLayerFound(false), ofHatchAdder(
-				 * LargeProgrammingCurcuitProvider::addMaintenanceToMachineList,
-				 * CASING_INDEX, 3)), onElementPass(t ->
-				 * t.onTopLayerFound(true), ofBlock(GregTech_API.sBlockCasings4,
-				 * 1)), isAir()))
-				 */
+				
 				.build();
 	}
 	int mCasing;
@@ -352,16 +336,16 @@ public class LargeProgrammingCircuitProvider
 	}
 
 	static boolean addProvider(LargeProgrammingCircuitProvider t, IGregTechTileEntity aTileEntity, Short text) {
-		return addProviderWithUpdater(t, aTileEntity, text, tt -> tt.providerFoundThisLayer = true);
+		return addProviderWithUpdater(t, aTileEntity, text, tt -> {  tt.providerFoundThisLayer = true; return !tt.mTopLayerFound;});
 	}
 
 	static boolean addProviderTop(LargeProgrammingCircuitProvider t, IGregTechTileEntity aTileEntity, Short text) {
-		return addProviderWithUpdater(t, aTileEntity, text, tt -> tt.mTopLayerFound = true);
+		return addProviderWithUpdater(t, aTileEntity, text, tt -> {  tt.mTopLayerFound = true; return !tt.providerFoundThisLayer;});
 	}
 
 	static private <T extends GT_MetaTileEntity_Hatch & ICircuitProvider> boolean addProviderWithUpdater(
 			LargeProgrammingCircuitProvider t, IGregTechTileEntity aTileEntity, Short text,
-			Consumer<LargeProgrammingCircuitProvider> cb) {
+			Predicate<LargeProgrammingCircuitProvider> cb) {
 
 		if (aTileEntity == null)
 			return false;
@@ -374,7 +358,7 @@ public class LargeProgrammingCircuitProvider
 			T hatch = (T) aMetaTileEntity;
 			Optional.ofNullable(text).ifPresent(hatch::updateTexture);
 			hatch.updateCraftingIcon(t.getMachineCraftingIcon());
-			cb.accept(t);
+			if(!cb.test(t)){return false;};
 			if (hatch instanceof ProgrammingCircuitProvider)
 				((ProgrammingCircuitProvider) hatch).disable();
 			t.providers.add(hatch);
@@ -429,22 +413,24 @@ public class LargeProgrammingCircuitProvider
 
 	public long getConsumption() {
 		
-		return providers.size()*512;
+		return providers.size()*256;
 
 	}
 
 	@Nonnull
 	@Override
 	public CheckRecipeResult checkProcessing() {
-		mEfficiencyIncrease = 100;
+		
 
 		long pw = getMaxInputPower();
 		long cs = getConsumption();
 		if (pw < cs) {
 			return CheckRecipeResultRegistry.insufficientPower(cs);
 		}
+		mEfficiency = 10000;
 		mMaxProgresstime=100;
-		mEUt = -mEUt;
+		//if(cs>Integer.MAX_VALUE){throw new RuntimeException();}
+		mEUt =  -((int)cs);
 		return SimpleCheckRecipeResult.ofSuccess("proghatches.largepcp.running");
 	}
 
@@ -500,7 +486,7 @@ public class LargeProgrammingCircuitProvider
 		int[] count = new int[1];
 		toReturn.forEach(s -> aNBT.setTag("toReturn" + (count[0]++), s.writeToNBT(new NBTTagCompound())));
 		aNBT.setInteger("cacheState", cacheState.ordinal());
-		count[1]=0;
+		count[0]=0;
 		patternCache.forEach(s -> aNBT.setTag("patternCache" + (count[0]++), s.writeToNBT(new NBTTagCompound())));
 		super.saveNBTData(aNBT);
 	}
@@ -515,6 +501,7 @@ public class LargeProgrammingCircuitProvider
 		while ((c = (NBTTagCompound) aNBT.getTag("toReturn" + (count[0]++))) != null) {
 			toReturn.add(ItemStack.loadItemStackFromNBT(c));
 		}
+		count[0]=0;
 		while ((c = (NBTTagCompound) aNBT.getTag("patternCache" + (count[0]++))) != null) {
 			patternCache.add(ItemStack.loadItemStackFromNBT(c));
 		}
@@ -527,6 +514,7 @@ public class LargeProgrammingCircuitProvider
 
 	@Override
 	public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
+		if(!getBaseMetaTileEntity().isActive())return false;
 		try {
 			if (ItemProgrammingCircuit.getCircuit(patternDetails.getOutputs()[0].getItemStack()).map(ItemStack::getItem)
 					.orElse(null) == MyMod.progcircuit) {
@@ -635,10 +623,10 @@ public class LargeProgrammingCircuitProvider
 
 	public void updateCache() {
 		patternCache.clear();
-
+		reusable.clear();//just in case
 		if (!checkLoop(reusable)) {
 			cacheState = CacheState.CRASH;
-			this.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
+			this.stopMachine(MyMod.ACCESS_LOOP);
 			reusable.clear();
 			return;
 		}
@@ -704,5 +692,18 @@ public class LargeProgrammingCircuitProvider
 
 		return patternCache;
 	}
+    protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inventorySlot) {
+    	
+    	super.drawTexts(screenElements, inventorySlot);
 
+        screenElements.widget(
+        		 TextWidget.dynamicString(()->
+        		 
+        		StatCollector.translateToLocalFormatted("proghatches.largepcp.eu",this.providers.size(), -this.mEUt)
+        		 
+        				 ).setDefaultColor(COLOR_TEXT_WHITE.get())
+                .setEnabled(widget -> {
+                    return (getBaseMetaTileEntity().isAllowedToWork());
+                }));
+    }
 }

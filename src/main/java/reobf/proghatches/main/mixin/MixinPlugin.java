@@ -7,14 +7,20 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -28,6 +34,10 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import reobf.proghatches.Tags;
+
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.gtnewhorizon.gtnhmixins.MinecraftURLClassPath;
 
 public class MixinPlugin implements IMixinConfigPlugin {
@@ -99,14 +109,22 @@ String cfg=
 		}
 
 		System.out.println(pp);
-		// System.out.println("ccccccccccccccccccccccccccc");
+		
 
 		System.out.println("following warnings like 'Error loading class: xxxx' is normal and safe to ignore");
 
-		// NEE is neither coremod nor mixinmod thus it's not in URL path, so add
-		// it to path or mixin will fail
-		loadJarOf(MixinPlugin::hasTrait, "NotEnoughEnergistics", "com/github/vfyjxf/nee/NotEnoughEnergistics.class");
-
+		
+		// load all jars that mixin involves
+		HashMap<String,String> map=	new HashMap<>(6);
+		map.put( "com/github/vfyjxf/nee/NotEnoughEnergistics.class",  "NotEnoughEnergistics");
+		map.put( "gregtech/GT_Mod.class", "GT5U");
+		map.put( "appeng/api/IAppEngApi.class", "ae2");
+		map.put( "com/gtnewhorizons/modularui/ModularUI.class", "ModularUI");
+		map.put( "com/glodblock/github/FluidCraft.class", "ae2fc");
+		map.put( "codechicken/nei/NEIModContainer.class", "NEI");
+		loadJarOf(map);
+	
+		
 		ArrayList<String> ret = new ArrayList<>();
 		ret.add("eucrafting." + "MixinWailaProvider");
 		// ret.add("eucrafting."+"MixinRecipeStateDetect");
@@ -175,7 +193,7 @@ String cfg=
 
 	}
 
-	public static boolean hasTrait(Path p, String name) {
+	public static boolean hasTrait(Path p,Map<String, String> classTrait) {
 		// System.err.println(p);
 		try (ZipInputStream zs = new ZipInputStream(Files.newInputStream(p))) {
 
@@ -188,9 +206,9 @@ String cfg=
 				 * System.err.println(p); }
 				 */
 				boolean bingo = false;
-				if (entryName.contains(name)) {
-					bingo = true;
-
+				if (classTrait.remove(entryName)!=null) {
+					
+                     bingo = true;
 				}
 
 				zs.closeEntry();
@@ -207,24 +225,37 @@ String cfg=
 
 	}
 
-	private boolean loadJarOf(final BiPredicate<Path, String> mod, String trace, String classTrait) {
+	private boolean loadJarOf( Map<String, String> classTrait) {
 		try {
-			File jar = findJarOf(s -> mod.test(s, classTrait));
-			if (jar == null) {
-				LOG.info("Jar not found for " + trace);
-				return false;
-			}
-
+			List<File> jarl = findJarOf( classTrait);
+			
+			classTrait.forEach((a,b)->{
+				LOG.info("Jar not found for " + b+", are you in dev environment?");
+				
+				
+			});
+			
+			List<URL> url=Arrays.asList(Launch.classLoader.getURLs());
+			for(File jar:jarl){
+			
 			LOG.info("Attempting to add " + jar + " to the URL Class Path");
+			
 			if (!jar.exists()) {
 				throw new FileNotFoundException(jar.toString());
 			}
 
-			if (!MinecraftURLClassPath.findJarInClassPath(jar.getName())) {
+			if (/*!MinecraftURLClassPath.findJarInClassPath(
+					com.google.common.io.Files.getNameWithoutExtension(jar.getName()))&&*/
+				!url.contains(jar.toURI().toURL())
+					) {
 				MinecraftURLClassPath.addJar(jar);
+				LOG.info("Not in URL Class Path, adding now.");
 			} else {
-				LOG.info("Already loaded... pass.");
+				LOG.info("Already in URL Class Path ... pass.");
 			}
+			}
+			
+			
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -235,9 +266,11 @@ String cfg=
 	public static final Logger LOG = LogManager.getLogger(Tags.MODID + "Mixin");
 	private static final Path MODS_DIRECTORY_PATH = new File(Launch.minecraftHome, "mods/").toPath();
 
-	public static File findJarOf(final Predicate<Path> mod) {
+	public static List<File> findJarOf(final Map<String, String> classTrait) {
 		try {
-			return walk(MODS_DIRECTORY_PATH).filter(mod).map(Path::toFile).findFirst().orElse(null);
+			return walk(MODS_DIRECTORY_PATH).filter(s->{
+				return hasTrait(s, classTrait);
+			}).map(Path::toFile).collect(Collectors.toList());
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

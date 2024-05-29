@@ -334,3 +334,5 @@ proghatches.provider.waila.disabled=作为多方块结构成型时无法连入ME
 GT5U.gui.text.proghatches.largepcp.running=正在提供编程器电路合成
 multimachine.largeprogrammingcircuitprovider.name=大型编程器电路提供器(WIP)
 providerchainer.name=提供器访问仓
+GT5U.gui.text.proghatch.access_loop=检测到环 请检查提供器访问仓的连接
+proghatches.largepcp.eu=仓室个数:%1$s 功率:%2$s EU/t

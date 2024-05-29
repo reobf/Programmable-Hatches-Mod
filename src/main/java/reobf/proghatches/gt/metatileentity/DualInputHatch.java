@@ -76,24 +76,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 			String... optional) {
 
 		super(id, name, nameRegional, tier, slot, (optional.length > 0 ? optional
-				: /*
-					 * defaultObj(
-					 * 
-					 * ArrayExt.of( "Item/Fluid Input for Multiblocks",
-					 * "Contents are always separated with other bus/hatch",
-					 * "Programming Cover function integrated", "Capacity: " +
-					 * format.format((int) (4000 * Math.pow(2, tier)) /
-					 * (mMultiFluid ? 4 : 1)) + "L" + (mMultiFluid ?
-					 * " x4 types of fluid" : ""), Math.min(16, (1 + tier) *
-					 * (tier + 1)) + "Slots", LangManager.translateToLocal(
-					 * "programmable_hatches.addedby")), ArrayExt.of(
-					 * "多方块机器的物品/流体输入", "总是与其它输入仓/输入总线隔离", "自带编程覆盖板功能", "容量: " +
-					 * format.format((int) (4000 * Math.pow(2, tier) /
-					 * (mMultiFluid ? 4 : 1))) + "L" + (mMultiFluid ? " x4种流体" :
-					 * ""), Math.min(16, (1 + tier) * (tier + 1)) + "格",
-					 * LangManager.translateToLocal(
-					 * "programmable_hatches.addedby")))
-					 */
+				: 
 				reobf.proghatches.main.Config.get("DH", ImmutableMap.of(
 
 						"cap", format.format((int) (4000 * Math.pow(2, tier) / (mMultiFluid ? 4 : 1))), "mMultiFluid",

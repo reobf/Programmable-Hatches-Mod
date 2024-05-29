@@ -198,31 +198,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		super(id, name, nameRegional, tier, slot, mMultiFluid,
 
 				(optional.length > 0 ? optional
-						: /*
-							 * defaultObj(
-							 * 
-							 * ArrayExt.of( "Item/Fluid Input for Multiblocks",
-							 * "Contents are always separated with other bus/hatch"
-							 * , "Programming Cover function integrated",
-							 * "Buffer: " + bufferNum, "For each buffer:",
-							 * "Capacity: " + format.format((int) (4000 *
-							 * Math.pow(4, tier)) / (mMultiFluid ? 4 : 1)) + "L"
-							 * + (mMultiFluid ? " x4 types of fluid" : ""),
-							 * Math.min(16, (1 + tier) * (tier + 1)) + "Slots",
-							 * "Slot maximum stacksize:" + (int) (64 *
-							 * Math.pow(2, Math.max(tier - 3, 0))),
-							 * LangManager.translateToLocal(
-							 * "programmable_hatches.addedby") ), ArrayExt.of(
-							 * "多方块机器的物品/流体输入", "总是与其它输入仓/输入总线隔离", "自带编程覆盖板功能",
-							 * "缓冲数量: " + bufferNum, "缓冲容量: " +
-							 * format.format((int) (4000 * Math.pow(4, tier) /
-							 * (mMultiFluid ? 4 : 1))) + "L" + (mMultiFluid ?
-							 * " x4种流体" : ""), Math.min(16, (1 + tier) * (tier +
-							 * 1)) + "格", "每格堆叠限制:" + (int) (64 * Math.pow(2,
-							 * Math.max(tier - 3, 0))),
-							 * LangManager.translateToLocal(
-							 * "programmable_hatches.addedby"))
-							 */reobf.proghatches.main.Config
+						: reobf.proghatches.main.Config
 								.get("BDH",
 										ImmutableMap
 												.of("bufferNum", bufferNum, "cap",
@@ -697,7 +673,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		Optional.ofNullable(scheduled.peekLast()).filter(s->s==aTick).ifPresent(s->{
 			scheduled.removeLast();
 			justHadNewItems=true;
-			inv0.forEach(st->System.out.println(st.isAccessibleForMulti()));
+			//inv0.forEach(st->System.out.println(st.isAccessibleForMulti()));
 		});
 		
 		dirty = dirty || updateEveryTick();
@@ -731,17 +707,17 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	}
 
 	/**
-	 * classify non-empty one fist, then use empty one
+	 * non-empty one fist, then use empty one
 	 */
 	public ArrayList<DualInvBuffer> sortByEmpty() {
 		ArrayList<DualInvBuffer> non_empty = new ArrayList<>();
-		ArrayList<DualInvBuffer> empty = new ArrayList<>();
+		FirstObjectHolder<DualInvBuffer> empty = new FirstObjectHolder<>();
 		inv0.forEach(s -> {
 			(s.isEmpty()
-					&& (!s.recipeLocked/* non-locked is not really 'empty' */) ? empty : non_empty).add(s);
+					&& (!s.recipeLocked/* non-locked is considered not 'empty' */) ? empty : non_empty).add(s);
 		});
 
-		empty.stream().findFirst().ifPresent(non_empty::add);
+		empty.opt().ifPresent(non_empty::add);
 		// only one empty is needed, because only one buffer at maximum will be
 		// filled one time
 

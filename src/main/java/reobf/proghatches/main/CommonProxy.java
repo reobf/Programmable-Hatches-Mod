@@ -2,7 +2,7 @@ package reobf.proghatches.main;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.item.ItemStack;
-
+import appeng.core.AEConfig;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
@@ -92,7 +92,19 @@ public class CommonProxy {
 		li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.pitem);
 		GT_ModHandler.addToRecyclerBlackList(new ItemStack(MyMod.progcircuit));
 		FMLInterModComms.sendMessage("Waila", "register", "reobf.proghatches.main.CommonProxy.callbackRegister");
+		//System.out.println(AEConfig.instance);
+		//System.out.println("xxxxxxxxxxxxxxxx");
+		GameRegistry.registerBlock(
+				MyMod.block_euinterface = new BlockEUInterface(Material.iron, "proghatches.euinterface"),
+				ItemBlockEUInterface.class, "proghatches.euinterface");
+		GameRegistry.registerItem(MyMod.eu_source_part = new ItemPartEUSource()
+				.setUnlocalizedName("proghatches.part.eu.source").setTextureName("?"), "proghatches.part.eu.source");
 
+		GameRegistry
+				.registerItem(
+						MyMod.euinterface_p2p = new ItemPartEUP2PInterface()
+								.setUnlocalizedName("proghatches.euinterface.p2p").setTextureName("?"),
+						"proghatches.euinterface.p2p");
 	}
 
 	public static ProgHatchCreativeTab tab;
@@ -110,17 +122,7 @@ public class CommonProxy {
 
 	public void postInit(FMLPostInitializationEvent event) {
 		// cannot be done in preinit
-		GameRegistry.registerBlock(
-				MyMod.block_euinterface = new BlockEUInterface(Material.iron, "proghatches.euinterface"),
-				ItemBlockEUInterface.class, "proghatches.euinterface");
-		GameRegistry.registerItem(MyMod.eu_source_part = new ItemPartEUSource()
-				.setUnlocalizedName("proghatches.part.eu.source").setTextureName("?"), "proghatches.part.eu.source");
-
-		GameRegistry
-				.registerItem(
-						MyMod.euinterface_p2p = new ItemPartEUP2PInterface()
-								.setUnlocalizedName("proghatches.euinterface.p2p").setTextureName("?"),
-						"proghatches.euinterface.p2p");
+		
 
 		new PHRecipes().run();
 

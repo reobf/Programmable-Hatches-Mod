@@ -161,6 +161,10 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		return tag;
 	}
 
+	/**
+	 * @param tag
+	 * @return
+	 */
 	public ItemStack loadItemStackFromNBT(NBTTagCompound tag) {
 
 		ItemStack is = ItemStack.loadItemStackFromNBT(tag);
@@ -373,8 +377,9 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 					}
 				}
 			}
-			i = tag.getInteger("i");
-			f = tag.getInteger("f");
+			
+			if(tag.getInteger("i")>0)i = tag.getInteger("i");
+			if(tag.getInteger("f")>0)f = tag.getInteger("f");
 			recipeLocked = tag.getBoolean("recipeLocked");
 			lock = tag.getBoolean("lock");
 		}

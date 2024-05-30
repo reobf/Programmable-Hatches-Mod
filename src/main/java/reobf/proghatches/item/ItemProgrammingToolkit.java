@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import reobf.proghatches.lang.LangManager;
+import reobf.proghatches.main.MyMod;
 
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
@@ -211,8 +212,14 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI {
 
 				@Override
 				public void detectAndSendChanges(boolean init) {
+					
+					
 					this.getMcSlot().putStack(ItemProgrammingCircuit
-							.wrap(Optional.ofNullable(is0.getStackInSlot(0)).map(ItemStack::copy).orElse(null)));
+							.wrap(Optional.ofNullable(is0.getStackInSlot(0))
+									.map(s->{if(s.getItem()==MyMod.progcircuit){return ItemProgrammingCircuit.getCircuit(s).orElse(null);}return s;})
+									.map(ItemStack::copy).orElse(null)));
+					
+					
 					super.detectAndSendChanges(init);
 				}
 

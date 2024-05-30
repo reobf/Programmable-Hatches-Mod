@@ -117,12 +117,28 @@ public class ItemProgrammingCircuit extends Item {
 			is = is.copy();
 			is.stackSize = 1;// Math.max(1,is.stackSize);
 			iss.stackTagCompound = new NBTTagCompound();
-			iss.stackTagCompound.setTag("targetCircuit", is.writeToNBT(new NBTTagCompound()));
+			NBTTagCompound tag = is.writeToNBT(new NBTTagCompound());
+			tag.setString("string_id", Item.itemRegistry.getNameForObject(is.getItem()));
+			//System.out.println(tag);
+			iss.stackTagCompound.setTag("targetCircuit",tag );
+			
 		}
 		return iss;
 
 	}
-
+public static ItemStack parse(NBTTagCompound tag){
+	
+	String s=tag.getString("string_id");
+	if(s.isEmpty()==false){
+		//if string id is present, replace the number id
+		tag.setInteger("id", Item.itemRegistry.getIDForObject(Item.itemRegistry.getObject(s)));
+	}
+	
+     return ItemStack.loadItemStackFromNBT(tag);
+	
+	
+	
+}
 	public static Optional<ItemStack> getCircuit(ItemStack is) {
 		try {
 			NBTTagCompound tg = Optional.ofNullable(is).map(ItemStack::getTagCompound)
@@ -130,7 +146,8 @@ public class ItemProgrammingCircuit extends Item {
 			if (tg == null)
 				return Optional.empty();
 
-			return Optional.ofNullable(ItemStack.loadItemStackFromNBT(tg));
+			return Optional.ofNullable(parse(tg));
+		
 		} catch (Exception e) {
 			e.printStackTrace();
 			// but how?

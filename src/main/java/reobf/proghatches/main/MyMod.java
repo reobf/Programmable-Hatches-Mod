@@ -84,7 +84,9 @@ import reobf.proghatches.net.PriorityMessage;
 import reobf.proghatches.oc.WirelessPeripheralManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
-@Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.7.10]"
+@Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.7.10]",
+dependencies = "required-after:appliedenergistics2"
+
 /*
  * ,dependencies= "required-after:neenergistics;"
  */
@@ -92,7 +94,7 @@ import reobf.proghatches.util.ProghatchesUtil;
 public class MyMod {
 	public static MyMod instance;
 	{
-		BlockEUInterface.class.getDeclaredFields();
+		//BlockEUInterface.class.getDeclaredFields();
 		
 		instance = this;
 	}
@@ -135,8 +137,7 @@ public class MyMod {
 	}
 
 	@Mod.EventHandler
-	// load "Do your mod setup. Build whatever data structures you care about.
-	// Register recipes." (Remove if not needed)
+	
 	public void init(FMLInitializationEvent event) {
 		proxy.init(event);
 		FMLCommonHandler.instance().bus().register(this);

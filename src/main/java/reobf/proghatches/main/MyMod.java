@@ -78,6 +78,7 @@ import reobf.proghatches.eucrafting.AECover.IMemoryCardSensitive;
 import reobf.proghatches.eucrafting.InterfaceData;
 import reobf.proghatches.eucrafting.PartEUP2PInterface;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
+import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
@@ -210,7 +211,7 @@ public class MyMod {
 		InterfaceTerminalRegistry.instance().register(PartEUP2PInterface.class);
 		InterfaceTerminalRegistry.instance().register(PartFluidP2PInterface.class);
 		InterfaceTerminalRegistry.instance().register(TileFluidInterface_EU.class);
-
+		InterfaceTerminalRegistry.instance().register(PatternDualInputHatch.class);
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)

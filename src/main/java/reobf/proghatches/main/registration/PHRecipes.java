@@ -60,10 +60,29 @@ public class PHRecipes implements Runnable {
         		{ SuperconductorUHV }, 
         		{ Infinite }, 
         		{ Bio },
-        		{ Optical, Nano },
-        		{ Exotic, Piko },
-        		{ Cosmic, Quantum }, 
-        		{ Transcendent } }; 
+        		{ Nano/*,Optical*/ },
+        		{ Piko/*,Exotic,*/  },
+        		{ Quantum/*,Cosmic,*/  }, 
+        		{ Quantum /*Transcendent*/ } };//Transcendent circuit is not craftable 
+     
+      /*Materials[][] matNH = { 
+      		{ Primitive }, 
+      		{ Basic }, 
+      		{ Good }, 
+      		{ Advanced }, 
+      		{ Data }, 
+      		{ Elite }, 
+      		{ Master },
+      		{ Ultimate }, 
+      		{ SuperconductorUHV }, 
+      		{ Infinite }, 
+      		{ Bio },
+      		{ Nano },
+      		{ Piko  },
+      		{ Quantum  }, 
+      		{ Transcendent } }; */
+      
+      
  ItemList[] multi = { null, null, null, null, Hatch_Input_Multi_2x2_EV, Hatch_Input_Multi_2x2_IV,
         	            Hatch_Input_Multi_2x2_LuV, Hatch_Input_Multi_2x2_ZPM, Hatch_Input_Multi_2x2_UV, Hatch_Input_Multi_2x2_UHV,
         	            Hatch_Input_Multi_2x2_UEV,
@@ -181,7 +200,7 @@ if(Config.skipRecipeAdding)return;
 
         for (int i = 0; i < GT_Values.VN.length - 1; i++) {
             Object circuit = OrePrefixes.circuit.get(mat[i][0]);
-            Object circuitP = OrePrefixes.circuit.get(mat[Math.min(i + 1, mat.length - 1)][0]);
+            Object circuitP = OrePrefixes.circuit.get(mat[Math.min(i + 1, mat.length - 2)][0]);
             if (circuit == null || GT_OreDictUnificator.get(circuit, 1) == null) {
                 MyMod.LOG.fatal("Circuit not found for " + GT_Values.VN[i] + "!");
                 continue;
@@ -207,9 +226,9 @@ if(Config.skipRecipeAdding)return;
              */
 
             RecipeMaps.assemblerRecipes.add(
-                new GT_Recipe.GT_Recipe_WithAlt(
+                new GT_Recipe/*.GT_Recipe_WithAlt*/(
                     false,
-                    new ItemStack[] { GT_OreDictUnificator.get(OrePrefixes.circuit.get(circuit), 2), single_item[i],
+                    new ItemStack[] { GT_OreDictUnificator.get((circuit), 2), single_item[i],
                         new ItemStack(
                             GregTech_API.sBlockMachines,
                             1,
@@ -233,19 +252,19 @@ if(Config.skipRecipeAdding)return;
                     ,
                     20 * SECONDS,
                     (int) GT_Values.VP[i],
-                    0,
+                    0/*,
                     new ItemStack[][] {
 
                         Arrays.stream(mat[i])
                             .map(s -> GT_OreDictUnificator.getOres(OrePrefixes.circuit, s))
                             .flatMap(ArrayList::stream)
                             .map(s -> GT_Utility.copyAmount(2, s))
-                            .toArray(ItemStack[]::new) } // ALT
+                            .toArray(ItemStack[]::new) } */// ALT
                 ));
             RecipeMaps.assemblerRecipes.add(
-                new GT_Recipe.GT_Recipe_WithAlt(
+                new GT_Recipe(
                     false,
-                    new ItemStack[] { GT_OreDictUnificator.get(OrePrefixes.circuit.get(circuit), 2), single_item[i],
+                    new ItemStack[] { GT_OreDictUnificator.get((circuit), 2), single_item[i],
                         new ItemStack(
                             GregTech_API.sBlockMachines,
                             1,
@@ -269,19 +288,19 @@ if(Config.skipRecipeAdding)return;
                     ,
                     20 * SECONDS,
                     (int) GT_Values.VP[i],
-                    0,
+                    0/*,
                     new ItemStack[][] {
 
                         Arrays.stream(mat[i])
                             .map(s -> GT_OreDictUnificator.getOres(OrePrefixes.circuit, s))
                             .flatMap(ArrayList::stream)
                             .map(s -> GT_Utility.copyAmount(2, s))
-                            .toArray(ItemStack[]::new) } // ALT
+                            .toArray(ItemStack[]::new) } */// ALT
                 ));
             RecipeMaps.assemblerRecipes.add(
-                new GT_Recipe.GT_Recipe_WithAlt(
+                new GT_Recipe(
                     false,
-                    new ItemStack[] { GT_OreDictUnificator.get(OrePrefixes.circuit.get(circuitP), 2),
+                    new ItemStack[] { GT_OreDictUnificator.get(circuitP, 2),
                         GT_Utility.copyAmount(5, single_item[i]),
                         new ItemStack(
                             GregTech_API.sBlockMachines,
@@ -305,14 +324,14 @@ if(Config.skipRecipeAdding)return;
                     ,
                     20 * SECONDS,
                     (int) GT_Values.VP[i],
-                    0,
+                    0/*,
                     new ItemStack[][] {
 
                         Arrays.stream(mat[Math.min(i + 1, mat.length - 1)])
                             .map(s -> GT_OreDictUnificator.getOres(OrePrefixes.circuit, s))
                             .flatMap(ArrayList::stream)
                             .map(s -> GT_Utility.copyAmount(2, s))
-                            .toArray(ItemStack[]::new) } // ALT
+                            .toArray(ItemStack[]::new) } */// ALT
                 ));
         }
 
@@ -770,13 +789,24 @@ Api.INSTANCE.definitions()
     public void smartArm(){  
     	for (int i = 0; i < GT_Values.VP.length - 1; i++) {
             int ii = i;
-   	 Object circuit = OrePrefixes.circuit.get(mat[i][0]);
-        Object circuitP = OrePrefixes.circuit.get(mat[Math.min(i + 1, mat.length - 1)][0]);
+   	    
+            
+      /*  Object circuit = OrePrefixes.circuit.get(mat[i][0]);
+        Object circuitP = OrePrefixes.circuit.get(mat[Math.min(i + 1, mat.length - 2)][0]);
+        Object circuitM1 = OrePrefixes.circuit.get(mat[Math.max(i-1,0)][0]);
+        Object circuitM2 = OrePrefixes.circuit.get(mat[Math.max(i-2,0)][0]);*/
+            Object circuitP =  OrePrefixes.circuit.get(mat[i][0]);
+            Object circuit =   OrePrefixes.circuit.get(mat[Math.max(i-1,0)][0]);
+            Object circuitM1 = OrePrefixes.circuit.get(mat[Math.max(i-2,0)][0]);
+            Object circuitM2 = OrePrefixes.circuit.get(mat[Math.max(i-3,0)][0]);  
+            
+            
+            
         Fluid solderIndalloy = GTPlusPlus.isModLoaded() ? FluidRegistry.getFluid("molten.indalloy140")
             : FluidRegistry.getFluid("molten.solderingalloy");
 
         
-        
+        /*
           ItemStack[] t0 = Arrays.stream(mat[i])
                 .map(s -> GT_OreDictUnificator.getOres(OrePrefixes.circuit, s))
                 .flatMap(ArrayList::stream)
@@ -799,7 +829,7 @@ Api.INSTANCE.definitions()
                 .flatMap(ArrayList::stream)
                 .map(s -> GT_Utility.copyAmount(16, s))
                 .toArray(ItemStack[]::new);
-        }
+        }*/
         
         int amountAmp=(int) Math.pow(2,ii-6);
         
@@ -808,10 +838,13 @@ Api.INSTANCE.definitions()
         GT_RecipeBuilder.builder()
         .metadata(RESEARCH_ITEM, new ItemStack(MyMod.smartarm, 1, ii-1))
         .metadata(RESEARCH_TIME, 1 * HOURS)
-        .itemInputs(tm2,tm1,
-        		t0,
-                 t1, 
-                 Circuit_Chip_Stemcell.get(32)
+        .itemInputs(
+        		GT_OreDictUnificator.get(circuitM2, 12),
+                GT_OreDictUnificator.get(circuitM1, 6), 
+        		GT_OreDictUnificator.get(circuit, 2),
+                GT_OreDictUnificator.get(circuitP, 1), 
+                
+                Circuit_Chip_Stemcell.get(32)
                  , arms[i]
                 		 
                 		 
@@ -829,10 +862,12 @@ Api.INSTANCE.definitions()
        else
         
         RecipeMaps.assemblerRecipes.add(
-            new GT_Recipe.GT_Recipe_WithAlt(
+            new GT_Recipe/*.GT_Recipe_WithAlt*/(
                 false,
-                new ItemStack[] { GT_OreDictUnificator.get(OrePrefixes.circuit.get(circuit), 4),
-                    GT_OreDictUnificator.get(OrePrefixes.circuit.get(circuitP), 2), Circuit_Chip_Stemcell.get(32)
+                new ItemStack[] {
+                	GT_OreDictUnificator.get(circuit, 4),
+                    GT_OreDictUnificator.get(circuitP, 2), 
+                    Circuit_Chip_Stemcell.get(32)
 
                     , arms[i]
 
@@ -851,8 +886,8 @@ Api.INSTANCE.definitions()
                 ,
                 20 * SECONDS,
                 (int) GT_Values.VP[i],
-                0,
-                new ItemStack[][] { t0,t1} // ALT
+                0/*,
+                new ItemStack[][] { t0,t1} // ALT*/
             )
 
         );

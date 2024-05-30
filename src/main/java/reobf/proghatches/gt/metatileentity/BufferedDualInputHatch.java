@@ -174,7 +174,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 
 	public int fluidLimit() {
 
-		return (int) ((int) (4000 * Math.pow(4, mTier) / (mMultiFluid ? 4 : 1)));
+		return (int) ((int) (64000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1)));
 	}
 
 	public int itemLimit() {
@@ -184,7 +184,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 
 	private static int fluidLimit(int mTier,boolean mMultiFluid) {
 
-		return (int) ((int) (8000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1)));
+		return (int) ((int) (64000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1)));
 	}
 
 	private static int itemLimit(int mTier) {

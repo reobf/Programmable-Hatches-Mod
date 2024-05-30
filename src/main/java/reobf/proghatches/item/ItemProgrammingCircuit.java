@@ -74,10 +74,13 @@ public class ItemProgrammingCircuit extends Item {
 			i++;
 
 		}
-
+		String sid=Optional.ofNullable(p_77624_1_.stackTagCompound).map(s->s.getCompoundTag("targetCircuit"))
+		.map(s->s.getString("string_id")).orElse(null)
+		;
 		getCircuit(p_77624_1_).filter(s -> s.getItem() != null).ifPresent(s -> {
 			FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 			ArrayList<String> ls = new ArrayList<>();
+			if(sid!=null)ls.add(sid+"@"+s.getItemDamage());
 			ls.add(s.getDisplayName());
 			s.getItem().addInformation(s, p_77624_2_, ls, p_77624_4_);
 

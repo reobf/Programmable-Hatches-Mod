@@ -39,7 +39,10 @@ Duplicate methods named getSubBlocks with the parameters (Item, CreativeTabs, Li
 replace actual superclass in coremod
 */
 public class BlockEUInterface
-		extends DummySuper/* appeng.block.AEBaseTileBlock */ {
+		extends 
+		//DummySuper
+		 appeng.block.AEBaseTileBlock 
+		{
 
 	private IIcon back;
 	private IIcon arr;

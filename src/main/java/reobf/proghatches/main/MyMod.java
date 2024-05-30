@@ -92,6 +92,8 @@ import reobf.proghatches.util.ProghatchesUtil;
 public class MyMod {
 	public static MyMod instance;
 	{
+		BlockEUInterface.class.getDeclaredFields();
+		
 		instance = this;
 	}
 	

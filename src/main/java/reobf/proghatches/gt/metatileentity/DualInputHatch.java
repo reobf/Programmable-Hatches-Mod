@@ -146,6 +146,10 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 					aNBT.setTag("mFluid" + i, mStoredFluid[i].writeToNBT(new NBTTagCompound()));
 			}
 		}
+		for(int i=0;i<mInventory.length;i++){
+			if( mInventory[i]!=null)
+			aNBT.setInteger("IntegerStackSize"+i, mInventory[i].stackSize);
+		}
 	}
 
 	@Override
@@ -158,6 +162,18 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 				if (aNBT.hasKey("mFluid" + i)) {
 					mStoredFluid[i].readFromNBT(aNBT.getCompoundTag("mFluid" + i));
 				}
+			}
+		}
+		for(int i=0;i<mInventory.length;i++){
+			if(aNBT.hasKey("IntegerStackSize"+i)){
+			int realsize=aNBT.getInteger("IntegerStackSize"+i);
+			if(mInventory[i]!=null){
+				mInventory[i].stackSize=realsize;
+			}else{
+				//?
+			}
+			
+			
 			}
 		}
 	}

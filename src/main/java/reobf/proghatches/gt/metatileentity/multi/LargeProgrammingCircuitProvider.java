@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -57,6 +58,7 @@ import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_EnhancedMultiBlockBase;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
@@ -65,6 +67,7 @@ import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
 import gregtech.api.util.GT_Utility;
 import gregtech.api.util.IGT_HatchAdder;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
+import gregtech.api.util.shutdown.SimpleShutDownReason;
 import gregtech.common.items.GT_MetaGenerated_Tool_01;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_LargeTurbine;
 import net.minecraft.block.Block;
@@ -511,14 +514,68 @@ public class LargeProgrammingCircuitProvider
 	}
 
 	ArrayList<ItemStack> toReturn = new ArrayList<>();
-
+	
+	@SuppressWarnings({ "deprecation", "unchecked" })
+	public void shut(String reason){
+		if(shut==null){
+		
+		try {
+			Class.forName("gregtech.api.util.shutdown.ShutDownReason");
+			//2.6.0+
+			MyMod.LOG.info("Use ShutDownReason");
+			//lazy-load class
+			Class<?> c=Class.forName("reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider$NewShutRunnable");
+			shut=(BiConsumer<GT_MetaTileEntity_MultiBlockBase, String>) c.getConstructors()[0].newInstance();
+		} catch (Exception e) {
+			//2.5.1
+			MyMod.LOG.info("ShutDownReason.class not found, use 0-arg stopMachine.");
+			shut=(a,s)->{
+				if(s==null){
+					a.criticalStopMachine();
+					return;
+				}
+			a.stopMachine();
+			};
+		}
+		
+		
+		
+		
+		}
+		
+		
+	
+	
+		
+		shut.accept(this,reason);
+	}
+	
+	static public class NewShutRunnable implements BiConsumer<GT_MetaTileEntity_MultiBlockBase,String>{
+		public NewShutRunnable(){}
+		//GT_MetaTileEntity_MultiBlockBase thiz;
+		@Override
+		public void accept(GT_MetaTileEntity_MultiBlockBase a,String reason) {
+			if(reason==null){
+				a.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
+				return;
+			}
+			a.stopMachine(new SimpleShutDownReason(reason/*"proghatch.access_loop"*/, true));
+			}
+	
+		
+			
+	}
+	
+	static public BiConsumer<GT_MetaTileEntity_MultiBlockBase,String> shut;
+	
+	
 	@Override
 	public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
 		if(!getBaseMetaTileEntity().isActive())return false;
 		try {
 			if (ItemProgrammingCircuit.getCircuit(patternDetails.getOutputs()[0].getItemStack()).map(ItemStack::getItem)
 					.orElse(null) == MyMod.progcircuit) {
-				this.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
+				this.shut(null);
 				return false;
 			}
 
@@ -626,7 +683,9 @@ public class LargeProgrammingCircuitProvider
 		reusable.clear();//just in case
 		if (!checkLoop(reusable)) {
 			cacheState = CacheState.CRASH;
-			this.stopMachine(MyMod.ACCESS_LOOP);
+			
+			this.shut("proghatch.access_loop");
+			
 			reusable.clear();
 			return;
 		}

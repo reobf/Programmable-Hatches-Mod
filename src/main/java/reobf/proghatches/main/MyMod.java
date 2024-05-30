@@ -94,7 +94,8 @@ public class MyMod {
 	{
 		instance = this;
 	}
-	public static ShutDownReason ACCESS_LOOP=new SimpleShutDownReason("proghatch.access_loop", true){public String getID() {return "proghatch.access_loop";};};
+	
+	//public static ShutDownReason ACCESS_LOOP=new SimpleShutDownReason("proghatch.access_loop", true){public String getID() {return "proghatch.access_loop";};};
 	public static SimpleNetworkWrapper net = new SimpleNetworkWrapper(Tags.MODID);
 	public static Item progcircuit;
 	public static Item toolkit;
@@ -188,7 +189,7 @@ public class MyMod {
 	
 	public void postInit(FMLPostInitializationEvent event) {
 		proxy.postInit(event);
-		ShutDownReasonRegistry.register(ACCESS_LOOP);
+		//ShutDownReasonRegistry.register(ACCESS_LOOP);
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
 		for (ItemStack s : new ItemStack[] { new ItemStack(block_euinterface), new ItemStack(euinterface_p2p) })
 

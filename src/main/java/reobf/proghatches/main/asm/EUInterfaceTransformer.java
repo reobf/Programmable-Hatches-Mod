@@ -11,6 +11,10 @@ public class EUInterfaceTransformer implements IClassTransformer {
 
 	@Override
 	public byte[] transform(String name, String transformedName, byte[] basicClass) {
+	if(name.contains("reobf")||transformedName.contains("reobf")){
+		System.out.println(name);
+		System.out.println(transformedName);
+	}
 		if ((!done) && name.equals("reobf.proghatches.eucrafting.BlockEUInterface")) {
 			done = true;
 			ClassReader cr = null;
@@ -20,9 +24,12 @@ public class EUInterfaceTransformer implements IClassTransformer {
 			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES) {
 				@Override
 				public int newUTF8(String value) {
-					if (value.equals("reobf/proghatches/eucrafting/DummySuper")) {
+					if (value.contains("reobf/proghatches/eucrafting/DummySuper")) {
 						System.out.println("superclass replaced");
-						return super.newUTF8("appeng/block/AEBaseTileBlock");
+						return super.newUTF8(value.replace(
+								"reobf/proghatches/eucrafting/DummySuper",
+								
+								"appeng/block/AEBaseTileBlock"));
 					}
 					return super.newUTF8(value);
 				}

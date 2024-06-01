@@ -3,6 +3,7 @@ package reobf.proghatches.main.mixin.mixins.eucrafting;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -44,7 +45,8 @@ public class MixinRemoveExcessiveEU {
 	public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, BaseActionSource src,
 			CallbackInfo c) {
 		CraftingCPUCluster cluster = (CraftingCPUCluster) rawCluster;
-
+		try{
+		
 		if (removeAll) {
 			try {
 				@SuppressWarnings("unchecked")
@@ -54,14 +56,16 @@ public class MixinRemoveExcessiveEU {
 
 					if (a instanceof CircuitProviderPatternDetial) {
 						CircuitProviderPatternDetial w = (CircuitProviderPatternDetial) a;
-						MyMod.LOG.info("Removing EU Source Pattern Request: " + w.out.getTagCompound());
+						Optional.ofNullable(w).map(s->s.out).ifPresent(x->
+						MyMod.LOG.info("Removing EU Source Pattern Request: " + x+x.getTagCompound()));
 						if (w.out.getItem() == MyMod.eu_token) {
 							MixinCallback.setter.accept(b, 0l);
 						}
 					}
 					if (a instanceof SISOPatternDetail) {
 						SISOPatternDetail w = (SISOPatternDetail) a;
-						MyMod.LOG.info("Removing EU Interface Binding Pattern Request: " + w.out.getTagCompound());
+						Optional.ofNullable(w).map(s->s.out).ifPresent(x->
+						MyMod.LOG.info("Removing EU Interface Binding Pattern Request: " + x+x.getTagCompound()));
 						if (w.in.getItem() == MyMod.eu_token && w.out.getItem() == MyMod.eu_token) {
 							MixinCallback.setter.accept(b, 0l);
 						}
@@ -74,7 +78,15 @@ public class MixinRemoveExcessiveEU {
 				e.printStackTrace();
 			}
 		}
-
+		}catch(Exception e){
+			MyMod.LOG.error("caught error in mixin",e);
+			//e.printStackTrace();
+		}
+		
+		if(removeAll){return;}
+		
+		
+		
 		try {
 			@SuppressWarnings("unchecked")
 			Map<ICraftingPatternDetails, Object> tasks = (Map<ICraftingPatternDetails, Object>) f.get(cluster);

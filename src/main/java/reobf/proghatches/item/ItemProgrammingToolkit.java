@@ -217,7 +217,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI {
 					this.getMcSlot().putStack(ItemProgrammingCircuit
 							.wrap(Optional.ofNullable(is0.getStackInSlot(0))
 									.map(s->{if(s.getItem()==MyMod.progcircuit){return ItemProgrammingCircuit.getCircuit(s).orElse(null);}return s;})
-									.map(ItemStack::copy).orElse(null)));
+									.map(ItemStack::copy).orElse(null),64));
 					
 					
 					super.detectAndSendChanges(init);

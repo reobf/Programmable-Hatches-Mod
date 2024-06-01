@@ -20,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
@@ -138,6 +139,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 	@Override
 	public void saveNBTData(NBTTagCompound aNBT) {
 		super.saveNBTData(aNBT);
+		aNBT.setBoolean("fluidLimit", fluidLimit);
 		aNBT.setBoolean("program", program);
 		aNBT.setBoolean("mMultiFluid", mMultiFluid);
 		if (mStoredFluid != null) {
@@ -155,6 +157,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
 		super.loadNBTData(aNBT);
+		fluidLimit= aNBT.getBoolean("fluidLimit");
 		program = aNBT.getBoolean("program");
 		mMultiFluid = aNBT.getBoolean("mMultiFluid");
 		if (mStoredFluid != null) {
@@ -250,6 +253,15 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		}, GT_UITextures.OVERLAY_BUTTON_INPUT_SEPARATION_ON_DISABLED,
 				() -> mTooltipCache.getData("programmable_hatches.gt.separate"), 1).setPos(7 + 1 * 18,
 						62 - moveButtons() * 18));
+		if(mMultiFluid==true)
+		builder.widget(createButton(() -> fluidLimit, val -> {
+			fluidLimit = val;
+			updateSlots();
+		}, GT_UITextures.OVERLAY_BUTTON_CHECKMARK, () -> mTooltipCache.getData("programmable_hatches.gt.fluidlimit"), 0)
+				.setPos(7+ 1 * 18, 62 - 18 - moveButtons() * 18));
+
+		
+		
 		Pos2d[] p = new Pos2d[] { new Pos2d(79 + 18 * 1, 34), new Pos2d(70 + 18 * 2, 25), new Pos2d(61 + 18 * 3, 16),
 				new Pos2d(52 + 18 * 4, 7) };
 		Pos2d position = p[Math.min(3, slotTierOverride(this.mTier))];
@@ -485,8 +497,10 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 	public void addFluid(FluidStack aFluid, int aSlot) {
 		if (aSlot < 0 || aSlot >= getMaxType())
 			return;
+		
 		if (aFluid.equals(mStoredFluid[aSlot].getFluid()))
 			mStoredFluid[aSlot].fill(aFluid, true);
+		else
 		if (mStoredFluid[aSlot].getFluid() == null)
 			mStoredFluid[aSlot].setFluid(aFluid.copy());
 	}
@@ -559,12 +573,28 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 
 	public void onFill() {
 	}
-
+static boolean fluidLimit=true;
 	@Override
 	public int fill(FluidStack aFluid, boolean doFill) {
 		if (aFluid == null || aFluid.getFluid().getID() <= 0 || aFluid.amount <= 0 || !canTankBeFilled()
 				|| !isFluidInputAllowed(aFluid))
 			return 0;
+		
+		if(!fluidLimit){int oldamount=aFluid.amount;
+			aFluid=aFluid.copy();
+			for(ListeningFluidTank tk:this.mStoredFluid){
+				if(tk.getFluidAmount()==0)tk.setFluid(null);
+				if((aFluid.amount-=tk.fill(aFluid, doFill))<=0){
+					break;
+					};
+				
+			}
+			return oldamount-aFluid.amount;
+		}
+		
+		
+		if(fluidLimit){
+		
 		if (!hasFluid(aFluid) && getFirstEmptySlot() != -1) {
 			int tFilled = Math.min(aFluid.amount, mStoredFluid[0].getCapacity());
 			if (doFill) {
@@ -586,6 +616,8 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 			}
 			return tFilled;
 		}
+	}
+		
 		return 0;
 	}
 
@@ -672,21 +704,24 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 	 * "Filter mode of this hatch might not work well", "过滤模式可能无法正常生效") ); } }
 	 */
 
-	private static HashMap<Class<?>, MethodHandle> cache0 = new HashMap<>();
-	private static HashMap<Class<?>, MethodHandle> cache1 = new HashMap<>();
+	//private static HashMap<Class<?>, MethodHandle> cache0 = new HashMap<>();
+	//private static HashMap<Class<?>, MethodHandle> cache1 = new HashMap<>();
 
 	/**
-	 * 2.4.0 compat no longer support 2.4.0 just leave it unchanged
+	 * 2.4.0 compat 
+	 * no longer support 2.4.0 just leave it unchanged
 	 */
-	public boolean versionInsensitiveContainsInput(Object o) {
-
-		MethodHandle mh = cache0.get(o.getClass());
+	public boolean versionInsensitiveContainsInput(FluidStack aFluid) {
+        if(mRecipeMap==null)return true;
+		return this.mRecipeMap.containsInput(aFluid);
+        /*
+        MethodHandle mh = cache0.get(aFluid.getClass());
 		if (mh != null) {
 			try {
 				Object map;
-				return ((map = cache1.get(o.getClass()).invoke(this)) == null) || // this.mRecipeMap==null
+				return ((map = cache1.get(aFluid.getClass()).invoke(this)) == null) || // this.mRecipeMap==null
 																					// ||
-						(boolean) mh.invoke(map, o); // this.mRecipeMap.containsInput(0)
+						(boolean) mh.invoke(map, aFluid); // this.mRecipeMap.containsInput(0)
 			} catch (Throwable e) {
 				throw new RuntimeException("failed to access mRecipeMap", e);
 			}
@@ -696,14 +731,14 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		try {
 			Class<?> recipeMapClass = this.getClass().getField("mRecipeMap").getType();
 			MethodHandle mhr = MethodHandles.lookup().findVirtual(recipeMapClass, "containsInput",
-					MethodType.methodType(boolean.class, o.getClass()));
-			cache0.put(o.getClass(), mhr);
-			cache1.put(o.getClass(), MethodHandles.lookup().findGetter(this.getClass(), "mRecipeMap", recipeMapClass));
-			return versionInsensitiveContainsInput(o);
+					MethodType.methodType(boolean.class, aFluid.getClass()));
+			cache0.put(aFluid.getClass(), mhr);
+			cache1.put(aFluid.getClass(), MethodHandles.lookup().findGetter(this.getClass(), "mRecipeMap", recipeMapClass));
+			return versionInsensitiveContainsInput(aFluid);
 		} catch (Throwable e) {
 			throw new RuntimeException("cannot get mRecipeMap", e);
 		}
-
+*/
 	}
 
 	public void setFilter(RecipeMap<?> recipemap) {

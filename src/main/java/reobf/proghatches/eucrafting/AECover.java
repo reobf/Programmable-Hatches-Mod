@@ -36,6 +36,7 @@ import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.net.GT_Packet_SendCoverData;
 import gregtech.api.util.GT_CoverBehaviorBase;
 import gregtech.api.util.ISerializableObject;
+import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_AssemblyLine;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -53,6 +54,8 @@ import reobf.proghatches.main.MyMod;
 public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 	public static interface IMemoryCardSensitive {
 		public boolean shiftClick(EntityPlayer entityPlayer);
+		
+		
 	}
 
 	public AECover() {

@@ -54,7 +54,7 @@ public class MixinCraftingRecursiveWorkaround {
 	@Inject(at = @At("HEAD"), method = "getPrecisePatternsFor", cancellable = true)
 	public void getPrecisePatternsFor(@Nonnull IAEItemStack stack,
 			CallbackInfoReturnable<List<ICraftingPatternDetails>> RE) {
-
+try{
 		List<ICraftingPatternDetails> o = precisePatternCache.compute(stack, (key, value) -> {
 			if (value == null) {
 				if (stack.getItem() != MyMod.eu_token)// do not 'fix' other
@@ -88,7 +88,7 @@ public class MixinCraftingRecursiveWorkaround {
 		});
 
 		RE.setReturnValue(o);
-
+		}catch(Exception e){MyMod.LOG.error("caught error in mixin",e);}
 	}
 
 	private static boolean calculatePatternIOs(ICraftingPatternDetails pattern, IAEItemStack stack) {

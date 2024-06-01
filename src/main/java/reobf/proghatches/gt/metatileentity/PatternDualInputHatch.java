@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidTank;
 import reobf.proghatches.lang.LangManager;
@@ -48,8 +49,11 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IInterfaceViewable;
+import appeng.core.AppEng;
+import appeng.core.sync.GuiBridge;
 import appeng.helpers.ICustomNameObject;
 import appeng.items.misc.ItemEncodedPattern;
+import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
@@ -62,6 +66,10 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.render.TextureFactory;
+import gregtech.common.tileentities.casings.upgrade.Inventory;
+import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_CraftingInput_ME;
+import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
+
 
 public class PatternDualInputHatch extends BufferedDualInputHatch
 		implements ICraftingProvider, IGridProxyable, ICustomNameObject, IInterfaceViewable, IPowerChannelState {
@@ -71,7 +79,121 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 		super(mName, mTier, mDescriptionArray, mTextures, mMultiFluid, bufferNum);
 
 	}
+	
+	  @Override
+	    public int rows() {
+	        return 4;
+	    }
 
+	    @Override
+	    public int rowSize() {
+	        return 9;
+	    }
+
+	    @Override
+	    public IInventory getPatterns() {
+	        return patternMapper;
+	    }
+	    IInventory patternMapper=new IInventory(){
+
+			@Override
+			public int getSizeInventory() {
+			
+				return pattern.length;
+			}
+
+			@Override
+			public ItemStack getStackInSlot(int slotIn) {
+			
+				return pattern[slotIn];
+			}
+
+			@Override
+			public ItemStack decrStackSize(int index, int count) {
+				
+				if (pattern[index] != null)
+		        {
+		            ItemStack itemstack;
+
+		            if (pattern[index].stackSize <= count)
+		            {
+		                itemstack = pattern[index];
+		                pattern[index] = null;
+		                this.markDirty();
+		                return itemstack;
+		            }
+		            else
+		            {
+		                itemstack = pattern[index].splitStack(count);
+
+		                if (pattern[index].stackSize == 0)
+		                {
+		                	pattern[index] = null;
+		                }
+
+		                this.markDirty();
+		                return itemstack;
+		            }
+		        }
+		        else
+		        {
+		            return null;
+		        }
+			}
+
+			@Override
+			public ItemStack getStackInSlotOnClosing(int index) {
+			
+				return null;
+			}
+
+			@Override
+			public void setInventorySlotContents(int index, ItemStack stack) {
+				pattern[index]=stack;
+				
+			}
+
+			@Override
+			public String getInventoryName() {
+				
+				return "";
+			}
+
+			@Override
+			public boolean hasCustomInventoryName() {
+			
+				return false;
+			}
+
+			@Override
+			public int getInventoryStackLimit() {
+			
+				return 1;
+			}
+
+			@Override
+			public void markDirty() {
+				
+				
+			}
+
+			@Override
+			public boolean isUseableByPlayer(EntityPlayer player) {
+				
+				return true;
+			}
+
+			@Override
+			public void openInventory() {}
+
+			@Override
+			public void closeInventory() {}
+
+			@Override
+			public boolean isItemValidForSlot(int index, ItemStack stack) {
+			
+				return true;
+			}};
 	@Override
 	public ITexture[] getTexturesActive(ITexture aBaseTexture) {
 
@@ -457,23 +579,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 		// no op
 	}
 
-	@Override
-	public int rows() {
 
-		return 9;
-	}
-
-	@Override
-	public int rowSize() {
-
-		return 4;
-	}
-
-	@Override
-	public IInventory getPatterns() {
-
-		return null;
-	}
 
 	@Override
 	public String getName() {
@@ -504,7 +610,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 	@Override
 	public boolean shouldDisplay() {
 
-		return false;
+		return true;
 	}
 
 	String customName;
@@ -520,7 +626,24 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 
 		return customName != null;
 	}
-
+    @Override
+    public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer, ForgeDirection side,
+        float aX, float aY, float aZ) {
+        final ItemStack is = aPlayer.inventory.getCurrentItem();
+        if (is != null && is.getItem() instanceof ToolQuartzCuttingKnife) {
+            if (ForgeEventFactory.onItemUseStart(aPlayer, is, 1) <= 0) return false;
+             IGregTechTileEntity te = getBaseMetaTileEntity();
+            aPlayer.openGui(
+                AppEng.instance(),
+                GuiBridge.GUI_RENAMER.ordinal() << 5 | (side.ordinal()),
+                te.getWorld(),
+                te.getXCoord(),
+                te.getYCoord(),
+                te.getZCoord());
+            return true;
+        }
+        return super.onRightclick(aBaseMetaTileEntity, aPlayer, side, aX, aY, aZ);
+    }
 	@Override
 	public void setCustomName(String name) {
 		customName = name;

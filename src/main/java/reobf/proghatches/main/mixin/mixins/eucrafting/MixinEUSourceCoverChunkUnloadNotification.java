@@ -9,6 +9,7 @@ import gregtech.common.covers.CoverInfo;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.AECover.Data;
+import reobf.proghatches.main.MyMod;
 
 @Mixin(value = CoverableTileEntity.class, remap = false)
 public abstract class MixinEUSourceCoverChunkUnloadNotification extends BaseTileEntity {
@@ -23,6 +24,7 @@ public abstract class MixinEUSourceCoverChunkUnloadNotification extends BaseTile
 	public abstract CoverInfo getCoverInfoAtSide(ForgeDirection side);
 
 	protected void unloadCover() {
+		try{
 		for (final ForgeDirection side : ForgeDirection.VALID_DIRECTIONS) {
 			final CoverInfo coverInfo = getCoverInfoAtSide(side);
 			if (coverInfo.isValid()) {
@@ -35,6 +37,7 @@ public abstract class MixinEUSourceCoverChunkUnloadNotification extends BaseTile
 
 			}
 		}
+		}catch(Exception e){MyMod.LOG.error("caught error in mixin",e);}
 	}
 
 }

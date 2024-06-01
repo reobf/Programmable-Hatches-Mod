@@ -80,7 +80,7 @@ public class ItemProgrammingCircuit extends Item {
 		getCircuit(p_77624_1_).filter(s -> s.getItem() != null).ifPresent(s -> {
 			FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 			ArrayList<String> ls = new ArrayList<>();
-			if(sid!=null)ls.add(sid+"@"+s.getItemDamage());
+			if(sid!=null&&!sid.isEmpty())ls.add(sid+"@"+s.getItemDamage());
 			ls.add(s.getDisplayName());
 			s.getItem().addInformation(s, p_77624_2_, ls, p_77624_4_);
 
@@ -112,10 +112,10 @@ public class ItemProgrammingCircuit extends Item {
 	public boolean hasEffect(ItemStack p_77636_1_) {
 		return true;
 	}
+	public static ItemStack wrap(ItemStack is) {return wrap(is,1);}
+	public static ItemStack wrap(ItemStack is,int i) {
 
-	public static ItemStack wrap(ItemStack is) {
-
-		ItemStack iss = new ItemStack(MyMod.progcircuit);
+		ItemStack iss = new ItemStack(MyMod.progcircuit,i);
 		if (is != null/* &&is.stackSize>0 */ && is.getItem() != null) {
 			is = is.copy();
 			is.stackSize = 1;// Math.max(1,is.stackSize);

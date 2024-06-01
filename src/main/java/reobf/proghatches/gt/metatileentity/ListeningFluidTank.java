@@ -35,6 +35,7 @@ public class ListeningFluidTank extends FluidTank {
 
 	@Override
 	public int fill(FluidStack resource, boolean doFill) {
+		
 		try {
 			return super.fill(resource, doFill);
 		} finally {
@@ -44,15 +45,18 @@ public class ListeningFluidTank extends FluidTank {
 
 	@Override
 	public void setFluid(FluidStack fluid) {
+		
 		super.setFluid(fluid);
 		callback.ifPresent(Runnable::run);
 	}
 
 	public int fillDirect(FluidStack resource, boolean doFill) {
+	
 		return super.fill(resource, doFill);
 	}
 
 	public void setFluidDirect(FluidStack fluid) {
+		
 		super.setFluid(fluid);
 
 	}

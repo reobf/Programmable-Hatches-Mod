@@ -37,6 +37,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
@@ -407,7 +408,11 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 				tickFirstClassify+5<currentTick();
 			//wait for possible future input, to take better adventage of parallels
 		}
-		public long currentTick(){return ((CoverableTileEntity)getBaseMetaTileEntity()).mTickTimer;}
+		public long currentTick(){
+			CoverableTileEntity obj = ((CoverableTileEntity)getBaseMetaTileEntity());
+			return obj!=null?obj.mTickTimer:0;
+			
+		}
 		public boolean isEmpty() {
 
 			for (FluidTank f : mStoredFluidInternal) {
@@ -1452,4 +1457,5 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 			}
 		super.onBlockDestroyed();
 	}
+	
 }

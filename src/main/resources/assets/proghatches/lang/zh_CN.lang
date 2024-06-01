@@ -336,3 +336,5 @@ multimachine.largeprogrammingcircuitprovider.name=大型编程器电路提供器
 providerchainer.name=提供器访问仓
 GT5U.gui.text.proghatch.access_loop=检测到环 请检查提供器访问仓的连接
 proghatches.largepcp.eu=仓室个数:%1$s 功率:%2$s EU/t
+programmable_hatches.gt.fluidlimit=限制同种类流体进入不同的流体槽
+

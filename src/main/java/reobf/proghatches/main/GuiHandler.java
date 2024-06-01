@@ -51,12 +51,14 @@ public  class GuiHandler implements IDefaultGuiHandler{
 					Field f = AppEngInternalInventory.class.getDeclaredField("te");
 					f.setAccessible(true);
 					// System.out.println(((DualityInterface)f.get(inventory)).getHost());
+					try{
 					IUpgradeableHost host = ((DualityInterface) f.get(inventory)).getHost();// instanceof
 																							// InterfaceData.DisabledInventory;
+					
 					if (host instanceof AEBasePart) {
 						return ((AEBasePart) host).getHost() instanceof InterfaceData.DisabledInventory;
 
-					}
+					}}catch(ClassCastException e){}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -65,12 +67,13 @@ public  class GuiHandler implements IDefaultGuiHandler{
 					Field f = AppEngInternalAEInventory.class.getDeclaredField("te");
 					f.setAccessible(true);
 					// System.out.println(((DualityInterface)f.get(inventory)).getHost());
+					try{
 					IUpgradeableHost host = ((DualityInterface) f.get(inventory)).getHost();// instanceof
 																							// InterfaceData.DisabledInventory;
 					if (host instanceof AEBasePart) {
 						return ((AEBasePart) host).getHost() instanceof InterfaceData.DisabledInventory;
 
-					}
+					}}catch(ClassCastException e){}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

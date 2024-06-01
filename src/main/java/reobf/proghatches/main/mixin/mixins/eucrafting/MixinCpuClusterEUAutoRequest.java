@@ -66,7 +66,7 @@ if (!this.canCraft(details, details.getCondensedInputs())) {
 	private ICraftingPatternDetails executeCrafting2(ICraftingPatternDetails pattern) {// collect
 																						// failed
 																						// WrappedPatternDetail
-		if (pattern instanceof WrappedPatternDetail) {
+		try{if (pattern instanceof WrappedPatternDetail) {
 			WrappedPatternDetail p = (WrappedPatternDetail) pattern;
 			int cd[] = cooldown.computeIfAbsent(p, (s) -> new int[2]);
 			if (cd[0] > 0) {
@@ -92,6 +92,8 @@ if (!this.canCraft(details, details.getCondensedInputs())) {
 			}
 		}
 
+	
+		}catch(Exception e){MyMod.LOG.error("caught error in mixin",e);}
 		return pattern;
 	}
 
@@ -104,6 +106,7 @@ if (!this.canCraft(details, details.getCondensedInputs())) {
 
 	@Inject(at = @At("RETURN"), method = "executeCrafting", cancellable = true)
 	private void executeCrafting1(final IEnergyGrid eg, final CraftingGridCache cc, CallbackInfo RE) {
+		try{
 		if (needed.isEmpty()) {
 			storage.clear();
 			return;
@@ -178,7 +181,7 @@ if (!this.canCraft(details, details.getCondensedInputs())) {
 
 		storage.clear();
 		needed.clear();
-
+		}catch(Exception e){MyMod.LOG.error("caught error in mixin",e);}
 	}
 
 }

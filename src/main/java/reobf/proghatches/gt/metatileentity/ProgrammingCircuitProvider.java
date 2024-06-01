@@ -45,6 +45,7 @@ import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
+import appeng.helpers.ICustomNameObject;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
@@ -67,7 +68,7 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
 public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implements IAddUIWidgets, IPowerChannelState,
-		ICraftingProvider, IGridProxyable, ICircuitProvider, IInstantCompletable {
+		ICraftingProvider, IGridProxyable, ICircuitProvider, IInstantCompletable,ICustomNameObject {
 
 	public ProgrammingCircuitProvider(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount) {
 		super(aID, aName, aNameRegional, aTier, aInvSlotCount,
@@ -519,6 +520,7 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 		int[] count = new int[1];
 		toReturn.forEach(s -> aNBT.setTag("toReturn" + (count[0]++), s.writeToNBT(new NBTTagCompound())));
 		getProxy().writeToNBT(aNBT);
+		aNBT.setString("customName",customName);
 		aNBT.setBoolean("disabled", disabled);
 	}
 
@@ -534,6 +536,7 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 		}
 		getProxy().readFromNBT(aNBT);
 		;
+		customName=aNBT.getString("customName");
 		disabled = aNBT.getBoolean("disabled");
 	}
 
@@ -610,6 +613,24 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 
 	public boolean patternDirty() {
 		return patternDirty;
+	}
+	 private String customName = null;
+	@Override
+	public String getCustomName() {
+		
+		return customName;
+	}
+
+	@Override
+	public boolean hasCustomName() {
+		
+		return customName!=null;
+	}
+
+	@Override
+	public void setCustomName(String name) {
+		customName=name;
+		
 	}
 
 }

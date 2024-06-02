@@ -2,6 +2,6 @@
 总是与其它输入仓/输入总线隔离
 自带编程覆盖板功能
 缓冲数量: {bufferNum}
-缓冲容量: {cap}L{mMultiFluid?} x4种流体{mMultiFluid:}{mMultiFluid!}
+缓冲容量: {cap}L{mMultiFluid?} x{fluidSlots}种流体{mMultiFluid:}{mMultiFluid!}
 {slots}格
 每格堆叠限制:{stacksize}

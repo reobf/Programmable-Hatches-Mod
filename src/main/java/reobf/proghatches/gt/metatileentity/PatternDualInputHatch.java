@@ -214,7 +214,8 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 						: reobf.proghatches.main.Config
 								.get("PDIH",
 										ImmutableMap
-												.of("bufferNum", bufferNum,/* "cap",
+												.of("bufferNum", bufferNum,
+														"fluidSlots", fluidSlots(tier),/* "cap",
 														format.format((int) (4000 * Math.pow(4, tier)
 																/ (mMultiFluid ? 4 : 1))),*/
 														"mMultiFluid", mMultiFluid, "slots",

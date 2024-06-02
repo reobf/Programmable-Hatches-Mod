@@ -140,7 +140,7 @@ String cfg=
 			ret.add("eucrafting." + "MixinCoverInsertion");
 			ret.add("eucrafting." + "MixinEUSourceCoverChunkUnloadNotification");
 		}
-
+		ret.add("MixinAEAdaptorSkipStackSizeCheck");
 		ret.add("MixinAwarenessForDualHatch");
 		if (!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))
 			ret.add("MixinRemoveUnunsedItemStackCache");

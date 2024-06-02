@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 
 import com.gtnewhorizons.modularui.api.forge.ItemHandlerHelper;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
+
 //spotless:off
 /**
  * original ItemStackHandler directly sets the mInventory's content.
@@ -17,6 +18,14 @@ public class InventoryItemHandler extends ItemStackHandler {
 		super(mInventory);
 		inv = dualInputHatch;
 	}
+
+	protected int getStackLimit(int slot, ItemStack stack) {
+		return inv.getInventoryStackLimit();
+	};
+
+	public int getSlotLimit(int slot) {
+		return inv.getInventoryStackLimit();
+	};
 
 	IInventory inv;
 

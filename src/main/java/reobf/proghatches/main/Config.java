@@ -168,7 +168,9 @@ public class Config {
 			String[] arr = new String(b, "UTF-8").split("\r?\n");
 			for (int i = 0; i < arr.length; i++) {
 				final int ii = i;
-				String[] arrf = arr;
+				final String[] arrf = arr;
+				String oldstr="";
+				do{ oldstr=arr[ii];
 				fmtter.forEach((k, v) -> {
 					arrf[ii] = arrf[ii].replace(String.format("{%s}", k), v.toString());
 					// arr[ii].inde
@@ -195,6 +197,8 @@ public class Config {
 					}
 
 				});
+				
+				}while(!oldstr.equals(arrf[ii]));//if something is changed, check it again
 
 			}
 			// System.out.println(Arrays.asList(arr));

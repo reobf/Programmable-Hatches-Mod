@@ -1,5 +1,6 @@
 Item/Fluid Input for Multiblocks
 Contents are always separated with other bus/hatch
 Programming Cover function integrated
-Capacity: {cap}L{mMultiFluid?} x4 types of fluid{mMultiFluid:}{mMultiFluid!}
+Capacity: {cap}L{mMultiFluid?} x{fluidSlots} types of fluid{mMultiFluid:}{mMultiFluid!}
 {slots} Slots
+ME Interface is not limited by max stacksize of the item and could stack items up to {stackLimit}

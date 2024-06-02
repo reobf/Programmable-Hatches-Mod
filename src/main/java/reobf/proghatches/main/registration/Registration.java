@@ -66,6 +66,7 @@ public class Registration implements Runnable {
 	public final static int IngBufferOffset = 79;// -80
 	public final static int LargeProviderOffset = 116;
 	public final static int ChainerOffset = 117;
+    public final static int CircuitProviderOffsetT0 = 118;
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -132,8 +133,16 @@ public class Registration implements Runnable {
             Config.metaTileEntityOffset + CircuitProviderOffset,
             "circuitprovider",
             LangManager.translateToLocal("circuitprovider.name"),
-             1,
-            1);
+             5,
+            4, 1);
+        new ProgrammingCircuitProvider(
+                Config.metaTileEntityOffset + CircuitProviderOffsetT0,
+                "circuitprovider",
+                LangManager.translateToLocal("circuitprovider.name.tech0"),
+                 3,
+                1, 0);
+        
+        
         GregTech_API.registerCover(
             new ItemStack(MyMod.cover, 1, 0),
             TextureFactory.of(

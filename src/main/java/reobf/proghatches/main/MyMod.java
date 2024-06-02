@@ -95,8 +95,8 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 public class MyMod {
 	public static MyMod instance;
 	{
-		//BlockEUInterface.class.getDeclaredFields();
-		
+		BlockEUInterface.class.getDeclaredFields();
+		//BlockEUInterface.
 		instance = this;
 	}
 	

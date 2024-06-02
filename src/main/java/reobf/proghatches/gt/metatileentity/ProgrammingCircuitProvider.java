@@ -1,11 +1,13 @@
 package reobf.proghatches.gt.metatileentity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import net.minecraft.entity.player.EntityPlayer;
@@ -59,6 +61,7 @@ import gregtech.api.interfaces.modularui.IAddUIWidgets;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
 import gregtech.api.render.TextureFactory;
+import gregtech.api.util.GT_Utility;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.block.BlockIOHub;
@@ -69,13 +72,14 @@ import reobf.proghatches.main.registration.Registration;
 
 public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implements IAddUIWidgets, IPowerChannelState,
 		ICraftingProvider, IGridProxyable, ICircuitProvider, IInstantCompletable,ICustomNameObject {
-
-	public ProgrammingCircuitProvider(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount) {
+	int tech;
+	public ProgrammingCircuitProvider(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount,int tech) {
 		super(aID, aName, aNameRegional, aTier, aInvSlotCount,
 				reobf.proghatches.main.Config.get("PCP", ImmutableMap.of())
 
 		);
 		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		this.tech=tech;
 	}
 
 	private void updateValidGridProxySides() {
@@ -99,9 +103,9 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 	}
 
 	public ProgrammingCircuitProvider(String aName, int aTier, int aInvSlotCount, String[] aDescription,
-			ITexture[][][] aTextures) {
+			ITexture[][][] aTextures,int tech) {
 		super(aName, aTier, aInvSlotCount, aDescription, aTextures);
-
+this.tech=tech;
 	}
 
 	// item returned in ae tick will not be recognized, delay to the next
@@ -181,7 +185,15 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 		toReturn.removeIf(Objects::isNull);
 
 	}
-
+boolean legacy;
+	@Override
+	public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
+			ItemStack aTool) {
+		patternDirty=true;
+		legacy=!legacy;
+		postEvent();
+		GT_Utility.sendChatToPlayer(aPlayer, "Legacy Mode:" + legacy);
+	}
 	@Override
 	public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {
 		this.getBaseMetaTileEntity().sendBlockEvent((byte) 99, (byte) (disabled ? 1 : 0));
@@ -312,9 +324,9 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 
 		doSnapshot();
 		/* if (this.mInventory[0] != null) */ {
-
+for(ItemStack is:mInventory)
 			craftingTracker.addCraftingOption(this,
-					new CircuitProviderPatternDetial(ItemProgrammingCircuit.wrap(mInventory[0])));
+					new CircuitProviderPatternDetial(ItemProgrammingCircuit.wrap(is,1,legacy)));
 
 		}
 
@@ -456,7 +468,7 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 	@Override
 	public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
 
-		return new ProgrammingCircuitProvider(mName, mTier, 1, mDescriptionArray, mTextures);
+		return new ProgrammingCircuitProvider(mName, mTier, mInventory.length, mDescriptionArray, mTextures,tech);
 	}
 
 	@Override
@@ -504,11 +516,10 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 
 	@Override
 	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-		final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(this.mInventory, 0, 1);
-		if (inventoryHandler == null)
-			return;
+		final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(this.mInventory, 0, mInventory.length);
+	
 
-		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 1).startFromSlot(0).endAtSlot(0)
+		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 4).startFromSlot(0).endAtSlot(mInventory.length-1)
 				.background(new IDrawable[] { getGUITextureSet().getItemSlot() }).build().setPos(3, 3));
 	}
 
@@ -522,6 +533,8 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 		getProxy().writeToNBT(aNBT);
 		aNBT.setString("customName",customName);
 		aNBT.setBoolean("disabled", disabled);
+		aNBT.setBoolean("legacy", disabled);
+		aNBT.setInteger("tech", tech);
 	}
 
 	@Override
@@ -538,6 +551,11 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 		;
 		customName=aNBT.getString("customName");
 		disabled = aNBT.getBoolean("disabled");
+		legacy=aNBT.getBoolean("legacy");
+		if(aNBT.hasKey("tech"))
+		tech=aNBT.getInteger("tech");
+		else
+		tech=1;
 	}
 
 	@Override
@@ -556,9 +574,9 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 	@Override
 	public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
 			IWailaConfigHandler config) {
-
+		for(int i=0;i<((IInventory) accessor.getTileEntity()).getSizeInventory();i++)
 		currenttip.add(StatCollector.translateToLocal("proghatches.provider.waila")
-				+ Optional.ofNullable(((IInventory) accessor.getTileEntity()).getStackInSlot(0))
+				+ Optional.ofNullable(((IInventory) accessor.getTileEntity()).getStackInSlot(i))
 						.map(s -> s.getDisplayName() + "@" + s.getItemDamage()).orElse("<empty>")
 
 		);
@@ -597,8 +615,17 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 
 	@Override
 	public Collection<ItemStack> getCircuit() {
-
-		return Lists.newArrayList(ItemProgrammingCircuit.wrap(mInventory[0]));
+		boolean[] nullfound=new boolean[1];
+		return Arrays.stream(mInventory).filter(s->{
+			if(s==null){
+				if(!nullfound[0]){
+					nullfound[0]=true;
+					return true;
+				}
+				return false;
+			}
+			return true;
+		}).map(s->ItemProgrammingCircuit.wrap(s,1,legacy)).collect(Collectors.toList());
 	}
 
 	@Override

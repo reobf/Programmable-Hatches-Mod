@@ -3,6 +3,6 @@ Contents are always separated with other bus/hatch
 Programming Cover function integrated
 Buffer: {bufferNum}
 For each buffer:
-Capacity: {cap}L{mMultiFluid?} x4 types of fluid{mMultiFluid:}{mMultiFluid!}
+Capacity: {cap}L{mMultiFluid?} x{fluidSlots} types of fluid{mMultiFluid:}{mMultiFluid!}
 {slots} Slots
 Slot maximum stacksize:{stacksize}

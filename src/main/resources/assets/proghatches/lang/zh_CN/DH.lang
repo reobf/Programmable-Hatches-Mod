@@ -1,5 +1,6 @@
 多方块机器的物品/流体输入
 总是与其它输入仓/输入总线隔离
 自带编程覆盖板功能
-容量: {cap}L{mMultiFluid?} x4种流体{mMultiFluid:}{mMultiFluid!}
+容量: {cap}L{mMultiFluid?} x{fluidSlots}种流体{mMultiFluid:}{mMultiFluid!}
 {slots}格
+ME接口发配物品时不受物品最大堆叠限制，且可以最大堆叠至{stackLimit}

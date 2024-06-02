@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
@@ -48,7 +49,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
+import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
+import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
+import com.gtnewhorizons.modularui.api.forge.ListItemHandler;
 import com.gtnewhorizons.modularui.api.math.Alignment;
 import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.math.Size;
@@ -60,6 +64,7 @@ import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
 import com.gtnewhorizons.modularui.common.widget.Scrollable;
@@ -205,22 +210,25 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 				(optional.length > 0 ? optional
 						: reobf.proghatches.main.Config
 								.get("BDH",
-										ImmutableMap
-												.of("bufferNum", bufferNum, "cap",
-														format.format(fluidLimit(tier,mMultiFluid )),
-														"mMultiFluid", mMultiFluid, "slots",
-														itemLimit(tier), "stacksize",
-														(int) (64 * Math.pow(2, Math.max(tier - 3, 0)))))
-
-				))/* ) */;
+										ImmutableMap.<String,Object>builder()
+										.put("bufferNum", bufferNum)
+										.put("cap",format.format(fluidLimit(tier,mMultiFluid )))
+										.put("mMultiFluid", mMultiFluid)
+										.put("slots",itemLimit(tier))
+										.put("stacksize",(int) (64 * Math.pow(2, Math.max(tier - 3, 0))))
+										.put("fluidSlots", fluidSlots(tier))
+										.build())
+												
+															
+				));/* ) */
 		this.bufferNum = bufferNum;
 		initBackend();
 
 	}
 
 	public void initTierBasedField() {
-
-		if (mMultiFluid) {
+         super.initTierBasedField();
+		/*if (mMultiFluid) {
 			mStoredFluid = new ListeningFluidTank[] {
 
 					new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)), this),
@@ -234,7 +242,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 			mStoredFluid = new ListeningFluidTank[] { new ListeningFluidTank((int) (4000 * Math.pow(2, mTier)), this) };
 
 		}
-
+*/
 	}
 
 	public BufferedDualInputHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
@@ -769,7 +777,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		if (background.length == 0) {
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
-		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 1).widgetCreator(get()).startFromSlot(1000)
+		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 1).startFromSlot(1000)
 				.endAtSlot(1000).background(background).build().setPos(3, 3));
 	}
 
@@ -779,7 +787,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		if (background.length == 0) {
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
-		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 2).widgetCreator(get()).startFromSlot(1000)
+		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 2).startFromSlot(1000)
 				.endAtSlot(1003).background(background).build().setPos(3, 3));
 	}
 
@@ -789,7 +797,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		if (background.length == 0) {
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
-		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 3).widgetCreator(get()).startFromSlot(1000)
+		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 3).startFromSlot(1000)
 				.endAtSlot(1008).background(background).build().setPos(3, 3));
 	}
 
@@ -799,39 +807,13 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		if (background.length == 0) {
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
-		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 4).widgetCreator(get()).startFromSlot(1000)
+		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 4).startFromSlot(1000)
 				.endAtSlot(1015).background(background).build().setPos(3, 3)
 
 		);
 	}
 
-	private Function<BaseSlot, SlotWidget> get() {
 
-		return s -> new SlotWidget(s) {
-
-			//ItemStack is;
-
-			@Override
-			public void detectAndSendChanges(boolean init) {
-
-				// getContext().syncSlotContent(this.getMcSlot());
-				super.detectAndSendChanges(init);
-
-				/*
-				 * ItemStack iss=this.getMcSlot().getStack();
-				 * if(!ItemStack.areItemStacksEqual(is,iss))init=true;
-				 * init=true;
-				 * is=Optional.ofNullable(iss).map(ItemStack::copy).orElse(null)
-				 * ; if (init || this.getMcSlot().isNeedsSyncing()) {
-				 * getContext().syncSlotContent(this.getMcSlot()); if
-				 * (this.getMcSlot().isNeedsSyncing()) { markForUpdate(); }
-				 * this.getMcSlot().resetNeedsSyncing(); }
-				 */
-			}
-
-		};
-
-	}
 
 	private Widget createButtonBuffer(int id,int xoffset,int yoffset) {
 		// for(int i=0;i<bufferNum;i++)
@@ -865,7 +847,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	}
 
 	static private final int BUFFER_0 = 1001;
-
+	
 	protected ModularWindow createWindow(final EntityPlayer player, int index) {
 		DualInvBuffer inv0 = this.inv0.get(index);
 		final int WIDTH = 18 * 6 + 6;
@@ -1024,6 +1006,12 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 			buildContext.addSyncedWindow(BUFFER_0 + i, (s) -> createWindow(s, ii));
 			sc.widget(createButtonBuffer(i,0,0));
 		}
+		
+		
+		
+	
+	
+		//.setPos(new Pos2d(getGUIWidth() - 18 - 3, 5)).setSize(16, 16)
 		builder.widget(sc.setSize(16*3,16*2).setPos(3,3));
 		
 		builder.widget(createPowerSwitchButton(builder));

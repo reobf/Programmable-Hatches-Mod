@@ -5,5 +5,5 @@ Blocking mode is always on
 If all pattern inputs cannot be push in one single try, it won't be pushed at all.
 Buffer: {bufferNum}
 For each buffer:
-Capacity: 2^31-1 L{mMultiFluid?} x4 types of fluid{mMultiFluid:}{mMultiFluid!}
+Capacity: 2^31-1 L{mMultiFluid?} x{fluidSlots} types of fluid{mMultiFluid:}{mMultiFluid!}
 Slot maximum stacksize:2^31-1

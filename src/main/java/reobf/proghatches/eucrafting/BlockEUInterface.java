@@ -40,8 +40,8 @@ replace actual superclass in coremod
 */
 public class BlockEUInterface
 		extends 
-		//DummySuper
-		 appeng.block.AEBaseTileBlock 
+		DummySuper
+		 //appeng.block.AEBaseTileBlock 
 		{
 
 	private IIcon back;

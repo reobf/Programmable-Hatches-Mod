@@ -28,11 +28,12 @@ public class MixinPatternEncodingCiruitSpecialTreatment {
 
 	@Shadow
 	private List<OrderStack<?>> inputs;
-
+	@Shadow private boolean isCraft;
 	
 	@Inject(method = "toBytes", at = @At(value = "HEAD"), require = 1, cancellable = true)
 
 	private void toBytes(ByteBuf buf, CallbackInfo c) {
+		if(isCraft)return;//don't mess with workbench recipe 
 		AtomicBoolean circuit = new AtomicBoolean(false);
 		if (ItemProgrammingToolkit.holding() == false) {
 			return;
@@ -43,7 +44,7 @@ public class MixinPatternEncodingCiruitSpecialTreatment {
 		AtomicInteger i = new AtomicInteger(0);
 		ArrayList<OrderStack<?>> spec = new ArrayList<>();
 		List<OrderStack<?>> ret = inputs.stream().filter(Objects::nonNull)
-
+				.sorted((a,b)->a.getIndex()-b.getIndex())
 				.filter(orderStack -> {
 					boolean regular = !(orderStack.getStack() != null && orderStack.getStack() instanceof ItemStack
 							&& ((ItemStack) orderStack.getStack()).stackSize == 0);

@@ -12,15 +12,18 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 
+import com.google.common.collect.ImmutableList;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.screen.IItemWithModularUI;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 
@@ -190,7 +193,13 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI {
 		 */
 
 		// IItemHandlerModifiable fakeInv=new ItemHandlerModifiable();
-
+class TakeOnlyItemStackHandler extends ItemStackHandler{
+	@Override
+	public boolean isItemValid(int slot, ItemStack stack) {
+		
+		return false;//not allowed to put in
+	}
+}
 		protected void addUIWidgets(ModularWindow.Builder builder) {
 			ItemStackHandler is0 = new ItemStackHandler();
 			builder.widget(new SlotWidget(new BaseSlot(is0, 0)) {
@@ -207,7 +216,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI {
 											this.getMcSlot().getStack().copy()));
 				}
 			}.addTooltip(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.emptyinput")).setPos(3, 3));
-			ItemStackHandler is = new ItemStackHandler();
+			ItemStackHandler is = new TakeOnlyItemStackHandler();
 			SlotWidget sw = new SlotWidget(new BaseSlot(is, 0)) {
 
 				@Override
@@ -227,6 +236,36 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI {
 			// sw.setTicker(s->{});
 			builder.widget(sw.setPos(3 + 18, 3));
 
+			
+			is = new TakeOnlyItemStackHandler();
+			Widget sw2 = new SlotWidget(new BaseSlot(is, 0)) {
+
+				@Override
+				public void detectAndSendChanges(boolean init) {
+					
+					
+					this.getMcSlot().putStack(ItemProgrammingCircuit
+							.wrap(Optional.ofNullable(is0.getStackInSlot(0))
+									.map(s->{if(s.getItem()==MyMod.progcircuit){return ItemProgrammingCircuit.getCircuit(s).orElse(null);}return s;})
+									.map(ItemStack::copy).orElse(null),64,true));
+					if(is0.getStackInSlot(0)==null){
+						this.getMcSlot().putStack(null);
+						
+					}
+					
+					super.detectAndSendChanges(init);
+				}
+
+			}.addTooltips(ImmutableList.of(
+					StatCollector.translateToLocal("item.prog_toolkit.legacywarning.0"),
+					StatCollector.translateToLocal("item.prog_toolkit.legacywarning.1"),
+					StatCollector.translateToLocal("item.prog_toolkit.legacywarning.2"),
+					StatCollector.translateToLocal("item.prog_toolkit.legacywarning.3")
+					));;
+			
+			
+			// sw.setTicker(s->{});
+			builder.widget(sw2.setPos(getGUIWidth()- 18-3, 3));
 		}
 
 		public UIBuildContext getUIBuildContext() {

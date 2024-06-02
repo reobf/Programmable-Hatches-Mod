@@ -2,42 +2,62 @@ package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.enums.Textures.BlockIcons.*;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
+import static reobf.proghatches.gt.metatileentity.DualInputHatch.INSERTION;
+
+import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.internal.Streams;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
+import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
+import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.widget.Widget;
+import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
+import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
 import com.gtnewhorizons.modularui.common.widget.Scrollable;
+import com.gtnewhorizons.modularui.common.widget.SlotGroup;
+import com.gtnewhorizons.modularui.common.widget.SlotWidget;
+import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.ItemList;
@@ -58,6 +78,7 @@ import gregtech.api.util.GT_TooltipDataCache;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import reobf.proghatches.item.ItemProgrammingCircuit;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
@@ -81,8 +102,9 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 				reobf.proghatches.main.Config.get("DH", ImmutableMap.of(
 
 						"cap", format.format((int) (4000 * Math.pow(2, tier) / (mMultiFluid ? 4 : 1))), "mMultiFluid",
-						mMultiFluid, "slots", Math.min(16, (1 + tier) * (tier + 1))
-
+						mMultiFluid, "slots", Math.min(16, (1 + tier) * (tier + 1)),
+						"fluidSlots", fluidSlots(tier),
+						"stackLimit",getInventoryStackLimit(tier)
 				))
 
 		)
@@ -93,21 +115,33 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		this.mMultiFluid = mMultiFluid;
 		initTierBasedField();
 	}
-
+	public int fluidSlots(){
+		return Math.max(4, mTier-2);
+		
+	}
+	public static int fluidSlots(int mTier){
+		return Math.max(4, mTier-2);
+		
+	}
 	public void initTierBasedField() {
 
 		// setInventorySlotContents(aIndex, aStack);
 
 		if (mMultiFluid) {
 
-			mStoredFluid = new ListeningFluidTank[] {
+			mStoredFluid =Stream.generate(()->(new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)), this)))
+					.limit(fluidSlots())
+					.toArray(ListeningFluidTank[]::new)
+					;
+			
+			/*new ListeningFluidTank[] {
 
 					new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)), this),
 					new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)), this),
 					new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)), this),
 					new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)), this)
 
-			};
+			};*/
 
 		} else {
 
@@ -193,7 +227,12 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 				.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
 				.setPos(7 + offset * 18, 62).setSize(18, 18).setGTTooltip(tooltipDataSupplier);
 	}
-
+	private Widget createButton(Supplier<Boolean> getter, Consumer<Boolean> setter, UITexture picture,
+			List<String> tooltip, int offset) {
+		return new CycleButtonWidget().setToggle(getter, setter).setStaticTexture(picture)
+				.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+				.setPos(7 + offset * 18, 62).setSize(18, 18).addTooltips(tooltip);
+	}
 	private Widget createButtonForbidden(Supplier<Boolean> getter, Consumer<Boolean> setter, UITexture picture,
 			Supplier<GT_TooltipDataCache.TooltipData> tooltipDataSupplier, int offset) {
 		return new CycleButtonWidget() {
@@ -225,15 +264,45 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 	public int moveButtons() {
 		return 1;
 
-	}
+	} 
+	private static final String SORTING_MODE_TOOLTIP = "GT5U.machines.sorting_mode.tooltip";
+    private static final String ONE_STACK_LIMIT_TOOLTIP = "GT5U.machines.one_stack_limit.tooltip";
+    private static final int BUTTON_SIZE = 18;
+	private Widget createToggleButton(Supplier<Boolean> getter, Consumer<Boolean> setter, UITexture picture,
+	        Supplier<GT_TooltipDataCache.TooltipData> tooltipDataSupplier,int uiButtonCount) {
+	        return new CycleButtonWidget().setToggle(getter, setter)
+	            .setStaticTexture(picture)
+	            .setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE)
+	            .setTooltipShowUpDelay(TOOLTIP_DELAY)
+	            .setPos(7 + (uiButtonCount * BUTTON_SIZE), 62)
+	            .setSize(BUTTON_SIZE, BUTTON_SIZE)
+	            .setGTTooltip(tooltipDataSupplier);
+	    }
+    private void addSortStacksButton(ModularWindow.Builder builder) {
+        builder.widget(
+            createToggleButton(
+                () -> !disableSort,
+                val -> disableSort = !val,
+                GT_UITextures.OVERLAY_BUTTON_SORTING_MODE,
+                () -> mTooltipCache.getData(SORTING_MODE_TOOLTIP),0));
+    }
 
+    private void addOneStackLimitButton(ModularWindow.Builder builder) {
+        builder.widget(createToggleButton(() -> !disableLimited, val -> {
+            disableLimited = !val;
+            updateSlots();
+        }, GT_UITextures.OVERLAY_BUTTON_ONE_STACK_LIMIT, () -> mTooltipCache.getData(ONE_STACK_LIMIT_TOOLTIP),1));
+    }
 	@Override
 	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-
+		buildContext.addSyncedWindow(INSERTION , (s) -> createInsertionWindow(buildContext));
+		builder.widget(createButtonInsertion());
 		if (moveButtons() == 1) {
-			super.addUIWidgets(builder, buildContext);
-		} else
-			addUIWidgets0(builder, buildContext);
+			//super.addUIWidgets(builder, buildContext);
+			addSortStacksButton(builder);
+	        addOneStackLimitButton(builder);
+		}
+		addUIWidgets0(builder, buildContext);
 		builder.widget(createButton(() -> !disableFilter, val -> {
 			disableFilter = !val;
 			updateSlots();
@@ -254,10 +323,19 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 				() -> mTooltipCache.getData("programmable_hatches.gt.separate"), 1).setPos(7 + 1 * 18,
 						62 - moveButtons() * 18));
 		if(mMultiFluid==true)
-		builder.widget(createButton(() -> fluidLimit, val -> {
+		builder.widget(createButton(() -> 
+		fluidLimit
+				, val -> {
 			fluidLimit = val;
-			updateSlots();
-		}, GT_UITextures.OVERLAY_BUTTON_CHECKMARK, () -> mTooltipCache.getData("programmable_hatches.gt.fluidlimit"), 0)
+			//updateSlots();
+		}, GT_UITextures.OVERLAY_BUTTON_CHECKMARK, 
+		ImmutableList.of(
+				StatCollector.translateToLocal("programmable_hatches.gt.fluidlimit.0"),
+				StatCollector.translateToLocal("programmable_hatches.gt.fluidlimit.1")
+				)
+	
+		
+		, 0)
 				.setPos(7+ 1 * 18, 62 - 18 - moveButtons() * 18));
 
 		
@@ -573,7 +651,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 
 	public void onFill() {
 	}
-static boolean fluidLimit=true;
+ boolean fluidLimit=true;
 	@Override
 	public int fill(FluidStack aFluid, boolean doFill) {
 		if (aFluid == null || aFluid.getFluid().getID() <= 0 || aFluid.amount <= 0 || !canTankBeFilled()
@@ -819,5 +897,215 @@ static boolean fluidLimit=true;
 		updateSlots();
 		return CheckRecipeResultRegistry.SUCCESSFUL;
 	}
+@Override
+public int getInventoryStackLimit() {
+	
+	return 64+64*Math.max(0,mTier-3);
+}
 
+
+public static int getInventoryStackLimit(int mTier) {
+	
+	return 64+32*mTier;
+}
+
+public void add1by1Slot(ModularWindow.Builder builder, IDrawable... background) {
+    final ItemStackHandler inventoryHandler = getInventoryHandler();
+    if (inventoryHandler == null) return;
+
+    if (background.length == 0) {
+        background = new IDrawable[] { getGUITextureSet().getItemSlot() };
+    }
+    builder.widget(
+        SlotGroup.ofItemHandler(inventoryHandler, 1)
+       
+            .startFromSlot(0)
+            .endAtSlot(0)
+            .background(background)
+            .build()
+            .setPos(79, 34));
+}
+
+
+public void add2by2Slots(ModularWindow.Builder builder, IDrawable... background) {
+    final ItemStackHandler inventoryHandler = getInventoryHandler();
+    if (inventoryHandler == null) return;
+
+    if (background.length == 0) {
+        background = new IDrawable[] { getGUITextureSet().getItemSlot() };
+    }
+    builder.widget(
+        SlotGroup.ofItemHandler(inventoryHandler, 2)
+        
+            .startFromSlot(0)
+            .endAtSlot(3)
+            .background(background)
+            .build()
+            .setPos(70, 25));
+}
+
+
+public void add3by3Slots(ModularWindow.Builder builder, IDrawable... background) {
+    final ItemStackHandler inventoryHandler = getInventoryHandler();
+    if (inventoryHandler == null) return;
+
+    if (background.length == 0) {
+        background = new IDrawable[] { getGUITextureSet().getItemSlot() };
+    }
+    builder.widget(
+        SlotGroup.ofItemHandler(inventoryHandler, 3)
+       
+            .startFromSlot(0)
+            .endAtSlot(8)
+            .background(background)
+            .build()
+            .setPos(61, 16));
+}
+
+
+public void add4by4Slots(ModularWindow.Builder builder, IDrawable... background) {
+    final ItemStackHandler inventoryHandler = getInventoryHandler();
+    if (inventoryHandler == null) return;
+
+    if (background.length == 0) {
+        background = new IDrawable[] { getGUITextureSet().getItemSlot() };
+    }
+    builder.widget(
+        SlotGroup.ofItemHandler(inventoryHandler, 4)
+       
+            .startFromSlot(0)
+            .endAtSlot(15)
+            .background(background)
+            .build()
+            .setPos(52, 7));
+}
+
+//insertion
+protected static final int INSERTION = 2001;
+protected ModularWindow createInsertionWindow(UIBuildContext buildContext) {
+	int len = (int) Math.round(Math.sqrt(mInventory.length-1));
+	final int WIDTH = 18 * len + 6;
+	final int HEIGHT = 18 * (len+1) + 6;
+	ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
+	builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+	builder.setGuiTint(getGUIColorization());
+	builder.setDraggable(true);
+	
+	final IItemHandlerModifiable inventoryHandler = new ItemStackHandler(mInventory.length-1);
+	IDrawable[] background = new IDrawable[] { getGUITextureSet().getItemSlot() };
+	
+	builder.widget(SlotGroup.ofItemHandler(inventoryHandler,len).widgetCreator(SlotWidget::new).startFromSlot(0)
+			.endAtSlot(mInventory.length-2).background(background).build().setPos(3, 3)
+
+	);
+	
+	builder.widget(new SyncedWidget() {
+		ArrayList<Integer> toclear=new ArrayList<>(1);
+		@Override
+		public void detectAndSendChanges(boolean init) {
+			toclear.clear();
+		for(int i=0;i<inventoryHandler.getSlots();i++)
+		{	
+		int fi=i;
+		
+			Optional.ofNullable(
+			inventoryHandler.getStackInSlot(i)
+			).filter(s->s.stackSize>0).ifPresent(s->{
+				if(mInventory[fi]!=null){
+					int oldsize=s.stackSize;
+					s.stackSize=mInventory[fi].stackSize;
+					boolean eq=ItemStack.areItemStacksEqual(s, mInventory[fi]);
+					s.stackSize=oldsize;
+					if(eq){
+						int canInject=Math.min(oldsize, getInventoryStackLimit()-mInventory[fi].stackSize);
+						s.stackSize-=canInject;
+						mInventory[fi].stackSize+=canInject;
+						
+					}
+					
+					
+				}else{
+					//guaranteed!
+					mInventory[fi]=s.copy();
+					s.stackSize=0;
+					
+				}
+				if(s.stackSize==0)toclear.add(fi);
+				
+			});
+			
+			}
+		toclear.forEach(s->{
+			ItemStack is = inventoryHandler.getStackInSlot(s);
+			if(is!=null&&is.stackSize<=0){inventoryHandler.setStackInSlot(s, null);}
+		});
+			
+		}
+		@Override
+	public void onDestroy() {
+	
+		inventoryHandler.getStacks().forEach(s->{
+			if(s!=null){
+				if(buildContext.getPlayer().worldObj.isRemote)return;
+				EntityItem entityitem = buildContext.getPlayer().dropPlayerItemWithRandomChoice(
+						s.copy(),false);
+				if(entityitem!=null){
+				entityitem.delayBeforeCanPickup = 0;
+				entityitem.func_145797_a( buildContext.getPlayer().getCommandSenderName());
+				}
+			}
+			
+		});;
+	}
+
+		@Override
+		public void readOnClient(int id, PacketBuffer buf) throws IOException {
+			
+		}
+
+		@Override
+		public void readOnServer(int id, PacketBuffer buf) throws IOException {
+
+		}
+	});
+	
+	
+	ArrayList<String> tt=new ArrayList<>(10);
+	int i = 0;
+	while (true) {
+		String k = "programmable_hatches.gt.insertion.tooltip";
+		if (LangManager.translateToLocal(k).equals(Integer.valueOf(i).toString())) {
+			break;
+		}
+		String key = k + "." + i;
+		String trans = LangManager.translateToLocalFormatted(key,getInventoryStackLimit());
+
+		tt.add(trans);
+		i++;
+
+	}
+	builder.widget(new DrawableWidget().setDrawable(new ItemDrawable(new ItemStack(Blocks.hopper)))
+			.addTooltips(tt)
+			.setPos(WIDTH/2-16/2, HEIGHT-16-3)
+			.setSize(16,16)
+			);
+	
+	
+	
+	return builder.build();
+}	protected Widget createButtonInsertion() {
+	return new ButtonWidget().setOnClick((clickData, widget) -> {
+		if (clickData.mouseButton == 0) {
+			if (!widget.isClient())
+				widget.getContext().openSyncedWindow(INSERTION);
+		}
+	}).setPlayClickSound(true)
+			.setBackground(GT_UITextures.BUTTON_STANDARD, new ItemDrawable(new ItemStack(Blocks.hopper)))
+			.setEnabled(s -> {
+				return !s.getContext().isWindowOpen(INSERTION);
+
+			}).addTooltips(ImmutableList.of(LangManager.translateToLocal("programmable_hatches.gt.insertion")))
+			.setPos(new Pos2d(getGUIWidth() - 18 - 3, 30)).setSize(16, 16);
+
+}
 }

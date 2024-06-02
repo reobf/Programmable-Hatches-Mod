@@ -11,6 +11,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.StatCollector;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import reobf.proghatches.lang.LangManager;
@@ -75,20 +76,30 @@ public class ItemProgrammingCircuit extends Item {
 
 		}
 		String sid=Optional.ofNullable(p_77624_1_.stackTagCompound).map(s->s.getCompoundTag("targetCircuit"))
-		.map(s->s.getString("string_id")).orElse(null)
-		;
+		.map(s->s.getString("string_id")).orElse(null);
+		
 		getCircuit(p_77624_1_).filter(s -> s.getItem() != null).ifPresent(s -> {
+			
 			FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 			ArrayList<String> ls = new ArrayList<>();
-			if(sid!=null&&!sid.isEmpty())ls.add(sid+"@"+s.getItemDamage());
+			if(sid!=null&&!sid.isEmpty()){ls.add(sid+"@"+s.getItemDamage());}
+			else {ls.add("§c"+StatCollector.translateToLocal("item.prog_circuit.legacy"));}
 			ls.add(s.getDisplayName());
 			s.getItem().addInformation(s, p_77624_2_, ls, p_77624_4_);
 
-			int totallength = ls.stream().map(fr::getStringWidth).max(Integer::max).orElse(0);
+			int totallength = ls.stream().map(ss->{
+				//System.out.println(fr.getStringWidth(ss));
+				//System.out.println(ss);
+			return fr.getStringWidth(ss);
+			}
+					).max(Integer::compare).orElse(0);
 			// totallength/fr.getStringWidth("-")
 			StringBuilder sb = new StringBuilder();
 			do {
 				sb.append("-");
+			//System.out.println(totallength);
+			//System.out.println(fr.getStringWidth(sb.toString()));
+			//System.out.println((sb.toString()));
 			} while (totallength > fr.getStringWidth(sb.toString()));
 
 			ls.add(0, sb.toString());
@@ -112,8 +123,11 @@ public class ItemProgrammingCircuit extends Item {
 	public boolean hasEffect(ItemStack p_77636_1_) {
 		return true;
 	}
+	
+	
 	public static ItemStack wrap(ItemStack is) {return wrap(is,1);}
-	public static ItemStack wrap(ItemStack is,int i) {
+	public static ItemStack wrap(ItemStack is,int i) {return wrap(is,i,false);}
+	public static ItemStack wrap(ItemStack is,int i,boolean legacy) {
 
 		ItemStack iss = new ItemStack(MyMod.progcircuit,i);
 		if (is != null/* &&is.stackSize>0 */ && is.getItem() != null) {
@@ -121,7 +135,8 @@ public class ItemProgrammingCircuit extends Item {
 			is.stackSize = 1;// Math.max(1,is.stackSize);
 			iss.stackTagCompound = new NBTTagCompound();
 			NBTTagCompound tag = is.writeToNBT(new NBTTagCompound());
-			tag.setString("string_id", Item.itemRegistry.getNameForObject(is.getItem()));
+			
+			if(!legacy)tag.setString("string_id", Item.itemRegistry.getNameForObject(is.getItem()));
 			//System.out.println(tag);
 			iss.stackTagCompound.setTag("targetCircuit",tag );
 			

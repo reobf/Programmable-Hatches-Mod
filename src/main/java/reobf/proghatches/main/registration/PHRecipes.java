@@ -340,7 +340,7 @@ if(Config.skipRecipeAdding)return;
                 .itemInputs(
                     s,
                     new ItemStack(ItemAndBlockHolder.INTERFACE),
-                    new ItemStack(MyMod.toolkit, 1, OreDictionary.WILDCARD_VALUE),
+                    new ItemStack(MyMod.toolkit, 0, OreDictionary.WILDCARD_VALUE),
                     	(
                         Api.INSTANCE.definitions()
                             .blocks()
@@ -371,7 +371,38 @@ if(Config.skipRecipeAdding)return;
                 .duration(20 * SECONDS)
                 .eut(GT_Values.VP[5])
                 .addTo(RecipeMaps.assemblerRecipes);
-
+//T0
+            GT_Values.RA.stdBuilder()
+            .itemInputs(
+                s,
+              Api.INSTANCE.definitions().blocks().iface().maybeStack(1).get(),
+                new ItemStack(MyMod.toolkit, 0, OreDictionary.WILDCARD_VALUE),
+                	(
+                    Api.INSTANCE.definitions()
+                        .blocks()
+                        .craftingStorage1k()
+                        .maybeStack(1)
+                        .get()),
+                	(
+                    Api.INSTANCE.definitions()
+                        .blocks()
+                        .craftingAccelerator()
+                        .maybeStack(1)
+                        .get()),
+                	
+                               Machine_HV_Assembler.get(1)
+                    
+            		
+            		)
+            .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+            .itemOutputs(
+                new ItemStack(
+                    GregTech_API.sBlockMachines,
+                    1,
+                    Config.metaTileEntityOffset + Registration.CircuitProviderOffsetT0))
+            .duration(20 * SECONDS)
+            .eut(GT_Values.VP[3])
+            .addTo(RecipeMaps.assemblerRecipes);
         });
 
         pc0.forEach((s) -> {

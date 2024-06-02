@@ -37,6 +37,7 @@ public class MixinPatternEncodingCiruitSpecialTreatment2 {
 		List<int[]> order = new ArrayList<>();
 
 		List<PositionedStack> ret = c.stream().filter(Objects::nonNull)
+				
 				.filter(s -> s.item != null && s.item.getItem() != ItemList.Display_Fluid.getItem()).map(s -> s.copy())
 				.filter(orderStack -> {
 					boolean regular = !(orderStack.item != null && orderStack.item instanceof ItemStack
@@ -65,9 +66,7 @@ public class MixinPatternEncodingCiruitSpecialTreatment2 {
 			s.rely = ii[1];
 		});
 		// System.out.println(spec);
-		return spec.subList(0, Math.min(9, spec.size()));
-
-		// keep first 9 items, discard the rest, bacause NEE's terminal only has 9 slots
+		return spec;
 
 	}
 

@@ -14,7 +14,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 public class FMLPlugin implements IEarlyMixinLoader, IFMLLoadingPlugin {
 	@Override
 	public String[] getASMTransformerClass() {
-
+System.out.println("xxxxxxxxxxxxxxxx");
 		return new String[] { EUInterfaceTransformer.class.getName() };
 	}
 

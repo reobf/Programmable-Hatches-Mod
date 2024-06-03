@@ -531,7 +531,8 @@ for(ItemStack is:mInventory)
 		int[] count = new int[1];
 		toReturn.forEach(s -> aNBT.setTag("toReturn" + (count[0]++), s.writeToNBT(new NBTTagCompound())));
 		getProxy().writeToNBT(aNBT);
-		aNBT.setString("customName",customName);
+		Optional.ofNullable(customName).ifPresent(s -> aNBT.setString("customName", s));
+		//aNBT.setString("customName",customName);
 		aNBT.setBoolean("disabled", disabled);
 		aNBT.setBoolean("legacy", disabled);
 		aNBT.setInteger("tech", tech);

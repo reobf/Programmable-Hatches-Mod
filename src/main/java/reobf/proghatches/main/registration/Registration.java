@@ -128,20 +128,20 @@ public class Registration implements Runnable {
                 6+Math.max(i-4, 0)*2);
 
         }
-
-        new ProgrammingCircuitProvider(
-            Config.metaTileEntityOffset + CircuitProviderOffset,
-            "circuitprovider",
-            LangManager.translateToLocal("circuitprovider.name"),
-             5,
-            4, 1);
-        new ProgrammingCircuitProvider(
+ new ProgrammingCircuitProvider(
                 Config.metaTileEntityOffset + CircuitProviderOffsetT0,
                 "circuitprovider",
                 LangManager.translateToLocal("circuitprovider.name.tech0"),
                  3,
                 1, 0);
         
+        new ProgrammingCircuitProvider(
+            Config.metaTileEntityOffset + CircuitProviderOffset,
+            "circuitprovider",
+            LangManager.translateToLocal("circuitprovider.name"),
+             5,
+            4, 1);
+       
         
         GregTech_API.registerCover(
             new ItemStack(MyMod.cover, 1, 0),
@@ -302,7 +302,7 @@ public class Registration implements Runnable {
         
         new LargeProgrammingCircuitProvider(
         		 Config.metaTileEntityOffset + LargeProviderOffset,
-                "multimachine.largeprogrammingcircuitprovider",
+                "multimachine.largeprogrammingcircuit",
                 LangManager.translateToLocalFormatted("multimachine.largeprogrammingcircuitprovider.name"));
         new ProviderChainer(
                 Config.metaTileEntityOffset + ChainerOffset ,

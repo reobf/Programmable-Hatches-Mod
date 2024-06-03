@@ -147,8 +147,10 @@ public class ItemProgrammingCircuit extends Item {
 public static ItemStack parse(NBTTagCompound tag){
 	
 	String s=tag.getString("string_id");
+	
 	if(s.isEmpty()==false){
 		//if string id is present, replace the number id
+		tag=(NBTTagCompound) tag.copy();//note to self: copy it before modifying it!!!
 		tag.setInteger("id", Item.itemRegistry.getIDForObject(Item.itemRegistry.getObject(s)));
 	}
 	

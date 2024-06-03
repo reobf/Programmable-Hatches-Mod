@@ -116,11 +116,11 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		initTierBasedField();
 	}
 	public int fluidSlots(){
-		return Math.max(4, mTier-2);
+		return Math.max(4, mTier-1);
 		
 	}
 	public static int fluidSlots(int mTier){
-		return Math.max(4, mTier-2);
+		return Math.max(4, mTier-1);
 		
 	}
 	public void initTierBasedField() {
@@ -906,7 +906,7 @@ public int getInventoryStackLimit() {
 
 public static int getInventoryStackLimit(int mTier) {
 	
-	return 64+32*mTier;
+	return 64+64*Math.max(0,mTier-3);
 }
 
 public void add1by1Slot(ModularWindow.Builder builder, IDrawable... background) {

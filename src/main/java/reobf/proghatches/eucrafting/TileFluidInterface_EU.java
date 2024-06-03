@@ -196,6 +196,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 	@TileEvent(TileEventType.WORLD_NBT_WRITE)
 	public void write(NBTTagCompound data) {
 		ProghatchesUtil.ser(data, id, "EUFI");
+		if(customName!=null)
 		data.setString("customName",customName);
 		data.setLong("amp", amp);
 		data.setLong("voltage", voltage);

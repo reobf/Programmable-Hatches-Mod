@@ -428,7 +428,8 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 				pattern[i] = Optional.ofNullable(tag.getCompoundTag("i" + i)).map(ItemStack::loadItemStackFromNBT)
 						.orElse(null);
 			}
-		Optional.ofNullable(customName).ifPresent(s -> aNBT.setString("customName", s));
+		customName = aNBT.getString("customName");
+		
 		getProxy().readFromNBT(aNBT);
 		super.loadNBTData(aNBT);
 	}
@@ -443,7 +444,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 					.ifPresent(s -> tag.setTag("i" + ii, s));
 		}
 		aNBT.setTag("patternSlots", tag);
-		Optional.ofNullable(aNBT.getTag("customName")).map(NBTBase::toString).ifPresent(s -> customName = s);
+		Optional.ofNullable(customName).ifPresent(s -> aNBT.setString("customName", s));
 		getProxy().writeToNBT(aNBT);
 		super.saveNBTData(aNBT);
 	}
@@ -625,7 +626,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 	@Override
 	public boolean hasCustomName() {
 
-		return customName != null;
+		return customName != null&&(!customName.equals(""));
 	}
     @Override
     public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer, ForgeDirection side,

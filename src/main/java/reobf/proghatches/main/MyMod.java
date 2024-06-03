@@ -87,7 +87,7 @@ import reobf.proghatches.util.ProghatchesUtil;
 
 @Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.7.10]",
 dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
-
+,acceptableRemoteVersions="*"
 /*
  * ,dependencies= "required-after:neenergistics;"
  */

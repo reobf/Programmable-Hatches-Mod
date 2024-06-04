@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -692,6 +693,8 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		super.onPostTick(aBaseMetaTileEntity, aTick);
 		if (aBaseMetaTileEntity.getWorld().isRemote)
 			return;
+		
+		
 		Optional.ofNullable(scheduled.peekLast()).filter(s->s==aTick).ifPresent(s->{
 			scheduled.removeLast();
 			justHadNewItems=true;
@@ -1182,7 +1185,28 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	public Optional</* ? extends */IDualInputInventory> getFirstNonEmptyInventory() {
 		markDirty();
 		dirty=true;
-		return (Optional) inv0.stream().filter(DualInvBuffer::isAccessibleForMulti).findAny();
+		class PiorityBuffer implements Comparable<PiorityBuffer>{
+			PiorityBuffer(DualInvBuffer buff){this.buff=buff;
+			this.piority=getPossibleCopies(buff);
+			}
+			DualInvBuffer buff;
+			int piority;
+			@Override
+			public String toString() {
+				return ""+piority;
+			}
+			@Override
+			public int compareTo(PiorityBuffer o) {
+			
+				return -piority+o.piority;
+			}
+			
+		}
+		
+		return (Optional) inv0.stream().filter(DualInvBuffer::isAccessibleForMulti)
+				.map(s->new PiorityBuffer(s))
+				.sorted().map(s->{return s.buff;})
+				.findFirst();
 	}
 
 	private Predicate<DualInvBuffer> not(Predicate<DualInvBuffer> s) {
@@ -1200,79 +1224,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
 			int z) {
 
-		class IndexedObject<T> {
-			private T holded;
-			private int index;
-
-			IndexedObject(int i, T obj) {
-				this.holded = obj;
-				this.index = i;
-			}
-		}
-		class RecipeTracker {
-			boolean broken;
-			int times;
-			boolean first = true;
-			boolean onceCompared;
-
-			public void track(@Nonnull ItemStack recipe, @Nullable ItemStack storage) {
-				if (recipe.getItem() instanceof ItemProgrammingCircuit) {
-					onceCompared = true;
-					return;
-				}
-				if (recipe.getItem() != (storage == null ? null : storage.getItem())) {
-					broken = true;
-					onceCompared = true;
-					return;
-				}
-				int a = recipe.stackSize;
-				int b = Optional.ofNullable(storage).map(s -> s.stackSize).orElse(0);
-				track(a, b, false);
-			}
-
-			public void track(@Nonnull FluidTank recipe, @Nonnull FluidTank storage) {
-				if (recipe.getFluid().getFluid() != Optional.of(storage).map(FluidTank::getFluid)
-						.map(FluidStack::getFluid).orElse(null)) {
-					broken = true;
-					onceCompared = true;
-					return;
-				}
-
-				int a = recipe.getFluidAmount();
-				int b = storage.getFluidAmount();
-				track(a, b, false);
-			}
-
-			public void track(int a, int b, boolean ignoreEmpty) {
-				int t = 0;
-				if (a == 0) {
-					broken = true;
-					return;
-					/* Actually impossible */}
-				if (b == 0) {
-					if (!ignoreEmpty)
-						broken = true;
-					return;
-				}
-				if (b % a != 0) {
-					broken = true;
-					return;
-				}
-				t = b / a;
-				if (t != times) {
-					onceCompared = true;
-					if (first) {
-						first = false;
-						times = t;
-						return;
-					} else {
-						broken = true;
-						return;
-					}
-				}
-
-			}
-		}
+		
 		tag.setBoolean("sleep", sleep);
 		tag.setInteger("sleepTime", sleepTime);
 		tag.setInteger("inv_size", inv0.size());
@@ -1310,8 +1262,100 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		});
 
 		super.getWailaNBTData(player, tile, tag, world, x, y, z);
-	}
+	}private static class IndexedObject<T> {
+		private T holded;
+		private int index;
 
+		IndexedObject(int i, T obj) {
+			this.holded = obj;
+			this.index = i;
+		}
+	}
+	private static class RecipeTracker {
+		boolean broken;
+		int times;
+		boolean first = true;
+		boolean onceCompared;
+
+		public void track(@Nonnull ItemStack recipe, @Nullable ItemStack storage) {
+			if (recipe.getItem() instanceof ItemProgrammingCircuit) {
+				onceCompared = true;
+				return;
+			}
+			if (recipe.getItem() != (storage == null ? null : storage.getItem())) {
+				broken = true;
+				onceCompared = true;
+				return;
+			}
+			int a = recipe.stackSize;
+			int b = Optional.ofNullable(storage).map(s -> s.stackSize).orElse(0);
+			track(a, b, false);
+		}
+
+		public void track(@Nonnull FluidTank recipe, @Nonnull FluidTank storage) {
+			if (recipe.getFluid().getFluid() != Optional.of(storage).map(FluidTank::getFluid)
+					.map(FluidStack::getFluid).orElse(null)) {
+				broken = true;
+				onceCompared = true;
+				return;
+			}
+
+			int a = recipe.getFluidAmount();
+			int b = storage.getFluidAmount();
+			track(a, b, false);
+		}
+
+		public void track(int a, int b, boolean ignoreEmpty) {
+			int t = 0;
+			if (a == 0) {
+				broken = true;
+				return;
+				/* Actually impossible */}
+			if (b == 0) {
+				if (!ignoreEmpty)
+					broken = true;
+				return;
+			}
+			if (b % a != 0) {
+				broken = true;
+				return;
+			}
+			t = b / a;
+			if (t != times) {
+				onceCompared = true;
+				if (first) {
+					first = false;
+					times = t;
+					return;
+				} else {
+					broken = true;
+					return;
+				}
+			}
+
+		}
+	}
+public int getPossibleCopies(DualInvBuffer toCheck){
+	DualInvBuffer inv = toCheck;
+	RecipeTracker rt = new RecipeTracker();
+
+	
+			IntStream.range(0, inv.mStoredItemInternalSingle.length)
+					.mapToObj(ss -> new IndexedObject<>(ss, inv.mStoredItemInternalSingle[ss]))
+					.filter(ss -> ss.holded != null).forEach(ss -> {
+						rt.track(ss.holded, inv.mStoredItemInternal[ss.index]);
+						});
+
+			IntStream.range(0, inv.mStoredFluidInternalSingle.length)
+					.mapToObj(ss -> new IndexedObject<>(ss, inv.mStoredFluidInternalSingle[ss]))
+					.filter(ss -> ss.holded.getFluidAmount() > 0).forEach(ss -> {
+						rt.track(ss.holded, inv.mStoredFluidInternal[ss.index]);
+					});
+return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
+	
+	
+	
+}
 	@Override
 	public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
 			IWailaConfigHandler config) {

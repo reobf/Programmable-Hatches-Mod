@@ -3,6 +3,7 @@ package reobf.proghatches.gt.metatileentity;
 import static gregtech.api.enums.Textures.BlockIcons.ITEM_IN_SIGN;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -14,13 +15,17 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.google.common.collect.ImmutableMap;
+import com.gtnewhorizons.modularui.api.forge.ItemHandlerHelper;
+import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
@@ -76,6 +81,8 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 		if (aBaseMetaTileEntity.getWorld().isRemote)
 			return;
 		this.markDirty();
+		
+		
 		if (aPlayer.isSneaking() && aPlayer.getHeldItem() == null) {
 			linked = false;
 			aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.remote.detach"));
@@ -334,18 +341,23 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 		return opt.filter(s -> s instanceof IInventory).map(s -> ((IInventory) s).getSizeInventory()).orElse(0) + 2;
 
 	}
+	@Override
+	public int[] getAccessibleSlotsFromSide(int ordinalSide) {
+	
+		return new int[0];
+	}
 
 	@Override
 	public void setInventorySlotContents(int aIndex, ItemStack aStack) {
 		markDirty();
-		if (aIndex == 0) {
-			mInventory[aIndex] = GT_Utility.copyAmount(0, aStack);
+		if (aIndex == getCircuitSlot()) {
+			mInventory[0] = GT_Utility.copyAmount(0, aStack);
 			return;
 		}
-		List<ItemStack> arr = getTile().map(this::filterTakable).orElseGet(ArrayList::new);
+		/*List<ItemStack> arr = getTile().map(this::filterTakable).orElseGet(ArrayList::new);
 
-		if (aIndex >= 0 && aIndex - 1 < arr.size())
-			arr.set(aIndex - 1, aStack);
+		if (aIndex >= 0 && aIndex  < arr.size())
+			arr.set(aIndex , aStack);*/
 	}
 
 	@Override
@@ -361,10 +373,12 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 			getBaseMetaTileEntity().getWorld().setBlockToAir(this.x, this.y, this.z);
 			return null;
 		}
-
-		int i = getCircuitSlot();
+		if(aIndex  == getCircuitSlot()){
+			return mInventory[0];
+		}
+		/*int i = getCircuitSlot();
 		if (i == aIndex)
-			return mInventory[i];
+			return mInventory[i];*/
 		if (!processingRecipe)
 			return null;
 		if (!linked)
@@ -372,7 +386,10 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 
 		// Optional<TileEntity> opt = getTile();
 		List<ItemStack> arr = opt.map(this::filterTakable).orElseGet(ArrayList::new);
-		if (aIndex - 1 == arr.size()) {
+		if (aIndex  == arr.size()+1) {
+			return mInventory[0];
+		}
+		if (aIndex  == arr.size()) {
 
 			TileEntity gt = opt.orElse(null);
 			if (gt != null && gt instanceof IGregTechTileEntity) {
@@ -385,11 +402,11 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 
 			return null;
 		}
-		if (aIndex < 0 || aIndex - 1 >= arr.size()) {
+		if (aIndex < 0 || aIndex  >= arr.size()) {
 			return null;
 		}
 
-		return arr.get(aIndex - 1);
+		return arr.get(aIndex);
 		// }catch(Exception e){e.printStackTrace();return null;}
 
 	}
@@ -397,7 +414,7 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 	@Override
 	public int getCircuitSlot() {
 
-		return 0;
+		return Integer.MAX_VALUE;
 	}
 
 	public void updateSlots() {
@@ -410,7 +427,7 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 			IInventory a = ((IInventory) s);
 			int size = a.getSizeInventory();
 			for (int i = 0; i < size; i++) {
-
+				
 				a.decrStackSize(i, 0);// remove 0-sized phantom item
 			}
 
@@ -431,5 +448,77 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 		removePhantom();
 		return CheckRecipeResultRegistry.SUCCESSFUL;
 	}
+@Override
+public ItemStackHandler getInventoryHandler() {
+	
+	return new ItemStackHandler(0){
+		 public void setSize(int size) {}
+
+		    @Override
+		    public void setStackInSlot(int slot, ItemStack stack) {
+		        this.validateSlotIndex(slot);
+		        mInventory[0]=GT_Utility.copyAmount(0,stack);
+		    }
+
+		    @Override
+		    public int getSlots() {
+		        return 1;
+		    }
+
+		    @Override
+		    public ItemStack getStackInSlot(int slot) {
+		        this.validateSlotIndex(slot);
+		        return  mInventory[0];
+		    }
+
+		    @Override
+		    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+		       
+		    	return stack;
+		    }
+
+		    @Override
+		    public ItemStack extractItem(int slot, int amount, boolean simulate) {
+		        return null;
+		    }
+
+		    @Override
+		    public int getSlotLimit(int slot) {
+		        return 1;
+		    }
+
+		    protected int getStackLimit(int slot, ItemStack stack) {
+		        return 1;
+		    }
+
+		    @Override
+		    public boolean isItemValid(int slot, ItemStack stack) {
+		        return true;
+		    }
+
+		    @Override
+		    public NBTTagCompound serializeNBT() {
+		    	NBTTagCompound nbt = new NBTTagCompound();
+		    	if(mInventory[0]!=null)
+		    		mInventory[0].writeToNBT(nbt);
+		       
+		        return nbt;
+		    }
+
+		    @Override
+		    public void deserializeNBT(NBTTagCompound nbt) {
+		    	mInventory[0]=ItemStack.loadItemStackFromNBT(nbt);
+		    	
+		        this.onLoad();
+		    }
+
+		    protected void validateSlotIndex(int slot) {
+		        if (slot !=getCircuitSlot()) {
+		            throw new RuntimeException("Slot " + slot + " not in valid range - [0," + this.stacks.size() + ")");
+		        }
+		    }
+		
+	};
+}
 
 }

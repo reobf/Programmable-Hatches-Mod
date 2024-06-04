@@ -126,6 +126,7 @@ if(Config.skipRecipeAdding)return;
             .ifPresent((s) -> s.put(new ItemStack(Blocks.bedrock, 1), 1));
 
         pc.forEach((s, i) -> {
+        	
             GT_Values.RA.stdBuilder()
                 .itemInputs(s, Materials.Titanium.getPlates(1))
                 .fluidInputs(Materials.TungstenSteel.getMolten(144*20L))
@@ -133,6 +134,14 @@ if(Config.skipRecipeAdding)return;
                 .duration(1 * SECONDS)
                 .eut(480)
                 .addTo(RecipeMaps.mixerRecipes);
+            GT_Values.RA.stdBuilder()
+            .itemInputs(s, Materials.Titanium.getPlates(1))
+            .fluidInputs(Materials.StainlessSteel.getMolten(144*20L))
+            .itemOutputs(new ItemStack(MyMod.cover, 2 * i, 0))
+            .duration(1 * SECONDS)
+            .eut(480)
+            .addTo(RecipeMaps.mixerRecipes);
+            
         });
         pc0.forEach(s -> {
             GregTech_API.getConfigurationCircuitList(100)

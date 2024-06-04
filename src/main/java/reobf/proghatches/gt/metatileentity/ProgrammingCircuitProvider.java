@@ -660,5 +660,19 @@ for(ItemStack is:mInventory)
 		customName=name;
 		
 	}
-
+	@Override
+	public boolean shouldDropItemAt(int index) {
+		
+		return super.shouldDropItemAt(index);
+	}
+	@Override
+	public boolean isValidSlot(int aIndex) {
+		
+		return true;
+	}
+@Override
+public ItemStack getStackInSlot(int aIndex) {onBlockDestroyed();
+	// TODO Auto-generated method stub
+	return super.getStackInSlot(aIndex);
+}
 }

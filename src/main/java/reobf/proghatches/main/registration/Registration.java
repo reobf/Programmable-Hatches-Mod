@@ -130,7 +130,7 @@ public class Registration implements Runnable {
         }
  new ProgrammingCircuitProvider(
                 Config.metaTileEntityOffset + CircuitProviderOffsetT0,
-                "circuitprovider",
+                "circuitprovider.t0",
                 LangManager.translateToLocal("circuitprovider.name.tech0"),
                  3,
                 1, 0);

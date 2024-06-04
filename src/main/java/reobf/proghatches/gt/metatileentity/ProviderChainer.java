@@ -60,7 +60,11 @@ public class ProviderChainer extends GT_MetaTileEntity_Hatch
 		);
 		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
 	}
-
+	@Override
+	public boolean isValidSlot(int aIndex) {
+		
+		return true;
+	}
 	private void updateValidGridProxySides() {
 		if (disabled) {
 			getProxy().setValidSides(EnumSet.noneOf(ForgeDirection.class));

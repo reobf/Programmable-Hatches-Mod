@@ -42,12 +42,18 @@ public void getSubItems(Item p_150895_1_, CreativeTabs p_150895_2_, List p_15089
 }
 @SideOnly(Side.CLIENT)
 public static int mark(int i){
+	if(list==null){list=new TreeSet<>();}
 	list.add(i);
 	return i;
 }
 
 @SideOnly(Side.CLIENT)
-public static TreeSet<Integer> list=new TreeSet<>();
+public static TreeSet<Integer> list;
+
+
+
+
+
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void registerIcons(IIconRegister register) {

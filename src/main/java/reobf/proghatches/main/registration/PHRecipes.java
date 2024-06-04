@@ -581,7 +581,7 @@ if(Config.skipRecipeAdding)return;
 
                 )
                 .duration(20 * SECONDS)
-                .eut(GT_Values.VP[4])
+                .eut(GT_Values.VP[3])
                 .addTo(RecipeMaps.assemblerRecipes);
         });
 

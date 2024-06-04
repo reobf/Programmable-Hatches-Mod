@@ -1,9 +1,12 @@
 package reobf.proghatches.item;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.stream.IntStream;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -12,6 +15,8 @@ import net.minecraft.util.StatCollector;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntLists;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.CommonProxy;
 
@@ -28,20 +33,34 @@ public class ItemDedicatedCover extends Item {
 		// TODO Auto-generated method stub
 		return true;
 	}
+@SuppressWarnings("unchecked")
+@Override @SideOnly(Side.CLIENT)
+public void getSubItems(Item p_150895_1_, CreativeTabs p_150895_2_, List p_150895_3_) {
+	
+	list.forEach(i->
+	  p_150895_3_.add(new ItemStack(p_150895_1_, 1, i)));
+}
+@SideOnly(Side.CLIENT)
+public static int mark(int i){
+	list.add(i);
+	return i;
+}
 
+@SideOnly(Side.CLIENT)
+public static TreeSet<Integer> list=new TreeSet<>();
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void registerIcons(IIconRegister register) {
-		icons[0] = register.registerIcon("proghatches:cover0");
-		icons[1] = register.registerIcon("proghatches:cover1");
-		icons[2] = register.registerIcon("proghatches:cover2");
-		icons[3] = register.registerIcon("proghatches:cover2");
-		icons[32] = register.registerIcon("proghatches:cover32");
-		icons[33] = register.registerIcon("proghatches:cover33");
-		icons[34] = register.registerIcon("proghatches:cover34");
-		icons[35] = register.registerIcon("proghatches:cover35");
-		icons[36] = register.registerIcon("proghatches:cover36");
-		icons[37] = register.registerIcon("proghatches:cover37");
+		icons[mark(0)] = register.registerIcon("proghatches:cover0");
+		icons[mark(1)] = register.registerIcon("proghatches:cover1");
+		icons[2] = register.registerIcon("proghatches:cover2");//disabled
+		icons[mark(3)] = register.registerIcon("proghatches:cover2");
+		icons[mark(32)] = register.registerIcon("proghatches:cover32");
+		icons[mark(33)] = register.registerIcon("proghatches:cover33");
+		icons[mark(34)] = register.registerIcon("proghatches:cover34");
+		icons[mark(35)] = register.registerIcon("proghatches:cover35");
+		icons[mark(36)] = register.registerIcon("proghatches:cover36");
+		icons[mark(37)] = register.registerIcon("proghatches:cover37");
 
 	}
 

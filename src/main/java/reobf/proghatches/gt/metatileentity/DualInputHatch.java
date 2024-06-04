@@ -101,7 +101,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 				: 
 				reobf.proghatches.main.Config.get("DH", ImmutableMap.of(
 
-						"cap", format.format((int) (4000 * Math.pow(2, tier) / (mMultiFluid ? 4 : 1))), "mMultiFluid",
+						"cap", format.format(getInventoryFluidLimit(tier,mMultiFluid)), "mMultiFluid",
 						mMultiFluid, "slots", Math.min(16, (1 + tier) * (tier + 1)),
 						"fluidSlots", fluidSlots(tier),
 						"stackLimit",getInventoryStackLimit(tier)
@@ -129,7 +129,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 
 		if (mMultiFluid) {
 
-			mStoredFluid =Stream.generate(()->(new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)), this)))
+			mStoredFluid =Stream.generate(()->(new ListeningFluidTank(getInventoryFluidLimit(), this)))
 					.limit(fluidSlots())
 					.toArray(ListeningFluidTank[]::new)
 					;
@@ -145,7 +145,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 
 		} else {
 
-			mStoredFluid = new ListeningFluidTank[] { new ListeningFluidTank((int) (4000 * Math.pow(2, mTier)), this) };
+			mStoredFluid = new ListeningFluidTank[] { new ListeningFluidTank(getInventoryFluidLimit(), this) };
 
 		}
 
@@ -293,10 +293,11 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
             updateSlots();
         }, GT_UITextures.OVERLAY_BUTTON_ONE_STACK_LIMIT, () -> mTooltipCache.getData(ONE_STACK_LIMIT_TOOLTIP),1));
     }
+    boolean createInsertion(){return true;}
 	@Override
 	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 		buildContext.addSyncedWindow(INSERTION , (s) -> createInsertionWindow(buildContext));
-		builder.widget(createButtonInsertion());
+		if(createInsertion())builder.widget(createButtonInsertion());
 		if (moveButtons() == 1) {
 			//super.addUIWidgets(builder, buildContext);
 			addSortStacksButton(builder);
@@ -322,7 +323,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		}, GT_UITextures.OVERLAY_BUTTON_INPUT_SEPARATION_ON_DISABLED,
 				() -> mTooltipCache.getData("programmable_hatches.gt.separate"), 1).setPos(7 + 1 * 18,
 						62 - moveButtons() * 18));
-		if(mMultiFluid==true)
+		if(mMultiFluid==true&&showFluidLimit())
 		builder.widget(createButton(() -> 
 		fluidLimit
 				, val -> {
@@ -369,6 +370,11 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 			 * Pos2d(position.getX(),position.getY()).add(0, 18); }
 			 */
 
+	}
+
+	boolean showFluidLimit() {
+	
+		return true;
 	}
 
 	@Override
@@ -612,7 +618,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 				continue;
 			}
 			markDirty();
-			setInventorySlotContents(getCircuitSlot(), ItemProgrammingCircuit.getCircuit(is).orElse(null));
+			super.setInventorySlotContents(getCircuitSlot(), ItemProgrammingCircuit.getCircuit(is).orElse(null));
 		}
 	}
 
@@ -907,6 +913,18 @@ public int getInventoryStackLimit() {
 public static int getInventoryStackLimit(int mTier) {
 	
 	return 64+64*Math.max(0,mTier-3);
+}
+
+
+public int getInventoryFluidLimit() {
+	
+	return (int) (4000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1));
+}
+
+
+public static int getInventoryFluidLimit(int mTier,boolean mMultiFluid) {
+	
+	return (int) (4000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1));
 }
 
 public void add1by1Slot(ModularWindow.Builder builder, IDrawable... background) {

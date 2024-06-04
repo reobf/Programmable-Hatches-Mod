@@ -14,6 +14,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.config.Configuration;
 import reobf.proghatches.lang.LangManager;
 
@@ -24,7 +25,8 @@ public class Config {
 	public static String greeting = "Hello World";
 	public static int metaTileEntityOffset = 22000;
 	public static boolean skipRecipeAdding;
-
+	public static boolean debug;
+	public static boolean dev;
 	public static void synchronizeConfiguration(File configFile) {
 		Configuration configuration = new Configuration(configFile);
 
@@ -35,9 +37,13 @@ public class Config {
 				skipRecipeAdding, "If true, this mod will not add any recipe.");
 		appendAddedBy = configuration.getBoolean("appendAddedBy", Configuration.CATEGORY_GENERAL, appendAddedBy,
 				"Append 'Added by ProgrammableHatches' at the end of machine desc.");
+		debug = configuration.getBoolean("debug", Configuration.CATEGORY_GENERAL, debug,
+				"Allow you see some technical info in waila, for debugging.");
+		
 		if (configuration.hasChanged()) {
 			configuration.save();
 		}
+		dev=(Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
 	}
 
 	public static String lang = System.getProperty("user.language").equalsIgnoreCase("zh") ? "zh_CN" : "en_US";

@@ -38,12 +38,14 @@ import reobf.proghatches.net.PriorityMessage;
 public  class GuiHandler implements IDefaultGuiHandler{
 	
 		public IInterfaceHost getHost(int ID, World world, int x, int y, int z) {
-
+			try{
 			CoverInfo info = ((ICoverable) world.getTileEntity(x, y, z))
 					.getCoverInfoAtSide(ForgeDirection.getOrientation(ID & 0b111));
 
 			return new FakeHost(world.getTileEntity(x, y, z), (IInterfaceHost) info.getCoverData());
-
+			}catch(Exception e){
+				return null;
+			}
 		}
 		private boolean getTileOf(IInventory inventory) {
 			if (inventory instanceof AppEngInternalInventory)
@@ -107,6 +109,7 @@ public  class GuiHandler implements IDefaultGuiHandler{
 		@Override
 		public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
 			IInterfaceHost host = getHost(ID, world, x, y, z);
+			if(host==null)return null;
 			if ((ID & 0b1000) > 0) {
 				if (host instanceof IPriorityHost)
 					return new ContainerPriority(player.inventory, (IPriorityHost) host);
@@ -130,7 +133,7 @@ public  class GuiHandler implements IDefaultGuiHandler{
 		@SideOnly(Side.CLIENT)
 		public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
 			IInterfaceHost host = getHost(ID, world, x, y, z);
-
+			if(host==null)return null;
 			if ((ID & 0b1000) > 0) {
 				if (host instanceof IPriorityHost)
 					return new GuiPriority(player.inventory, (IPriorityHost) host);

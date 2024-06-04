@@ -134,7 +134,7 @@ public class ItemProgrammingCircuit extends Item {
 			is = is.copy();
 			is.stackSize = 1;// Math.max(1,is.stackSize);
 			iss.stackTagCompound = new NBTTagCompound();
-			NBTTagCompound tag = is.writeToNBT(new NBTTagCompound());
+			NBTTagCompound tag = (NBTTagCompound) is.writeToNBT(new NBTTagCompound()).copy();
 			
 			if(!legacy)tag.setString("string_id", Item.itemRegistry.getNameForObject(is.getItem()));
 			//System.out.println(tag);

@@ -676,4 +676,6 @@ public class IngredientBuffer extends GT_MetaTileEntity_TieredMachineBlock imple
 
 		return inputFromFront || side != getBaseMetaTileEntity().getFrontFacing();
 	}
+
+
 }

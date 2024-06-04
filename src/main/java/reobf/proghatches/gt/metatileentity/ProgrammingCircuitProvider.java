@@ -534,7 +534,7 @@ for(ItemStack is:mInventory)
 		Optional.ofNullable(customName).ifPresent(s -> aNBT.setString("customName", s));
 		//aNBT.setString("customName",customName);
 		aNBT.setBoolean("disabled", disabled);
-		aNBT.setBoolean("legacy", disabled);
+		aNBT.setBoolean("legacy", legacy);
 		aNBT.setInteger("tech", tech);
 	}
 

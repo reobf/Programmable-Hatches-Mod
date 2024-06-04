@@ -165,11 +165,8 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 				return false;
 			}
 
-			@Override
-			public int getInventoryStackLimit() {
-			
-				return 1;
-			}
+			//@Override
+			//public int stack
 
 			@Override
 			public void markDirty() {
@@ -193,6 +190,12 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 			public boolean isItemValidForSlot(int index, ItemStack stack) {
 			
 				return true;
+			}
+
+			@Override
+			public int getInventoryStackLimit() {
+				
+				return 1;
 			}};
 	@Override
 	public ITexture[] getTexturesActive(ITexture aBaseTexture) {
@@ -260,6 +263,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 
 	private void refundAll() throws Exception {
 		markDirty();
+		dirty=true;
 		BaseActionSource src = getRequest();
 		IMEMonitor<IAEItemStack> sg = getProxy().getStorage().getItemInventory();
 		abstract class Inv {
@@ -489,7 +493,15 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 			}
 		}
 	}
-
+	@Override
+	public int getInventoryStackLimit() {
+		
+		return Integer.MAX_VALUE;
+	}
+	
+	
+	
+	
 	@Override
 	public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
 		if (!isActive())
@@ -515,21 +527,24 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 				continue;
 			if (itemStack.getItem() instanceof ItemFluidPacket) {
 				fluids++;
-				if (fluids > 4) {
+				if (fluids > this.fluidSlots()) {
 					clearInv();
 					return false;
 				}
-				mStoredFluid[i].setFluid(ItemFluidPacket.getFluidStack(itemStack));
+				
+				mStoredFluid[fluids-1].setFluid(ItemFluidPacket.getFluidStack(itemStack));
+				
 			} else {
 				items++;
-				if (items > 16) {
+				if (items > 4) {
 					clearInv();
 					return false;
 				}
-				mInventory[i] = itemStack;
+				mInventory[items-1] = itemStack;
 
 			}
 		}
+		markDirty();
 		dirty = true;
 		classify();
 
@@ -540,11 +555,11 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 	private boolean isEmpty() {
 		for (ItemStack is : mInventory) {
 			if (is != null && is.stackSize > 0)
-				return true;
+				return false;
 		}
 		for (FluidTank is : mStoredFluid) {
 			if (is.getFluidAmount() > 0)
-				return true;
+				return false;
 		}
 		return true;
 	}
@@ -738,6 +753,15 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 
 	public int itemLimit() {
 
+		return Integer.MAX_VALUE;
+	}
+	  boolean createInsertion(){return false;}
+	  boolean showFluidLimit() {
+			
+			return false;
+		}
+	  @Override
+	public int getInventoryFluidLimit() {
 		return Integer.MAX_VALUE;
 	}
 }

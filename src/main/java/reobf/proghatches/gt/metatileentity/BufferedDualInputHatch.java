@@ -30,6 +30,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
@@ -93,6 +94,7 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
+import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
@@ -279,7 +281,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		public int i;
 		public int f;
 		public boolean lock;
-
+	
 		// public boolean lock;
 		public boolean full() {
 
@@ -681,7 +683,9 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	public boolean updateEveryTick() {
 		return updateEveryTick;
 	}
-
+	private boolean sleep;
+	private int sleepTime;
+	private boolean isOnLastTick;
 	// public boolean prevdirty;
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
@@ -702,7 +706,27 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		// System.out.println(dirty);
 		// dirty=dirty||(!highEfficiencyMode());
 		boolean on = (this.getBaseMetaTileEntity().isAllowedToWork());
-		for (DualInvBuffer inv0 : this.sortByEmpty()) {
+		if(isOnLastTick!=on){dirty=true;};
+		isOnLastTick=on;
+		
+		//System.out.println("sleep);
+		//Boolean inputEmpty=null;
+		
+		
+		if(dirty){
+			sleep=false;//wake up
+			sleepTime=0;
+		}else if(!sleep){
+			boolean inputEmpty=isInputEmpty();//not dirty but awake, check if need to sleep
+			if(inputEmpty){sleep=true;}//Zzz
+		}
+		if(sleep)sleepTime++;
+		//System.out.println(sleep);
+		
+		
+		// if(inputEmpty==null)inputEmpty=isInputEmpty();
+		if(!sleep||updateEveryTick())
+		 for (DualInvBuffer inv0 : this.sortByEmpty()) {
 			if (on && dirty) {
 				if (inv0.full() == false) {
 					if (!inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)) {
@@ -944,6 +968,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 
 		builder.widget(new CycleButtonWidget().setToggle(() -> !inv0.lock, (s) -> {
 			inv0.lock = !s;
+			inv0.clearRecipeIfNeeded();
 		}).setStaticTexture(GT_UITextures.OVERLAY_BUTTON_RECIPE_LOCKED_DISABLED)
 				.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
 				.setPos(3 + 18 * 5, 3 + 18 * 3).setSize(18, 18)
@@ -1155,6 +1180,8 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Optional</* ? extends */IDualInputInventory> getFirstNonEmptyInventory() {
+		markDirty();
+		dirty=true;
 		return (Optional) inv0.stream().filter(DualInvBuffer::isAccessibleForMulti).findAny();
 	}
 
@@ -1164,7 +1191,8 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 
 	@Override
 	public Iterator<? extends IDualInputInventory> inventories() {
-
+		markDirty();
+		dirty=true;
 		return inv0.stream().filter(DualInvBuffer::isAccessibleForMulti).iterator();
 	}
 
@@ -1245,6 +1273,8 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 
 			}
 		}
+		tag.setBoolean("sleep", sleep);
+		tag.setInteger("sleepTime", sleepTime);
 		tag.setInteger("inv_size", inv0.size());
 		IntStream.range(0, inv0.size()).forEach(s -> {
 			DualInvBuffer inv = inv0.get(s);
@@ -1288,6 +1318,14 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 
 		super.getWailaBody(itemStack, currenttip, accessor, config);
 		NBTTagCompound tag = accessor.getNBTData();
+		if(Config.debug||Config.dev)
+		currenttip.add(
+				
+				"sleep:"+tag.getBoolean("sleep")+" "
+				+tag.getInteger("sleepTime")
+				
+				);
+		
 		IntStream.range(0, tag.getInteger("inv_size")).forEach(s -> {
 			NBTTagCompound sub = (NBTTagCompound) tag.getTag("No" + s);
 			boolean noClear = sub.getBoolean("noClear");
@@ -1444,6 +1482,21 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 				}
 			}
 		super.onBlockDestroyed();
+	}
+	public boolean isInputEmpty() {
+
+		for (FluidTank f : mStoredFluid) {
+			if (f.getFluidAmount() > 0) {
+				return false;
+			}
+		}
+		for (ItemStack i : mInventory) {
+
+			if (i != null && i.stackSize > 0) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 }

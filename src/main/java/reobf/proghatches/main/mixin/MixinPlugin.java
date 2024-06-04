@@ -75,7 +75,8 @@ String cfg=
 "noRecipeFilterForDualHatch=false"+System.lineSeparator()+
 "noRemoveUnusedCacheInModularUIContainer=fasle"+System.lineSeparator()+
 "noFixRecursiveCraft=false"+System.lineSeparator()+
-"noEUCraftingMixins=false"+System.lineSeparator()
+"noEUCraftingMixins=false"+System.lineSeparator()+
+"noAEItemSortMixins=false"+System.lineSeparator()
 ;
 //spotless:on
 	@SuppressWarnings("unused")
@@ -159,7 +160,8 @@ String cfg=
 		ret.add("MixinHandleProgrammingOnRecipeStart");
 
 		if (FMLLaunchHandler.side().isClient()) {
-
+			if (!"true".equals(pp.get("noAEItemSortMixins")))
+			ret.add("MixinAEItemStackCompare");
 			if (!"true".equals(pp.get("noFixTossBug")))
 				ret.add("MixinFixTossWhenClickSlot");
 

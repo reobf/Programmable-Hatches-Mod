@@ -1,4 +1,4 @@
-package reobf.proghatches.gt.metatileentity;
+package reobf.proghatches.gt.metatileentity.util;
 
 import java.util.Optional;
 
@@ -6,6 +6,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
+import reobf.proghatches.gt.metatileentity.DualInputHatch;
 
 public class ListeningFluidTank extends FluidTank {
 

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import com.google.common.collect.ImmutableMap;
 
 import net.minecraftforge.fluids.FluidTank;
-
+import reobf.proghatches.gt.metatileentity.util.ListeningFluidTank;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;

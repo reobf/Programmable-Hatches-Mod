@@ -313,3 +313,7 @@ programmable_hatches.gt.insertion.tooltip.1=In this way you might stack items up
 programmable_hatches.gt.insertion.tooltip.2=ME Interface is not limited by max stacksize as well.
 programmable_hatches.gt.insertion.tooltip.3=CAUTION! Once you close this window, items left will be tossed！
 programmable_hatches.gt.insertion.tooltip=4
+mesuperchest.name.false=ME Super Chest %s
+mesuperchest.name.true=ME Quantum Chest %s
+hatch.input.buffered.me.itemonly.name=Programmable Crafting Input Bus
+programmable_hatches.gt.slave.compat=Do not support GT5u Buffer!

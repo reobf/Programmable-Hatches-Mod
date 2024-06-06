@@ -54,8 +54,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
+import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.main.registration.Registration;
 
 public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContainer, IGridProxyable{
@@ -64,9 +67,9 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 		super(aName, aTier, aInvSlotCount, aDescription, aTextures);
 	
 	}
-	public SuperChestME(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount,
-			String[] aDescription) {
-		super(aID, aName, aNameRegional, aTier, aInvSlotCount, aDescription, new ITexture[0]);
+	public SuperChestME(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount
+			) {
+		super(aID, aName, aNameRegional, aTier, aInvSlotCount, new String[0], new ITexture[0]);
 		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
 	}
 	@Override
@@ -76,7 +79,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	}
 	public int cap(){
 		
-		return 100;
+		return commonSizeCompute(mTier);
 	}
 	 protected static int commonSizeCompute(int tier) {
 	        switch (tier) {
@@ -103,7 +106,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 			 
 			this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
 			
-			System.out.println(getGridNode(null).isActive());
+			//System.out.println(getGridNode(null).isActive());
 		} catch (GridAccessException e) {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
@@ -373,6 +376,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 		for(int i=1;i<mInventory.length;i++){
 			ItemStack is = mInventory[i];
 			if(is==null)continue;
+			markDirty();
 			if(mInventory[0]==null){
 				mInventory[0]=is.copy();
 				mInventory[i]=null;
@@ -420,18 +424,25 @@ public ItemStackHandler getInventoryHandler() {
 }
  @Override
 public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-	 builder.widget(new SlotWidget(new BaseSlot(this.getInventoryHandler(), 0))
+	 builder.widget(new SlotWidget(new BaseSlotPatched(this.getInventoryHandler(), 0))
+			 
 			 .setPos(3, 3)
 			 );
 	 builder.widget(new DrawableWidget().setDrawable(ModularUITextures.ARROW_LEFT)
 			 
 			 .setPos(3+18, 3).setSize(18,18));
-	 builder.widget(new SlotWidget(new BaseSlot(this.getInventoryHandler(), 1))
+	 builder.widget(new SlotWidget(new BaseSlotPatched(this.getInventoryHandler(), 1))
 			 .setPos(3+18*2, 3)
 			 );
-	 builder.widget(new SlotWidget(new BaseSlot(this.getInventoryHandler(), 2))
+	 builder.widget(new SlotWidget(new BaseSlotPatched(this.getInventoryHandler(), 2))
 			 .setPos(3+18*3, 3)
 			 );
+     builder.widget(new DrawableWidget().setDrawable(ModularUITextures.ICON_INFO)
+			 
+			 .setPos(3+18*4+1, 3+1).setSize(16,16)
+			 .addTooltip("xxxxxxx")
+    		 
+    		 );
 
 }
  @Override
@@ -444,5 +455,22 @@ public void loadNBTData(NBTTagCompound aNBT) {
 public void saveNBTData(NBTTagCompound aNBT) {
 	 getProxy().writeToNBT(aNBT);
 	super.saveNBTData(aNBT);
+	NBTTagList greggy=aNBT.getTagList("Inventory", 10);
+	for(int i=0;i<mInventory.length;i++){
+	
+		if( mInventory[i]!=null){	
+			NBTTagCompound t;
+			t=((NBTTagCompound)greggy.getCompoundTagAt(i));
+			if(t!=null)t.setInteger("Count", mInventory[i].stackSize);}
+		
+	}
+	
+	
 }
+public static String name(int t){
+	
+	return StatCollector.translateToLocalFormatted("mesuperchest.name."+(t>=5), suffix[t-1]);
+}
+public static String[] suffix={"I","II","III","IV","V","I","II","III","IV","V"};
+
 }

@@ -38,6 +38,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
+import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.main.registration.Registration;
 
 public class IngredientBuffer extends GT_MetaTileEntity_TieredMachineBlock implements IAddUIWidgets {

@@ -93,6 +93,11 @@ import gregtech.api.util.GT_Utility;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
+import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
+import reobf.proghatches.gt.metatileentity.util.FirstObjectHolder;
+import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
+import reobf.proghatches.gt.metatileentity.util.ListeningFluidTank;
+import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
@@ -163,23 +168,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 				.setBackground(getGUITextureSet().getItemSlot(), GT_UITextures.OVERLAY_SLOT_INT_CIRCUIT);
 	}
 
-	public NBTTagCompound writeToNBT(ItemStack is, NBTTagCompound tag) {
-		is.writeToNBT(tag);
-		tag.setInteger("ICount", is.stackSize);
-
-		return tag;
-	}
-
-	/**
-	 * @param tag
-	 * @return
-	 */
-	public ItemStack loadItemStackFromNBT(NBTTagCompound tag) {
-
-		ItemStack is = ItemStack.loadItemStackFromNBT(tag);
-		is.stackSize = tag.getInteger("ICount");
-		return is;
-	}
+	
 
 	public int fluidLimit() {
 
@@ -220,17 +209,21 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 										.put("slots",itemLimit(tier))
 										.put("stacksize",(int) (64 * Math.pow(2, Math.max(tier - 3, 0))))
 										.put("fluidSlots", fluidSlots(tier))
+										//.put("supportFluid", fluid)
 										.build())
 												
 															
 				));/* ) */
+		
 		this.bufferNum = bufferNum;
 		initBackend();
 
 	}
 
 	public void initTierBasedField() {
-         super.initTierBasedField();
+        
+		if(supportsFluids())
+		super.initTierBasedField();
 		/*if (mMultiFluid) {
 			mStoredFluid = new ListeningFluidTank[] {
 
@@ -721,7 +714,11 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 			sleepTime=0;
 		}else if(!sleep){
 			boolean inputEmpty=isInputEmpty();//not dirty but awake, check if need to sleep
-			if(inputEmpty){sleep=true;}//Zzz
+			if(inputEmpty){
+				
+				if(Config.sleep)sleep=true;
+				
+			}//Zzz
 		}
 		if(sleep)sleepTime++;
 		//System.out.println(sleep);
@@ -805,6 +802,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
 		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 1).startFromSlot(1000)
+				  .slotCreator(BaseSlotPatched.newInst(inventoryHandler))
 				.endAtSlot(1000).background(background).build().setPos(3, 3));
 	}
 
@@ -815,6 +813,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
 		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 2).startFromSlot(1000)
+				  .slotCreator(BaseSlotPatched.newInst(inventoryHandler))
 				.endAtSlot(1003).background(background).build().setPos(3, 3));
 	}
 
@@ -825,6 +824,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
 		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 3).startFromSlot(1000)
+				  .slotCreator(BaseSlotPatched.newInst(inventoryHandler))
 				.endAtSlot(1008).background(background).build().setPos(3, 3));
 	}
 
@@ -835,6 +835,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
 		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 4).startFromSlot(1000)
+				  .slotCreator(BaseSlotPatched.newInst(inventoryHandler))
 				.endAtSlot(1015).background(background).build().setPos(3, 3)
 
 		);
@@ -1050,7 +1051,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 				// player operation is more complicated, always set to true when
 				// GUI open
 				BufferedDualInputHatch.this.dirty = true;
-
+				markDirty();
 				// flush changes to client
 				// sometimes vanilla detection will fail so sync it manually
 				// System.out.println(last-getBaseMetaTileEntity().getTimer());
@@ -1185,6 +1186,9 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	public Optional</* ? extends */IDualInputInventory> getFirstNonEmptyInventory() {
 		markDirty();
 		dirty=true;
+		
+		if(Config.experimentalOptimize){
+		
 		class PiorityBuffer implements Comparable<PiorityBuffer>{
 			PiorityBuffer(DualInvBuffer buff){this.buff=buff;
 			this.piority=getPossibleCopies(buff);
@@ -1207,6 +1211,15 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 				.map(s->new PiorityBuffer(s))
 				.sorted().map(s->{return s.buff;})
 				.findFirst();
+		}else{
+			
+		return (Optional) inv0.stream().filter(DualInvBuffer::isAccessibleForMulti)
+					.findFirst();
+			
+			
+		}
+		
+		
 	}
 
 	private Predicate<DualInvBuffer> not(Predicate<DualInvBuffer> s) {

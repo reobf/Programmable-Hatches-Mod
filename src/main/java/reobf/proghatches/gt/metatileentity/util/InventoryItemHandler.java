@@ -1,4 +1,4 @@
-package reobf.proghatches.gt.metatileentity;
+package reobf.proghatches.gt.metatileentity.util;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;

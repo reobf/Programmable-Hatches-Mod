@@ -27,6 +27,8 @@ public class Config {
 	public static boolean skipRecipeAdding;
 	public static boolean debug;
 	public static boolean dev;
+	public static boolean experimentalOptimize=true;
+	public static boolean sleep=true;
 	public static void synchronizeConfiguration(File configFile) {
 		Configuration configuration = new Configuration(configFile);
 
@@ -39,6 +41,11 @@ public class Config {
 				"Append 'Added by ProgrammableHatches' at the end of machine desc.");
 		debug = configuration.getBoolean("debug", Configuration.CATEGORY_GENERAL, debug,
 				"Allow you see some technical info in waila, for debugging.");
+		experimentalOptimize = configuration.getBoolean("experimentalOptimize", Configuration.CATEGORY_GENERAL, experimentalOptimize,
+				"If on, , trun it off it breaks something.");
+		sleep = configuration.getBoolean("Hatch sleep mode", Configuration.CATEGORY_GENERAL, sleep,
+				"If on, hatch will sleep when not busy to ease server load, trun it off it breaks something.");
+		
 		
 		if (configuration.hasChanged()) {
 			configuration.save();
@@ -241,5 +248,7 @@ public class Config {
 			.getResourceAsStream("/assets/proghatches/lang/en_US/" + s + ".lang");
 	static Function<String, InputStream> getInput = s -> Config.class.getResourceAsStream("/assets/proghatches/lang/"
 			+ LangManager.translateToLocal("programmable_hatches.gt.lang.dir") + "/" + s + ".lang");
+	
+	
 
 }

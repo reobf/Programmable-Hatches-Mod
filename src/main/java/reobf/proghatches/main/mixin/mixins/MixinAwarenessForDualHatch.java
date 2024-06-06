@@ -27,7 +27,7 @@ import gregtech.api.util.GT_Utility;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
 import reobf.proghatches.gt.cover.ProgrammingCover;
-import reobf.proghatches.gt.metatileentity.IRecipeProcessingAwareDualHatch;
+import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 
 @SuppressWarnings("unused")
 @Mixin(value = GT_MetaTileEntity_MultiBlockBase.class, remap = false)

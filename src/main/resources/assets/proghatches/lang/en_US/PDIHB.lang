@@ -1,0 +1,9 @@
+Item Input for Multiblocks
+Contents are always separated with other bus/hatch
+Programming Cover function integrated
+Blocking mode is always on
+If all pattern inputs cannot be push in one single try, it won't be pushed at all.
+No fluid support, patterns with fluid will be rejected.
+Buffer: {bufferNum}
+For each buffer:
+Slot maximum stacksize:2^31-1

@@ -14,7 +14,7 @@ import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IMachineProgress;
 import gregtech.api.util.GT_CoverBehavior;
-import reobf.proghatches.gt.metatileentity.IProgrammingCoverBlacklisted;
+import reobf.proghatches.gt.metatileentity.util.IProgrammingCoverBlacklisted;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 

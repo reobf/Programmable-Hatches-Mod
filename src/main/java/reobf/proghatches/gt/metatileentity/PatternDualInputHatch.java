@@ -16,6 +16,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidTank;
+import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.lang.LangManager;
 
 import com.glodblock.github.common.item.ItemFluidPacket;
@@ -75,7 +76,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 		implements ICraftingProvider, IGridProxyable, ICustomNameObject, IInterfaceViewable, IPowerChannelState {
 
 	public PatternDualInputHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
-			boolean mMultiFluid, int bufferNum, boolean fluid) {
+			boolean mMultiFluid, int bufferNum) {
 		super(mName, mTier, mDescriptionArray, mTextures, mMultiFluid, bufferNum);
 
 	}
@@ -204,22 +205,30 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 	@Override
 	public ITexture[] getTexturesActive(ITexture aBaseTexture) {
 
-		return new ITexture[] { aBaseTexture, TextureFactory.of(BlockIcons.OVERLAY_ME_CRAFTING_INPUT_BUFFER) };
+		return new ITexture[] { aBaseTexture, TextureFactory.of(
+				supportsFluids()?
+				BlockIcons.OVERLAY_ME_CRAFTING_INPUT_BUFFER:
+				BlockIcons.OVERLAY_ME_CRAFTING_INPUT_BUS)
+		};
 
 	}
 
 	@Override
 	public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
-		return new ITexture[] { aBaseTexture, TextureFactory.of(BlockIcons.OVERLAY_ME_CRAFTING_INPUT_BUFFER) };
+		return new ITexture[] { aBaseTexture, TextureFactory.of(
+				supportsFluids()?
+						BlockIcons.OVERLAY_ME_CRAFTING_INPUT_BUFFER:
+						BlockIcons.OVERLAY_ME_CRAFTING_INPUT_BUS) };
 
 	}
 
 	public PatternDualInputHatch(int id, String name, String nameRegional, int tier, boolean mMultiFluid, int bufferNum,
-			boolean fluid, String... optional) {
+			boolean sf, String... optional) {
+		
 		super(id, name, nameRegional, tier, mMultiFluid, bufferNum,
 				(optional.length > 0 ? optional
 						: reobf.proghatches.main.Config
-								.get("PDIH",
+								.get("PDIH"+(sf?"":"B"),
 										ImmutableMap
 												.of("bufferNum", bufferNum,
 														"fluidSlots", fluidSlots(tier),/* "cap",
@@ -232,7 +241,10 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 				
 
 				));
-		this.supportFluids = fluid;
+		if(sf!=supportsFluids()){
+			
+			throw new AssertionError();
+		}
 	}
 
 	ItemStack[] pattern = new ItemStack[36];
@@ -423,11 +435,22 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 	@Override
 	public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
 
-		return new PatternDualInputHatch(mName, mTier, mDescriptionArray, mTextures, mMultiFluid, bufferNum,
-				this.supportFluids);
+		return new PatternDualInputHatch(mName, mTier, mDescriptionArray, mTextures, mMultiFluid, bufferNum
+				){
+			@Override
+			public boolean supportsFluids() {
+				return PatternDualInputHatch.this.supportsFluids();
+			}
+			
+		};
+				
 
 	}
-
+@Override
+public void initTierBasedField() {
+if(supportsFluids())
+	super.initTierBasedField();
+}
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
 		NBTTagCompound tag = aNBT.getCompoundTag("patternSlots");
@@ -457,7 +480,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 		super.saveNBTData(aNBT);
 	}
 
-	boolean supportFluids = true;
+	
 
 	private void clearInv() {
 
@@ -512,7 +535,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 			return false;
 		if (!isEmpty())
 			return false;
-		if (!supportFluids) {
+		if (!supportsFluids()) {
 			for (int i = 0; i < table.getSizeInventory(); ++i) {
 				ItemStack itemStack = table.getStackInSlot(i);
 				if (itemStack == null)
@@ -555,6 +578,8 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 		justHadNewItems = true;
 		return true;
 	}
+
+
 
 	private boolean isEmpty() {
 		for (ItemStack is : mInventory) {

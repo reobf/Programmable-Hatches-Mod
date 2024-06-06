@@ -68,7 +68,8 @@ public class Registration implements Runnable {
 	public final static int LargeProviderOffset = 116;
 	public final static int ChainerOffset = 117;
     public final static int CircuitProviderOffsetT0 = 118;
-    public final static int MEChest = 119;
+    public final static int MEChest = 119;//-129
+    public final static int PatternOffsetBus = 130;
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -273,9 +274,19 @@ public class Registration implements Runnable {
             LangManager.translateToLocal("hatch.input.buffered.me.name"),
             10,
             true,
-            24,
-            true);
-
+            24,true);
+        new PatternDualInputHatch(
+                Config.metaTileEntityOffset + PatternOffsetBus,
+                "hatch.input.buffered.me.itemonly",
+                LangManager.translateToLocal("hatch.input.buffered.me.itemonly.name"),
+                10,
+                true,
+                24,false){
+        	public boolean supportsFluids() {super.supportsFluids();
+				return false;}
+        };	
+        	
+        
         for (int i = 0; i < 4; i++) new FilterOutputBus(
             Config.metaTileEntityOffset + TenaciousOffset + i,
             "hatch.output.tenacious." + i,
@@ -302,6 +313,7 @@ public class Registration implements Runnable {
                 LangManager.translateToLocal("buffer.ingredientbuffer.name."+i[0]),
                 i[1], new String[]{});
         
+       
         new LargeProgrammingCircuitProvider(
         		 Config.metaTileEntityOffset + LargeProviderOffset,
                 "multimachine.largeprogrammingcircuit",
@@ -311,10 +323,11 @@ public class Registration implements Runnable {
                 "providerchainer" ,
                 LangManager.translateToLocal("providerchainer.name"),4,0
               );
+        for(int i=1;i<=10;i++)
         new SuperChestME(
-                Config.metaTileEntityOffset +MEChest ,
-                "mesuperchest" ,
-                LangManager.translateToLocal("mesuperchest.name"),4,1+16,new String[0]
+                Config.metaTileEntityOffset +MEChest+i-1 ,
+                "mesuperchest."+i ,
+                SuperChestME.name(i),i,1+16
               );
         
         

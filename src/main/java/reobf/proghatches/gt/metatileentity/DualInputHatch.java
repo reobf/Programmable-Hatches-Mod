@@ -26,6 +26,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.StatCollector;
@@ -77,6 +78,11 @@ import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_TooltipDataCache;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
+import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
+import reobf.proghatches.gt.metatileentity.util.IProgrammingCoverBlacklisted;
+import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
+import reobf.proghatches.gt.metatileentity.util.InventoryItemHandler;
+import reobf.proghatches.gt.metatileentity.util.ListeningFluidTank;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
@@ -167,8 +173,21 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		initTierBasedField();
 
 	}
+	public NBTTagCompound writeToNBT(ItemStack is, NBTTagCompound tag) {
+		is.writeToNBT(tag);
+		tag.setInteger("ICount", is.stackSize);
 
-	public ListeningFluidTank[] mStoredFluid;
+		return tag;
+	}
+
+	
+	public ItemStack loadItemStackFromNBT(NBTTagCompound tag) {
+
+		ItemStack is = ItemStack.loadItemStackFromNBT(tag);
+		is.stackSize = tag.getInteger("ICount");
+		return is;
+	}
+	public ListeningFluidTank[] mStoredFluid=new ListeningFluidTank[0];
 
 	@Override
 	public void saveNBTData(NBTTagCompound aNBT) {
@@ -182,10 +201,23 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 					aNBT.setTag("mFluid" + i, mStoredFluid[i].writeToNBT(new NBTTagCompound()));
 			}
 		}
+		
+		NBTTagList greggy=aNBT.getTagList("Inventory", 10);
 		for(int i=0;i<mInventory.length;i++){
-			if( mInventory[i]!=null)
-			aNBT.setInteger("IntegerStackSize"+i, mInventory[i].stackSize);
+		
+			if( mInventory[i]!=null){	
+				NBTTagCompound t;
+				t=((NBTTagCompound)greggy.getCompoundTagAt(i));
+				if(t!=null)t.setInteger("Count", mInventory[i].stackSize);}
+			
 		}
+		
+		
+		
+		
+		
+		
+		
 	}
 
 	@Override
@@ -201,20 +233,22 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 				}
 			}
 		}
+		if(loadOldVer){try{
+		NBTTagList greggy=aNBT.getTagList("Inventory", 10);
 		for(int i=0;i<mInventory.length;i++){
 			if(aNBT.hasKey("IntegerStackSize"+i)){
 			int realsize=aNBT.getInteger("IntegerStackSize"+i);
-			if(mInventory[i]!=null){
-				mInventory[i].stackSize=realsize;
-			}else{
-				//?
-			}
-			
-			
+			ItemStack is= ItemStack.loadItemStackFromNBT(greggy.getCompoundTagAt(i));
+			is.stackSize=realsize;
+			mInventory[i]=is;
 			}
 		}
+		}catch(Exception e){
+			//meh
+		}
+		}
 	}
-
+boolean loadOldVer=true;
 	@Override
 	public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
 
@@ -532,6 +566,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 
 	@Override
 	public int getCapacity() {
+		if(mStoredFluid.length==0)return 0;
 		return mStoredFluid[0].getCapacity();
 	}
 
@@ -680,7 +715,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		if(fluidLimit){
 		
 		if (!hasFluid(aFluid) && getFirstEmptySlot() != -1) {
-			int tFilled = Math.min(aFluid.amount, mStoredFluid[0].getCapacity());
+			int tFilled = Math.min(aFluid.amount, getCapacity());
 			if (doFill) {
 				FluidStack tFluid = aFluid.copy();
 				tFluid.amount = tFilled;
@@ -690,7 +725,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 			return tFilled;
 		}
 		if (hasFluid(aFluid)) {
-			int tLeft = mStoredFluid[0].getCapacity() - getFluidAmount(aFluid);
+			int tLeft = getCapacity() - getFluidAmount(aFluid);
 			int tFilled = Math.min(tLeft, aFluid.amount);
 			if (doFill) {
 				FluidStack tFluid = aFluid.copy();
@@ -862,16 +897,16 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		// addOneStackLimitButton(builder);
 		switch (slotTierOverride(mTier)) {
 		case 0:
-			getBaseMetaTileEntity().add1by1Slot(builder);
+			add1by1Slot(builder);
 			break;
 		case 1:
-			getBaseMetaTileEntity().add2by2Slots(builder);
+			add2by2Slots(builder);
 			break;
 		case 2:
-			getBaseMetaTileEntity().add3by3Slots(builder);
+			add3by3Slots(builder);
 			break;
 		default:
-			getBaseMetaTileEntity().add4by4Slots(builder);
+			add4by4Slots(builder);
 		}
 	}
 
@@ -936,7 +971,7 @@ public void add1by1Slot(ModularWindow.Builder builder, IDrawable... background) 
     }
     builder.widget(
         SlotGroup.ofItemHandler(inventoryHandler, 1)
-       
+        .slotCreator(BaseSlotPatched.newInst(inventoryHandler))
             .startFromSlot(0)
             .endAtSlot(0)
             .background(background)
@@ -954,7 +989,7 @@ public void add2by2Slots(ModularWindow.Builder builder, IDrawable... background)
     }
     builder.widget(
         SlotGroup.ofItemHandler(inventoryHandler, 2)
-        
+        .slotCreator(BaseSlotPatched.newInst(inventoryHandler))
             .startFromSlot(0)
             .endAtSlot(3)
             .background(background)
@@ -972,7 +1007,7 @@ public void add3by3Slots(ModularWindow.Builder builder, IDrawable... background)
     }
     builder.widget(
         SlotGroup.ofItemHandler(inventoryHandler, 3)
-       
+        .slotCreator(BaseSlotPatched.newInst(inventoryHandler))
             .startFromSlot(0)
             .endAtSlot(8)
             .background(background)
@@ -990,7 +1025,7 @@ public void add4by4Slots(ModularWindow.Builder builder, IDrawable... background)
     }
     builder.widget(
         SlotGroup.ofItemHandler(inventoryHandler, 4)
-       
+        .slotCreator(BaseSlotPatched.newInst(inventoryHandler))
             .startFromSlot(0)
             .endAtSlot(15)
             .background(background)
@@ -1029,6 +1064,7 @@ protected ModularWindow createInsertionWindow(UIBuildContext buildContext) {
 			Optional.ofNullable(
 			inventoryHandler.getStackInSlot(i)
 			).filter(s->s.stackSize>0).ifPresent(s->{
+				markDirty();
 				if(mInventory[fi]!=null){
 					int oldsize=s.stackSize;
 					s.stackSize=mInventory[fi].stackSize;
@@ -1054,6 +1090,7 @@ protected ModularWindow createInsertionWindow(UIBuildContext buildContext) {
 			
 			}
 		toclear.forEach(s->{
+		markDirty();
 			ItemStack is = inventoryHandler.getStackInSlot(s);
 			if(is!=null&&is.stackSize<=0){inventoryHandler.setStackInSlot(s, null);}
 		});

@@ -47,6 +47,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.block.BlockIOHub;
+import reobf.proghatches.gt.metatileentity.util.ICircuitProvider;
+import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 

@@ -66,6 +66,8 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.eucrafting.IInstantCompletable;
+import reobf.proghatches.gt.metatileentity.util.ICircuitProvider;
+import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;

@@ -1,4 +1,4 @@
-package reobf.proghatches.gt.metatileentity;
+package reobf.proghatches.gt.metatileentity.util;
 
 import java.util.Collection;
 import java.util.HashSet;

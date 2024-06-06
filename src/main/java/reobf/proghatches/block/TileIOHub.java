@@ -26,7 +26,7 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
-import reobf.proghatches.gt.metatileentity.MappingItemHandler;
+import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.main.MyMod;
 import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Context;

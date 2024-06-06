@@ -497,6 +497,20 @@ if(Config.skipRecipeAdding)return;
             .duration(20 * SECONDS)
             .eut(GT_Values.VP[9])
             .addTo(RecipeMaps.assemblerRecipes);
+        
+        GT_Values.RA.stdBuilder()
+        .itemInputs(
+        		Hatch_CraftingInput_Bus_ME_ItemOnly.get(1),
+            new ItemStack(
+                MyMod.smartarm,4,6))
+        .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+        .itemOutputs(
+            new ItemStack(GregTech_API.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.PatternOffsetBus))
+        .duration(20 * SECONDS)
+        .eut(GT_Values.VP[6])
+        .addTo(RecipeMaps.assemblerRecipes);
+        
+        
         for (int i = 0; i < 4; i++) {
             GT_Values.RA.stdBuilder()
                 .itemInputs(single_item[i], new ItemStack(GameRegistry.findItem("Automagy", "blockTenaciousChest"))

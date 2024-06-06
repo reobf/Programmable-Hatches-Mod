@@ -17,6 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -190,6 +191,11 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch> ext
 		if (!ItemList.Tool_DataStick.isStackEqual(dataStick, false, true)) {
 			return false;
 		}
+		if (dataStick.hasTagCompound()&&dataStick.stackTagCompound.getString("type")
+	            .equals("CraftingInputBuffer")) {
+			aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.gt.slave.compat"));
+	        return false;
+	     }
 		if (!dataStick.hasTagCompound()
 				|| !dataStick.stackTagCompound.getString("type").equals("ProgHatchesDualInput")) {
 			return false;

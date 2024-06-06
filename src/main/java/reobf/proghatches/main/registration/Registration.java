@@ -39,6 +39,7 @@ import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.ProviderChainer;
 import reobf.proghatches.gt.metatileentity.RemoteInputBus;
 import reobf.proghatches.gt.metatileentity.RemoteInputHatch;
+import reobf.proghatches.gt.metatileentity.SuperChestME;
 import reobf.proghatches.gt.metatileentity.SuperfluidHatch;
 import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
 import reobf.proghatches.lang.LangManager;
@@ -67,6 +68,7 @@ public class Registration implements Runnable {
 	public final static int LargeProviderOffset = 116;
 	public final static int ChainerOffset = 117;
     public final static int CircuitProviderOffsetT0 = 118;
+    public final static int MEChest = 119;
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -309,6 +311,13 @@ public class Registration implements Runnable {
                 "providerchainer" ,
                 LangManager.translateToLocal("providerchainer.name"),4,0
               );
+        new SuperChestME(
+                Config.metaTileEntityOffset +MEChest ,
+                "mesuperchest" ,
+                LangManager.translateToLocal("mesuperchest.name"),4,1+16,new String[0]
+              );
+        
+        
         
     }
 public class DeferredGetterTexture extends GT_CopiedBlockTexture{

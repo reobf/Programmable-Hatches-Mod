@@ -110,8 +110,8 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 
 			@Override
 			public ItemStack decrStackSize(int index, int count) {
-				
-				if (pattern[index] != null)
+			
+				try{if (pattern[index] != null)
 		        {
 		            ItemStack itemstack;
 
@@ -139,6 +139,10 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 		        {
 		            return null;
 		        }
+				}finally{
+		        	
+		        	onPatternChange();
+		        }
 			}
 
 			@Override
@@ -150,7 +154,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 			@Override
 			public void setInventorySlotContents(int index, ItemStack stack) {
 				pattern[index]=stack;
-				
+				onPatternChange();
 			}
 
 			@Override
@@ -368,7 +372,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 
 				}
 			}.setFilter(itemStack -> itemStack.getItem() instanceof ICraftingPatternItem).setChangeListener(() -> {
-				onPatternChange(bs.getSlotIndex(), bs.getStack());
+				onPatternChange();
 			}).setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3).setBackground(getGUITextureSet().getItemSlot(),
 					GT_UITextures.OVERLAY_SLOT_PATTERN_ME));
 
@@ -379,7 +383,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 
 	boolean needPatternSync;
 
-	private void onPatternChange(int index, ItemStack newItem) {
+	private void onPatternChange() {
 		if (!getBaseMetaTileEntity().isServerSide())
 			return;
 		// we do not refund 'cause it's impossible to trace the item

@@ -1,23 +1,40 @@
 package reobf.proghatches.gt.metatileentity;
 
+import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
+import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
+
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
+import com.gtnewhorizons.modularui.api.drawable.IDrawable;
+import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
+import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
+import com.gtnewhorizons.modularui.api.math.Color;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
+import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
+import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
+import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
+import appeng.api.implementations.tiles.IColorableTile;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.events.MENetworkCellArrayUpdate;
@@ -32,7 +49,9 @@ import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
+import appeng.api.util.AEColor;
 import appeng.api.util.DimensionalCoord;
+import appeng.client.texture.ExtraBlockTextures;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
@@ -44,13 +63,17 @@ import appeng.util.item.AEItemStack;
 import appeng.util.item.ItemList;
 import gregtech.api.GregTech_API;
 import gregtech.api.gui.modularui.GT_UIInfos;
+import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
 import gregtech.api.util.GT_Utility;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -59,9 +82,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
+import reobf.proghatches.util.IIconTexture;
 
-public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContainer, IGridProxyable{
+public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContainer, IGridProxyable
+
+{
 
 	public SuperChestME(String aName, int aTier, int aInvSlotCount, String[] aDescription, ITexture[][][] aTextures) {
 		super(aName, aTier, aInvSlotCount, aDescription, aTextures);
@@ -69,7 +96,12 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	}
 	public SuperChestME(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount
 			) {
-		super(aID, aName, aNameRegional, aTier, aInvSlotCount, new String[0], new ITexture[0]);
+		super(aID, aName, aNameRegional, aTier, aInvSlotCount,  reobf.proghatches.main.Config.get("SCME", 
+				ImmutableMap.of(
+						"items",commonSizeCompute(aTier)
+						)
+				
+				), new ITexture[0]);
 		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
 	}
 	@Override
@@ -191,12 +223,27 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	@Override
 	public ITexture[] getTexturesActive(ITexture aBaseTexture) {
 		
-		return new ITexture[]{aBaseTexture};
+		return new ITexture[]{aBaseTexture
+				, new IIconTexture
+				(ExtraBlockTextures.MEChest.getIcon(),
+						0xffffff)
+				, new IIconTexture
+				(ExtraBlockTextures.BlockMEChestItems_Light.getIcon(),
+						0xD7BBEC)
+		
+		};
 	}
 	@Override
 	public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
-		// TODO Auto-generated method stub
-		return new ITexture[]{aBaseTexture};
+		return new ITexture[]{aBaseTexture
+				, new IIconTexture
+				(ExtraBlockTextures.MEChest.getIcon(),
+						0xffffff)
+				, new IIconTexture
+				(ExtraBlockTextures.BlockMEChestItems_Light.getIcon(),
+						0xD7BBEC)
+		
+		};
 	}
 	@Override
 	public DimensionalCoord getLocation() {
@@ -207,13 +254,18 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	IMEInventoryHandler<AEItemStack> handler
 	=new MEInventoryHandler(new UnlimitedWrapper()
-	, StorageChannel .ITEMS);
-	
+	, StorageChannel .ITEMS){
+		public boolean getSticky() {return sticky;};
+		public int getPriority() {return piority;};
+	};
+	boolean sticky;
+	int piority;
 	@Override
 	public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {
 
 		super.onFirstTick(aBaseMetaTileEntity);
 		getProxy().onReady();
+		onColorChangeServer(aBaseMetaTileEntity.getColorization());
 	}
 
 	public class UnlimitedWrapper implements IMEInventory<IAEItemStack> {
@@ -437,18 +489,68 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 	 builder.widget(new SlotWidget(new BaseSlotPatched(this.getInventoryHandler(), 2))
 			 .setPos(3+18*3, 3)
 			 );
-     builder.widget(new DrawableWidget().setDrawable(ModularUITextures.ICON_INFO)
+	
+	 Widget w;
+     builder.widget(w=new DrawableWidget().setDrawable(ModularUITextures.ICON_INFO)
 			 
 			 .setPos(3+18*4+1, 3+1).setSize(16,16)
-			 .addTooltip("xxxxxxx")
-    		 
+			// .addTooltip("xxxxxxx")
     		 );
+    		 
+ IntStream
+		.range(0,
+				Integer.valueOf(StatCollector.translateToLocal(
+						"programmable_hatches.gt.mechest.tooltip")))
+		.forEach(s -> w.addTooltip(LangManager.translateToLocal(
+				"programmable_hatches.gt.mechest.tooltip." +  + s)));
+ 
+ 
+ builder.widget(createButton(() -> 
+	sticky
+			, val -> {
+				sticky = val;post();
+		//updateSlots();
+	}, 
+			new ItemDrawable(new ItemStack(Items.slime_ball)), 
+	ImmutableList.of(
+			StatCollector.translateToLocal("programmable_hatches.gt.sticky")
+		
+			)
 
+	
+	, 0)
+			.setPos( 3,3+18*2));
+ 
+ builder.widget(new TextFieldWidget()	
+		 .setPattern(BaseTextFieldWidget.NATURAL_NUMS)
+		.setGetter(()->piority+"")
+		.setSetter(s->
+		{try{piority=Integer.parseInt(s);}catch(Exception e){piority=0;};post();})
+		 .setSynced(true,true)
+		
+		 .setFocusOnGuiOpen(true).setTextColor(Color.WHITE.dark(1))
+
+			.setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
+			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.piority"))
+			.setPos(3+2,18*3+3+1).setSize(16*8,16))
+ 
+ ;
+ 
+ 
+ 
+}
+ private Widget createButton(Supplier<Boolean> getter, Consumer<Boolean> setter, IDrawable picture,
+		List<String> tooltip, int offset) {
+	return new CycleButtonWidget().setToggle(getter, setter).setTextureGetter(__->picture)
+			.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+			.setPos(7 + offset * 18, 62).setSize(18, 18).addTooltips(tooltip);
 }
  @Override
 public void loadNBTData(NBTTagCompound aNBT) {
 	 getProxy().readFromNBT(aNBT);
 	super.loadNBTData(aNBT);
+	piority=aNBT.getInteger("piority");
+	sticky=	aNBT.getBoolean("sticky");
 }
  
 @Override
@@ -464,13 +566,54 @@ public void saveNBTData(NBTTagCompound aNBT) {
 			if(t!=null)t.setInteger("Count", mInventory[i].stackSize);}
 		
 	}
-	
-	
+	aNBT.setInteger("piority", piority);
+	aNBT.setBoolean("sticky", sticky);
+}
+@Override
+public void setItemNBT(NBTTagCompound aNBT) {
+	final NBTTagList tItemList = new NBTTagList();
+    for (int i = 0; i < getRealInventory().length; i++) {
+        final ItemStack tStack = getRealInventory()[i];
+        if (tStack != null) {
+            final NBTTagCompound tTag = new NBTTagCompound();
+            tTag.setInteger("IntSlot", i);
+            tStack.writeToNBT(tTag);
+            tTag.setInteger("Count", tStack.stackSize);
+            tItemList.appendTag(tTag);
+        }
+    }
+    aNBT.setTag("Inventory", tItemList);
+    if(piority!=0)aNBT.setInteger("piority", piority);
+    if(sticky)aNBT.setBoolean("sticky", sticky);
+}
+@Override
+public boolean shouldDropItemAt(int index) {
+
+	return false;
 }
 public static String name(int t){
 	
 	return StatCollector.translateToLocalFormatted("mesuperchest.name."+(t>=5), suffix[t-1]);
 }
 public static String[] suffix={"I","II","III","IV","V","I","II","III","IV","V"};
+@Override
+public void onColorChangeServer(byte aColor) {
+	
+	super.onColorChangeServer(aColor);
+	AEColor c;
+	if(aColor==-1){
+		c=(AEColor.Transparent);
+	}else
+	c=(AEColor.values()[15-aColor]);
+
+try{
+getProxy().setColor(c);
+getGridNode(null).updateState();
+}catch(Exception e){}
+
+}
+
+
+
 
 }

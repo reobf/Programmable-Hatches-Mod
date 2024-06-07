@@ -65,6 +65,7 @@ import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.interfaces.tileentity.ICoverable;
+import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.net.GT_Packet_SendCoverData;
 import gregtech.api.util.shutdown.ShutDownReason;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
@@ -95,7 +96,7 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 public class MyMod {
 	public static MyMod instance;
 	{
-		BlockEUInterface.class.getDeclaredFields();
+		BaseMetaTileEntity.class.getDeclaredFields();
 		//BlockEUInterface.
 		instance = this;
 	}
@@ -211,7 +212,7 @@ public class MyMod {
 		InterfaceTerminalRegistry.instance().register(PartEUP2PInterface.class);
 		InterfaceTerminalRegistry.instance().register(PartFluidP2PInterface.class);
 		InterfaceTerminalRegistry.instance().register(TileFluidInterface_EU.class);
-		InterfaceTerminalRegistry.instance().register(PatternDualInputHatch.class);
+		InterfaceTerminalRegistry.instance().register(PatternDualInputHatch.Inst.class);
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)

@@ -41,10 +41,10 @@ public class Config {
 				"Append 'Added by ProgrammableHatches' at the end of machine desc.");
 		debug = configuration.getBoolean("debug", Configuration.CATEGORY_GENERAL, debug,
 				"Allow you see some technical info in waila, for debugging.");
-		experimentalOptimize = configuration.getBoolean("experimentalOptimize", Configuration.CATEGORY_GENERAL, experimentalOptimize,
-				"If on, , trun it off it breaks something.");
-		sleep = configuration.getBoolean("Hatch sleep mode", Configuration.CATEGORY_GENERAL, sleep,
-				"If on, hatch will sleep when not busy to ease server load, trun it off it breaks something.");
+		experimentalOptimize = configuration.getBoolean("Piority mode","Experimental", experimentalOptimize,
+				"When on, buffer with more copies gets handled first. If off, just handle the first non-empty buffer first.");
+		sleep = configuration.getBoolean("Hatch sleep mode", "Experimental", sleep,
+				"When on, hatch will sleep when not busy, to ease server load.");
 		
 		
 		if (configuration.hasChanged()) {

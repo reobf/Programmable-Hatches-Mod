@@ -21,6 +21,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.gson.Gson;
+import com.gtnewhorizons.modularui.api.drawable.Text;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.math.Alignment;
 import com.gtnewhorizons.modularui.api.math.Color;
@@ -455,9 +456,11 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 
 					.setPos(startX + spaceX, startY + spaceY).setSize(14 * 4, 14))
 
-					.widget(TextWidget.dynamicString(() -> {
-						return StatCollector
-								.translateToLocal("programmable_hatches.cover.smart.io." + getCoverData().io);
+					.widget(TextWidget.dynamicText(() -> {
+						return Text.localised("programmable_hatches.cover.smart.io." + getCoverData().io)
+								//StatCollector.translateToLocal()
+								
+								;
 					}).setSynced(false).setTextAlignment(Alignment.CenterLeft).setDefaultColor(COLOR_TEXT_GRAY.get())
 							.setPos(startX + spaceX, 4 + startY + spaceY * 0))
 

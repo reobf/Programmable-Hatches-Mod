@@ -13,10 +13,10 @@ public class IIconTexture extends GT_TextureBase implements ITexture {
 
 	private final IIcon mBlock;
 	// private final byte mSide, mMeta;
+	private int rgb;
 
-	protected IIconTexture(IIcon aBlock, short[] aRGBa) {
-		if (aRGBa.length != 4)
-			throw new IllegalArgumentException("RGBa doesn't have 4 Values @ GT_CopiedBlockTexture");
+	public IIconTexture(IIcon aBlock, int rgb) {
+		this.rgb=rgb;
 		mBlock = aBlock;
 
 	}
@@ -36,7 +36,7 @@ public class IIconTexture extends GT_TextureBase implements ITexture {
 		final IIcon aIcon = getIcon(ForgeDirection.EAST.ordinal());
 		aRenderer.field_152631_f = true;
 		startDrawingQuads(aRenderer, 1.0f, 0.0f, 0.0f);
-		new LightingHelper(aRenderer).setupLightingXPos(aBlock, aX, aY, aZ).setupColor(ForgeDirection.EAST, 0xffffff);
+		new LightingHelper(aRenderer).setupLightingXPos(aBlock, aX, aY, aZ).setupColor(ForgeDirection.EAST, rgb);
 		aRenderer.renderFaceXPos(aBlock, aX, aY, aZ, aIcon);
 		draw(aRenderer);
 		aRenderer.field_152631_f = false;
@@ -46,7 +46,7 @@ public class IIconTexture extends GT_TextureBase implements ITexture {
 	public void renderXNeg(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
 		startDrawingQuads(aRenderer, -1.0f, 0.0f, 0.0f);
 		final IIcon aIcon = getIcon(ForgeDirection.WEST.ordinal());
-		new LightingHelper(aRenderer).setupLightingXNeg(aBlock, aX, aY, aZ).setupColor(ForgeDirection.WEST, 0xffffff);
+		new LightingHelper(aRenderer).setupLightingXNeg(aBlock, aX, aY, aZ).setupColor(ForgeDirection.WEST, rgb);
 		aRenderer.renderFaceXNeg(aBlock, aX, aY, aZ, aIcon);
 		draw(aRenderer);
 	}
@@ -55,7 +55,7 @@ public class IIconTexture extends GT_TextureBase implements ITexture {
 	public void renderYPos(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
 		startDrawingQuads(aRenderer, 0.0f, 1.0f, 0.0f);
 		final IIcon aIcon = getIcon(ForgeDirection.UP.ordinal());
-		new LightingHelper(aRenderer).setupLightingYPos(aBlock, aX, aY, aZ).setupColor(ForgeDirection.UP, 0xffffff);
+		new LightingHelper(aRenderer).setupLightingYPos(aBlock, aX, aY, aZ).setupColor(ForgeDirection.UP, rgb);
 		aRenderer.renderFaceYPos(aBlock, aX, aY, aZ, aIcon);
 		draw(aRenderer);
 	}
@@ -64,7 +64,7 @@ public class IIconTexture extends GT_TextureBase implements ITexture {
 	public void renderYNeg(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
 		startDrawingQuads(aRenderer, 0.0f, -1.0f, 0.0f);
 		final IIcon aIcon = getIcon(ForgeDirection.DOWN.ordinal());
-		new LightingHelper(aRenderer).setupLightingYNeg(aBlock, aX, aY, aZ).setupColor(ForgeDirection.DOWN, 0xffffff);
+		new LightingHelper(aRenderer).setupLightingYNeg(aBlock, aX, aY, aZ).setupColor(ForgeDirection.DOWN, rgb);
 		aRenderer.renderFaceYNeg(aBlock, aX, aY, aZ, aIcon);
 		draw(aRenderer);
 	}
@@ -73,7 +73,7 @@ public class IIconTexture extends GT_TextureBase implements ITexture {
 	public void renderZPos(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
 		startDrawingQuads(aRenderer, 0.0f, 0.0f, 1.0f);
 		final IIcon aIcon = getIcon(ForgeDirection.SOUTH.ordinal());
-		new LightingHelper(aRenderer).setupLightingZPos(aBlock, aX, aY, aZ).setupColor(ForgeDirection.SOUTH, 0xffffff);
+		new LightingHelper(aRenderer).setupLightingZPos(aBlock, aX, aY, aZ).setupColor(ForgeDirection.SOUTH, rgb);
 		aRenderer.renderFaceZPos(aBlock, aX, aY, aZ, aIcon);
 		draw(aRenderer);
 	}
@@ -83,7 +83,7 @@ public class IIconTexture extends GT_TextureBase implements ITexture {
 		startDrawingQuads(aRenderer, 0.0f, 0.0f, -1.0f);
 		final IIcon aIcon = getIcon(ForgeDirection.NORTH.ordinal());
 		aRenderer.field_152631_f = true;
-		new LightingHelper(aRenderer).setupLightingZNeg(aBlock, aX, aY, aZ).setupColor(ForgeDirection.NORTH, 0xffffff);
+		new LightingHelper(aRenderer).setupLightingZNeg(aBlock, aX, aY, aZ).setupColor(ForgeDirection.NORTH, rgb);
 		aRenderer.renderFaceZNeg(aBlock, aX, aY, aZ, aIcon);
 		draw(aRenderer);
 		aRenderer.field_152631_f = false;

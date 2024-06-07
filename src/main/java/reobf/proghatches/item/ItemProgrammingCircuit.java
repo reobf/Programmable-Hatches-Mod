@@ -159,6 +159,13 @@ public static ItemStack parse(NBTTagCompound tag){
 	
 	
 }
+
+public static boolean isNew(ItemStack is) {
+	if(is.getTagCompound()==null)return true;
+	String tg = Optional.ofNullable(is).map(ItemStack::getTagCompound)
+			.map(tag -> tag.getCompoundTag("targetCircuit")).map(t->t.getString("string_id")).orElse("");
+	return !tg.isEmpty();
+}
 	public static Optional<ItemStack> getCircuit(ItemStack is) {
 		try {
 			NBTTagCompound tg = Optional.ofNullable(is).map(ItemStack::getTagCompound)

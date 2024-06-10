@@ -35,18 +35,21 @@ public void a(AEItemStack other,CallbackInfoReturnable<Integer> r){
 		
 	Optional<ItemStack> a = ItemProgrammingCircuit.getCircuit(other.getItemStack());
 	Optional<ItemStack> b = ItemProgrammingCircuit.getCircuit(this.getItemStack());
-	boolean aa=ItemProgrammingCircuit.isNew(other.getItemStack());
-	boolean bb=ItemProgrammingCircuit.isNew(this.getItemStack());
-	if(aa!=bb){
-		r.setReturnValue(aa?1:-1);return;
-	}
+	
 		if(a.isPresent()&&b.isPresent()){
-			r.setReturnValue(AEItemStack.create(b.get()).compareTo(AEItemStack.create(a.get())));
+			int result=AEItemStack.create(b.get()).compareTo(AEItemStack.create(a.get()));
+			if(result!=0)r.setReturnValue(result);
+			return;
 		}	
 		else if(!a.isPresent()&&b.isPresent()){r.setReturnValue(-1);}
 		else if(a.isPresent()&&!b.isPresent()){r.setReturnValue(1);}
 		else{
-			r.setReturnValue(0);
+			boolean aa=ItemProgrammingCircuit.isNew(other.getItemStack());
+			boolean bb=ItemProgrammingCircuit.isNew(this.getItemStack());
+			if(aa!=bb){
+				r.setReturnValue(aa?1:-1);return;
+			}
+			return;//r.setReturnValue(0);
 		}
 		
 	};

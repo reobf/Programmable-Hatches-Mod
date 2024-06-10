@@ -43,6 +43,7 @@ import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
+import reobf.proghatches.gt.metatileentity.util.RecursiveLinkExcpetion;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
@@ -102,7 +103,11 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 				this.x = x;
 				this.y = y;
 				this.z = z;
-
+				if(this.getBaseMetaTileEntity().getWorld().getChunkProvider().chunkExists(x >> 4, z >> 4) == false){
+					aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.remote.deferred"));
+					this.linked = true;
+					return;
+				}
 				if (checkBlackList()
 				// blacklist.contains(this.getBaseMetaTileEntity().getWorld().getBlock(x,
 				// y, z).getUnlocalizedName())
@@ -179,6 +184,8 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 
 			if (opt.isPresent() == false)
 				return LangManager.translateToLocal("programmable_hatches.remote.nothing");
+			else
+				checkBlackList();
 			if (opt.get() instanceof IInventory == false) {
 				return LangManager.translateToLocal("programmable_hatches.remote.dummytarget");
 
@@ -315,6 +322,7 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 	private int count;
 
 	public boolean checkDepthLoose() {
+		if(2>1){return false;}
 		if (count++ < 40)
 			return false;
 		count = 0;
@@ -323,6 +331,8 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 
 	@Override
 	public int getSizeInventory() {
+		try(AutoCloseable  o=mark()){
+		
 		if (!processingRecipe)
 			return 1;
 		// justQueried=true;
@@ -332,14 +342,21 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 		}
 		if (!linked)
 			return 1;
-		if (checkDepthLoose()) {
+		/*if (checkDepthLoose()) {
 			getBaseMetaTileEntity().getWorld().setBlockToAir(this.x, this.y, this.z);
 
 			return 0;
-		}
+		}*/
 
 		return opt.filter(s -> s instanceof IInventory).map(s -> ((IInventory) s).getSizeInventory()).orElse(0) + 2;
-
+		} 
+		catch (RecursiveLinkExcpetion e) {
+			return 0;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return 0;
+		}
 	}
 	@Override
 	public int[] getAccessibleSlotsFromSide(int ordinalSide) {
@@ -363,16 +380,16 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 	@Override
 	@Nullable
 	public ItemStack getStackInSlot(int aIndex) {
-
+		try(AutoCloseable  o=mark()){
 		// justQueried=true;
 		Optional<TileEntity> opt = getTile();
 		if (opt.isPresent() && checkBlackList(opt)) {
 			this.linked = false;
 		}
-		if (checkDepthLoose()) {
+		/*if (checkDepthLoose()) {
 			getBaseMetaTileEntity().getWorld().setBlockToAir(this.x, this.y, this.z);
 			return null;
-		}
+		}*/
 		if(aIndex  == getCircuitSlot()){
 			return mInventory[0];
 		}
@@ -408,7 +425,14 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 
 		return arr.get(aIndex);
 		// }catch(Exception e){e.printStackTrace();return null;}
-
+		} 
+		catch (RecursiveLinkExcpetion e) {
+			return null;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override
@@ -520,5 +544,13 @@ public ItemStackHandler getInventoryHandler() {
 		
 	};
 }
-
+private static HashSet<Object> record=new HashSet<>();
+public AutoCloseable mark(){
+	if(!record.add(this)){
+		getBaseMetaTileEntity().getWorld().setBlockToAir(this.x, this.y, this.z);
+		throw new RecursiveLinkExcpetion();
+	};
+	
+	return ()->{record.remove(this);};
+}
 }

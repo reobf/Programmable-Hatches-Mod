@@ -569,7 +569,7 @@ if(supportsFluids())
 				
 			} else {
 				items++;
-				if (items > 4) {
+				if (items > 16) {
 					clearInv();
 					return false;
 				}

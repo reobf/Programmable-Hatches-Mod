@@ -1180,7 +1180,23 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		justHadNewItems = false;
 		return ret;
 	}
-
+	class PiorityBuffer implements Comparable<PiorityBuffer>{
+		PiorityBuffer(DualInvBuffer buff){this.buff=buff;
+		this.piority=getPossibleCopies(buff);
+		}
+		DualInvBuffer buff;
+		int piority;
+		@Override
+		public String toString() {
+			return ""+piority;
+		}
+		@Override
+		public int compareTo(PiorityBuffer o) {
+		
+			return -piority+o.piority;
+		}
+		
+	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Optional</* ? extends */IDualInputInventory> getFirstNonEmptyInventory() {
@@ -1189,23 +1205,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		
 		if(Config.experimentalOptimize){
 		
-		class PiorityBuffer implements Comparable<PiorityBuffer>{
-			PiorityBuffer(DualInvBuffer buff){this.buff=buff;
-			this.piority=getPossibleCopies(buff);
-			}
-			DualInvBuffer buff;
-			int piority;
-			@Override
-			public String toString() {
-				return ""+piority;
-			}
-			@Override
-			public int compareTo(PiorityBuffer o) {
-			
-				return -piority+o.piority;
-			}
-			
-		}
+	
 		
 		return (Optional) inv0.stream().filter(DualInvBuffer::isAccessibleForMulti)
 				.map(s->new PiorityBuffer(s))
@@ -1230,7 +1230,15 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	public Iterator<? extends IDualInputInventory> inventories() {
 		markDirty();
 		dirty=true;
+		
+		if(Config.experimentalOptimize){
+			return	inv0.stream().filter(DualInvBuffer::isAccessibleForMulti)
+			.map(s->new PiorityBuffer(s))
+			.sorted().map(s->{return s.buff;}).iterator();
+	//	return inv0.stream().filter(DualInvBuffer::isAccessibleForMulti).iterator();
+		}
 		return inv0.stream().filter(DualInvBuffer::isAccessibleForMulti).iterator();
+		
 	}
 
 	@Override

@@ -14,6 +14,8 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 
+import com.glodblock.github.client.textures.FCPartsTexture;
+import com.glodblock.github.common.item.ItemFluidPacket;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
@@ -27,6 +29,7 @@ import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
+import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
@@ -46,6 +49,7 @@ import appeng.api.storage.ICellContainer;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEInventoryHandler;
 import appeng.api.storage.StorageChannel;
+import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
@@ -59,6 +63,7 @@ import appeng.me.storage.MEIInventoryWrapper;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
+import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import appeng.util.item.ItemList;
 import gregtech.api.GregTech_API;
@@ -75,59 +80,43 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTank;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.IIconTexture;
 
-public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContainer, IGridProxyable
+public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContainer, IGridProxyable
 
 {
 
-	public SuperChestME(String aName, int aTier, int aInvSlotCount, String[] aDescription, ITexture[][][] aTextures) {
+	public SuperTankME(String aName, int aTier, int aInvSlotCount, String[] aDescription, ITexture[][][] aTextures) {
 		super(aName, aTier, aInvSlotCount, aDescription, aTextures);
-	
+		content=new FluidTank(commonSizeCompute(aTier));
 	}
-	public SuperChestME(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount
+	public SuperTankME(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount
 			) {
-		super(aID, aName, aNameRegional, aTier, aInvSlotCount,  reobf.proghatches.main.Config.get("SCME", 
+		super(aID, aName, aNameRegional, aTier, aInvSlotCount,  reobf.proghatches.main.Config.get("STME", 
 				ImmutableMap.of(
-						"items",commonSizeCompute(aTier)
+						"fluid",commonSizeCompute(aTier)
 						)
 				
 				), new ITexture[0]);
+		
+		content=new FluidTank(commonSizeCompute(aTier));
 		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
 	}
-	@Override
-	public int getInventoryStackLimit() {
 	
-		return cap();
-	}
-	public int cap(){
-		
-		return commonSizeCompute(mTier);
-	}
-	 protected static int commonSizeCompute(int tier) {
-	        switch (tier) {
-	            case 1 : return 4000000;
-	            case 2 : return 8000000;
-	            case 3 : return 16000000;
-	            case 4 : return 32000000;
-	            case 5 : return 64000000;
-	            case 6 : return 128000000;
-	            case 7 : return 256000000;
-	            case 8 : return 512000000;
-	            case 9 : return 1024000000;
-	            case 10 : return 2147483640;
-	            default : return 0;
-	        }
-	    }
+	
 	@MENetworkEventSubscribe
     public void channel(final MENetworkChannelsChanged c) {
 		post();
@@ -166,7 +155,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	}
 	@Override
 	public List<IMEInventoryHandler> getCellArray(StorageChannel channel) {
-		if(channel==StorageChannel.ITEMS)
+		if(channel==StorageChannel.FLUIDS)
 		return ImmutableList.of(handler);
 		else
 			return ImmutableList.of();
@@ -213,7 +202,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	@Override
 	public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
 		
-		return new SuperChestME(mName, mTier, mInventory.length, mDescriptionArray, mTextures);
+		return new SuperTankME(mName, mTier, mInventory.length, mDescriptionArray, mTextures);
 	}
 	@Override
 	public void blinkCell(int slot) {
@@ -228,7 +217,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 				(ExtraBlockTextures.MEChest.getIcon(),
 						0xD7BBEC)
 				, new IIconTexture
-				(ExtraBlockTextures.BlockMEChestItems_Light.getIcon(),
+				(FCPartsTexture.PartFluidTerminal_Bright.getIcon(),
 						0xffffff)
 		
 		};
@@ -252,9 +241,9 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	IMEInventoryHandler<AEItemStack> handler
+	IMEInventoryHandler<AEFluidStack> handler
 	=new MEInventoryHandler(new UnlimitedWrapper()
-	, StorageChannel .ITEMS){
+	, StorageChannel .FLUIDS){
 		public boolean getSticky() {return sticky;};
 		public int getPriority() {return piority;};
 	};
@@ -267,8 +256,8 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 		getProxy().onReady();
 		onColorChangeServer(aBaseMetaTileEntity.getColorization());
 	}
-
-	public class UnlimitedWrapper implements IMEInventory<IAEItemStack> {
+  FluidTank content=new FluidTank(10000);
+	public class UnlimitedWrapper implements IMEInventory<IAEFluidStack> {
 
 	 
 
@@ -277,74 +266,33 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	    }
 
 		@Override
-		public IAEItemStack injectItems(IAEItemStack input, Actionable type, BaseActionSource src) {
-			long l=input.getStackSize();
-			long compl=0;
-			if(l>Integer.MAX_VALUE){compl=l-Integer.MAX_VALUE;}
-			ItemStack in=input.getItemStack();
-			ItemStack thiz=mInventory[0];
-			if(thiz!=null&&!Platform.isSameItem(in, thiz))return input;
-			if(thiz==null){thiz=in.copy();thiz.stackSize=0; }
-			int space=Math.max(0, cap()-thiz.stackSize);
-			int transfer=Math.min(space,in.stackSize);
-			if(type==Actionable.SIMULATE){
-				in.stackSize-=transfer;
-				if(in.stackSize<=0&&compl==0)in=null;
-				AEItemStack ret= AEItemStack.create(in);
-				if(ret!=null)ret.incStackSize(compl);
-				return ret;
-			}
-			if(type==Actionable.MODULATE){
-				thiz.stackSize+=transfer;
-				mInventory[0]=thiz;
-				in.stackSize-=transfer;
-				if(in.stackSize<=0&&compl==0)in=null;
-				AEItemStack ret= AEItemStack.create(in);
-				if(ret!=null)ret.incStackSize(compl);
-				return ret;
-				
-			}
-			
-			
-			return null;
+		public IAEFluidStack injectItems(IAEFluidStack input, Actionable type, BaseActionSource src) {
+			int acc=content.fill(input.getFluidStack(), type==Actionable.MODULATE);
+			IAEFluidStack  ret = input.copy();
+			ret.decStackSize(acc);
+			if(ret.getStackSize()==0)return null;
+			return ret;
 		}
 
 		@Override
-		public IAEItemStack extractItems(IAEItemStack input, Actionable type, BaseActionSource src) {
-		
-			ItemStack in=input.getItemStack();
-			ItemStack thiz=mInventory[0];
-			if(thiz!=null&&!Platform.isSameItem(in, thiz))return input;
-			if(thiz==null){thiz=in.copy(); }
-			int transfer=Math.min(in.stackSize,thiz.stackSize);
-			if(transfer==0)return null;
-			if(type==Actionable.SIMULATE){
-				in.stackSize=transfer;
-				return AEItemStack.create(in);
-				
-			}
-			if(type==Actionable.MODULATE){
-				thiz.stackSize-=transfer;
-				if(thiz.stackSize<=0)thiz=null;
-				mInventory[0]=thiz;
-				in.stackSize=transfer;
-				return AEItemStack.create(in);
-			}
-			
-			
-			return null;
+		public IAEFluidStack extractItems(IAEFluidStack input, Actionable type, BaseActionSource src) {
+		if(content.getFluid()!=null&&content.getFluid().getFluid()!=input.getFluid()
+				){return null;}
+			FluidStack suck=	content.drain((int) Math.min(Integer.MAX_VALUE,input.getStackSize()),  type==Actionable.MODULATE);
+			if(suck!=null&&suck.amount==0)return null;
+			return AEFluidStack.create(suck);
 		}
 
 		@Override
-		public IItemList<IAEItemStack> getAvailableItems(IItemList<IAEItemStack> out) {
-		out.addStorage(AEItemStack.create(mInventory[0]));
+		public IItemList<IAEFluidStack> getAvailableItems(IItemList<IAEFluidStack> out) {
+		out.addStorage(AEFluidStack.create(content.getFluid()));
 			return out;
 		}
 
 		@Override
 		public StorageChannel getChannel() {
 			
-			return StorageChannel.ITEMS;
+			return StorageChannel.FLUIDS;
 		}
 	} 
 	@Override
@@ -369,58 +317,57 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	}
 	@Override
 	public boolean isItemValidForSlot(int aIndex, ItemStack aStack) {
-		if(aIndex==0)return true;
-		if(mInventory[0]==null||mInventory[0].stackSize==0){
-			return true;
-		}
-		return Platform.isSameItem(mInventory[0],aStack);
+		return(aStack.getItem() instanceof ItemFluidPacket);
 	}
 	@Override
 	public boolean allowPullStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
 			ItemStack aStack) {
 	
-		return aBaseMetaTileEntity.getFrontFacing()==side
-				&&aIndex==0
-				;
+		return true;
 	}
 	@Override
 	public boolean allowPutStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
 			ItemStack aStack) {
 		
-		return aBaseMetaTileEntity.getFrontFacing()==side
-				&&aIndex!=0
-				;
+		return true;
+				
 	}
-	protected void fillStacksIntoFirstSlots() {
-        final int L = mInventory.length;
-        HashMap<GT_Utility.ItemId, Integer> slots = new HashMap<>(L);
-        HashMap<GT_Utility.ItemId, ItemStack> stacks = new HashMap<>(L);
-        List<GT_Utility.ItemId> order = new ArrayList<>(L);
-        List<Integer> validSlots = new ArrayList<>(L);
-        for (int i = 1; i < L; i++) {
-            if (!isValidSlot(i)) continue;
-            validSlots.add(i);
-            ItemStack s = mInventory[i];
-            if (s == null) continue;
-            GT_Utility.ItemId sID = GT_Utility.ItemId.createNoCopy(s);
-            slots.merge(sID, s.stackSize, Integer::sum);
-            if (!stacks.containsKey(sID)) stacks.put(sID, s);
-            order.add(sID);
-            mInventory[i] = null;
-        }
-        int slotindex = 0;
-        for (GT_Utility.ItemId sID : order) {
-            int toSet = slots.get(sID);
-            if (toSet == 0) continue;
-            int slot = validSlots.get(slotindex);
-            slotindex++;
-            mInventory[slot] = stacks.get(sID)
-                .copy();
-            toSet = Math.min(toSet, mInventory[slot].getMaxStackSize());
-            mInventory[slot].stackSize = toSet;
-            slots.merge(sID, toSet, (a, b) -> a - b);
-        }
-    }
+	@Override
+	public boolean isFluidInputAllowed(FluidStack aFluid) {
+		
+		return true;
+	}
+	
+	@Override
+	public boolean canTankBeFilled() {
+	
+		return true;
+	}
+	@Override
+	public boolean canTankBeEmptied() {
+	
+		return true;
+	}
+	@Override
+	public boolean canDrain(ForgeDirection side, Fluid aFluid) {
+		if(side!=this.getBaseMetaTileEntity().getFrontFacing())return false;
+		return super.canDrain(side, aFluid);
+	}
+	@Override
+	public boolean canFill(ForgeDirection side, Fluid aFluid) {
+		if(side!=this.getBaseMetaTileEntity().getFrontFacing())return false;
+		return super.canFill(side, aFluid);
+	}
+	@Override
+	public int fill(FluidStack aFluid, boolean doFill) {
+	
+		return content.fill(aFluid, doFill);
+	}
+	@Override
+	public int fill(ForgeDirection side, FluidStack aFluid, boolean doFill) {
+	
+		return content.fill(aFluid, doFill);
+	}
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		if(!aBaseMetaTileEntity.getWorld().isRemote&&(aTick&16)!=0){
@@ -433,28 +380,17 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 		
 		super.onPostTick(aBaseMetaTileEntity, aTick);
 		boolean needToSort=false;
-		for(int i=1;i<mInventory.length;i++){
-			ItemStack is = mInventory[i];
-			if(is==null)continue;
-			markDirty();
-			if(mInventory[0]==null){
-				mInventory[0]=is.copy();
-				mInventory[i]=null;
-			}
-			else
-			if(cap()-is.stackSize>=mInventory[0].stackSize){
-				mInventory[0].stackSize+=is.stackSize;
-				mInventory[i]=null;
-			}
-			else{
-				int to=Math.min(cap()-mInventory[0].stackSize,is.stackSize);
-				mInventory[0].stackSize+=to;
-				mInventory[i].stackSize-=to;
+		for(int i=0;i<mInventory.length;i++){
+			if(mInventory[i]!=null&&mInventory[i].getItem() instanceof ItemFluidPacket){
 				needToSort=true;
+				FluidStack fs = ItemFluidPacket.getFluidStack(mInventory[i]);
+				if(fs==null){continue;}
+				if(fill(fs, false)!=fs.amount){continue;}
+			 fill(fs, true);mInventory[i]=null;
 			}
+			
 		}
 		if(needToSort)fillStacksIntoFirstSlots();
-		
 	}
 	   @Override
 	    public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
@@ -484,33 +420,37 @@ public ItemStackHandler getInventoryHandler() {
 }
  @Override
 public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-	 builder.widget(new SlotWidget(new BaseSlotPatched(this.getInventoryHandler(), 0))
-			 
+builder.widget(new FluidSlotWidget(content)
 			 .setPos(3, 3)
 			 );
+
 	 builder.widget(new DrawableWidget().setDrawable(ModularUITextures.ARROW_LEFT)
 			 
 			 .setPos(3+18, 3).setSize(18,18));
-	 builder.widget(new SlotWidget(new BaseSlotPatched(this.getInventoryHandler(), 1))
+	 builder.widget(new SlotWidget(new BaseSlotPatched(this.getInventoryHandler(), 0))
 			 .setPos(3+18*2, 3)
 			 );
-	 builder.widget(new SlotWidget(new BaseSlotPatched(this.getInventoryHandler(), 2))
+	 builder.widget(new SlotWidget(new BaseSlotPatched(this.getInventoryHandler(), 1))
 			 .setPos(3+18*3, 3)
 			 );
-	
+	 
 	 Widget w;
      builder.widget(w=new DrawableWidget().setDrawable(ModularUITextures.ICON_INFO)
 			 
 			 .setPos(3+18*4+1, 3+1).setSize(16,16)
 			// .addTooltip("xxxxxxx")
     		 );
+     
+     
+    
+     
     		 
  IntStream
 		.range(0,
 				Integer.valueOf(StatCollector.translateToLocal(
-						"programmable_hatches.gt.mechest.tooltip")))
+						"programmable_hatches.gt.metank.tooltip")))
 		.forEach(s -> w.addTooltip(LangManager.translateToLocal(
-				"programmable_hatches.gt.mechest.tooltip." +  + s)));
+				"programmable_hatches.gt.metank.tooltip." +  + s)));
  
  
  builder.widget(createButton(() -> 
@@ -559,49 +499,47 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	super.loadNBTData(aNBT);
 	piority=aNBT.getInteger("piority");
 	sticky=	aNBT.getBoolean("sticky");
+	content.readFromNBT(aNBT);
 }
- 
+ protected static int commonSizeCompute(int tier) {
+     switch (tier) {
+         case 1 : return 4000000;
+         case 2 : return 8000000;
+         case 3 : return 16000000;
+         case 4 : return 32000000;
+         case 5 : return 64000000;
+         case 6 : return 128000000;
+         case 7 : return 256000000;
+         case 8 : return 512000000;
+         case 9 : return 1024000000;
+         case 10 : return 2147483640;
+         default : return 0;
+     }
+ }
 @Override
 public void saveNBTData(NBTTagCompound aNBT) {
 	 getProxy().writeToNBT(aNBT);
 	super.saveNBTData(aNBT);
-	NBTTagList greggy=aNBT.getTagList("Inventory", 10);
-	for(int i=0;i<mInventory.length;i++){
 	
-		if( mInventory[i]!=null){	
-			NBTTagCompound t;
-			t=((NBTTagCompound)greggy.getCompoundTagAt(i));
-			if(t!=null)t.setInteger("Count", mInventory[i].stackSize);}
-		
-	}
+	content.writeToNBT(aNBT);
 	aNBT.setInteger("piority", piority);
 	aNBT.setBoolean("sticky", sticky);
 }
 @Override
 public void setItemNBT(NBTTagCompound aNBT) {
-	final NBTTagList tItemList = new NBTTagList();
-    for (int i = 0; i < getRealInventory().length; i++) {
-        final ItemStack tStack = getRealInventory()[i];
-        if (tStack != null) {
-            final NBTTagCompound tTag = new NBTTagCompound();
-            tTag.setInteger("IntSlot", i);
-            tStack.writeToNBT(tTag);
-            tTag.setInteger("Count", tStack.stackSize);
-            tItemList.appendTag(tTag);
-        }
-    }
-    aNBT.setTag("Inventory", tItemList);
+	content.writeToNBT(aNBT);
     if(piority!=0)aNBT.setInteger("piority", piority);
     if(sticky)aNBT.setBoolean("sticky", sticky);
 }
 @Override
 public boolean shouldDropItemAt(int index) {
 
-	return false;
+	return true;
 }
+
 public static String name(int t){
 	
-	return StatCollector.translateToLocalFormatted("mesuperchest.name."+(t>=5), suffix[t-1]);
+	return StatCollector.translateToLocalFormatted("mesupertank.name."+(t>=5), suffix[t-1]);
 }
 public static String[] suffix={"I","II","III","IV","V","I","II","III","IV","V"};
 @Override
@@ -621,7 +559,36 @@ getGridNode(null).updateState();
 
 }
 
-
+protected void fillStacksIntoFirstSlots() {
+    final int L = mInventory.length;
+    HashMap<GT_Utility.ItemId, Integer> slots = new HashMap<>(L);
+    HashMap<GT_Utility.ItemId, ItemStack> stacks = new HashMap<>(L);
+    List<GT_Utility.ItemId> order = new ArrayList<>(L);
+    List<Integer> validSlots = new ArrayList<>(L);
+    for (int i = 0; i < L; i++) {
+        if (!isValidSlot(i)) continue;
+        validSlots.add(i);
+        ItemStack s = mInventory[i];
+        if (s == null) continue;
+        GT_Utility.ItemId sID = GT_Utility.ItemId.createNoCopy(s);
+        slots.merge(sID, s.stackSize, Integer::sum);
+        if (!stacks.containsKey(sID)) stacks.put(sID, s);
+        order.add(sID);
+        mInventory[i] = null;
+    }
+    int slotindex = 0;
+    for (GT_Utility.ItemId sID : order) {
+        int toSet = slots.get(sID);
+        if (toSet == 0) continue;
+        int slot = validSlots.get(slotindex);
+        slotindex++;
+        mInventory[slot] = stacks.get(sID)
+            .copy();
+        toSet = Math.min(toSet, mInventory[slot].getMaxStackSize());
+        mInventory[slot].stackSize = toSet;
+        slots.merge(sID, toSet, (a, b) -> a - b);
+    }
+}
 
 
 }

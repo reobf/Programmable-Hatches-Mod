@@ -2,6 +2,8 @@ package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.enums.Textures.BlockIcons.FLUID_IN_SIGN;
 
+import java.io.Closeable;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,12 +18,15 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
@@ -37,6 +42,7 @@ import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
+import reobf.proghatches.gt.metatileentity.util.RecursiveLinkExcpetion;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
@@ -94,7 +100,11 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
 				this.x = x;
 				this.y = y;
 				this.z = z;
-
+				if(this.getBaseMetaTileEntity().getWorld().getChunkProvider().chunkExists(x >> 4, z >> 4) == false){
+					aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.remote.deferred"));
+					this.linked = true;
+					return;
+				}
 				if (checkBlackList()
 				// blacklist.contains(this.getBaseMetaTileEntity().getWorld().getBlock(x,
 				// y, z).getUnlocalizedName())
@@ -176,6 +186,8 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
 
 			if (opt.isPresent() == false)
 				return LangManager.translateToLocal("programmable_hatches.remote.nothing");
+			else
+			checkBlackList();
 			if (opt.get() instanceof IFluidHandler == false) {
 				return LangManager.translateToLocal("programmable_hatches.remote.dummytarget");
 
@@ -215,8 +227,60 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
 		}
 		return Optional.ofNullable(this.getBaseMetaTileEntity().getWorld().getTileEntity(x, y, z));
 	}
+	@Override
+	public FluidStack getFluid(int aSlot) {
+		try(AutoCloseable  o=mark()){
+			Optional<TileEntity> opt = getTile();
+		if (opt.isPresent() && checkBlackList(opt)) {
+			this.linked = false;
+		}
+		/*if (checkDepthLoose()) {
+			getBaseMetaTileEntity().getWorld().setBlockToAir(this.x, this.y, this.z);
+			return null;
+		}*/
+		
+		return getTile().map(this::filterTakable)
+				.map(s->{
+					if(aSlot<0||aSlot>=s.size())return null;
+				return s.get(aSlot);	
+				}).orElse(null);
+		}
+		catch (RecursiveLinkExcpetion e) {
+			return null;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+@Override
+public FluidStack getFillableStack() {
+	try(AutoCloseable  o=mark()){
+	Optional<TileEntity> opt = getTile();
+	if (opt.isPresent() && checkBlackList(opt)) {
+		this.linked = false;
+	}
+	/*if (checkDepthLoose()) {
+		getBaseMetaTileEntity().getWorld().setBlockToAir(this.x, this.y, this.z);
+		return null;
+	}*/
 
-	public List<? extends FluidStack> filterTakable(TileEntity e) {
+	return getTile().map(this::filterTakable)
+			.filter(s->s.size()>=1)
+			.orElseGet(()->ImmutableList.of(null)).get(0);
+	}
+	catch (RecursiveLinkExcpetion e) {
+		return null;
+	}
+	catch (Exception e) {
+		e.printStackTrace();
+		return null;
+	}
+	
+
+}
+	@SuppressWarnings("unchecked")
+	public List<FluidStack> filterTakable(TileEntity e) {
 
 		if (processingRecipe == false)
 			return new ArrayList<FluidStack>();
@@ -242,7 +306,7 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
 			// }
 			ArrayList<ShadowFluidStack> arrm = new ArrayList<>(slots);
 			tmp = arrm;
-			return arrm;
+			return (List<FluidStack>)(Object)arrm;
 		}
 
 		return new ArrayList<>();
@@ -318,12 +382,26 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
 	private int count;
 
 	public boolean checkDepthLoose() {
+		if(2>1)return false;
+		
+		
 		if (count++ < 40)
 			return false;
 		count = 0;
 		return checkDepth();
 	}
-
+	
+	
+	private static HashSet<Object> record=new HashSet<>();
+	
+	public AutoCloseable mark(){
+		if(!record.add(this)){
+			getBaseMetaTileEntity().getWorld().setBlockToAir(this.x, this.y, this.z);
+			throw new RecursiveLinkExcpetion();
+		};
+		
+		return ()->{record.remove(this);};
+	}
 	@Override
 	public int getSizeInventory() {
 
@@ -348,20 +426,29 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
 
 	@Override
 	public FluidStack[] getStoredFluid() {
-
+	try(AutoCloseable  o=mark()){
 		Optional<TileEntity> opt = getTile();
 		if (opt.isPresent() && checkBlackList(opt)) {
 			this.linked = false;
 		}
-		if (checkDepthLoose()) {
+		/*if (checkDepthLoose()) {
 			getBaseMetaTileEntity().getWorld().setBlockToAir(this.x, this.y, this.z);
 			return new FluidStack[0];
-		}
+		}*/
 
 		return getTile().map(this::filterTakable).orElse(new ArrayList<>()).toArray(new FluidStack[0]);
 
+	} 
+	catch (RecursiveLinkExcpetion e) {
+		return new FluidStack[0];
 	}
-
+	catch (Exception e) {
+		e.printStackTrace();
+		return new FluidStack[0];
+	}
+		
+		
+	}
 	protected boolean processingRecipe = false;
 
 	@Override

@@ -40,6 +40,7 @@ import reobf.proghatches.gt.metatileentity.ProviderChainer;
 import reobf.proghatches.gt.metatileentity.RemoteInputBus;
 import reobf.proghatches.gt.metatileentity.RemoteInputHatch;
 import reobf.proghatches.gt.metatileentity.SuperChestME;
+import reobf.proghatches.gt.metatileentity.SuperTankME;
 import reobf.proghatches.gt.metatileentity.SuperfluidHatch;
 import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
 import reobf.proghatches.lang.LangManager;
@@ -70,6 +71,7 @@ public class Registration implements Runnable {
     public final static int CircuitProviderOffsetT0 = 118;
     public final static int MEChest = 119;//-129
     public final static int PatternOffsetBus = 130;
+    public final static int METank = 131;//-141
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -329,7 +331,12 @@ public class Registration implements Runnable {
                 "mesuperchest."+i ,
                 SuperChestME.name(i),i,1+16
               );
-        
+        for(int i=1;i<=10;i++)
+            new SuperTankME(
+                    Config.metaTileEntityOffset +METank+i-1 ,
+                    "mesupertank."+i ,
+                    SuperTankME.name(i),i,1+16
+                  );
         
         
     }

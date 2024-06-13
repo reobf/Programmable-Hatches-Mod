@@ -13,4 +13,3 @@ addOtherStructurePart(Programming Circuit Provider¶Any casing that is adjacent 
 addOtherStructurePart(Provider Access Hatch¶Same as above)->(Ljava/lang/String;Ljava/lang/String;)
 addEnergyHatch(Any front layer casing¶1)->(Ljava/lang/String;[I)
 addMaintenanceHatch(Any front layer casing¶1)->(Ljava/lang/String;[I)
-toolTipFinisher(ProgrammableHatches)->(Ljava/lang/String;)

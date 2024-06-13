@@ -516,7 +516,7 @@ public class LargeProgrammingCircuitProvider
 	ArrayList<ItemStack> toReturn = new ArrayList<>();
 	
 	@SuppressWarnings({ "deprecation", "unchecked" })
-	public void shut(String reason){
+	public static void shut(GT_MetaTileEntity_MultiBlockBase thiz,String reason){
 		if(shut==null){
 		
 		try {
@@ -547,7 +547,7 @@ public class LargeProgrammingCircuitProvider
 	
 	
 		
-		shut.accept(this,reason);
+		shut.accept(thiz,reason);
 	}
 	
 	static public class NewShutRunnable implements BiConsumer<GT_MetaTileEntity_MultiBlockBase,String>{
@@ -575,7 +575,7 @@ public class LargeProgrammingCircuitProvider
 		try {
 			if (ItemProgrammingCircuit.getCircuit(patternDetails.getOutputs()[0].getItemStack()).map(ItemStack::getItem)
 					.orElse(null) == MyMod.progcircuit) {
-				this.shut(null);
+				shut(this,null);
 				return false;
 			}
 
@@ -684,7 +684,7 @@ public class LargeProgrammingCircuitProvider
 		if (!checkLoop(reusable)) {
 			cacheState = CacheState.CRASH;
 			
-			this.shut("proghatch.access_loop");
+			shut(this,"proghatch.access_loop");
 			
 			reusable.clear();
 			return;

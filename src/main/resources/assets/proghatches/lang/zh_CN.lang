@@ -367,3 +367,13 @@ programmable_hatches.gt.metank.tooltip.0=一共有16个接收流体封包的输�
 programmable_hatches.gt.metank.tooltip.1=流体封包会被尽量自动解码注入流体槽
 programmable_hatches.gt.metank.tooltip.2=左侧至多显示输入格中的前2个非空格
 programmable_hatches.remote.deferred=已连接 但目标区块未被加载,状态未知
+proghatches.ingdistr.eu=使用/最大 EU: %s/%s
+GT5U.gui.text.proghatches.ingredientdistr.ready=就绪
+GT5U.gui.text.proghatches.ingredientdistr.charging=充能中...
+proghatches.ingredientdistr.blocking=阻挡模式
+multimachine.ingredientdistributor.name=电力原料分配器(WIP)
+proghatches.ingredientdistr.blocking.desc.0=当所有ME输出仓/总线的内部缓存以及所在网络内
+proghatches.ingredientdistr.blocking.desc.1=均为空或与只有一种与待转移材料类型相同的材料
+proghatches.ingredientdistr.blocking.desc.2=并有空间接收所有材料才会触发转移
+proghatches.ingredientdistr.blocking.desc=3
+

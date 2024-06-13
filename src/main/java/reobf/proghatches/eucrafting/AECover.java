@@ -589,7 +589,34 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 			data.onReady();
 		}
 		data.update(aTileEntity);
+		//
+		AENetworkProxy host=null;
+		if (aTileEntity instanceof IGridProxyable &&( host=((IGridProxyable) aTileEntity).getProxy()) != null) {
+			IGridNode thiz = data.getProxy().getNode();
+			boolean found=false;
+			try {
+			Iterator<IGridConnection> it = thiz.getConnections().iterator();
+			while (it.hasNext()) {
+				IGridConnection item = it.next();
+				if (item.a() == host.getNode() || item.b() == host.getNode()) {
+					
+						found = true;
+					break;
+				}
+				;
 
+			}
+				if(!found){
+					MyMod.LOG.info("Node internal connect@" + data.getPos());
+					new GridConnection(thiz, host.getNode(), ForgeDirection.UNKNOWN);}
+			} catch (FailedConnection e) {
+				
+				e.printStackTrace();
+			}
+		}
+		//
+		
+		
 		TileEntity te = aTileEntity.getTileEntityAtSide(side);
 		lab: if (te != null && te instanceof IGridHost) {
 			Iterator<IGridConnection> it = data.getProxy().getNode().getConnections().iterator();
@@ -732,9 +759,11 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 
 	@Override
 	public boolean isCoverPlaceable(ForgeDirection side, ItemStack aStack, ICoverable aTileEntity) {
-		if (aTileEntity instanceof IGridProxyable && ((IGridProxyable) aTileEntity).getProxy() != null) {
+		/*if (aTileEntity instanceof IGridProxyable && ((IGridProxyable) aTileEntity).getProxy() != null) {
 			return false;
 		} // cannot be placed on ME hatches
+		*/
+		
 		return super.isCoverPlaceable(side, aStack, aTileEntity);
 	}
 }

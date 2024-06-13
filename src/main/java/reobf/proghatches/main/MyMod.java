@@ -80,6 +80,7 @@ import reobf.proghatches.eucrafting.InterfaceData;
 import reobf.proghatches.eucrafting.PartEUP2PInterface;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
+import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
@@ -149,9 +150,9 @@ public class MyMod {
 	@SubscribeEvent
 	public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev) {
 		if (Optional.ofNullable(ev.entityPlayer.getHeldItem()).map(ItemStack::getItem)
-				.orElse(Items.apple) instanceof ItemEditableBook) {
+				.orElse(Items.apple) instanceof ItemBookTutorial) {
 			if (Optional.ofNullable(ev.entityPlayer.getHeldItem().stackTagCompound)
-					.map(s -> s.getString("proghatchesSpecialTag")).isPresent()) {
+					.filter(s -> s.hasKey("proghatchesSpecialTag")).isPresent()) {
 
 				ev.setCanceled(true);
 				if (ev.world.isRemote) {
@@ -290,7 +291,7 @@ public class MyMod {
 
 		ItemStack is = ProghatchesUtil.getWrittenBook(it, "ProgrammableHatchesTutorial", key, "programmable_hatches",
 				pages.toArray(new String[0]));
-
+		is.stackTagCompound.setString("proghatchesSpecialTag", "true");
 		return is;
 
 	}

@@ -15,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -468,6 +469,7 @@ if(supportsFluids())
 		customName = aNBT.getString("customName");
 		
 		getProxy().readFromNBT(aNBT);
+		additionalConnection=aNBT.getBoolean("additionalConnection");
 		super.loadNBTData(aNBT);
 	}
 
@@ -483,6 +485,7 @@ if(supportsFluids())
 		aNBT.setTag("patternSlots", tag);
 		Optional.ofNullable(customName).ifPresent(s -> aNBT.setString("customName", s));
 		getProxy().writeToNBT(aNBT);
+		aNBT.setBoolean("additionalConnection", additionalConnection);
 		super.saveNBTData(aNBT);
 	}
 
@@ -666,6 +669,7 @@ if(supportsFluids())
 	}
 
 	String customName;
+	private boolean additionalConnection;
 
 	@Override
 	public String getCustomName() {
@@ -751,8 +755,12 @@ if(supportsFluids())
 	}
 
 	private void updateValidGridProxySides() {
-
-		getProxy().setValidSides(EnumSet.of(getBaseMetaTileEntity().getFrontFacing()));
+		if (additionalConnection) {
+            getProxy().setValidSides(EnumSet.complementOf(EnumSet.of(ForgeDirection.UNKNOWN)));
+        } else {
+            getProxy().setValidSides(EnumSet.of(getBaseMetaTileEntity().getFrontFacing()));
+        }
+		//getProxy().setValidSides(EnumSet.of(getBaseMetaTileEntity().getFrontFacing()));
 
 	}
 
@@ -823,5 +831,13 @@ if(supportsFluids())
 	public int getInventoryFluidLimit() {
 		return Integer.MAX_VALUE;
 	}
-	 
+	  @Override
+	    public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
+	        float aX, float aY, float aZ) {
+	        additionalConnection = !additionalConnection;
+	        updateValidGridProxySides();
+	        aPlayer.addChatComponentMessage(
+	            new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
+	        return true;
+	    }
 }

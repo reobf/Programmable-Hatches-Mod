@@ -42,6 +42,7 @@ import reobf.proghatches.gt.metatileentity.RemoteInputHatch;
 import reobf.proghatches.gt.metatileentity.SuperChestME;
 import reobf.proghatches.gt.metatileentity.SuperTankME;
 import reobf.proghatches.gt.metatileentity.SuperfluidHatch;
+import reobf.proghatches.gt.metatileentity.multi.IngredientDistributor;
 import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
@@ -72,6 +73,7 @@ public class Registration implements Runnable {
     public final static int MEChest = 119;//-129
     public final static int PatternOffsetBus = 130;
     public final static int METank = 131;//-141
+	public static final int IngredientDistributorOffset = 142;
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -337,7 +339,11 @@ public class Registration implements Runnable {
                     "mesupertank."+i ,
                     SuperTankME.name(i),i,1+16
                   );
-        
+        new IngredientDistributor(
+       		 Config.metaTileEntityOffset + IngredientDistributorOffset,
+               "multimachine.ingredientdistributor",
+               LangManager.translateToLocalFormatted("multimachine.ingredientdistributor.name"));
+       
         
     }
 public class DeferredGetterTexture extends GT_CopiedBlockTexture{

@@ -376,4 +376,15 @@ proghatches.ingredientdistr.blocking.desc.0=当所有ME输出仓/总线的内部
 proghatches.ingredientdistr.blocking.desc.1=均为空或与只有一种与待转移材料类型相同的材料
 proghatches.ingredientdistr.blocking.desc.2=并有空间接收所有材料才会触发转移
 proghatches.ingredientdistr.blocking.desc=3
-
+circuitprovider.prefab.0.name=预构电路提供器(编程电路)
+circuitprovider.prefab.1.name=预构电路提供器(模具)
+circuitprovider.prefab.2.name=预构电路提供器(刀具)
+circuitprovider.prefab.3.name=预构电路提供器(模头)
+circuitprovider.prefab.4.name=预构电路提供器(白矮星物质模头)
+circuitprovider.prefab.5.name=预构电路提供器(透镜)
+circuitprovider.prefab.0.type.name=编程电路
+circuitprovider.prefab.1.type.name=模具
+circuitprovider.prefab.2.type.name=刀具
+circuitprovider.prefab.3.type.name=模头
+circuitprovider.prefab.4.type.name=白矮星物质模头
+circuitprovider.prefab.5.type.name=透镜

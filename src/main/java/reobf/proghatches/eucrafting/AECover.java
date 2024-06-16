@@ -49,6 +49,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
+import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 
 public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
@@ -487,11 +488,17 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 		super.placeCover(side, aCover, aTileEntity);
 
 		Data data = ((Data) aTileEntity.getComplexCoverDataAtSide(side));
+		
 		data.accept(side, aTileEntity);
 		data.setTag(aCover.getTagCompound());
 
 	}
-
+@Override
+public void onPlayerAttach(EntityPlayer player, ItemStack aCover, ICoverable aTileEntity, ForgeDirection side) {
+	
+	Data data = (InterfaceData) aTileEntity.getComplexCoverDataAtSide(side);
+	data.getProxy().setOwner(player);
+}
 	protected boolean onCoverRightClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
 			ICoverable aTileEntity, EntityPlayer aPlayer, float aX, float aY, float aZ) {
 		if (aCoverVariable.nonShiftClick(side, aCoverID, aCoverVariable, aTileEntity, aPlayer)) {
@@ -650,9 +657,9 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 					MyMod.LOG.info("Node connect@" + data.getPos());
 				} catch (FailedConnection e) {
 
-					System.out.println(item.a());
-					System.out.println(item.b());
-					System.out.println(thenode);
+					//System.out.println(item.a());
+					//System.out.println(item.b());
+					//System.out.println(thenode);
 					e.printStackTrace();
 				}
 
@@ -759,11 +766,12 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 
 	@Override
 	public boolean isCoverPlaceable(ForgeDirection side, ItemStack aStack, ICoverable aTileEntity) {
-		/*if (aTileEntity instanceof IGridProxyable && ((IGridProxyable) aTileEntity).getProxy() != null) {
+		if (!Config.MECover&&aTileEntity instanceof IGridProxyable && ((IGridProxyable) aTileEntity).getProxy() != null) {
 			return false;
 		} // cannot be placed on ME hatches
-		*/
+		
 		
 		return super.isCoverPlaceable(side, aStack, aTileEntity);
 	}
+	
 }

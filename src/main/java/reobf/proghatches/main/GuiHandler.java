@@ -4,17 +4,24 @@ import java.lang.reflect.Field;
 
 import com.glodblock.github.client.gui.GuiDualInterface;
 import com.glodblock.github.client.gui.container.ContainerDualInterface;
+import com.glodblock.github.common.parts.PartFluidInterface;
+import com.glodblock.github.loader.ItemAndBlockHolder;
 
+import appeng.api.AEApi;
 import appeng.api.implementations.IUpgradeableHost;
 import appeng.client.gui.implementations.GuiPriority;
+import appeng.client.gui.implementations.GuiRenamer;
+import appeng.client.gui.widgets.GuiTabButton;
 import appeng.client.gui.widgets.ITooltip;
 import appeng.container.implementations.ContainerPriority;
+import appeng.container.implementations.ContainerRenamer;
 import appeng.container.slot.AppEngSlot;
 import appeng.container.slot.SlotDisabled;
 import appeng.container.slot.SlotFake;
 import appeng.container.slot.SlotNormal;
 import appeng.core.localization.GuiText;
 import appeng.helpers.DualityInterface;
+import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.IPriorityHost;
 import appeng.parts.AEBasePart;
@@ -34,6 +41,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.eucrafting.InterfaceData;
 import reobf.proghatches.net.PriorityMessage;
+import reobf.proghatches.net.RenameMessage;
 
 public  class GuiHandler implements IDefaultGuiHandler{
 	
@@ -115,6 +123,14 @@ public  class GuiHandler implements IDefaultGuiHandler{
 					return new ContainerPriority(player.inventory, (IPriorityHost) host);
 				return null;
 			}
+			if ((ID & 0b10000) > 0) {
+				if (host instanceof ICustomNameObject)
+					return new ContainerRenamer(player.inventory, (ICustomNameObject) host);
+				return null;
+			}
+			
+			
+			
 			return new ContainerDualInterface(player.inventory, host){
 				
 				@Override
@@ -139,13 +155,18 @@ public  class GuiHandler implements IDefaultGuiHandler{
 					return new GuiPriority(player.inventory, (IPriorityHost) host);
 				return null;
 			}
+			if ((ID & 0b10000) > 0) {
+				if (host instanceof ICustomNameObject)
+					return new GuiRenamer(player.inventory, (ICustomNameObject) host);
+				return null;
+			}
 			return new GuiDualInterface(player.inventory, host) {
 				@Override
 				protected String getGuiDisplayName(String in) {
 					// TODO Auto-generated method stub
 					return super.getGuiDisplayName(in);
 				}
-
+				GuiTabButton rename;
 				@Override
 				public void initGui() {
 					super.initGui();
@@ -155,13 +176,37 @@ public  class GuiHandler implements IDefaultGuiHandler{
 					});
 					//this.inventorySlots.inventorySlots.replaceAll(s ->map((Slot) s));
 					this.inventorySlots.inventorySlots.removeIf(s->shouldRemove((Slot) s));
+					
+					
+					 rename=new GuiTabButton(
+			                this.guiLeft + 132,
+			                this.guiTop,
+			               AEApi.instance().items().itemCertusQuartzKnife.stack(1),
+			                StatCollector.translateToLocal("ae2fc.tooltip.switch_fluid_interface"),
+			                itemRender){
+						
+						
+					}
+							
+							
+							;
+			        this.buttonList.add(rename);
+					
 				}
 
 				
 
 				@Override
 				protected void actionPerformed(GuiButton btn) {
-
+					
+					if(btn==rename){
+					
+						MyMod.net.sendToServer(
+								new RenameMessage(x, y, z, ForgeDirection.getOrientation(ID & 0b111)));
+						return ;
+					}
+					
+					
 					if (((ITooltip) btn).getMessage().equals(GuiText.Priority.getLocal())) {
 						MyMod.net.sendToServer(
 								new PriorityMessage(x, y, z, ForgeDirection.getOrientation(ID & 0b111)));

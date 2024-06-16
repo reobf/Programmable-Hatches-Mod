@@ -3,6 +3,8 @@ package reobf.proghatches.eucrafting;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import com.google.common.collect.ImmutableSet;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+
 import appeng.api.config.Actionable;
 import appeng.api.config.Upgrades;
 import appeng.api.implementations.IUpgradeableHost;
@@ -13,6 +15,7 @@ import appeng.api.networking.crafting.ICraftingProviderHelper;
 import appeng.api.networking.events.MENetworkChannelsChanged;
 import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.networking.events.MENetworkPowerStatusChange;
+import appeng.api.networking.security.ISecurityProvider;
 import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
@@ -31,6 +34,8 @@ import appeng.tile.inventory.IAEAppEngInventory;
 import appeng.util.Platform;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
+import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
@@ -378,7 +383,7 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
 	}
 
 	public String getCustomName() {
-		if (name != null)
+		if (name != null&&name.length()>=0)
 			return name;
 		return nameOverride();
 	}
@@ -393,7 +398,16 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
 
 	public void setCustomName(String name) {
 		this.name = name;
-
+		if(name==null||name.isEmpty()){
+			NBTTagCompound tg = this.getTag();
+			tg.removeTag("display");
+			this.setTag(tg);
+			return;
+		}
+		ItemStack is=new ItemStack(Items.apple);
+		is.setTagCompound(this.getTag());
+		is.setStackDisplayName(name);
+		this.setTag(is.getTagCompound());
 	}
 
 	public int getPriority() {
@@ -441,5 +455,11 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
 	public TileEntity fakeTile() {
 		return faketile;
 	}
+@Override
+public void addUIWidgets(Builder builder, GT_CoverUIBuildContext gt_CoverUIBuildContext) {
+	
+}
+
+
 
 }

@@ -309,8 +309,10 @@ public class LargeProgrammingCircuitProvider
 		}
 
 		// validate final invariants... (actual height is mHeight+1)
-		return // mCasing >= 7 * (mHeight + 1) - 5 && mHeight + 1 >= 3&&
-		mTopLayerFound && mMaintenanceHatches.size() == 1;
+		 // mCasing >= 7 * (mHeight + 1) - 5 && mHeight + 1 >= 3&&
+		boolean succ=mTopLayerFound && mMaintenanceHatches.size() == 1;
+		//if(succ){forceUpdatePattern=true ;}
+		return succ;
 	}
 
 	public int getMaxEfficiency(ItemStack aStack) {
@@ -361,6 +363,9 @@ public class LargeProgrammingCircuitProvider
 			T hatch = (T) aMetaTileEntity;
 			Optional.ofNullable(text).ifPresent(hatch::updateTexture);
 			hatch.updateCraftingIcon(t.getMachineCraftingIcon());
+			
+			
+			
 			if(!cb.test(t)){return false;};
 			if (hatch instanceof ProgrammingCircuitProvider)
 				((ProgrammingCircuitProvider) hatch).disable();
@@ -608,6 +613,7 @@ public class LargeProgrammingCircuitProvider
 	}
 
 	final private int ran = (int) (Math.random() * 20);
+int lasthash;
 
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
@@ -615,10 +621,12 @@ public class LargeProgrammingCircuitProvider
 		returnItems();
 
 		if (getBaseMetaTileEntity().isActive()) {
-			if (cacheState == CacheState.POWEROFF || cacheState == CacheState.CRASH) {
+			int hash=providers.hashCode();
+			if (lasthash!=hash||cacheState == CacheState.POWEROFF || cacheState == CacheState.CRASH) {
 				cacheState = CacheState.UPDATED;
 				forceUpdatePattern = true;
 			}
+			lasthash=hash;
 			if (cacheState.shouldCheck() && mMachine) {
 				if (aTick % 20 == ran) {
 					boolean any = false;

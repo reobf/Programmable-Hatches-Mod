@@ -158,7 +158,7 @@ String cfg=
 		// Crafting CPU cannot recognize empty-input pattern
 		// bypass the check anyway
 		ret.add("MixinCanCraftExempt");
-
+		ret.add("MixinNoFuzzyForProgrammingCircuit");
 		ret.add("MixinHandleProgrammingOnRecipeStart");
 
 		if (FMLLaunchHandler.side().isClient()) {

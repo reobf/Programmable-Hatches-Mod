@@ -10,6 +10,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -31,6 +32,8 @@ import com.glodblock.github.client.gui.GuiDualInterface;
 import com.glodblock.github.client.gui.container.ContainerDualInterface;
 import com.glodblock.github.common.parts.PartFluidP2PInterface;
 import com.glodblock.github.inventory.FluidConvertingInventoryAdaptor;
+
+import appeng.api.config.FuzzyMode;
 import appeng.api.config.Upgrades;
 import appeng.api.implementations.IUpgradeableHost;
 import appeng.client.gui.implementations.GuiPriority;
@@ -49,6 +52,8 @@ import appeng.items.tools.ToolMemoryCard;
 import appeng.parts.AEBasePart;
 import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.inventory.AppEngInternalInventory;
+import appeng.util.item.AEItemStack;
+import appeng.util.item.ItemList;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -80,10 +85,13 @@ import reobf.proghatches.eucrafting.InterfaceData;
 import reobf.proghatches.eucrafting.PartEUP2PInterface;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
+import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
 import reobf.proghatches.item.ItemBookTutorial;
+import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
+import reobf.proghatches.net.RenameMessage;
 import reobf.proghatches.oc.WirelessPeripheralManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
@@ -97,7 +105,7 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 public class MyMod {
 	public static MyMod instance;
 	{
-		BaseMetaTileEntity.class.getDeclaredFields();
+		ItemList.class.getDeclaredFields();
 		//BlockEUInterface.
 		instance = this;
 	}
@@ -135,7 +143,7 @@ public class MyMod {
 		FluidConvertingInventoryAdaptor.class.getFields();
 		net.registerMessage(new OpenPartGuiMessage.Handler(), OpenPartGuiMessage.class, 0, Side.CLIENT);
 		net.registerMessage(new PriorityMessage.Handler(), PriorityMessage.class, 1, Side.SERVER);
-
+		net.registerMessage(new RenameMessage.Handler(), RenameMessage.class, 2, Side.SERVER);
 		proxy.preInit(event);
 	}
 
@@ -214,6 +222,11 @@ public class MyMod {
 		InterfaceTerminalRegistry.instance().register(PartFluidP2PInterface.class);
 		InterfaceTerminalRegistry.instance().register(TileFluidInterface_EU.class);
 		InterfaceTerminalRegistry.instance().register(PatternDualInputHatch.Inst.class);
+	
+		
+		ItemList list=new ItemList();
+		list.add(AEItemStack.create(ItemProgrammingCircuit.wrap(new ItemStack(Blocks.cactus))));
+		list.findFuzzy(AEItemStack.create(ItemProgrammingCircuit.wrap(new ItemStack(Blocks.bed))), FuzzyMode.IGNORE_ALL);
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)

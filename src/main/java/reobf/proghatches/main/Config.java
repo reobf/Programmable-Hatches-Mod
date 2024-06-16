@@ -29,6 +29,7 @@ public class Config {
 	public static boolean dev;
 	public static boolean experimentalOptimize=true;
 	public static boolean sleep=true;
+	public static boolean MECover=false;
 	public static void synchronizeConfiguration(File configFile) {
 		Configuration configuration = new Configuration(configFile);
 
@@ -45,7 +46,8 @@ public class Config {
 				"When on, buffer with more copies gets handled first. If off, just handle the first non-empty buffer first.");
 		sleep = configuration.getBoolean("Hatch sleep mode", "Experimental", sleep,
 				"When on, hatch will sleep when not busy, to ease server load.");
-		
+		MECover = configuration.getBoolean("MECover on MEHatch", "Experimental", MECover,
+				"When on, ME Cover will be allowed to be placed on machine that requires ME channel.");
 		
 		if (configuration.hasChanged()) {
 			configuration.save();

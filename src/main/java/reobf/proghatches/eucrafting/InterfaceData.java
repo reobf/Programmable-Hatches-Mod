@@ -3,6 +3,7 @@ package reobf.proghatches.eucrafting;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.io.ByteArrayDataInput;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 
 import appeng.api.config.Actionable;
@@ -15,11 +16,14 @@ import appeng.api.networking.crafting.ICraftingProviderHelper;
 import appeng.api.networking.events.MENetworkChannelsChanged;
 import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.networking.events.MENetworkPowerStatusChange;
+import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.ISecurityProvider;
 import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
+import appeng.api.parts.IPartHost;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IConfigManager;
 import appeng.api.util.IConfigurableObject;
@@ -35,6 +39,9 @@ import appeng.util.Platform;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
+import gregtech.api.util.ISerializableObject;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
@@ -47,8 +54,11 @@ import reobf.proghatches.eucrafting.AECover.Data;
 import reobf.proghatches.main.FakeHost;
 
 public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgradeableHost, ICustomNameObject,
-		IConfigurableObject, IPriorityHost {
+		IConfigurableObject, IPriorityHost,
+		IActualSideProvider
+		{
 	public void setTag(NBTTagCompound tagCompound) {
+	
 		tag = tagCompound;
 	}
 
@@ -108,12 +118,8 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
 	};
 
 	private TileEntity faketile = new TileEntity();
-	private final DualityInterface duality = new DI(this.getProxy(), this);;
+	private final DI duality = new DI(this.getProxy(), this);;
 
-	public interface IActualSideProvider {
-		public ForgeDirection getActualSide();
-
-	}
 
 	public static class Disabled0 extends AppEngInternalAEInventory implements DisabledInventory {
 		public Disabled0(IAEAppEngInventory te, int s) {
@@ -383,8 +389,11 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
 	}
 
 	public String getCustomName() {
-		if (name != null&&name.length()>=0)
+		if (name != null&&name.length()>0){
+			//System.out.println(name.length());
+			
 			return name;
+			}
 		return nameOverride();
 	}
 	private String nameOverride(){
@@ -400,8 +409,10 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
 		this.name = name;
 		if(name==null||name.isEmpty()){
 			NBTTagCompound tg = this.getTag();
+			if(tg!=null){
 			tg.removeTag("display");
 			this.setTag(tg);
+			}
 			return;
 		}
 		ItemStack is=new ItemStack(Items.apple);
@@ -458,6 +469,13 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
 @Override
 public void addUIWidgets(Builder builder, GT_CoverUIBuildContext gt_CoverUIBuildContext) {
 	
+}
+
+
+@Override
+public ForgeDirection getActualSide() {
+
+	return duality.getActualSide();
 }
 
 

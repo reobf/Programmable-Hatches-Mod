@@ -182,7 +182,8 @@ public  class GuiHandler implements IDefaultGuiHandler{
 			                this.guiLeft + 132,
 			                this.guiTop,
 			               AEApi.instance().items().itemCertusQuartzKnife.stack(1),
-			                StatCollector.translateToLocal("ae2fc.tooltip.switch_fluid_interface"),
+			             "Rename" //  StatCollector.translateToLocal("ae2fc.tooltip.switch_fluid_interface")
+			                ,
 			                itemRender){
 						
 						

@@ -141,6 +141,8 @@ String cfg=
 			ret.add("eucrafting." + "MixinCoverInsertion");
 			ret.add("eucrafting." + "MixinEUSourceCoverChunkUnloadNotification");
 		}
+		if (FMLLaunchHandler.side().isClient()) {ret.add("eucrafting." + "MixinWirelessRename");;}
+		ret.add("eucrafting." + "MixinInvTracker");
 		//ret.add("MixinBaseSlot");//
 		
 		ret.add("MixinAEAdaptorSkipStackSizeCheck");

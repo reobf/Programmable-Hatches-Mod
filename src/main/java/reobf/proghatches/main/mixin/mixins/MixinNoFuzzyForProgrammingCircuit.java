@@ -18,32 +18,20 @@ import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockB
 import reobf.proghatches.main.MyMod;
 
 @Mixin(value = ItemList.class, remap = false)
-public abstract class MixinNoFuzzyForProgrammingCircuit  implements IItemList<IAEItemStack> {
+public abstract class MixinNoFuzzyForProgrammingCircuit implements IItemList<IAEItemStack> {
 
-	@Inject(cancellable=true,
-			method="findFuzzy", at = { @At(
-					value="INVOKE",
-					target = "Lappeng/util/item/AEItemStack;isOre()Z"
-					,shift=Shift.BEFORE
-					) }
-			)
-	public void prevent(final IAEItemStack filter, final FuzzyMode fuzzy
-			,CallbackInfoReturnable<Collection<IAEItemStack>> xx
-			){
-		if((filter.getItem()==MyMod.progcircuit)){
-			
+	@Inject(cancellable = true, method = "findFuzzy", at = {
+			@At(value = "INVOKE", target = "Lappeng/util/item/AEItemStack;isOre()Z", shift = Shift.BEFORE) })
+	public void prevent(final IAEItemStack filter, final FuzzyMode fuzzy,
+			CallbackInfoReturnable<Collection<IAEItemStack>> xx) {
+		if ((filter.getItem() == MyMod.progcircuit)) {
+
 			IAEItemStack obj = findPrecise(filter);
-			xx.setReturnValue(
-					obj==null?
-					Collections.emptyList()	
-					:
-					Collections.singletonList(obj)
-					
-					);
+			xx.setReturnValue(obj == null ? Collections.emptyList() : Collections.singletonList(obj)
+
+			);
 		}
-		
-		
+
 	}
-	
-	
+
 }

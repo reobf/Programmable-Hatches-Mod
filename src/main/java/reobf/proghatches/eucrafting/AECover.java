@@ -41,6 +41,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -201,6 +202,16 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 	}
 
 	public static interface Data extends ISerializableObject, IGridProxyable {
+		default String tagName(){
+			NBTTagCompound tag = getTag();
+			if(tag==null)return null;
+			ItemStack is=new ItemStack(Items.apple);
+			is.setTagCompound(tag);
+			if(is.hasDisplayName())return is.getDisplayName();
+			return null;
+		}
+		default String name(){return null;}
+		default boolean dualityName(){return false;}
 		// AENetworkProxy gridProxy;
 		// ForgeDirection side=ForgeDirection.UNKNOWN;
 		// DimensionalCoord pos=new DimensionalCoord(0, 0, 0, 0);
@@ -399,7 +410,7 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 			return false;
 		}
 
-		default public void accept(ForgeDirection side, ICoverable aTileEntity) {
+		default public void accept(ForgeDirection side, ICoverable aTileEntity,boolean onPlace) {
 			setPos(new DimensionalCoord((TileEntity) aTileEntity));
 			setSide(side);
 			Optional.ofNullable(aTileEntity.getCoverItemAtSide(side)).filter(s -> s.hasDisplayName())
@@ -448,7 +459,28 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 	@Override
 	protected ItemStack getDisplayStackImpl(int aCoverID, Data aCoverVariable) {
 		ItemStack is = super.getDisplayStackImpl(aCoverID, aCoverVariable);
-		is.setTagCompound(aCoverVariable.getTag());
+		
+		
+		
+		
+		if(aCoverVariable.dualityName()){
+			String s=aCoverVariable.name();
+			if(s==null||s.equals("")){
+				is.stackTagCompound=null;
+			}else{
+				is.setStackDisplayName(s);
+			}
+		
+		}
+		else{
+			String s=aCoverVariable.tagName();
+			if(s!=null&&!s.equals("")){
+				is.setStackDisplayName(s);
+			}
+		}
+		
+		
+		
 		return is;
 	}
 
@@ -488,15 +520,15 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 		super.placeCover(side, aCover, aTileEntity);
 
 		Data data = ((Data) aTileEntity.getComplexCoverDataAtSide(side));
-		
-		data.accept(side, aTileEntity);
 		data.setTag(aCover.getTagCompound());
+		data.accept(side, aTileEntity,false);
+		
 
 	}
 @Override
 public void onPlayerAttach(EntityPlayer player, ItemStack aCover, ICoverable aTileEntity, ForgeDirection side) {
 	
-	Data data = (InterfaceData) aTileEntity.getComplexCoverDataAtSide(side);
+	Data data = (Data) aTileEntity.getComplexCoverDataAtSide(side);
 	data.getProxy().setOwner(player);
 }
 	protected boolean onCoverRightClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
@@ -589,7 +621,7 @@ public void onPlayerAttach(EntityPlayer player, ItemStack aCover, ICoverable aTi
 	protected Data doCoverThingsImpl(ForgeDirection side, byte aInputRedstone, int aCoverID, Data data,
 			ICoverable aTileEntity, long aTimer) {
 		if (data.firstUpdate())
-			data.accept(side, aTileEntity);
+			data.accept(side, aTileEntity,false);
 
 		if (!data.getProxy().isReady()) {
 			data.getProxy().onReady();

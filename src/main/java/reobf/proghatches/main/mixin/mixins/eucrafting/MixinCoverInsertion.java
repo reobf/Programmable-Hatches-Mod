@@ -10,6 +10,7 @@ import appeng.helpers.DualityInterface;
 import appeng.helpers.IInterfaceHost;
 import appeng.parts.AEBasePart;
 import net.minecraftforge.common.util.ForgeDirection;
+import reobf.proghatches.eucrafting.IActualSideProvider;
 import reobf.proghatches.eucrafting.InterfaceData;
 
 @Mixin(value = DualityInterface.class, remap = false)
@@ -40,15 +41,15 @@ public class MixinCoverInsertion {
 		if (f != ForgeDirection.UNKNOWN)
 			return f;
 
-		if (this instanceof InterfaceData.IActualSideProvider) {
-			return ((InterfaceData.IActualSideProvider) this).getActualSide().getOpposite();
+		if (this instanceof IActualSideProvider) {
+			return ((IActualSideProvider) this).getActualSide().getOpposite();
 		}
 
 		if (AEBasePart.class.isInstance(iHost)) {
 			AEBasePart host = (AEBasePart) iHost;
-			if (host.getHost() instanceof InterfaceData.IActualSideProvider) {
+			if (host.getHost() instanceof IActualSideProvider) {
 
-				return ((InterfaceData.IActualSideProvider) host.getHost()).getActualSide().getOpposite();
+				return ((IActualSideProvider) host.getHost()).getActualSide().getOpposite();
 
 			}
 

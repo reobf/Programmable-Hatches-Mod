@@ -54,8 +54,12 @@ public class BlockIOHub extends BlockContainer {
 
 	@Override
 	public void onBlockPlacedBy(World worldIn, int x, int y, int z, EntityLivingBase placer, ItemStack itemIn) {
-		// TODO Auto-generated method stub
+
 		super.onBlockPlacedBy(worldIn, x, y, z, placer, itemIn);
+		try{
+		((TileIOHub)worldIn.getTileEntity(x, y, z)
+		).getProxy().setOwner((EntityPlayer) placer);
+		}catch(Exception e){e.printStackTrace();}
 	}
 
 	@Override

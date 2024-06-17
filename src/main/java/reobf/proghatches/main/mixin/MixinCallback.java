@@ -46,5 +46,8 @@ public class MixinCallback {
 		}
 
 	}
-
+public static void aa(Object t){
+	//System.out.println(t);
+	
+}
 }

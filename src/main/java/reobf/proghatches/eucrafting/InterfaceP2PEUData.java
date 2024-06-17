@@ -68,6 +68,7 @@ import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
@@ -83,7 +84,7 @@ import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 
 public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, IInterfaceHost, IGridTickable,
-		IUpgradeableHost, ICustomNameObject, IConfigurableObject, IPriorityHost {
+		IUpgradeableHost, ICustomNameObject, IConfigurableObject, IPriorityHost, IActualSideProvider {
 	public void setTag(NBTTagCompound tagCompound) {
 		tag = tagCompound;
 	}
@@ -126,7 +127,7 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 
 	IPartHost fakehost = new Host();
 
-	public class Host implements IPartHost, InterfaceData.IActualSideProvider, InterfaceData.DisabledInventory {
+	public class Host implements IPartHost, IActualSideProvider, InterfaceData.DisabledInventory {
 
 		@Override
 		public SelectedPart selectPart(Vec3 pos) {
@@ -457,7 +458,8 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 		t.setBoolean("inputdetect", inputdetect);
 		t.setBoolean("delay", delay);
 		t.setBoolean("worksensitive", worksensitive);
-
+		if(duality.hasCustomName())((NBTTagCompound) t).setString("realName", duality.getCustomName());
+		
 		return t;
 	}
 
@@ -479,7 +481,8 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 			duality.readFromNBT((NBTTagCompound) aNBT);
 
 		}
-
+		if(((NBTTagCompound) aNBT).hasKey("realName"))duality.setCustomName(((NBTTagCompound) aNBT).getString("realName"));
+		
 		/*
 		 * else{ duality.delay=((NBTTagCompound) aNBT).getBoolean("delay");
 		 * duality.inputdetect=((NBTTagCompound)
@@ -574,22 +577,20 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 		return duality.tickingRequest(node, TicksSinceLastCall);
 	}
 	public String getCustomName() {
-		if (name != null)
-			return name;
+		if(duality.hasCustomName())return duality.getCustomName();
 		return nameOverride();
 	}
 	private String nameOverride(){
 		return "P2P - EU Interface";
 	}
 	public boolean hasCustomName() {
-		  return this.name != null && this.name.length() > 0;
+		  return duality.hasCustomName();
 	}
 
-	private String name;
 
-	public void setCustomName(String name) {
-		this.name = name;
 
+public void setCustomName(String name) {
+		duality.setCustomName(name);
 	}
 
 
@@ -635,10 +636,15 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 	boolean first = true;
 
 	@Override
-	public void accept(ForgeDirection side, ICoverable aTileEntity) {
-		Data.super.accept(side, aTileEntity);
+	public void accept(ForgeDirection side, ICoverable aTileEntity,boolean b) {
+		Data.super.accept(side, aTileEntity,b);
 		this.duality.setPartHostInfo(ForgeDirection.UNKNOWN, fakehost, getTile());
-		this.duality.setCustomName(this.getCustomName());
+		
+		String s=tagName();
+		if(s!=null&&!s.equals("")){
+			duality.setCustomName(s);
+			setTag(null);
+		}
 	}
 
 	public boolean click(EntityPlayer player) {
@@ -892,4 +898,9 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 	public boolean requireChannel() {
 		return false;
 	}// internal node will require
+	@Override
+	public ForgeDirection getActualSide() {
+		// TODO Auto-generated method stub
+		return side;
+	}
 }

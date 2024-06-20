@@ -78,6 +78,8 @@ String cfg=
 "noEUCraftingMixins=false"+System.lineSeparator()+
 "noAEItemSortMixins=false"+System.lineSeparator()
 ;
+static public ArrayList<String> retLate = new ArrayList<>();
+
 //spotless:on
 	@SuppressWarnings("unused")
 	@Override
@@ -117,64 +119,63 @@ String cfg=
 		
 		// load all jars that mixin involves
 		HashMap<String,String> map=	new HashMap<>(6);
-		map.put( "com/github/vfyjxf/nee/NotEnoughEnergistics.class",  "NotEnoughEnergistics");
+		/*map.put( "com/github/vfyjxf/nee/NotEnoughEnergistics.class",  "NotEnoughEnergistics");
 		map.put( "gregtech/GT_Mod.class", "GT5U");
 		map.put( "appeng/api/IAppEngApi.class", "ae2");
 		map.put( "com/gtnewhorizons/modularui/ModularUI.class", "ModularUI");
 		map.put( "com/glodblock/github/FluidCraft.class", "ae2fc");
-		map.put( "codechicken/nei/NEIModContainer.class", "NEI");
+		map.put( "codechicken/nei/NEIModContainer.class", "NEI");*/
 		loadJarOf(map);
 	
 		
 		ArrayList<String> ret = new ArrayList<>();
-		ret.add("eucrafting." + "MixinWailaProvider");
-		// ret.add("eucrafting."+"MixinRecipeStateDetect");
-		// ret.add("eucrafting."+"MixinCpuClusterAccess");
-
-		ret.add("eucrafting." + "MixinInstantComplete");
+		retLate.add("eucrafting." + "MixinWailaProvider");
+		retLate.add("eucrafting." + "MixinInstantComplete");
 		if (!"true".equals(pp.get("noFixRecursiveCraft")))
-			ret.add("eucrafting." + "MixinCraftingRecursiveWorkaround");
+			retLate.add("eucrafting." + "MixinCraftingRecursiveWorkaround");
 		if (!"true".equals(pp.get("noEUCraftingMixins"))) {
 
-			ret.add("eucrafting." + "MixinCpuClusterEUAutoRequest");
-			ret.add("eucrafting." + "MixinRemoveExcessiveEU");
-			ret.add("eucrafting." + "MixinCoverInsertion");
-			ret.add("eucrafting." + "MixinEUSourceCoverChunkUnloadNotification");
+			retLate.add("eucrafting." + "MixinCpuClusterEUAutoRequest");
+			retLate.add("eucrafting." + "MixinRemoveExcessiveEU");
+			retLate.add("eucrafting." + "MixinCoverInsertion");
+			retLate.add("eucrafting." + "MixinEUSourceCoverChunkUnloadNotification");
 		}
-		if (FMLLaunchHandler.side().isClient()) {ret.add("eucrafting." + "MixinWirelessRename");;}
-		ret.add("eucrafting." + "MixinInvTracker");
-		//ret.add("MixinBaseSlot");//
+		if (FMLLaunchHandler.side().isClient()) {
+			retLate.add("eucrafting." + "MixinWirelessRename");
+			}
+		retLate.add("eucrafting." + "MixinInvTracker");
 		
-		ret.add("MixinAEAdaptorSkipStackSizeCheck");
-		ret.add("MixinAwarenessForDualHatch");
+		
+		retLate.add("MixinAEAdaptorSkipStackSizeCheck");
+		retLate.add("MixinAwarenessForDualHatch");
 		if (!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))
-			ret.add("MixinRemoveUnunsedItemStackCache");
-		ret.add("MixinAE2FCCompat");
+			retLate.add("MixinRemoveUnunsedItemStackCache");
+		retLate.add("MixinAE2FCCompat");
 
 		if (!"true".equals(pp.get("noRecipeFilterForDualHatch"))) {
-			ret.add("MixinGTRecipeFilter");
+			retLate.add("MixinGTRecipeFilter");
 			// GT Multiblock will not set recipe filter of DualInputHatch, set
 			// it via mixin
-			ret.add("MixinAddProgCircuitExemptToInputFilter");
+			retLate.add("MixinAddProgCircuitExemptToInputFilter");
 		}
 		// Crafting CPU cannot recognize empty-input pattern
 		// bypass the check anyway
-		ret.add("MixinCanCraftExempt");
-		ret.add("MixinNoFuzzyForProgrammingCircuit");
-		ret.add("MixinHandleProgrammingOnRecipeStart");
+		retLate.add("MixinCanCraftExempt");
+		retLate.add("MixinNoFuzzyForProgrammingCircuit");
+		retLate.add("MixinHandleProgrammingOnRecipeStart");
 
 		if (FMLLaunchHandler.side().isClient()) {
 			if (!"true".equals(pp.get("noAEItemSortMixins")))
-			ret.add("MixinAEItemStackCompare");
+				retLate.add("MixinAEItemStackCompare");
 			if (!"true".equals(pp.get("noFixTossBug")))
 				ret.add("MixinFixTossWhenClickSlot");
 
 			if (!"true".equals(pp.get("noPatternEncodingMixin"))) {
-				ret.add("MixinPatternEncodingCiruitSpecialTreatment");// For
+				retLate.add("MixinPatternEncodingCiruitSpecialTreatment");// For
 																		// ae2fc
 																		// pattern
 																		// encoder
-				ret.add("MixinPatternEncodingCiruitSpecialTreatment2"); // For
+				retLate.add("MixinPatternEncodingCiruitSpecialTreatment2"); // For
 																		// nee
 																		// pattern
 																		// encoder
@@ -232,6 +233,7 @@ String cfg=
 	}
 
 	private boolean loadJarOf( Map<String, String> classTrait) {
+		if(classTrait.isEmpty())return true;
 		try {
 			List<File> jarl = findJarOf( classTrait);
 			

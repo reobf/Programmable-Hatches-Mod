@@ -60,7 +60,7 @@ public class PHRecipes implements Runnable {
         		{ SuperconductorUHV }, 
         		{ Infinite }, 
         		{ Bio },
-        		{ Nano/*,Optical*/ },
+        		{ Optical/*,Nano,*/ },
         		{ Piko/*,Exotic,*/  },
         		{ Quantum/*,Cosmic,*/  }, 
         		{ Quantum /*Transcendent*/ } };//Transcendent circuit is not craftable 
@@ -835,10 +835,161 @@ Api.INSTANCE.definitions()
  .addTo(RecipeMaps.assemblerRecipes);
  
  
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+		 GT_OreDictUnificator.get(OrePrefixes.frameGt, Materials.Terbium, 4)
+		 ,new ItemStack(MyMod.smartarm,32,4)
+		 ,  Materials.TungstenSteel.getPlates(16)
+		 
+		 
+)
+ 
+ .itemOutputs( new ItemStack(
+         GregTech_API.sBlockMachines,
+         1,
+         Config.metaTileEntityOffset + Registration.IngredientDistributorOffset))
+
+  .duration(60 * SECONDS)
+ .eut(480*4*4)
+ .addTo(RecipeMaps.assemblerRecipes);
+ 
+ 
+ 
+ for(int i=1;i<=10;i++){
+	 
+	 ItemList [][] list={
+			 { 
+	   
+	    Super_Tank_LV,
+	    Super_Tank_MV,
+	    Super_Tank_HV,
+	    Super_Tank_EV,
+	    Super_Tank_IV,
+	    Quantum_Tank_LV,
+	    Quantum_Tank_MV,
+	    Quantum_Tank_HV,
+	    Quantum_Tank_EV,
+	    Quantum_Tank_IV,  },{ 
+	    Super_Chest_LV,
+	    Super_Chest_MV,
+	    Super_Chest_HV,
+	    Super_Chest_EV,
+	    Super_Chest_IV,
+	    Quantum_Chest_LV,
+	    Quantum_Chest_MV,
+	    Quantum_Chest_HV,
+	    Quantum_Chest_EV,
+	    Quantum_Chest_IV,
+	   }
+	    
+	 };
+	 
+	 
+	 GT_Values.RA.stdBuilder()
+	 .itemInputs(
+			 list[1][i-1].get(1),
+			 Api.INSTANCE.definitions().parts().storageBus().maybeStack(1).get()
+			 
+	)
+	 
+	 .itemOutputs( new ItemStack(
+	         GregTech_API.sBlockMachines,
+	         1,
+	         Config.metaTileEntityOffset+Registration.MEChest + i-1)			 )
+
+	  .duration(10 * SECONDS)
+	 .eut((int) (30*Math.pow(4, i-1)))
+	 .addTo(RecipeMaps.formingPressRecipes);
+	
+	 GT_Values.RA.stdBuilder()
+	 .itemInputs(
+			 list[0][i-1].get(1),
+			 ItemAndBlockHolder.FLUID_STORAGE_BUS.stack(1)
+			 
+	)
+	 
+	 .itemOutputs( new ItemStack(
+	         GregTech_API.sBlockMachines,
+	         1,
+	         Config.metaTileEntityOffset+Registration.METank + i-1)			 )
+
+	  .duration(10 * SECONDS)
+	 .eut((int) (30*Math.pow(4, i-1)))
+	 .addTo(RecipeMaps.formingPressRecipes);
+	 
+ }
+ 
+ 
+
+ prefab();
+ 
+ 
   }
 
         ///////////////////////////////////
+ public void prefab(){
+	 GT_Values.RA.stdBuilder()
+	 .itemInputs(
+			 new ItemStack(
+			         GregTech_API.sBlockMachines,
+			         1,
+			         Config.metaTileEntityOffset+Registration.CircuitProviderOffset)	
+			 ,    GT_Utility.getIntegratedCircuit(1)
+			 
+	)
+	 
+	 .itemOutputs( new ItemStack(
+	         GregTech_API.sBlockMachines,
+	         1,
+	         Config.metaTileEntityOffset+Registration.PrefabOffset)			 )
 
+	  .duration(10 * SECONDS)
+	 .eut(480*4*4*4)
+	 .addTo(RecipeMaps.laserEngraverRecipes);
+	 
+	 
+	for(int i=1;i<=3;i++)
+	 GT_Values.RA.stdBuilder()
+	 .itemInputs(
+			 new ItemStack(
+			         GregTech_API.sBlockMachines,
+			         1,
+			         Config.metaTileEntityOffset+Registration.CircuitProviderOffset)	
+			 ,    GT_Utility.getIntegratedCircuit(i+1)
+			 
+	)
+	 
+	 .itemOutputs( new ItemStack(
+	         GregTech_API.sBlockMachines,
+	         1,
+	         Config.metaTileEntityOffset+Registration.PrefabOffset+i)			 )
+
+	  .duration(10 * SECONDS)
+	 .eut(480*4*4*4*4)
+	 .addTo(RecipeMaps.laserEngraverRecipes);
+	 
+	 
+	 GT_Values.RA.stdBuilder()
+	 .itemInputs(
+			 new ItemStack(
+			         GregTech_API.sBlockMachines,
+			         1,
+			         Config.metaTileEntityOffset+Registration.CircuitProviderOffset)	
+			 ,    GT_Utility.getIntegratedCircuit(24)
+			 
+	)
+	 
+	 .itemOutputs( new ItemStack(
+	         GregTech_API.sBlockMachines,
+	         1,
+	         Config.metaTileEntityOffset+Registration.PrefabOffset+5)			 )
+
+	  .duration(10 * SECONDS)
+	 .eut(480*4*4*4*4*4)
+	 .addTo(RecipeMaps.laserEngraverRecipes);
+	 
+	 
+ }
     
     public void smartArm(){  
     	for (int i = 0; i < GT_Values.VP.length - 1; i++) {

@@ -555,6 +555,7 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 }
  @Override
 public void loadNBTData(NBTTagCompound aNBT) {
+	
 	 getProxy().readFromNBT(aNBT);
 	super.loadNBTData(aNBT);
 	piority=aNBT.getInteger("piority");
@@ -576,9 +577,13 @@ public void saveNBTData(NBTTagCompound aNBT) {
 	}
 	aNBT.setInteger("piority", piority);
 	aNBT.setBoolean("sticky", sticky);
+}@Override
+public void onFacingChange() {
+	updateValidGridProxySides();
 }
 @Override
 public void setItemNBT(NBTTagCompound aNBT) {
+	
 	final NBTTagList tItemList = new NBTTagList();
     for (int i = 0; i < getRealInventory().length; i++) {
         final ItemStack tStack = getRealInventory()[i];

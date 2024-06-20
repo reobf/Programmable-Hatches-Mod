@@ -28,6 +28,9 @@ import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.main.MyMod;
+import reobf.proghatches.main.asm.repack.objectwebasm.ClassReader;
+import reobf.proghatches.main.asm.repack.objectwebasm.ClassWriter;
+import reobf.proghatches.main.asm.repack.objectwebasm.tree.ClassNode;
 import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Context;
 
@@ -50,9 +53,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.tree.ClassNode;
+
 
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
@@ -348,7 +349,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 
 		};
 		ClassNode cn = new ClassNode();
-		cr.accept(cn, 0);
+		cr.accept(cn,0);
 
 		cn.methods.removeIf(s -> {
 			if (s.visibleAnnotations != null) {
@@ -366,7 +367,8 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 			return false;
 		});
 
-		cn.accept(cw);
+		cr.accept
+	   (cn, 0);
 
 		return load(cw.toByteArray(), "reobf/proghatches/block/TileIOHub$OCApi" + filter + ".class",
 				"reobf.proghatches.block.TileIOHub$OCApi" + filter

@@ -487,6 +487,10 @@ builder.widget(new FluidSlotWidget(content)
  
  
 }
+ @Override
+public void onFacingChange() {
+	updateValidGridProxySides();
+}
  private Widget createButton(Supplier<Boolean> getter, Consumer<Boolean> setter, IDrawable picture,
 		List<String> tooltip, int offset) {
 	return new CycleButtonWidget().setToggle(getter, setter).setTextureGetter(__->picture)

@@ -409,7 +409,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		public boolean isAccessibleForMulti() {
 			
 			return !isEmpty()&&
-				tickFirstClassify+5<currentTick();
+				tickFirstClassify+2<currentTick();
 			//wait for possible future input, to take better adventage of parallels
 		}
 		public long currentTick(){
@@ -1207,13 +1207,13 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		
 	
 		
-		return (Optional) inv0.stream().filter(DualInvBuffer::isAccessibleForMulti)
+		return (Optional) inv0.stream().filter(not(DualInvBuffer::isEmpty))
 				.map(s->new PiorityBuffer(s))
 				.sorted().map(s->{return s.buff;})
 				.findFirst();
 		}else{
 			
-		return (Optional) inv0.stream().filter(DualInvBuffer::isAccessibleForMulti)
+		return (Optional) inv0.stream().filter(not(DualInvBuffer::isEmpty))
 					.findFirst();
 			
 			
@@ -1232,14 +1232,17 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		dirty=true;
 		
 		if(Config.experimentalOptimize){
+			
 			return	inv0.stream().filter(DualInvBuffer::isAccessibleForMulti)
 			.map(s->new PiorityBuffer(s))
 			.sorted().map(s->{return s.buff;}).iterator();
-	//	return inv0.stream().filter(DualInvBuffer::isAccessibleForMulti).iterator();
 		}
 		return inv0.stream().filter(DualInvBuffer::isAccessibleForMulti).iterator();
 		
 	}
+	
+	
+	
 
 	@Override
 	public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,

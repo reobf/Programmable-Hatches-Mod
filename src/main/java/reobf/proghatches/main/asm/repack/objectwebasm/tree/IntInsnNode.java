@@ -27,61 +27,62 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package reobf.proghatches.main.asm.repack.objectwebasm.util;
+package reobf.proghatches.main.asm.repack.objectwebasm.tree;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.TypePath;
+import java.util.Map;
+
+import reobf.proghatches.main.asm.repack.objectwebasm.MethodVisitor;
 
 /**
- * A {@link FieldVisitor} that prints the fields it visits with a
- * {@link Printer}.
+ * A node that represents an instruction with a single int operand.
  * 
  * @author Eric Bruneton
  */
-public final class TraceFieldVisitor extends FieldVisitor {
+public class IntInsnNode extends AbstractInsnNode {
 
-    public final Printer p;
+    /**
+     * The operand of this instruction.
+     */
+    public int operand;
 
-    public TraceFieldVisitor(final Printer p) {
-        this(null, p);
+    /**
+     * Constructs a new {@link IntInsnNode}.
+     * 
+     * @param opcode
+     *            the opcode of the instruction to be constructed. This opcode
+     *            must be BIPUSH, SIPUSH or NEWARRAY.
+     * @param operand
+     *            the operand of the instruction to be constructed.
+     */
+    public IntInsnNode(final int opcode, final int operand) {
+        super(opcode);
+        this.operand = operand;
     }
 
-    public TraceFieldVisitor(final FieldVisitor fv, final Printer p) {
-        super(Opcodes.ASM5, fv);
-        this.p = p;
-    }
-
-    @Override
-    public AnnotationVisitor visitAnnotation(final String desc,
-            final boolean visible) {
-        Printer p = this.p.visitFieldAnnotation(desc, visible);
-        AnnotationVisitor av = fv == null ? null : fv.visitAnnotation(desc,
-                visible);
-        return new TraceAnnotationVisitor(av, p);
-    }
-
-    @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
-        Printer p = this.p.visitFieldTypeAnnotation(typeRef, typePath, desc,
-                visible);
-        AnnotationVisitor av = fv == null ? null : fv.visitTypeAnnotation(
-                typeRef, typePath, desc, visible);
-        return new TraceAnnotationVisitor(av, p);
-    }
-
-    @Override
-    public void visitAttribute(final Attribute attr) {
-        p.visitFieldAttribute(attr);
-        super.visitAttribute(attr);
+    /**
+     * Sets the opcode of this instruction.
+     * 
+     * @param opcode
+     *            the new instruction opcode. This opcode must be BIPUSH, SIPUSH
+     *            or NEWARRAY.
+     */
+    public void setOpcode(final int opcode) {
+        this.opcode = opcode;
     }
 
     @Override
-    public void visitEnd() {
-        p.visitFieldEnd();
-        super.visitEnd();
+    public int getType() {
+        return INT_INSN;
+    }
+
+    @Override
+    public void accept(final MethodVisitor mv) {
+        mv.visitIntInsn(opcode, operand);
+        acceptAnnotations(mv);
+    }
+
+    @Override
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
+        return new IntInsnNode(opcode, operand).cloneAnnotations(this);
     }
 }

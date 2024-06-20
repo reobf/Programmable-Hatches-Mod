@@ -81,6 +81,7 @@ import reobf.proghatches.eucrafting.IInstantCompletable;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.ProviderChainer;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
+import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
 import reobf.proghatches.gt.metatileentity.util.ICircuitProvider;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.Config;
@@ -135,7 +136,7 @@ public class LargeProgrammingCircuitProvider
 		Function<IGT_HatchAdder<? super LargeProgrammingCircuitProvider>, IHatchElement<LargeProgrammingCircuitProvider>> provider = s -> new IHatchElement<LargeProgrammingCircuitProvider>() {
 			@Override
 			public List<? extends Class<? extends IMetaTileEntity>> mteClasses() {
-				return ImmutableList.of(ProgrammingCircuitProvider.class, ProviderChainer.class);
+				return ImmutableList.of(ProgrammingCircuitProvider.class, ProviderChainer.class,ProgrammingCircuitProviderPrefabricated.class);
 			}
 
 			@Override

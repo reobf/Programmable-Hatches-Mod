@@ -1,4 +1,4 @@
-/**
+/***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
@@ -27,30 +27,53 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package reobf.proghatches.main.asm.repack.objectwebasm.util;
+package reobf.proghatches.main.asm.repack.objectwebasm.tree;
 
 import java.util.Map;
 
-import org.objectweb.asm.Label;
+import reobf.proghatches.main.asm.repack.objectwebasm.MethodVisitor;
+import reobf.proghatches.main.asm.repack.objectwebasm.Opcodes;
 
 /**
- * An {@link org.objectweb.asm.Attribute Attribute} that can print the ASM code
- * to create an equivalent attribute.
+ * A node that represents an LDC instruction.
  * 
- * @author Eugene Kuleshov
+ * @author Eric Bruneton
  */
-public interface ASMifiable {
+public class LdcInsnNode extends AbstractInsnNode {
 
     /**
-     * Prints the ASM code to create an attribute equal to this attribute.
-     * 
-     * @param buf
-     *            a buffer used for printing Java code.
-     * @param varName
-     *            name of the variable in a printed code used to store attribute
-     *            instance.
-     * @param labelNames
-     *            map of label instances to their names.
+     * The constant to be loaded on the stack. This parameter must be a non null
+     * {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double}, a
+     * {@link String} or a {@link reobf.proghatches.main.asm.repack.objectwebasm.Type}.
      */
-    void asmify(StringBuffer buf, String varName, Map<Label, String> labelNames);
+    public Object cst;
+
+    /**
+     * Constructs a new {@link LdcInsnNode}.
+     * 
+     * @param cst
+     *            the constant to be loaded on the stack. This parameter must be
+     *            a non null {@link Integer}, a {@link Float}, a {@link Long}, a
+     *            {@link Double} or a {@link String}.
+     */
+    public LdcInsnNode(final Object cst) {
+        super(Opcodes.LDC);
+        this.cst = cst;
+    }
+
+    @Override
+    public int getType() {
+        return LDC_INSN;
+    }
+
+    @Override
+    public void accept(final MethodVisitor mv) {
+        mv.visitLdcInsn(cst);
+        acceptAnnotations(mv);
+    }
+
+    @Override
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
+        return new LdcInsnNode(cst).cloneAnnotations(this);
+    }
 }

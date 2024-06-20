@@ -76,7 +76,11 @@ public class LastWorktimeCover extends GT_CoverBehavior {
         		if(multi.getStoredFluids().isEmpty()){
         		ArrayList<ItemStack> in = multi.getStoredInputs();
        			in.removeIf(s->s.stackSize<=0);
-        		if(in.isEmpty()){on=false;}
+        		if(in.isEmpty()){
+        			if(multi.mDualInputHatches.stream().map(s->s.getFirstNonEmptyInventory().orElse(null))
+							.count()==0)
+							on = false;
+        			}
         		}
         		
         	}

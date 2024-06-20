@@ -543,7 +543,10 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 							ArrayList<ItemStack> in = multi.getStoredInputs();
 							in.removeIf(s -> s.stackSize <= 0);
 							if (in.isEmpty()) {
-								on = false;
+								if(multi.mDualInputHatches.stream().map(s->s.getFirstNonEmptyInventory().orElse(null))
+								.count()==0)
+								inputon = false;
+							
 							}
 						}
 

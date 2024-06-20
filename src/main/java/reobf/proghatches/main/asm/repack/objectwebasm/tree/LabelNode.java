@@ -1,4 +1,4 @@
-/**
+/***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
@@ -27,30 +27,52 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package reobf.proghatches.main.asm.repack.objectwebasm.util;
+package reobf.proghatches.main.asm.repack.objectwebasm.tree;
 
 import java.util.Map;
 
-import org.objectweb.asm.Label;
+import reobf.proghatches.main.asm.repack.objectwebasm.Label;
+import reobf.proghatches.main.asm.repack.objectwebasm.MethodVisitor;
 
 /**
- * An {@link org.objectweb.asm.Attribute Attribute} that can print a readable
- * representation of itself.
- * 
- * Implementations should construct readable output from an attribute data
- * structure. Such representation could be used in unit test assertions.
- * 
- * @author Eugene Kuleshov
+ * An {@link AbstractInsnNode} that encapsulates a {@link Label}.
  */
-public interface Textifiable {
+public class LabelNode extends AbstractInsnNode {
 
-    /**
-     * Build a human readable representation of this attribute.
-     * 
-     * @param buf
-     *            a buffer used for printing Java code.
-     * @param labelNames
-     *            map of label instances to their names.
-     */
-    void textify(StringBuffer buf, Map<Label, String> labelNames);
+    private Label label;
+
+    public LabelNode() {
+        super(-1);
+    }
+
+    public LabelNode(final Label label) {
+        super(-1);
+        this.label = label;
+    }
+
+    @Override
+    public int getType() {
+        return LABEL;
+    }
+
+    public Label getLabel() {
+        if (label == null) {
+            label = new Label();
+        }
+        return label;
+    }
+
+    @Override
+    public void accept(final MethodVisitor cv) {
+        cv.visitLabel(getLabel());
+    }
+
+    @Override
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
+        return labels.get(this);
+    }
+
+    public void resetLabel() {
+        label = null;
+    }
 }

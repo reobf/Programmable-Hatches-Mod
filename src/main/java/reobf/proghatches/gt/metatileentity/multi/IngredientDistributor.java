@@ -17,6 +17,9 @@ import java.util.stream.IntStream;
 import com.google.common.collect.ImmutableList;
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
+import com.gtnewhorizon.structurelib.structure.IStructureElement;
+import com.gtnewhorizon.structurelib.structure.IStructureElementChain;
+import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
@@ -130,26 +133,52 @@ implements ISurvivalConstructable {
 	
 	return ok;	};
 		
+	@SuppressWarnings("unchecked")
 	IStructureDefinition<IngredientDistributor> STRUCTURE_DEFINITION = StructureDefinition.<IngredientDistributor> builder()
 		.addShape("first", StructureUtility.transpose (new String[][] { { "m","f","c"}, { "m","f","c"}, { "m","f","c"}}  ))
 		.addShape("second", StructureUtility.transpose (new String[][] { { "m","f","c"}, { "~","c","c"}, { "m","c","c"} } ))	
 		.addShape("third", StructureUtility.transpose (new String[][] { { "m","f","c"}, { "m","c","c"}, { "◎","c","c"}  }))	
 		.addShape("piece", StructureUtility.transpose (new String[][] { { " "," "," "}, { " ","f"," "}, { "h","h","h"}  }))	
+		.addShape("piece_survival", StructureUtility.transpose (new String[][] { { " "," "," "}, { " ","f"," "}, { "h","※","h"}  }))	
+		
 		.addShape("last", StructureUtility.transpose (new String[][] { { " "," "," "}, { " ","f"," "}, { " ","f"," "}  }))	
 		
 		.addElement('c', ofBlock(GregTech_API.sBlockCasings4, 12))
 		.addElement('f', GT_StructureUtility.ofFrame(Materials.Terbium))
-		.addElement('h', buildHatchAdder(IngredientDistributor.class)
-				.atLeast(GT_HatchElement.OutputBus,GT_HatchElement.OutputHatch)
+		.addElement('h',
+				buildHatchAdder(IngredientDistributor.class)
+				.atLeast(GT_HatchElement.OutputBus.withAdder(IngredientDistributor::addBus)
+						.withCount(s->s.hasBusThisLayer?1:0)
+						,GT_HatchElement.OutputHatch.withAdder(IngredientDistributor::addHatch)
+						.withCount(s->s.hasHatchThisLayer?1:0)
+						)
+				//.shouldSkip((a,b)->a.hasBusThisLayer)
 				.casingIndex(CASING_INDEX).dot(1)
-				.buildAndChain(GregTech_API.sBlockCasings4, 12))
+				.buildAndChain(GregTech_API.sBlockCasings4, 0)
+				)
+		.addElement('※',
+				buildHatchAdder(IngredientDistributor.class)
+				.atLeast(GT_HatchElement.OutputBus.withAdder(IngredientDistributor::addBus)
+						.withCount(s->s.hasBusThisLayer?1:0)
+						,GT_HatchElement.OutputHatch.withAdder(IngredientDistributor::addHatch)
+						.withCount(s->s.hasHatchThisLayer?1:0)
+						).allowOnly(ForgeDirection.DOWN)
+				//.shouldSkip((a,b)->a.hasBusThisLayer)
+				.casingIndex(CASING_INDEX).dot(1)
+				.buildAndChain(GregTech_API.sBlockCasings4, 0)
+				)
+		
+		
+		
 		.addElement('m', buildHatchAdder(IngredientDistributor.class)
 				.atLeast(GT_HatchElement.Maintenance,GT_HatchElement.Energy)
 				.casingIndex(CASING_INDEX).dot(3)
 				.buildAndChain(GregTech_API.sBlockCasings4, 12))
 		
 		.addElement('◎', buildHatchAdder(IngredientDistributor.class)
-				.atLeast(new IHatchElement<IngredientDistributor>(){
+				.atLeast(
+						
+						new IHatchElement<IngredientDistributor>(){
 
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			@Override
@@ -173,8 +202,9 @@ implements ISurvivalConstructable {
 				return t.mDualInputHatches.size();
 			}}
 
-			,GT_HatchElement.InputBus,GT_HatchElement.InputHatch
 			
+						,GT_HatchElement.InputBus
+						,GT_HatchElement.InputHatch
 		
 				).casingIndex(CASING_INDEX).dot(2).build()
 						
@@ -198,7 +228,7 @@ implements ISurvivalConstructable {
 		
 		return new IngredientDistributor(mName);
 	}
-	protected static final int CASING_INDEX = 49+11;
+	protected static final int CASING_INDEX = 49+11-12;
 	@Override
 	public ITexture[] getTexture(IGregTechTileEntity baseMetaTileEntity, ForgeDirection side, ForgeDirection facing,
 			int colorIndex, boolean active, boolean redstoneLevel) {
@@ -248,12 +278,40 @@ implements ISurvivalConstructable {
 	
 		return true;
 	}
+
+	@Override
+	public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBuildEnvironment env){
+		
+		if (mMachine)
+			return -1;
+	int b=	survivialBuildPiece("first", stackSize, 1, 1, 0,elementBudget, env, false,true);
+	if(b>0)return b;
+	b=survivialBuildPiece("second", stackSize,  0, 1, 0,elementBudget, env, false,true);
+	if(b>0)return b;
+	b=survivialBuildPiece("third", stackSize, -1, 1, 0,elementBudget, env, false,true);
+	if(b>0)return b;
+	
+	
+	int size=stackSize.stackSize+1;
+	int index=-2;
+	
+	while(true){
+		b=survivialBuildPiece("piece_survival", stackSize,index, 1, 0,elementBudget, env, false,true);
+		if(b>0)return b;
+		index--;if(--size==0)break;
+		
+	};
+	return survivialBuildPiece("last", stackSize, index, 1, 0,elementBudget, env, false,true);
+
+	
+	
+	}
 	@Override
 	public void construct(ItemStack stackSize, boolean hintsOnly) {
 		buildPiece("first", stackSize, hintsOnly, 1, 1, 0);
 		buildPiece("second", stackSize, hintsOnly, 0, 1, 0);
 		buildPiece("third", stackSize, hintsOnly, -1, 1, 0);
-		int size=stackSize.stackSize;
+		int size=stackSize.stackSize+1;
 		int index=-2;
 		while(buildPiece("piece", stackSize, hintsOnly, index, 1, 0)){
 			
@@ -277,7 +335,7 @@ implements ISurvivalConstructable {
 		};
 		
 		
-		return checkPiece("last", index, 1, 0);
+		return checkPiece("last", index, 1, 0)&&this.mEnergyHatches.size()>0;
 		
 		
 		
@@ -765,4 +823,13 @@ ButtonWidget createBlockingModeButton(IWidgetBuilder<?> builder) {
 	
     return (ButtonWidget) button;
 }
+public static boolean addHatch(IngredientDistributor thiz, IGregTechTileEntity aTileEntity,short s){
+	if(thiz.hasHatchThisLayer){return false;}
+	return thiz.addOutputHatchToMachineList(aTileEntity, s);
+}
+public static boolean addBus(IngredientDistributor thiz, IGregTechTileEntity aTileEntity,short s){
+	if(thiz.hasBusThisLayer){return false;}
+	return thiz.addOutputBusToMachineList(aTileEntity, s);
+}
+
 }

@@ -27,63 +27,71 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package reobf.proghatches.main.asm.repack.objectwebasm.util;
+package reobf.proghatches.main.asm.repack.objectwebasm.tree.analysis;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Opcodes;
+import java.util.Set;
+
+import reobf.proghatches.main.asm.repack.objectwebasm.tree.AbstractInsnNode;
 
 /**
- * An {@link AnnotationVisitor} that prints the annotations it visits with a
- * {@link Printer}.
+ * A {@link Value} that is represented by its type in a two types type system.
+ * This type system distinguishes the ONEWORD and TWOWORDS types.
  * 
  * @author Eric Bruneton
  */
-public final class TraceAnnotationVisitor extends AnnotationVisitor {
+public class SourceValue implements Value {
 
-    private final Printer p;
+    /**
+     * The size of this value.
+     */
+    public final int size;
 
-    public TraceAnnotationVisitor(final Printer p) {
-        this(null, p);
+    /**
+     * The instructions that can produce this value. For example, for the Java
+     * code below, the instructions that can produce the value of <tt>i</tt> at
+     * line 5 are the txo ISTORE instructions at line 1 and 3:
+     * 
+     * <pre>
+     * 1: i = 0;
+     * 2: if (...) {
+     * 3:   i = 1;
+     * 4: }
+     * 5: return i;
+     * </pre>
+     * 
+     * This field is a set of {@link AbstractInsnNode} objects.
+     */
+    public final Set<AbstractInsnNode> insns;
+
+    public SourceValue(final int size) {
+        this(size, SmallSet.<AbstractInsnNode> emptySet());
     }
 
-    public TraceAnnotationVisitor(final AnnotationVisitor av, final Printer p) {
-        super(Opcodes.ASM5, av);
-        this.p = p;
+    public SourceValue(final int size, final AbstractInsnNode insn) {
+        this.size = size;
+        this.insns = new SmallSet<AbstractInsnNode>(insn, null);
+    }
+
+    public SourceValue(final int size, final Set<AbstractInsnNode> insns) {
+        this.size = size;
+        this.insns = insns;
+    }
+
+    public int getSize() {
+        return size;
     }
 
     @Override
-    public void visit(final String name, final Object value) {
-        p.visit(name, value);
-        super.visit(name, value);
+    public boolean equals(final Object value) {
+        if (!(value instanceof SourceValue)) {
+            return false;
+        }
+        SourceValue v = (SourceValue) value;
+        return size == v.size && insns.equals(v.insns);
     }
 
     @Override
-    public void visitEnum(final String name, final String desc,
-            final String value) {
-        p.visitEnum(name, desc, value);
-        super.visitEnum(name, desc, value);
-    }
-
-    @Override
-    public AnnotationVisitor visitAnnotation(final String name,
-            final String desc) {
-        Printer p = this.p.visitAnnotation(name, desc);
-        AnnotationVisitor av = this.av == null ? null : this.av
-                .visitAnnotation(name, desc);
-        return new TraceAnnotationVisitor(av, p);
-    }
-
-    @Override
-    public AnnotationVisitor visitArray(final String name) {
-        Printer p = this.p.visitArray(name);
-        AnnotationVisitor av = this.av == null ? null : this.av
-                .visitArray(name);
-        return new TraceAnnotationVisitor(av, p);
-    }
-
-    @Override
-    public void visitEnd() {
-        p.visitAnnotationEnd();
-        super.visitEnd();
+    public int hashCode() {
+        return insns.hashCode();
     }
 }

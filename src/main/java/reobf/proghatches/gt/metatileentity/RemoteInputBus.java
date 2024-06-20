@@ -11,6 +11,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
@@ -241,7 +242,8 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 			ForgeDirection dir = this.getBaseMetaTileEntity().getFrontFacing();
 			// for(ForgeDirection dir:ForgeDirection.VALID_DIRECTIONS){
 			for (int i : side.getAccessibleSlotsFromSide(dir.ordinal())) {
-				if (side.canExtractItem(i, side.getStackInSlot(i), dir.ordinal()))
+				if (side.getStackInSlot(i)!=null&&
+						side.canExtractItem(i, side.getStackInSlot(i), dir.ordinal()))
 					slots.add(i);
 			}
 			;

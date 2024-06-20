@@ -25,7 +25,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public class FakeHost extends TileEntity implements IInterfaceHost, IUpgradeableHost, IPriorityHost, ICustomNameObject {
-
+	
 	public FakeHost(TileEntity coverHost, IInterfaceHost realCover) {
 		super();
 		if (coverHost != null) {

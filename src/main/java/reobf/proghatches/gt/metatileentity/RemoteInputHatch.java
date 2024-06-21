@@ -3,37 +3,61 @@ package reobf.proghatches.gt.metatileentity;
 import static gregtech.api.enums.Textures.BlockIcons.FLUID_IN_SIGN;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
+import net.minecraftforge.fluids.IFluidTank;
 
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+import com.gtnewhorizons.modularui.api.widget.Interactable;
+import com.gtnewhorizons.modularui.api.widget.Widget;
+import com.gtnewhorizons.modularui.api.widget.Widget.ClickData;
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.gtnewhorizons.modularui.api.ModularUITextures;
+import com.gtnewhorizons.modularui.api.drawable.Text;
+import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
+import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
+import com.gtnewhorizons.modularui.common.widget.SlotGroup;
+import com.gtnewhorizons.modularui.common.widget.SlotWidget;
+import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import gregtech.GT_Mod;
 import gregtech.api.GregTech_API;
+import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.interfaces.IConfigurationCircuitSupport;
 import gregtech.api.interfaces.ITexture;
+import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_MultiInput;
@@ -168,6 +192,7 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 		// super.addUIWidgets(builder, buildContext);
@@ -200,7 +225,113 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
 		).setSynced(true).setPos(5, 5))
 
 		;
+		List<FluidTank> is;
+	
+		builder.widget(
+		SlotGroup.ofFluidTanks(
+				(List)
+				(
+				is=Stream.generate(()->new FluidTank(Integer.MAX_VALUE)).limit(16).collect(Collectors.toList())
+				),
+				8)
+		.widgetCreator((s,b)->{
+			FluidSlotWidget sw=
+			new FluidSlotWidget(b){
+				 @Override
+                 public void buildTooltip(List<Text> tooltip) {
+                    // super.buildTooltip(tooltip);
+					 FluidStack fluid = getContent();
+                     if (fluid != null) {
+                         addFluidNameInfo(tooltip, fluid);
+                         tooltip.add(Text.localised("modularui.fluid.phantom.amount", fluid.amount));
+                         addAdditionalFluidInfo(tooltip, fluid);
+                         if (!Interactable.hasShiftDown()) {
+                             tooltip.add(Text.EMPTY);
+                             tooltip.add(Text.localised("modularui.tooltip.shift"));
+                         }
+                     } else {
+                         tooltip.add(
+                             Text.localised("modularui.fluid.empty")
+                                 .format(EnumChatFormatting.WHITE));
+                     }
+                 }
+			      @Override
+                  protected void tryClickPhantom(ClickData clickData, ItemStack cursorStack) {}
 
+                  @Override
+                  protected void tryScrollPhantom(int direction) {}
+			};
+		
+			
+			
+			return sw;
+		}
+				)
+		.phantom(true).startFromSlot(0).endAtSlot(16)
+		.build().setPos(3, 3+16)
+		);
+		
+	
+		
+		builder.widget(new SyncedWidget() {
+			int count;
+			@Override
+			public void detectAndSendChanges(boolean init) {
+			if(count--<=0){count=100;}else return;
+			
+			Optional<TileEntity> opt = getTile();
+			if(opt.isPresent()){
+				List<FluidStack> list = opt.map(e->{
+					try{processingRecipe=true;
+					return filterTakable(e);
+					}finally{processingRecipe=false;
+					tmp=null;
+					}
+				
+				}).get();
+				for(int i=0;i<is.size();i++){
+					is.get(i).setFluid( 
+							list.size()>i?
+							list.get(i):null
+							);
+				}
+				
+			
+				
+				
+				
+				
+			}else{
+				for(int i=0;i<is.size();i++){
+					is.get(i).setFluid(null);
+					
+				}
+				
+			}
+			}
+
+			public void readOnClient(int id, PacketBuffer buf) throws IOException {}
+			public void readOnServer(int id, PacketBuffer buf) throws IOException {}
+		});	
+		 
+		 Widget w;
+	     builder.widget(w=new DrawableWidget().setDrawable(ModularUITextures.ICON_INFO)
+				 
+				 .setPos(3+18*8+1, 3+18*2+1).setSize(16,16)
+				// .addTooltip("xxxxxxx")
+	    		 );
+	     
+	     
+	    
+	     
+	    		 
+	 IntStream
+			.range(0,
+					Integer.valueOf(StatCollector.translateToLocal(
+							"programmable_hatches.gt.remotehatch.tooltip")))
+			.forEach(s -> w.addTooltip(LangManager.translateToLocal(
+					"programmable_hatches.gt.remotehatch.tooltip." +  + s)));
+		 
 	}
 
 	@Override
@@ -294,7 +425,7 @@ public FluidStack getFillableStack() {
 		if (e instanceof IFluidHandler) {
 
 			IFluidHandler side = (IFluidHandler) e;
-			HashSet<ShadowFluidStack> slots = new HashSet<ShadowFluidStack>();
+			HashMultiset<ShadowFluidStack> slots = HashMultiset.create();
 			// for(ForgeDirection dir:ForgeDirection.VALID_DIRECTIONS){
 			for (FluidTankInfo i : side.getTankInfo(this.getBaseMetaTileEntity().getFrontFacing())) {
 
@@ -315,7 +446,7 @@ public FluidStack getFillableStack() {
 	private volatile ArrayList<ShadowFluidStack> tmp = null;
 
 	public class ShadowFluidStack extends FluidStack {
-
+	
 		FluidStack original;
 
 		public ShadowFluidStack(FluidStack stack) {

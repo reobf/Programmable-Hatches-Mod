@@ -56,19 +56,24 @@ public class MixinRemoveExcessiveEU {
 
 					if (a instanceof CircuitProviderPatternDetial) {
 						CircuitProviderPatternDetial w = (CircuitProviderPatternDetial) a;
-						Optional.ofNullable(w).map(s->s.out).ifPresent(x->
-						MyMod.LOG.info("Removing EU Source Pattern Request: " + x+x.getTagCompound()));
+						Optional.ofNullable(w).map(s->s.out).ifPresent(x->{
+						
 						if (w.out.getItem() == MyMod.eu_token) {
+							MyMod.LOG.info("Removing EU Source Pattern Request: " + x+x.getTagCompound());
 							MixinCallback.setter.accept(b, 0l);
 						}
+						});
+						
 					}
 					if (a instanceof SISOPatternDetail) {
 						SISOPatternDetail w = (SISOPatternDetail) a;
-						Optional.ofNullable(w).map(s->s.out).ifPresent(x->
-						MyMod.LOG.info("Removing EU Interface Binding Pattern Request: " + x+x.getTagCompound()));
+						Optional.ofNullable(w).map(s->s.out).ifPresent(x->{
 						if (w.in.getItem() == MyMod.eu_token && w.out.getItem() == MyMod.eu_token) {
+							MyMod.LOG.info("Removing EU Interface Binding Pattern Request: " + x+x.getTagCompound());
 							MixinCallback.setter.accept(b, 0l);
 						}
+						});
+						
 					}
 
 				});

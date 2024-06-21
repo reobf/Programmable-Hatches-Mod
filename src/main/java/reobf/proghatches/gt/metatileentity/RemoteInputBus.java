@@ -2,11 +2,13 @@ package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.enums.Textures.BlockIcons.ITEM_IN_SIGN;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nullable;
 
@@ -17,21 +19,31 @@ import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.google.common.collect.ImmutableMap;
+import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.forge.ItemHandlerHelper;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
+import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
+import com.gtnewhorizons.modularui.common.widget.SlotGroup;
+import com.gtnewhorizons.modularui.common.widget.SlotWidget;
+import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import gregtech.GT_Mod;
 import gregtech.api.GregTech_API;
+import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.IConfigurationCircuitSupport;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
@@ -197,6 +209,93 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 		}
 
 		).setSynced(true).setPos(5, 5));
+		ItemStackHandler is;
+		SlotWidget[] circuitslot=new SlotWidget[1];
+		builder.widget(
+		SlotGroup.ofItemHandler(is=new ItemStackHandler(17), 8)
+		.widgetCreator(s->{
+			SlotWidget sw=
+			(SlotWidget)new SlotWidget(s).disableInteraction();
+		
+			if(s.getSlotIndex()==16){
+				circuitslot[0]=sw;
+			}
+			
+			return sw;
+		}
+				)
+		.phantom(true).startFromSlot(0).endAtSlot(16)
+		.build().setPos(3, 3+16)
+		);
+		
+		
+	
+		circuitslot[0].setBackground( getGUITextureSet().getItemSlot(),GT_UITextures.OVERLAY_SLOT_INT_CIRCUIT);
+		
+		
+		builder.widget(new SyncedWidget() {
+			int count;
+			@Override
+			public void detectAndSendChanges(boolean init) {
+			if(count--<=0){count=100;}else return;
+			
+			Optional<TileEntity> opt = getTile();
+			if(opt.isPresent()){
+				List<ItemStack> list = opt.map(e->filterTakable(e)).get();
+				for(int i=0;i<is.getSlots()-1;i++){
+					is.setStackInSlot(i, 
+							list.size()>i?
+							list.get(i):null
+							);
+				}
+				
+				TileEntity gt = opt.orElse(null);
+				if (gt != null && gt instanceof IGregTechTileEntity) {
+					IMetaTileEntity meta = ((IGregTechTileEntity) gt).getMetaTileEntity();
+					if (meta != null && (meta instanceof IConfigurationCircuitSupport)) {
+						IConfigurationCircuitSupport c = (IConfigurationCircuitSupport) meta;
+						is.setStackInSlot(16,meta.getStackInSlot(c.getCircuitSlot()));
+					}
+				}
+				
+				
+				
+				
+			}else{
+				for(int i=0;i<is.getSlots();i++){
+					is.setStackInSlot(i, null);
+					
+				}
+				
+			}
+			}
+
+			public void readOnClient(int id, PacketBuffer buf) throws IOException {}
+			public void readOnServer(int id, PacketBuffer buf) throws IOException {}
+		});	
+		 
+		 
+		 
+		 Widget w;
+	     builder.widget(w=new DrawableWidget().setDrawable(ModularUITextures.ICON_INFO)
+				 
+				 .setPos(3+18*8+1, 3+18*2+1).setSize(16,16)
+				// .addTooltip("xxxxxxx")
+	    		 );
+	     
+	     
+	    
+	     
+	    		 
+	 IntStream
+			.range(0,
+					Integer.valueOf(StatCollector.translateToLocal(
+							"programmable_hatches.gt.remotebus.tooltip")))
+			.forEach(s -> w.addTooltip(LangManager.translateToLocal(
+					"programmable_hatches.gt.remotebus.tooltip." +  + s)));
+	 
+	 
+		
 		// buildContext.addCloseListener(() -> uiButtonCount = 0);
 	}
 
@@ -249,7 +348,7 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 			;
 			// }
 
-			slots.stream().map(inv::getStackInSlot).forEach(arr::add);
+			//slots.stream().map(inv::getStackInSlot).forEach(arr::add);
 			;
 			for (int i = 0; i < size; i++) {
 				if (slots.contains(i)) {

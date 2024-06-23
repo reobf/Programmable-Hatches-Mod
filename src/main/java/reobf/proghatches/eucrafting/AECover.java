@@ -540,6 +540,9 @@ public void onPlayerAttach(EntityPlayer player, ItemStack aCover, ICoverable aTi
 		return false;
 	};
 
+	
+
+	
 	@Override
 	protected boolean onCoverShiftRightClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
 			ICoverable aTileEntity, EntityPlayer aPlayer) {
@@ -549,10 +552,10 @@ public void onPlayerAttach(EntityPlayer player, ItemStack aCover, ICoverable aTi
 		;
 
 		if (aCoverVariable.hasAEGUI() && !aPlayer.worldObj.isRemote) {
-			NW.sendPacketToAllPlayersInRange(aPlayer.getEntityWorld(),
+			/*NW.sendPacketToAllPlayersInRange(aPlayer.getEntityWorld(),
 					new GT_Packet_SendCoverData(side, aCoverID, aCoverVariable, aTileEntity), aTileEntity.getXCoord(),
 					aTileEntity.getZCoord());
-
+*/
 			aPlayer.openGui(MyMod.instance, side.ordinal(), aPlayer.getEntityWorld(), aTileEntity.getXCoord(),
 					aTileEntity.getYCoord(), aTileEntity.getZCoord());
 		}

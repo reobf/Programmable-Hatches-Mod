@@ -8,6 +8,8 @@ import java.util.Optional;
 import java.util.Set;
 import com.glodblock.github.loader.ItemAndBlockHolder;
 import com.google.common.collect.ImmutableSet;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+
 import appeng.api.config.Actionable;
 import appeng.api.config.Upgrades;
 import appeng.api.exceptions.FailedConnection;
@@ -48,6 +50,7 @@ import appeng.parts.p2p.PartP2PTunnel;
 import appeng.util.Platform;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
+import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -476,7 +479,7 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
 		;
 
 	};
-
+/*
 	@Override
 	public TickingRequest getTickingRequest(IGridNode node) {
 		//
@@ -489,6 +492,16 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
 			return TickRateModulation.SAME;
 
 		return duality.tickingRequest(node, TicksSinceLastCall);
+	}*/
+	@Override
+	public TickingRequest getTickingRequest(IGridNode node) {
+		
+		return new TickingRequest(100, 100, false, false);
+	}
+
+	@Override
+	public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall) {
+		return TickRateModulation.SAME;
 	}
 	public String getCustomName() {
 		if(duality.hasCustomName())return duality.getCustomName();
@@ -678,5 +691,12 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
 	public ForgeDirection getActualSide() {
 		// TODO Auto-generated method stub
 		return side;
+	}@Override
+	public void addUIWidgets(Builder builder, GT_CoverUIBuildContext gt_CoverUIBuildContext) {
+		if (hasAEGUI() && !gt_CoverUIBuildContext.getPlayer().getEntityWorld().isRemote) {
+			gt_CoverUIBuildContext.getPlayer()
+		.openGui(MyMod.instance, side.ordinal(), 	
+				gt_CoverUIBuildContext.getPlayer().getEntityWorld(), this.getPos().x,
+				 this.getPos().y, this.getPos().z);}
 	}
 }

@@ -84,6 +84,7 @@ import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.IStorageMonitorable;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IConfigManager;
 import appeng.helpers.DualityInterface;
 import appeng.helpers.IInterfaceHost;
@@ -107,7 +108,9 @@ import cofh.api.energy.IEnergyReceiver;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IEnergyConnected;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import ic2.api.energy.tile.IEnergySink;
@@ -299,7 +302,6 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 
 	@Override
 	public boolean onPartActivate(final EntityPlayer player, final Vec3 pos) {
-
 		if (player.isSneaking()) {
 			TileEntity t = this.getTile();
 			if (!t.getWorldObj().isRemote) {
@@ -409,17 +411,17 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 	}
 
 	public boolean refund(IMEInventory<IAEItemStack> inv, IMEInventory<IAEItemStack> recver) {
-		IAEItemStack ret = inv.extractItems(AEItemStack.create(token).setStackSize(amp)
+		IAEItemStack ret = inv.extractItems(AEItemStack.create(token).setStackSize(Integer.MAX_VALUE)
 
 				, Actionable.SIMULATE, new MachineSource(this));
 
 		if (ret != null) {
 
-			if (ret.getStackSize() == amp) {
-				inv.extractItems(AEItemStack.create(token).setStackSize(amp), Actionable.MODULATE,
+			if (ret.getStackSize() >0) {
+				inv.extractItems(AEItemStack.create(token).setStackSize(ret.getStackSize()), Actionable.MODULATE,
 						new MachineSource(this));
 
-				recver.injectItems(AEItemStack.create(blank_token).setStackSize(amp), Actionable.MODULATE,
+				recver.injectItems(AEItemStack.create(blank_token).setStackSize(ret.getStackSize()), Actionable.MODULATE,
 						new MachineSource(this));
 
 				return true;
@@ -430,18 +432,47 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 	}
 
 	boolean prevPower;
+	public IMetaTileEntity getTargetTile(){
+		
+		TileEntity te;
+		if(data!=null){
+			DimensionalCoord pos = data.getPos();
+			te= data.getTile().getWorldObj().getTileEntity(pos.x,pos.y,pos.z);
+		}else{
+			int x=this.host.getTile().xCoord;
+			int y=this.host.getTile().yCoord;
+			int z=this.host.getTile().zCoord;
+			ForgeDirection fd = this.getSide();
+			te=this.host.getTile().getWorldObj().getTileEntity(
+					x+fd.offsetX,y+fd.offsetY,z+fd.offsetZ);
+		}
+		if(te==null)
+		return null;
+		
+		if(te instanceof IGregTechTileEntity){
+			
+			return ((IGregTechTileEntity) te).getMetaTileEntity();
+			
+			
+		}	
+		return null;
+		
+	}
+	int fails;
+	boolean pass;
 
+	private void resetIdleCheckStatus(boolean check) {
+		fails=0;
+		pass=false;
+	
+	}
 	@Override
 	public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
 
 		returnItems();
-		/*
-		 * if(redstone()){ if(this.isOutput()) Optional.ofNullable(
-		 * this.getInput()).ifPresent( s->s.redstoneticks++ ); else
-		 * this.redstoneticks++; }
-		 */
+		duality.tickingRequest(node, ticksSinceLastCall);
 		boolean ok = false;
-		if (!this.isOutput()) {
+	/*	if (!this.isOutput()) {
 
 			boolean red = this.redstone();
 			try {
@@ -461,9 +492,44 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 			prevPower = red;
 
 		}
+		
+		*/ArrayList<PartEUP2PInterface> all = new ArrayList<>();
+		if (!this.isOutput()&&amp>0) {
+			boolean[] hasFail=new boolean[1];
+			
+		  
+			all.add(this);
+			try {
+				this.getOutputs().forEach(all::add);
+			} catch (GridAccessException e) {}
+			all.forEach(s->{
+				IMetaTileEntity t = s.getTargetTile();
+				if(t!=null&&t instanceof IIdleStateProvider){
+					if(s.pass)return;
+					if(((IIdleStateProvider) t).getIdle()==1){
+						s.pass=true;
+					}
+					if(((IIdleStateProvider) t).failThisTick()){
+						if(s.fails++==2){s.pass=true;};//fail 2 times, so assume no valid inputs, just pass it
+					}
+					{hasFail[0]=true;}
+				}
+				
+			});
+			
+			if(!hasFail[0]){ok=true;}
+			
+		}	
+			
+			
+
+		
+		
+		
+		
 
 		if (ok || redstoneticks > 0) {
-
+				all.forEach(s->s.resetIdleCheckStatus(false));
 			try {
 
 				IMEMonitor<IAEItemStack> store = getProxy().getStorage().getItemInventory();
@@ -826,6 +892,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		returnItems();
 		if (patternDetails instanceof SISOPatternDetail) {
 			is.add(((SISOPatternDetail) patternDetails).out);
+			
 			// do not call returnItems() here, or items returned will not be
 			// considered
 			// as output
@@ -853,8 +920,16 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 			}
 			boolean succ = duality.pushPattern(p.original, table);
 			if (succ) {
-				if (face != null)
+				if (face != null){
 					face.amp = Math.max(face.amp, count[0]);
+					
+					face.resetIdleCheckStatus(true);
+					try {
+						getOutputs().forEach(s->s.resetIdleCheckStatus(true));
+					} catch (GridAccessException e) {
+					
+					}
+				}
 				is.add(p.extraOut0);
 			}
 
@@ -863,6 +938,8 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		return duality.pushPattern(patternDetails, table);
 
 	}
+
+
 
 	@Override
 	public boolean isBusy() {
@@ -905,6 +982,8 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		redstoneticks = data.getInteger("redstoneticks");
 		expectedamp = data.getLong("expectedamp");
 		redstoneOverride = data.getBoolean("redstoneOverride");
+		fails=data.getInteger("fails");
+		pass=data.getBoolean("pass");
 		is.clear();
 		IntStream.range(0, data.getInteger("pending_size")).forEach(s -> {
 
@@ -920,6 +999,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 	@Override
 	public void writeToNBT(NBTTagCompound data) {
 		super.writeToNBT(data);
+		if(customName!=null)
 		data.setString("customName", customName);
 		duality.writeToNBT(data);
 		ProghatchesUtil.ser(data, id, "EUFI");
@@ -932,6 +1012,8 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		data.setInteger("redstoneticks", redstoneticks);
 		data.setLong("expectedamp", expectedamp);
 		data.setBoolean("redstoneOverride", redstoneOverride);
+		data.setInteger("fails", fails);
+		data.setBoolean("pass", pass);
 		for (int i = 0; i < is.size(); i++) {
 			data.setTag("pending_" + i, is.get(i).writeToNBT(new NBTTagCompound()));
 		}

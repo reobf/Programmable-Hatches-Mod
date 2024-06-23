@@ -3,6 +3,7 @@ package reobf.proghatches.gt.metatileentity;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
+import appeng.api.config.FuzzyMode;
 import appeng.api.implementations.tiles.IColorableTile;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
@@ -48,6 +50,7 @@ import appeng.api.storage.IMEInventoryHandler;
 import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IAETagCompound;
 import appeng.api.storage.data.IItemList;
 import appeng.api.util.AEColor;
 import appeng.api.util.DimensionalCoord;
@@ -70,11 +73,13 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
 import gregtech.api.util.GT_Utility;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -314,8 +319,8 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 		
 			ItemStack in=input.getItemStack();
 			ItemStack thiz=mInventory[0];
-			if(thiz!=null&&!Platform.isSameItem(in, thiz))return input;
-			if(thiz==null){thiz=in.copy(); }
+			if(thiz!=null&&!Platform.isSameItem(in, thiz))return null;
+			if(thiz==null){return null;}//thiz=in.copy(); }
 			int transfer=Math.min(in.stackSize,thiz.stackSize);
 			if(transfer==0)return null;
 			if(type==Actionable.SIMULATE){
@@ -334,7 +339,6 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 			
 			return null;
 		}
-
 		@Override
 		public IItemList<IAEItemStack> getAvailableItems(IItemList<IAEItemStack> out) {
 		out.addStorage(AEItemStack.create(mInventory[0]));

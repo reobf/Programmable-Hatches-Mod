@@ -134,7 +134,8 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		if (!"true".equals(pp.get("noFixRecursiveCraft")))
 			retLate.add("eucrafting." + "MixinCraftingRecursiveWorkaround");
 		if (!"true".equals(pp.get("noEUCraftingMixins"))) {
-
+			retLate.add("eucrafting." + "MixinMachineIdle");
+			retLate.add("eucrafting." + "MixinMachineIdle2");
 			retLate.add("eucrafting." + "MixinCpuClusterEUAutoRequest");
 			retLate.add("eucrafting." + "MixinRemoveExcessiveEU");
 			retLate.add("eucrafting." + "MixinCoverInsertion");

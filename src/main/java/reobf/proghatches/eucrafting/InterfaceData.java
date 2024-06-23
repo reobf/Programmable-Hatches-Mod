@@ -1,5 +1,7 @@
 package reobf.proghatches.eucrafting;
 
+import static gregtech.api.enums.GT_Values.NW;
+
 import java.util.ArrayList;
 import java.util.EnumSet;
 import com.google.common.collect.ImmutableSet;
@@ -39,8 +41,10 @@ import appeng.util.Platform;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
+import gregtech.api.net.GT_Packet_SendCoverData;
 import gregtech.api.util.ISerializableObject;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
@@ -52,6 +56,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.eucrafting.AECover.Data;
 import reobf.proghatches.main.FakeHost;
+import reobf.proghatches.main.MyMod;
 
 public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgradeableHost, ICustomNameObject,
 		IConfigurableObject, IPriorityHost,
@@ -376,7 +381,7 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
 
 	@Override
 	public TickingRequest getTickingRequest(IGridNode node) {
-		//
+		
 		return duality.getTickingRequest(node);
 	}
 
@@ -387,6 +392,12 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
 
 		return duality.tickingRequest(node, TicksSinceLastCall);
 	}
+	
+	
+	
+	
+	
+	
 
 	public String getCustomName() {
 		if (name != null&&name.length()>0){
@@ -468,7 +479,11 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
 	}
 @Override
 public void addUIWidgets(Builder builder, GT_CoverUIBuildContext gt_CoverUIBuildContext) {
-	
+	if (hasAEGUI() && !gt_CoverUIBuildContext.getPlayer().getEntityWorld().isRemote) {
+		gt_CoverUIBuildContext.getPlayer()
+	.openGui(MyMod.instance, side.ordinal(), 	
+			gt_CoverUIBuildContext.getPlayer().getEntityWorld(), this.getPos().x,
+			 this.getPos().y, this.getPos().z);}
 }
 
 

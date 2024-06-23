@@ -11,6 +11,8 @@ import com.glodblock.github.common.parts.PartFluidP2PInterface;
 import com.glodblock.github.loader.ItemAndBlockHolder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+
 import appeng.api.config.Actionable;
 import appeng.api.config.Upgrades;
 import appeng.api.exceptions.FailedConnection;
@@ -51,6 +53,7 @@ import appeng.parts.p2p.PartP2PTunnel;
 import appeng.util.Platform;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
+import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -482,7 +485,7 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
 		
 	};
 
-	@Override
+	/*@Override
 	public TickingRequest getTickingRequest(IGridNode node) {
 		//
 		return duality.getTickingRequest(node);
@@ -493,17 +496,18 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
 		if (first)
 			return TickRateModulation.SAME;
 		
-		
-		/*ItemStack is=new ItemStack(Items.apple);
-		is.setTagCompound(this.getTag());
-		is.setStackDisplayName(
-				duality.hasCustomName()?
-				duality.getCustomName():"");
-		this.setTag(is.getTagCompound());
-		*/
-		
+
 		
 		return duality.tickingRequest(node, TicksSinceLastCall);
+	}*/@Override
+	public TickingRequest getTickingRequest(IGridNode node) {
+		
+		return new TickingRequest(100, 100, false, false);
+	}
+
+	@Override
+	public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall) {
+		return TickRateModulation.SAME;
 	}
 	public String getCustomName() {
 		if(duality.hasCustomName())return duality.getCustomName();
@@ -710,6 +714,13 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
 	      if(duality.hasCustomName())return duality.getCustomName();
 		return null;
 	}
-	
+	@Override
+	public void addUIWidgets(Builder builder, GT_CoverUIBuildContext gt_CoverUIBuildContext) {
+		if (hasAEGUI() && !gt_CoverUIBuildContext.getPlayer().getEntityWorld().isRemote) {
+			gt_CoverUIBuildContext.getPlayer()
+		.openGui(MyMod.instance, side.ordinal(), 	
+				gt_CoverUIBuildContext.getPlayer().getEntityWorld(), this.getPos().x,
+				 this.getPos().y, this.getPos().z);}
+	}
 	
 }

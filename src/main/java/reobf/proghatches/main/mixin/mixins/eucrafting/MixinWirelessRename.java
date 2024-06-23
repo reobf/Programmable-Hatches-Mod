@@ -48,7 +48,7 @@ public class MixinWirelessRename {
 		
 		 if((id&Long.MIN_VALUE)!=0){
 			isCover=true;
-			id=id&Long.MAX_VALUE;
+			//id=id&Long.MAX_VALUE;
 		}
 	
 		

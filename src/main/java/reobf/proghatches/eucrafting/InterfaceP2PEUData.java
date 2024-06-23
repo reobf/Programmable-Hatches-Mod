@@ -520,7 +520,7 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 
 		}
 		;
-
+/*
 		if (worksensitive && (aTileEntity instanceof IMachineProgress)) {
 			boolean on = (((IMachineProgress) aTileEntity).hasThingsToDo());
 			boolean delayon = value > 0;
@@ -561,11 +561,11 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 
 			duality.redstoneOverride = false;
 		}
-
+*/
 	};
 
 	private int value;
-
+/*
 	@Override
 	public TickingRequest getTickingRequest(IGridNode node) {
 		//
@@ -578,6 +578,16 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 			return TickRateModulation.SAME;
 
 		return duality.tickingRequest(node, TicksSinceLastCall);
+	}*/
+	@Override
+	public TickingRequest getTickingRequest(IGridNode node) {
+		
+		return new TickingRequest(100, 100, false, false);
+	}
+
+	@Override
+	public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall) {
+		return TickRateModulation.SAME;
 	}
 	public String getCustomName() {
 		if(duality.hasCustomName())return duality.getCustomName();

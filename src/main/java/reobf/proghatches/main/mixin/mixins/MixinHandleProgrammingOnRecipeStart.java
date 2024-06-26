@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import reobf.proghatches.gt.cover.IProgrammer;
 import reobf.proghatches.gt.cover.ProgrammingCover;
 
 @Mixin(value = GT_MetaTileEntity_MultiBlockBase.class, remap = false)
@@ -27,8 +28,8 @@ public abstract class MixinHandleProgrammingOnRecipeStart {
 			GT_MetaTileEntity_Hatch_InputBus bus = (GT_MetaTileEntity_Hatch_InputBus) a;
 			Arrays.stream(ForgeDirection.VALID_DIRECTIONS)
 					.map(s -> bus.getBaseMetaTileEntity().getCoverBehaviorAtSideNew(s)).filter(Objects::nonNull)
-					.filter(s -> s instanceof ProgrammingCover)
-					.forEach(s -> ((ProgrammingCover) s).impl(bus.getBaseMetaTileEntity()));
+					.filter(s -> s instanceof IProgrammer)
+					.forEach(s -> ((IProgrammer) s).impl(bus.getBaseMetaTileEntity()));
 			;
 
 		} catch (Exception e) {

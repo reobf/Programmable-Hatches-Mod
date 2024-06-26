@@ -3,6 +3,8 @@ package reobf.proghatches.util;
 import static gregtech.api.util.GT_Utility.*;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,6 +18,19 @@ import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 
+import appeng.api.config.PriorityCardMode;
+import appeng.api.config.SecurityPermissions;
+import appeng.api.config.Settings;
+import appeng.api.networking.IGrid;
+import appeng.api.networking.IGridNode;
+import appeng.api.networking.security.IActionHost;
+import appeng.api.networking.security.ISecurityGrid;
+import appeng.core.AELog;
+import appeng.core.localization.PlayerMessages;
+import appeng.core.sync.GuiBridge;
+import appeng.helpers.IPriorityHost;
+import appeng.util.Platform;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -23,7 +38,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.util.ForgeDirection;
+import reobf.proghatches.gt.metatileentity.SuperChestME;
+import reobf.proghatches.main.MyMod;
 import gregtech.api.GregTech_API;
+import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.util.GT_Log;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.covers.redstone.GT_Cover_AdvancedRedstoneReceiverBase;
@@ -207,6 +227,56 @@ public class ProghatchesUtil {
 		tag.setLong(name + "_UUID_M", id.getMostSignificantBits());
 		tag.setLong(name + "_UUID_L", id.getLeastSignificantBits());
 		return tag;
+	} 
+	
+	
+	
+	private static Method m;
+	
+	public static void handleUse(Object player, Object tile, Object priorityHost,
+			Object actionHost, Object stack, Object side) {
+		//dummy, for version that has no piority card
 	}
-
+	public static boolean handleUse(EntityPlayer player,  /*SuperChestME*/MetaTileEntity te) {
+		if(player.getHeldItem()==null){return false;}
+		if(!player.getHeldItem().getItem().getClass().getName().equals("appeng.items.tools.ToolPriorityCard")){return false;}
+		
+		handleUse(
+				player,
+				(TileEntity)te.getBaseMetaTileEntity(),
+				(IPriorityHost)te,
+				(IActionHost)te,
+				player.getHeldItem(),
+				ForgeDirection.UP
+				);return true;
+		
+	}
+	public static void handleUse(EntityPlayer player, TileEntity tile, IPriorityHost priorityHost,
+            IActionHost actionHost, ItemStack stack, ForgeDirection side) {
+    	if(m==null)
+		try {
+			Class<?> z=Class.forName("appeng.items.tools.ToolPriorityCard");
+		    m = z.getDeclaredMethod("handleUse",EntityPlayer.class, TileEntity.class, IPriorityHost.class, IActionHost.class, ItemStack.class, ForgeDirection.class);
+		    m.setAccessible(true);
+		    
+		} catch (Exception e) {
+			MyMod.LOG.warn("PriorityCard not found, this is normal and safe to ignore if you're using pack v2.5.1.");
+			MyMod.LOG.catching(e);
+			//e.printStackTrace();
+			try {
+				m=ProghatchesUtil.class.getDeclaredMethod("handleUse", Object.class, Object.class, Object.class, Object.class, Object.class, Object.class);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		}
+    	
+    	try {
+			m.invoke(null, player,  tile,  priorityHost,
+		             actionHost,  stack,  side);
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+    	
+    }
 }

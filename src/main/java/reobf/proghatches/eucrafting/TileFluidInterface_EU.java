@@ -24,15 +24,20 @@ import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
+import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingCPU;
 import appeng.api.networking.crafting.ICraftingMedium;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.crafting.ICraftingProviderHelper;
 import appeng.api.networking.events.MENetworkCraftingPatternChange;
 import appeng.api.networking.security.MachineSource;
+import appeng.api.networking.ticking.IGridTickable;
+import appeng.api.networking.ticking.TickRateModulation;
+import appeng.api.networking.ticking.TickingRequest;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.DimensionalCoord;
 import appeng.me.GridAccessException;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.tile.TileEvent;
@@ -42,7 +47,9 @@ import cofh.api.energy.IEnergyReceiver;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IEnergyConnected;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import ic2.api.energy.tile.IEnergySink;
@@ -65,7 +72,10 @@ import reobf.proghatches.util.ProghatchesUtil;
 
 // TileFluidInterface_EU.class.getName().contains("TileFluidInterface")->true
 public class TileFluidInterface_EU extends TileFluidInterface
-		implements ITileWithModularUI, IInstantCompletable, IEnergyConnected, IDrain {
+		implements ITileWithModularUI, IInstantCompletable, IEnergyConnected, IDrain,
+		
+		IGridTickable
+		{
 	static public IWailaDataProvider provider = new IWailaDataProvider() {
 
 		@Override
@@ -153,6 +163,8 @@ public class TileFluidInterface_EU extends TileFluidInterface
 		averageamp = data.getDouble("averageamp");
 		redstoneticks = data.getInteger("redstoneticks");
 		expectedamp = data.getLong("expectedamp");
+		fails=data.getInteger("fails");
+		pass=data.getBoolean("pass");
 		is.clear();
 		IntStream.range(0, data.getInteger("pending_size")).forEach(s -> {
 
@@ -205,6 +217,8 @@ public class TileFluidInterface_EU extends TileFluidInterface
 		data.setDouble("averageamp", averageamp);
 		data.setInteger("redstoneticks", redstoneticks);
 		data.setLong("expectedamp", expectedamp);
+		data.setInteger("fails", fails);
+		data.setBoolean("pass", pass);
 		for (int i = 0; i < is.size(); i++) {
 			data.setTag("pending_" + i, is.get(i).writeToNBT(new NBTTagCompound()));
 		}
@@ -227,20 +241,79 @@ public class TileFluidInterface_EU extends TileFluidInterface
 	public ArrayList<ItemStack> is = new ArrayList<>();
 	boolean prevPower;
 
-	@TileEvent(TileEventType.TICK)
-
+	public IMetaTileEntity getTargetTile(){
+		
+		TileEntity te;
+		{
+			int x=getTile().xCoord;
+			int y=getTile().yCoord;
+			int z=getTile().zCoord;
+			ForgeDirection fd = this.getForward();
+			if(fd==ForgeDirection.UNKNOWN)return null;
+			te=getTile().getWorldObj().getTileEntity(
+					x+fd.offsetX,y+fd.offsetY,z+fd.offsetZ);
+		}
+		if(te==null)
+		return null;
+		
+		if(te instanceof IGregTechTileEntity){
+			
+			return ((IGregTechTileEntity) te).getMetaTileEntity();
+			
+			
+		}	
+		return null;
+		
+	}
+	private void resetIdleCheckStatus(boolean check) {
+		fails=0;
+		pass=false;
+	
+	}
+	boolean pass;int fails;
+	
+	@Override
+	public TickingRequest getTickingRequest(final IGridNode node) {
+		return new TickingRequest(1, 1, false, false);
+		//return super.tickingRequest(node, ticksSinceLastCall);
+	}
+	@Override
+	public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
+		
+		tick();
+	return TickRateModulation.SAME;
+	}
+	
+	//@TileEvent(TileEventType.TICK)
 	public void tick() {
 		if (this.worldObj.isRemote) {
 			return;
 		}
 		returnItems();
 
-		boolean pw = this.getWorldObj().isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord);
+	boolean ok=false;
+		
+	/*	boolean pw = this.getWorldObj().isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord);
 		boolean downedge = pw == false && prevPower == true;
 		prevPower = pw;
 
-		if (downedge || redstoneticks > 0) {
-
+		*/
+		
+	IMetaTileEntity t = getTargetTile();
+	if(t!=null&&t instanceof IIdleStateProvider){
+		if(pass)return;
+		if(((IIdleStateProvider) t).getIdle()==1){
+			pass=true;
+		}
+		if(((IIdleStateProvider) t).failThisTick()){
+			if(fails++==2){pass=true;};//fail 2 times, so assume no valid inputs, just pass it
+		}
+		{ok=true;}
+	}
+	
+	
+		if (ok || redstoneticks > 0) {
+			resetIdleCheckStatus(false);
 			try {
 
 				IMEMonitor<IAEItemStack> store = getProxy().getStorage().getItemInventory();
@@ -335,6 +408,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 			boolean succ = super.pushPattern(p.original, table);
 			if (succ) {
 				amp = Math.max(amp, count[0]);
+				resetIdleCheckStatus(false);
 				is.add(p.extraOut0);
 			}
 

@@ -206,8 +206,8 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 										.put("bufferNum", bufferNum)
 										.put("cap",format.format(fluidLimit(tier,mMultiFluid )))
 										.put("mMultiFluid", mMultiFluid)
-										.put("slots",itemLimit(tier))
-										.put("stacksize",(int) (64 * Math.pow(2, Math.max(tier - 3, 0))))
+										.put("slots",Math.min(16, (1 + tier) * (tier + 1)))
+										.put("stacksize",itemLimit(tier))
 										.put("fluidSlots", fluidSlots(tier))
 										//.put("supportFluid", fluid)
 										.build())
@@ -407,7 +407,9 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 			return t;
 		}
 		public boolean isAccessibleForMulti() {
-			
+			//System.out.println(tickFirstClassify);
+		//	System.out.println(currentTick());
+		 //  System.out.println("-----------");
 			return !isEmpty()&&
 				tickFirstClassify+2<currentTick();
 			//wait for possible future input, to take better adventage of parallels
@@ -480,9 +482,13 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 				mStoredItemInternal[ix] = Optional.ofNullable(iin[ix]).map(ItemStack::copy).orElse(null);
 				iin[ix] = null;
 			}
-			Long tick=tickFirstClassify+5+1;
+			Long tick=tickFirstClassify+2;
 			if(!tick.equals(scheduled.peekFirst()))
-			scheduled.push(tick);
+			{
+			
+				scheduled.push(tick);
+			}
+			
 			//justHadNewItems = true;
 			onClassify();
 			programLocal();
@@ -520,7 +526,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		}
 
 		public void classify(ListeningFluidTank[] fin, ItemStack[] iin) {
-			tickFirstClassify=-1;//make it instantly accessible
+		
 			boolean hasJob = false;
 			for (int ix = 0; ix < f; ix++) {
 				if (fin[ix].getFluidAmount() > 0) {
@@ -559,6 +565,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 						mStoredItemInternal[ix].stackSize += mStoredItemInternalSingle[ix].stackSize;
 				iin[ix] = null;
 			}
+			tickFirstClassify=-1;//make it instantly accessible
 			justHadNewItems = true;
 			onClassify();
 			if (program)
@@ -686,9 +693,9 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		super.onPostTick(aBaseMetaTileEntity, aTick);
 		if (aBaseMetaTileEntity.getWorld().isRemote)
 			return;
-		
-		
-		Optional.ofNullable(scheduled.peekLast()).filter(s->s==aTick).ifPresent(s->{
+		//System.out.println(scheduled);
+		//System.out.println(aTick+" "+scheduled.peekLast());
+		Optional.ofNullable(scheduled.peekLast()).filter(s->s<aTick).ifPresent(s->{
 			scheduled.removeLast();
 			justHadNewItems=true;
 			//inv0.forEach(st->System.out.println(st.isAccessibleForMulti()));
@@ -1207,13 +1214,13 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		
 	
 		
-		return (Optional) inv0.stream().filter(not(DualInvBuffer::isEmpty))
+		return (Optional) inv0.stream().filter((DualInvBuffer::isAccessibleForMulti))
 				.map(s->new PiorityBuffer(s))
 				.sorted().map(s->{return s.buff;})
 				.findFirst();
 		}else{
 			
-		return (Optional) inv0.stream().filter(not(DualInvBuffer::isEmpty))
+		return (Optional) inv0.stream().filter((DualInvBuffer::isAccessibleForMulti))
 					.findFirst();
 			
 			

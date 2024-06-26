@@ -61,6 +61,7 @@ public static TreeSet<Integer> list;
 		icons[mark(1)] = register.registerIcon("proghatches:cover1");
 		icons[2] = register.registerIcon("proghatches:cover2");//disabled
 		icons[mark(3)] = register.registerIcon("proghatches:cover2");
+		icons[mark(4)] = register.registerIcon("proghatches:cover2");
 		icons[mark(32)] = register.registerIcon("proghatches:cover32");
 		icons[mark(33)] = register.registerIcon("proghatches:cover33");
 		icons[mark(34)] = register.registerIcon("proghatches:cover34");

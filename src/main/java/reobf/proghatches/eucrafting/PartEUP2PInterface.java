@@ -528,7 +528,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		
 		
 
-		if (ok || redstoneticks > 0) {
+		if (ok || all.stream().map(s->s.redstoneticks>0).findAny().isPresent()) {
 				all.forEach(s->s.resetIdleCheckStatus(false));
 			try {
 
@@ -553,7 +553,9 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 						 * 
 						 * ((CraftingCPUCluster)cluster).addEmitable(AEItemStack
 						 * .create(blank_token.copy()).setStackSize(prevamp));
-						 */redstoneticks = 0;
+						 */
+						all.forEach(s->s.redstoneticks=0);
+						//redstoneticks = 0;
 						amp = 0;
 						break;
 					}
@@ -561,7 +563,14 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 
 				if (refund(store, store)) {
 					amp = 0;
-					redstoneticks = 0;
+					//redstoneticks = 0;
+					all.forEach(s->s.redstoneticks=0);
+				}
+				
+				if(amp<-1){	
+					MyMod.LOG.error("inconsistance:"+amp+" "+Optional.ofNullable(this.getHost()).map(s->s.getTile()).map(s->s.toString()).orElse(""));
+					amp=0;
+				
 				}
 			} catch (GridAccessException e) {
 				e.printStackTrace();

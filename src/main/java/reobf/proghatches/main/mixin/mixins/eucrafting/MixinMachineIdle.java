@@ -32,7 +32,7 @@ boolean fail;
  public void check(CallbackInfoReturnable<Boolean> c){
 	 
 	 if(hasJob&&!checkRecipeResult.wasSuccessful()){
-		 jobdone=10;
+		 jobdone=4;
 	 }
 	 if(!checkRecipeResult.wasSuccessful()){
 		 

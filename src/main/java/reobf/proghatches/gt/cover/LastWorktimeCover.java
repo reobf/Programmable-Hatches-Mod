@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 
+import appeng.helpers.IPriorityHost;
 import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.ITexture;
@@ -18,6 +19,7 @@ import gregtech.api.util.GT_CoverBehavior;
 import gregtech.api.util.ISerializableObject;
 import gregtech.common.gui.modularui.widget.CoverDataControllerWidget;
 import gregtech.common.gui.modularui.widget.CoverDataFollower_CycleButtonWidget;
+import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_CraftingInput_ME;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;

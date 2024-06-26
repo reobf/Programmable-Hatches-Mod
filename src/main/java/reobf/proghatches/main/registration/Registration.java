@@ -25,6 +25,7 @@ import reobf.proghatches.eucrafting.InterfaceP2PData;
 import reobf.proghatches.eucrafting.InterfaceP2PEUData;
 import reobf.proghatches.eucrafting.InterfaceP2PNoFluidData;
 import reobf.proghatches.gt.cover.LastWorktimeCover;
+import reobf.proghatches.gt.cover.LinkedBusSlaveCover;
 import reobf.proghatches.gt.cover.ProgrammingCover;
 
 import reobf.proghatches.gt.cover.SmartArmCover;
@@ -164,6 +165,12 @@ public class Registration implements Runnable {
                 MACHINE_CASINGS[1][0],
                 TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
             new WirelessControlCover());
+        GregTech_API.registerCover(
+                new ItemStack(MyMod.cover, 1, 4),
+                TextureFactory.of(
+                    MACHINE_CASINGS[1][0],
+                    TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
+                new LinkedBusSlaveCover());
         //WIP
         /*GregTech_API.registerCover(
                 new ItemStack(MyMod.cover, 1, 15),

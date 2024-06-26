@@ -55,6 +55,7 @@ import appeng.api.storage.data.IItemList;
 import appeng.api.util.AEColor;
 import appeng.api.util.DimensionalCoord;
 import appeng.client.texture.ExtraBlockTextures;
+import appeng.helpers.IPriorityHost;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
@@ -70,6 +71,7 @@ import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
 import gregtech.api.util.GT_Utility;
@@ -90,9 +92,10 @@ import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.IIconTexture;
+import reobf.proghatches.util.ProghatchesUtil;
 
 public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContainer, IGridProxyable
-
+,IPriorityHost
 {
 
 	public SuperChestME(String aName, int aTier, int aInvSlotCount, String[] aDescription, ITexture[][][] aTextures) {
@@ -182,7 +185,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	@Override
 	public int getPriority() {
 		
-		return 0;
+		return piority;
 	}
 	private ItemStack visualStack() {
 		return new ItemStack(GregTech_API.sBlockMachines,1, getBaseMetaTileEntity().getMetaTileID());
@@ -462,7 +465,11 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	}
 	   @Override
 	    public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
-	        GT_UIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
+	     if(ProghatchesUtil.handleUse(aPlayer,  (MetaTileEntity) aBaseMetaTileEntity.getMetaTileEntity())){
+	    	 return true;
+	     }
+		   
+		   GT_UIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
 	        return true;
 	    }
 @Override
@@ -628,6 +635,11 @@ getProxy().setColor(c);
 getGridNode(null).updateState();
 }catch(Exception e){}
 
+}
+@Override
+public void setPriority(int newValue) {
+this.piority=newValue;
+	
 }
 
 

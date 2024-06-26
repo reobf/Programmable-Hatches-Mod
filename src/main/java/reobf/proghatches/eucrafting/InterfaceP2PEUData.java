@@ -774,7 +774,7 @@ public void setCustomName(String name) {
 
 	@Override
 	public void addUIWidgets(Builder builder, GT_CoverUIBuildContext ss) {
-
+if(2>1)return;
 		builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
 		if (ss.isAnotherWindow() == false) {
 			int rgb = ss.getGuiColorization();

@@ -923,6 +923,14 @@ Api.INSTANCE.definitions()
 
  prefab();
  
+ GT_Values.RA.stdBuilder()
+ .itemInputs( new ItemStack(MyMod.cover, 1, 0))
+ .fluidInputs(Materials.Enderium.getMolten(144*10))
+ .itemOutputs(
+		 new ItemStack(MyMod.cover, 1, 4))
+ .duration(20 * SECONDS)
+ .eut(GT_Values.VP[3])
+ .addTo(RecipeMaps.assemblerRecipes);
  
   }
 

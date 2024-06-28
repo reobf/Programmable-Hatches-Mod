@@ -6,6 +6,8 @@ import java.util.function.Function;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import net.minecraft.item.Item;
+import net.minecraft.nbt.NBTTagCompound;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
 
 public class MixinCallback {
@@ -50,4 +52,46 @@ public static void aa(Object t){
 	//System.out.println(t);
 	
 }
+
+public static boolean fixCircuitTag(NBTTagCompound stackTagCompound){
+	if(stackTagCompound!=null){
+		try{
+	
+		boolean hasID=	
+				stackTagCompound.getCompoundTag("targetCircuit").hasKey("id");
+		boolean hasSTR=	
+				stackTagCompound.getCompoundTag("targetCircuit").hasKey("string_id");	
+	
+		//V1->V2 
+		//V2->V2
+		//V3->V3
+		try{
+	if(hasID&&!hasSTR){	
+		int id = stackTagCompound.getCompoundTag("targetCircuit").getInteger("id");
+		stackTagCompound.getCompoundTag("targetCircuit").setString("string_id",
+				Item.itemRegistry.getNameForObject(
+				Item.itemRegistry.getObjectById(id)
+				)
+				);
+		hasSTR=true;
+	}		}catch(Exception e){}
+
+	//V1->X 
+	//V2->V3
+	//V3->V3		
+		try{
+	if(hasSTR&&hasID){	
+	stackTagCompound.getCompoundTag("targetCircuit").removeTag("id");	
+	return true;
+	}	}catch(Exception e){}
+	
+	
+	
+	
+	//System.out.println(this);
+		}catch(Exception e){}
+	}
+	return false;
+}
+
 }

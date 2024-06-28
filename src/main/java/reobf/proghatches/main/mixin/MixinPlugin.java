@@ -25,6 +25,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.common.config.Configuration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -68,15 +69,16 @@ public class MixinPlugin implements IMixinConfigPlugin {
 
 //spotless:off
 String cfg=
-"#disable those optional mixins if it breaks someting"+System.lineSeparator()+
+"#disable those optional mixins if it breaks something"+System.lineSeparator()+
 "#set to true to disable otherwise apply"+System.lineSeparator()+
 "noPatternEncodingMixin=false"+System.lineSeparator()+
 "noFixTossBug=false"+System.lineSeparator()+
 "noRecipeFilterForDualHatch=false"+System.lineSeparator()+
-"noRemoveUnusedCacheInModularUIContainer=fasle"+System.lineSeparator()+
+"noRemoveUnusedCacheInModularUIContainer=false"+System.lineSeparator()+
 "noFixRecursiveCraft=false"+System.lineSeparator()+
 "noEUCraftingMixins=false"+System.lineSeparator()+
-"noAEItemSortMixins=false"+System.lineSeparator()
+"noAEItemSortMixins=false"+System.lineSeparator()+
+"noMigrateProgrammingCircuitMixin=false"+System.lineSeparator()
 ;
 static public ArrayList<String> retLate = new ArrayList<>();
 
@@ -84,7 +86,8 @@ static public ArrayList<String> retLate = new ArrayList<>();
 	@SuppressWarnings("unused")
 	@Override
 	public List<String> getMixins() {
-
+		
+		
 		File f = new File(System.getProperty("user.dir") + File.separator + "config", "proghatches.mixin.properties");
 		if (f.exists() == false) {
 			try {
@@ -164,13 +167,18 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		retLate.add("MixinCanCraftExempt");
 		retLate.add("MixinNoFuzzyForProgrammingCircuit");
 		retLate.add("MixinHandleProgrammingOnRecipeStart");
-
+		if(!"true".equals(pp.get("noMigrateProgrammingCircuitMixin")))
+				ret.add("MixinCircuitMigration");
+		
+		
 		if (FMLLaunchHandler.side().isClient()) {
 			if (!"true".equals(pp.get("noAEItemSortMixins")))
 				retLate.add("MixinAEItemStackCompare");
 			if (!"true".equals(pp.get("noFixTossBug")))
 				ret.add("MixinFixTossWhenClickSlot");
-
+			
+		
+			
 			if (!"true".equals(pp.get("noPatternEncodingMixin"))) {
 				retLate.add("MixinPatternEncodingCiruitSpecialTreatment");// For
 																		// ae2fc

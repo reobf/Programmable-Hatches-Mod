@@ -26,6 +26,7 @@ import reobf.proghatches.eucrafting.TileFluidInterface_EU;
 import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemDedicatedCover;
 import reobf.proghatches.item.ItemFakePattern;
+import reobf.proghatches.item.ItemFixer;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.item.ItemProgrammingToolkit;
 import reobf.proghatches.item.ItemSmartArm;
@@ -59,6 +60,9 @@ public class CommonProxy {
 		GameRegistry.registerItem(
 				MyMod.fakepattern = new ItemFakePattern().setUnlocalizedName("fake_pattern").setTextureName("?"),
 				"fake_pattern");
+		GameRegistry.registerItem(
+			 new ItemFixer().setUnlocalizedName("proghatch_circuit_fixer").setTextureName("ic2:itemToolWrench"),
+				"proghatch_circuit_fixer");
 		GameRegistry.registerItem(
 				MyMod.toolkit = new ItemProgrammingToolkit().setUnlocalizedName("prog_toolkit").setTextureName("?"),
 				"prog_toolkit");

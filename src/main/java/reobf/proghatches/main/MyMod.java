@@ -18,6 +18,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemEditableBook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -105,8 +106,7 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 public class MyMod {
 	public static MyMod instance;
 	{
-		ItemList.class.getDeclaredFields();
-		//BlockEUInterface.
+		
 		instance = this;
 	}
 	
@@ -176,7 +176,10 @@ public class MyMod {
 	}
 
 	@SubscribeEvent
-	public void giveBook(PlayerLoggedInEvent e) {
+	public void join(PlayerLoggedInEvent e) {
+		if(Config.fixCircuit)
+		e.player.addChatComponentMessage(new ChatComponentTranslation("proghatch.join.fixCircuit"));
+		
 		if (e.player.getEntityData().hasKey("ProgrammableHatchesTutorialGet3") == false) {
 			e.player.getEntityData().setBoolean("ProgrammableHatchesTutorialGet3", true);
 

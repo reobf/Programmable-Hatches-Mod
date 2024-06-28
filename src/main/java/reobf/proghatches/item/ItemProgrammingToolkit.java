@@ -263,8 +263,6 @@ class TakeOnlyItemStackHandler extends ItemStackHandler{
 					StatCollector.translateToLocal("item.prog_toolkit.legacywarning.3")
 					));;
 			
-			
-			// sw.setTicker(s->{});
 			builder.widget(sw2.setPos(getGUIWidth()- 18-3, 3));
 		}
 

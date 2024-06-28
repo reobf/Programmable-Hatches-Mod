@@ -149,9 +149,10 @@ this.tech=tech;
 
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
+		
 		if (aBaseMetaTileEntity.getWorld().isRemote == false)
 			lab: if (aTick % 20 == ran) {// check every 1s
-
+				legacy=false;
 				if (snapshot != null) {
 					for (int i = 0; i < snapshot.length; i++) {
 						if (ItemStack.areItemStacksEqual(snapshot[i], mInventory[i]) == false) {
@@ -192,7 +193,7 @@ boolean legacy;
 	public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
 			ItemStack aTool) {
 		patternDirty=true;
-		legacy=!legacy;
+		if(legacy==true)legacy=!legacy;
 		postEvent();
 		GT_Utility.sendChatToPlayer(aPlayer, "Legacy Mode:" + legacy);
 	}
@@ -554,7 +555,7 @@ for(ItemStack is:mInventory)
 		;
 		customName=aNBT.getString("customName");
 		disabled = aNBT.getBoolean("disabled");
-		legacy=aNBT.getBoolean("legacy");
+		legacy=false;//aNBT.getBoolean("legacy");
 		if(aNBT.hasKey("tech"))
 		tech=aNBT.getInteger("tech");
 		else

@@ -44,10 +44,10 @@ public void a(AEItemStack other,CallbackInfoReturnable<Integer> r){
 		else if(!a.isPresent()&&b.isPresent()){r.setReturnValue(-1);}
 		else if(a.isPresent()&&!b.isPresent()){r.setReturnValue(1);}
 		else{
-			boolean aa=ItemProgrammingCircuit.isNew(other.getItemStack());
-			boolean bb=ItemProgrammingCircuit.isNew(this.getItemStack());
+			int aa=ItemProgrammingCircuit.isNew(other.getItemStack());
+			int bb=ItemProgrammingCircuit.isNew(this.getItemStack());
 			if(aa!=bb){
-				r.setReturnValue(aa?1:-1);return;
+				r.setReturnValue(aa-bb);return;
 			}
 			return;//r.setReturnValue(0);
 		}

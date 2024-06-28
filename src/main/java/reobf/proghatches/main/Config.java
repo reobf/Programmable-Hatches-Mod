@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 import reobf.proghatches.lang.LangManager;
 
 import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
@@ -30,9 +31,31 @@ public class Config {
 	public static boolean experimentalOptimize=true;
 	public static boolean sleep=true;
 	public static boolean MECover=false;
+	public static boolean fixCircuit=false;
+	public static boolean newConfig=false;
 	public static void synchronizeConfiguration(File configFile) {
+		if(configFile.exists()==false){
+			newConfig=true;	
+		}
 		Configuration configuration = new Configuration(configFile);
-
+		
+		/*if(!configuration.hasKey(lang, greeting)){
+			fixCircuit=true;
+		};
+		*/
+		fixCircuit=configuration.getBoolean("FixCircuit", "covert", fixCircuit,
+				"Covert old version circuit to new one. Value resets to false after each session. Missing is considered as true.");
+		
+		Property neo= new Property("FixCircuit", "false", Property.Type.BOOLEAN);
+		neo.set(false);
+		neo.comment="Covert old version circuit to new one. Value resets to false after each session. Missing is considered as true.";
+		configuration.getCategory("covert").replace("FixCircuit", 
+				neo
+				);
+		if(newConfig)fixCircuit=false;
+		System.out.println("newConfig?:"+newConfig);
+		System.out.println("fix?:"+fixCircuit);
+		
 		metaTileEntityOffset = configuration.getInt("MetaTEOffset", "ID", metaTileEntityOffset, 14301, 29999,
 				"The GT MetaTE ID used by this mod, will use range:[offset,offset+200], make sure it's in [14301,14999] or [17000,29999]");
 		configuration.addCustomCategoryComment("ID", "Configurable ID settings, DO NOT change it until necessary.");
@@ -48,6 +71,9 @@ public class Config {
 				"When on, hatch will sleep when not busy, to ease server load.");
 		MECover = configuration.getBoolean("MECover on MEHatch", "Experimental", MECover,
 				"When on, ME Cover will be allowed to be placed on machine that requires ME channel.");
+		
+		
+		
 		
 		if (configuration.hasChanged()) {
 			configuration.save();
@@ -250,6 +276,7 @@ public class Config {
 			.getResourceAsStream("/assets/proghatches/lang/en_US/" + s + ".lang");
 	static Function<String, InputStream> getInput = s -> Config.class.getResourceAsStream("/assets/proghatches/lang/"
 			+ LangManager.translateToLocal("programmable_hatches.gt.lang.dir") + "/" + s + ".lang");
+	
 	
 	
 

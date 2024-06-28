@@ -78,12 +78,21 @@ public class ItemProgrammingCircuit extends Item {
 		String sid=Optional.ofNullable(p_77624_1_.stackTagCompound).map(s->s.getCompoundTag("targetCircuit"))
 		.map(s->s.getString("string_id")).orElse(null);
 		
+		boolean iid=Optional.ofNullable(p_77624_1_.stackTagCompound).map(s->s.getCompoundTag("targetCircuit"))
+				.filter(s->s.hasKey("id")).isPresent();
+		
+		
 		getCircuit(p_77624_1_).filter(s -> s.getItem() != null).ifPresent(s -> {
 			
 			FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 			ArrayList<String> ls = new ArrayList<>();
-			if(sid!=null&&!sid.isEmpty()){ls.add(sid+"@"+s.getItemDamage());}
-			else {ls.add("§c"+StatCollector.translateToLocal("item.prog_circuit.legacy"));}
+			if(sid!=null&&!sid.isEmpty()){
+				ls.add(sid+"@"+s.getItemDamage());
+				if(iid)ls.add("§c"+StatCollector.translateToLocal("item.prog_circuit.legacy")+" (v2)");
+			}
+			else {
+				ls.add("§c"+StatCollector.translateToLocal("item.prog_circuit.legacy")+" (v1)");
+				}
 			ls.add(s.getDisplayName());
 			s.getItem().addInformation(s, p_77624_2_, ls, p_77624_4_);
 
@@ -113,6 +122,7 @@ public class ItemProgrammingCircuit extends Item {
 			if (op.get().getItem() == MyMod.progcircuit) {
 
 				p_77624_3_.add(LangManager.translateToLocal("item.prog_circuit.name.tooltip.warn"));
+			
 			}
 
 		}
@@ -137,8 +147,10 @@ public class ItemProgrammingCircuit extends Item {
 			NBTTagCompound tag = (NBTTagCompound) is.writeToNBT(new NBTTagCompound()).copy();
 			
 			if(!legacy)tag.setString("string_id", Item.itemRegistry.getNameForObject(is.getItem()));
-			//System.out.println(tag);
+			if(tag.hasKey("string_id"))		
+			tag.removeTag("id");
 			iss.stackTagCompound.setTag("targetCircuit",tag );
+			
 			
 		}
 		return iss;
@@ -160,11 +172,21 @@ public static ItemStack parse(NBTTagCompound tag){
 	
 }
 
-public static boolean isNew(ItemStack is) {
-	if(is.getTagCompound()==null)return true;
-	String tg = Optional.ofNullable(is).map(ItemStack::getTagCompound)
-			.map(tag -> tag.getCompoundTag("targetCircuit")).map(t->t.getString("string_id")).orElse("");
-	return !tg.isEmpty();
+public static int isNew(ItemStack is) {
+	if(is.getTagCompound()==null)return 2;//V3
+	if(!is.getTagCompound().hasKey("targetCircuit"))return 999;//?
+	boolean s = is.getTagCompound().getCompoundTag("targetCircuit").hasKey("string_id");
+	boolean i = is.getTagCompound().getCompoundTag("targetCircuit").hasKey("id");
+	
+	if(s&&i){return 1;}//V2
+	if(!s&&i){return 0;}//V1
+	if(s&&!i){return 2;}//V3
+	return 999;//?
+	
+	
+	
+	
+	
 }
 	public static Optional<ItemStack> getCircuit(ItemStack is) {
 		try {

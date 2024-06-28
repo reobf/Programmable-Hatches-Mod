@@ -109,7 +109,10 @@ this.index=i;
 
 int index;
 static public Map<Integer,Collection<ItemStack>> prefab=new HashMap<>();
-static{
+static boolean   init;
+static void init(){
+	if(init==true)return;
+	init=true;
 	reg(0,GregTech_API.getConfigurationCircuitList(100));
 	   ItemList[][] all = new ItemList[][]{{
 	    Shape_Mold_Bottle,
@@ -231,6 +234,7 @@ static private void reg(int a,Collection<ItemStack> raw){
 
 	@Override
 	public Collection<ItemStack> getCircuit() {
+		init();
 		return prefab.get(index);
 	}
 }

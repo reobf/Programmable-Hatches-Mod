@@ -5,6 +5,7 @@ import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofChain;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
 import static gregtech.api.enums.GT_HatchElement.Energy;
 import static gregtech.api.enums.GT_HatchElement.Maintenance;
+import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 import static gregtech.api.util.GT_StructureUtility.buildHatchAdder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +18,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 
@@ -27,9 +29,22 @@ import com.gtnewhorizon.structurelib.structure.IStructureElementChain;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
+import com.gtnewhorizons.modularui.api.drawable.IDrawable;
+import com.gtnewhorizons.modularui.api.math.Alignment;
+import com.gtnewhorizons.modularui.api.math.Color;
+import com.gtnewhorizons.modularui.api.math.Size;
+import com.gtnewhorizons.modularui.api.screen.IWindowCreator;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow;
+import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.api.widget.IWidgetBuilder;
+import com.gtnewhorizons.modularui.api.widget.Widget;
+import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.DynamicPositionedColumn;
+import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
+import com.gtnewhorizons.modularui.common.widget.textfield.NumericWidget;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
@@ -51,7 +66,9 @@ import appeng.me.helpers.IGridProxyable;
 import appeng.util.item.AEItemStack;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.ItemList;
+import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.Textures.BlockIcons;
+import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.IHatchElement;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
@@ -71,6 +88,7 @@ import gregtech.api.util.shutdown.SimpleShutDownReason;
 import gregtech.common.items.GT_MetaGenerated_Tool_01;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_LargeTurbine;
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -84,6 +102,7 @@ import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitPro
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
 import reobf.proghatches.gt.metatileentity.util.ICircuitProvider;
 import reobf.proghatches.item.ItemProgrammingCircuit;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
@@ -491,6 +510,7 @@ public class LargeProgrammingCircuitProvider
 
 	@Override
 	public void saveNBTData(NBTTagCompound aNBT) {
+		aNBT.setInteger("multiply", multiply);
 		getProxy().writeToNBT(aNBT);
 		int[] count = new int[1];
 		toReturn.forEach(s -> aNBT.setTag("toReturn" + (count[0]++), s.writeToNBT(new NBTTagCompound())));
@@ -502,6 +522,7 @@ public class LargeProgrammingCircuitProvider
 
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
+		multiply=aNBT.getInteger("multiply");
 		getProxy().readFromNBT(aNBT);
 		toReturn.clear();
 		patternCache.clear();
@@ -573,7 +594,7 @@ public class LargeProgrammingCircuitProvider
 	}
 	
 	static public BiConsumer<GT_MetaTileEntity_MultiBlockBase,String> shut;
-	
+	public int multiply=1;
 	
 	@Override
 	public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
@@ -703,7 +724,11 @@ int lasthash;
 		reusable.clear();
 		providers.forEach(s -> patternCache.addAll(s.getCircuit()));
 	}
-
+private  ItemStack mul( ItemStack s){
+	s=s.copy();
+	s.stackSize=multiply;
+	return s;
+}
 	@Override
 	public void provideCrafting(ICraftingProviderHelper craftingTracker) {
 		if (cacheState == CacheState.DIRTY) {
@@ -711,7 +736,12 @@ int lasthash;
 			cacheState = CacheState.FRESHLY_UPDATED;
 		}
 		if (cacheState == CacheState.FRESHLY_UPDATED || cacheState == CacheState.UPDATED)
-			patternCache.forEach(s -> craftingTracker.addCraftingOption(this, new CircuitProviderPatternDetial(s)));
+			patternCache.forEach(s -> craftingTracker.addCraftingOption(this, 
+					multiply==1?
+					new CircuitProviderPatternDetial(s)
+					:
+					new CircuitProviderPatternDetial(mul(s))
+					));
 
 	}
 
@@ -774,4 +804,88 @@ int lasthash;
                     return (getBaseMetaTileEntity().isAllowedToWork());
                 }));
     }
+
+ButtonWidget createParallelButton(IWidgetBuilder<?> builder,UIBuildContext buildContext) {
+  
+	 Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
+		 widget.getContext().openSyncedWindow(987);
+     })
+        
+         .setBackground(() -> {
+        
+                 return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+                     GT_UITextures.PICTURE_INFORMATION };
+             
+         })
+         
+         .addTooltip(StatCollector.translateToLocal("proghatches.largepcp.parallel"))
+         
+         .setTooltipShowUpDelay(TOOLTIP_DELAY)
+         .setPos(getVoidingModeButtonPos())
+         .setSize(16, 16);
+    
+	/* IntStream
+		.range(0,
+				Integer.valueOf(StatCollector.translateToLocal(
+						"proghatches.largepcp.parallel.desc")))
+		.forEach(s -> button.addTooltip(LangManager.translateToLocal(
+				"proghatches.largepcp.parallel.desc." + s)));
+*/
+
+	
+	
+    return (ButtonWidget) button;
+}
+    @Override
+    public void addUIWidgets(com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder builder,
+    		UIBuildContext buildContext) {
+    	  builder.widget(
+    	            new DrawableWidget().setDrawable(GT_UITextures.PICTURE_SCREEN_BLACK)
+    	                .setPos(4, 4)
+    	                .setSize(190, 85));
+    	        final SlotWidget inventorySlot = new SlotWidget(inventoryHandler, 1);
+    	        builder.widget(
+    	            inventorySlot.setPos(173, 167)
+    	                .setBackground(GT_UITextures.SLOT_DARK_GRAY));
+
+    	        final DynamicPositionedColumn screenElements = new DynamicPositionedColumn();
+    	        drawTexts(screenElements, inventorySlot);
+    	        builder.widget(screenElements);
+
+    	        builder.widget(createPowerSwitchButton(builder))
+    	            .widget(createParallelButton(builder,buildContext))
+    	        ;
+    	        
+    	        
+    	        
+    	    	buildContext.addSyncedWindow(987, (s) -> createWindow(s));
+    	            
+    }
+
+	private ModularWindow createWindow(EntityPlayer s) {
+		final int WIDTH = 18 * 6 + 6;
+		final int HEIGHT = 18  + 6;
+		final int PARENT_WIDTH = getGUIWidth();
+		final int PARENT_HEIGHT = getGUIHeight();
+		ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
+		builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+		builder.setGuiTint(getGUIColorization());
+		builder.setDraggable(true);
+	
+		builder.setPos((size, window) -> Alignment.Center.getAlignedPos(size, new Size(PARENT_WIDTH, PARENT_HEIGHT))
+				);
+
+		builder.widget( new NumericWidget().setSetter(val -> {
+			forceUpdatePattern=true;
+			multiply = (int) val;})
+                .setGetter(() -> multiply)
+                .setBounds(1, 1_000_00)
+              //  .setScrollValues(1, 4, 64)
+                .setTextAlignment(Alignment.CenterLeft)
+                .setTextColor(Color.WHITE.normal)
+                .setSize(18*6, 18)
+                .setPos(3, 3)
+                .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD));
+		return builder.build();
+	}
 }

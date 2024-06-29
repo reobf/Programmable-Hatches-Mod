@@ -93,7 +93,8 @@ IGrid g = null;
 
 public ItemStack fixCircuit(ItemStack is,Runnable succ){
 	if(is.getItem()!=MyMod.progcircuit)return null;
-int ver=ItemProgrammingCircuit.isNew(is);
+	is=is.copy();
+	int ver=ItemProgrammingCircuit.isNew(is);
 	if(ver==0||ver==1){
 	if(	MixinCallback.fixCircuitTag(is.stackTagCompound)){
 		succ.run();
@@ -105,7 +106,7 @@ public ItemStack fix(ItemStack is,Runnable succ){
 	//ICraftingPatternItem item=(ICraftingPatternItem) is.getItem();
 	 final ItemStack unknownItem = new ItemStack(Blocks.fire);
       unknownItem.setStackDisplayName(GuiText.UnknownItem.getLocal());
-
+      is=is.copy();
       //item.getPatternForItem(is, null);
 	 final NBTTagCompound encodedValue = (NBTTagCompound) is.getTagCompound();
 	 NBTTagList in = encodedValue.getTagList("in", 10);
@@ -114,7 +115,9 @@ public ItemStack fix(ItemStack is,Runnable succ){
 		  if(gs==null)continue;
 		  gs=fixCircuit(gs,succ);
 		  if(gs==null)continue;
-		  in.func_150304_a(x, Platform.writeItemStackToNBT(gs, new NBTTagCompound()));
+		  gs=gs.copy();
+		  if(gs.stackSize<=0)gs.stackSize=1;
+		  in.func_150304_a(x, Platform.writeItemStackToNBT(gs.copy(), new NBTTagCompound()).copy());
 	  }
 	 
 	 

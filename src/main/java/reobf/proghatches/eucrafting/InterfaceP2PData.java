@@ -83,7 +83,7 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
 
 	NBTTagCompound tag;
 
-	public boolean shiftClick(EntityPlayer entityPlayer) {
+	public boolean memoryCard(EntityPlayer entityPlayer) {
 		entityPlayer.addChatComponentMessage(new ChatComponentTranslation("programmable_hatches.cover.ae.memorycard"));
 
 		return false;

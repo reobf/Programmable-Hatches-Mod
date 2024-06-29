@@ -79,7 +79,7 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
 
 	NBTTagCompound tag;
 
-	public boolean shiftClick(EntityPlayer entityPlayer) {
+	public boolean memoryCard(EntityPlayer entityPlayer) {
 		entityPlayer.addChatComponentMessage(new ChatComponentTranslation("programmable_hatches.cover.ae.memorycard"));
 
 		return false;
@@ -693,7 +693,10 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
 		return side;
 	}@Override
 	public void addUIWidgets(Builder builder, GT_CoverUIBuildContext gt_CoverUIBuildContext) {
-		if (hasAEGUI() && !gt_CoverUIBuildContext.getPlayer().getEntityWorld().isRemote) {
+	if(
+		 (hasAEGUI() && !gt_CoverUIBuildContext.getPlayer().getEntityWorld().isRemote)
+		 
+		 ) {
 			gt_CoverUIBuildContext.getPlayer()
 		.openGui(MyMod.instance, side.ordinal(), 	
 				gt_CoverUIBuildContext.getPlayer().getEntityWorld(), this.getPos().x,

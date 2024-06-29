@@ -2,6 +2,7 @@ package reobf.proghatches.eucrafting;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 
 import com.glodblock.github.inventory.InventoryHandler;
 import com.glodblock.github.inventory.gui.GuiType;
@@ -21,6 +22,9 @@ import appeng.tile.misc.TileInterface;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.GregTech_API;
+import gregtech.api.util.GT_ModHandler;
+import gregtech.api.util.GT_Utility;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderBlocks;
@@ -32,6 +36,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import reobf.proghatches.main.MyMod;
 
 /*
 Eclipse says:
@@ -102,7 +107,12 @@ public class BlockEUInterface
 
 	public boolean onActivated(final World world, final int x, final int y, final int z, final EntityPlayer player,
 			final int facing, final float hitX, final float hitY, final float hitZ) {
-		if (player.isSneaking()) {
+		if (
+				player.getHeldItem()!=null&&
+			 (GT_Utility.isStackInList(player.getHeldItem(), GregTech_API.sScrewdriverList)) 
+		       && (GT_ModHandler.damageOrDechargeItem(player.getHeldItem(), 1, 200, player)) 			
+			)	
+		{
 
 			b: {
 				if (NetworkUtils.isClient())

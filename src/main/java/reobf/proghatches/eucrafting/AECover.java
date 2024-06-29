@@ -32,6 +32,7 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
+import gregtech.api.gui.modularui.GT_UIInfos;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.net.GT_Packet_SendCoverData;
 import gregtech.api.util.GT_CoverBehaviorBase;
@@ -55,7 +56,9 @@ import reobf.proghatches.main.MyMod;
 
 public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 	public static interface IMemoryCardSensitive {
-		public boolean shiftClick(EntityPlayer entityPlayer);
+		//public boolean shiftClick(EntityPlayer entityPlayer);
+
+		public default boolean memoryCard(EntityPlayer entityPlayer){return false;};
 		
 		
 	}
@@ -202,6 +205,7 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 	}
 
 	public static interface Data extends ISerializableObject, IGridProxyable {
+		default boolean hasModularGUI(){return false;}
 		default String tagName(){
 			NBTTagCompound tag = getTag();
 			if(tag==null)return null;
@@ -536,12 +540,38 @@ public void onPlayerAttach(EntityPlayer player, ItemStack aCover, ICoverable aTi
 		if (aCoverVariable.nonShiftClick(side, aCoverID, aCoverVariable, aTileEntity, aPlayer)) {
 			return true;
 		}
-		;
+		openGUI( side,  aCoverID,  aCoverVariable,aTileEntity,  aPlayer);
 		return false;
 	};
-
+@Override
+protected Data onCoverScrewdriverClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
+		ICoverable aTileEntity, EntityPlayer aPlayer, float aX, float aY, float aZ) {
+	if (aCoverVariable.hasModularGUI())GT_UIInfos.openCoverUI(aTileEntity, aPlayer, side);
+	return super.onCoverScrewdriverClickImpl(side, aCoverID, aCoverVariable, aTileEntity, aPlayer, aX, aY, aZ);
+}
 	
-
+	private boolean openGUI(ForgeDirection side, int aCoverID, Data aCoverVariable,
+			ICoverable aTileEntity, EntityPlayer aPlayer) {
+		
+		
+		/*
+		if (aCoverVariable.hasModularGUI()&&Optional.ofNullable(aPlayer.getHeldItem()).map(ItemStack::getItem)
+				.orElse(null)==MyMod.eu_tool
+				) {
+			GT_UIInfos.openCoverUI(aTileEntity, aPlayer, side);
+			
+			return true;
+			
+		}*/
+		
+		if (aCoverVariable.hasAEGUI() && !aPlayer.worldObj.isRemote) {
+			aPlayer.openGui(MyMod.instance, side.ordinal(), aPlayer.getEntityWorld(), aTileEntity.getXCoord(),
+						aTileEntity.getYCoord(), aTileEntity.getZCoord());
+			return true;
+			}	
+		return false;
+	}
+  
 	
 	@Override
 	protected boolean onCoverShiftRightClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
@@ -551,14 +581,19 @@ public void onPlayerAttach(EntityPlayer player, ItemStack aCover, ICoverable aTi
 		}
 		;
 
-		if (aCoverVariable.hasAEGUI() && !aPlayer.worldObj.isRemote) {
-			/*NW.sendPacketToAllPlayersInRange(aPlayer.getEntityWorld(),
+		openGUI( side,  aCoverID,  aCoverVariable,aTileEntity,  aPlayer);
+			
+		/*if (aCoverVariable.hasAEGUI() && !aPlayer.worldObj.isRemote) {
+		aPlayer.openGui(MyMod.instance, side.ordinal(), aPlayer.getEntityWorld(), aTileEntity.getXCoord(),
+					aTileEntity.getYCoord(), aTileEntity.getZCoord());
+		}	*/	
+		
+		
+		/*NW.sendPacketToAllPlayersInRange(aPlayer.getEntityWorld(),
 					new GT_Packet_SendCoverData(side, aCoverID, aCoverVariable, aTileEntity), aTileEntity.getXCoord(),
 					aTileEntity.getZCoord());
 */
-			aPlayer.openGui(MyMod.instance, side.ordinal(), aPlayer.getEntityWorld(), aTileEntity.getXCoord(),
-					aTileEntity.getYCoord(), aTileEntity.getZCoord());
-		}
+		
 		return true;
 	}
 

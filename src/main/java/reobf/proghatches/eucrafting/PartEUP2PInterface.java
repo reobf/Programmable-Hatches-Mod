@@ -111,6 +111,7 @@ import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IEnergyConnected;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.util.GT_ModHandler;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import ic2.api.energy.tile.IEnergySink;
@@ -302,7 +303,17 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 
 	@Override
 	public boolean onPartActivate(final EntityPlayer player, final Vec3 pos) {
-		if (player.isSneaking()) {
+		/*if (Optional.ofNullable(player.getHeldItem()).map(ItemStack::getItem)
+				.orElse(null)==MyMod.eu_tool)
+		*/
+			if (
+					player.getHeldItem()!=null&&
+				 (GT_Utility.isStackInList(player.getHeldItem(), GregTech_API.sScrewdriverList)) 
+			       && (GT_ModHandler.damageOrDechargeItem(player.getHeldItem(), 1, 200, player)) 			
+				)	
+			
+		
+		{
 			TileEntity t = this.getTile();
 			if (!t.getWorldObj().isRemote) {
 

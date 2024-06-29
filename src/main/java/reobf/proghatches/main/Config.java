@@ -43,13 +43,13 @@ public class Config {
 			fixCircuit=true;
 		};
 		*/
-		fixCircuit=configuration.getBoolean("FixCircuit", "covert", fixCircuit,
-				"Covert old version circuit to new one. Value resets to false after each session. Missing is considered as true.");
+		fixCircuit=configuration.getBoolean("FixCircuit", "convert", fixCircuit,
+				"Convert old version circuit to new one. Value resets to false after each session. Missing is considered as true.");
 		
 		Property neo= new Property("FixCircuit", "false", Property.Type.BOOLEAN);
 		neo.set(false);
-		neo.comment="Covert old version circuit to new one. Value resets to false after each session. Missing is considered as true.";
-		configuration.getCategory("covert").replace("FixCircuit", 
+		neo.comment="Convert old version circuit to new one. Value resets to false after each session. Missing is considered as true.";
+		configuration.getCategory("convert").replace("FixCircuit", 
 				neo
 				);
 		if(newConfig)fixCircuit=false;

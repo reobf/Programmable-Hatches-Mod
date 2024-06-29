@@ -95,7 +95,7 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 
 	NBTTagCompound tag;
 
-	public boolean shiftClick(EntityPlayer entityPlayer) {
+	public boolean memoryCard(EntityPlayer entityPlayer) {
 		entityPlayer.addChatComponentMessage(new ChatComponentTranslation("programmable_hatches.cover.ae.memorycard"));
 
 		return false;
@@ -745,10 +745,12 @@ public void setCustomName(String name) {
 				return true;
 			}
 		}
+		/*Optional.ofNullable(player.getHeldItem()).map(ItemStack::getItem)
+		.orElse(null)==MyMod.eu_tool*/
 		// if(!this.duality.isOutput())
-		GT_UIInfos.openCoverUI(aTileEntity, aPlayer, side);
+	
 
-		return true;
+		return false;
 	}
 
 	public long doOutput(long aVoltage, long aAmperage) {
@@ -774,7 +776,20 @@ public void setCustomName(String name) {
 
 	@Override
 	public void addUIWidgets(Builder builder, GT_CoverUIBuildContext ss) {
-if(2>1)return;
+
+		
+		
+		if(ss.isAnotherWindow()&&
+				 (hasAEGUI() && !ss.getPlayer().getEntityWorld().isRemote)
+				 
+				 ) {
+					ss.getPlayer()
+				.openGui(MyMod.instance, side.ordinal(), 	
+						ss.getPlayer().getEntityWorld(), this.getPos().x,
+						 this.getPos().y, this.getPos().z);}
+			
+		
+		if(2>1)return;
 		builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
 		if (ss.isAnotherWindow() == false) {
 			int rgb = ss.getGuiColorization();
@@ -916,4 +931,5 @@ if(2>1)return;
 		// TODO Auto-generated method stub
 		return side;
 	}
+	public boolean hasModularGUI(){return true;}
 }

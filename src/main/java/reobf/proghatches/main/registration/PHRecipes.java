@@ -997,6 +997,21 @@ Api.INSTANCE.definitions()
 	 .addTo(RecipeMaps.laserEngraverRecipes);
 	 
 	 
+	 GT_Values.RA.stdBuilder()
+	 .itemInputs(
+			 new ItemStack(
+			        MyMod.toolkit,0,OreDictionary.WILDCARD_VALUE)	,
+			 new ItemStack(Items.diamond)
+			 ,    GT_Utility.getIntegratedCircuit(7)
+			 
+	)
+	 
+	 .itemOutputs( new ItemStack(  MyMod.fixer)			 )
+
+	  .duration(10 * SECONDS)
+	 .eut(480)
+	 .addTo(RecipeMaps.assemblerRecipes);
+	 
  }
     
     public void smartArm(){  

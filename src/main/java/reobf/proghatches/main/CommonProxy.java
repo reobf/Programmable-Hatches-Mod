@@ -1,6 +1,7 @@
 package reobf.proghatches.main;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import appeng.core.AEConfig;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -61,8 +62,10 @@ public class CommonProxy {
 				MyMod.fakepattern = new ItemFakePattern().setUnlocalizedName("fake_pattern").setTextureName("?"),
 				"fake_pattern");
 		GameRegistry.registerItem(
-			 new ItemFixer().setUnlocalizedName("proghatch_circuit_fixer").setTextureName("ic2:itemToolWrench"),
+				MyMod.fixer = new ItemFixer().setUnlocalizedName("proghatch_circuit_fixer").setTextureName("ic2:itemToolWrench"),
 				"proghatch_circuit_fixer");
+		
+		
 		GameRegistry.registerItem(
 				MyMod.toolkit = new ItemProgrammingToolkit().setUnlocalizedName("prog_toolkit").setTextureName("?"),
 				"prog_toolkit");

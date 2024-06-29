@@ -371,3 +371,4 @@ proghatch.join.fixCircuit=Fix Circuit option is on. Will try to convert old Prog
 proghatch.itemfixer.info=Patterns Fixed in this ME network: %s.
 proghatch.itemfixer.warn=No Patterns to fix! Continue clicking is of no use and might cause performance issue.
 item.proghatch_circuit_fixer.name=Programming Circuit Pattern Fixing Tool
+proghatches.largepcp.parallel=并行调整

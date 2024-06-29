@@ -33,7 +33,7 @@ public class ProgHatchCreativeTab extends CreativeTabs {
 		p_78018_1_.add(ItemProgrammingCircuit.wrap(null));
 		GregTech_API.getConfigurationCircuitList(100).stream().map(ItemProgrammingCircuit::wrap)
 				.forEach(p_78018_1_::add);
-
+		p_78018_1_.add(new ItemStack(MyMod.fixer));
 		p_78018_1_.add(new ItemStack(MyMod.toolkit));
 		for (int i = 0; i < 15; i++) {
 			p_78018_1_.add(new ItemStack(MyMod.smartarm, 1, i));

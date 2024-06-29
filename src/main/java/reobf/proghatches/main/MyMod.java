@@ -134,6 +134,8 @@ public class MyMod {
 	public static BlockEUInterface block_euinterface;
 	public static Item euinterface_p2p;
 	public static Item book;
+	public static Item fixer;
+	//public static Item eu_tool;
 
 	@Mod.EventHandler
 	// preInit "Run before anything else. Read your config, create blocks,
@@ -262,7 +264,7 @@ public class MyMod {
 						.orElse(null);
 
 				if (cv != null) {
-					cv.shiftClick(event.entityPlayer);
+					cv.memoryCard(event.entityPlayer);
 
 					event.setCanceled(true);
 					return;

@@ -1,12 +1,17 @@
 package reobf.proghatches.item;
 
+import java.util.List;
+
 import org.spongepowered.libraries.com.google.common.base.Optional;
+
+import com.glodblock.github.common.item.ItemFluidEncodedPattern;
 
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
 import appeng.api.parts.IPartHost;
+import appeng.api.storage.data.IAEItemStack;
 import appeng.core.localization.GuiText;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.PatternHelper;
@@ -14,6 +19,7 @@ import appeng.items.misc.ItemEncodedPattern;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.Platform;
+import appeng.util.item.AEItemStack;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
@@ -25,6 +31,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.main.MyMod;
@@ -91,16 +98,20 @@ IGrid g = null;
 	return true;
 }
 
-public ItemStack fixCircuit(ItemStack is,Runnable succ){
-	if(is.getItem()!=MyMod.progcircuit)return null;
-	is=is.copy();
-	int ver=ItemProgrammingCircuit.isNew(is);
+public IAEItemStack fixCircuit(IAEItemStack gs,Runnable succ){
+	if(gs.getItem()!=MyMod.progcircuit)return null;
+	gs=gs.copy();
+	int ver=ItemProgrammingCircuit.isNew(gs.getItemStack());
 	if(ver==0||ver==1){
-	if(	MixinCallback.fixCircuitTag(is.stackTagCompound)){
+	NBTTagCompound tag = gs.getTagCompound().getNBTTagCompoundCopy();
+	if(	MixinCallback.fixCircuitTag(tag)){
+		ItemStack is = gs.getItemStack();
+		is.stackTagCompound=(NBTTagCompound) tag.copy();
+		gs=AEItemStack.create(is);
 		succ.run();
 	}
 	}
-	return is;
+	return gs;
 }
 public ItemStack fix(ItemStack is,Runnable succ){
 	//ICraftingPatternItem item=(ICraftingPatternItem) is.getItem();
@@ -108,21 +119,37 @@ public ItemStack fix(ItemStack is,Runnable succ){
       unknownItem.setStackDisplayName(GuiText.UnknownItem.getLocal());
       is=is.copy();
       //item.getPatternForItem(is, null);
-	 final NBTTagCompound encodedValue = (NBTTagCompound) is.getTagCompound();
+	
+     boolean fluid= is.getItem() instanceof ItemFluidEncodedPattern;
+      final NBTTagCompound encodedValue = (NBTTagCompound) is.getTagCompound();
 	 NBTTagList in = encodedValue.getTagList("in", 10);
 	  for (int x = 0; x < in.tagCount(); x++) {
-		  ItemStack gs = Platform.loadItemStackFromNBT(in.getCompoundTagAt(x));
+		  IAEItemStack gs = AEItemStack.loadItemStackFromNBT(in.getCompoundTagAt(x));
 		  if(gs==null)continue;
 		  gs=fixCircuit(gs,succ);
 		  if(gs==null)continue;
 		  gs=gs.copy();
-		  if(gs.stackSize<=0)gs.stackSize=1;
-		  in.func_150304_a(x, Platform.writeItemStackToNBT(gs.copy(), new NBTTagCompound()).copy());
+		  if(gs.getStackSize()<=0)gs.setStackSize(1);
+		  
+		 
+		  if(fluid){
+		 NBTTagCompound t=new NBTTagCompound();
+		  gs.writeToNBT(t);
+		  in.func_150304_a(x, t);
+		  }
+		  else{
+			  in.func_150304_a(x, gs.getItemStack().writeToNBT(new NBTTagCompound()));
+			  
+		  }
 	  }
+	
+	 if(fluid){
+		 //your shits, my pain
+		 is.getTagCompound().setTag("Inputs",
+		encodedValue.getTagList("in", 10).copy());
+	 }
 	 
-	 
-	 
-	 
+	 System.out.println(is.getTagCompound());
   
 	return is.copy();
 }
@@ -138,6 +165,10 @@ public void fix(IInterfaceHost iface,Runnable succ){
 	}
 	
 }
-
+@Override
+public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
+	p_77624_3_.add(StatCollector.translateToLocal("item.proghatch_circuit_fixer.name.tooltip"));
+	super.addInformation(p_77624_1_, p_77624_2_, p_77624_3_, p_77624_4_);
+}
 
 }

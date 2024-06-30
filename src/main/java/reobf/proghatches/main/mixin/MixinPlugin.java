@@ -77,8 +77,8 @@ String cfg=
 "noRemoveUnusedCacheInModularUIContainer=false"+System.lineSeparator()+
 "noFixRecursiveCraft=false"+System.lineSeparator()+
 "noEUCraftingMixins=false"+System.lineSeparator()+
-"noAEItemSortMixins=false"+System.lineSeparator()+
-"noMigrateProgrammingCircuitMixin=false"+System.lineSeparator()
+"noAEItemSortMixins=false"+System.lineSeparator()
+
 ;
 static public ArrayList<String> retLate = new ArrayList<>();
 
@@ -167,8 +167,8 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		retLate.add("MixinCanCraftExempt");
 		retLate.add("MixinNoFuzzyForProgrammingCircuit");
 		retLate.add("MixinHandleProgrammingOnRecipeStart");
-		if(!"true".equals(pp.get("noMigrateProgrammingCircuitMixin")))
-				ret.add("MixinCircuitMigration");
+		//if(!"true".equals(pp.get("noMigrateProgrammingCircuitMixin")))
+		//		ret.add("MixinCircuitMigration");
 		
 		
 		if (FMLLaunchHandler.side().isClient()) {

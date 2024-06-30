@@ -179,8 +179,8 @@ public class MyMod {
 
 	@SubscribeEvent
 	public void join(PlayerLoggedInEvent e) {
-		if(Config.fixCircuit)
-		e.player.addChatComponentMessage(new ChatComponentTranslation("proghatch.join.fixCircuit"));
+		//if(Config.fixCircuit)
+		//e.player.addChatComponentMessage(new ChatComponentTranslation("proghatch.join.fixCircuit"));
 		
 		if (e.player.getEntityData().hasKey("ProgrammableHatchesTutorialGet3") == false) {
 			e.player.getEntityData().setBoolean("ProgrammableHatchesTutorialGet3", true);

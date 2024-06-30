@@ -150,7 +150,35 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 				});
 				;
 
+			}	
+			PartEUP2PInterface pt = PartEUP2PInterface.class.cast(part);
+			tag.setInteger("succs", pt.succs);
+			tag.setInteger("fails", pt.fails);
+			tag.setBoolean("validtile", pt.getTargetTile()!=null);
+			tag.setBoolean("pass", pt.pass);
+			
+			PartEUP2PInterface iface=pt.getInput();
+			if(iface!=null){
+				StringBuilder s=new StringBuilder();
+				if(iface.getTargetTile()==null)
+					s.append("---");
+					else
+					s.append(""+iface.pass);
+				try {
+					iface.getOutputs().forEach(ss->{
+						if(ss.getTargetTile()==null)
+						s.append("|---");
+						else
+						s.append("|"+ss.pass);
+						
+					
+					});
+				} catch (GridAccessException e) {
+				}
+				
+				tag.setString("io_pass", s.toString());
 			}
+			
 
 			return tag;
 		}
@@ -209,6 +237,24 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 				}
 
 			}
+			
+			boolean validtile=accessor.getNBTData().getBoolean("validtile");
+		
+			if(!validtile){currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.is_machine.no"
+					));
+			}
+			
+			
+			if(validtile){
+				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.halt_count",
+					accessor.getNBTData().getInteger("succs")));
+				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.fail_count",
+					accessor.getNBTData().getInteger("fails")));
+			}
+			if(accessor.getNBTData().hasKey("io_pass"))
+			{currentToolTip.add(accessor.getNBTData().getString("io_pass"));
+			}
+			
 			return super.getWailaBody(part, currentToolTip, accessor, config);
 		}
 
@@ -474,8 +520,8 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 
 	private void resetIdleCheckStatus(boolean check) {
 		fails=0;
+		succs=0;
 		pass=false;
-	
 	}
 	@Override
 	public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
@@ -505,7 +551,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		}
 		
 		*/ArrayList<PartEUP2PInterface> all = new ArrayList<>();
-		if (!this.isOutput()&&amp>0) {
+		if (!this.isOutput()) {
 			boolean[] hasFail=new boolean[1];
 			
 		  
@@ -516,19 +562,21 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 			all.forEach(s->{
 				IMetaTileEntity t = s.getTargetTile();
 				if(t!=null&&t instanceof IIdleStateProvider){
-					if(s.pass)return;
+					
 					if(((IIdleStateProvider) t).getIdle()==1){
 						s.pass=true;
 					}
 					if(((IIdleStateProvider) t).failThisTick()){
 						if(s.fails++==2){s.pass=true;};//fail 2 times, so assume no valid inputs, just pass it
 					}
+					//if(!(!prev_pass&&pass))
+					if(!pass)
 					{hasFail[0]=true;}
 				}
 				
 			});
 			
-			if(!hasFail[0]){ok=true;}
+			if(!hasFail[0]&&amp>0){ok=true;}
 			
 		}	
 			
@@ -540,7 +588,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		
 
 		if (ok || all.stream().map(s->s.redstoneticks>0).findAny().isPresent()) {
-				all.forEach(s->s.resetIdleCheckStatus(false));
+				//all.forEach(s->s.resetIdleCheckStatus(false));
 			try {
 
 				IMEMonitor<IAEItemStack> store = getProxy().getStorage().getItemInventory();
@@ -1003,6 +1051,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		expectedamp = data.getLong("expectedamp");
 		redstoneOverride = data.getBoolean("redstoneOverride");
 		fails=data.getInteger("fails");
+		succs=data.getInteger("succs");
 		pass=data.getBoolean("pass");
 		is.clear();
 		IntStream.range(0, data.getInteger("pending_size")).forEach(s -> {
@@ -1013,7 +1062,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 
 		initTokenTemplate();
 	}
-
+int succs;
 	public boolean redstoneOverride;
 
 	@Override
@@ -1034,6 +1083,9 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		data.setBoolean("redstoneOverride", redstoneOverride);
 		data.setInteger("fails", fails);
 		data.setBoolean("pass", pass);
+		
+		data.setInteger("succs", succs);
+	
 		for (int i = 0; i < is.size(); i++) {
 			data.setTag("pending_" + i, is.get(i).writeToNBT(new NBTTagCompound()));
 		}

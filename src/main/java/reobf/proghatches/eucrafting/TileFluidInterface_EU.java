@@ -1,5 +1,6 @@
 package reobf.proghatches.eucrafting;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -42,6 +43,7 @@ import appeng.me.GridAccessException;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.tile.TileEvent;
 import appeng.tile.events.TileEventType;
+import appeng.tile.misc.TileInterface;
 import appeng.util.item.AEItemStack;
 import cofh.api.energy.IEnergyReceiver;
 import gregtech.api.GregTech_API;
@@ -107,6 +109,23 @@ public class TileFluidInterface_EU extends TileFluidInterface
 					accessor.getNBTData().getLong("EA")));
 			currenttip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.AA",
 					String.format("%.2f", accessor.getNBTData().getDouble("AA")), accessor.getNBTData().getLong("A")));
+			
+			boolean validtile=accessor.getNBTData().getBoolean("validtile");
+			boolean hasdir=accessor.getNBTData().getBoolean("hasdir");
+			if(!hasdir){currenttip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.is_machine.dir"
+				));}
+			else if(!validtile){currenttip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.is_machine.no"
+					));}
+			
+			
+			if(validtile){
+			
+			currenttip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.halt_count",
+					accessor.getNBTData().getInteger("succs")));
+			currenttip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.fail_count",
+					accessor.getNBTData().getInteger("fails")));
+			}
+			
 			/*
 			 * System.out.println( StatCollector.translateToLocal(
 			 * "proghatches.eu.interface.waila.AA"));
@@ -131,6 +150,12 @@ public class TileFluidInterface_EU extends TileFluidInterface
 			tag.setLong("A", pt.amp);
 			tag.setLong("EA", pt.expectedamp);
 			tag.setDouble("AA", pt.averageamp);
+			tag.setInteger("succs", pt.succs);
+			tag.setInteger("fails", pt.fails);
+			tag.setBoolean("validtile", pt.getTargetTile()!=null);
+			tag.setBoolean("hasdir", pt.getUp().getOpposite()!=ForgeDirection.UNKNOWN);
+			tag.setBoolean("pass", pt.pass);
+			
 			return tag;
 		}
 	};
@@ -163,6 +188,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 		averageamp = data.getDouble("averageamp");
 		redstoneticks = data.getInteger("redstoneticks");
 		expectedamp = data.getLong("expectedamp");
+		succs=data.getInteger("succs");
 		fails=data.getInteger("fails");
 		pass=data.getBoolean("pass");
 		is.clear();
@@ -218,6 +244,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 		data.setInteger("redstoneticks", redstoneticks);
 		data.setLong("expectedamp", expectedamp);
 		data.setInteger("fails", fails);
+		data.setInteger("succs", succs);
 		data.setBoolean("pass", pass);
 		for (int i = 0; i < is.size(); i++) {
 			data.setTag("pending_" + i, is.get(i).writeToNBT(new NBTTagCompound()));
@@ -248,7 +275,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 			int x=getTile().xCoord;
 			int y=getTile().yCoord;
 			int z=getTile().zCoord;
-			ForgeDirection fd = this.getForward();
+			ForgeDirection fd = this.getUp().getOpposite();
 			if(fd==ForgeDirection.UNKNOWN)return null;
 			te=getTile().getWorldObj().getTileEntity(
 					x+fd.offsetX,y+fd.offsetY,z+fd.offsetZ);
@@ -265,12 +292,13 @@ public class TileFluidInterface_EU extends TileFluidInterface
 		return null;
 		
 	}
-	private void resetIdleCheckStatus(boolean check) {
+	private void resetIdleCheckStatus() {
 		fails=0;
+		succs=0;
 		pass=false;
 	
 	}
-	boolean pass;int fails;
+	boolean pass;int fails,succs;
 	
 	@Override
 	public TickingRequest getTickingRequest(final IGridNode node) {
@@ -291,29 +319,31 @@ public class TileFluidInterface_EU extends TileFluidInterface
 		}
 		returnItems();
 
-	boolean ok=false;
+	
 		
 	/*	boolean pw = this.getWorldObj().isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord);
 		boolean downedge = pw == false && prevPower == true;
 		prevPower = pw;
 
 		*/
-		
+	boolean ok=false;	
 	IMetaTileEntity t = getTargetTile();
 	if(t!=null&&t instanceof IIdleStateProvider){
-		if(pass)return;
+		//if(pass)return;
+	
 		if(((IIdleStateProvider) t).getIdle()==1){
-			pass=true;
+			pass=true;succs++;
 		}
 		if(((IIdleStateProvider) t).failThisTick()){
 			if(fails++==2){pass=true;};//fail 2 times, so assume no valid inputs, just pass it
 		}
-		{ok=true;}
+		if(pass&&amp>0){ok=true;}
+		
 	}
 	
 	
 		if (ok || redstoneticks > 0) {
-			resetIdleCheckStatus(false);
+			//resetIdleCheckStatus(false);
 			try {
 
 				IMEMonitor<IAEItemStack> store = getProxy().getStorage().getItemInventory();
@@ -408,7 +438,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 			boolean succ = super.pushPattern(p.original, table);
 			if (succ) {
 				amp = Math.max(amp, count[0]);
-				resetIdleCheckStatus(false);
+				resetIdleCheckStatus();
 				is.add(p.extraOut0);
 			}
 
@@ -773,12 +803,8 @@ public class TileFluidInterface_EU extends TileFluidInterface
 		craftingTracker.addCraftingOption(this, new SISOPatternDetail(blank_token.copy(), token.copy()));
 
 	}
-
-	@Override
-	public ForgeDirection getForward() {
-		// TODO Auto-generated method stub
-		return super.getForward();
-	}
+	
+	
 	final static String  NAME_OVERRIDE="EU Interface";
 	String customName;
 	

@@ -17,13 +17,13 @@ import reobf.proghatches.main.mixin.MixinCallback;
 public class MixinCircuitMigration {
 @Inject(method="readFromNBT",at = { @At("RETURN") })
 public void fix(NBTTagCompound tag,CallbackInfo X ){
-	if(!Config.fixCircuit){return;}
+	/*if(!Config.fixCircuit){return;}
 	
 	if(getItem()==MyMod.progcircuit){
 	if(	MixinCallback.fixCircuitTag(stackTagCompound)){}
 		
 	}
-	
+	*/
 	
 }@Shadow
 public NBTTagCompound stackTagCompound;

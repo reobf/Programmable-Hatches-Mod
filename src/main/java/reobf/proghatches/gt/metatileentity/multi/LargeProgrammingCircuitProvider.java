@@ -879,7 +879,7 @@ ButtonWidget createParallelButton(IWidgetBuilder<?> builder,UIBuildContext build
 			forceUpdatePattern=true;
 			multiply = (int) val;})
                 .setGetter(() -> multiply)
-                .setBounds(1, 1_000_00)
+                .setBounds(1, 1_000)
               //  .setScrollValues(1, 4, 64)
                 .setTextAlignment(Alignment.CenterLeft)
                 .setTextColor(Color.WHITE.normal)

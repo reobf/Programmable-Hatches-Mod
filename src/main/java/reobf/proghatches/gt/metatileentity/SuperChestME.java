@@ -617,7 +617,7 @@ public boolean shouldDropItemAt(int index) {
 }
 public static String name(int t){
 	
-	return StatCollector.translateToLocalFormatted("mesuperchest.name."+(t>=5), suffix[t-1]);
+	return StatCollector.translateToLocalFormatted("mesuperchest.name."+(t>=6), suffix[t-1]);
 }
 public static String[] suffix={"I","II","III","IV","V","I","II","III","IV","V"};
 @Override

@@ -236,7 +236,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 
 				}
 
-			}
+			
 			
 			boolean validtile=accessor.getNBTData().getBoolean("validtile");
 		
@@ -254,7 +254,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 			if(accessor.getNBTData().hasKey("io_pass"))
 			{currentToolTip.add(accessor.getNBTData().getString("io_pass"));
 			}
-			
+			}
 			return super.getWailaBody(part, currentToolTip, accessor, config);
 		}
 

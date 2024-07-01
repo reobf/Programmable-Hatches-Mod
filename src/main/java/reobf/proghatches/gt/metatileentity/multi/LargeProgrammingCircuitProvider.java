@@ -23,8 +23,12 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 
 import com.google.common.collect.ImmutableList;
+import com.gtnewhorizon.structurelib.alignment.IAlignment;
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
+import com.gtnewhorizon.structurelib.alignment.enumerable.Flip;
+import com.gtnewhorizon.structurelib.alignment.enumerable.Rotation;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
+import com.gtnewhorizon.structurelib.structure.IStructureElement;
 import com.gtnewhorizon.structurelib.structure.IStructureElementChain;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
@@ -48,6 +52,7 @@ import com.gtnewhorizons.modularui.common.widget.textfield.NumericWidget;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
+import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
@@ -59,6 +64,8 @@ import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
+import appeng.block.crafting.BlockAdvancedCraftingUnit;
+import appeng.block.crafting.BlockCraftingUnit;
 import appeng.core.Api;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
@@ -109,7 +116,10 @@ import reobf.proghatches.main.registration.Registration;
 
 public class LargeProgrammingCircuitProvider
 		extends GT_MetaTileEntity_EnhancedMultiBlockBase<LargeProgrammingCircuitProvider>
-		implements ISurvivalConstructable, IGridProxyable, ICraftingProvider, IInstantCompletable, ICircuitProvider {
+		implements ISurvivalConstructable, IGridProxyable, ICraftingProvider, IInstantCompletable, ICircuitProvider,
+		
+		IPowerChannelState
+		{
 
 	public LargeProgrammingCircuitProvider(String aName) {
 		super(aName);
@@ -176,7 +186,21 @@ public class LargeProgrammingCircuitProvider
 				return t.providers.size();
 			}
 		};
-
+		IStructureElement<LargeProgrammingCircuitProvider> acc = 
+				StructureUtility.ofBlockAdder(
+				LargeProgrammingCircuitProvider::addAccUnit,
+				1);
+		IStructureElement<LargeProgrammingCircuitProvider> accHint = ofChain(
+				ofBlock(Api.INSTANCE.definitions().blocks().craftingAccelerator().maybeBlock().get(), 0),
+				ofBlock(Api.INSTANCE.definitions().blocks().craftingAccelerator().maybeBlock().get(), 1),
+				ofBlock(Api.INSTANCE.definitions().blocks().craftingAccelerator().maybeBlock().get(), 2),
+				ofBlock(Api.INSTANCE.definitions().blocks().craftingAccelerator().maybeBlock().get(), 3),
+				ofBlock(Api.INSTANCE.definitions().blocks().craftingAccelerator64x().maybeBlock().get(), 0),
+				ofBlock(Api.INSTANCE.definitions().blocks().craftingAccelerator64x().maybeBlock().get(), 1),
+				ofBlock(Api.INSTANCE.definitions().blocks().craftingAccelerator64x().maybeBlock().get(), 2),
+				ofBlock(Api.INSTANCE.definitions().blocks().craftingAccelerator64x().maybeBlock().get(), 3)
+				);
+		
 		IHatchElement<LargeProgrammingCircuitProvider> providerSide = provider
 				.apply(LargeProgrammingCircuitProvider::addProvider);
 		IHatchElement<LargeProgrammingCircuitProvider> providerTop = provider
@@ -193,21 +217,25 @@ public class LargeProgrammingCircuitProvider
 						.build(),
 						// ofBlock(GregTech_API.sBlockCasings4, 1),
 						onElementPass(LargeProgrammingCircuitProvider::onCasingFound,
-								ofBlock(GregTech_API.sBlockCasings4, 1)))
+								ofBlock(GregTech_API.sBlockCasings4, 1)
+								
+								
+								
+								))
 
 				)
 				.addElement('l', ofBlock(GregTech_API.sBlockCasings4, 1))
 				.addElement('x', (IStructureElementChain<LargeProgrammingCircuitProvider>) () -> {
 					return buildHatchAdder(LargeProgrammingCircuitProvider.class).atLeast(providerTop)
 							.casingIndex(CASING_INDEX).dot(2)
-							.buildAndChain(ofBlock(Api.INSTANCE.definitions().blocks().fluix().maybeBlock().get(), 0),
+							.buildAndChain(acc,ofBlock(Api.INSTANCE.definitions().blocks().fluix().maybeBlock().get(), 0),
 									StructureUtility.ofBlockAdder(LargeProgrammingCircuitProvider::onTopCenterFound,
 											GregTech_API.sBlockCasings4, 1))
 							.fallbacks();
 
 				}
 
-				).addElement('X', ofBlock(Api.INSTANCE.definitions().blocks().fluix().maybeBlock().get(), 0)).addElement('h',
+				).addElement('X', ofChain(accHint,ofBlock(Api.INSTANCE.definitions().blocks().fluix().maybeBlock().get(), 0))).addElement('h',
 
 						buildHatchAdder(LargeProgrammingCircuitProvider.class).atLeast(providerSide)
 								.casingIndex(CASING_INDEX).dot(2)
@@ -306,7 +334,7 @@ public class LargeProgrammingCircuitProvider
 		mHeight = 1;
 		mTopLayerFound = false;
 		mCasing = 0;
-
+totalAcc=0;
 		// check base
 		if (!checkPiece(STRUCTURE_PIECE_BASE, 1, 1, 0))
 			return false;
@@ -350,6 +378,21 @@ public class LargeProgrammingCircuitProvider
 	}
 
 	boolean providerFoundThisLayer;
+	int totalAcc;
+	
+	static boolean addAccUnit(LargeProgrammingCircuitProvider t, Block block, int meta) {
+		if (block.getClass()== BlockCraftingUnit.class ||block.getClass()== BlockAdvancedCraftingUnit.class) {
+			boolean advanced=block.getClass()== BlockAdvancedCraftingUnit.class;
+			t.totalAcc+=((advanced?64:1)*(1<<(meta*2)))/(
+					advanced?1:4
+					);
+			System.out.println(t.totalAcc);
+			
+			return true;
+		}
+
+		return false;
+	}
 
 	static boolean onTopCenterFound(LargeProgrammingCircuitProvider t, Block block, int meta) {
 		if (block == GregTech_API.sBlockCasings4 && meta == 1) {
@@ -457,6 +500,7 @@ public class LargeProgrammingCircuitProvider
 		}
 		mEfficiency = 10000;
 		mMaxProgresstime=100;
+		
 		//if(cs>Integer.MAX_VALUE){throw new RuntimeException();}
 		mEUt =  -((int)cs);
 		return SimpleCheckRecipeResult.ofSuccess("proghatches.largepcp.running");
@@ -641,7 +685,7 @@ int lasthash;
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		super.onPostTick(aBaseMetaTileEntity, aTick);
 		returnItems();
-
+		
 		if (getBaseMetaTileEntity().isActive()) {
 			int hash=providers.hashCode();
 			if (lasthash!=hash||cacheState == CacheState.POWEROFF || cacheState == CacheState.CRASH) {
@@ -879,7 +923,7 @@ ButtonWidget createParallelButton(IWidgetBuilder<?> builder,UIBuildContext build
 			forceUpdatePattern=true;
 			multiply = (int) val;})
                 .setGetter(() -> multiply)
-                .setBounds(1, 1_000)
+                .setBounds(1,Math.max( totalAcc+1,1))
               //  .setScrollValues(1, 4, 64)
                 .setTextAlignment(Alignment.CenterLeft)
                 .setTextColor(Color.WHITE.normal)
@@ -888,4 +932,24 @@ ButtonWidget createParallelButton(IWidgetBuilder<?> builder,UIBuildContext build
                 .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD));
 		return builder.build();
 	}
+@Override
+public void gridChanged() {
+	// TODO Auto-generated method stub
+	super.gridChanged();
+}
+
+
+
+
+
+@Override
+public boolean isPowered() {
+    return getProxy() != null && getProxy().isPowered();
+}
+
+@Override
+public boolean isActive() {
+    return getProxy() != null && getProxy().isActive();
+}
+
 }

@@ -128,7 +128,9 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		public NBTTagCompound getNBTData(EntityPlayerMP player, IPart part, TileEntity te, NBTTagCompound tag,
 				World world, int x, int y, int z) {
 			if (PartEUP2PInterface.class.isInstance(part)) {
-				PartEUP2PInterface pt = PartEUP2PInterface.class.cast(part);
+				
+				
+			PartEUP2PInterface pt = PartEUP2PInterface.class.cast(part);
 
 				ProghatchesUtil.ser(tag, pt.id, "ID");
 				ProghatchesUtil.ser(tag, pt.inputid, "INPUT_ID");
@@ -149,9 +151,9 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 					tag.setDouble("AAL", pt.averageamp_local);
 				});
 				;
-
-			}	
-			PartEUP2PInterface pt = PartEUP2PInterface.class.cast(part);
+			
+				
+			//PartEUP2PInterface pt = PartEUP2PInterface.class.cast(part);
 			tag.setInteger("succs", pt.succs);
 			tag.setInteger("fails", pt.fails);
 			tag.setBoolean("validtile", pt.getTargetTile()!=null);
@@ -159,26 +161,31 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 			
 			PartEUP2PInterface iface=pt.getInput();
 			if(iface!=null){
+				boolean[] suc=new boolean[1];
 				StringBuilder s=new StringBuilder();
 				if(iface.getTargetTile()==null)
 					s.append("---");
-					else
+					else{
 					s.append(""+iface.pass);
+					suc[0]&=iface.pass;
+					}
 				try {
 					iface.getOutputs().forEach(ss->{
 						if(ss.getTargetTile()==null)
 						s.append("|---");
-						else
+						else{
 						s.append("|"+ss.pass);
-						
+						suc[0]&=iface.pass;
+						}
 					
 					});
 				} catch (GridAccessException e) {
 				}
-				
+				s.append("=");
+				s.append(suc[0]);
 				tag.setString("io_pass", s.toString());
 			}
-			
+			}
 
 			return tag;
 		}
@@ -250,9 +257,14 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 					accessor.getNBTData().getInteger("succs")));
 				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.fail_count",
 					accessor.getNBTData().getInteger("fails")));
+				
+				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.pass",
+						accessor.getNBTData().getInteger("pass")));
 			}
 			if(accessor.getNBTData().hasKey("io_pass"))
-			{currentToolTip.add(accessor.getNBTData().getString("io_pass"));
+			{currentToolTip.add(
+					StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.pass.p2p")+
+					accessor.getNBTData().getString("io_pass"));
 			}
 			}
 			return super.getWailaBody(part, currentToolTip, accessor, config);

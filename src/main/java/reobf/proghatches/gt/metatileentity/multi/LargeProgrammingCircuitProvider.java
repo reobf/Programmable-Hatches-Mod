@@ -46,7 +46,9 @@ import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.DynamicPositionedColumn;
 import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
+import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget.IntegerSyncer;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
+import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.NumericWidget;
 
@@ -58,7 +60,12 @@ import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.crafting.ICraftingProvider;
 import appeng.api.networking.crafting.ICraftingProviderHelper;
+import appeng.api.networking.events.MENetworkChannelChanged;
+import appeng.api.networking.events.MENetworkChannelsChanged;
 import appeng.api.networking.events.MENetworkCraftingPatternChange;
+import appeng.api.networking.events.MENetworkEvent;
+import appeng.api.networking.events.MENetworkEventSubscribe;
+import appeng.api.networking.events.MENetworkPowerStatusChange;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.storage.IStorageGrid;
@@ -210,7 +217,7 @@ public class LargeProgrammingCircuitProvider
 				.addShape(STRUCTURE_PIECE_BASE, /* transpose */(new String[][] { { "bbb", "b~b", "bbb" }, }))
 				.addShape(STRUCTURE_PIECE_LAYER, /* transpose */(new String[][] { { "lhl", "hxh", "lhl" }, }))
 				.addShape(STRUCTURE_PIECE_LAYER_HINT, /* transpose */(new String[][] { { "lhl", "hXh", "lhl" }, }))
-				.addShape(STRUCTURE_PIECE_TOP_HINT, /* transpose */(new String[][] { { "lll", "lll", "lll" }, }))
+				.addShape(STRUCTURE_PIECE_TOP_HINT, /* transpose */(new String[][] { { "lll", "lhl", "lll" }, }))
 				.addElement('b', ofChain(buildHatchAdder(LargeProgrammingCircuitProvider.class)
 						.atLeast(Energy, Maintenance).casingIndex(CASING_INDEX).dot(1)
 
@@ -360,6 +367,7 @@ totalAcc=0;
 		 // mCasing >= 7 * (mHeight + 1) - 5 && mHeight + 1 >= 3&&
 		boolean succ=mTopLayerFound && mMaintenanceHatches.size() == 1;
 		//if(succ){forceUpdatePattern=true ;}
+		multiply=Math.min(multiply, totalAcc+1);
 		return succ;
 	}
 
@@ -386,7 +394,7 @@ totalAcc=0;
 			t.totalAcc+=((advanced?64:1)*(1<<(meta*2)))/(
 					advanced?1:4
 					);
-			System.out.println(t.totalAcc);
+			//System.out.println(t.totalAcc);
 			
 			return true;
 		}
@@ -773,6 +781,19 @@ private  ItemStack mul( ItemStack s){
 	s.stackSize=multiply;
 	return s;
 }
+@MENetworkEventSubscribe
+ public void powerChange(MENetworkPowerStatusChange w){
+	cacheState = CacheState.DIRTY;
+}
+
+@MENetworkEventSubscribe
+public void powerChange(MENetworkChannelChanged w){
+	cacheState = CacheState.DIRTY;
+}
+@MENetworkEventSubscribe
+public void powerChange(MENetworkChannelsChanged w){
+	cacheState = CacheState.DIRTY;
+}
 	@Override
 	public void provideCrafting(ICraftingProviderHelper craftingTracker) {
 		if (cacheState == CacheState.DIRTY) {
@@ -780,6 +801,7 @@ private  ItemStack mul( ItemStack s){
 			cacheState = CacheState.FRESHLY_UPDATED;
 		}
 		if (cacheState == CacheState.FRESHLY_UPDATED || cacheState == CacheState.UPDATED)
+			if(isActive())
 			patternCache.forEach(s -> craftingTracker.addCraftingOption(this, 
 					multiply==1?
 					new CircuitProviderPatternDetial(s)
@@ -852,7 +874,7 @@ private  ItemStack mul( ItemStack s){
 ButtonWidget createParallelButton(IWidgetBuilder<?> builder,UIBuildContext buildContext) {
   
 	 Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
-		 widget.getContext().openSyncedWindow(987);
+		if(!widget.getContext().isClient()) widget.getContext().openSyncedWindow(987);
      })
         
          .setBackground(() -> {
@@ -899,7 +921,12 @@ ButtonWidget createParallelButton(IWidgetBuilder<?> builder,UIBuildContext build
     	        builder.widget(createPowerSwitchButton(builder))
     	            .widget(createParallelButton(builder,buildContext))
     	        ;
-    	        
+    	        builder.widget(new IntegerSyncer(()->{
+    	    	
+    	    			return totalAcc;}, st->{
+    	    			totalAcc=st;
+    	    	
+    	    		}).setSynced(true, false));
     	        
     	        
     	    	buildContext.addSyncedWindow(987, (s) -> createWindow(s));
@@ -918,18 +945,33 @@ ButtonWidget createParallelButton(IWidgetBuilder<?> builder,UIBuildContext build
 	
 		builder.setPos((size, window) -> Alignment.Center.getAlignedPos(size, new Size(PARENT_WIDTH, PARENT_HEIGHT))
 				);
-
-		builder.widget( new NumericWidget().setSetter(val -> {
+		NumericWidget w;
+		builder.widget( w=(NumericWidget) new NumericWidget().setSetter(val -> {
 			forceUpdatePattern=true;
-			multiply = (int) val;})
+			
+			multiply = (int) val;
+			int max=Math.max( totalAcc+1,1);
+			int min=1;
+			if(multiply>max)multiply=max;
+			if(multiply<min)multiply=min;
+		})
                 .setGetter(() -> multiply)
-                .setBounds(1,Math.max( totalAcc+1,1))
+               
               //  .setScrollValues(1, 4, 64)
                 .setTextAlignment(Alignment.CenterLeft)
                 .setTextColor(Color.WHITE.normal)
                 .setSize(18*6, 18)
                 .setPos(3, 3)
                 .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD));
+		
+		/*builder.widget(new IntegerSyncer(()->{
+		w.setBounds(1,Math.max( totalAcc+1,1));
+			return totalAcc;}, st->{
+			totalAcc=st;
+		w.setBounds(1,Math.max( totalAcc+1,1));
+		}).setSynced(true, false));
+		*/
+		
 		return builder.build();
 	}
 @Override

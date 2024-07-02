@@ -125,7 +125,8 @@ public class TileFluidInterface_EU extends TileFluidInterface
 			currenttip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.fail_count",
 					accessor.getNBTData().getInteger("fails")));
 			}
-			
+			currenttip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.pass",
+					accessor.getNBTData().getInteger("pass")));
 			/*
 			 * System.out.println( StatCollector.translateToLocal(
 			 * "proghatches.eu.interface.waila.AA"));

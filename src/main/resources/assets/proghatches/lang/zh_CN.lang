@@ -414,3 +414,5 @@ proghatches.eu.interface.waila.fail_count=配方检查失败:%s
 proghatches.eu.interface.waila.is_machine.no=目标不是GT机器
 proghatches.eu.interface.waila.is_machine.dir=使用扳手指向目标机器
 item.proghatch_circuit_fixer.name.tooltip=右击一个ME网络以修复这个网络中所有含旧版编程器电路的样板(0.0.16版本以及以下编写的样板).
+proghatches.eu.interface.waila.pass=归还检查:%s
+proghatches.eu.interface.waila.pass.p2p=网络归还检查:%s

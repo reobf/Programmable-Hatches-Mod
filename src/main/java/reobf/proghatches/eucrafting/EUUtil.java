@@ -21,6 +21,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
@@ -76,10 +77,16 @@ public class EUUtil {
 		if (NetworkUtils.isClient() || player instanceof FakePlayer) {
 			return;
 		}
+		
+		
 		NBTTagCompound tag = player.getEntityData();
 		tag.setInteger(key, dir.ordinal());
+		MyMod.scheduled.addFirst(()->
+				{
 		MyMod.net.sendTo(new OpenPartGuiMessage(x, y, z, dir), (EntityPlayerMP) player);
 		EUUtil.PART_MODULAR_UI.open(player, player.worldObj, x, y, z);
+		}
+				);
 	}
 
 	public static void open(EntityPlayer player, World world, int x, int y, int z, ForgeDirection dir, boolean isout) {
@@ -89,8 +96,13 @@ public class EUUtil {
 		NBTTagCompound tag = player.getEntityData();
 		tag.setInteger(key, dir.ordinal());
 		tag.setBoolean("extraarg", isout);
+		MyMod.scheduled.addFirst(()->
+		{
 		MyMod.net.sendTo(new OpenPartGuiMessage(x, y, z, dir).mark(isout), (EntityPlayerMP) player);
 		EUUtil.PART_MODULAR_UI.open(player, player.worldObj, x, y, z);
+		}
+				);
+	
 	}
 
 	public static final UIInfo<?, ?> PART_MODULAR_UI = UIBuilder.of().container((player, world, x, y, z) -> {

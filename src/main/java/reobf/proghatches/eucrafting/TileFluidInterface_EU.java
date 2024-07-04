@@ -25,6 +25,7 @@ import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
+import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingCPU;
 import appeng.api.networking.crafting.ICraftingMedium;
@@ -76,7 +77,7 @@ import reobf.proghatches.util.ProghatchesUtil;
 public class TileFluidInterface_EU extends TileFluidInterface
 		implements ITileWithModularUI, IInstantCompletable, IEnergyConnected, IDrain,
 		
-		IGridTickable
+		IGridTickable,IGridHost
 		{
 	static public IWailaDataProvider provider = new IWailaDataProvider() {
 
@@ -308,7 +309,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 	}
 	@Override
 	public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-		
+		super.tickingRequest(node, ticksSinceLastCall);
 		tick();
 	return TickRateModulation.SAME;
 	}
@@ -328,7 +329,9 @@ public class TileFluidInterface_EU extends TileFluidInterface
 
 		*/
 	boolean ok=false;	
-	IMetaTileEntity t = getTargetTile();
+	IMetaTileEntity t = null;
+	try{
+		 t = getTargetTile();
 	if(t!=null&&t instanceof IIdleStateProvider){
 		//if(pass)return;
 	
@@ -341,7 +344,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 		if(pass&&amp>0){ok=true;}
 		
 	}
-	
+	}catch(Exception e){e.printStackTrace();;}
 	
 		if (ok || redstoneticks > 0) {
 			//resetIdleCheckStatus(false);

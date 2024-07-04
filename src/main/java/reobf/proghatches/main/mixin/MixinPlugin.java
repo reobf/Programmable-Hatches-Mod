@@ -149,6 +149,8 @@ static public ArrayList<String> retLate = new ArrayList<>();
 			}
 		retLate.add("eucrafting." + "MixinInvTracker");
 		
+		retLate.add("MixinFixPipeCoverBug");	
+		retLate.add("MixinFixPipeCoverBug2");
 		
 		retLate.add("MixinAEAdaptorSkipStackSizeCheck");
 		retLate.add("MixinAwarenessForDualHatch");

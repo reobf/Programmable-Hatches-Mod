@@ -379,3 +379,5 @@ proghatches.eu.interface.waila.is_machine.dir=Use wrench to specify target machi
 item.proghatch_circuit_fixer.name.tooltip=Right click a ME Network to fix all legacy pattens(encoded in version 0.0.16 or below) in this network.
 proghatches.eu.interface.waila.pass=Refund Check:%s
 proghatches.eu.interface.waila.pass.p2p=Network Refund Check:%s
+item.proghatches.part.eu.source.superconduct.name=EU Source(%s Superconducting)
+item.proghatches.part.eu.source.normal.name=EU Source(%s)

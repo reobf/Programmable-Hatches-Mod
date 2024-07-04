@@ -2,6 +2,7 @@ package reobf.proghatches.eucrafting;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,6 +22,7 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
+import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
@@ -36,6 +38,10 @@ import appeng.api.parts.IPartCollisionHelper;
 import appeng.api.parts.IPartRenderHelper;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.block.AEBaseBlock;
+import appeng.client.render.BaseBlockRender;
+import appeng.client.render.BusRenderHelper;
+
 import appeng.client.texture.CableBusTextures;
 import appeng.integration.modules.waila.part.BasePartWailaDataProvider;
 import appeng.me.GridAccessException;
@@ -46,11 +52,14 @@ import appeng.parts.p2p.IPartGT5Power;
 import appeng.util.item.AEItemStack;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.util.GT_Utility;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
+import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -72,28 +81,29 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class PartEUSource extends AEBasePart
-		implements IGuiProvidingPart, ICraftingProvider, IGridTickable, IInstantCompletable, IPartGT5Power, ISource {
+		implements IGuiProvidingPart, ICraftingProvider, IGridTickable, IInstantCompletable, IPartGT5Power, ISource,ILazer {
 
 	public static class WailaDataProvider extends BasePartWailaDataProvider {
 
 		@Override
 		public NBTTagCompound getNBTData(EntityPlayerMP player, IPart part, TileEntity te, NBTTagCompound tag,
 				World world, int x, int y, int z) {
-			if (PartEUSource.class.isInstance(part)) {
+			if (PartEUSource.class.isInstance(part)==false) {return super.getNBTData(player, part, te, tag, world, x, y, z);}
 				PartEUSource pt = (PartEUSource) part;
 
 				tag.setLong("V", pt.voltage);
 				tag.setLong("A", pt.amp);
 				tag.setLong("AC", pt.consumed);
 				tag.setDouble("AA", pt.averageamp);
-			}
+			
 			return super.getNBTData(player, part, te, tag, world, x, y, z);
 		}
 
 		@Override
 		public List<String> getWailaBody(IPart part, List<String> currentToolTip, IWailaDataAccessor accessor,
 				IWailaConfigHandler config) {
-			if (PartEUSource.class.isInstance(part)) {
+			if (PartEUSource.class.isInstance(part)==false) {return super.getWailaBody(part, currentToolTip, accessor, config);}
+			
 
 				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.source.waila.V",
 						accessor.getNBTData().getLong("V")));
@@ -104,7 +114,7 @@ public class PartEUSource extends AEBasePart
 				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.source.waila.AA",
 						String.format("%.2f", accessor.getNBTData().getDouble("AA"))));
 
-			}
+			
 			return super.getWailaBody(part, currentToolTip, accessor, config);
 		}
 
@@ -143,18 +153,170 @@ public class PartEUSource extends AEBasePart
 		// rh.setInvColor(this.getColor().whiteVariant);
 		// rh.renderInventoryFace(this.getFrontBright(), ForgeDirection.SOUTH,
 		// renderer);
-
-		rh.setInvColor(this.getColor().mediumVariant);
+		int []col =getCol(maxWorkingVoltageTier());
+		int color= col[2]|
+				(col[1]<<8)|
+				(col[0]<<16);
+		rh.setInvColor(
+				0xffffff
+				);
+		
 		rh.renderInventoryFace(this.getFrontBright(), ForgeDirection.SOUTH, renderer);
-
+		renderInventoryHover(rh,getBackIcon(maxWorkingVoltageTier()), ForgeDirection.SOUTH, renderer,color);
+		
+		
+		rh.setInvColor(this.getColor().blackVariant);
 		// rh.setInvColor(this.getColor().blackVariant);
 		// rh.renderInventoryFace(this.getFrontColored(), ForgeDirection.SOUTH,
 		// renderer);
+		final IIcon sideStatusTexture = CableBusTextures.PartMonitorSidesStatus.getIcon();
+
+		rh.setTexture(sideStatusTexture, sideStatusTexture, backTexture, this.getItemStack().getIconIndex(),
+				sideStatusTexture, sideStatusTexture);
 
 		rh.setBounds(4, 4, 13, 12, 12, 14);
 		rh.renderInventoryBox(renderer);
-	}
+	} 
+	
+	
+	@SideOnly(Side.CLIENT) static Field[] sidef;
+	@SideOnly(Side.CLIENT)
+	public void renderFaceHover(BusRenderHelper  thiz,final int x, final int y, final int z, final IIcon ico, ForgeDirection face,
+            final RenderBlocks renderer) {
+		
+		if(sidef==null){
+			try {
+				Field xx=thiz.getClass().getDeclaredField("ax");
+				Field yy=thiz.getClass().getDeclaredField("ay");
+				Field zz=thiz.getClass().getDeclaredField("az");
+			xx.setAccessible(true);
+			yy.setAccessible(true);
+			zz.setAccessible(true);
+			sidef=new Field[]{xx,yy,zz};
+			} catch (NoSuchFieldException | SecurityException e) {
+			e.printStackTrace();
+			}
+		}
+		
+	
+		
+	
+		  ForgeDirection ax=null,ay=null,az=null;;
+		try {
+		ax = (ForgeDirection) sidef[0].get(thiz);
+		   ay = (ForgeDirection) sidef[1].get(thiz);
+			az = (ForgeDirection) sidef[2].get(thiz);
+	
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		  
+		  
+        thiz.prepareBounds(renderer);
+        switch (face) {
+            case DOWN:
+                face = ay.getOpposite();
+                break;
+            case EAST:
+                face = ax;
+                break;
+            case NORTH:
+                face = az.getOpposite();
+                break;
+            case SOUTH:
+                face = az;
+                break;
+            case UP:
+                face = ay;
+                break;
+            case WEST:
+                face = ax.getOpposite();
+                break;
+            case UNKNOWN:
+                break;
+            default:
+                break;
+        }
 
+       
+        com.google.common.base.Optional<Block> maybeBlock = AEApi.instance().definitions().blocks().multiPart().maybeBlock();
+       for (final Block block : maybeBlock.asSet()) {
+        	 switch (face) {
+             case NORTH : renderer.renderFaceZNeg(block, x, y, z+0.05, ico);break;
+             case SOUTH : renderer.renderFaceZPos(block, x, y, z-0.05, ico);break;
+             case EAST : renderer.renderFaceXPos(block, x-0.05, y, z, ico);break;
+             case WEST : renderer.renderFaceXNeg(block, x+0.05, y, z, ico);break;
+             case UP : renderer.renderFaceYPos(block, x, y-0.05, z, ico);break;
+             case DOWN : renderer.renderFaceYNeg(block, x, y+0.05, z, ico);break;
+           
+         }
+        	
+        }
+    }
+	@SideOnly(Side.CLIENT)
+	    public void renderInventoryHover(IPartRenderHelper  thiz,final IIcon icon, final ForgeDirection face, final RenderBlocks renderer,int col) {
+	        renderer.setRenderBounds(
+	        		2 / 16.0,
+	        		2 / 16.0,
+	                14 / 16.0,
+	                14 / 16.0,
+	                14 / 16.0,
+	                15.5 / 16.0);
+	        thiz.setTexture(icon);
+	        com.google.common.base.Optional<Block> maybeBlock = AEApi.instance().definitions().blocks().multiPart().maybeBlock();
+	        BaseBlockRender bbr = new BaseBlockRender<>();
+	        for (final Block baseBlock : maybeBlock.asSet()) {
+	        	bbr.renderInvBlock(EnumSet.of(face), (AEBaseBlock) baseBlock, null, Tessellator.instance, col, renderer);
+	        }
+	        
+	        
+	    }
+	    private int[] getCol(int i){
+	    	/*if(i==14){
+	    		
+	    		
+	    		double time=(System.currentTimeMillis()%2000)/2000.0;
+	    		double angle=time*3.14159*2;
+	    		double diff=3.14159*0.666666;
+	    		return new int[]{
+	    				(int) (Math.cos(angle-diff)*127+128),
+	    				
+	    				(int) (Math.cos(angle+diff)*127+128),
+	    				(int) (Math.cos(angle)*127+128)
+	    		
+	    		};
+	    	}
+	    	*/
+	    	
+	    	return col[i];
+	    }
+	    
+	static int[][] col={
+			{105,116,125},
+			{105,116,125},
+			{209,82,28},
+			{174,119,37},
+			{47,47,47},
+			{151,151,151},
+			{189,113,113},
+			{106,195,196},
+			{126,176,126},
+			{183,106,184},
+			{0,69,208},
+			{72,135,72},
+			{58,51,81},
+			{255,255,255},
+			{255,255,255},
+			
+			
+			{255,255,255},
+			{255,255,255},
+	};
+	
+	
+	
+	
+	
 	@Override
 	public boolean onPartActivate(EntityPlayer player, Vec3 pos) {
 
@@ -164,7 +326,8 @@ public class PartEUSource extends AEBasePart
 		TileEntity t = this.getTile();
 		// System.out.println(getSide());
 		EUUtil.open(player, player.getEntityWorld(), t.xCoord, t.yCoord, t.zCoord, getSide());
-		return true;
+		System.out.println(player.getHeldItem());
+		return false;
 	}
 
 	@Override
@@ -193,10 +356,26 @@ public class PartEUSource extends AEBasePart
 		// Tessellator.instance.setColorOpaque_I(this.getColor().whiteVariant);
 		// rh.renderFace(x, y, z, this.getFrontBright(), ForgeDirection.SOUTH,
 		// renderer);
-
-		Tessellator.instance.setColorOpaque_I(this.getColor().whiteVariant);
+		int []col =getCol(maxWorkingVoltageTier());
+		int color= col[2]|
+				(col[1]<<8)|
+				(col[0]<<16);
+		rh.setInvColor(
+				0xffffff
+				);
+		
+		/*rh.renderInventoryFace(this.getFrontBright(), ForgeDirection.SOUTH, renderer);
+		renderInventoryHover(rh,b, ForgeDirection.SOUTH, renderer,color);
+		
+		
+		rh.setInvColor(this.getColor().blackVariant);
+		*/
+		//Tessellator.instance.setColorOpaque_I(this.getColor().whiteVariant);4
+		Tessellator.instance.setColorOpaque_I(0xffffff);
 		rh.renderFace(x, y, z, this.getFrontBright(), ForgeDirection.SOUTH, renderer);
-
+		Tessellator.instance.setColorOpaque_I(color);
+		renderFaceHover((BusRenderHelper) rh,x, y, z, getBackIcon(maxWorkingVoltageTier()), ForgeDirection.SOUTH, renderer);
+		
 		// Tessellator.instance.setColorOpaque_I(this.getColor().blackVariant);
 		// rh.renderFace(x, y, z, this.getFrontColored(), ForgeDirection.SOUTH,
 		// renderer);
@@ -246,7 +425,9 @@ public class PartEUSource extends AEBasePart
 	
 
 	static IIcon a;
-
+	static IIcon b;
+	static IIcon b2;
+	static IIcon b3;
 	private IIcon getFrontBright() {
 
 		return a;
@@ -256,11 +437,19 @@ public class PartEUSource extends AEBasePart
 		
 		return 0;
 	}
-
+	@SideOnly(value = Side.CLIENT)
+	static   IIcon getBackIcon(int t){
+		if(t==14)return b3;
+		if(t==13)return b2;
+		return b;
+	}
 	@SideOnly(value = Side.CLIENT)
 	public static void registerIcons(IIconRegister _iconRegister) {
 
 		a = _iconRegister.registerIcon("proghatches:eu");
+		b=_iconRegister.registerIcon("proghatches:eu_back");
+		b2=_iconRegister.registerIcon("proghatches:eu_back2");
+		b3=_iconRegister.registerIcon("proghatches:eu_back3");
 	}
 
 	public ModularWindow createWindow(UIBuildContext buildContext) {
@@ -362,18 +551,60 @@ public class PartEUSource extends AEBasePart
 		return builder.build();
 
 	}
+public long maxWorkingVoltage(){
+	int damage=this.is.getItemDamage();
+	if(damage>=1&&damage<=15){
+	return GT_Values.V[damage-1];
+	}	
+	if(damage>=16&&damage<=30){
+	return GT_Values.V[damage-16];
+	}	
+	return Long.MAX_VALUE;
+}
+public int maxWorkingVoltageTier(){
+	int damage=this.is.getItemDamage();
+	if(damage>=1&&damage<=15){
+	return damage-1;
+	}	
+	if(damage>=16&&damage<=30){
+	return damage-16;
+	}	
+	return 15;
+}
+public double taxPercentage(){	
+	int damage=this.is.getItemDamage();
+	if(damage>=16&&damage<=30){
+		return 0.95d;
+	}	
+	
+	return 1;
+}
+
 
 	@Override
 	public long injectEnergyUnits(long aVoltage, long aAmperage) {
 		// if(getVoltage()==0)return 0;
+
+		
 		if (consumed <= ampInjectedthisTick)
 			return 0;
 		try {
 			long actual = Math.min(consumed - ampInjectedthisTick, aAmperage);
 
-			long consumed = ((IEUManager) getProxy().getGrid().getCache(IEUManager.class)).inject(this, actual,
-					aVoltage);
+			long consumed = ((IEUManager) getProxy().getGrid().getCache(IEUManager.class)).inject(this, 
+					actual,
+					(long) (aVoltage*taxPercentage()));
 			ampInjectedthisTick += consumed;
+			if(consumed>0){
+				
+				if(aVoltage>maxWorkingVoltage()){
+				TileEntity t = this.host.getTile();
+				t.getWorldObj().createExplosion(null, t.xCoord+0.5,t.yCoord+0.5,t.zCoord+0.5, 2, true);
+				GT_Utility.sendSoundToPlayers(t.getWorldObj(), GregTech_API.sSoundList.get(209), 1.0F, -1.0F, t.xCoord,t.yCoord,t.zCoord);
+				this.host.removePart(side, false);
+				}
+				
+			}
 			return consumed;
 		} catch (GridAccessException e) {
 
@@ -427,6 +658,7 @@ public class PartEUSource extends AEBasePart
 		voltage = data.getLong("voltage");
 		amp = data.getLong("amp");
 		consumed = data.getLong("consumed");
+	
 		toReturn.clear();
 		int[] count = new int[1];
 		NBTTagCompound c;
@@ -441,6 +673,7 @@ public class PartEUSource extends AEBasePart
 		data.setLong("voltage", voltage);
 		data.setLong("amp", amp);
 		data.setLong("consumed", consumed);
+		
 		int[] count = new int[1];
 		toReturn.forEach(s -> data.setTag("toReturn" + (count[0]++), s.writeToNBT(new NBTTagCompound())));
 
@@ -705,6 +938,24 @@ public class PartEUSource extends AEBasePart
 		consumed += actual;
 
 		return actual;
+	}
+
+	@Override
+	public boolean canConnect(ForgeDirection side) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+	
+	@Override
+	public byte getColorization() {
+	
+		return 11;
+	}
+
+	@Override
+	public byte setColorization(byte aColor) {
+	
+		return 11;
 	}
 
 }

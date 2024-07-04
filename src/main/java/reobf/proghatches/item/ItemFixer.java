@@ -1,9 +1,11 @@
 package reobf.proghatches.item;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.spongepowered.libraries.com.google.common.base.Optional;
 
+import com.github.technus.tectech.mechanics.pipe.IConnectsToEnergyTunnel;
 import com.glodblock.github.common.item.ItemFluidEncodedPattern;
 
 import appeng.api.implementations.ICraftingPatternItem;
@@ -52,6 +54,29 @@ public boolean onItemUse(ItemStack p_77648_1_, EntityPlayer p_77648_2_, World w,
 	if(w.isRemote)return true;
 	
 	TileEntity te = w.getTileEntity(x, y, z);
+	/*System.out.println(te instanceof IConnectsToEnergyTunnel);
+	if(te instanceof IConnectsToEnergyTunnel)
+	System.out.println(((IConnectsToEnergyTunnel) te).canConnect(ForgeDirection.UP));
+	
+	
+	if(te!=null){
+		Class<?> c = te.getClass();
+	
+		while(c!=null){
+			System.out.println(c);
+		System.out.println(Arrays.toString(
+				
+		c.getInterfaces())
+		
+				);;c=(Class<? >) c.getSuperclass();}
+	}
+	
+	
+	
+	*/
+	
+	
+	
 IGrid g = null;
 	if(te instanceof IGridProxyable){
 		
@@ -149,7 +174,7 @@ public ItemStack fix(ItemStack is,Runnable succ){
 		encodedValue.getTagList("in", 10).copy());
 	 }
 	 
-	 System.out.println(is.getTagCompound());
+	// System.out.println(is.getTagCompound());
   
 	return is.copy();
 }

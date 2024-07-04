@@ -1,7 +1,10 @@
 package reobf.proghatches.main;
 
 import java.lang.reflect.Field;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
@@ -34,6 +37,7 @@ import com.glodblock.github.client.gui.container.ContainerDualInterface;
 import com.glodblock.github.common.parts.PartFluidP2PInterface;
 import com.glodblock.github.inventory.FluidConvertingInventoryAdaptor;
 
+import appeng.api.AEApi;
 import appeng.api.config.FuzzyMode;
 import appeng.api.config.Upgrades;
 import appeng.api.implementations.IUpgradeableHost;
@@ -46,6 +50,7 @@ import appeng.container.slot.SlotFake;
 import appeng.container.slot.SlotNormal;
 import appeng.core.features.registries.InterfaceTerminalRegistry;
 import appeng.core.localization.GuiText;
+import appeng.helpers.BlockingModeIgnoreList;
 import appeng.helpers.DualityInterface;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.IPriorityHost;
@@ -55,6 +60,7 @@ import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.item.AEItemStack;
 import appeng.util.item.ItemList;
+import codechicken.multipart.MultipartGenerator;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -65,12 +71,15 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.interfaces.tileentity.ICoverable;
+import gregtech.api.metatileentity.BaseMetaPipeEntity;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.net.GT_Packet_SendCoverData;
 import gregtech.api.util.shutdown.ShutDownReason;
@@ -85,11 +94,13 @@ import reobf.proghatches.eucrafting.AECover.IMemoryCardSensitive;
 import reobf.proghatches.eucrafting.InterfaceData;
 import reobf.proghatches.eucrafting.PartEUP2PInterface;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
+
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
 import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
+import reobf.proghatches.main.mixin.mixins.MixinFixPipeCoverBug;
 import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
 import reobf.proghatches.net.RenameMessage;
@@ -106,10 +117,10 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 public class MyMod {
 	public static MyMod instance;
 	{
-		
+		BaseMetaPipeEntity.class.getDeclaredFields();
 		instance = this;
 	}
-	
+	public static Deque<Runnable> scheduled=new ArrayDeque<Runnable>();
 	//public static ShutDownReason ACCESS_LOOP=new SimpleShutDownReason("proghatch.access_loop", true){public String getID() {return "proghatch.access_loop";};};
 	public static SimpleNetworkWrapper net = new SimpleNetworkWrapper(Tags.MODID);
 	public static Item progcircuit;
@@ -153,6 +164,8 @@ public class MyMod {
 	
 	public void init(FMLInitializationEvent event) {
 		proxy.init(event);
+		AEApi.instance().partHelper().registerNewLayer("reobf.proghatches.fmp.LazerLayer", "reobf.proghatches.eucrafting.ILazer");
+		
 		FMLCommonHandler.instance().bus().register(this);
 		MinecraftForge.EVENT_BUS.register(this);
 	}
@@ -227,13 +240,23 @@ public class MyMod {
 		InterfaceTerminalRegistry.instance().register(PartFluidP2PInterface.class);
 		InterfaceTerminalRegistry.instance().register(TileFluidInterface_EU.class);
 		InterfaceTerminalRegistry.instance().register(PatternDualInputHatch.Inst.class);
-	
+		{try{
+		Field f=BlockingModeIgnoreList.class.getDeclaredField("IgnoredItems");
+		f.setAccessible(true);
+		 Collection IgnoredItems =(Collection) f.get(null);
+		 IgnoredItems.add(GameRegistry.findItem("gregtech", "gt.integrated_circuit"));
+		}catch(Exception e){ e.printStackTrace();}
 		
+		}
 		ItemList list=new ItemList();
 		list.add(AEItemStack.create(ItemProgrammingCircuit.wrap(new ItemStack(Blocks.cactus))));
 		list.findFuzzy(AEItemStack.create(ItemProgrammingCircuit.wrap(new ItemStack(Blocks.bed))), FuzzyMode.IGNORE_ALL);
 	}
-
+	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
+	public void tick(final TickEvent.ServerTickEvent event) {
+		while(scheduled.isEmpty()==false)
+		scheduled.removeLast().run();
+	}
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void playerInteract(final PlayerInteractEvent event) {
 

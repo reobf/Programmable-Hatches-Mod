@@ -31,7 +31,9 @@ public class EUCraftingCreativeTab extends CreativeTabs {
 	@Override
 	public void displayAllReleventItems(List p_78018_1_) {
 		p_78018_1_.addAll(Registration.items_eucrafting);
-		p_78018_1_.add(new ItemStack(MyMod.eu_source_part));
+		for(int i=0;i<=30;i++)
+			p_78018_1_.add(new ItemStack(MyMod.eu_source_part,1,i));
+		
 		p_78018_1_.add(new ItemStack(MyMod.block_euinterface));
 		// p_78018_1_.add(new ItemStack(MyMod.cover, 1, 2));
 		p_78018_1_.add(new ItemStack(MyMod.euinterface_p2p));

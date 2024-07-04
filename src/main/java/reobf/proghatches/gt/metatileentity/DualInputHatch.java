@@ -1163,4 +1163,14 @@ protected ModularWindow createInsertionWindow(UIBuildContext buildContext) {
 			.setPos(new Pos2d(getGUIWidth() - 18 - 3, 30)).setSize(16, 16);
 
 }
+@Override
+public boolean canInsertItem(int aIndex, ItemStack aStack, int ordinalSide) {
+	// TODO Auto-generated method stub
+	return super.canInsertItem(aIndex, aStack, ordinalSide);
+}
+@Override
+public boolean canExtractItem(int aIndex, ItemStack aStack, int ordinalSide) {
+	// TODO Auto-generated method stub
+	return super.canExtractItem(aIndex, aStack, ordinalSide);
+}
 }

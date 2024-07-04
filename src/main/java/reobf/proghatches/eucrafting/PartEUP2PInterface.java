@@ -127,7 +127,8 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		@Override
 		public NBTTagCompound getNBTData(EntityPlayerMP player, IPart part, TileEntity te, NBTTagCompound tag,
 				World world, int x, int y, int z) {
-			if (PartEUP2PInterface.class.isInstance(part)) {
+			if (PartEUP2PInterface.class.isInstance(part)==false) {return super.getNBTData(player, part, te, tag, world, x, y, z);}
+			
 				
 				
 			PartEUP2PInterface pt = PartEUP2PInterface.class.cast(part);
@@ -185,7 +186,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 				s.append(suc[0]);
 				tag.setString("io_pass", s.toString());
 			}
-			}
+			
 
 			return tag;
 		}
@@ -193,8 +194,8 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		@Override
 		public List<String> getWailaBody(IPart part, List<String> currentToolTip, IWailaDataAccessor accessor,
 				IWailaConfigHandler config) {
-			if (PartEUP2PInterface.class.isInstance(part)) {
-				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.V",
+			if (PartEUP2PInterface.class.isInstance(part)==false) {return super.getWailaBody(part, currentToolTip, accessor, config);}
+					currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.V",
 						accessor.getNBTData().getLong("V")));
 				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.EA",
 						accessor.getNBTData().getLong("EA")));
@@ -266,7 +267,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 					StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.pass.p2p")+
 					accessor.getNBTData().getString("io_pass"));
 			}
-			}
+			
 			return super.getWailaBody(part, currentToolTip, accessor, config);
 		}
 
@@ -540,6 +541,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 
 		returnItems();
 		duality.tickingRequest(node, ticksSinceLastCall);
+		dualityFluid.tickingRequest(node, ticksSinceLastCall);
 		boolean ok = false;
 	/*	if (!this.isOutput()) {
 

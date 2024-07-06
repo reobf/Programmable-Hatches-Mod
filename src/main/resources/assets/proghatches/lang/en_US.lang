@@ -381,3 +381,4 @@ proghatches.eu.interface.waila.pass=Refund Check:%s
 proghatches.eu.interface.waila.pass.p2p=Network Refund Check:%s
 item.proghatches.part.eu.source.superconduct.name=EU Source(%s Superconducting)
 item.proghatches.part.eu.source.normal.name=EU Source(%s)
+programmable_hatches.gt.sticky.autounlock=Auto disable sticky mode when empty.

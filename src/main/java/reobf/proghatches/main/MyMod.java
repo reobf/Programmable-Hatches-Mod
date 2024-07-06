@@ -240,17 +240,10 @@ public class MyMod {
 		InterfaceTerminalRegistry.instance().register(PartFluidP2PInterface.class);
 		InterfaceTerminalRegistry.instance().register(TileFluidInterface_EU.class);
 		InterfaceTerminalRegistry.instance().register(PatternDualInputHatch.Inst.class);
-		{try{
-		Field f=BlockingModeIgnoreList.class.getDeclaredField("IgnoredItems");
-		f.setAccessible(true);
-		 Collection IgnoredItems =(Collection) f.get(null);
-		 IgnoredItems.add(GameRegistry.findItem("gregtech", "gt.integrated_circuit"));
-		}catch(Exception e){ e.printStackTrace();}
 		
-		}
-		ItemList list=new ItemList();
-		list.add(AEItemStack.create(ItemProgrammingCircuit.wrap(new ItemStack(Blocks.cactus))));
-		list.findFuzzy(AEItemStack.create(ItemProgrammingCircuit.wrap(new ItemStack(Blocks.bed))), FuzzyMode.IGNORE_ALL);
+	//	ItemList list=new ItemList();
+	//	list.add(AEItemStack.create(ItemProgrammingCircuit.wrap(new ItemStack(Blocks.cactus))));
+	//	list.findFuzzy(AEItemStack.create(ItemProgrammingCircuit.wrap(new ItemStack(Blocks.bed))), FuzzyMode.IGNORE_ALL);
 	}
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void tick(final TickEvent.ServerTickEvent event) {

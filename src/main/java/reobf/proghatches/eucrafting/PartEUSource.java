@@ -288,7 +288,15 @@ public class PartEUSource extends AEBasePart
 	    	}
 	    	*/
 	    	
-	    	return col[i];
+	    	return 
+	    			new int[]{
+	    			 Math.min((int)(col[i][0]*1.4),255),
+	    			Math.min((int)(col[i][1]*1.4),255),
+	    			Math.min((int)(col[i][2]*1.4),255)
+	    					
+	    	}	
+	    					
+	    					;
 	    }
 	    
 	static int[][] col={

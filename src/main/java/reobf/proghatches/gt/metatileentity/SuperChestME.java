@@ -263,7 +263,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	IMEInventoryHandler<AEItemStack> handler
 	=new MEInventoryHandler(new UnlimitedWrapper()
 	, StorageChannel .ITEMS){
-		public boolean getSticky() {return sticky;};
+		public boolean getSticky() {return sticky&&!suppressSticky;};
 		public int getPriority() {return piority;};
 	};
 	boolean sticky;
@@ -428,6 +428,8 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
             slots.merge(sID, toSet, (a, b) -> a - b);
         }
     }
+	boolean autoUnlock;
+	boolean suppressSticky;
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		if(!aBaseMetaTileEntity.getWorld().isRemote&&(aTick&16)!=0){
@@ -437,6 +439,22 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 			;
 			
 		}
+		
+			if((!suppressSticky)&&((mInventory[0]==null)&&autoUnlock)){
+				
+					suppressSticky=true;	
+					post();
+				
+			}
+			if(suppressSticky&&( (mInventory[0]!=null)||(!autoUnlock) )){
+				
+					suppressSticky=false;	
+					post();
+				
+			}
+		
+		
+		
 		
 		super.onPostTick(aBaseMetaTileEntity, aTick);
 		boolean needToSort=false;
@@ -540,6 +558,27 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 	, 0)
 			.setPos( 3,3+18*2));
  
+ 
+ builder.widget(createButton(() -> 
+	autoUnlock
+			, val -> {
+				autoUnlock = val;post();
+		//updateSlots();
+	}, GT_UITextures.OVERLAY_BUTTON_RECIPE_UNLOCKED,
+			
+			//new ItemDrawable(new ItemStack(Items.slime_ball)), 
+	ImmutableList.of(
+			StatCollector.translateToLocal("programmable_hatches.gt.sticky.autounlock")
+		
+			)
+
+	
+	, 0)
+			.setPos( 3+18,3+18*2));
+ 
+ 
+ 
+ 
  builder.widget(new TextFieldWidget()	
 		 .setPattern(BaseTextFieldWidget.NATURAL_NUMS)
 		.setGetter(()->piority+"")
@@ -560,7 +599,9 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 }
  private Widget createButton(Supplier<Boolean> getter, Consumer<Boolean> setter, IDrawable picture,
 		List<String> tooltip, int offset) {
-	return new CycleButtonWidget().setToggle(getter, setter).setTextureGetter(__->picture)
+	return new CycleButtonWidget()
+	
+		.setToggle(getter, setter).setTextureGetter(__->picture)
 			.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
 			.setPos(7 + offset * 18, 62).setSize(18, 18).addTooltips(tooltip);
 }
@@ -571,6 +612,8 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	super.loadNBTData(aNBT);
 	piority=aNBT.getInteger("piority");
 	sticky=	aNBT.getBoolean("sticky");
+	autoUnlock=aNBT.getBoolean("autoUnlock");
+	suppressSticky=aNBT.getBoolean("suppressSticky");
 }
  
 @Override
@@ -588,6 +631,9 @@ public void saveNBTData(NBTTagCompound aNBT) {
 	}
 	aNBT.setInteger("piority", piority);
 	aNBT.setBoolean("sticky", sticky);
+	aNBT.setBoolean("autoUnlock",autoUnlock);
+	aNBT.setBoolean("suppressSticky",suppressSticky);
+	
 }@Override
 public void onFacingChange() {
 	updateValidGridProxySides();

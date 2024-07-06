@@ -91,6 +91,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidEvent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
@@ -105,7 +106,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 
 	public SuperTankME(String aName, int aTier, int aInvSlotCount, String[] aDescription, ITexture[][][] aTextures) {
 		super(aName, aTier, aInvSlotCount, aDescription, aTextures);
-		content=new FluidTank(commonSizeCompute(aTier));
+		content.setCapacity(commonSizeCompute(aTier));
 		
 	}
 	public SuperTankME(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount
@@ -117,7 +118,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 				
 				), new ITexture[0]);
 		
-		content=new FluidTank(commonSizeCompute(aTier));
+		content.setCapacity(commonSizeCompute(aTier));
 		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
 	}
 	
@@ -250,7 +251,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	IMEInventoryHandler<AEFluidStack> handler
 	=new MEInventoryHandler(new UnlimitedWrapper()
 	, StorageChannel .FLUIDS){
-		public boolean getSticky() {return sticky;};
+		public boolean getSticky() {return sticky&&!suppressSticky;};
 		public int getPriority() {return piority;};
 	};
 	boolean sticky;
@@ -262,7 +263,36 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 		getProxy().onReady();
 		onColorChangeServer(aBaseMetaTileEntity.getColorization());
 	}
-  FluidTank content=new FluidTank(10000);
+ final FluidTank content=new FluidTank(10000){
+	 
+	 
+	 public FluidStack drain(int maxDrain, boolean doDrain) {if (fluid == null)
+     {
+         return null;
+     }
+
+     int drained = maxDrain;
+     if (fluid.amount < drained)
+     {
+         drained = fluid.amount;
+     }
+
+     FluidStack stack = new FluidStack(fluid, drained);
+     if (doDrain)
+     {
+         fluid.amount -= drained;
+         if (fluid.amount <= 0)
+         {
+             fluid=null;
+         }
+
+         if (tile != null)
+         {
+             FluidEvent.fireEvent(new FluidEvent.FluidDrainingEvent(fluid, tile.getWorldObj(), tile.xCoord, tile.yCoord, tile.zCoord, this, drained));
+         }
+     }
+     return stack;};
+ };
 	public class UnlimitedWrapper implements IMEInventory<IAEFluidStack> {
 
 	 
@@ -373,7 +403,9 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	public int fill(ForgeDirection side, FluidStack aFluid, boolean doFill) {
 	
 		return content.fill(aFluid, doFill);
-	}
+	}	
+	boolean autoUnlock;
+	boolean suppressSticky;
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		if(!aBaseMetaTileEntity.getWorld().isRemote&&(aTick&16)!=0){
@@ -383,7 +415,19 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 			;
 			
 		}
-		
+
+		if((!suppressSticky)&&((content.getFluidAmount()==0)&&autoUnlock)){
+			
+				suppressSticky=true;	
+				post();
+			
+		}
+		if(suppressSticky&&( (content.getFluidAmount()>0)||(!autoUnlock) )){
+			
+				suppressSticky=false;	
+				post();
+			
+		}
 		super.onPostTick(aBaseMetaTileEntity, aTick);
 		boolean needToSort=false;
 		for(int i=0;i<mInventory.length;i++){
@@ -477,7 +521,23 @@ builder.widget(new FluidSlotWidget(content)
 	
 	, 0)
 			.setPos( 3,3+18*2));
- 
+
+ builder.widget(createButton(() -> 
+	autoUnlock
+			, val -> {
+				autoUnlock = val;post();
+		//updateSlots();
+	}, GT_UITextures.OVERLAY_BUTTON_RECIPE_UNLOCKED,
+			
+			//new ItemDrawable(new ItemStack(Items.slime_ball)), 
+	ImmutableList.of(
+			StatCollector.translateToLocal("programmable_hatches.gt.sticky.autounlock")
+		
+			)
+
+	
+	, 0)
+			.setPos( 3+18,3+18*2));
  builder.widget(new TextFieldWidget()	
 		 .setPattern(BaseTextFieldWidget.NATURAL_NUMS)
 		.setGetter(()->piority+"")
@@ -512,6 +572,8 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	super.loadNBTData(aNBT);
 	piority=aNBT.getInteger("piority");
 	sticky=	aNBT.getBoolean("sticky");
+	autoUnlock=aNBT.getBoolean("autoUnlock");
+	suppressSticky=aNBT.getBoolean("suppressSticky");
 	content.readFromNBT(aNBT);
 }
  protected static int commonSizeCompute(int tier) {
@@ -537,6 +599,8 @@ public void saveNBTData(NBTTagCompound aNBT) {
 	content.writeToNBT(aNBT);
 	aNBT.setInteger("piority", piority);
 	aNBT.setBoolean("sticky", sticky);
+	aNBT.setBoolean("autoUnlock",autoUnlock);
+	aNBT.setBoolean("suppressSticky",suppressSticky);
 }
 @Override
 public void setItemNBT(NBTTagCompound aNBT) {

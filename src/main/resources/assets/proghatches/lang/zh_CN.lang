@@ -419,3 +419,4 @@ proghatches.eu.interface.waila.pass.p2p=网络归还检查:%s
 item.proghatches.part.eu.source.superconduct.name=EU源(%s超导)
 item.proghatches.part.eu.source.normal.name=EU源(%s)
 programmable_hatches.gt.sticky.autounlock=容器为空时自动禁用粘性模式
+programmable_hatches.gt.phantom.filter=过滤

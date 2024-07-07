@@ -117,7 +117,7 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 public class MyMod {
 	public static MyMod instance;
 	{
-		BaseMetaPipeEntity.class.getDeclaredFields();
+	//	BaseMetaPipeEntity.class.getDeclaredFields();
 		instance = this;
 	}
 	public static Deque<Runnable> scheduled=new ArrayDeque<Runnable>();

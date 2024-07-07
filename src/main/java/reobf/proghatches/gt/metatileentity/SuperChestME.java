@@ -28,6 +28,7 @@ import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
+import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
@@ -63,8 +64,11 @@ import appeng.me.storage.MEIInventoryWrapper;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
+import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
+import appeng.util.item.FluidList;
 import appeng.util.item.ItemList;
+import appeng.util.prioitylist.PrecisePriorityList;
 import gregtech.api.GregTech_API;
 import gregtech.api.gui.modularui.GT_UIInfos;
 import gregtech.api.gui.modularui.GT_UITextures;
@@ -88,7 +92,9 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
+import reobf.proghatches.gt.metatileentity.util.MappingFluidTank;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.IIconTexture;
@@ -258,6 +264,17 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 		
 		return new DimensionalCoord((TileEntity)this.getBaseMetaTileEntity());
 	}
+	public Consumer<IItemList> updateFilter;
+	ItemStack[] cachedFilter=new ItemStack[1];
+	public void updateFilter(ItemStack fs){
+		cachedFilter[0]=fs;
+		ItemList fl = new ItemList();
+		fl.add(AEItemStack.create(fs));
+		updateFilter.accept(fl);
+		post();
+	}
+	
+	
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	IMEInventoryHandler<AEItemStack> handler
@@ -265,6 +282,10 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	, StorageChannel .ITEMS){
 		public boolean getSticky() {return sticky&&!suppressSticky;};
 		public int getPriority() {return piority;};
+		{
+			updateFilter=s->
+		this.setPartitionList(new PrecisePriorityList(s));
+		}
 	};
 	boolean sticky;
 	int piority;
@@ -562,6 +583,9 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
  builder.widget(createButton(() -> 
 	autoUnlock
 			, val -> {
+			
+			cachedFilter[0]=null;
+			updateFilter(cachedFilter[0]);
 				autoUnlock = val;post();
 		//updateSlots();
 	}, GT_UITextures.OVERLAY_BUTTON_RECIPE_UNLOCKED,
@@ -575,7 +599,20 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 	
 	, 0)
 			.setPos( 3+18,3+18*2));
- 
+ builder.widget(SlotWidget.phantom(
+		 
+		 new ItemStackHandler(cachedFilter){
+			 public void setStackInSlot(int slot, ItemStack stack) {
+				 super.setStackInSlot(slot, stack);
+				 updateFilter(cachedFilter[0]);
+				 autoUnlock=false;
+				 post();
+				 };
+			 }, 0
+		
+		 ).setPos( 3+18*2,3+18*2).addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.phantom.filter"))
+		
+		 );
  
  
  
@@ -614,6 +651,11 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	sticky=	aNBT.getBoolean("sticky");
 	autoUnlock=aNBT.getBoolean("autoUnlock");
 	suppressSticky=aNBT.getBoolean("suppressSticky");
+	NBTTagCompound tag=(NBTTagCompound) aNBT.getTag("cahcedFilter");
+	if(tag!=null){
+		cachedFilter[0]=ItemStack.loadItemStackFromNBT(tag);
+		updateFilter(cachedFilter[0]);	
+	}
 }
  
 @Override
@@ -633,6 +675,11 @@ public void saveNBTData(NBTTagCompound aNBT) {
 	aNBT.setBoolean("sticky", sticky);
 	aNBT.setBoolean("autoUnlock",autoUnlock);
 	aNBT.setBoolean("suppressSticky",suppressSticky);
+	if(cachedFilter[0]!=null){
+		NBTTagCompound tag=new NBTTagCompound();
+		cachedFilter[0].writeToNBT(tag);
+		aNBT.setTag("cahcedFilter", tag);
+	}
 	
 }@Override
 public void onFacingChange() {

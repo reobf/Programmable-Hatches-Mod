@@ -59,6 +59,7 @@ import gregtech.api.recipe.check.SimpleCheckRecipeResult;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
 import gregtech.api.util.GT_StructureUtility;
+import gregtech.api.util.GT_Utility;
 import gregtech.api.util.IGT_HatchAdder;
 import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_OutputBus_ME;
 import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_Output_ME;
@@ -439,6 +440,7 @@ private boolean distribute() {
 	}
 	if(possibleSource==null&&mInputHatches.size()==1){
 			ArrayList<FluidStack> fluid = getStoredFluids();
+			fluid.removeIf(s->s==null||s.amount<=0);
 			if(fluid.size()>0){
 				possibleSource=ImmutableList.of(
 						new IDualInputInventory(){
@@ -461,6 +463,7 @@ private boolean distribute() {
 	
 		if(possibleSource==null&&mInputBusses.size()==1){
 			ArrayList<ItemStack> items =getStoredInputs();
+			items.removeIf(s->s==null||s.stackSize<=0);
 			if(items.size()>0){
 				possibleSource=ImmutableList.of(
 						new IDualInputInventory(){
@@ -498,7 +501,7 @@ private boolean distribute() {
 		return false;
 	}
 	while(itr.hasNext()){
-		if(moveToOutpus(itr.next())){
+		if(moveToOutpus(itr.next(),true)){
 			return true;
 		};
 		
@@ -643,12 +646,14 @@ private static boolean sameType(IAEFluidStack  a,FluidStack b){
 }
 
 
-private boolean moveToOutpus(IDualInputInventory opt) {
+private boolean moveToOutpus(IDualInputInventory opt,boolean checkSpace) {
 	ItemStack[] i = opt.getItemInputs();
 	FluidStack[] f = opt.getFluidInputs();
-	
+	boolean anyDiff=false;
 	if(i.length>mOutputBusses.size())return false;
 	if(f.length>mOutputHatches.size())return false;
+	
+	if(checkSpace){
 	for(int index=0;index<i.length;++index){
 		if(mOutputBusses.get(index) instanceof GT_MetaTileEntity_Hatch_OutputBus_ME){continue;}
 		GT_MetaTileEntity_Hatch_OutputBus bus = mOutputBusses.get(index);
@@ -667,33 +672,78 @@ private boolean moveToOutpus(IDualInputInventory opt) {
 		acc+=space(f[index],hatch);
 		if(acc<f[index].amount){return false;}
 	}
+	}
 	
 	
 	for(int index=0;index<i.length;++index){
 		if(mOutputBusses.get(index) instanceof GT_MetaTileEntity_Hatch_OutputBus_ME){
+			int before=i[index].stackSize;
 			i[index].stackSize=((GT_MetaTileEntity_Hatch_OutputBus_ME)mOutputBusses.get(index)).store(i[index]);
-		continue;
+	    	if(i[index].stackSize!=before)anyDiff=true;	
+			
+			continue;
 		}
 		GT_MetaTileEntity_Hatch_OutputBus bus = mOutputBusses.get(index);
-		bus.storeAll(i[index].copy());
-		i[index].stackSize=0;
+		int diff=storeAll(bus,i[index].copy());
+		if(diff>0)anyDiff=true;
+		i[index].stackSize-=diff;
 	}
 	
 	for(int index=0;index<f.length;++index){
 		if(mOutputHatches.get(index) instanceof GT_MetaTileEntity_Hatch_Output_ME){
+			int before=f[index].amount;
 			f[index].amount-=((GT_MetaTileEntity_Hatch_Output_ME)mOutputHatches.get(index)).tryFillAE(f[index]);
-		  continue;
+			if(f[index].amount!=before)anyDiff=true;	
+			
+			continue;
 		}
 		GT_MetaTileEntity_Hatch_Output hatch = mOutputHatches.get(index);
-		f[index].amount-=hatch.fill(f[index], true);
+		int diff=hatch.fill(f[index], true);
+		if(diff>0)anyDiff=true;	
+		f[index].amount-=diff;
 		
 	}
 	mInputBusses.forEach(s->s.updateSlots());
 	mInputHatches.forEach(s->s.updateSlots());
 	
 	
-	return true;
+	return anyDiff;
 }
+private static int storeAll(GT_MetaTileEntity_Hatch_OutputBus bus,ItemStack aStack) {
+	bus.markDirty();
+	int consumed=0;
+    for (int i = 0, mInventoryLength = bus.mInventory.length; i < mInventoryLength && aStack.stackSize > 0; i++) {
+        ItemStack tSlot = bus.mInventory[i];
+        if (GT_Utility.isStackInvalid(tSlot)) {
+            int tRealStackLimit = Math.min(bus.getInventoryStackLimit(), aStack.getMaxStackSize());
+            if (aStack.stackSize <= tRealStackLimit) {
+            	bus.mInventory[i] = aStack;
+            	consumed+=aStack.stackSize;
+                return consumed;
+            }
+            bus.mInventory[i] = aStack.splitStack(tRealStackLimit);
+            consumed+=tRealStackLimit;
+        } else {
+            int tRealStackLimit = Math.min(bus.getInventoryStackLimit(), tSlot.getMaxStackSize());
+            if (tSlot.stackSize < tRealStackLimit && tSlot.isItemEqual(aStack)
+                && ItemStack.areItemStackTagsEqual(tSlot, aStack)) {
+                if (aStack.stackSize + tSlot.stackSize <= tRealStackLimit) {
+                	bus.mInventory[i].stackSize += aStack.stackSize;
+                	consumed+=aStack.stackSize;
+                    return consumed;
+                } else {
+                    // more to serve 
+                	consumed+=tRealStackLimit - tSlot.stackSize;
+                    aStack.stackSize -= tRealStackLimit - tSlot.stackSize;
+                    bus.mInventory[i].stackSize = tRealStackLimit;
+                   
+                }
+            }
+        }
+    }
+    return consumed;
+}
+
 private static int space(FluidStack in,IFluidStore store){
 	return store.fill(in, false);
 	

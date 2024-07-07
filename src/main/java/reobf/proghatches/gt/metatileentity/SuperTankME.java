@@ -35,6 +35,7 @@ import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 
+import appeng.api.AEApi;
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
 import appeng.api.implementations.tiles.IColorableTile;
@@ -67,7 +68,10 @@ import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
+import appeng.util.item.FluidList;
 import appeng.util.item.ItemList;
+import appeng.util.prioitylist.IPartitionList;
+import appeng.util.prioitylist.PrecisePriorityList;
 import gregtech.api.GregTech_API;
 import gregtech.api.gui.modularui.GT_UIInfos;
 import gregtech.api.gui.modularui.GT_UITextures;
@@ -92,9 +96,13 @@ import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidEvent;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidTank;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
+import reobf.proghatches.gt.metatileentity.util.MappingFluidTank;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.IIconTexture;
@@ -247,13 +255,33 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 		return new DimensionalCoord((TileEntity)this.getBaseMetaTileEntity());
 	}
 	
+	
+	//final FluidList filterList=new FluidList();//new FluidStack(FluidRegistry.WATER,1);
+	public Consumer<IItemList> updateFilter;
+	FluidStack cachedFilter;
+	public void updateFilter(FluidStack fs){
+		cachedFilter=fs;
+		FluidList fl = new FluidList();
+		fl.add(AEFluidStack.create(fs));
+		updateFilter.accept(fl);
+		post();
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	IMEInventoryHandler<AEFluidStack> handler
 	=new MEInventoryHandler(new UnlimitedWrapper()
 	, StorageChannel .FLUIDS){
 		public boolean getSticky() {return sticky&&!suppressSticky;};
 		public int getPriority() {return piority;};
-	};
+		{
+			updateFilter=s->
+		this.setPartitionList(new PrecisePriorityList(s));
+		}
+	};	
+
+
+	
+	
 	boolean sticky;
 	int piority;
 	@Override
@@ -525,7 +553,9 @@ builder.widget(new FluidSlotWidget(content)
  builder.widget(createButton(() -> 
 	autoUnlock
 			, val -> {
-				autoUnlock = val;post();
+				autoUnlock = val;
+				cachedFilter=null;
+				updateFilter(cachedFilter);post();
 		//updateSlots();
 	}, GT_UITextures.OVERLAY_BUTTON_RECIPE_UNLOCKED,
 			
@@ -538,6 +568,16 @@ builder.widget(new FluidSlotWidget(content)
 	
 	, 0)
 			.setPos( 3+18,3+18*2));
+ 
+ 
+ builder.widget(FluidSlotWidget.phantom(new MappingFluidTank(s->{cachedFilter=s==null?null:s.copy();if(s!=null){autoUnlock=false;}updateFilter(cachedFilter);}, ()->cachedFilter), 
+		 false
+		 ).setPos( 3+18*2,3+18*2).addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.phantom.filter"))
+		
+		 );
+ 
+ 
+ 
  builder.widget(new TextFieldWidget()	
 		 .setPattern(BaseTextFieldWidget.NATURAL_NUMS)
 		.setGetter(()->piority+"")
@@ -575,6 +615,14 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	autoUnlock=aNBT.getBoolean("autoUnlock");
 	suppressSticky=aNBT.getBoolean("suppressSticky");
 	content.readFromNBT(aNBT);
+	
+	NBTTagCompound tag=(NBTTagCompound) aNBT.getTag("cahcedFilter");
+	if(tag!=null){
+		cachedFilter=FluidStack.loadFluidStackFromNBT(tag);
+		updateFilter(cachedFilter);	
+	}
+		
+	
 }
  protected static int commonSizeCompute(int tier) {
      switch (tier) {
@@ -601,6 +649,15 @@ public void saveNBTData(NBTTagCompound aNBT) {
 	aNBT.setBoolean("sticky", sticky);
 	aNBT.setBoolean("autoUnlock",autoUnlock);
 	aNBT.setBoolean("suppressSticky",suppressSticky);
+	if(cachedFilter!=null){
+		NBTTagCompound tag=new NBTTagCompound();
+		cachedFilter.writeToNBT(tag);
+		aNBT.setTag("cahcedFilter", tag);
+	}
+	
+	
+	
+	
 }
 @Override
 public void setItemNBT(NBTTagCompound aNBT) {

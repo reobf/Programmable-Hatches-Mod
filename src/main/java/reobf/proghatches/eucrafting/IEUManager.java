@@ -43,7 +43,7 @@ public interface IEUManager extends IGridCache {
 		};
 
 		public UUID getUUID();
-
+		
 		public void refund(long amp);
 
 		public long doInject(long a, long v);

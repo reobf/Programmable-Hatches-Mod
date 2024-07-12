@@ -47,6 +47,7 @@ public class ProgHatchCreativeTab extends CreativeTabs {
 		p_78018_1_.add(new ItemStack(MyMod.iohub, 1));
 		p_78018_1_.add(new ItemStack(MyMod.pitem, 1));
 		p_78018_1_.add(new ItemStack(MyMod.pstation, 1));
+		p_78018_1_.add(new ItemStack(MyMod.plunger, 1));
 		// p_78018_1_.add(new ItemStack(MyMod.euupgrade, 1));
 	}
 

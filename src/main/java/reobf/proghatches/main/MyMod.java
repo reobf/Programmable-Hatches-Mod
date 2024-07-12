@@ -147,6 +147,7 @@ public class MyMod {
 	public static Item book;
 	public static Item fixer;
 	//public static Item eu_tool;
+	public static Item plunger;
 
 	@Mod.EventHandler
 	// preInit "Run before anything else. Read your config, create blocks,
@@ -169,7 +170,7 @@ public class MyMod {
 		FMLCommonHandler.instance().bus().register(this);
 		MinecraftForge.EVENT_BUS.register(this);
 	}
-
+	
 	@SubscribeEvent
 	public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev) {
 		if (Optional.ofNullable(ev.entityPlayer.getHeldItem()).map(ItemStack::getItem)

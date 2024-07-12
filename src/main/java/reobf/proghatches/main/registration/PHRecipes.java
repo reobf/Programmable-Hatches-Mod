@@ -15,14 +15,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.ShapedOreRecipe;
+
 import com.glodblock.github.loader.ItemAndBlockHolder;
 
 import appeng.core.Api;
@@ -94,6 +99,39 @@ public class PHRecipes implements Runnable {
 
        
 if(Config.skipRecipeAdding)return;
+
+IRecipe rec = new ShapedOreRecipe(new ItemStack(MyMod.plunger),"CRR","TSR","Q F",
+		'R',"plateAnyRubber",
+		'C',"craftingToolWireCutter",
+		'F',"craftingToolFile",
+		'Q',"stickCertusQuartz",
+		'S',
+		new ItemStack(
+				GameRegistry.findItem("appliedenergistics2","item.ToolChargedStaff"),1,
+				OreDictionary.WILDCARD_VALUE
+				)
+		
+		//Api.INSTANCE.definitions().items().chargedStaff().maybeStack(1).get()
+		//ApiItems.chargedStaff() returns memoryCard, not chargedStaff
+		//What are you doing GTNH dev?
+		
+		,
+		'T',
+		
+		new ItemStack(
+				GameRegistry.findItem("appliedenergistics2","item.ToolWirelessTerminal"),1,
+				OreDictionary.WILDCARD_VALUE
+				)
+	
+		);
+CraftingManager.getInstance().getRecipeList().add(rec);
+
+
+
+
+
+
+
         ArrayList<ItemStack> pc0 = new ArrayList<>();
         HashMap<ItemStack, Integer/* item->productivity */> pc = new HashMap<>();// List<Pair<ItemStack,Integer>>
 

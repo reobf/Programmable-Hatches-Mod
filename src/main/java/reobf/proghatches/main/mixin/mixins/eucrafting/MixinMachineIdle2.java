@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -17,46 +18,52 @@ import reobf.proghatches.eucrafting.IIdleStateProvider;
 
 
 @Mixin(value=GT_MetaTileEntity_BasicMachine.class,remap=false)
-public class MixinMachineIdle2 implements IIdleStateProvider{
-private boolean hasJob;
-@Shadow int mMaxProgresstime;
+public abstract class MixinMachineIdle2 implements IIdleStateProvider{
 
+@Shadow int mMaxProgresstime;
+boolean fail;
  public void onPreTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-	 hasJob=mMaxProgresstime>0;    
-	 if(jobdone>0)jobdone--;
-	 fail=false;
+	a(aBaseMetaTileEntity);fail=false;
 }
-int jobdone;	
+
  
- 
- @Inject(remap=false,method="checkRecipe", at = { @At("RETURN") })
- public void check(CallbackInfoReturnable<Boolean> c){
-	 
-	 if(hasJob&&!(mMaxProgresstime>0)){
-		 jobdone=1;
-	 }
-	 if(!(mMaxProgresstime>0)){
-		 
-		 fail=true;
-	 }
+ @Inject(remap=false,method="onPostTick", at = { @At("RETURN") })
+ public void check(IGregTechTileEntity aBaseMetaTileEntity, long aTick,CallbackInfo p){
+	 if(shouldCheck&&mMaxProgresstime<=0){fail=true;}
 	 
  }
-boolean fail;
 
 @Override
-public int getIdle() {
-	return jobdone;
+	public boolean failThisTick() {
+		
+		return fail;
+	}
+
+
+
+
+@Shadow
+public abstract boolean allowToCheckRecipe();
+@Shadow
+protected abstract boolean hasEnoughEnergyToCheckRecipe();
+
+public void a(IGregTechTileEntity aBaseMetaTileEntity){
+	shouldCheck=false;
+	  if (allowToCheckRecipe()) {
+          if (mMaxProgresstime <= 0 && aBaseMetaTileEntity.isAllowedToWork()
+              /*&& (tRemovedOutputFluid || tSucceeded
+                  || aBaseMetaTileEntity.hasInventoryBeenModified()
+                  || aTick % 600 == 0
+                  || aBaseMetaTileEntity.hasWorkJustBeenEnabled())*/
+              && hasEnoughEnergyToCheckRecipe()) {
+        	  
+        	  
+        	  shouldCheck=true;
+          }
+          
+	  }
 }
-
-
-@Override
-public boolean failThisTick() {
-
-	return fail;
-}
-
-
-
+boolean shouldCheck;
  
 	
 }

@@ -3,12 +3,14 @@ package reobf.proghatches.eucrafting;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import net.minecraft.block.Block;
@@ -21,6 +23,7 @@ import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
@@ -86,6 +89,7 @@ import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IConfigManager;
+import appeng.container.ContainerNull;
 import appeng.helpers.DualityInterface;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.IPriorityHost;
@@ -121,7 +125,7 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
 //modified from PartFluidP2PInterface
 public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> implements IGridTickable,
 		IStorageMonitorable, IInventoryDestination, IDualHost, ISidedInventory, IAEAppEngInventory,
-		ITileStorageMonitorable, IPriorityHost, IInterfaceHost, IPartGT5Power, IGuiProvidingPart, IDrain {
+		ITileStorageMonitorable, IPriorityHost, IInterfaceHost, IPartGT5Power, IGuiProvidingPart, IDrain ,IInstantCompletable{
 	public static class WailaDataProvider extends BasePartWailaDataProvider {
 
 		@Override
@@ -158,17 +162,17 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 			tag.setInteger("succs", pt.succs);
 			tag.setInteger("fails", pt.fails);
 			tag.setBoolean("validtile", pt.getTargetTile()!=null);
-			tag.setBoolean("pass", pt.pass);
+			tag.setInteger("pass", pt.pass);
 			
 			PartEUP2PInterface iface=pt.getInput();
 			if(iface!=null){
-				boolean[] suc=new boolean[1];
+				boolean[] suc=new boolean[]{true};
 				StringBuilder s=new StringBuilder();
 				if(iface.getTargetTile()==null)
 					s.append("---");
 					else{
 					s.append(""+iface.pass);
-					suc[0]&=iface.pass;
+					suc[0]&=iface.pass>0;
 					}
 				try {
 					iface.getOutputs().forEach(ss->{
@@ -176,7 +180,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 						s.append("|---");
 						else{
 						s.append("|"+ss.pass);
-						suc[0]&=iface.pass;
+						suc[0]&=iface.pass>0;
 						}
 					
 					});
@@ -254,18 +258,18 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 			
 			
 			if(validtile){
-				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.halt_count",
+				/*currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.halt_count",
 					accessor.getNBTData().getInteger("succs")));
 				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.fail_count",
 					accessor.getNBTData().getInteger("fails")));
-				
+				*/
 				currentToolTip.add(StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.pass",
 						accessor.getNBTData().getInteger("pass")));
 			}
 			if(accessor.getNBTData().hasKey("io_pass"))
 			{currentToolTip.add(
-					StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.pass.p2p")+
-					accessor.getNBTData().getString("io_pass"));
+					StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.pass.p2p",
+					accessor.getNBTData().getString("io_pass")));
 			}
 			
 			return super.getWailaBody(part, currentToolTip, accessor, config);
@@ -502,6 +506,24 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 	}
 
 	boolean prevPower;
+	public TileEntity getTargetInv(){
+		TileEntity te;
+		if(data!=null){
+			DimensionalCoord pos = data.getPos();
+			te= data.getTile().getWorldObj().getTileEntity(pos.x,pos.y,pos.z);
+		}else{
+			int x=this.host.getTile().xCoord;
+			int y=this.host.getTile().yCoord;
+			int z=this.host.getTile().zCoord;
+			ForgeDirection fd = this.getSide();
+			te=this.host.getTile().getWorldObj().getTileEntity(
+					x+fd.offsetX,y+fd.offsetY,z+fd.offsetZ);
+		}
+		
+		return te;
+		
+		
+	}
 	public IMetaTileEntity getTargetTile(){
 		
 		TileEntity te;
@@ -529,13 +551,24 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		
 	}
 	int fails;
-	boolean pass;
+	int pass=-2;
 
 	private void resetIdleCheckStatus(boolean check) {
+		
 		fails=0;
 		succs=0;
-		pass=false;
+		pass=-1;
+		passReason=0;
+		if(MinecraftServer.getServer()!=null)
+		pushtick=getTick();
 	}
+	private static int getTick(){
+		if(MinecraftServer.getServer()!=null)
+		return MinecraftServer.getServer().getTickCounter();
+		return 0;
+	}
+	long pushtick;
+	int passReason;
 	@Override
 	public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
 
@@ -543,29 +576,46 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		duality.tickingRequest(node, ticksSinceLastCall);
 		dualityFluid.tickingRequest(node, ticksSinceLastCall);
 		boolean ok = false;
-	/*	if (!this.isOutput()) {
 
-			boolean red = this.redstone();
+		ArrayList<PartEUP2PInterface> all = new ArrayList<>();
+		
+		if (!this.isOutput()) {
+			HashSet<PartEUP2PInterface> dummy = new HashSet<>();
+			all.add(this);
 			try {
-				for (PartEUP2PInterface o : this.getOutputs()) {
-					red = red | o.redstone();
+			this.getOutputs().forEach(all::add);
+			} catch (GridAccessException e) {}
+			//phase0
+			for(PartEUP2PInterface part:all){
+				boolean order=part.pushtick==getTick();
+				if(part.pass==-1&&!order){
+					part.pass=0;
 				}
-			} catch (GridAccessException e) {
-
-				e.printStackTrace();
+				
+				if(part.pass==0){
+					IMetaTileEntity t = part.getTargetTile();
+					if(t!=null&&t instanceof IIdleStateProvider){
+						if(((IIdleStateProvider) t).failThisTick()){
+							if(part.fails++==0){part.pass=1;if(part.passReason==0)part.passReason=2;};//fail 1 time, assume no valid inputs, just pass it
+						}
+					}else{
+						dummy.add(part);
+					}
+				}
+			}	
+			//phase1
+			boolean allok=all.stream().filter(s->!dummy.contains(s)).map(s->s.pass==1).reduce(Boolean::logicalAnd).orElse(false);
+			if(allok){
+				ok=true;
+				all.forEach(s->s.pass=2);
 			}
-
-			if (prevPower == true && red == false) {
-				ok = true;
-
-			}
-
-			prevPower = red;
-
+			
+			
+			
 		}
 		
-		*/ArrayList<PartEUP2PInterface> all = new ArrayList<>();
-		if (!this.isOutput()) {
+		
+		/*if (!this.isOutput()) {
 			boolean[] hasFail=new boolean[1];
 			
 		  
@@ -577,11 +627,9 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 				IMetaTileEntity t = s.getTargetTile();
 				if(t!=null&&t instanceof IIdleStateProvider){
 					
-					if(((IIdleStateProvider) t).getIdle()==1){
-						s.pass=true;
-					}
+				
 					if(((IIdleStateProvider) t).failThisTick()){
-						if(s.fails++==2){s.pass=true;};//fail 2 times, so assume no valid inputs, just pass it
+						if(s.fails++==0){s.pass=true;};//fail 2 times, so assume no valid inputs, just pass it
 					}
 					//if(!(!prev_pass&&pass))
 					if(!pass)
@@ -593,7 +641,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 			if(!hasFail[0]&&amp>0){ok=true;}
 			
 		}	
-			
+		*/	
 			
 
 		
@@ -601,7 +649,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		
 		
 
-		if (ok || all.stream().map(s->s.redstoneticks>0).findAny().isPresent()) {
+		if (ok || all.stream().filter(s->s.redstoneticks>0).findAny().isPresent()) {
 				//all.forEach(s->s.resetIdleCheckStatus(false));
 			try {
 
@@ -981,29 +1029,31 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 			return true;
 		}
 		if (patternDetails instanceof WrappedPatternDetail) {
-
+			
 			WrappedPatternDetail p = (WrappedPatternDetail) patternDetails;
+			InventoryCrafting neo =new InventoryCrafting(new ContainerNull(), table.getSizeInventory(), 1);
 			int[] count = new int[1];
 			int size = table.getSizeInventory();
 			for (int i = 0; i < size; i++) {
 				ItemStack is = table.getStackInSlot(i);
 				if (is != null && is.getItem() == MyMod.eu_token && is.stackSize > 0) {
 					count[0] += is.stackSize;
+					is=is.copy();
 					is.stackSize = 0;
-					table.setInventorySlotContents(i, is);
-
-					break;
-				}
+				neo.setInventorySlotContents(i, is);
+					
+				}else
+				neo.setInventorySlotContents(i, is);
 				;
 			}
 			PartEUP2PInterface face = this;
 			if (isP2POut()) {
 				face = this.getInput();
 			}
-			boolean succ = duality.pushPattern(p.original, table);
+			boolean succ = duality.pushPattern(p.original, neo);
 			if (succ) {
 				if (face != null){
-					face.amp = Math.max(face.amp, count[0]);
+					//face.amp = Math.max(face.amp, count[0]);
 					
 					face.resetIdleCheckStatus(true);
 					try {
@@ -1025,7 +1075,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 
 	@Override
 	public boolean isBusy() {
-		return duality.isBusy();
+		return duality.isBusy()||getTargetInv()==null;
 	}
 
 	@Override
@@ -1066,7 +1116,8 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		redstoneOverride = data.getBoolean("redstoneOverride");
 		fails=data.getInteger("fails");
 		succs=data.getInteger("succs");
-		pass=data.getBoolean("pass");
+		pass=data.getInteger("pass");
+		passReason=data.getInteger("passReason");
 		is.clear();
 		IntStream.range(0, data.getInteger("pending_size")).forEach(s -> {
 
@@ -1096,10 +1147,10 @@ int succs;
 		data.setLong("expectedamp", expectedamp);
 		data.setBoolean("redstoneOverride", redstoneOverride);
 		data.setInteger("fails", fails);
-		data.setBoolean("pass", pass);
+		data.setInteger("pass", pass);
 		
 		data.setInteger("succs", succs);
-	
+		data.setInteger("passReason",passReason);
 		for (int i = 0; i < is.size(); i++) {
 			data.setTag("pending_" + i, is.get(i).writeToNBT(new NBTTagCompound()));
 		}
@@ -1653,6 +1704,24 @@ int succs;
 	public ItemStack getSelfRep() {
 		// TODO Auto-generated method stub
 		return new ItemStack(MyMod.euinterface_p2p);
+	}
+
+	@Override
+	public int rows() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int rowSize() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void complete() {
+	returnItems();
+		
 	}
 
 }

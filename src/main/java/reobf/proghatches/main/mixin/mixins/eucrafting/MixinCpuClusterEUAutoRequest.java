@@ -23,11 +23,16 @@ import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.tile.crafting.TileCraftingTile;
 import appeng.util.item.AEItemStack;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
+import reobf.proghatches.eucrafting.EUUtil;
 import reobf.proghatches.eucrafting.IEUManager;
+import reobf.proghatches.eucrafting.ItemEUToken;
+import reobf.proghatches.eucrafting.IEUManager.EUManager;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.SISOPatternDetail;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.WrappedPatternDetail;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.mixin.MixinCallback;
+import reobf.proghatches.util.ProghatchesUtil;
 
 @Mixin(value = CraftingCPUCluster.class, remap = false, priority = 0)
 public abstract class MixinCpuClusterEUAutoRequest {
@@ -82,7 +87,8 @@ if (!this.canCraft(details, details.getCondensedInputs())) {
 			}
 
 			if (isOnlyEUTokenMissing) {
-				needed.put(p.extraIn.copy().setStackSize(1), p.extraIn0.stackSize + 0l);
+				long exist=needed.getOrDefault(p.extraIn.copy().setStackSize(1), 0l);
+				if(exist==0)needed.put(p.extraIn.copy().setStackSize(1), p.extraIn0.stackSize + 0l);
 				cooldown.remove(p);
 			} else {
 				cooldown.get(p)[0] += Math.min((10 + 2 * cooldown.get(p)[1]++), 100);
@@ -96,92 +102,20 @@ if (!this.canCraft(details, details.getCondensedInputs())) {
 		}catch(Exception e){MyMod.LOG.error("caught error in mixin",e);}
 		return pattern;
 	}
-
+/*
 	@Inject(at = @At("HEAD"), method = "executeCrafting", cancellable = true)
 	private void executeCrafting3(final IEnergyGrid eg, final CraftingGridCache cc, CallbackInfo RE) {
 
 	}
-
+*/
 	private static AEItemStack type = AEItemStack.create(new ItemStack(MyMod.eu_token, 1, 1));
 
 	@Inject(at = @At("RETURN"), method = "executeCrafting", cancellable = true)
 	private void executeCrafting1(final IEnergyGrid eg, final CraftingGridCache cc, CallbackInfo RE) {
-		try{
-		if (needed.isEmpty()) {
-			storage.clear();
-			return;
-		}
-
-		// ArrayList<Object> arr=new ArrayList();
-
-		// inventory.getItemList().forEach(arr::add);
-		// System.out.println(arr);
-
-		inventory.getItemList().findFuzzy(type, FuzzyMode.IGNORE_ALL).forEach(s -> {
-
-			if (s.getItem() == MyMod.eu_token) {
-				if (s.getItemDamage() == 1) {
-
-					IAEItemStack u = s.copy().setStackSize(1);
-
-					storage.merge(u, s.getStackSize(), Long::sum);
-				}
-
-			}
-
-		});
-
-		tasks.entrySet().forEach(s -> {
-			// TODO remove
-
-			if (s.getKey() instanceof SISOPatternDetail) {
-				SISOPatternDetail d = (SISOPatternDetail) s.getKey();
-				if (d.out.getItemDamage() == 1) {
-					IAEItemStack key = d.o[0].copy().setStackSize(1);
-
-					storage.merge(key, MixinCallback.getter.apply(s.getValue()), Long::sum);
-
-				}
-
-			}
-
-		});
-		// System.out.println(storage);
-
-		needed.entrySet().forEach(s -> {
-
-			long num = Optional.ofNullable(storage.get(s.getKey())).orElse(0l);
-			long missing = s.getValue() - num;
-			if (missing <= 0)
-				return;
-			// Object o=this;
-			// CraftingCPUCluster thiz=(CraftingCPUCluster) o;
-			// System.out.println(s.getValue()+" "+num);
-			// System.out.println(missing);
-
-			if (tiles.isEmpty()) {
-				return;
-			}
-			try {
-				IEUManager man = tiles.get(0).getProxy().getGrid().getCache(IEUManager.class);
-				long get = man.request(s.getKey().getTagCompound().getNBTTagCompoundCopy().getLong("voltage"), missing);
-
-				inventory.injectItems(s.getKey().copy().setStackSize(get), Actionable.MODULATE, machineSrc);
-				MyMod.LOG.info("Auto Request:" + get + "*" + s.getKey().getTagCompound().getNBTTagCompoundCopy());
-
-			} catch (Exception e) {
-
-				e.printStackTrace();
-			}
-
-			/*	
-				*/
-
-		});
-
-		storage.clear();
-		needed.clear();
-		}catch(Exception e){MyMod.LOG.error("caught error in mixin",e);}
+		
+		MixinCallback.cb(eg, cc, RE, needed, storage, inventory, tasks, tiles, machineSrc);
+		
+		
 	}
 
 }

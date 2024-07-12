@@ -25,6 +25,9 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.lwjgl.input.Keyboard;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -58,11 +61,14 @@ import com.gtnewhorizons.modularui.api.forge.ListItemHandler;
 import com.gtnewhorizons.modularui.api.math.Alignment;
 import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.math.Size;
+import com.gtnewhorizons.modularui.api.screen.ModularUIContext;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.widget.IWidgetBuilder;
+import com.gtnewhorizons.modularui.api.widget.Interactable;
 import com.gtnewhorizons.modularui.api.widget.Widget;
+import com.gtnewhorizons.modularui.common.internal.network.NetworkUtils;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
@@ -77,6 +83,7 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.ToolDictNames;
 import gregtech.api.gui.modularui.GT_UITextures;
@@ -348,6 +355,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 			tag.setInteger("f", f);
 			tag.setBoolean("recipeLocked", recipeLocked);
 			tag.setBoolean("lock", lock);
+			tag.setInteger("unlockDelay",unlockDelay);
 			return tag;
 		}
 
@@ -387,10 +395,13 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 			if(tag.getInteger("f")>0)f = tag.getInteger("f");
 			recipeLocked = tag.getBoolean("recipeLocked");
 			lock = tag.getBoolean("lock");
+			unlockDelay=tag.getInteger("unlockDelay");
 		}
 
 		int v = 4;
-
+		
+		int unlockDelay=0;
+		
 		public void init(int item, int fluid) {
 			i = item;
 			f = fluid;
@@ -407,12 +418,10 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 			return t;
 		}
 		public boolean isAccessibleForMulti() {
-			//System.out.println(tickFirstClassify);
-		//	System.out.println(currentTick());
-		 //  System.out.println("-----------");
-			return !isEmpty()&&
-				tickFirstClassify+2<currentTick();
-			//wait for possible future input, to take better adventage of parallels
+		
+			/*return !isEmpty()&&
+				tickFirstClassify+2<currentTick();*/
+			return !isEmpty();
 		}
 		public long currentTick(){
 			CoverableTileEntity obj = ((CoverableTileEntity)getBaseMetaTileEntity());
@@ -437,9 +446,21 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 
 		public boolean clearRecipeIfNeeded() {
 			if (lock) {
+				unlockDelay=0;
 				return !recipeLocked;
 			}
 			if (isEmpty()) {
+				if(!recipeLocked){return true;}
+				
+				if(Config.delayUnlock){
+					if(unlockDelay==0){unlockDelay=20;preventSleep=Math.max(preventSleep,25);return false;}
+					if(unlockDelay>0){
+						unlockDelay--;
+						if(unlockDelay!=0)return false;
+						
+					}
+				}
+				
 				for (FluidTank ft : mStoredFluidInternalSingle) {
 					ft.setFluid(null);
 				}
@@ -447,10 +468,9 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 					mStoredItemInternalSingle[ii] = null;
 
 				}
-
 				recipeLocked = false;
 				return true;
-			}
+			}else{unlockDelay=0;}
 			return false;
 		}
 
@@ -482,14 +502,14 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 				mStoredItemInternal[ix] = Optional.ofNullable(iin[ix]).map(ItemStack::copy).orElse(null);
 				iin[ix] = null;
 			}
-			Long tick=tickFirstClassify+2;
+			/*Long tick=tickFirstClassify+2;
 			if(!tick.equals(scheduled.peekFirst()))
 			{
 			
 				scheduled.push(tick);
-			}
+			}*/
 			
-			//justHadNewItems = true;
+			justHadNewItems = true;
 			onClassify();
 			programLocal();
 		}
@@ -688,6 +708,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 	private int sleepTime;
 	private boolean isOnLastTick;
 	// public boolean prevdirty;
+	public int preventSleep;
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		super.onPostTick(aBaseMetaTileEntity, aTick);
@@ -722,12 +743,13 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		}else if(!sleep){
 			boolean inputEmpty=isInputEmpty();//not dirty but awake, check if need to sleep
 			if(inputEmpty){
-				
+				if(preventSleep==0)
 				if(Config.sleep)sleep=true;
 				
 			}//Zzz
 		}
 		if(sleep)sleepTime++;
+		if(preventSleep>0){preventSleep--;sleep=false;}
 		//System.out.println(sleep);
 		
 		
@@ -991,8 +1013,44 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		 * inv0.recipeLocked, s->inv0.recipeLocked=s ));
 		 */
 		builder.widget(new FakeSyncWidget.StringSyncer(() -> inv0.toTag().toString(), s -> inv0.fromTag(cv(s))));
+ ModularWindow wd = builder.build();
 
-		return builder.build();
+ wd.addInteractionListener(new Interactable() {
+			@SideOnly(Side.CLIENT)
+			public boolean onKeyPressed(char character, int keyCode) {
+				if (!wd.isClientOnly()) {
+
+					if ((keyCode == Keyboard.KEY_ESCAPE
+							|| Minecraft.getMinecraft().gameSettings.keyBindInventory.getKeyCode() == keyCode)
+							&& Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+						ArrayList<ModularWindow> tmp = new ArrayList<>();
+
+						wd.getContext().getMainWindow().getContext().getOpenWindows().forEach(tmp::add);
+						//return true will not prevent further check(not properly implemented to me)
+						//so close all other sync windows
+						//and let it proceed, it will close this window
+						tmp.forEach(wdd -> {
+							if (wdd == wd)
+								return;
+							if (wdd == wd.getContext().getMainWindow())
+								return;
+							wdd.getContext().sendClientPacket(ModularUIContext.DataCodes.CLOSE_WINDOW, null, wdd,
+									NetworkUtils.EMPTY_PACKET);
+							wdd.tryClose();
+						});
+
+						return false;
+					}
+				}
+
+				return false;
+			}
+		 
+		 
+		 
+		 
+});
+		return wd;
 	}
 
 	private NBTTagCompound cv(String s) {
@@ -1036,6 +1094,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 
 	@Override
 	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
+		
 		Scrollable sc = new Scrollable().setVerticalScroll();
 		for (int i = 0; i < bufferNum; i++) {
 			final int ii = i;
@@ -1101,6 +1160,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		}
 		justHadNewItems = aNBT.getBoolean("justHadNewItems");
 		updateEveryTick = aNBT.getBoolean("updateEveryTick");
+		preventSleep=aNBT.getInteger("preventSleep");
 		super.loadNBTData(aNBT);
 	}
 
@@ -1113,6 +1173,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 
 		aNBT.setBoolean("justHadNewItems", justHadNewItems);
 		aNBT.setBoolean("updateEveryTick", updateEveryTick);
+		aNBT.setInteger("preventSleep",preventSleep );
 		super.saveNBTData(aNBT);
 	}
 

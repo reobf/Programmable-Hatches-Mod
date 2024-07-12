@@ -28,6 +28,7 @@ import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemDedicatedCover;
 import reobf.proghatches.item.ItemFakePattern;
 import reobf.proghatches.item.ItemFixer;
+import reobf.proghatches.item.ItemMEPlunger;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.item.ItemProgrammingToolkit;
 import reobf.proghatches.item.ItemSmartArm;
@@ -54,7 +55,9 @@ public class CommonProxy {
 		GameRegistry.registerTileEntity(TileCoprocessor.class, "proghatches.coprocessor");
 
 		GameRegistry.registerTileEntity(TileFluidInterface_EU.class, "proghatches.euinterface");
-
+		GameRegistry.registerItem(
+				MyMod.plunger = new ItemMEPlunger(100000).setUnlocalizedName("proghatch_me_plunger").setTextureName("proghatches:plunger"),
+				"proghatch_me_plunger");
 		GameRegistry.registerItem(
 				MyMod.progcircuit = new ItemProgrammingCircuit().setUnlocalizedName("prog_circuit").setTextureName("?"),
 				"prog_circuit");

@@ -31,7 +31,7 @@ public class Config {
 	public static boolean experimentalOptimize=true;
 	public static boolean sleep=true;
 	public static boolean MECover=false;
-
+	public static boolean delayUnlock=true;
 	public static void synchronizeConfiguration(File configFile) {
 	
 		Configuration configuration = new Configuration(configFile);
@@ -261,6 +261,7 @@ public class Config {
 			.getResourceAsStream("/assets/proghatches/lang/en_US/" + s + ".lang");
 	static Function<String, InputStream> getInput = s -> Config.class.getResourceAsStream("/assets/proghatches/lang/"
 			+ LangManager.translateToLocal("programmable_hatches.gt.lang.dir") + "/" + s + ".lang");
+	
 	
 	
 	

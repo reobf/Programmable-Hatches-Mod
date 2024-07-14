@@ -134,6 +134,9 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		ArrayList<String> ret = new ArrayList<>();
 		retLate.add("eucrafting." + "MixinWailaProvider");
 		retLate.add("eucrafting." + "MixinInstantComplete");
+		
+
+		
 		if (!"true".equals(pp.get("noFixRecursiveCraft")))
 			retLate.add("eucrafting." + "MixinCraftingRecursiveWorkaround");
 		if (!"true".equals(pp.get("noEUCraftingMixins"))) {

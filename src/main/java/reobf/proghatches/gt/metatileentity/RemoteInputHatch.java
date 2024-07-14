@@ -65,6 +65,7 @@ import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockB
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
+import gregtech.api.util.GT_Utility;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
 import reobf.proghatches.gt.metatileentity.util.RecursiveLinkExcpetion;
 import reobf.proghatches.lang.LangManager;
@@ -353,10 +354,12 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
 	}
 
 	public Optional<TileEntity> getTile() {
+		try{
 		if (this.getBaseMetaTileEntity().getWorld().getChunkProvider().chunkExists(x >> 4, z >> 4) == false) {
 			return Optional.empty();
 		}
 		return Optional.ofNullable(this.getBaseMetaTileEntity().getWorld().getTileEntity(x, y, z));
+		}catch(Exception e){return Optional.empty();}
 	}
 	@Override
 	public FluidStack getFluid(int aSlot) {
@@ -398,7 +401,7 @@ public FluidStack getFillableStack() {
 
 	return getTile().map(this::filterTakable)
 			.filter(s->s.size()>=1)
-			.orElseGet(()->ImmutableList.of(null)).get(0);
+			.map(s->s.get(0)).orElse(null);
 	}
 	catch (RecursiveLinkExcpetion e) {
 		return null;
@@ -415,6 +418,15 @@ public FluidStack getFillableStack() {
 
 		if (processingRecipe == false)
 			return new ArrayList<FluidStack>();
+		
+		try{
+		if(tmp!=null)
+		endRecipeProcessing(null);
+		//this means this method is called twice during recipe check?
+		//remove consumed fluid
+		}catch(Exception ex){ex.printStackTrace();}
+		processingRecipe=true;
+		
 		if (e == null || (e instanceof IFluidHandler == false))
 			return new ArrayList<FluidStack>();
 		IFluidHandler inv = (IFluidHandler) e;
@@ -628,5 +640,51 @@ public FluidStack getFillableStack() {
 		tmp = null;
 		return CheckRecipeResultRegistry.SUCCESSFUL;
 	}
+	 @Override
+	    public FluidStack getFluid() {
+		 FluidStack FS=getFillableStack();
+		
+	        return FS;
+	    }
+	 @Override
+	public FluidStack getDrainableStack() {
+	
+		return getFillableStack();
+	}
+	 
+	 
+	 @Override
+	    public FluidStack drain(ForgeDirection side, FluidStack aFluid, boolean doDrain) {
+			try(AutoCloseable  o=mark()){
+				Optional<TileEntity> opt = getTile();
+				if (opt.isPresent() && checkBlackList(opt)) {
+					this.linked = false;
+				}  
+			List<FluidStack> all=	filterTakable(getTile().orElse(null));
+		 // this is an ME input hatch. allowing draining via logistics would be very wrong (and against
+	        // canTankBeEmptied()) but we do need to support draining from controller, which uses the UNKNOWN direction.
+	        if (side != ForgeDirection.UNKNOWN) return null;
+	      //  FluidStack stored = getMatchingFluidStack(aFluid);
+	        FluidStack stored = all.stream().filter(s->s.getFluid()==aFluid.getFluid())
+	    	.findAny().orElse(null);
+	        
+	        
+	        if (stored == null) return null;
+	        FluidStack drained = GT_Utility.copyAmount(Math.min(stored.amount, aFluid.amount), stored);
+	        if (doDrain) {
+	            stored.amount -= drained.amount;
+	        }
+	        return drained;
+	        }catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+	    }
 
+	/*private FluidStack getMatchingFluidStack(FluidStack aFluid) {
+	if(tmp==null)return null;
+		return tmp.stream().filter(s->s.getFluid()==aFluid.getFluid())
+	.findAny().orElse(null);
+	}*/
+	 
 }

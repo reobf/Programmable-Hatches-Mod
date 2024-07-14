@@ -87,6 +87,7 @@ import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.api.util.shutdown.SimpleShutDownReason;
 import gregtech.common.blocks.GT_Block_Machines;
 import gregtech.common.covers.CoverInfo;
+import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_HeatExchanger;
 import reobf.proghatches.Tags;
 import reobf.proghatches.eucrafting.BlockEUInterface;
 import reobf.proghatches.eucrafting.AECover;
@@ -116,7 +117,7 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 )
 public class MyMod {
 	public static MyMod instance;
-	{
+	{GT_MetaTileEntity_HeatExchanger.class.getDeclaredFields();
 	//	BaseMetaPipeEntity.class.getDeclaredFields();
 		instance = this;
 	}
@@ -321,9 +322,10 @@ public class MyMod {
 
 		ArrayList<String> pages = new ArrayList<>();
 		int size = Integer.valueOf(LangManager.translateToLocalFormatted(key + ".pages"));
-		for (int i = 0; i < size; i++)
+		for (int i = 0; i < size; i++){
+			//System.out.println(LangManager.translateToLocalFormatted(key + ".pages." + i));
 			pages.add(LangManager.translateToLocalFormatted(key + ".pages." + i).replace("\\n", "\n"));
-
+		}
 		ItemStack is = ProghatchesUtil.getWrittenBook(it, "ProgrammableHatchesTutorial", key, "programmable_hatches",
 				pages.toArray(new String[0]));
 		is.stackTagCompound.setString("proghatchesSpecialTag", "true");

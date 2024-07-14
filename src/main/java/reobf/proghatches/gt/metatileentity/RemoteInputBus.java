@@ -318,11 +318,13 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 	}
 
 	public Optional<TileEntity> getTile() {
-		if (this.getBaseMetaTileEntity().getWorld().getChunkProvider().chunkExists(x >> 4, z >> 4) == false) {
+		try{
+			if (this.getBaseMetaTileEntity().getWorld().getChunkProvider().chunkExists(x >> 4, z >> 4) == false) {
 			return Optional.empty();
 		}
 		return Optional.ofNullable(this.getBaseMetaTileEntity().getWorld().getTileEntity(x, y, z));
-	}
+		}catch(Exception e){ return Optional.empty();}
+		}
 
 	public List<ItemStack> filterTakable(TileEntity e) {
 		if (e == null || (e instanceof IInventory == false))
@@ -546,17 +548,36 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 	}// no we don't
 
 	public void removePhantom() {
-
+		try{
 		getTile().filter(s -> s instanceof IInventory).ifPresent(s -> {
-
+			int index=-1;
+			TileEntity gt = s;
+			if (gt != null && gt instanceof IGregTechTileEntity) {
+				IMetaTileEntity meta = ((IGregTechTileEntity) gt).getMetaTileEntity();
+				if (meta != null && (meta instanceof IConfigurationCircuitSupport)) {
+					index=((IConfigurationCircuitSupport)meta).getCircuitSlot();
+				}
+			}
+			
 			IInventory a = ((IInventory) s);
 			int size = a.getSizeInventory();
 			for (int i = 0; i < size; i++) {
 				
+				if(a.getStackInSlot(i)!=null
+						&&i!=index
+						)//
 				a.decrStackSize(i, 0);// remove 0-sized phantom item
 			}
 
 		});
+		
+		
+		}catch(RuntimeException e){
+			e.printStackTrace();
+			//??????????
+			
+		}
+		
 	}
 
 	@Override

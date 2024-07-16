@@ -48,7 +48,9 @@ import appeng.container.slot.AppEngSlot;
 import appeng.container.slot.SlotDisabled;
 import appeng.container.slot.SlotFake;
 import appeng.container.slot.SlotNormal;
+import appeng.core.Api;
 import appeng.core.features.registries.InterfaceTerminalRegistry;
+import appeng.core.features.registries.RegistryContainer;
 import appeng.core.localization.GuiText;
 import appeng.helpers.BlockingModeIgnoreList;
 import appeng.helpers.DualityInterface;
@@ -149,6 +151,7 @@ public class MyMod {
 	public static Item fixer;
 	//public static Item eu_tool;
 	public static Item plunger;
+	public static Item lazer_p2p_part;
 
 	@Mod.EventHandler
 	// preInit "Run before anything else. Read your config, create blocks,
@@ -223,6 +226,7 @@ public class MyMod {
 	
 	public void postInit(FMLPostInitializationEvent event) {
 		proxy.postInit(event);
+		//Api.INSTANCE.registries().p2pTunnel().addNewAttunement(null, null);
 		//ShutDownReasonRegistry.register(ACCESS_LOOP);
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
 		for (ItemStack s : new ItemStack[] { new ItemStack(block_euinterface), new ItemStack(euinterface_p2p) })

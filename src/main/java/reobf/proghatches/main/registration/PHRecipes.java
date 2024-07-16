@@ -1100,15 +1100,36 @@ Api.INSTANCE.definitions()
         int amountAmp=(int) Math.pow(2,ii-6);
         
        // GT_RecipeConstants.AssemblyLine.doAdd(builder)
-       if(ii>6)
+       if(ii>6){
+    	   
+    	   if(
+    	  null!= (GT_OreDictUnificator.get(circuitM2,1))&&
+    	  null!=(GT_OreDictUnificator.get(circuitM1,1))&&
+    	  null!=(GT_OreDictUnificator.get(circuit,1))&&
+    	  null!= (GT_OreDictUnificator.get(circuitP,1))
+    	   ){
+    		   
+    		   
+    	   }else{
+    		   MyMod.LOG.fatal("OreDict Item not found! Are you in Dev?");
+    		   MyMod.LOG.fatal(circuitM2+" "+circuitM1 +" "+circuit+" "+circuitP);
+    		   MyMod.LOG.fatal( (GT_OreDictUnificator.get(circuitM2,1))+" "+
+    	    	  (GT_OreDictUnificator.get(circuitM1,1))+" "+
+    	    	  (GT_OreDictUnificator.get(circuit,1))+" "+
+    	    	  (GT_OreDictUnificator.get(circuitP,1)));
+    		   continue;
+    	   }
+    	   
+    	   
+    	   
         GT_RecipeBuilder.builder()
         .metadata(RESEARCH_ITEM, new ItemStack(MyMod.smartarm, 1, ii-1))
         .metadata(RESEARCH_TIME, 1 * HOURS)
         .itemInputs(
-        		GT_OreDictUnificator.get(circuitM2, 12),
-                GT_OreDictUnificator.get(circuitM1, 6), 
-        		GT_OreDictUnificator.get(circuit, 2),
-                GT_OreDictUnificator.get(circuitP, 1), 
+        		new Object[]{circuitM2,12},
+        		new Object[]{circuitM1, 6}, 
+        		new Object[]{circuit, 2},
+				new Object[]{circuitP, 1}, 
                 
                 Circuit_Chip_Stemcell.get(32)
                  , arms[i]
@@ -1124,7 +1145,7 @@ Api.INSTANCE.definitions()
         .eut(TierEU.RECIPE_IV)
         .duration(600)
         .addTo( GT_RecipeConstants.AssemblyLine);
-        
+       }
        else
         
         RecipeMaps.assemblerRecipes.add(

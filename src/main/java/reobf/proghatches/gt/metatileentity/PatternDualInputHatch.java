@@ -460,6 +460,7 @@ if(supportsFluids())
 }
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
+		additionalConnection=aNBT.getBoolean("additionalConnection");
 		NBTTagCompound tag = aNBT.getCompoundTag("patternSlots");
 		if (tag != null)
 			for (int i = 0; i < pattern.length; i++) {
@@ -469,12 +470,14 @@ if(supportsFluids())
 		customName = aNBT.getString("customName");
 		
 		getProxy().readFromNBT(aNBT);
-		additionalConnection=aNBT.getBoolean("additionalConnection");
+		
 		super.loadNBTData(aNBT);
+		updateValidGridProxySides();
 	}
 
 	@Override
 	public void saveNBTData(NBTTagCompound aNBT) {
+		aNBT.setBoolean("additionalConnection", additionalConnection);
 		NBTTagCompound tag = new NBTTagCompound();// aNBT.getCompoundTag("patternSlots");
 
 		for (int i = 0; i < pattern.length; i++) {
@@ -485,7 +488,7 @@ if(supportsFluids())
 		aNBT.setTag("patternSlots", tag);
 		Optional.ofNullable(customName).ifPresent(s -> aNBT.setString("customName", s));
 		getProxy().writeToNBT(aNBT);
-		aNBT.setBoolean("additionalConnection", additionalConnection);
+		
 		super.saveNBTData(aNBT);
 	}
 

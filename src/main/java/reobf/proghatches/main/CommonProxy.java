@@ -23,6 +23,7 @@ import reobf.proghatches.eucrafting.ItemBlockEUInterface;
 import reobf.proghatches.eucrafting.ItemEUToken;
 import reobf.proghatches.eucrafting.ItemPartEUP2PInterface;
 import reobf.proghatches.eucrafting.ItemPartEUSource;
+import reobf.proghatches.eucrafting.ItemPartLazerP2P;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
 import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemDedicatedCover;
@@ -109,6 +110,8 @@ public class CommonProxy {
 				ItemBlockEUInterface.class, "proghatches.euinterface");
 		GameRegistry.registerItem(MyMod.eu_source_part = new ItemPartEUSource()
 				.setUnlocalizedName("proghatches.part.eu.source").setTextureName("?"), "proghatches.part.eu.source");
+		GameRegistry.registerItem(MyMod.lazer_p2p_part = new ItemPartLazerP2P()
+				.setUnlocalizedName("proghatches.part.lazer.p2p").setTextureName("?"), "proghatches.part.lazer.p2p");
 
 		GameRegistry
 				.registerItem(

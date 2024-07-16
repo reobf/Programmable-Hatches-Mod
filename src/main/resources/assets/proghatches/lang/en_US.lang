@@ -414,3 +414,6 @@ item.proghatch_me_plunger.tooltips.1=Clear fluid from tank into ME Storage.
 item.proghatch_me_plunger.tooltips.2=Clear contents in buffers of Dual Hatch into ME Storage.
 item.proghatch_me_plunger.tooltips.3=No not affect essentia.
 item.proghatch_me_plunger.tooltips=4
+item.proghatches.part.lazer.p2p.name=P2P Tunnel - Laser
+item.proghatches.part.lazer.p2p.tooltips.0=Not attunable, currently Creative Mode Only.
+item.proghatches.part.lazer.p2p.tooltips.1=The attached ME Cable to has to be painted to connect Vaccum Laser Pipe.

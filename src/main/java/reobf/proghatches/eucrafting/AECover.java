@@ -231,7 +231,7 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 		default public AENetworkProxy getProxy() {
 
 			if (getGridProxy() == null) {
-				setGridProxy(new AENetworkProxy(this, "proxy", getVisual(), false));
+				setGridProxy(new AENetworkProxy(this, "proxy", getVisual(), true));
 				if (requireChannel())
 					getGridProxy().setFlags(GridFlags.REQUIRE_CHANNEL);
 				getGridProxy().setValidSides(EnumSet.of(getSide()));

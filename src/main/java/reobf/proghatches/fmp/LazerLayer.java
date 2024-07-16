@@ -5,6 +5,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -56,5 +57,21 @@ public class LazerLayer extends LayerBase implements ILazer ,IColoredTileEntity{
 		return -1;
 	}
 	
-	
+	public  boolean isHost() {
+		return true;
+	}
+	public ILazer getLazerP2PIn(ForgeDirection dir) {
+		IPart pt = getPart(dir);
+		if(pt instanceof ILazer){
+		return 	((ILazer) pt).getLazerP2PIn(dir);
+		}
+		
+		return null;
+	}
+	public ForgeDirection getLazerDir() {
+		return null;
+	}
+	public List<ILazer> getLazerP2POuts() {
+		return null;
+	}
 }

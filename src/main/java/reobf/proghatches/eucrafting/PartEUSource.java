@@ -965,5 +965,16 @@ public double taxPercentage(){
 	
 		return 11;
 	}
-
+	public  boolean isHost() {
+		return false;
+	}
+	public ILazer getLazerP2PIn(ForgeDirection dir) {
+		return null;
+	}
+	public ForgeDirection getLazerDir() {
+		return this.side;
+	}
+	public List<ILazer> getLazerP2POuts() {
+		return null;
+	}
 }

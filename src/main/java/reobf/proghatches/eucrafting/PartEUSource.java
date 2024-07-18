@@ -1,5 +1,6 @@
 package reobf.proghatches.eucrafting;
 
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -941,8 +942,14 @@ public double taxPercentage(){
 
 	@Override
 	public long request(long packets) {
+		long actual;
+		if(packets>0){
 		long free = amp - consumed;
-		long actual = Math.min(free, packets);
+			actual = Math.min(free, packets);
+		}else{
+			actual=packets;//skip check
+		}
+		
 		consumed += actual;
 
 		return actual;

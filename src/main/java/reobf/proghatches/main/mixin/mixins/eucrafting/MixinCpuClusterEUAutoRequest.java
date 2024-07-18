@@ -54,7 +54,7 @@ public abstract class MixinCpuClusterEUAutoRequest {
 
 	@Inject(at = @At(value = "HEAD"), method = { "cancel", "completeJob" })
 	private void endJob(CallbackInfo __) {
-
+		
 		cooldown.clear();
 
 	}

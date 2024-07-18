@@ -27,6 +27,8 @@ import gregtech.api.interfaces.tileentity.IMachineProgress;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
 import gregtech.api.util.GT_CoverBehavior;
 import gregtech.api.util.GT_CoverBehaviorBase;
+import gregtech.api.util.GT_Utility;
+import reobf.proghatches.gt.metatileentity.util.IMultiCircuitSupport;
 import reobf.proghatches.gt.metatileentity.util.IProgrammingCoverBlacklisted;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
@@ -62,7 +64,8 @@ public class ProgrammingCover extends GT_CoverBehavior implements IProgrammer {
 		if (!(meta instanceof IConfigurationCircuitSupport)) {
 			return;
 		}
-
+		
+		ArrayList<ItemStack> isa = new ArrayList<>();
 		int[] slots = ((ISidedInventory) tile).getAccessibleSlotsFromSide(ForgeDirection.UNKNOWN.ordinal());
 		for (int slot : slots) {
 			ItemStack is = ((ISidedInventory) tile).getStackInSlot(slot);
@@ -71,23 +74,43 @@ public class ProgrammingCover extends GT_CoverBehavior implements IProgrammer {
 			if (is.getItem() != MyMod.progcircuit)
 				continue;
 
-			/*
-			 * if(((ISidedInventory)tile).canExtractItem(slot, is,
-			 * ForgeDirection.UNKNOWN.ordinal()) ==false)continue;
-			 */
+			
 			if (((ISidedInventory) tile).decrStackSize(slot, 64).stackSize == 0) {
 				continue;
 			}
-
-			;
-			((IInventory) tile).setInventorySlotContents(((IConfigurationCircuitSupport) meta).getCircuitSlot(),
-					ItemProgrammingCircuit.getCircuit(is).orElse(null)
-
-			// new ItemStack(Items.apple)
-
-			);
-
+			isa.add(GT_Utility.copyAmount(0, ItemProgrammingCircuit.getCircuit(is).orElse(null)));
+			
+			
 		}
+		if(isa.isEmpty()==false){	
+			if(meta instanceof IMultiCircuitSupport){
+				int[] aslots=((IMultiCircuitSupport) meta).getCircuitSlots();
+				for (int i = 0; i < aslots.length; i++) {
+					if (i < isa.size()) {
+						((IInventory) tile).setInventorySlotContents(
+								((IMultiCircuitSupport) meta).getCircuitSlots()[i]
+								,isa.get(i));
+					} else {
+						((IInventory) tile).setInventorySlotContents(
+								((IMultiCircuitSupport) meta).getCircuitSlots()[i]
+								,null);
+					}
+	
+				}
+	
+				
+				
+				
+			}else{
+			
+			
+			((IInventory) tile).setInventorySlotContents(((IConfigurationCircuitSupport) meta).getCircuitSlot(),
+					isa.get(0));
+			
+			}
+		}
+		
+		
 
 	}
 

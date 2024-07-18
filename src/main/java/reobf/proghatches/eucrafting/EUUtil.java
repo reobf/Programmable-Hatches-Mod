@@ -1,7 +1,6 @@
 package reobf.proghatches.eucrafting;
 
 import java.util.Optional;
-
 import javax.annotation.Nullable;
 
 import com.gtnewhorizons.modularui.api.screen.ModularUIContext;

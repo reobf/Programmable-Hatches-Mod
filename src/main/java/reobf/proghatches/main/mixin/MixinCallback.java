@@ -28,6 +28,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import reobf.proghatches.eucrafting.IEUManager;
 import reobf.proghatches.eucrafting.IEUManager.EUManager;
+import reobf.proghatches.eucrafting.IEUManager.IDrain;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.SISOPatternDetail;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
 import reobf.proghatches.main.MyMod;
@@ -148,7 +149,7 @@ public static void cb(final IEnergyGrid eg, final CraftingGridCache cc, Callback
 		}
 
 	});
-	System.out.println(storage);
+	//System.out.println(storage);
 	tasks.entrySet().forEach(s -> {
 		// TODO remove
 
@@ -164,8 +165,8 @@ public static void cb(final IEnergyGrid eg, final CraftingGridCache cc, Callback
 		}
 
 	}); 
-	System.out.println(storage);
-	 System.out.println(needed);
+	//System.out.println(storage);
+	// System.out.println(needed);
 
 	needed.entrySet().forEach(s -> {
 
@@ -181,15 +182,19 @@ public static void cb(final IEnergyGrid eg, final CraftingGridCache cc, Callback
 		if (tiles.isEmpty()) {
 			return;
 		}
-		try {
+		a:try {
 			EUManager man = tiles.get(0).getProxy().getGrid().getCache(IEUManager.class);
+			Optional<IDrain> opt = man.cache.get(s.getKey().getTagCompound().getNBTTagCompoundCopy().getLong("voltage"))
+			.stream().filter(sp->sp.getUUID().equals(ProghatchesUtil.deser(s.getKey().getTagCompound().getNBTTagCompoundCopy(), "EUFI")))
+			.findFirst();
+			if(!opt.isPresent())break a;
+			if(opt.get().getAmp()>0){break a;}
 			long get = man.request(s.getKey().getTagCompound().getNBTTagCompoundCopy().getLong("voltage"), missing);
 			if(get>0){
 			
 				inventory.injectItems(s.getKey().copy().setStackSize(get), Actionable.MODULATE, machineSrc);
-				man.cache.get(s.getKey().getTagCompound().getNBTTagCompoundCopy().getLong("voltage"))
-				.stream().filter(sp->sp.getUUID().equals(ProghatchesUtil.deser(s.getKey().getTagCompound().getNBTTagCompoundCopy(), "EUFI")))
-				.findFirst().get().refund(-get);
+				opt
+				.get().refund(-get);
 				;
 				MyMod.LOG.info("Auto Request:" + get + "*" + s.getKey().getTagCompound().getNBTTagCompoundCopy());
 				MyMod.LOG.info(MinecraftServer.getServer().getTickCounter());

@@ -417,3 +417,5 @@ item.proghatch_me_plunger.tooltips=4
 item.proghatches.part.lazer.p2p.name=P2P Tunnel - Laser
 item.proghatches.part.lazer.p2p.tooltips.0=Not attunable, currently Creative Mode Only.
 item.proghatches.part.lazer.p2p.tooltips.1=The attached ME Cable to has to be painted to connect Vaccum Laser Pipe.
+proghatches.eu.interface.waila.pass.count.p2p=Passed:%2$s Pending:%3$s
+bus.input.multicircuit.name=Multiple Programming Circuit Input Bus (%s)

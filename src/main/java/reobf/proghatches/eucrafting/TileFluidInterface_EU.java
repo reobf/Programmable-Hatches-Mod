@@ -313,7 +313,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 		if(MinecraftServer.getServer()!=null)
 		pushtick=getTick();
 	}
-	int pass=-2;
+	int pass=2;
 	//-2 new
 	//-1 prepare
 	//0 checking
@@ -1200,5 +1200,6 @@ public class TileFluidInterface_EU extends TileFluidInterface
 	protected ItemStack getItemFromTile(Object obj) {
 		// TODO Auto-generated method stub
 		return getCrafterIcon();
-	}
+	}	
+	public long getAmp(){return this.amp;};
 }

@@ -1,6 +1,7 @@
 package reobf.proghatches.eucrafting;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 import com.google.common.collect.HashMultimap;
@@ -41,7 +42,7 @@ public interface IEUManager extends IGridCache {
 			accept(a);
 			return doInject(a, v);
 		};
-
+		public long getAmp();
 		public UUID getUUID();
 		
 		public void refund(long amp);
@@ -157,16 +158,24 @@ public interface IEUManager extends IGridCache {
 		@Override
 		public long request(long v, long packets) {
 			long req = packets;
-
+			HashMap<ISource,Long> tmp =new HashMap<>();
 			for (ISource s : cache2) {
 
 				if (s.getVoltage() != v)
 					continue;
-				packets -= s.request(packets);
+				long get=s.request(packets);
+				tmp.put(s, get);
+				packets -= get;
 				if (packets == 0)
 					break;
 			}
-			;
+			if(packets>0){
+				//if cannot get all needed packets in one time, just yeild
+				tmp.forEach((a,b)->{
+					a.request(-b);
+				});	
+				return 0;
+			}
 
 			return req - packets;
 		}

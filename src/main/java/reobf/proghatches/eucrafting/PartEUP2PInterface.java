@@ -168,18 +168,21 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 			if(iface!=null){
 				boolean[] suc=new boolean[]{true};
 				StringBuilder s=new StringBuilder();
+				int count[]=new int[3];
 				if(iface.getTargetTile()==null)
-					s.append("---");
+					{s.append("---");count[0]++;}
 					else{
 					s.append(""+iface.pass);
+					count[iface.pass>0?1:2]++;
 					suc[0]&=iface.pass>0;
 					}
 				try {
 					iface.getOutputs().forEach(ss->{
 						if(ss.getTargetTile()==null)
-						s.append("|---");
+						{s.append("|---");count[0]++;}
 						else{
 						s.append("|"+ss.pass);
+						count[iface.pass>0?1:2]++;
 						suc[0]&=iface.pass>0;
 						}
 					
@@ -189,6 +192,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 				s.append("=");
 				s.append(suc[0]);
 				tag.setString("io_pass", s.toString());
+				tag.setIntArray("io_pass_count", count);
 			}
 			
 
@@ -267,9 +271,18 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 						accessor.getNBTData().getInteger("pass")));
 			}
 			if(accessor.getNBTData().hasKey("io_pass"))
-			{currentToolTip.add(
+			{
+				
+				currentToolTip.add(
 					StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.pass.p2p",
 					accessor.getNBTData().getString("io_pass")));
+			
+			
+			currentToolTip.add(
+					StatCollector.translateToLocalFormatted("proghatches.eu.interface.waila.pass.count.p2p",
+					IntStream.of(accessor.getNBTData().getIntArray("io_pass_count")).mapToObj(Integer::valueOf).toArray()));
+			
+			
 			}
 			
 			return super.getWailaBody(part, currentToolTip, accessor, config);
@@ -542,8 +555,9 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		return null;
 		
 		if(te instanceof IGregTechTileEntity){
-			
-			return ((IGregTechTileEntity) te).getMetaTileEntity();
+		IMetaTileEntity mte = ((IGregTechTileEntity) te).getMetaTileEntity();
+			if(mte instanceof IIdleStateProvider)
+			return mte;
 			
 			
 		}	
@@ -551,7 +565,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		
 	}
 	int fails;
-	int pass=-2;
+	int pass=2;
 
 	private void resetIdleCheckStatus(boolean check) {
 		
@@ -1723,5 +1737,5 @@ int succs;
 	returnItems();
 		
 	}
-
+	public long getAmp(){return this.amp;};
 }

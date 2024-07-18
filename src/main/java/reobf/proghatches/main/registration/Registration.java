@@ -35,6 +35,7 @@ import reobf.proghatches.gt.metatileentity.DualInputHatch;
 import reobf.proghatches.gt.metatileentity.DualInputHatchSlave;
 import reobf.proghatches.gt.metatileentity.FilterOutputBus;
 import reobf.proghatches.gt.metatileentity.IngredientBuffer;
+import reobf.proghatches.gt.metatileentity.MultiCircuitInputBus;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
@@ -77,6 +78,9 @@ public class Registration implements Runnable {
     public final static int METank = 131;//-141
 	public static final int IngredientDistributorOffset = 142;
 	public static final int PrefabOffset = 143;//
+	public static final int MultiCircuitBusOffset = 150;//
+	
+	
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -359,6 +363,14 @@ public class Registration implements Runnable {
                 "circuitprovider.prefab."+i ,
                 LangManager.translateToLocal("circuitprovider.prefab."+i+".name"),4, 0, i
               );
+        
+        
+        for (int i = 0; i < 4; i++) new MultiCircuitInputBus(
+                Config.metaTileEntityOffset + MultiCircuitBusOffset + i,
+                "bus.input.multicircuit." + i,
+                LangManager.translateToLocalFormatted("bus.input.multicircuit.name",GT_Values.VN[i]),
+                i
+                );
         
     }
 public class DeferredGetterTexture extends GT_CopiedBlockTexture{

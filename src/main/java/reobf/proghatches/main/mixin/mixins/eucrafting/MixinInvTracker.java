@@ -43,7 +43,7 @@ public class MixinInvTracker {
 	public void check(Object machine){
 		
 if(machine instanceof IActualSideProvider){
-			//use msb to indicate it is a cover
+			//use msb to indicate if it is a cover
 			//dirty hack, hope it will not break something
 			side=((IActualSideProvider) machine).getActualSide();
 			id=id|Long.MIN_VALUE;

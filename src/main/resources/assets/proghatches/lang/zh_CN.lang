@@ -417,3 +417,5 @@ item.proghatch_me_plunger.tooltips=4
 item.proghatches.part.lazer.p2p.name=P2P通道 - 激光
 item.proghatches.part.lazer.p2p.tooltips.0=无法调谐,目前创造模式专用
 item.proghatches.part.lazer.p2p.tooltips.1=附着的ME线缆必须染色才能连接激光真空管
+proghatches.eu.interface.waila.pass.count.p2p=就绪:%2$s 等待:%3$s
+bus.input.multicircuit.name=多编程电路输入总线(%s)

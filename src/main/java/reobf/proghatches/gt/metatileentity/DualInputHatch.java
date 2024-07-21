@@ -10,25 +10,32 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
@@ -38,6 +45,7 @@ import net.minecraftforge.fluids.FluidTankInfo;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.gson.internal.Streams;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
@@ -50,7 +58,9 @@ import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.widget.Widget;
+import com.gtnewhorizons.modularui.api.widget.Widget.ClickData;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
+import com.gtnewhorizons.modularui.common.internal.wrapper.ModularUIContainer;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
@@ -60,8 +70,26 @@ import com.gtnewhorizons.modularui.common.widget.SlotGroup;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 
+import appeng.api.AEApi;
+import appeng.api.IAppEngApi;
+import appeng.api.networking.IGrid;
+import appeng.api.networking.IGridHost;
+import appeng.api.networking.IGridNode;
+import appeng.api.networking.security.BaseActionSource;
+import appeng.api.networking.security.IActionHost;
+import appeng.api.networking.security.MachineSource;
+import appeng.api.networking.storage.IStorageGrid;
+import appeng.api.parts.IPartHost;
+import appeng.api.storage.IExternalStorageHandler;
+import appeng.api.storage.IMEInventory;
+import appeng.api.storage.StorageChannel;
+import appeng.api.util.AECableType;
+import appeng.core.Api;
+import appeng.helpers.IInterfaceHost;
+import appeng.me.helpers.IGridProxyable;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.ItemList;
+import gregtech.api.enums.SoundResource;
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.IConfigurationCircuitSupport;
 import gregtech.api.interfaces.ITexture;
@@ -76,9 +104,12 @@ import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_TooltipDataCache;
+import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GT_TooltipDataCache.TooltipData;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
+import reobf.proghatches.gt.metatileentity.util.IMultiCircuitSupport;
 import reobf.proghatches.gt.metatileentity.util.IProgrammingCoverBlacklisted;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.gt.metatileentity.util.InventoryItemHandler;
@@ -87,22 +118,46 @@ import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
+import reobf.proghatches.net.UpgradesMessage;
 
 public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		implements IConfigurationCircuitSupport, IAddGregtechLogo, IAddUIWidgets, IDualInputHatch,
-		IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch {
+		IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch/*,IMultiCircuitSupport*/ {
 
 	static java.text.DecimalFormat format = new java.text.DecimalFormat("#,###");
 	public boolean mMultiFluid;
 
 	public DualInputHatch(int id, String name, String nameRegional, int tier, boolean mMultiFluid, String... optional) {
 		this(id, name, nameRegional, tier, getSlots(tier) + 1, mMultiFluid, optional);
-
+		
 	}
-
-	public DualInputHatch(int id, String name, String nameRegional, int tier, int slot, boolean mMultiFluid,
+	//boolean extraCircuit;
+	public DualInputHatch(int id, String name, String nameRegional, int tier,  boolean mMultiFluid,boolean extraCircuit,
 			String... optional) {
 
+		super(id, name, nameRegional, tier, getSlots(tier) + 4, (optional.length > 0 ? optional
+				: 
+				reobf.proghatches.main.Config.get("MCDH", ImmutableMap.of(
+
+						"cap", format.format(getInventoryFluidLimit(tier,mMultiFluid)), "mMultiFluid",
+						mMultiFluid, "slots", Math.min(16, (1 + tier) * (tier + 1)),
+						"fluidSlots", fluidSlots(tier),
+						"stackLimit",getInventoryStackLimit(tier)
+				))
+
+		)
+
+		);
+		if(!extraCircuit){throw new RuntimeException("wrong ctr!");}
+		//this.extraCircuit=true;
+		this.disableSort = true;
+		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, id));
+		this.mMultiFluid = mMultiFluid;
+		initTierBasedField();
+	}
+	public DualInputHatch(int id, String name, String nameRegional, int tier, int slot, boolean mMultiFluid,
+			String... optional) {
+		
 		super(id, name, nameRegional, tier, slot, (optional.length > 0 ? optional
 				: 
 				reobf.proghatches.main.Config.get("DH", ImmutableMap.of(
@@ -120,6 +175,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, id));
 		this.mMultiFluid = mMultiFluid;
 		initTierBasedField();
+		
 	}
 	public int fluidSlots(){
 		return Math.max(4, mTier-1);
@@ -156,13 +212,20 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		}
 
 	}
-
+	/*public DualInputHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
+			boolean mMultiFluid,boolean ex) {
+		super(mName, mTier,getSlots(mTier)+4, mDescriptionArray, mTextures);
+		this.extraCircuit=true;
+		this.disableSort = true;
+		this.mMultiFluid = mMultiFluid;
+		initTierBasedField();
+	}*/
 	public DualInputHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
 			boolean mMultiFluid) {
 		super(mName, mTier, mDescriptionArray, mTextures);
 		this.disableSort = true;
 		this.mMultiFluid = mMultiFluid;
-		initTierBasedField();
+		initTierBasedField();shared.reinit();
 	}
 
 	public DualInputHatch(String aName, int aTier, int aSlots, String[] aDescription, ITexture[][][] aTextures,
@@ -170,13 +233,13 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		super(aName, aTier, aSlots, aDescription, aTextures);
 		this.disableSort = true;
 		this.mMultiFluid = mMultiFluid;
-		initTierBasedField();
+		initTierBasedField();shared.reinit();
 
 	}
 	public NBTTagCompound writeToNBT(ItemStack is, NBTTagCompound tag) {
 		is.writeToNBT(tag);
 		tag.setInteger("ICount", is.stackSize);
-
+      
 		return tag;
 	}
 
@@ -192,6 +255,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 	@Override
 	public void saveNBTData(NBTTagCompound aNBT) {
 		super.saveNBTData(aNBT);
+		aNBT.setTag("shared", shared.ser());
 		aNBT.setBoolean("fluidLimit", fluidLimit);
 		aNBT.setBoolean("program", program);
 		aNBT.setBoolean("mMultiFluid", mMultiFluid);
@@ -223,6 +287,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
 		super.loadNBTData(aNBT);
+		shared.deser(aNBT.getCompoundTag("shared"));
 		fluidLimit= aNBT.getBoolean("fluidLimit");
 		program = aNBT.getBoolean("program");
 		mMultiFluid = aNBT.getBoolean("mMultiFluid");
@@ -251,8 +316,15 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 boolean loadOldVer=true;
 	@Override
 	public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
-
-		return new DualInputHatch(mName, mTier, mDescriptionArray, mTextures, mMultiFluid);
+		DualInputHatch neo =
+				
+				/*extraCircuit?
+				new DualInputHatch(mName, mTier, mDescriptionArray, mTextures, mMultiFluid,true)
+						:*/
+				new DualInputHatch(mName, mTier, mDescriptionArray, mTextures, mMultiFluid);
+	
+	
+		return neo;
 	}
 
 	private Widget createButton(Supplier<Boolean> getter, Consumer<Boolean> setter, UITexture picture,
@@ -328,9 +400,18 @@ boolean loadOldVer=true;
         }, GT_UITextures.OVERLAY_BUTTON_ONE_STACK_LIMIT, () -> mTooltipCache.getData(ONE_STACK_LIMIT_TOOLTIP),1));
     }
     boolean createInsertion(){return true;}
-	@Override
+	
+    public static class MarkerWidget extends Widget{
+    	public DualInputHatch thiz;
+	public MarkerWidget(DualInputHatch dualInputHatch) {
+		thiz=dualInputHatch;
+	}
+	}
+    @Override
 	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
+		builder.widget(new MarkerWidget(this));
 		buildContext.addSyncedWindow(INSERTION , (s) -> createInsertionWindow(buildContext));
+		buildContext.addSyncedWindow(SHARED_ITEM , (s) -> createSharedItemWindow(buildContext));
 		if(createInsertion())builder.widget(createButtonInsertion());
 		if (moveButtons() == 1) {
 			//super.addUIWidgets(builder, buildContext);
@@ -338,6 +419,12 @@ boolean loadOldVer=true;
 	        addOneStackLimitButton(builder);
 		}
 		addUIWidgets0(builder, buildContext);
+		if(!allowSelectCircuit())
+		builder.widget(
+		createButtonSharedItem());
+		
+		builder.widget(new SlotWidget(new BaseSlot(getInventoryHandler(), getCircuitSlot())).setEnabledForce(false));
+		
 		builder.widget(createButton(() -> !disableFilter, val -> {
 			disableFilter = !val;
 			updateSlots();
@@ -403,9 +490,139 @@ boolean loadOldVer=true;
 			 * FLUID_SLOT) .setPos(position)); position=new
 			 * Pos2d(position.getX(),position.getY()).add(0, 18); }
 			 */
+///
+		/*if(extraCircuit)
+		{
+		for(int i=1;i<4;i++)
+			builder.widget(
+		new SlotWidget(new BaseSlot(inventoryHandler, getCircuitSlot()+i) {
 
+			public int getSlotStackLimit() {
+				return 0;
+			};
+
+		}
+
+		) {
+
+			@Override
+			public List<String> getExtraTooltip() {
+				return Arrays
+						.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1"));
+			}
+		}.disableShiftInsert().setHandlePhantomActionClient(true).setGTTooltip(() -> new TooltipData(
+				Arrays.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.0"),
+						LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1")),
+				Arrays.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.0"),
+						LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1")))).setPos(
+								getCircuitSlotX()-1,getCircuitSlotY()-18 * i-1)
+		
+					);
+		
+	}*/
 	}
+	
+	public SlotWidget catalystSlot(IItemHandlerModifiable inventory, int slot){
+		return (SlotWidget) new SlotWidget(new BaseSlot(inventory, slot) {
 
+			public int getSlotStackLimit() {
+				return 0;
+			};
+
+		}
+
+		) {
+
+			@Override
+			public List<String> getExtraTooltip() {
+				return Arrays
+						.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1"));
+			}
+		}.disableShiftInsert().setHandlePhantomActionClient(true).setGTTooltip(() -> new TooltipData(
+				Arrays.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.0"),
+						LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1")),
+				Arrays.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.0"),
+						LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1"))));
+	}
+	public Widget circuitSlot(IItemHandlerModifiable inventory, int slot) {
+
+		List<String> tooltip = Arrays.asList(
+				EnumChatFormatting.DARK_GRAY + (LangManager.translateToLocal("GT5U.machines.select_circuit.tooltip.1")),
+
+				EnumChatFormatting.DARK_GRAY
+						+ (LangManager.translateToLocal("GT5U.machines.select_circuit.tooltip.3")));
+
+		return new SlotWidget(new BaseSlot(inventory, slot, true)) {
+
+			@Override
+			protected void phantomClick(ClickData clickData, ItemStack cursorStack) {
+				final ItemStack newCircuit;
+				if (clickData.shift) {
+					if (clickData.mouseButton == 0) {
+						// if (NetworkUtils.isClient() && !dialogOpened.get()) {
+						// openSelectCircuitDialog(getContext(), dialogOpened);
+						// }
+						return;
+					} else {
+						newCircuit = null;
+					}
+				} else {
+					final List<ItemStack> tCircuits =DualInputHatch.this.getConfigurationCircuits();
+					final int index = GT_Utility.findMatchingStackInList(tCircuits, cursorStack);
+					if (index < 0) {
+						int curIndex = GT_Utility.findMatchingStackInList(tCircuits, inventory.getStackInSlot(slot))
+								+ 1;
+						if (clickData.mouseButton == 0) {
+							curIndex += 1;
+						} else {
+							curIndex -= 1;
+						}
+						curIndex = Math.floorMod(curIndex, tCircuits.size() + 1) - 1;
+						newCircuit = curIndex < 0 ? null : tCircuits.get(curIndex);
+					} else {
+						// set to whatever it is
+						newCircuit = tCircuits.get(index);
+					}
+				}
+				inventory.setStackInSlot(slot, GT_Utility.copyAmount(0, newCircuit));
+
+			}
+
+			@Override
+			protected void phantomScroll(int direction) {
+				phantomClick(new ClickData(direction > 0 ? 1 : 0, false, false, false));
+			}
+
+			@Override
+			public List<String> getExtraTooltip() {
+				return tooltip;
+			}
+
+		}.setOverwriteItemStackTooltip(list -> {
+			list.removeIf(line -> line.contains(LangManager.translateToLocal("gt.integrated_circuit.tooltip.0"))
+					|| line.contains(LangManager.translateToLocal("gt.integrated_circuit.tooltip.1")));
+			return list;
+		}).disableShiftInsert().setHandlePhantomActionClient(true).setGTTooltip(() -> new TooltipData(tooltip, tooltip))
+				.setBackground(getGUITextureSet().getItemSlot(), GT_UITextures.OVERLAY_SLOT_INT_CIRCUIT);
+	}
+	private ModularWindow createSharedItemWindow(UIBuildContext buildContext) {
+		
+		
+		
+		ModularWindow.Builder builder = ModularWindow.builder(32, 32+16*4);
+		builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+		builder.setGuiTint(getGUIColorization());
+		builder.setDraggable(true);
+		builder.widget(circuitSlot(this.getInventoryHandler(), getCircuitSlot())
+				.setPos(8-1, 8-1)
+				);
+		for(int i=0;i<shared.circuitUpgrades;i++)
+		builder.widget(catalystSlot(new ItemStackHandler(shared.circuitInv), i).setPos(8-1, 8-1+18+18*i));
+				
+		
+		
+		return builder.build();
+	}
 	boolean showFluidLimit() {
 	
 		return true;
@@ -464,7 +681,7 @@ boolean loadOldVer=true;
 	}
 
 	private ItemStack[] dualItem() {
-		return filterStack.apply(mInventory);
+		return filterStack.apply(mInventory,shared.getItems());
 	}
 
 	private FluidStack[] dualFluid() {
@@ -503,10 +720,12 @@ boolean loadOldVer=true;
 			return dualFluid();
 		}
 	}
-
-	Function<FluidTank[], FluidStack[]> asFluidStack = (s) -> Arrays.stream(s).map(FluidTank::getFluid)
+	public interface VargsFunction<T, R> {
+			R apply(T... t);
+	}
+	VargsFunction<FluidTank[], FluidStack[]> asFluidStack = (s) -> Arrays.stream(s).flatMap( Arrays::stream).map(FluidTank::getFluid)
 			.filter(a -> a != null && a.amount > 0).toArray(FluidStack[]::new);
-	Function<ItemStack[], ItemStack[]> filterStack = (s) -> Arrays.stream(s).filter(a -> a != null)
+	VargsFunction<ItemStack[], ItemStack[]> filterStack = (s) -> Arrays.stream(s).flatMap( Arrays::stream).filter(a -> a != null)
 			.toArray(ItemStack[]::new);
 
 	@Override
@@ -643,8 +862,30 @@ boolean loadOldVer=true;
 	}
 
 	public void program() {
-		for (int slot : this.getAccessibleSlotsFromSide(ForgeDirection.UNKNOWN.ordinal())) {
-			ItemStack is = getStackInSlot(slot);
+		if(shared.isDummy())
+		{
+			//for (int slot : this.getAccessibleSlotsFromSide(ForgeDirection.UNKNOWN.ordinal())) {
+			for (int slot :(Iterable<Integer>)()->IntStream.range(0, getSlots(mTier)).iterator()) {	
+				ItemStack is = getStackInSlot(slot);
+				if (is == null)
+					continue;
+				if (is.getItem() != MyMod.progcircuit)
+					continue;
+				if (decrStackSize(slot, 64).stackSize == 0) {
+					continue;
+				}
+				markDirty();
+				super.setInventorySlotContents(getCircuitSlot(), ItemProgrammingCircuit.getCircuit(is).orElse(null));
+			}
+			return;
+		}
+		
+		
+		DualInputHatch meta = this;
+		ArrayList<ItemStack> isa = new ArrayList<>();
+		int[] slots = (this).getAccessibleSlotsFromSide(ForgeDirection.UNKNOWN.ordinal());
+		for (int slot :(Iterable<Integer>)()->IntStream.range(0, getSlots(mTier)).iterator()) {
+			ItemStack is = this.mInventory[slot];
 			if (is == null)
 				continue;
 			if (is.getItem() != MyMod.progcircuit)
@@ -652,9 +893,84 @@ boolean loadOldVer=true;
 			if (decrStackSize(slot, 64).stackSize == 0) {
 				continue;
 			}
-			markDirty();
-			super.setInventorySlotContents(getCircuitSlot(), ItemProgrammingCircuit.getCircuit(is).orElse(null));
+			isa.add(GT_Utility.copyAmount(0, ItemProgrammingCircuit.getCircuit(is).orElse(null)));
+			
+			
 		}
+		if(isa.isEmpty()==false){	
+		
+			shared.clearCircuit();
+			
+				for (int i = 0; i < shared.sizeCircuit(); i++) {
+					if (i < isa.size()) {
+						shared.setCircuit(
+								i
+								,isa.get(i));
+					} else {
+						shared.setCircuit(
+								i
+								,null);
+					}
+	
+				}
+	
+				
+				
+				
+			
+		}
+		/*
+		IGregTechTileEntity tile = this.getBaseMetaTileEntity();
+		DualInputHatch meta = this;
+		ArrayList<ItemStack> isa = new ArrayList<>();
+		int[] slots = (this).getAccessibleSlotsFromSide(ForgeDirection.UNKNOWN.ordinal());
+		for (int slot : slots) {
+			ItemStack is = ((ISidedInventory) tile).getStackInSlot(slot);
+			if (is == null)
+				continue;
+			if (is.getItem() != MyMod.progcircuit)
+				continue;
+
+			
+			if (((ISidedInventory) tile).decrStackSize(slot, 64).stackSize == 0) {
+				continue;
+			}
+			isa.add(GT_Utility.copyAmount(0, ItemProgrammingCircuit.getCircuit(is).orElse(null)));
+			
+			
+		}
+		if(isa.isEmpty()==false){	
+			if(meta instanceof IMultiCircuitSupport){
+				int[] aslots=((IMultiCircuitSupport) meta).getCircuitSlots();
+				for (int i = 0; i < aslots.length; i++) {
+					if (i < isa.size()) {
+						((IInventory) tile).setInventorySlotContents(
+								((IMultiCircuitSupport) meta).getCircuitSlots()[i]
+								,isa.get(i));
+					} else {
+						((IInventory) tile).setInventorySlotContents(
+								((IMultiCircuitSupport) meta).getCircuitSlots()[i]
+								,null);
+					}
+	
+				}
+	
+				
+				
+				
+			}else{
+			
+			throw new AssertionError("impossible");
+			}
+		}
+		*/
+		
+		
+		
+		
+		
+		
+		
 	}
 
 	@Override
@@ -672,6 +988,7 @@ boolean loadOldVer=true;
 
 	boolean program = true;// default: ON
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		super.onPostTick(aBaseMetaTileEntity, aTick);
@@ -680,14 +997,24 @@ boolean loadOldVer=true;
 
 		if (program)
 			program();
-
+		
+		/*IGrid a = getNetwork();
+		if(a!=null){
+			IStorageGrid g=a.getCache(IStorageGrid.class);
+			g.getItemInventory().getAvailableItems(new appeng.util.item.ItemList()).forEach(s->{
+				System.out.println(	s);
+				
+			});
+		
+		}*/
+		
 	}
 
 	@Override
 	public void setInventorySlotContents(int aIndex, ItemStack aStack) {
 		super.setInventorySlotContents(aIndex, aStack);
-		if (program)
-			program();
+		/*if (program)
+			program();*/
 	}
 
 	public void onFill() {
@@ -916,7 +1243,8 @@ boolean loadOldVer=true;
 
 	@Override
 	public void startRecipeProcessing() {
-
+		if (program)
+			program();
 	}
 
 	@Override
@@ -929,9 +1257,43 @@ boolean loadOldVer=true;
 				}
 			}
 		}
+	/*	if(extraCircuit){
+			for (int i = 0; i < mInventory.length - 4; i++)
+		    if (mInventory[i] != null && mInventory[i].stackSize <= 0) mInventory[i] = null;
+			 if (!disableSort)fillStacksIntoFirstSlotsExtraCircuit();
+		}else*/
 		super.updateSlots();
 	}
-
+	private void fillStacksIntoFirstSlotsExtraCircuit() {
+	    final int L = mInventory.length - 4;
+	    HashMap<GT_Utility.ItemId, Integer> slots = new HashMap<>(L);
+	    HashMap<GT_Utility.ItemId, ItemStack> stacks = new HashMap<>(L);
+	    List<GT_Utility.ItemId> order = new ArrayList<>(L);
+	    List<Integer> validSlots = new ArrayList<>(L);
+	    for (int i = 0; i < L; i++) {
+	        if (!isValidSlot(i)) continue;
+	        validSlots.add(i);
+	        ItemStack s = mInventory[i];
+	        if (s == null) continue;
+	        GT_Utility.ItemId sID = GT_Utility.ItemId.createNoCopy(s);
+	        slots.merge(sID, s.stackSize, Integer::sum);
+	        if (!stacks.containsKey(sID)) stacks.put(sID, s);
+	        order.add(sID);
+	        mInventory[i] = null;
+	    }
+	    int slotindex = 0;
+	    for (GT_Utility.ItemId sID : order) {
+	        int toSet = slots.get(sID);
+	        if (toSet == 0) continue;
+	        int slot = validSlots.get(slotindex);
+	        slotindex++;
+	        mInventory[slot] = stacks.get(sID)
+	            .copy();
+	        toSet = Math.min(toSet, mInventory[slot].getMaxStackSize());
+	        mInventory[slot].stackSize = toSet;
+	        slots.merge(sID, toSet, (a, b) -> a - b);
+	    }
+	}
 	@Override
 	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
 		this.markDirty();
@@ -953,7 +1315,10 @@ public static int getInventoryStackLimit(int mTier) {
 
 public int getInventoryFluidLimit() {
 	
-	return (int) (4000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1));
+	return (int) (4000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1))
+			
+			
+			;
 }
 
 
@@ -1044,11 +1409,11 @@ protected ModularWindow createInsertionWindow(UIBuildContext buildContext) {
 	builder.setGuiTint(getGUIColorization());
 	builder.setDraggable(true);
 	
-	final IItemHandlerModifiable inventoryHandler = new ItemStackHandler(mInventory.length-1);
+	final IItemHandlerModifiable inventoryHandler = new ItemStackHandler(mInventory.length-(1));
 	IDrawable[] background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 	
 	builder.widget(SlotGroup.ofItemHandler(inventoryHandler,len).widgetCreator(SlotWidget::new).startFromSlot(0)
-			.endAtSlot(mInventory.length-2).background(background).build().setPos(3, 3)
+			.endAtSlot(/*mInventory.length-2*/9999).background(background).build().setPos(3, 3)
 
 	);
 	
@@ -1111,6 +1476,9 @@ protected ModularWindow createInsertionWindow(UIBuildContext buildContext) {
 			}
 			
 		});;
+		
+		
+		
 	}
 
 		@Override
@@ -1148,7 +1516,55 @@ protected ModularWindow createInsertionWindow(UIBuildContext buildContext) {
 	
 	
 	return builder.build();
-}	protected Widget createButtonInsertion() {
+}	public final static int SHARED_ITEM=654321;
+protected Widget createButtonSharedItem() {
+	return new ButtonWidget(){{this.setTicker(s->{
+		
+	setBackground(GT_UITextures.BUTTON_STANDARD, 
+			
+			mInventory[getCircuitSlot()]==null?
+					GT_UITextures.OVERLAY_SLOT_CIRCUIT
+					:
+			
+			new ItemDrawable(
+		mInventory[getCircuitSlot()]
+			//new ItemStack(Blocks.hopper)
+			
+			));
+		
+		
+	});}}.setOnClick((clickData, widget) -> {
+		if (clickData.mouseButton == 0) {
+			if (!widget.isClient())
+				widget.getContext().openSyncedWindow(SHARED_ITEM);
+		}
+	}).setPlayClickSound(true)
+			.setBackground(GT_UITextures.BUTTON_STANDARD, new ItemDrawable(new ItemStack(Blocks.hopper)))
+			
+			.setEnabled(s -> {
+				return !s.getContext().isWindowOpen(SHARED_ITEM);
+			})
+			
+			
+			.addTooltips(ImmutableList.of(LangManager.translateToLocal("programmable_hatches.gt.insertion")))
+			.setPos(/*extraCircuit?
+					new Pos2d(
+					getCircuitSlotX()-18,getCircuitSlotY()
+				
+					):*/
+					new Pos2d(
+							getCircuitSlotX()-1,getCircuitSlotY()/*-18*/-1
+					)
+					
+					).setSize(18, 18);
+
+}
+@Override
+public boolean allowSelectCircuit() {
+
+	return shared.isDummy();
+}
+protected Widget createButtonInsertion() {
 	return new ButtonWidget().setOnClick((clickData, widget) -> {
 		if (clickData.mouseButton == 0) {
 			if (!widget.isClient())
@@ -1160,7 +1576,17 @@ protected ModularWindow createInsertionWindow(UIBuildContext buildContext) {
 				return !s.getContext().isWindowOpen(INSERTION);
 
 			}).addTooltips(ImmutableList.of(LangManager.translateToLocal("programmable_hatches.gt.insertion")))
-			.setPos(new Pos2d(getGUIWidth() - 18 - 3, 30)).setSize(16, 16);
+			.setPos(/*extraCircuit?
+					new Pos2d(
+					getCircuitSlotX()-18,getCircuitSlotY()
+				
+					):*/
+					new Pos2d(
+							getCircuitSlotX()-1,getCircuitSlotY()-18*2-1
+						//getGUIWidth() - 18 - 3, 30
+					)
+					
+					).setSize(18, 18);
 
 }
 @Override
@@ -1173,4 +1599,228 @@ public boolean canExtractItem(int aIndex, ItemStack aStack, int ordinalSide) {
 	// TODO Auto-generated method stub
 	return super.canExtractItem(aIndex, aStack, ordinalSide);
 }
+
+@Override
+public boolean isValidSlot(int aIndex) {
+    return aIndex < getCircuitSlot();
+}
+
+
+@Override
+public boolean allowPullStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
+    ItemStack aStack) {
+    if (aIndex >= getCircuitSlot()) return false;
+    return side == getBaseMetaTileEntity().getFrontFacing();
+}
+
+
+
+@Override
+public boolean allowPutStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
+    ItemStack aStack) {
+    return side == getBaseMetaTileEntity().getFrontFacing() && aIndex < getCircuitSlot()
+        && (mRecipeMap == null || disableFilter || mRecipeMap.containsInput(aStack))
+        && (disableLimited || limitedAllowPutStack(aIndex, aStack));
+}
+
+public OptioanlSharedContents shared=new OptioanlSharedContents();
+public class OptioanlSharedContents{
+	public void reinit(){
+		
+		while(circuitInv.size()<circuitUpgrades)circuitInv.add(null);
+	}
+	public void onDestroy() {IGregTechTileEntity te = getBaseMetaTileEntity();
+		if(circuitUpgrades>0)
+			
+			
+			
+			te.getWorld().spawnEntityInWorld(
+					new EntityItem(te.getWorld(),te.getXCoord(),te.getYCoord(),te.getZCoord(), new ItemStack(MyMod.upgrades,circuitUpgrades,0))
+					);
+			
+		
+	}
+	public NBTTagCompound serList(ArrayList<ItemStack> ls){
+		NBTTagCompound tag=new NBTTagCompound();
+		tag.setInteger("len", ls.size());
+		for(int i=0;i<ls.size();i++){
+			if( ls.get(i)!=null)
+			tag.setTag("i"+i, ls.get(i).writeToNBT(new NBTTagCompound()));
+		}
+		return tag;
+	}
+	public ArrayList<ItemStack> deserList(NBTTagCompound tag){
+		 ArrayList<ItemStack> ls=new  ArrayList<ItemStack>();
+		 int len=tag.getInteger("len");
+		 for(int i=0;i<len;i++){
+			 ls.add(ItemStack.loadItemStackFromNBT(tag.getCompoundTag("i"+i)));
+		}
+		return ls;
+	}
+	
+	
+	
+	
+	public ItemStack[] getItems(){
+		ArrayList<ItemStack> all=new ArrayList<>();
+		all.addAll(circuitInv);
+		return all.toArray(new ItemStack[0]);
+		}
+	
+	public FluidStack[] getFluid(){return new FluidStack[0];}
+	public boolean isDummy(){return circuitUpgrades+itemMEUpgrades+fluidMEUpgrades==0;}
+	
+	
+	public int circuitUpgrades;
+	public int itemMEUpgrades;
+	public int fluidMEUpgrades;
+	
+	public ArrayList<ItemStack> circuitInv=new ArrayList<>();
+	public void clearCircuit() {
+		mInventory[0]=null;
+		circuitInv.clear();
+		for(int i=0;i<circuitUpgrades;i++){circuitInv.add(null);}
+	}
+	public void setCircuit(int index,ItemStack is){
+		if(index==0){mInventory[getCircuitSlot()]=is;return;}
+		circuitInv.set(index-1,is);
+	}
+	public int sizeCircuit(){return circuitUpgrades+1;}
+	
+	
+	public NBTTagCompound ser(){
+		NBTTagCompound tag=new NBTTagCompound();
+		tag.setInteger("circuitUpgrades", circuitUpgrades);
+		tag.setInteger("itemMEUpgrades", itemMEUpgrades);
+		tag.setInteger("fluidMEUpgrades", fluidMEUpgrades);
+		tag.setTag("circuitInv", serList(circuitInv));
+		return tag;}
+	public void deser(NBTTagCompound tag){
+		
+		circuitUpgrades=tag.getInteger("circuitUpgrades");
+		itemMEUpgrades=tag.getInteger("itemMEUpgrades");
+		fluidMEUpgrades=tag.getInteger("fluidMEUpgrades");
+		circuitInv=deserList(tag.getCompoundTag("circuitInv"));
+		while(circuitInv.size()>circuitUpgrades)circuitInv.remove(circuitInv.size()-1);
+		while(circuitInv.size()<circuitUpgrades)circuitInv.add(null);
+	}
+	public void install(ItemStack heldItem) {
+	int damage=heldItem.getItemDamage();
+		if(damage==0){
+			if(circuitUpgrades<3){
+				
+				circuitUpgrades++;
+				heldItem.stackSize--;
+				successInstall();
+				
+			}
+		}
+		
+	}
+	@SuppressWarnings("unchecked")
+	public void successInstall(){
+				reinit();
+				GT_Utility.sendSoundToPlayers(getBaseMetaTileEntity().getWorld(), SoundResource.IC2_TOOLS_WRENCH, 1.0F, -1,
+						getBaseMetaTileEntity().getXCoord(),getBaseMetaTileEntity().getYCoord(),getBaseMetaTileEntity().getZCoord());
+		    //close all GUIs of this hatch, because they have to be re-generated with new context
+			try{
+			if(!getBaseMetaTileEntity().getWorld().isRemote)
+			getBaseMetaTileEntity().getWorld().playerEntities.forEach(s -> {
+				EntityPlayer player = (EntityPlayer) s;
+				if (player.openContainer instanceof ModularUIContainer) {
+					ModularUIContainer m = (ModularUIContainer) player.openContainer;
+					for (Widget w : m.getContext().getMainWindow().getChildren()) {
+						if (w instanceof MarkerWidget&&player instanceof EntityPlayerMP) {
+							if (((MarkerWidget) w).thiz == DualInputHatch.this) {
+								((EntityPlayerMP) player).closeContainer();break;
+							}
+
+						}
+
+					}
+
+				}
+
+			});
+		    }catch(Exception e){e.printStackTrace();}
+				
+		
+	}
+	
+}
+@Override
+public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer, ForgeDirection side,
+		float aX, float aY, float aZ) {
+	if(aPlayer.getHeldItem()!=null&&aPlayer.getHeldItem().getItem()==MyMod.upgrades){
+	shared.install(aPlayer.getHeldItem());
+	return true;
+	
+}
+	return super.onRightclick(aBaseMetaTileEntity, aPlayer, side, aX, aY, aZ);
+}
+@Override
+public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
+	  if (!aBaseMetaTileEntity.isClientSide()) 
+	if(!shared.isDummy())
+		  MyMod.net.sendTo(new UpgradesMessage(
+			aBaseMetaTileEntity.getXCoord(),
+			aBaseMetaTileEntity.getYCoord(),
+			aBaseMetaTileEntity.getZCoord(),
+		this), (EntityPlayerMP) aPlayer);
+	return super.onRightclick(aBaseMetaTileEntity, aPlayer);
+}
+
+@Override
+public void onBlockDestroyed() {
+	shared.onDestroy();
+	
+}
+
+
+
+
+public IGrid getNetwork(){
+	//DO NOT do the same way that StorageBus does,to skip permission check
+	IGregTechTileEntity self = getBaseMetaTileEntity();
+	  final TileEntity te = self.getWorld().getTileEntity(
+              self.getXCoord() + self.getFrontFacing().offsetX,
+              self.getYCoord() + self.getFrontFacing().offsetY,
+              self.getZCoord() + self.getFrontFacing().offsetZ);
+
+		
+	  IGrid g = null;
+	if(te instanceof IPartHost){
+		
+	try {
+		final Object part =((IPartHost) te).getPart(self.getFrontFacing().getOpposite());
+		 if (part instanceof IInterfaceHost) {
+			
+          g=((IInterfaceHost) part).getGridNode(ForgeDirection.UP).getGrid();
+          
+         }
+	
+	} catch (Exception e) {
+	
+	}
+	}
+	if(te instanceof IInterfaceHost){
+		
+		if(g==null){
+			
+			IGridNode n=((IInterfaceHost) te).getGridNode(ForgeDirection.UP);
+			if(n!=null)
+			g=n.getGrid();
+			
+		
+		}
+		
+	}
+	
+	return g;
+
+	
+	
+}
+
+
 }

@@ -107,6 +107,7 @@ import reobf.proghatches.main.mixin.mixins.MixinFixPipeCoverBug;
 import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
 import reobf.proghatches.net.RenameMessage;
+import reobf.proghatches.net.UpgradesMessage;
 import reobf.proghatches.oc.WirelessPeripheralManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
@@ -152,6 +153,7 @@ public class MyMod {
 	//public static Item eu_tool;
 	public static Item plunger;
 	public static Item lazer_p2p_part;
+	public static Item upgrades;
 
 	@Mod.EventHandler
 	// preInit "Run before anything else. Read your config, create blocks,
@@ -162,6 +164,8 @@ public class MyMod {
 		net.registerMessage(new OpenPartGuiMessage.Handler(), OpenPartGuiMessage.class, 0, Side.CLIENT);
 		net.registerMessage(new PriorityMessage.Handler(), PriorityMessage.class, 1, Side.SERVER);
 		net.registerMessage(new RenameMessage.Handler(), RenameMessage.class, 2, Side.SERVER);
+		net.registerMessage(new UpgradesMessage.Handler(), UpgradesMessage.class, 2, Side.CLIENT);
+		
 		proxy.preInit(event);
 	}
 

@@ -78,13 +78,16 @@ public class Registration implements Runnable {
     public final static int METank = 131;//-141
 	public static final int IngredientDistributorOffset = 142;
 	public static final int PrefabOffset = 143;//
-	public static final int MultiCircuitBusOffset = 150;//
+	public static final int MultiCircuitBusOffset = 150;//-153
+	public static final int MultiCircuitDualInputHatchOffset = 154;//-157
+	public static final int MultiCircuitQuadDualInputHatchOffset = 158;//-161
 	
 	
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
-
+    	  
+          
         for (int i = 0; i < GT_Values.VN.length - 1; i++) {
 
             new DualInputHatch(
@@ -369,9 +372,29 @@ public class Registration implements Runnable {
                 Config.metaTileEntityOffset + MultiCircuitBusOffset + i,
                 "bus.input.multicircuit." + i,
                 LangManager.translateToLocalFormatted("bus.input.multicircuit.name",GT_Values.VN[i]),
-                i
+                i+4
                 );
-        
+        /*for (int i = 0; i < 4; i++) {
+
+            new DualInputHatch(
+                Config.metaTileEntityOffset + MultiCircuitDualInputHatchOffset + i,
+                "hatch.input.multicircuit.dual.tier." + (i+4),
+                String.format(LangManager.translateToLocal("hatch.input.multicircuit.dual.tier.name"), GT_Values.VN[i+4]),
+                i+4,
+                false,true);
+
+        }
+
+        for (int i = 0; i < 4; i++) {
+
+            new DualInputHatch(
+                Config.metaTileEntityOffset + MultiCircuitQuadDualInputHatchOffset + i,
+                "hatch.input.multicircuit.dual.quad.tier." + (i+4),
+                String.format(LangManager.translateToLocal("hatch.input.multicircuit.dual.quad.tier.name"), GT_Values.VN[i+4]),
+                i,
+                true,true);
+
+        }*/
     }
 public class DeferredGetterTexture extends GT_CopiedBlockTexture{
 			  private IIcon getIcon(int ordinalSide) {

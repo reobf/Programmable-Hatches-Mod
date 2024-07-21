@@ -113,67 +113,7 @@ import reobf.proghatches.util.ProghatchesUtil;
 
 public class BufferedDualInputHatch extends DualInputHatch implements IRecipeProcessingAwareDualHatch {
 	public Deque<Long> scheduled=new LinkedList<>();//no randomaccess, LinkedList will work fine
-	public Widget circuitSlot(IItemHandlerModifiable inventory, int slot) {
-
-		List<String> tooltip = Arrays.asList(
-				EnumChatFormatting.DARK_GRAY + (LangManager.translateToLocal("GT5U.machines.select_circuit.tooltip.1")),
-
-				EnumChatFormatting.DARK_GRAY
-						+ (LangManager.translateToLocal("GT5U.machines.select_circuit.tooltip.3")));
-
-		return new SlotWidget(new BaseSlot(inventory, slot, true)) {
-
-			@Override
-			protected void phantomClick(ClickData clickData, ItemStack cursorStack) {
-				final ItemStack newCircuit;
-				if (clickData.shift) {
-					if (clickData.mouseButton == 0) {
-						// if (NetworkUtils.isClient() && !dialogOpened.get()) {
-						// openSelectCircuitDialog(getContext(), dialogOpened);
-						// }
-						return;
-					} else {
-						newCircuit = null;
-					}
-				} else {
-					final List<ItemStack> tCircuits = BufferedDualInputHatch.this.getConfigurationCircuits();
-					final int index = GT_Utility.findMatchingStackInList(tCircuits, cursorStack);
-					if (index < 0) {
-						int curIndex = GT_Utility.findMatchingStackInList(tCircuits, inventory.getStackInSlot(slot))
-								+ 1;
-						if (clickData.mouseButton == 0) {
-							curIndex += 1;
-						} else {
-							curIndex -= 1;
-						}
-						curIndex = Math.floorMod(curIndex, tCircuits.size() + 1) - 1;
-						newCircuit = curIndex < 0 ? null : tCircuits.get(curIndex);
-					} else {
-						// set to whatever it is
-						newCircuit = tCircuits.get(index);
-					}
-				}
-				inventory.setStackInSlot(slot, GT_Utility.copyAmount(0, newCircuit));
-
-			}
-
-			@Override
-			protected void phantomScroll(int direction) {
-				phantomClick(new ClickData(direction > 0 ? 1 : 0, false, false, false));
-			}
-
-			@Override
-			public List<String> getExtraTooltip() {
-				return tooltip;
-			}
-
-		}.setOverwriteItemStackTooltip(list -> {
-			list.removeIf(line -> line.contains(LangManager.translateToLocal("gt.integrated_circuit.tooltip.0"))
-					|| line.contains(LangManager.translateToLocal("gt.integrated_circuit.tooltip.1")));
-			return list;
-		}).disableShiftInsert().setHandlePhantomActionClient(true).setGTTooltip(() -> new TooltipData(tooltip, tooltip))
-				.setBackground(getGUITextureSet().getItemSlot(), GT_UITextures.OVERLAY_SLOT_INT_CIRCUIT);
-	}
+	
 
 	
 
@@ -621,6 +561,7 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 		@Override
 		public ItemStack[] getItemInputs() {
 			ItemStack[] condensed = filterStack.apply(mStoredItemInternal);
+			//System.out.print(Arrays.toString(condensed));
 			ItemStack additional = getStackInSlot(getCircuitSlot());
 			if (additional == null)
 				return condensed;
@@ -967,7 +908,10 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 									LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1")),
 							Arrays.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.0"),
 									LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1"))))).setPos(0,
-											18 * i));
+											18 * i)
+					
+					
+					);
 
 		builder.widget(sc.setSize(18, 18 * 2).setPos(3 + 18 * 5, 3));
 
@@ -1634,5 +1578,10 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 		}
 		return true;
 	}
+	@Override
+	public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer, ForgeDirection side,
+			float aX, float aY, float aZ) {
 	
+		return super.onRightclick(aBaseMetaTileEntity, aPlayer, side, aX, aY, aZ);
+	}
 }

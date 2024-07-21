@@ -439,7 +439,9 @@ public FluidStack getFillableStack() {
 			IFluidHandler side = (IFluidHandler) e;
 			HashMultiset<ShadowFluidStack> slots = HashMultiset.create();
 			// for(ForgeDirection dir:ForgeDirection.VALID_DIRECTIONS){
-			for (FluidTankInfo i : side.getTankInfo(this.getBaseMetaTileEntity().getFrontFacing())) {
+			FluidTankInfo[] info= side.getTankInfo(this.getBaseMetaTileEntity().getFrontFacing());
+			if(info ==null)return new ArrayList<>(0);
+			for (FluidTankInfo i :info) {
 
 				if (i.fluid != null && side.canDrain(this.getBaseMetaTileEntity().getFrontFacing(), i.fluid.getFluid()))
 

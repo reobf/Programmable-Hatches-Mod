@@ -1,6 +1,8 @@
 package reobf.proghatches.gt.metatileentity;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -17,6 +19,7 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
+import gregtech.api.util.GT_Utility;
 import gregtech.api.util.GT_TooltipDataCache.TooltipData;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -124,4 +127,35 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
         if (mInventory[i] != null && mInventory[i].stackSize <= 0) mInventory[i] = null;
     if (!disableSort) fillStacksIntoFirstSlots();
 	}
+
+protected void fillStacksIntoFirstSlots() {
+    final int L = mInventory.length - 4;
+    HashMap<GT_Utility.ItemId, Integer> slots = new HashMap<>(L);
+    HashMap<GT_Utility.ItemId, ItemStack> stacks = new HashMap<>(L);
+    List<GT_Utility.ItemId> order = new ArrayList<>(L);
+    List<Integer> validSlots = new ArrayList<>(L);
+    for (int i = 0; i < L; i++) {
+        if (!isValidSlot(i)) continue;
+        validSlots.add(i);
+        ItemStack s = mInventory[i];
+        if (s == null) continue;
+        GT_Utility.ItemId sID = GT_Utility.ItemId.createNoCopy(s);
+        slots.merge(sID, s.stackSize, Integer::sum);
+        if (!stacks.containsKey(sID)) stacks.put(sID, s);
+        order.add(sID);
+        mInventory[i] = null;
+    }
+    int slotindex = 0;
+    for (GT_Utility.ItemId sID : order) {
+        int toSet = slots.get(sID);
+        if (toSet == 0) continue;
+        int slot = validSlots.get(slotindex);
+        slotindex++;
+        mInventory[slot] = stacks.get(sID)
+            .copy();
+        toSet = Math.min(toSet, mInventory[slot].getMaxStackSize());
+        mInventory[slot].stackSize = toSet;
+        slots.merge(sID, toSet, (a, b) -> a - b);
+    }
+}
 }

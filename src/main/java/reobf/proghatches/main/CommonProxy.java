@@ -33,6 +33,7 @@ import reobf.proghatches.item.ItemMEPlunger;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.item.ItemProgrammingToolkit;
 import reobf.proghatches.item.ItemSmartArm;
+import reobf.proghatches.item.ItemUpgrades;
 import reobf.proghatches.main.registration.EUCraftingCreativeTab;
 import reobf.proghatches.main.registration.PHRecipes;
 import reobf.proghatches.main.registration.ProgHatchCreativeTab;
@@ -93,7 +94,14 @@ public class CommonProxy {
 
 		GameRegistry.registerItem(MyMod.book = new ItemBookTutorial().setUnlocalizedName("writtenBook")
 				.setTextureName("book_written").setMaxStackSize(16), "book_tutorial");
-
+		GameRegistry.registerItem(
+				MyMod.upgrades = new ItemUpgrades().setUnlocalizedName("prog_upgrades").setTextureName("?"),
+				"prog_upgrades");
+		
+		
+		
+		
+		
 		MyMod.iohub = GameRegistry.registerBlock(new BlockIOHub(), ItemBlockIOHub.class, "proghatches.iohub");
 		MyMod.pstation = GameRegistry.registerBlock(new TileWirelessPeripheralStation.Block(),
 				TileWirelessPeripheralStation.ItemBlock.class, "proghatches.peripheral_station");

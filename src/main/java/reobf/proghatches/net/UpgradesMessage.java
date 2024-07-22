@@ -2,6 +2,7 @@ package reobf.proghatches.net;
 
 import java.io.IOException;
 
+import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
@@ -49,13 +50,7 @@ int x,y,z;public NBTTagCompound tag;
 		y=buf.readInt();
 		z=buf.readInt();
 		
-		try {
-			byte[] b=new byte[buf.readInt()];buf.readBytes(b);
-			tag=CompressedStreamTools.func_152457_a(b,new NBTSizeTracker(Integer.MAX_VALUE));
-		} catch (IOException e) {
-			
-			e.printStackTrace();
-		}
+		tag=ByteBufUtils.readTag(buf);
 	}
 
 	@Override
@@ -63,11 +58,5 @@ int x,y,z;public NBTTagCompound tag;
 		buf.writeInt(x);
 		buf.writeInt(y);
 		buf.writeInt(z);
-		try {byte[] b = CompressedStreamTools.compress(tag);
-		buf.writeInt(b.length);
-			buf.writeBytes(b);
-		} catch (IOException e) {
-		
-			e.printStackTrace();
-		}
+		ByteBufUtils.writeTag(buf, tag);
 	}}

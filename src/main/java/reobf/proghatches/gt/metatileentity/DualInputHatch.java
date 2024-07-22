@@ -1245,6 +1245,7 @@ boolean loadOldVer=true;
 	public void startRecipeProcessing() {
 		if (program)
 			program();
+		shared.startRecipeProcessing();
 	}
 
 	@Override
@@ -1298,6 +1299,8 @@ boolean loadOldVer=true;
 	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
 		this.markDirty();
 		updateSlots();
+		boolean success=shared.endRecipeProcessing(controller);
+		if(!success)	return CheckRecipeResultRegistry.CRASH;
 		return CheckRecipeResultRegistry.SUCCESSFUL;
 	}
 @Override
@@ -1628,6 +1631,14 @@ public class OptioanlSharedContents{
 	public void reinit(){
 		
 		while(circuitInv.size()<circuitUpgrades)circuitInv.add(null);
+	}
+	public boolean endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+		
+		return true;
+	}
+	public void startRecipeProcessing() {
+		
+		
 	}
 	public void onDestroy() {IGregTechTileEntity te = getBaseMetaTileEntity();
 		if(circuitUpgrades>0)

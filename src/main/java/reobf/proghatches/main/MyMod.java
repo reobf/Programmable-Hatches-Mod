@@ -164,7 +164,7 @@ public class MyMod {
 		net.registerMessage(new OpenPartGuiMessage.Handler(), OpenPartGuiMessage.class, 0, Side.CLIENT);
 		net.registerMessage(new PriorityMessage.Handler(), PriorityMessage.class, 1, Side.SERVER);
 		net.registerMessage(new RenameMessage.Handler(), RenameMessage.class, 2, Side.SERVER);
-		net.registerMessage(new UpgradesMessage.Handler(), UpgradesMessage.class, 2, Side.CLIENT);
+		net.registerMessage(new UpgradesMessage.Handler(), UpgradesMessage.class, 3, Side.CLIENT);
 		
 		proxy.preInit(event);
 	}

@@ -373,9 +373,15 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 		builder.setGuiTint(getGUIColorization());
 		builder.setDraggable(true);
 		builder.setPos((a, b) -> new Pos2d(PARENT_WIDTH + b.getPos().getX(), PARENT_HEIGHT * 0 + b.getPos().getY()));
-		for (int i = 0; i < 36; i++) {
+			MappingItemHandler shared_handler=new MappingItemHandler(pattern, 0, 36);
+			//use shared handler
+			//or shift clicking a pattern in pattern slot will just transfer it to another pattern slot
+			//instead of player inventory!
+			for (int i = 0; i < 36; i++) {
+			
 			BaseSlot bs;
-			builder.widget(new SlotWidget(bs = new BaseSlot(new MappingItemHandler(pattern, 0, 36), i)
+		
+			builder.widget( new SlotWidget(bs = new BaseSlot(shared_handler, i)
 
 			) {
 
@@ -389,10 +395,12 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 					return output != null ? output : stack;
 
 				}
-			}.setFilter(itemStack -> itemStack.getItem() instanceof ICraftingPatternItem).setChangeListener(() -> {
+			}.setShiftClickPriority(-1)
+			.setFilter(itemStack -> itemStack.getItem() instanceof ICraftingPatternItem).setChangeListener(() -> {
 				onPatternChange();
 			}).setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3).setBackground(getGUITextureSet().getItemSlot(),
 					GT_UITextures.OVERLAY_SLOT_PATTERN_ME));
+			
 
 		}
 

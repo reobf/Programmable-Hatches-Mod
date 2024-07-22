@@ -26,6 +26,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.gt.metatileentity.util.IMultiCircuitSupport;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
+import reobf.proghatches.util.ProghatchesUtil;
 
 public class MultiCircuitInputBus extends GT_MetaTileEntity_Hatch_InputBus implements IMultiCircuitSupport{
 @Override
@@ -37,7 +38,7 @@ public class MultiCircuitInputBus extends GT_MetaTileEntity_Hatch_InputBus imple
 public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 	
 	super.addUIWidgets(builder, buildContext);
-	
+	ProghatchesUtil.attachZeroSizedStackRemover(builder, buildContext);
 	for(int i=1;i<4;i++)
 		builder.widget(
 	new SlotWidget(new BaseSlot(inventoryHandler, getCircuitSlot()+i) {

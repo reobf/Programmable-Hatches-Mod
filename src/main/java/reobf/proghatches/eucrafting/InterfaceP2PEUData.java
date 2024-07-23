@@ -88,7 +88,7 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 	public void setTag(NBTTagCompound tagCompound) {
 		tag = tagCompound;
 	}
-
+	public IInterfaceHost getInterfaceOrNull(){return duality;};
 	public NBTTagCompound getTag() {
 		return tag;
 	}

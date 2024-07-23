@@ -19,10 +19,12 @@ import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridConnection;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
+import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.ticking.ITickManager;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IReadOnlyCollection;
+import appeng.helpers.IInterfaceHost;
 import appeng.me.GridAccessException;
 import appeng.me.GridConnection;
 import appeng.me.GridNode;
@@ -77,6 +79,7 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 	Class<?> clazz;
 
 	public static class DummyData implements Data {
+		public IInterfaceHost getInterfaceOrNull(){return null;};
 		public void setTag(NBTTagCompound tagCompound) {
 		}
 
@@ -205,6 +208,7 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 	}
 
 	public static interface Data extends ISerializableObject, IGridProxyable {
+		IInterfaceHost getInterfaceOrNull();
 		default boolean hasModularGUI(){return false;}
 		default String tagName(){
 			NBTTagCompound tag = getTag();

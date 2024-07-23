@@ -72,7 +72,7 @@ public class ItemUpgrades extends Item{
 	@Override
 	public void registerIcons(IIconRegister register) {
 		icons[mark(0)] = register.registerIcon("proghatches:upgrade0");
-	
-
+		icons[mark(1)] = register.registerIcon("proghatches:upgrade0");
+		icons[mark(2)] = register.registerIcon("proghatches:upgrade0");
 	}
 }

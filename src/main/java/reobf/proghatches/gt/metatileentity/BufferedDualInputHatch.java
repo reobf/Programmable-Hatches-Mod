@@ -560,8 +560,8 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 
 		@Override
 		public ItemStack[] getItemInputs() {
-			ItemStack[] condensed = filterStack.apply(mStoredItemInternal);
-			//System.out.print(Arrays.toString(condensed));
+			/*ItemStack[] condensed = filterStack.apply(mStoredItemInternal);
+		
 			ItemStack additional = getStackInSlot(getCircuitSlot());
 			if (additional == null)
 				return condensed;
@@ -571,12 +571,19 @@ public class BufferedDualInputHatch extends DualInputHatch implements IRecipePro
 			bruh[before_size] = additional;
 			System.arraycopy(condensed, 0, bruh, 0, before_size);
 			return bruh;
+			*/
+			
+			ItemStack[] condensed = filterStack.apply(mStoredItemInternal,shared.getItems());
+			
+			return condensed;
+			
+			
 		}
 
 		@Override
 		public FluidStack[] getFluidInputs() {
 
-			return asFluidStack.apply(mStoredFluidInternal);
+			return asFluidStack.apply(mStoredFluidInternal,shared.getFluid());
 		}
 
 	}

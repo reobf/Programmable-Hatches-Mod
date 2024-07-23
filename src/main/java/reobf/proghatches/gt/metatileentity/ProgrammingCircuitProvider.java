@@ -1,5 +1,6 @@
 package reobf.proghatches.gt.metatileentity;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,6 +19,7 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -45,12 +47,16 @@ import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IItemList;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
+import appeng.api.util.IInterfaceViewable;
+import appeng.helpers.DualityInterface;
 import appeng.helpers.ICustomNameObject;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
+import appeng.tile.AEBaseTile;
 import appeng.util.item.AEItemStack;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.ItemList;
@@ -73,7 +79,9 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
 public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implements IAddUIWidgets, IPowerChannelState,
-		ICraftingProvider, IGridProxyable, ICircuitProvider, IInstantCompletable,ICustomNameObject {
+		ICraftingProvider, IGridProxyable, ICircuitProvider, IInstantCompletable,ICustomNameObject
+		,IInterfaceViewable
+		{
 	int tech;
 	public ProgrammingCircuitProvider(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount,int tech) {
 		super(aID, aName, aNameRegional, aTier, aInvSlotCount,
@@ -112,8 +120,8 @@ this.tech=tech;
 
 	// item returned in ae tick will not be recognized, delay to the next
 	// onPostTick() call
-	ArrayList<ItemStack> toReturn = new ArrayList<>();
-
+	//ArrayList<ItemStack> toReturn = new ArrayList<>();
+	  private appeng.util.item.ItemList ret = new appeng.util.item.ItemList();
 	@Override
 	public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
 		// this.getProxy().getEnergy().extractAEPower(amt, mode,
@@ -134,8 +142,8 @@ this.tech=tech;
 
 		}
 		ItemStack circuitItem = (patternDetails.getOutput(table, this.getBaseMetaTileEntity().getWorld()));
-		toReturn.add((circuitItem));
-
+		
+		ret.add(AEItemStack.create(circuitItem));
 		return true;
 	}
 
@@ -181,11 +189,10 @@ this.tech=tech;
 	}
 
 	public void returnItems() {
-		toReturn.replaceAll(s -> Optional
-				.ofNullable(getStorageGrid().getItemInventory().injectItems(AEItemStack.create(s), Actionable.MODULATE,
-						new MachineSource((IActionHost) getBaseMetaTileEntity())))
-				.filter(ss -> ss.getStackSize() <= 0).map(ss -> ss.getItemStack()).orElse(null));
-		toReturn.removeIf(Objects::isNull);
+		ret.forEach(s->
+		getStorageGrid().getItemInventory().injectItems(s, Actionable.MODULATE, new MachineSource((IActionHost) getBaseMetaTileEntity())
+		));
+		ret.clear();
 
 	}
 boolean legacy;
@@ -381,7 +388,7 @@ for(ItemStack is:mInventory)
 		public ItemStack getPattern() {
 			return Optional.of(new ItemStack(MyMod.fakepattern)).map(s -> {
 
-				s.stackTagCompound = out.writeToNBT(new NBTTagCompound());
+				s.stackTagCompound = (NBTTagCompound) out.writeToNBT(new NBTTagCompound()).copy();
 
 				return s;
 			}).get();
@@ -435,7 +442,7 @@ for(ItemStack is:mInventory)
 
 		@Override
 		public ItemStack getOutput(InventoryCrafting craftingInv, World world) {
-			return out;
+			return out.copy();
 		}
 
 		@Override
@@ -525,14 +532,47 @@ for(ItemStack is:mInventory)
 		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 4).startFromSlot(0).endAtSlot(mInventory.length-1)
 				.background(new IDrawable[] { getGUITextureSet().getItemSlot() }).build().setPos(3, 3));
 	}
+	private NBTTagCompound writeItem(final IAEItemStack finalOutput2) {
+        final NBTTagCompound out = new NBTTagCompound();
 
+        if (finalOutput2 != null) {
+            finalOutput2.writeToNBT(out);
+        }
+
+        return out;
+    }
+	private appeng.util.item.ItemList readList(final NBTTagList tag) {
+        final appeng.util.item.ItemList out = new appeng.util.item.ItemList();
+
+        if (tag == null) {
+            return out;
+        }
+
+        for (int x = 0; x < tag.tagCount(); x++) {
+            final IAEItemStack ais = AEItemStack.loadItemStackFromNBT(tag.getCompoundTagAt(x));
+            if (ais != null) {
+                out.add(ais);
+            }
+        }
+
+        return out;
+    }
+	 private NBTTagList writeList(final IItemList<IAEItemStack> myList) {
+	        final NBTTagList out = new NBTTagList();
+
+	        for (final IAEItemStack ais : myList) {
+	            out.appendTag(this.writeItem(ais));
+	        }
+
+	        return out;
+	    }
 	@Override
 	public void saveNBTData(NBTTagCompound aNBT) {
 
 		super.saveNBTData(aNBT);
 
 		int[] count = new int[1];
-		toReturn.forEach(s -> aNBT.setTag("toReturn" + (count[0]++), s.writeToNBT(new NBTTagCompound())));
+		aNBT.setTag("ret", this.writeList(this.ret));
 		getProxy().writeToNBT(aNBT);
 		Optional.ofNullable(customName).ifPresent(s -> aNBT.setString("customName", s));
 		//aNBT.setString("customName",customName);
@@ -545,12 +585,10 @@ for(ItemStack is:mInventory)
 	public void loadNBTData(NBTTagCompound aNBT) {
 
 		super.loadNBTData(aNBT);
-		toReturn.clear();
+		 this.ret = this.readList((NBTTagList) aNBT.getTag("ret"));
 		int[] count = new int[1];
 		NBTTagCompound c;
-		while ((c = (NBTTagCompound) aNBT.getTag("toReturn" + (count[0]++))) != null) {
-			toReturn.add(ItemStack.loadItemStackFromNBT(c));
-		}
+		
 		getProxy().readFromNBT(aNBT);
 		;
 		customName=aNBT.getString("customName");
@@ -634,7 +672,7 @@ for(ItemStack is:mInventory)
 
 	@Override
 	public void complete() {
-		returnItems();
+		//returnItems();
 
 	}
 
@@ -675,7 +713,127 @@ for(ItemStack is:mInventory)
 	}
 @Override
 public ItemStack getStackInSlot(int aIndex) {onBlockDestroyed();
-	// TODO Auto-generated method stub
+
+
+
+
 	return super.getStackInSlot(aIndex);
+}
+//public Object getTile(){return this.getBaseMetaTileEntity();}
+
+
+
+@Override
+public int rows() {
+	
+	return 0;
+}
+
+@Override
+public int rowSize() {
+	
+	return 0;
+}
+
+
+static IInventory EMPTY=new IInventory(){
+
+	@Override
+	public int getSizeInventory() {
+	
+		return 0;
+	}
+
+	@Override
+	public ItemStack getStackInSlot(int slotIn) {
+	
+		return null;
+	}
+
+	@Override
+	public ItemStack decrStackSize(int index, int count) {
+		
+		return null;
+	}
+
+	@Override
+	public ItemStack getStackInSlotOnClosing(int index) {
+		
+		return null;
+	}
+
+	@Override
+	public void setInventorySlotContents(int index, ItemStack stack) {
+	
+		
+	}
+
+	@Override
+	public String getInventoryName() {
+	
+		return "N/A";
+	}
+
+	@Override
+	public boolean hasCustomInventoryName() {
+	
+		return false;
+	}
+
+	@Override
+	public int getInventoryStackLimit() {
+		
+		return 0;
+	}
+
+	@Override
+	public void markDirty() {
+		
+		
+	}
+
+	@Override
+	public boolean isUseableByPlayer(EntityPlayer player) {
+		
+		return false;
+	}
+
+	@Override
+	public void openInventory() {
+		
+		
+	}
+
+	@Override
+	public void closeInventory() {
+	
+		
+	}
+
+	@Override
+	public boolean isItemValidForSlot(int index, ItemStack stack) {
+		
+		return false;
+	}};;
+@Override
+public IInventory getPatterns() {
+
+	return EMPTY;
+}
+@Override
+public String getName() {
+	
+	return "N/A";
+}
+@Override
+public TileEntity getTileEntity() {
+	
+	return (TileEntity) this.getBaseMetaTileEntity();
+}
+
+@Override
+public boolean shouldDisplay() {
+
+	return false;
 }
 }

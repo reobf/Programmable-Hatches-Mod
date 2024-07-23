@@ -52,6 +52,7 @@ import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.NumericWidget;
 
+import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
 import appeng.api.implementations.IPowerChannelState;
@@ -69,8 +70,11 @@ import appeng.api.networking.events.MENetworkPowerStatusChange;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.storage.IStorageGrid;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IItemList;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
+import appeng.api.util.IInterfaceViewable;
 import appeng.block.crafting.BlockAdvancedCraftingUnit;
 import appeng.block.crafting.BlockCraftingUnit;
 import appeng.core.Api;
@@ -103,9 +107,12 @@ import gregtech.common.items.GT_MetaGenerated_Tool_01;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_LargeTurbine;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.block.BlockIOHub;
@@ -124,7 +131,7 @@ import reobf.proghatches.main.registration.Registration;
 public class LargeProgrammingCircuitProvider
 		extends GT_MetaTileEntity_EnhancedMultiBlockBase<LargeProgrammingCircuitProvider>
 		implements ISurvivalConstructable, IGridProxyable, ICraftingProvider, IInstantCompletable, ICircuitProvider,
-		
+		IInterfaceViewable,
 		IPowerChannelState
 		{
 
@@ -141,6 +148,7 @@ public class LargeProgrammingCircuitProvider
 
 	@Override
 	public void onFacingChange() {
+		
 		updateValidGridProxySides();
 		super.onFacingChange();
 	}
@@ -565,24 +573,61 @@ totalAcc=0;
 		aNBT.setInteger("multiply", multiply);
 		getProxy().writeToNBT(aNBT);
 		int[] count = new int[1];
-		toReturn.forEach(s -> aNBT.setTag("toReturn" + (count[0]++), s.writeToNBT(new NBTTagCompound())));
+		//toReturn.forEach(s -> aNBT.setTag("toReturn" + (count[0]++), s.writeToNBT(new NBTTagCompound())));
+		aNBT.setTag("ret", this.writeList(this.ret));
 		aNBT.setInteger("cacheState", cacheState.ordinal());
 		count[0]=0;
 		patternCache.forEach(s -> aNBT.setTag("patternCache" + (count[0]++), s.writeToNBT(new NBTTagCompound())));
 		super.saveNBTData(aNBT);
-	}
+	} 
+	private NBTTagCompound writeItem(final IAEItemStack finalOutput2) {
+        final NBTTagCompound out = new NBTTagCompound();
 
+        if (finalOutput2 != null) {
+            finalOutput2.writeToNBT(out);
+        }
+
+        return out;
+    }
+	private appeng.util.item.ItemList readList(final NBTTagList tag) {
+        final appeng.util.item.ItemList out = new appeng.util.item.ItemList();
+
+        if (tag == null) {
+            return out;
+        }
+
+        for (int x = 0; x < tag.tagCount(); x++) {
+            final IAEItemStack ais = AEItemStack.loadItemStackFromNBT(tag.getCompoundTagAt(x));
+            if (ais != null) {
+                out.add(ais);
+            }
+        }
+
+        return out;
+    }
+	 private NBTTagList writeList(final IItemList<IAEItemStack> myList) {
+	        final NBTTagList out = new NBTTagList();
+
+	        for (final IAEItemStack ais : myList) {
+	            out.appendTag(this.writeItem(ais));
+	        }
+
+	        return out;
+	    }
+	 
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
 		multiply=aNBT.getInteger("multiply");
 		getProxy().readFromNBT(aNBT);
-		toReturn.clear();
+		
+		  this.ret = this.readList((NBTTagList) aNBT.getTag("ret"));
+		//toReturn.clear();
 		patternCache.clear();
 		int[] count = new int[1];
 		NBTTagCompound c;
-		while ((c = (NBTTagCompound) aNBT.getTag("toReturn" + (count[0]++))) != null) {
+		/*while ((c = (NBTTagCompound) aNBT.getTag("toReturn" + (count[0]++))) != null) {
 			toReturn.add(ItemStack.loadItemStackFromNBT(c));
-		}
+		}*/
 		count[0]=0;
 		while ((c = (NBTTagCompound) aNBT.getTag("patternCache" + (count[0]++))) != null) {
 			patternCache.add(ItemStack.loadItemStackFromNBT(c));
@@ -592,12 +637,13 @@ totalAcc=0;
 		super.loadNBTData(aNBT);
 	}
 
-	ArrayList<ItemStack> toReturn = new ArrayList<>();
-	
+	//ArrayList<ItemStack> toReturn = new ArrayList<>();
+    private appeng.util.item.ItemList ret = new appeng.util.item.ItemList();
+    
 	@SuppressWarnings({ "deprecation", "unchecked" })
 	public static void shut(GT_MetaTileEntity_MultiBlockBase thiz,String reason){
 		if(shut==null){
-		
+	
 		try {
 			Class.forName("gregtech.api.util.shutdown.ShutDownReason");
 			//2.6.0+
@@ -652,7 +698,8 @@ totalAcc=0;
 	public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
 		if(!getBaseMetaTileEntity().isActive())return false;
 		try {
-			if (ItemProgrammingCircuit.getCircuit(patternDetails.getOutputs()[0].getItemStack()).map(ItemStack::getItem)
+			if(!(patternDetails instanceof ProgrammingCircuitProvider.CircuitProviderPatternDetial)){return false;}
+			if (ItemProgrammingCircuit.getCircuit(((CircuitProviderPatternDetial)patternDetails).out).map(ItemStack::getItem)
 					.orElse(null) == MyMod.progcircuit) {
 				shut(this,null);
 				return false;
@@ -666,9 +713,11 @@ totalAcc=0;
 		} catch (GridAccessException e) {
 
 		}
+		
+		
 		ItemStack circuitItem = (patternDetails.getOutput(table, this.getBaseMetaTileEntity().getWorld()));
-		toReturn.add((circuitItem));
-
+		//toReturn.add((circuitItem));
+		ret.add(AEItemStack.create(circuitItem));
 		return true;
 	}
 
@@ -730,11 +779,15 @@ int lasthash;
 	}
 
 	public void returnItems() {
-		toReturn.replaceAll(s -> Optional
+		ret.forEach(s->
+		getStorageGrid().getItemInventory().injectItems(s, Actionable.MODULATE, new MachineSource((IActionHost) getBaseMetaTileEntity())
+		));
+		ret.clear();
+		/*toReturn.replaceAll(s -> Optional
 				.ofNullable(getStorageGrid().getItemInventory().injectItems(AEItemStack.create(s), Actionable.MODULATE,
-						new MachineSource((IActionHost) getBaseMetaTileEntity())))
+						)))
 				.filter(ss -> ss.getStackSize() <= 0).map(ss -> ss.getItemStack()).orElse(null));
-		toReturn.removeIf(Objects::isNull);
+		toReturn.removeIf(Objects::isNull);*/
 
 	}
 
@@ -778,20 +831,23 @@ int lasthash;
 	}
 private  ItemStack mul( ItemStack s){
 	s=s.copy();
-	s.stackSize=multiply;
+	s.stackSize=Math.max(multiply,1);
 	return s;
 }
 @MENetworkEventSubscribe
  public void powerChange(MENetworkPowerStatusChange w){
+	//System.out.println("xxxxxxxxxxx1");
 	cacheState = CacheState.DIRTY;
 }
 
 @MENetworkEventSubscribe
 public void powerChange(MENetworkChannelChanged w){
+	//System.out.println("xxxxxxxxxxx2");
 	cacheState = CacheState.DIRTY;
 }
 @MENetworkEventSubscribe
 public void powerChange(MENetworkChannelsChanged w){
+	//System.out.println("xxxxxxxxxxx3");
 	cacheState = CacheState.DIRTY;
 }
 	@Override
@@ -803,7 +859,7 @@ public void powerChange(MENetworkChannelsChanged w){
 		if (cacheState == CacheState.FRESHLY_UPDATED || cacheState == CacheState.UPDATED)
 			if(isActive())
 			patternCache.forEach(s -> craftingTracker.addCraftingOption(this, 
-					multiply==1?
+					multiply<=1?
 					new CircuitProviderPatternDetial(s)
 					:
 					new CircuitProviderPatternDetial(mul(s))
@@ -824,7 +880,7 @@ public void powerChange(MENetworkChannelsChanged w){
 
 	@Override
 	public void complete() {
-		returnItems();
+		//returnItems();
 
 	}
 
@@ -993,5 +1049,122 @@ public boolean isPowered() {
 public boolean isActive() {
     return getProxy() != null && getProxy().isActive();
 }
+
+
+static IInventory EMPTY=new IInventory(){
+
+	@Override
+	public int getSizeInventory() {
+	
+		return 0;
+	}
+
+	@Override
+	public ItemStack getStackInSlot(int slotIn) {
+	
+		return null;
+	}
+
+	@Override
+	public ItemStack decrStackSize(int index, int count) {
+		
+		return null;
+	}
+
+	@Override
+	public ItemStack getStackInSlotOnClosing(int index) {
+		
+		return null;
+	}
+
+	@Override
+	public void setInventorySlotContents(int index, ItemStack stack) {
+	
+		
+	}
+
+	@Override
+	public String getInventoryName() {
+	
+		return "N/A";
+	}
+
+	@Override
+	public boolean hasCustomInventoryName() {
+	
+		return false;
+	}
+
+	@Override
+	public int getInventoryStackLimit() {
+		
+		return 0;
+	}
+
+	@Override
+	public void markDirty() {
+		
+		
+	}
+
+	@Override
+	public boolean isUseableByPlayer(EntityPlayer player) {
+		
+		return false;
+	}
+
+	@Override
+	public void openInventory() {
+		
+		
+	}
+
+	@Override
+	public void closeInventory() {
+	
+		
+	}
+
+	@Override
+	public boolean isItemValidForSlot(int index, ItemStack stack) {
+		
+		return false;
+	}};;
+
+public IInventory getPatterns() {
+
+	return EMPTY;
+}
+
+public String getName() {
+	
+	return "N/A";
+}
+
+public TileEntity getTileEntity() {
+	
+	return (TileEntity) this.getBaseMetaTileEntity();
+}
+
+
+public boolean shouldDisplay() {
+
+	return false;
+}
+
+
+
+
+public int rows() {
+	
+	return 0;
+}
+
+
+public int rowSize() {
+	
+	return 0;
+}
+
 
 }

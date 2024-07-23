@@ -113,6 +113,7 @@ static boolean   init;
 static void init(){
 	if(init==true)return;
 	init=true;
+	System.out.println("init!!!!");
 	reg(0,GregTech_API.getConfigurationCircuitList(100));
 	   ItemList[][] all = new ItemList[][]{{
 	    Shape_Mold_Bottle,
@@ -224,6 +225,12 @@ static void init(){
 	//System.out.println(is);
 	reg(5,is);
 	 }
+	    
+	    prefab.values().forEach(s->s.removeIf(isy->{
+	    	if(isy==null)System.out.println("Null:"+s);
+	    	return isy==null;}));
+	 
+	
 	    
 	    
 }

@@ -8,6 +8,7 @@ import appeng.api.networking.IGridNode;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IReadOnlyCollection;
 import appeng.api.util.WorldCoord;
+import appeng.helpers.IInterfaceHost;
 import appeng.me.GridConnection;
 import appeng.me.helpers.AENetworkProxy;
 import gregtech.api.interfaces.tileentity.ICoverable;
@@ -19,6 +20,7 @@ import reobf.proghatches.eucrafting.AECover.Data;
 import reobf.proghatches.main.MyMod;
 
 public class BridgingData implements Data {
+	public IInterfaceHost getInterfaceOrNull(){return null;};
 	public interface TriConsumer<a, b, c> {
 		public void accept(a aa, b bb, c cc);
 

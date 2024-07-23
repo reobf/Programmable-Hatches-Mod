@@ -22,6 +22,7 @@ import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidTank;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
+import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.lang.LangManager;
 
@@ -64,6 +65,7 @@ import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
+import appeng.tile.misc.TileInterface;
 import appeng.util.Platform;
 import gregtech.GT_Mod;
 import gregtech.api.GregTech_API;
@@ -79,7 +81,7 @@ import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME
 
 
 public class PatternDualInputHatch extends BufferedDualInputHatch
-		implements ICraftingProvider, IGridProxyable, ICustomNameObject, IInterfaceViewable, IPowerChannelState {
+		implements ICraftingProvider, IGridProxyable, ICustomNameObject, IInterfaceViewable, IPowerChannelState, IActionHost {
 
 	public PatternDualInputHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
 			boolean mMultiFluid, int bufferNum) {
@@ -850,5 +852,15 @@ if(supportsFluids())
 	        aPlayer.addChatComponentMessage(
 	            new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
 	        return true;
+	    }public Net getNetwork(){
+	    
+	    	return new Net(this.getGridNode(ForgeDirection.UP).getGrid(), this);
 	    }
+
+		@Override
+		public IGridNode getActionableNode() {
+			
+			return this.getGridNode(ForgeDirection.UP);
+		}
+		public Object getTile(){return this.getBaseMetaTileEntity();}
 }

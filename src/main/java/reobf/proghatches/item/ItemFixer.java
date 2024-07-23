@@ -14,6 +14,7 @@ import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
 import appeng.api.parts.IPartHost;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.IInterfaceViewable;
 import appeng.core.localization.GuiText;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.PatternHelper;
@@ -108,8 +109,10 @@ IGrid g = null;
 	//System.out.println(host);
 	//System.out.println(host instanceof IInterfaceHost);
 	
-	if(host instanceof IInterfaceHost)
-	fix((IInterfaceHost) host,()->cnt[0]++);
+	if(host instanceof IInterfaceViewable){
+		//System.out.println("fix:"+host);
+		
+	fix((IInterfaceViewable) host,()->cnt[0]++);}
 	});	
 	
 	System.out.println("Player tried to use fixer to fix patterns, if this info spams in log and server gets laggy, blame 'em.");
@@ -178,7 +181,7 @@ public ItemStack fix(ItemStack is,Runnable succ){
   
 	return is.copy();
 }
-public void fix(IInterfaceHost iface,Runnable succ){
+public void fix(IInterfaceViewable iface,Runnable succ){
 	iface.getTileEntity().markDirty();
 	IInventory inv = iface.getPatterns();
 	for(int i=0;i<inv.getSizeInventory();i++){

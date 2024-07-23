@@ -37,11 +37,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
+import net.minecraft.util.Tuple;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidTank;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -50,6 +52,7 @@ import com.google.gson.internal.Streams;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
+import com.gtnewhorizons.modularui.api.drawable.Text;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
@@ -57,8 +60,10 @@ import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.api.widget.Interactable;
 import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.api.widget.Widget.ClickData;
+import com.gtnewhorizons.modularui.common.fluid.FluidStackTank;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.internal.wrapper.ModularUIContainer;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
@@ -72,7 +77,9 @@ import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 
 import appeng.api.AEApi;
 import appeng.api.IAppEngApi;
+import appeng.api.config.Actionable;
 import appeng.api.networking.IGrid;
+import appeng.api.networking.IGridCache;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.security.BaseActionSource;
@@ -83,10 +90,15 @@ import appeng.api.parts.IPartHost;
 import appeng.api.storage.IExternalStorageHandler;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.StorageChannel;
+import appeng.api.storage.data.IAEFluidStack;
+import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.AECableType;
 import appeng.core.Api;
 import appeng.helpers.IInterfaceHost;
 import appeng.me.helpers.IGridProxyable;
+import appeng.util.item.AEFluidStack;
+import appeng.util.item.AEItemStack;
+import appeng.util.item.AEStack;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.SoundResource;
@@ -108,6 +120,7 @@ import gregtech.api.util.GT_Utility;
 import gregtech.api.util.GT_TooltipDataCache.TooltipData;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
+import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.IMultiCircuitSupport;
 import reobf.proghatches.gt.metatileentity.util.IProgrammingCoverBlacklisted;
@@ -609,7 +622,7 @@ boolean loadOldVer=true;
 		
 		
 		
-		ModularWindow.Builder builder = ModularWindow.builder(32, 32+16*4);
+		ModularWindow.Builder builder = ModularWindow.builder(36+18*3, 36+18*4);
 		builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
 		builder.setGuiTint(getGUIColorization());
 		builder.setDraggable(true);
@@ -619,6 +632,138 @@ boolean loadOldVer=true;
 		for(int i=0;i<shared.circuitUpgrades;i++)
 		builder.widget(catalystSlot(new ItemStackHandler(shared.circuitInv), i).setPos(8-1, 8-1+18+18*i));
 				
+		
+		int posoffset=0;
+		for(int i=0;i<shared.itemMEUpgrades;i++){
+			final int fi=i;
+			builder.widget(SlotWidget.phantom(new ItemStackHandler(shared.markedItems), i)
+					.addTooltips(ImmutableList.of(
+							StatCollector.translateToLocal("programmable_hatches.gt.item.pull.me.0"),
+							StatCollector.translateToLocal("programmable_hatches.gt.item.pull.me.1"))
+							)
+					.setPos(8-1+18+4, 8-1+18*posoffset));
+			builder.widget(new DrawableWidget().setDrawable(ModularUITextures.ARROW_RIGHT)
+					 
+					 .setPos(8-1+18*2+4, 8-1+18*posoffset).setSize(18,18));
+			builder.widget(new SlotWidget(new BaseSlot(new ItemStackHandler(1), 0)){
+				int cd=0;
+				public void detectAndSendChanges(boolean init) {
+					
+					if(cd--<0)
+					{cd=10;
+					ItemStack is=null;
+					Net net = getNetwork();
+					if(net!=null){
+						IStorageGrid cahce = net.g.getCache(IStorageGrid.class);
+					 if(cahce!=null){
+						IAEItemStack aeis = cahce.getItemInventory().getStorageList().findPrecise(AEItemStack.create(shared.markedItems.get(fi)));
+						 if(aeis!=null)is=aeis.getItemStack();
+					 }
+					}
+					((ItemStackHandler)((BaseSlot)this.getMcSlot()).getItemHandler()).setStackInSlot(this.getMcSlot().getSlotIndex(), 
+							
+							is);
+					}
+					
+					
+					super.detectAndSendChanges(init);
+				};
+				
+			}.disableInteraction().setPos(8-1+18*3+4, 8-1+18*posoffset));
+			posoffset++;
+		}
+		
+		for(int i=0;i<shared.fluidMEUpgrades;i++){
+			final int fi=i;
+			builder.widget(new FluidSlotWidget(shared.createTankForFluidStack(i,1))
+					{{setPhantom(true);}
+				 @Override
+                 protected void tryClickPhantom(ClickData clickData, ItemStack cursorStack) {
+                     if (clickData.mouseButton != 0 ) return;
+
+                     FluidStack heldFluid = getFluidForPhantomItem(cursorStack);
+                     if (cursorStack == null) {
+                    	 shared.markedFluid.set(fi, null);
+                     } else {
+                      
+                    	 shared.markedFluid.set(fi, heldFluid);
+                     }
+                     if (getBaseMetaTileEntity().isServerSide()) {
+                     
+                         detectAndSendChanges(false);
+                     }
+                 }
+
+                 @Override
+                 protected void tryScrollPhantom(int direction) {}
+				
+					}
+					
+					.addTooltips(ImmutableList.of(
+							StatCollector.translateToLocal("programmable_hatches.gt.item.pull.me.0"),
+							StatCollector.translateToLocal("programmable_hatches.gt.item.pull.me.1"))
+							)
+					.setPos(8-1+18+4, 8-1+18*posoffset));
+			builder.widget(new DrawableWidget().setDrawable(ModularUITextures.ARROW_RIGHT)
+					 
+					 .setPos(8-1+18*2+4, 8-1+18*posoffset).setSize(18,18));
+			FluidTank ft;
+			builder.widget(new FluidSlotWidget(ft=new FluidTank(Integer.MAX_VALUE)){
+				int cd=0;{setPhantom(true);}
+				@Override
+                public void buildTooltip(List<Text> tooltip) {
+                    FluidStack fluid = getContent();
+                    if (fluid != null) {
+                        addFluidNameInfo(tooltip, fluid);
+                        tooltip.add(Text.localised("modularui.fluid.phantom.amount", fluid.amount));
+                        addAdditionalFluidInfo(tooltip, fluid);
+                        if (!Interactable.hasShiftDown()) {
+                            tooltip.add(Text.EMPTY);
+                            tooltip.add(Text.localised("modularui.tooltip.shift"));
+                        }
+                    } else {
+                        tooltip.add(
+                            Text.localised("modularui.fluid.empty")
+                                .format(EnumChatFormatting.WHITE));
+                    }
+                }
+				  @Override
+                  protected void tryClickPhantom(ClickData clickData, ItemStack cursorStack) {}
+
+                  @Override
+                  protected void tryScrollPhantom(int direction) {}
+
+				public void detectAndSendChanges(boolean init) {
+					
+					if(cd--<0)
+					{cd=10;
+					FluidStack is=null;
+					Net net = getNetwork();
+					if(net!=null){
+						IStorageGrid cahce = net.g.getCache(IStorageGrid.class);
+					 if(cahce!=null){
+						IAEFluidStack aeis = cahce.getFluidInventory().getStorageList().findPrecise(AEFluidStack.create(shared.markedFluid.get(fi)));
+						 if(aeis!=null)is=aeis.getFluidStack();
+					 }
+					}
+					ft.setFluid(is);
+					//todo
+					//this.setfl
+					
+					}
+					
+					
+					super.detectAndSendChanges(init);
+				};
+				
+			}
+			
+			.setPos(8-1+18*3+4, 8-1+18*posoffset));
+			posoffset++;
+		}
+		
+		
+		
 		
 		
 		return builder.build();
@@ -685,7 +830,7 @@ boolean loadOldVer=true;
 	}
 
 	private FluidStack[] dualFluid() {
-		return asFluidStack.apply(mStoredFluid);
+		return asFluidStack.apply(mStoredFluid,shared.getFluid());
 	}
 
 	public DualInv theInv = new DualInv();
@@ -710,8 +855,9 @@ boolean loadOldVer=true;
 
 		@Override
 		public ItemStack[] getItemInputs() {
-
-			return dualItem();
+			ItemStack[] is=dualItem();
+			//System.out.println(Arrays.toString(is));
+			return is;
 		}
 
 		@Override
@@ -723,7 +869,10 @@ boolean loadOldVer=true;
 	public interface VargsFunction<T, R> {
 			R apply(T... t);
 	}
-	VargsFunction<FluidTank[], FluidStack[]> asFluidStack = (s) -> Arrays.stream(s).flatMap( Arrays::stream).map(FluidTank::getFluid)
+	VargsFunction<Object[], FluidStack[]> asFluidStack = (s) -> Arrays.stream(s).flatMap( Arrays::stream).map(f->{
+		if(f instanceof FluidTank){return ((FluidTank) f).getFluid();}
+		else if(f instanceof FluidStack){return (FluidStack)f;}else{throw new RuntimeException();}
+	})
 			.filter(a -> a != null && a.amount > 0).toArray(FluidStack[]::new);
 	VargsFunction<ItemStack[], ItemStack[]> filterStack = (s) -> Arrays.stream(s).flatMap( Arrays::stream).filter(a -> a != null)
 			.toArray(ItemStack[]::new);
@@ -1628,30 +1777,142 @@ public boolean allowPutStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex
 
 public OptioanlSharedContents shared=new OptioanlSharedContents();
 public class OptioanlSharedContents{
+	
+	ArrayList<ItemStack> shadowItems=new ArrayList<>();
+	ArrayList<FluidStack> shadowFluid=new ArrayList<>();
+	ArrayList<ItemStack> cachedItems=new ArrayList<>();
+	ArrayList<FluidStack> cachedFluid=new ArrayList<>();
+	ArrayList<ItemStack> markedItems=new ArrayList<>();
+	ArrayList<FluidStack> markedFluid=new ArrayList<>();	
+	
 	public void reinit(){
 		
 		while(circuitInv.size()<circuitUpgrades)circuitInv.add(null);
+		while(markedItems.size()<itemMEUpgrades)markedItems.add(null);
+		while(markedFluid.size()<fluidMEUpgrades)markedFluid.add(null);
+		
 	}
+	
+	public FluidStackTank createTankForFluidStack( int slotIndex, int capacity) {
+        return new FluidStackTank(() -> markedFluid.get(slotIndex), (stack) -> {
+           
+
+        	markedFluid.set(slotIndex, stack);
+        }, capacity);
+    }
 	public boolean endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+		if(isDummy())return true;
+		boolean storageMissing=false;
+		Net net = getNetwork();
+		IStorageGrid cahce=null;
+		if(net==null)storageMissing=true;
+		else{
+		 cahce=net.g.getCache(IStorageGrid.class);
+		 if(cahce==null)storageMissing=true;
+		}
+		
+		for(int i=0;i<markedItems.size();i++){
+			ItemStack sis=shadowItems.get(i);
+			ItemStack cis=cachedItems.get(i);
+			if(sis!=null){
+				int consumed=sis.stackSize-Optional.ofNullable(cis).map(s->s.stackSize).orElse(0);
+				if(consumed>0&&storageMissing)return false;
+				ItemStack extract=sis.copy();
+				extract.stackSize=consumed;
+				
+				IAEItemStack whatweget=cahce.getItemInventory().extractItems(AEItemStack.create(extract), Actionable.MODULATE, new  MachineSource( net.h));
+				int numweget=0;
+				if(whatweget!=null)numweget=(int) whatweget.getStackSize();
+				if(numweget!=consumed){return false;}
+			}
+		}
+		for(int i=0;i<markedFluid.size();i++){
+			FluidStack sis=shadowFluid.get(i);
+			FluidStack cis=cachedFluid.get(i);
+			if(sis!=null){
+				int consumed=sis.amount-Optional.ofNullable(cis).map(s->s.amount).orElse(0);
+				if(consumed>0&&storageMissing)return false;
+				FluidStack extract=sis.copy();
+				extract.amount=consumed;
+				
+				IAEFluidStack whatweget=cahce.getFluidInventory().extractItems(AEFluidStack.create(extract), Actionable.MODULATE, new  MachineSource( net.h));
+				int numweget=0;
+				if(whatweget!=null)numweget=(int) whatweget.getStackSize();
+				if(numweget!=consumed){return false;}
+			}
+		}
+		
+		
+		
 		
 		return true;
 	}
 	public void startRecipeProcessing() {
+		if(isDummy())return;
+		IGrid net = getNetwork().g;
+		IStorageGrid cahce=null;
+		if(net!=null)
+		cahce=net.getCache(IStorageGrid.class);
+		shadowItems.clear();
+		shadowFluid.clear();
+		cachedItems.clear();
+		cachedFluid.clear();
+		for(int i=0;i<markedItems.size();i++){
+			ItemStack is=markedItems.get(i);
+			if(is==null||cahce==null){
+				shadowItems.add(null);
+				cachedItems.add(null);
+			}else{
+				ItemStack ris=(Optional.ofNullable(
+						cahce.getItemInventory().getStorageList().findPrecise(AEItemStack.create(is))
+						).map(IAEItemStack::getItemStack).orElse(null));
+				shadowItems.add(ris);	
+				cachedItems.add(ris.copy());
+			}
+		}
+		for(int i=0;i<markedFluid.size();i++){
+			FluidStack is=markedFluid.get(i);
+			if(is==null||cahce==null){
+				shadowFluid.add(null);
+				cachedFluid.add(null);
+			}else{
+				FluidStack ris=(Optional.ofNullable(
+						cahce.getFluidInventory().getStorageList().findPrecise(AEFluidStack.create(is))
+						).map(IAEFluidStack::getFluidStack).orElse(null));
+				shadowFluid.add(ris);	
+				cachedFluid.add(ris.copy());
+			}
+		}
+		
+		
+		
 		
 		
 	}
 	public void onDestroy() {IGregTechTileEntity te = getBaseMetaTileEntity();
 		if(circuitUpgrades>0)
-			
-			
-			
 			te.getWorld().spawnEntityInWorld(
 					new EntityItem(te.getWorld(),te.getXCoord(),te.getYCoord(),te.getZCoord(), new ItemStack(MyMod.upgrades,circuitUpgrades,0))
 					);
-			
-		
+		if(itemMEUpgrades>0)
+			te.getWorld().spawnEntityInWorld(
+					new EntityItem(te.getWorld(),te.getXCoord(),te.getYCoord(),te.getZCoord(), new ItemStack(MyMod.upgrades,itemMEUpgrades,1))
+					);	
+		if(fluidMEUpgrades>0)
+			te.getWorld().spawnEntityInWorld(
+					new EntityItem(te.getWorld(),te.getXCoord(),te.getYCoord(),te.getZCoord(), new ItemStack(MyMod.upgrades,fluidMEUpgrades,2))
+					);	
 	}
 	public NBTTagCompound serList(ArrayList<ItemStack> ls){
+		NBTTagCompound tag=new NBTTagCompound();
+		tag.setInteger("len", ls.size());
+		for(int i=0;i<ls.size();i++){
+			if( ls.get(i)!=null)
+			tag.setTag("i"+i, ls.get(i).writeToNBT(new NBTTagCompound()));
+		}
+		return tag;
+	}
+	public NBTTagCompound serListF(ArrayList<FluidStack> ls){
 		NBTTagCompound tag=new NBTTagCompound();
 		tag.setInteger("len", ls.size());
 		for(int i=0;i<ls.size();i++){
@@ -1668,17 +1929,29 @@ public class OptioanlSharedContents{
 		}
 		return ls;
 	}
-	
+	public ArrayList<FluidStack> deserListF(NBTTagCompound tag){
+		 ArrayList<FluidStack> ls=new  ArrayList<FluidStack>();
+		 int len=tag.getInteger("len");
+		 for(int i=0;i<len;i++){
+			 ls.add(FluidStack.loadFluidStackFromNBT(tag.getCompoundTag("i"+i)));
+		}
+		return ls;
+	}
 	
 	
 	
 	public ItemStack[] getItems(){
 		ArrayList<ItemStack> all=new ArrayList<>();
 		all.addAll(circuitInv);
+		all.addAll(cachedItems);
+		
 		return all.toArray(new ItemStack[0]);
 		}
 	
-	public FluidStack[] getFluid(){return new FluidStack[0];}
+	public FluidStack[] getFluid(){
+		ArrayList<FluidStack> all=new ArrayList<>();
+		all.addAll(cachedFluid);
+		return all.toArray(new FluidStack[0]);}
 	public boolean isDummy(){return circuitUpgrades+itemMEUpgrades+fluidMEUpgrades==0;}
 	
 	
@@ -1705,6 +1978,8 @@ public class OptioanlSharedContents{
 		tag.setInteger("itemMEUpgrades", itemMEUpgrades);
 		tag.setInteger("fluidMEUpgrades", fluidMEUpgrades);
 		tag.setTag("circuitInv", serList(circuitInv));
+		tag.setTag("markedItems", serList(markedItems));
+		tag.setTag("markedFluid", serListF(markedFluid));
 		return tag;}
 	public void deser(NBTTagCompound tag){
 		
@@ -1712,8 +1987,15 @@ public class OptioanlSharedContents{
 		itemMEUpgrades=tag.getInteger("itemMEUpgrades");
 		fluidMEUpgrades=tag.getInteger("fluidMEUpgrades");
 		circuitInv=deserList(tag.getCompoundTag("circuitInv"));
+		markedItems=deserList(tag.getCompoundTag("markedItems"));
+		markedFluid=deserListF(tag.getCompoundTag("markedFluid"));
 		while(circuitInv.size()>circuitUpgrades)circuitInv.remove(circuitInv.size()-1);
 		while(circuitInv.size()<circuitUpgrades)circuitInv.add(null);
+		while(markedItems.size()>itemMEUpgrades)markedItems.remove(markedItems.size()-1);
+		while(markedItems.size()<itemMEUpgrades)markedItems.add(null);
+		while(markedFluid.size()>fluidMEUpgrades)markedFluid.remove(markedFluid.size()-1);
+		while(markedFluid.size()<fluidMEUpgrades)markedFluid.add(null);
+		
 	}
 	public void install(ItemStack heldItem) {
 	int damage=heldItem.getItemDamage();
@@ -1726,6 +2008,27 @@ public class OptioanlSharedContents{
 				
 			}
 		}
+		if(damage==1){
+			if(itemMEUpgrades<1){
+				
+				itemMEUpgrades++;
+				heldItem.stackSize--;
+				successInstall();
+				
+			}
+		}
+		if(damage==2){
+			if(fluidMEUpgrades<1){
+				
+				fluidMEUpgrades++;
+				heldItem.stackSize--;
+				successInstall();
+				
+			}
+		}
+		
+		
+		
 		
 	}
 	@SuppressWarnings("unchecked")
@@ -1788,9 +2091,16 @@ public void onBlockDestroyed() {
 }
 
 
+public static class Net{
+	public IGrid g;
+	public IActionHost h;
+	public Net(IGrid g,IActionHost h){
+		this.g=g;
+		this.h=h;
+	}
+}
 
-
-public IGrid getNetwork(){
+public Net getNetwork(){
 	//DO NOT do the same way that StorageBus does,to skip permission check
 	IGregTechTileEntity self = getBaseMetaTileEntity();
 	  final TileEntity te = self.getWorld().getTileEntity(
@@ -1799,14 +2109,17 @@ public IGrid getNetwork(){
               self.getZCoord() + self.getFrontFacing().offsetZ);
 
 		
-	  IGrid g = null;
+	  Net g = null;
 	if(te instanceof IPartHost){
 		
 	try {
 		final Object part =((IPartHost) te).getPart(self.getFrontFacing().getOpposite());
 		 if (part instanceof IInterfaceHost) {
 			
-          g=((IInterfaceHost) part).getGridNode(ForgeDirection.UP).getGrid();
+          g=new Net(((IInterfaceHost) part).getGridNode(ForgeDirection.UP).getGrid(),
+        		  (IInterfaceHost) part
+        		  
+        		  );
           
          }
 	
@@ -1814,18 +2127,34 @@ public IGrid getNetwork(){
 	
 	}
 	}
+	
+	if(g==null){
 	if(te instanceof IInterfaceHost){
 		
-		if(g==null){
+		
 			
 			IGridNode n=((IInterfaceHost) te).getGridNode(ForgeDirection.UP);
 			if(n!=null)
-			g=n.getGrid();
+			g=new Net(n.getGrid(),((IInterfaceHost) te));
 			
 		
 		}
 		
 	}
+	
+	if(g==null){
+		Object optCover=this.getBaseMetaTileEntity().getComplexCoverDataAtSide(this.getBaseMetaTileEntity().getFrontFacing());
+		if(optCover instanceof AECover.Data){
+			
+			IInterfaceHost iface = ((AECover.Data) optCover).getInterfaceOrNull();
+			if(iface!=null){
+				g=new Net(iface.getGridNode(ForgeDirection.UP).getGrid(),iface);
+				
+			}
+		}
+			
+	}
+	
 	
 	return g;
 

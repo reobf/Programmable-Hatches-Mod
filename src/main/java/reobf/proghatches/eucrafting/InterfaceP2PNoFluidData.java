@@ -72,7 +72,7 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
 	public void setTag(NBTTagCompound tagCompound) {
 		tag = tagCompound;
 	}
-
+	public IInterfaceHost getInterfaceOrNull(){return duality;};
 	public NBTTagCompound getTag() {
 		return tag;
 	}

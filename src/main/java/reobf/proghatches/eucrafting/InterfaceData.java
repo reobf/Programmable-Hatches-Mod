@@ -29,6 +29,7 @@ import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IConfigManager;
 import appeng.api.util.IConfigurableObject;
+import appeng.api.util.IInterfaceViewable;
 import appeng.helpers.DualityInterface;
 import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IInterfaceHost;
@@ -62,6 +63,8 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
 		IConfigurableObject, IPriorityHost,
 		IActualSideProvider
 		{
+	
+	public IInterfaceHost getInterfaceOrNull(){return this;};
 	public void setTag(NBTTagCompound tagCompound) {
 	
 		tag = tagCompound;

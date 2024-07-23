@@ -984,4 +984,5 @@ public double taxPercentage(){
 	public List<ILazer> getLazerP2POuts() {
 		return null;
 	}
+	
 }

@@ -1944,7 +1944,7 @@ public class OptioanlSharedContents{
 		ArrayList<ItemStack> all=new ArrayList<>();
 		all.addAll(circuitInv);
 		all.addAll(cachedItems);
-		
+		all.add(mInventory[getCircuitSlot()]);
 		return all.toArray(new ItemStack[0]);
 		}
 	

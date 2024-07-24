@@ -852,6 +852,7 @@ public void powerChange(MENetworkChannelsChanged w){
 }
 	@Override
 	public void provideCrafting(ICraftingProviderHelper craftingTracker) {
+		if(mStartUpCheck>0)return;
 		if (cacheState == CacheState.DIRTY) {
 			updateCache();
 			cacheState = CacheState.FRESHLY_UPDATED;

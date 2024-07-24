@@ -86,7 +86,8 @@ static public ArrayList<String> retLate = new ArrayList<>();
 	@SuppressWarnings("unused")
 	@Override
 	public List<String> getMixins() {
-		
+	
+		boolean ff=true;
 		
 		File f = new File(System.getProperty("user.dir") + File.separator + "config", "proghatches.mixin.properties");
 		if (f.exists() == false) {
@@ -138,58 +139,57 @@ static public ArrayList<String> retLate = new ArrayList<>();
 
 		
 		if (!"true".equals(pp.get("noFixRecursiveCraft")))
-			retLate.add("eucrafting." + "MixinCraftingRecursiveWorkaround");
+			if(ff)retLate.add("eucrafting." + "MixinCraftingRecursiveWorkaround");
 		if (!"true".equals(pp.get("noEUCraftingMixins"))) {
-			retLate.add("eucrafting." + "MixinMachineIdle");
-			retLate.add("eucrafting." + "MixinMachineIdle2");
-			retLate.add("eucrafting." + "MixinCpuClusterEUAutoRequest");
-			retLate.add("eucrafting." + "MixinRemoveExcessiveEU");
-			retLate.add("eucrafting." + "MixinCoverInsertion");
-			retLate.add("eucrafting." + "MixinEUSourceCoverChunkUnloadNotification");
-		}
+			if(ff)retLate.add("eucrafting." + "MixinMachineIdle");
+			if(ff)retLate.add("eucrafting." + "MixinMachineIdle2");
+			if(ff)retLate.add("eucrafting." + "MixinCpuClusterEUAutoRequest");
+			if(ff)retLate.add("eucrafting." + "MixinRemoveExcessiveEU");
+		
+			if(ff)retLate.add("eucrafting." + "MixinEUSourceCoverChunkUnloadNotification");
+		}	
+		if(ff)	retLate.add("eucrafting." + "MixinCoverInsertion");
 		if (FMLLaunchHandler.side().isClient()) {
-			retLate.add("eucrafting." + "MixinWirelessRename");
+			if(ff)retLate.add("eucrafting." + "MixinWirelessRename");
 			}
-		retLate.add("eucrafting." + "MixinInvTracker");
+		if(ff)retLate.add("eucrafting." + "MixinInvTracker");
 		
-		retLate.add("MixinFixPipeCoverBug");	
-		retLate.add("MixinFixPipeCoverBug2");
+		if(ff)retLate.add("MixinFixPipeCoverBug");	
+		if(ff)retLate.add("MixinFixPipeCoverBug2");
 		
-		retLate.add("MixinAEAdaptorSkipStackSizeCheck");
-		retLate.add("MixinAwarenessForDualHatch");
+		if(ff)retLate.add("MixinAEAdaptorSkipStackSizeCheck");
+		if(ff)retLate.add("MixinAwarenessForDualHatch");
 		if (!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))
-			retLate.add("MixinRemoveUnunsedItemStackCache");
-		retLate.add("MixinAE2FCCompat");
+			if(ff)retLate.add("MixinRemoveUnunsedItemStackCache");
+		if(ff)retLate.add("MixinAE2FCCompat");
 
 		if (!"true".equals(pp.get("noRecipeFilterForDualHatch"))) {
-			retLate.add("MixinGTRecipeFilter");
+			if(ff)retLate.add("MixinGTRecipeFilter");
 			// GT Multiblock will not set recipe filter of DualInputHatch, set
 			// it via mixin
-			retLate.add("MixinAddProgCircuitExemptToInputFilter");
+			if(ff)retLate.add("MixinAddProgCircuitExemptToInputFilter");
 		}
 		// Crafting CPU cannot recognize empty-input pattern
 		// bypass the check anyway
 		retLate.add("MixinCanCraftExempt");
-		retLate.add("MixinNoFuzzyForProgrammingCircuit");
-		retLate.add("MixinHandleProgrammingOnRecipeStart");
-		//if(!"true".equals(pp.get("noMigrateProgrammingCircuitMixin")))
-		//		ret.add("MixinCircuitMigration");
+		if(ff)retLate.add("MixinNoFuzzyForProgrammingCircuit");
+		if(ff)retLate.add("MixinHandleProgrammingOnRecipeStart");
 		
 		
 		if (FMLLaunchHandler.side().isClient()) {
 			if (!"true".equals(pp.get("noAEItemSortMixins")))
-				retLate.add("MixinAEItemStackCompare");
+				if(ff)retLate.add("MixinAEItemStackCompare");
 			if (!"true".equals(pp.get("noFixTossBug")))
-				ret.add("MixinFixTossWhenClickSlot");
+				if(ff)ret.add("MixinFixTossWhenClickSlot");
 			
 		
 			
 			if (!"true".equals(pp.get("noPatternEncodingMixin"))) {
-				retLate.add("MixinPatternEncodingCiruitSpecialTreatment");// For
+				if(ff)retLate.add("MixinPatternEncodingCiruitSpecialTreatment");// For
 																		// ae2fc
 																		// pattern
 																		// encoder
-				retLate.add("MixinPatternEncodingCiruitSpecialTreatment2"); // For
+				if(ff)retLate.add("MixinPatternEncodingCiruitSpecialTreatment2"); // For
 																		// nee
 																		// pattern
 																		// encoder

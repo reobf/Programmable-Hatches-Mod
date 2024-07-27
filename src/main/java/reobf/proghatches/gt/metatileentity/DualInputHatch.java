@@ -637,9 +637,19 @@ boolean loadOldVer=true;
 		for(int i=0;i<shared.itemMEUpgrades;i++){
 			final int fi=i;
 			builder.widget(SlotWidget.phantom(new ItemStackHandler(shared.markedItems), i)
-					.addTooltips(ImmutableList.of(
+					.addTooltips(
+							(this instanceof BufferedDualInputHatch)?
+							ImmutableList.of(
 							StatCollector.translateToLocal("programmable_hatches.gt.item.pull.me.0"),
-							StatCollector.translateToLocal("programmable_hatches.gt.item.pull.me.1"))
+							StatCollector.translateToLocal("programmable_hatches.gt.item.pull.me.1"),
+							StatCollector.translateToLocal("programmable_hatches.gt.item.pull.me.2")
+											):	
+							ImmutableList.of(
+							StatCollector.translateToLocal("programmable_hatches.gt.item.pull.me.0"),
+							StatCollector.translateToLocal("programmable_hatches.gt.item.pull.me.1")
+							)
+							
+							
 							)
 					.setPos(8-1+18+4, 8-1+18*posoffset));
 			builder.widget(new DrawableWidget().setDrawable(ModularUITextures.ARROW_RIGHT)
@@ -1698,7 +1708,7 @@ protected Widget createButtonSharedItem() {
 			})
 			
 			
-			.addTooltips(ImmutableList.of(LangManager.translateToLocal("programmable_hatches.gt.insertion")))
+			.addTooltips(ImmutableList.of(LangManager.translateToLocal("programmable_hatches.gt.shared")))
 			.setPos(/*extraCircuit?
 					new Pos2d(
 					getCircuitSlotX()-18,getCircuitSlotY()

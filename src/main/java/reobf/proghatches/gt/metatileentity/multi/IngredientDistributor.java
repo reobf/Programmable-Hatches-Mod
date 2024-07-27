@@ -5,13 +5,19 @@ import static gregtech.api.enums.Textures.BlockIcons.*;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 import static gregtech.api.util.GT_StructureUtility.buildHatchAdder;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableList;
@@ -26,16 +32,20 @@ import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.widget.IWidgetBuilder;
 import com.gtnewhorizons.modularui.api.widget.Widget;
+import com.gtnewhorizons.modularui.common.internal.network.NetworkUtils;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.DynamicPositionedColumn;
 import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
+import com.gtnewhorizons.modularui.common.widget.TextWidget;
+
 import appeng.api.config.Actionable;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IItemList;
+import appeng.me.GridAccessException;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import gregtech.api.GregTech_API;
@@ -67,7 +77,9 @@ import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
@@ -398,6 +410,7 @@ if(!mMachine)return;
 if(ready>0&&aBaseMetaTileEntity.isAllowedToWork()){
 	if(distribute()){
 			ready--;
+			lastfail=null;
 	}
 }
 }
@@ -515,7 +528,7 @@ public void setResultIfFailure(CheckRecipeResult result) {
 	super.setResultIfFailure(result);
 }
 
-
+TransferCheckResult lastfail;
 boolean blocking;
 private boolean moveToOutpusME(IDualInputInventory opt) {
 	ItemStack[] i = opt.getItemInputs();
@@ -526,16 +539,20 @@ private boolean moveToOutpusME(IDualInputInventory opt) {
 
 	for(int index=0;index<mOutputBusses.size();++index){
 		if(!(mOutputBusses.get(index) instanceof GT_MetaTileEntity_Hatch_OutputBus_ME)){return false;}
-		if(!checkMEBus(((GT_MetaTileEntity_Hatch_OutputBus_ME)mOutputBusses.get(index)),
-				index<i.length?i[index]:null
-						)){return false;};
+		TransferCheckResult result=checkMEBus(((GT_MetaTileEntity_Hatch_OutputBus_ME)mOutputBusses.get(index)),
+				index<i.length?i[index]:null,index);
+		if(!result.isSuccess){
+			lastfail=result;
+			return false;};
 	}
 	
 	for(int index=0;index<mOutputHatches.size();++index){
 		if(!(mOutputHatches.get(index) instanceof GT_MetaTileEntity_Hatch_Output_ME)){return false;}
-		if(!checkMEHatch(((GT_MetaTileEntity_Hatch_Output_ME)mOutputHatches.get(index)),
-				index<f.length?f[index]:null
-						)){return false;};
+		TransferCheckResult result=checkMEHatch(((GT_MetaTileEntity_Hatch_Output_ME)mOutputHatches.get(index)),
+				index<f.length?f[index]:null,index
+						);
+		if(!result.isSuccess){
+			lastfail=result;return false;};
 	}
 	
 	
@@ -552,10 +569,142 @@ private boolean moveToOutpusME(IDualInputInventory opt) {
 	
 	return true;
 }
+public static class TransferCheckResultSyncer extends FakeSyncWidget<TransferCheckResult> {
 
+    public TransferCheckResultSyncer(Supplier<TransferCheckResult> getter, Consumer<TransferCheckResult> setter) {
+        super(getter, setter, TransferCheckResult::ser,TransferCheckResult::deser);
+    }
+}
+static class TransferCheckResult{
+	boolean isSuccess;
+	String reason="";
+	public String format(){
+		if(isSuccess)	return "";//StatCollector.translateToLocalFormatted("proghatch.ingbuf.success");
+		
+		for(int i=0;i<args.length;i++){
+			if(args[i]instanceof AEFluidStack){
+				args[i]=((AEFluidStack)args[i]).getFluidStack();
+			}
+			if(args[i]instanceof FluidStack){
+				args[i]=((FluidStack)args[i]).getFluid().getName()+" "+((FluidStack)args[i]).amount+"L";
+			}
+			
+			if(args[i]instanceof AEItemStack){
+				args[i]=((AEItemStack)args[i]).getItemStack();
+			}
+			if(args[i]instanceof ItemStack){
+				args[i]=((ItemStack)args[i]).getDisplayName()+"x"+((ItemStack)args[i]).stackSize;
+			}
+			
+			
+			
+		}//only called on CLIENT, so it's safe to do like this
+		
+		return StatCollector.translateToLocalFormatted("proghatch.ingbuf.fail."+reason, args);
+		
+	}
+	Object[] args=new Object[0];
+	static TransferCheckResult ofSuccess(){
+		return new TransferCheckResult(){{isSuccess=true;}};}
+	static TransferCheckResult ofFail(String key,Object... fmt){
+		return new TransferCheckResult(){{reason=key;args=fmt;}};}
+	
+	static TransferCheckResult deser(PacketBuffer pb){
+		try {
+			NBTTagCompound tag = pb.readNBTTagCompoundFromBuffer();
+			if(tag.hasNoTags())return null;
+			TransferCheckResult ret=new TransferCheckResult();
+			ret. isSuccess=tag.getBoolean("s");
+			ret. reason=tag.getString("r");
+			int len=tag.getInteger("l");
+			Object[] arg=new Object[len];
+			for(int i=0;i<len;++i){
+				Object r=null;
+				int type=tag.getInteger("t"+i);
+				
+				if(type==0)
+				r=tag.getString("o"+i);
+				if(type==1)
+				r=ItemStack.loadItemStackFromNBT(tag.getCompoundTag("o"+i));
+				if(type==2)
+				r=AEItemStack.loadItemStackFromNBT(tag.getCompoundTag("o"+i));
+				if(type==3)
+				r=FluidStack.loadFluidStackFromNBT(tag.getCompoundTag("o"+i));
+				if(type==4)
+				r=AEFluidStack.loadFluidStackFromNBT(tag.getCompoundTag("o"+i));
+				
+				
+				
+				arg[i]=r;
+			}
+			ret.args=arg;
+			return ret;
+		} catch (IOException e) {
+	
+			e.printStackTrace();return
+					null;
+		}
+		
+	}
+	
+	static void ser(PacketBuffer pb,TransferCheckResult thiz){
+		
+		NBTTagCompound tag=new NBTTagCompound();
+		if(thiz==null){try {
+			pb.writeNBTTagCompoundToBuffer(tag);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}return;}
+		try {
+			tag.setBoolean("s", thiz.isSuccess);
+			tag.setString("r", thiz.reason);
+			tag.setInteger("l", thiz.args.length);
+			for(int i=0;i<thiz.args.length;i++){
+				Object o=thiz.args[i];
+				if(o instanceof String){
+					tag.setString("o"+i, o.toString());
+					tag.setInteger("t"+i, 0);
+				}
+				if(o instanceof ItemStack){
+					tag.setTag("o"+i, ((ItemStack) o).writeToNBT(new NBTTagCompound()));
+					tag.setInteger("t"+i, 1);
+				}
+				if(o instanceof AEItemStack){
+					NBTTagCompound tmp = new NBTTagCompound();
+					((AEItemStack) o).writeToNBT(tmp);
+					tag.setTag("o"+i, tmp);
+					tag.setInteger("t"+i, 2);
+				}
+				if(o instanceof FluidStack){
+					tag.setTag("o"+i, ((FluidStack) o).writeToNBT(new NBTTagCompound()));
+					tag.setInteger("t"+i, 3);
+				}
+				if(o instanceof AEFluidStack){
+					NBTTagCompound tmp = new NBTTagCompound();
+					((AEFluidStack) o).writeToNBT(tmp);
+					tag.setTag("o"+i, tmp);
+					tag.setInteger("t"+i, 4);
+				}
+				if(o instanceof Number){
+				
+					tag.setString("o"+i, o.toString());
+					tag.setInteger("t"+i, 0);
+				}
+				
+			}
+			
+			pb.writeNBTTagCompoundToBuffer(tag);
+		} catch (IOException e) {
+		
+			e.printStackTrace();
+		}
+	}
+	
+	
+}
 static Field f,f2;
 @SuppressWarnings({ "unchecked", "unused" })
-private boolean checkMEBus(GT_MetaTileEntity_Hatch_OutputBus_ME bus,ItemStack check){
+private TransferCheckResult checkMEBus(GT_MetaTileEntity_Hatch_OutputBus_ME bus,ItemStack check,int index){
 	if(f==null)
 	try {
 		f=GT_MetaTileEntity_Hatch_OutputBus_ME.class.getDeclaredField("itemCache");
@@ -566,15 +715,15 @@ private boolean checkMEBus(GT_MetaTileEntity_Hatch_OutputBus_ME bus,ItemStack ch
 	try {
 		IItemList<IAEItemStack> itemCache =(IItemList<IAEItemStack>) f.get(bus);
 		Iterator<IAEItemStack> itr = itemCache.iterator();
-		while(itr.hasNext()){
-			if(itr.next().isSameType(check)==false){
-				return false;
+		while(itr.hasNext()){IAEItemStack next;
+			if((next=itr.next()).isSameType(check)==false){
+				return TransferCheckResult.ofFail("cache.diff.bus",index,check.copy(),next.copy());
 			}
 		}
 		itr = bus.getProxy().getStorage().getItemInventory().getStorageList().iterator();
-		while(itr.hasNext()){
-			if(itr.next().isSameType(check)==false){
-				return false;
+		while(itr.hasNext()){IAEItemStack next;
+			if((next=itr.next()).isSameType(check)==false){
+				return TransferCheckResult.ofFail("net.diff.bus",index,check.copy(),next.copy());
 			}
 		}
 		if(check!=null){
@@ -582,20 +731,21 @@ private boolean checkMEBus(GT_MetaTileEntity_Hatch_OutputBus_ME bus,ItemStack ch
 		IAEItemStack notadded = bus.getProxy().getStorage().getItemInventory().injectItems(
 				AEItemStack.create(check),
 				Actionable.SIMULATE, 
-				fakeSource
+				getActionSourceFor(bus)
 				);
-		if(notadded!=null&&notadded.getStackSize()>0)return false;
+		
+		if(notadded!=null&&notadded.getStackSize()>0)return TransferCheckResult.ofFail("inject.failure."+(bus.getProxy().isPowered()&&bus.getProxy().isActive())+".bus",index,check.copy(),notadded.copy());
 		}
 	} catch (Exception e) {
 		e.printStackTrace();
-		return false;
+		return  TransferCheckResult.ofFail("crash",e.getClass()+" "+e.getMessage());
 	}
 	
 	
-	return true;
+	return TransferCheckResult.ofSuccess();
 }
 @SuppressWarnings({ "unchecked", "unused" })
-private boolean checkMEHatch(GT_MetaTileEntity_Hatch_Output_ME bus,FluidStack check){
+private TransferCheckResult checkMEHatch(GT_MetaTileEntity_Hatch_Output_ME bus,FluidStack check,int index){
 	if(f2==null)
 	try {
 		f2=GT_MetaTileEntity_Hatch_Output_ME.class.getDeclaredField("fluidCache");
@@ -606,33 +756,61 @@ private boolean checkMEHatch(GT_MetaTileEntity_Hatch_Output_ME bus,FluidStack ch
 	try {
 		IItemList<IAEFluidStack> itemCache =(IItemList<IAEFluidStack>) f2.get(bus);
 		Iterator<IAEFluidStack> itr = itemCache.iterator();
-		while(itr.hasNext()){
-			if(!sameType(itr.next(),(check))){
-				return false;
+		while(itr.hasNext()){IAEFluidStack next;
+			if(!sameType(next=itr.next(),(check))){
+				return TransferCheckResult.ofFail("cache.diff.hatch",index,check.copy(),next.copy());
 			}
 		}
 		itr = bus.getProxy().getStorage().getFluidInventory().getStorageList().iterator();
-		while(itr.hasNext()){
-			if(!sameType(itr.next(),(check))){
-				return false;
+		while(itr.hasNext()){IAEFluidStack next;
+			if(!sameType(next=itr.next(),(check))){
+				return TransferCheckResult.ofFail("net.diff.hatch",index,check.copy(),next.copy());
 			}
 		}if(check!=null){
 		IAEFluidStack notadded = bus.getProxy().getStorage().getFluidInventory().injectItems(
 				AEFluidStack.create(check),
 				Actionable.SIMULATE, 
-				fakeSource
+				getActionSourceFor(bus)
 				);
-		if(notadded!=null&&notadded.getStackSize()>0)return false;
+		if(notadded!=null&&notadded.getStackSize()>0)return TransferCheckResult.ofFail("inject.failure."+(bus.getProxy().isPowered()&&bus.getProxy().isActive())+".hatch",index,check.copy(),notadded.copy());
 		}
 	} catch (Exception e) {
 		e.printStackTrace();
-		return false;
+		return  TransferCheckResult.ofFail("crash",e.getClass()+" "+e.getMessage());
 	}
 	
 	
-	return true;
+	return TransferCheckResult.ofSuccess();
 }
 static BaseActionSource fakeSource=new  BaseActionSource();
+
+static Method[] cache;
+static BaseActionSource getActionSourceFor(Object o){
+	if(cache==null)try {
+		cache=new Method[2];
+		cache[0]=GT_MetaTileEntity_Hatch_OutputBus_ME.class.getDeclaredMethod("getRequest");
+		cache[1]=GT_MetaTileEntity_Hatch_Output_ME.class.getDeclaredMethod("getRequest");
+		cache[0].setAccessible(true);
+		cache[1].setAccessible(true);
+	} catch (NoSuchMethodException e) {
+		cache=new Method[0];;
+		e.printStackTrace();
+	}
+	if(cache.length==0)return fakeSource;
+	
+		try {
+			if(o instanceof GT_MetaTileEntity_Hatch_OutputBus_ME)
+			return (BaseActionSource) cache[0].invoke(o);
+			if(o instanceof GT_MetaTileEntity_Hatch_Output_ME)
+			return (BaseActionSource) cache[1].invoke(o);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	 
+	
+	throw new RuntimeException("err");
+}
+
 private static boolean sameType(IAEFluidStack  a,FluidStack b){
 	if(b==null)return false;
 	if(a.getFluid()!=b.getFluid())return false;
@@ -650,29 +828,86 @@ private boolean moveToOutpus(IDualInputInventory opt,boolean checkSpace) {
 	ItemStack[] i = opt.getItemInputs();
 	FluidStack[] f = opt.getFluidInputs();
 	boolean anyDiff=false;
-	if(i.length>mOutputBusses.size())return false;
-	if(f.length>mOutputHatches.size())return false;
+	if(i.length>mOutputBusses.size()){
+		lastfail=TransferCheckResult.ofFail("insufficient.length.bus", i.length,mOutputBusses.size());
+		return false;}
+	if(f.length>mOutputHatches.size()){
+		lastfail=TransferCheckResult.ofFail("insufficient.length.hatch", f.length,mOutputHatches.size());
+		return false;}
 	
 	if(checkSpace){
 	for(int index=0;index<i.length;++index){
-		if(mOutputBusses.get(index) instanceof GT_MetaTileEntity_Hatch_OutputBus_ME){continue;}
+		if(mOutputBusses.get(index) instanceof GT_MetaTileEntity_Hatch_OutputBus_ME){
+			if(i[index]!=null){
+				GT_MetaTileEntity_Hatch_OutputBus_ME bus=(GT_MetaTileEntity_Hatch_OutputBus_ME) mOutputBusses.get(index);
+				try {
+					IAEItemStack notadded=null;
+					notadded = (bus).getProxy().getStorage().getItemInventory().injectItems(
+							AEItemStack.create(i[index]),
+							Actionable.SIMULATE, 
+							getActionSourceFor(bus)
+							);
+				
+				
+				if(notadded!=null&&notadded.getStackSize()>0){
+					TransferCheckResult ret=TransferCheckResult.ofFail("inject.failure."+(bus.getProxy().isPowered()&&bus.getProxy().isActive())+".bus",index,i[index].copy(),notadded.copy());
+				 if(!ret.isSuccess){
+					 lastfail=ret;
+					return false;}
+				 }
+				} catch (GridAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				}
+			
+			continue;}
 		GT_MetaTileEntity_Hatch_OutputBus bus = mOutputBusses.get(index);
 		int acc=0;
 		for(int x=0;x<bus.getSizeInventory();x++){
 			if(bus.isValidSlot(x))
 			acc+=space(i[index],bus.getStackInSlot(x));
 		}
-		if(acc<i[index].stackSize){return false;}
+		if(acc<i[index].stackSize){
+			
+			lastfail=TransferCheckResult.ofFail("insufficient.space.bus", index,i[index].copy(),acc);
+			return false;}
 		
 	}
 	for(int index=0;index<f.length;++index){
-		if(mOutputHatches.get(index) instanceof GT_MetaTileEntity_Hatch_Output_ME){continue;}
+		if(mOutputHatches.get(index) instanceof GT_MetaTileEntity_Hatch_Output_ME){
+			if(i[index]!=null){
+				GT_MetaTileEntity_Hatch_Output_ME bus=(GT_MetaTileEntity_Hatch_Output_ME) mOutputHatches.get(index);
+				try {
+					IAEFluidStack notadded=null;
+					notadded = (bus).getProxy().getStorage().getFluidInventory().injectItems(
+							AEFluidStack.create(f[index]),
+							Actionable.SIMULATE, 
+							getActionSourceFor(bus)
+							);
+				
+				
+				if(notadded!=null&&notadded.getStackSize()>0){
+					TransferCheckResult ret=TransferCheckResult.ofFail("inject.failure."+(bus.getProxy().isPowered()&&bus.getProxy().isActive())+".hatch",index,i[index].copy(),notadded.copy());
+				 if(!ret.isSuccess){
+					 lastfail=ret;
+					return false;}
+				 }
+				} catch (GridAccessException e) {
+					e.printStackTrace();
+				}
+				}
+			continue;}
 		GT_MetaTileEntity_Hatch_Output hatch = mOutputHatches.get(index);
 		int acc=0;
 		acc+=space(f[index],hatch);
-		if(acc<f[index].amount){return false;}
+		if(acc<f[index].amount){
+			lastfail=TransferCheckResult.ofFail("insufficient.space.hatch", index,f[index].copy(),acc);
+			return false;}
 	}
 	}
+	
+	
 	
 	
 	for(int index=0;index<i.length;++index){
@@ -814,6 +1049,7 @@ public CheckRecipeResult checkProcessing() {
 @Override
 public void addUIWidgets(com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder builder,
 		UIBuildContext buildContext) {
+	builder.widget(new TransferCheckResultSyncer(()->this.lastfail, s->this.lastfail=s));
 	  builder.widget(
 	            new DrawableWidget().setDrawable(GT_UITextures.PICTURE_SCREEN_BLACK)
 	                .setPos(4, 4)
@@ -881,5 +1117,18 @@ public static boolean addBus(IngredientDistributor thiz, IGregTechTileEntity aTi
 	if(thiz.hasBusThisLayer){return false;}
 	return thiz.addOutputBusToMachineList(aTileEntity, s);
 }
+protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inventorySlot) {
+	
+	super.drawTexts(screenElements, inventorySlot);
 
+    screenElements.widget(
+    		 TextWidget.dynamicString(()->
+    		 lastfail==null?"":
+    		lastfail.format()
+    		 
+    				 ).setDefaultColor(COLOR_TEXT_WHITE.get())
+            .setEnabled(widget -> {
+                return (getBaseMetaTileEntity().isAllowedToWork())&&lastfail!=null;
+            }));
+}
 }

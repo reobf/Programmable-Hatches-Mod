@@ -618,6 +618,7 @@ totalAcc=0;
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
 		multiply=aNBT.getInteger("multiply");
+		if(multiply<0)multiply=1;
 		getProxy().readFromNBT(aNBT);
 		
 		  this.ret = this.readList((NBTTagList) aNBT.getTag("ret"));
@@ -750,9 +751,10 @@ int lasthash;
 				forceUpdatePattern = true;
 			}
 			lasthash=hash;
+			boolean any = false;
 			if (cacheState.shouldCheck() && mMachine) {
 				if (aTick % 20 == ran) {
-					boolean any = false;
+					
 					for (ICircuitProvider p : providers) {
 						if (p.patternDirty()) {
 							any = true;
@@ -760,14 +762,14 @@ int lasthash;
 						}
 
 					}
-					if (any || forceUpdatePattern) {
-						forceUpdatePattern = false;
-						cacheState = CacheState.DIRTY;
-						postEvent();
-					}
+					
 				}
 			}
-
+			if (any || forceUpdatePattern) {
+					forceUpdatePattern = false;
+					cacheState = CacheState.DIRTY;
+					postEvent();
+			}
 		} else {
 
 			patternCache.clear();

@@ -25,6 +25,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.ForgeDirection;
+import reobf.proghatches.block.ChunkTrackingGridCahce;
+import reobf.proghatches.block.IChunkTrackingGridCahce;
 import reobf.proghatches.eucrafting.IEUManager.EUManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.net.OpenPartGuiMessage;
@@ -32,6 +34,7 @@ import reobf.proghatches.net.OpenPartGuiMessage;
 public class EUUtil {
 	public static void register() {
 		AEApi.instance().registries().gridCache().registerGridCache(IEUManager.class, EUManager.class);
+		AEApi.instance().registries().gridCache().registerGridCache(IChunkTrackingGridCahce.class, ChunkTrackingGridCahce.class);
 
 	}
 

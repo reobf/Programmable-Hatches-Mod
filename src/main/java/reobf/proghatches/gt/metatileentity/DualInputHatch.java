@@ -881,7 +881,10 @@ boolean loadOldVer=true;
 	}
 	VargsFunction<Object[], FluidStack[]> asFluidStack = (s) -> Arrays.stream(s).flatMap( Arrays::stream).map(f->{
 		if(f instanceof FluidTank){return ((FluidTank) f).getFluid();}
-		else if(f instanceof FluidStack){return (FluidStack)f;}else{throw new RuntimeException();}
+		else if(f instanceof FluidStack){return (FluidStack)f;}
+		else if(f==null){/*ignore*/return null;}
+		else
+		{throw new RuntimeException("only FluidStack or FluidTank are accepted");}
 	})
 			.filter(a -> a != null && a.amount > 0).toArray(FluidStack[]::new);
 	VargsFunction<ItemStack[], ItemStack[]> filterStack = (s) -> Arrays.stream(s).flatMap( Arrays::stream).filter(a -> a != null)
@@ -1859,10 +1862,11 @@ public class OptioanlSharedContents{
 	}
 	public void startRecipeProcessing() {
 		if(isDummy())return;
-		IGrid net = getNetwork().g;
-		IStorageGrid cahce=null;
-		if(net!=null)
-		cahce=net.getCache(IStorageGrid.class);
+		
+		IStorageGrid cahce= (IStorageGrid) Optional.ofNullable(getNetwork())
+		.map(s->s.g)
+		.map(s->s.getCache(IStorageGrid.class)).orElse(null);
+		
 		shadowItems.clear();
 		shadowFluid.clear();
 		cachedItems.clear();
@@ -1877,7 +1881,7 @@ public class OptioanlSharedContents{
 						cahce.getItemInventory().getStorageList().findPrecise(AEItemStack.create(is))
 						).map(IAEItemStack::getItemStack).orElse(null));
 				shadowItems.add(ris);	
-				cachedItems.add(ris.copy());
+				cachedItems.add(Optional.ofNullable(ris).map(s->s.copy()).get());
 			}
 		}
 		for(int i=0;i<markedFluid.size();i++){
@@ -1890,7 +1894,7 @@ public class OptioanlSharedContents{
 						cahce.getFluidInventory().getStorageList().findPrecise(AEFluidStack.create(is))
 						).map(IAEFluidStack::getFluidStack).orElse(null));
 				shadowFluid.add(ris);	
-				cachedFluid.add(ris.copy());
+				cachedFluid.add(Optional.ofNullable(ris).map(s->s.copy()).get());
 			}
 		}
 		

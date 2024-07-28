@@ -13,9 +13,11 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import gregtech.api.util.GT_ModHandler;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import reobf.proghatches.Tags;
+import reobf.proghatches.block.BlockAnchorAlert;
 import reobf.proghatches.block.BlockIOHub;
-
+import reobf.proghatches.block.ItemBlockAnchorAlert;
 import reobf.proghatches.block.ItemBlockIOHub;
+import reobf.proghatches.block.TileAnchorAlert;
 import reobf.proghatches.block.TileIOHub;
 import reobf.proghatches.eucrafting.BlockEUInterface;
 import reobf.proghatches.eucrafting.EUUtil;
@@ -55,7 +57,8 @@ public class CommonProxy {
 		GameRegistry.registerTileEntity(TileIOHub.class, "proghatches.iohub");
 		GameRegistry.registerTileEntity(TileWirelessPeripheralStation.class, "proghatches.peripheral_station");
 		GameRegistry.registerTileEntity(TileCoprocessor.class, "proghatches.coprocessor");
-
+		GameRegistry.registerTileEntity(TileAnchorAlert.class, "proghatches.chunk_loading_alert");
+		
 		GameRegistry.registerTileEntity(TileFluidInterface_EU.class, "proghatches.euinterface");
 		GameRegistry.registerItem(
 				MyMod.plunger = new ItemMEPlunger(100000).setUnlocalizedName("proghatch_me_plunger").setTextureName("proghatches:plunger"),
@@ -103,6 +106,8 @@ public class CommonProxy {
 		
 		
 		MyMod.iohub = GameRegistry.registerBlock(new BlockIOHub(), ItemBlockIOHub.class, "proghatches.iohub");
+		MyMod.alert = GameRegistry.registerBlock(new BlockAnchorAlert(Material.rock),ItemBlockAnchorAlert.class, "proghatches.chunk_loading_alert");
+		
 		MyMod.pstation = GameRegistry.registerBlock(new TileWirelessPeripheralStation.Block(),
 				TileWirelessPeripheralStation.ItemBlock.class, "proghatches.peripheral_station");
 

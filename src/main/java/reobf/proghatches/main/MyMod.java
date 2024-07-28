@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -20,15 +21,21 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemEditableBook;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.IExtendedEntityProperties;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.event.world.WorldEvent;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -81,6 +88,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.interfaces.tileentity.ICoverable;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.BaseMetaPipeEntity;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.net.GT_Packet_SendCoverData;
@@ -91,6 +99,7 @@ import gregtech.common.blocks.GT_Block_Machines;
 import gregtech.common.covers.CoverInfo;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_HeatExchanger;
 import reobf.proghatches.Tags;
+import reobf.proghatches.block.ChunkTrackingGridCahce;
 import reobf.proghatches.eucrafting.BlockEUInterface;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.AECover.IMemoryCardSensitive;
@@ -110,6 +119,7 @@ import reobf.proghatches.net.RenameMessage;
 import reobf.proghatches.net.UpgradesMessage;
 import reobf.proghatches.oc.WirelessPeripheralManager;
 import reobf.proghatches.util.ProghatchesUtil;
+import tconstruct.armor.player.TPlayerStats;
 
 @Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.7.10]",
 dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
@@ -120,7 +130,7 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 )
 public class MyMod {
 	public static MyMod instance;
-	{GT_MetaTileEntity_HeatExchanger.class.getDeclaredFields();
+	{
 	//	BaseMetaPipeEntity.class.getDeclaredFields();
 		instance = this;
 	}
@@ -154,6 +164,7 @@ public class MyMod {
 	public static Item plunger;
 	public static Item lazer_p2p_part;
 	public static Item upgrades;
+	public static Block alert;
 
 	@Mod.EventHandler
 	// preInit "Run before anything else. Read your config, create blocks,
@@ -204,9 +215,14 @@ public class MyMod {
 		//if(Config.fixCircuit)
 		//e.player.addChatComponentMessage(new ChatComponentTranslation("proghatch.join.fixCircuit"));
 		
-		if (e.player.getEntityData().hasKey("ProgrammableHatchesTutorialGet3") == false) {
+	/*	if (e.player.getEntityData().hasKey("ProgrammableHatchesTutorialGet3") == false) {
 			e.player.getEntityData().setBoolean("ProgrammableHatchesTutorialGet3", true);
-
+*/
+			
+			if(e.player.getExtendedProperties(GET_PROGHATCHBOOK)!=null){
+				Prop p=(Prop) e.player.getExtendedProperties(GET_PROGHATCHBOOK);
+				if(p.get){return;}
+				p.get=true;
 			EntityItem entityitem = e.player.dropPlayerItemWithRandomChoice(
 					Optional.of(tutorial("programmable_hatches.eucreafting.tutorial")).map(s -> {
 						s.stackTagCompound.setString("proghatchesSpecialTag", "true");
@@ -220,6 +236,9 @@ public class MyMod {
 			}).get(), false);
 			entityitem.delayBeforeCanPickup = 0;
 			entityitem.func_145797_a(e.player.getCommandSenderName());
+			
+			
+			
 
 		}
 		;
@@ -388,5 +407,50 @@ public class MyMod {
 		}
 
 	}
+	@SubscribeEvent
+    public void onUnload(WorldEvent.Unload event) {
+		try{
+		ChunkTrackingGridCahce.callbacks.forEach((a,b)->{
+			if(a!=null){a.unload(event.world);}
+		});
+		}catch(Throwable t){t.printStackTrace();}
+		
+    }
+	@SubscribeEvent
+    public void onUnload(ChunkEvent.Unload event) {
+		try{
+			ChunkTrackingGridCahce.callbacks.forEach((a,b)->{
+			if(a!=null){a.unload(event.getChunk());}
+		});
+		}catch(Throwable t){t.printStackTrace();}
+    }
+	private static final String GET_PROGHATCHBOOK="GET_PROGHATCHBOOK";
+	   @SubscribeEvent
+	  
+	   public void onEntityConstructing(EntityEvent.EntityConstructing event) {
+	        if (event.entity instanceof EntityPlayer &&((EntityPlayer) event.entity).getExtendedProperties("GET_PROGHATCHBOOK") == null) {
+	        	event.entity.registerExtendedProperties(GET_PROGHATCHBOOK, new Prop());
+	        }
+	    }
 
+	public class Prop implements   IExtendedEntityProperties {
+		boolean get;
+		@Override
+		public void saveNBTData(NBTTagCompound compound) {
+			
+			
+			compound.setBoolean(GET_PROGHATCHBOOK+"_get", get);
+		}
+
+		@Override
+		public void loadNBTData(NBTTagCompound compound) {
+			get=compound.getBoolean(GET_PROGHATCHBOOK+"_get");
+		}
+
+		@Override
+		public void init(Entity entity, World world) {
+		
+			
+		}}
+	
 }

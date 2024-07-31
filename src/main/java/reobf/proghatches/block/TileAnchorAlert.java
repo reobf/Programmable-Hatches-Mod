@@ -1,19 +1,28 @@
 package reobf.proghatches.block;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.UUID;
 
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
+import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
+import mcp.mobius.waila.api.IWailaDataProvider;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
@@ -22,6 +31,71 @@ public class TileAnchorAlert extends TileEntity implements IGridProxyable{
 	public static final int ALL = 0;
 	public static final int DIM = 1;
 	public static final int OWNER = 2;
+	public static IWailaDataProvider provider=new IWailaDataProvider(){
+
+		@Override
+		public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config) {
+			
+			return null;
+		}
+
+		@Override
+		public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+				IWailaConfigHandler config) {
+		
+			return currenttip;
+		}
+
+		@Override
+		public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+				IWailaConfigHandler config) {
+			
+			currenttip.add(StatCollector.translateToLocal("proghatch.chunk_loading_alert.mode."+accessor.getNBTData().getInteger("mode")));
+			currenttip.add(StatCollector.translateToLocalFormatted("proghatch.chunk_loading_alert.count"
+					,accessor.getNBTData().getInteger("loaded")
+					,accessor.getNBTData().getInteger("count")
+					
+					));
+			
+			return currenttip;
+		}
+
+		@Override
+		public List<String> getWailaTail(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+				IWailaConfigHandler config) {
+		
+			return currenttip;
+		}
+
+		@Override
+		public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, int x,
+				int y, int z) {
+		tag.setInteger("mode", ((TileAnchorAlert)te).mode);
+			
+		try{
+		tag.setInteger("count", 
+				((ChunkTrackingGridCahce)
+				((TileAnchorAlert)te).getProxy().getGrid().getCache(IChunkTrackingGridCahce.class)
+				).track.size()
+				
+				
+				);
+		
+		}catch(Exception e){}
+		
+		tag.setInteger("loaded", 
+				
+				((TileAnchorAlert)te).getLoadedChunks()
+				
+				
+				
+				);
+			
+			return tag;
+		}};
+	
+	
+	
 	int mode;
 	//2 inform owner only
 	//1 inform all players in same dim
@@ -93,7 +167,7 @@ public class TileAnchorAlert extends TileEntity implements IGridProxyable{
 	}
 @Override
 public void updateEntity() {
-	
+	ticksSinceLoaded++;
 	super.updateEntity();
 	if(!getProxy().isReady())
 	getProxy().onReady();
@@ -101,17 +175,54 @@ public void updateEntity() {
 public void onChunkUnload() {
 	
 	this.getProxy().onChunkUnload();
+	super.onChunkUnload();
 }
 
 public void invalidate() {
-	
+
 	this.getProxy().invalidate();
+	super.invalidate();
 }
 
 @Override
 public void validate() {
 	this.getProxy().validate();
+	super.validate();
 }
+int loadedChunksCache;
+int lastUpdate=-50;
+int ticksSinceLoaded;
+public int getLoadedChunks(){
+	if(lastUpdate+20>ticksSinceLoaded){
+		//update every 2sec
+		return loadedChunksCache;
+	}
+	
+	
+	lastUpdate=ticksSinceLoaded;
+	try {
+		loadedChunksCache=(int) ((ChunkTrackingGridCahce)
+				((TileAnchorAlert)this).getProxy().getGrid().getCache(IChunkTrackingGridCahce.class)
+				).track.keySet()
+		
+		.stream().filter(s->{
+			
+			return this.worldObj.getChunkProvider().chunkExists(s.chunkx,s.chunky);
+			
+		}).count();
+		
+		;
+	
+	
+	
+	} catch (GridAccessException e) {
+		loadedChunksCache=0;
+	
+	}
+	
+	return loadedChunksCache;
+}
+
 
 
 }

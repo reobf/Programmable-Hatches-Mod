@@ -22,6 +22,8 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import reobf.proghatches.main.MyMod;
+import reobf.proghatches.main.MyMod.Prop;
 
 public class ChunkTrackingGridCahce implements IChunkTrackingGridCahce{
 	public ChunkTrackingGridCahce(final IGrid g) {
@@ -135,6 +137,131 @@ IGridBlock gb = gridNode.getGridBlock();
 		
 	}
 	
+	private int getMask(EntityPlayer p){
+		MyMod.Prop pr=(Prop) p.getExtendedProperties(MyMod.GET_PROGHATCHBOOK);
+		if(pr==null)return 0;//huh?
+		return pr.alert_mask;
+	}
+	
+	public boolean warnPrivate(EntityPlayer p,TileAnchorAlert source, ChunkInfo info,int i){
+		if((getMask(p)&1)!=0)return false;
+		
+		
+		((EntityPlayer)p).addChatMessage(new ChatComponentTranslation(
+				"proghatch.chunk_loading_alert.alert.private"
+				,	"X:"+source.xCoord+",Y:"+source.yCoord+",Z:"+source.zCoord+",dim:"+source.getWorldObj().provider.dimensionId
+				
+				));
+		((EntityPlayer)p).addChatMessage(new ChatComponentTranslation(
+				"proghatch.chunk_loading_alert.alert",
+			
+				"X:"+info.chunkx+",Z:"+info.chunky+",dim:"+info.dim+" "+
+				"Center:"+((info.chunkx<<4)+8)+","+((info.chunky<<4)+8)
+				
+				
+				,i
+				
+				));
+		
+		return true;
+		
+	}
+	public boolean warnDimension(EntityPlayer p,TileAnchorAlert source, ChunkInfo info,int i){
+		if((getMask(p)&2)!=0)return false;
+		((EntityPlayer)p).addChatMessage(new ChatComponentTranslation(
+				"proghatch.chunk_loading_alert.alert.dim"
+				,	"X:"+source.xCoord+",Y:"+source.yCoord+",Z:"+source.zCoord+",dim:"+source.getWorldObj().provider.dimensionId
+				
+				));
+		((EntityPlayer)p).addChatMessage(new ChatComponentTranslation(
+				"proghatch.chunk_loading_alert.alert",
+			
+				"X:"+info.chunkx+",Z:"+info.chunky+",dim:"+info.dim+" "+
+				"Center:"+((info.chunkx<<4)+8)+","+((info.chunky<<4)+8)
+				
+				
+				,i
+				
+				));
+		
+		return true;
+		
+	}
+	public boolean warnGlobal(EntityPlayer p,TileAnchorAlert source, ChunkInfo info,int i){
+		if((getMask(p)&4)!=0)return false;
+		((EntityPlayer)p).addChatMessage(new ChatComponentTranslation(
+				"proghatch.chunk_loading_alert.alert.global"
+				,	"X:"+source.xCoord+",Y:"+source.yCoord+",Z:"+source.zCoord+",dim:"+source.getWorldObj().provider.dimensionId
+				
+				));
+		((EntityPlayer)p).addChatMessage(new ChatComponentTranslation(
+				"proghatch.chunk_loading_alert.alert",
+			
+				"X:"+info.chunkx+",Z:"+info.chunky+",dim:"+info.dim+" "+
+				"Center:"+((info.chunkx<<4)+8)+","+((info.chunky<<4)+8)
+				
+				
+				,i
+				
+				));
+		
+		return true;
+		
+	}
+	@SuppressWarnings("rawtypes")
+	public void warnAlt(ChunkInfo info,int i){
+		HashMap<UUID,TileAnchorAlert> playersUUIDToInform=new HashMap<>();
+		HashMap<World,TileAnchorAlert> dimensionsToInform=new HashMap<>();
+		HashSet<TileAnchorAlert>  informAll=new HashSet();
+		
+		terminals.forEach(s->{
+			if(s.mode==s.ALL){informAll.add(s);}
+			if(s.mode==s.DIM){dimensionsToInform.put(s.getWorldObj(), s);}
+			if(s.mode==s.OWNER){playersUUIDToInform.put(s.owner, s);}
+		});
+		
+		HashSet<EntityPlayer> warned=new HashSet<>();
+		
+		List l=MinecraftServer.getServer().getConfigurationManager().playerEntityList;
+		List<EntityPlayer> player=l;
+		for(EntityPlayer p:player){
+			if(playersUUIDToInform.containsKey(p.getUniqueID())){
+				warned.add(p);
+				if(!warnPrivate(p, playersUUIDToInform.get(p.getUniqueID()),info,i)){
+					warned.remove(p);
+				};
+				
+			}
+		}
+		for(EntityPlayer p:player){
+			if(dimensionsToInform.containsKey(p.getEntityWorld())){
+				boolean already = warned.add(p);
+				if(already){//true means not warned
+					if(!warnDimension(p, dimensionsToInform.get(p.getEntityWorld()),info,i)){
+						warned.remove(p);
+					};
+					
+				}
+				
+			}
+			
+		}
+		if(informAll.isEmpty()==false)
+		for(EntityPlayer p:player){
+			if(warned.contains(p)==false){
+				
+				if(!warnGlobal(p, informAll.iterator().next(),info,i)){
+					//warned.remove(p);
+					//do not care since there’re no fallbacks then...
+				};
+			}
+			
+		}
+		
+		
+		
+		
+	}
 	
 	@SuppressWarnings("rawtypes")
 	public void warn(ChunkInfo info,int i){
@@ -196,14 +323,14 @@ IGridBlock gb = gridNode.getGridBlock();
    public void unload(Chunk  o) {ChunkInfo info;
 		Integer tck = track.get(info=new ChunkInfo(o.xPosition<<4, o.zPosition<<4, o.worldObj));
 		if(tck!=null){
-			warn(info,tck);
+			warnAlt(info,tck);
 		}
 	}
 	public void unload(World  o) {
 		track.forEach((a,b)->{
 			if(a.dim==o.provider.dimensionId){
 				if(b!=null)
-				warn(a,b);
+				warnAlt(a,b);
 			}
 		});
 	}

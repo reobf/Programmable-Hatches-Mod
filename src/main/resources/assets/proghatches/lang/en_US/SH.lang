@@ -4,6 +4,6 @@ Contents are always separated with other bus/hatch
 Programming Cover function integrated
 Buffer: 1
 For each buffer:
-Capacity: 10,000,000L x24 types of fluid
+Capacity: 100,000,000L x24 types of fluid
 16 Slots
 Slot maximum stacksize:64

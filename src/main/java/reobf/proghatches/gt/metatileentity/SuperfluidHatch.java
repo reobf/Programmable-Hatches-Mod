@@ -46,7 +46,7 @@ public class SuperfluidHatch extends BufferedDualInputHatch {
 	}
 
 	public int fluidLimit() {
-		return 10_000_000;
+		return 100_000_000;
 
 	}
 
@@ -58,7 +58,7 @@ public class SuperfluidHatch extends BufferedDualInputHatch {
 
 		ArrayList<FluidTank> arr = new ArrayList<>();
 		for (int i = 0; i < 24; i++) {
-			arr.add(new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)), this));
+			arr.add(new ListeningFluidTank(10_000_000, this));
 
 		}
 

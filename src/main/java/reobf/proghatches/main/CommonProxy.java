@@ -60,9 +60,18 @@ public class CommonProxy {
 		GameRegistry.registerTileEntity(TileAnchorAlert.class, "proghatches.chunk_loading_alert");
 		
 		GameRegistry.registerTileEntity(TileFluidInterface_EU.class, "proghatches.euinterface");
+		
+		ItemMEPlunger a=new ItemMEPlunger(100000);
+		
+	
+		
 		GameRegistry.registerItem(
-				MyMod.plunger = new ItemMEPlunger(100000).setUnlocalizedName("proghatch_me_plunger").setTextureName("proghatches:plunger"),
+				MyMod.plunger =a.setUnlocalizedName("proghatch_me_plunger").setTextureName("proghatches:plunger"),
 				"proghatch_me_plunger");
+		
+		
+		
+		
 		GameRegistry.registerItem(
 				MyMod.progcircuit = new ItemProgrammingCircuit().setUnlocalizedName("prog_circuit").setTextureName("?"),
 				"prog_circuit");
@@ -159,7 +168,11 @@ public class CommonProxy {
 		registrar.registerNBTProvider(TileWirelessPeripheralStation.provider, MyMod.pstation.getClass());
 		registrar.registerBodyProvider(TileFluidInterface_EU.provider, BlockEUInterface.class);
 		registrar.registerNBTProvider(TileFluidInterface_EU.provider, BlockEUInterface.class);
-
+		registrar.registerBodyProvider(TileAnchorAlert.provider, BlockAnchorAlert.class);
+		registrar.registerNBTProvider(TileAnchorAlert.provider, BlockAnchorAlert.class);
+		
+		
+		
 	}
 
 	// register server commands in this event handler (Remove if not needed)

@@ -44,6 +44,7 @@ import gregtech.api.util.GT_Recipe;
 import gregtech.api.util.GT_RecipeBuilder;
 import gregtech.api.util.GT_RecipeConstants;
 import gregtech.api.util.GT_Utility;
+import mods.railcraft.common.core.Railcraft;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
@@ -1050,8 +1051,80 @@ Api.INSTANCE.definitions()
 	 .eut(480)
 	 .addTo(RecipeMaps.assemblerRecipes);
 	 
+	 
+	 
+	 
+	 
+	 if(flag){
+		 GT_Values.RA.stdBuilder()
+		 .itemInputs(
+				 new ItemStack(
+				       GameRegistry.findItem("computronics","computronics.chatBox")),
+				 Api.INSTANCE.definitions().blocks().spatialPylon().maybeStack(1).get(),
+				 new ItemStack(Items.ender_pearl,16)
+		)
+		 .fluidInputs(Materials.Enderium.getMolten(144))
+		 .itemOutputs( new ItemStack(  MyMod.alert)			 )
+
+		  .duration(100 * SECONDS)
+		 .eut(480)
+		 .addTo(RecipeMaps.assemblerRecipes);
+		 
+		 
+		 GT_Values.RA.stdBuilder()
+		 .itemInputs(Hatch_Input_Bus_ME.get(1),
+				 Materials.Steel.getPlates(1)
+				 )
+		 .itemOutputs( new ItemStack(  MyMod.upgrades,1,1)			 )
+		 .duration(100 * SECONDS)
+		 .eut(480*4*4)
+		 .addTo(RecipeMaps.formingPressRecipes);
+		 
+		 GT_Values.RA.stdBuilder()
+		 .itemInputs(Hatch_Input_ME.get(1),
+				 Materials.Steel.getPlates(1)
+				 )
+		 .itemOutputs( new ItemStack(  MyMod.upgrades,1,2)			 )
+		 .duration(100 * SECONDS)
+		 .eut(480*4*4)
+		 .addTo(RecipeMaps.formingPressRecipes);
+		 
+		 GT_Values.RA.stdBuilder()
+		 .itemInputs(Hatch_Input_Bus_ULV.get(16),
+				 Materials.Steel.getPlates(1)
+				 )
+		 .itemOutputs( new ItemStack(  MyMod.upgrades,1,0)			 )
+		 .duration(100 * SECONDS)
+		 .eut(480*4*4)
+		 .addTo(RecipeMaps.formingPressRecipes);
+		 
+		
+		 
+		 for(int i=0;i<4;i++)
+		 GT_Values.RA.stdBuilder()
+		 .itemInputs(
+				 new ItemStack(  MyMod.upgrades,3,0),
+				 HATCHES_INPUT_BUS[i].get(1)
+				 
+		)
+		.itemOutputs( new ItemStack(
+                GregTech_API.sBlockMachines,
+                1,
+                Config.metaTileEntityOffset + Registration.MultiCircuitBusOffset + i))		 
+
+		  .duration(15 * SECONDS)
+		 .eut(GT_Values.VP[i])
+		 .addTo(RecipeMaps.assemblerRecipes);
+		
+	 }
+	 
+	 
+	 
+	 
+	 
+	 
  }
-    
+    boolean flag=true;
     public void smartArm(){  
     	for (int i = 0; i < GT_Values.VP.length - 1; i++) {
             int ii = i;

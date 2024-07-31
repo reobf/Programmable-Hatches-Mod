@@ -65,6 +65,7 @@ import appeng.helpers.IInterfaceHost;
 import appeng.helpers.IPriorityHost;
 import appeng.items.tools.ToolMemoryCard;
 import appeng.parts.AEBasePart;
+import appeng.server.AECommand;
 import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.item.AEItemStack;
@@ -323,13 +324,15 @@ public class MyMod {
 	}
 
 	@Mod.EventHandler
-	// register server commands in this event handler (Remove if not needed)
+	
 	public void serverStarting(FMLServerStartingEvent event) {
 		proxy.serverStarting(event);
 		WirelessPeripheralManager.stations.clear();
 		WirelessPeripheralManager.cards.clear();
-		// call.clear();
-		// call2.clear();
+		ChunkTrackingGridCahce.callbacks.clear();
+		//Just in case weak references are not GCed in time
+		//only useful for intergreted server?
+		event.registerServerCommand(new CommandAnchor());
 	}
 
 	public static ItemStack tutorial() {
@@ -409,6 +412,9 @@ public class MyMod {
 	}
 	@SubscribeEvent
     public void onUnload(WorldEvent.Unload event) {
+		if(event.world.isRemote)return;
+		//World unloading seems to not post ChunkEvent.Unload?
+		//Well, warning twice is better than not warning, right?
 		try{
 		ChunkTrackingGridCahce.callbacks.forEach((a,b)->{
 			if(a!=null){a.unload(event.world);}
@@ -418,13 +424,15 @@ public class MyMod {
     }
 	@SubscribeEvent
     public void onUnload(ChunkEvent.Unload event) {
+		if(event.world.isRemote)return;
+		//on client side, out-of-sight causes chunk unload! That's not what we want, so ignore it.
 		try{
 			ChunkTrackingGridCahce.callbacks.forEach((a,b)->{
 			if(a!=null){a.unload(event.getChunk());}
 		});
 		}catch(Throwable t){t.printStackTrace();}
     }
-	private static final String GET_PROGHATCHBOOK="GET_PROGHATCHBOOK";
+	public  static final String GET_PROGHATCHBOOK="GET_PROGHATCHBOOK";
 	   @SubscribeEvent
 	  
 	   public void onEntityConstructing(EntityEvent.EntityConstructing event) {
@@ -433,18 +441,20 @@ public class MyMod {
 	        }
 	    }
 
-	public class Prop implements   IExtendedEntityProperties {
+	public static class Prop implements   IExtendedEntityProperties {
 		boolean get;
+		public int alert_mask;
 		@Override
 		public void saveNBTData(NBTTagCompound compound) {
 			
-			
+			compound.setInteger("alert_mask", alert_mask);
 			compound.setBoolean(GET_PROGHATCHBOOK+"_get", get);
 		}
 
 		@Override
 		public void loadNBTData(NBTTagCompound compound) {
 			get=compound.getBoolean(GET_PROGHATCHBOOK+"_get");
+			alert_mask=compound.getInteger("alert_mask");
 		}
 
 		@Override

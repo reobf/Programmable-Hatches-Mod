@@ -376,6 +376,7 @@ totalAcc=0;
 		boolean succ=mTopLayerFound && mMaintenanceHatches.size() == 1;
 		//if(succ){forceUpdatePattern=true ;}
 		multiply=Math.min(multiply, totalAcc+1);
+		multiply=Math.max(multiply, 1);
 		return succ;
 	}
 
@@ -618,7 +619,7 @@ totalAcc=0;
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
 		multiply=aNBT.getInteger("multiply");
-		if(multiply<0)multiply=1;
+		if(multiply<=0)multiply=1;
 		getProxy().readFromNBT(aNBT);
 		
 		  this.ret = this.readList((NBTTagList) aNBT.getTag("ret"));

@@ -200,7 +200,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 	}
 	public void initTierBasedField() {
 
-		// setInventorySlotContents(aIndex, aStack);
+		
 
 		if (mMultiFluid) {
 
@@ -209,19 +209,36 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 					.toArray(ListeningFluidTank[]::new)
 					;
 			
-			/*new ListeningFluidTank[] {
-
-					new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)), this),
-					new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)), this),
-					new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)), this),
-					new ListeningFluidTank((int) (1000 * Math.pow(2, mTier)), this)
-
-			};*/
+		
 
 		} else {
 
 			mStoredFluid = new ListeningFluidTank[] { new ListeningFluidTank(getInventoryFluidLimit(), this) };
 
+		}
+
+	}
+public void reinitTierBasedField() {
+
+		this.markDirty();
+
+		if (mMultiFluid) {
+			ListeningFluidTank[] old = mStoredFluid;
+			mStoredFluid =Stream.generate(()->(new ListeningFluidTank(getInventoryFluidLimit(), this)))
+					.limit(fluidSlots())
+					.toArray(ListeningFluidTank[]::new)
+					;
+			for(int i=0;i<mStoredFluid.length;i++){
+				mStoredFluid[i]=old[i];
+			}
+		
+
+		} else {
+			ListeningFluidTank[] old = mStoredFluid;
+			mStoredFluid = new ListeningFluidTank[] { new ListeningFluidTank(getInventoryFluidLimit(), this) };
+			for(int i=0;i<mStoredFluid.length;i++){
+				mStoredFluid[i]=old[i];
+			}
 		}
 
 	}
@@ -1477,13 +1494,17 @@ public static int getInventoryStackLimit(int mTier) {
 	return 64+64*Math.max(0,mTier-3);
 }
 
-
+public int fluidBuff(){
+	
+	return 1<<shared.fluidCapUpgrades;
+	
+}
 public int getInventoryFluidLimit() {
 	
-	return (int) (4000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1))
-			
-			
+	long val= fluidBuff()*(int) (4000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1))
 			;
+			
+		return	(int) Math.min(val, Integer.MAX_VALUE);
 }
 
 
@@ -1791,6 +1812,7 @@ public boolean allowPutStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex
 public OptioanlSharedContents shared=new OptioanlSharedContents();
 public class OptioanlSharedContents{
 	
+	public int fluidCapUpgrades;
 	ArrayList<ItemStack> shadowItems=new ArrayList<>();
 	ArrayList<FluidStack> shadowFluid=new ArrayList<>();
 	ArrayList<ItemStack> cachedItems=new ArrayList<>();
@@ -1988,6 +2010,7 @@ public class OptioanlSharedContents{
 	
 	public NBTTagCompound ser(){
 		NBTTagCompound tag=new NBTTagCompound();
+		tag.setInteger("fluidCapUpgrades",fluidCapUpgrades);
 		tag.setInteger("circuitUpgrades", circuitUpgrades);
 		tag.setInteger("itemMEUpgrades", itemMEUpgrades);
 		tag.setInteger("fluidMEUpgrades", fluidMEUpgrades);
@@ -1996,7 +2019,7 @@ public class OptioanlSharedContents{
 		tag.setTag("markedFluid", serListF(markedFluid));
 		return tag;}
 	public void deser(NBTTagCompound tag){
-		
+		fluidCapUpgrades=tag.getInteger("fluidCapUpgrades");
 		circuitUpgrades=tag.getInteger("circuitUpgrades");
 		itemMEUpgrades=tag.getInteger("itemMEUpgrades");
 		fluidMEUpgrades=tag.getInteger("fluidMEUpgrades");

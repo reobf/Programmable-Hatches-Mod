@@ -40,6 +40,7 @@ import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
+import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.storage.data.IAEFluidStack;
@@ -557,12 +558,27 @@ private boolean moveToOutpusME(IDualInputInventory opt) {
 	
 	
 	for(int index=0;index<i.length;++index){
-		i[index].stackSize=((GT_MetaTileEntity_Hatch_OutputBus_ME)mOutputBusses.get(index)).store(i[index]);
+				try {
+					IAEItemStack notadded = ((GT_MetaTileEntity_Hatch_OutputBus_ME)mOutputBusses.get(index))
+					.getProxy().getStorage().getItemInventory().injectItems(AEApi.instance()
+					.storage()
+					.createItemStack(i[index]), Actionable.MODULATE, getActionSourceFor(mOutputBusses.get(index)));
+					i[index].stackSize=Optional.ofNullable(notadded).map(s->s.getStackSize()).orElse(0l).intValue();
+				} catch (GridAccessException e) {}
+				
+					
+				
 	}
 	
 	for(int index=0;index<f.length;++index){
-		f[index].amount-=((GT_MetaTileEntity_Hatch_Output_ME)mOutputHatches.get(index)).tryFillAE(f[index]);
-	}
+		try {
+			IAEFluidStack notadded = ((GT_MetaTileEntity_Hatch_Output_ME)mOutputHatches.get(index))
+			.getProxy().getStorage().getFluidInventory().injectItems(AEApi.instance()
+			.storage()
+			.createFluidStack(f[index]), Actionable.MODULATE, getActionSourceFor(mOutputHatches.get(index)));
+			f[index].amount=Optional.ofNullable(notadded).map(s->s.getStackSize()).orElse(0l).intValue();
+		} catch (GridAccessException e) {}
+		}
 	mInputBusses.forEach(s->s.updateSlots());
 	mInputHatches.forEach(s->s.updateSlots());
 	

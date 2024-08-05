@@ -479,3 +479,4 @@ anchoralert.dim.false=Allow dimensional alert message from Alerting Anchor.
 anchoralert.global.true=Block global alert message from Alerting Anchor.
 anchoralert.global.false=Allow global alert message from Alerting Anchor.
 proghatch.chunk_loading_alert.count=Loaded/All Chunks of ME network: %s/%s
+proghatches.largepcp.remove_circuit=Remove unused Programming Circuits in ME storage.

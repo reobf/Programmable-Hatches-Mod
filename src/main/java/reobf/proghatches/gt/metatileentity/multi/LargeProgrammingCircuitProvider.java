@@ -7,6 +7,8 @@ import static gregtech.api.enums.GT_HatchElement.Energy;
 import static gregtech.api.enums.GT_HatchElement.Maintenance;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 import static gregtech.api.util.GT_StructureUtility.buildHatchAdder;
+
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -54,6 +56,7 @@ import com.gtnewhorizons.modularui.common.widget.textfield.NumericWidget;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
+import appeng.api.config.FuzzyMode;
 import appeng.api.config.PowerMultiplier;
 import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
@@ -67,6 +70,7 @@ import appeng.api.networking.events.MENetworkCraftingPatternChange;
 import appeng.api.networking.events.MENetworkEvent;
 import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.networking.events.MENetworkPowerStatusChange;
+import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.storage.IStorageGrid;
@@ -132,7 +136,7 @@ public class LargeProgrammingCircuitProvider
 		extends GT_MetaTileEntity_EnhancedMultiBlockBase<LargeProgrammingCircuitProvider>
 		implements ISurvivalConstructable, IGridProxyable, ICraftingProvider, IInstantCompletable, ICircuitProvider,
 		IInterfaceViewable,
-		IPowerChannelState
+		IPowerChannelState, IActionHost
 		{
 
 	public LargeProgrammingCircuitProvider(String aName) {
@@ -571,6 +575,7 @@ totalAcc=0;
 
 	@Override
 	public void saveNBTData(NBTTagCompound aNBT) {
+		aNBT.setBoolean("removeStorageCircuit", removeStorageCircuit);
 		aNBT.setInteger("multiply", multiply);
 		getProxy().writeToNBT(aNBT);
 		int[] count = new int[1];
@@ -618,6 +623,7 @@ totalAcc=0;
 	 
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
+		removeStorageCircuit=aNBT.getBoolean("removeStorageCircuit" );
 		multiply=aNBT.getInteger("multiply");
 		if(multiply<=0)multiply=1;
 		getProxy().readFromNBT(aNBT);
@@ -740,12 +746,58 @@ totalAcc=0;
 	final private int ran = (int) (Math.random() * 20);
 int lasthash;
 
+
+	private static Method findFuzzyDamage;
+
+	@SuppressWarnings("unchecked")
+	private static Collection<IAEItemStack> findFuzzyDamage(IItemList thiz, final AEItemStack filter,
+			final FuzzyMode fuzzy, final boolean ignoreMeta) {
+		try {
+			if (findFuzzyDamage == null) {
+
+				findFuzzyDamage =  appeng.util.item.ItemList.class.getDeclaredMethod("findFuzzyDamage", AEItemStack.class,
+						FuzzyMode.class, boolean.class);
+
+				findFuzzyDamage.setAccessible(true);
+			}
+
+			return (Collection<IAEItemStack>) findFuzzyDamage.invoke(thiz, filter, fuzzy, ignoreMeta);
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+
+	}
+
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		super.onPostTick(aBaseMetaTileEntity, aTick);
 		returnItems();
-		
+		if(aBaseMetaTileEntity.getWorld().isRemote)return;
 		if (getBaseMetaTileEntity().isActive()) {
+			if(removeStorageCircuit&&(aTick%50==0)){
+				try{
+				IItemList<IAEItemStack> list=new  appeng.util.item.ItemList();
+				this.getProxy().getStorage().getItemInventory()
+				.getAvailableItems(list);
+				//findFuzzyDamage(list,AEItemStack.create(new ItemStack(MyMod.progcircuit)),FuzzyMode.IGNORE_ALL,true)
+				list.forEach(s->{
+					if(s.getItem()==MyMod.progcircuit)
+					try {
+						this.getProxy().getStorage().getItemInventory().extractItems(
+								s
+								,Actionable.MODULATE, 
+								new MachineSource(LargeProgrammingCircuitProvider.this)
+								);
+					} catch (Exception e) {
+					}
+				});
+				;
+				
+				}catch(Exception e){}
+			}
+			
 			int hash=providers.hashCode();
 			if (lasthash!=hash||cacheState == CacheState.POWEROFF || cacheState == CacheState.CRASH) {
 				cacheState = CacheState.UPDATED;
@@ -811,7 +863,7 @@ int lasthash;
 		}
 
 	}
-
+	private boolean removeStorageCircuit;
 	CacheState cacheState = CacheState.POWEROFF;
 
 	private HashSet<Object> reusable = new HashSet<>();
@@ -950,18 +1002,48 @@ ButtonWidget createParallelButton(IWidgetBuilder<?> builder,UIBuildContext build
          .setPos(getVoidingModeButtonPos())
          .setSize(16, 16);
     
-	/* IntStream
-		.range(0,
-				Integer.valueOf(StatCollector.translateToLocal(
-						"proghatches.largepcp.parallel.desc")))
-		.forEach(s -> button.addTooltip(LangManager.translateToLocal(
-				"proghatches.largepcp.parallel.desc." + s)));
-*/
 
 	
 	
     return (ButtonWidget) button;
 }
+
+ButtonWidget createRemoveCircuitButton(IWidgetBuilder<?> builder,UIBuildContext buildContext) {
+	builder.widget(new FakeSyncWidget.BooleanSyncer(
+			()->this.removeStorageCircuit,
+			s->this.removeStorageCircuit=s
+			));
+	 Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
+		 removeStorageCircuit=!removeStorageCircuit;
+     })
+       
+			 .setPlayClickSoundResource(
+		                () -> isAllowedToWork() ? SoundResource.GUI_BUTTON_UP.resourceLocation
+		                    : SoundResource.GUI_BUTTON_DOWN.resourceLocation)
+		            .setBackground(() -> {
+		                if (removeStorageCircuit) {
+		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
+		                        GT_UITextures.OVERLAY_BUTTON_CROSS };
+		                } else {
+		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+		                        GT_UITextures.OVERLAY_BUTTON_CROSS };
+		                }
+		            })
+        
+        .addTooltip(StatCollector.translateToLocal("proghatches.largepcp.remove_circuit"))
+        
+        .setTooltipShowUpDelay(TOOLTIP_DELAY)
+        .setPos(getVoidingModeButtonPos().add(18, 0))
+        .setSize(16, 16);
+   
+
+	
+	
+   return (ButtonWidget) button;
+}
+
+
+
     @Override
     public void addUIWidgets(com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder builder,
     		UIBuildContext buildContext) {
@@ -980,6 +1062,7 @@ ButtonWidget createParallelButton(IWidgetBuilder<?> builder,UIBuildContext build
 
     	        builder.widget(createPowerSwitchButton(builder))
     	            .widget(createParallelButton(builder,buildContext))
+    	            .widget(createRemoveCircuitButton(builder,buildContext))
     	        ;
     	        builder.widget(new IntegerSyncer(()->{
     	    	
@@ -1168,6 +1251,15 @@ public int rows() {
 public int rowSize() {
 	
 	return 0;
+}
+
+
+
+
+@Override
+public IGridNode getActionableNode() {
+	
+	return getProxy().getNode();
 }
 
 

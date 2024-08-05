@@ -480,3 +480,4 @@ anchoralert.dim.false=允许警告锚的同维度警告
 anchoralert.global.true=屏蔽警告锚的全服警告
 anchoralert.global.false=允许警告锚的全服警告
 proghatch.chunk_loading_alert.count=ME网络已加载/所有区块:%s/%s
+proghatches.largepcp.remove_circuit=移除网络中未使用的编程器电路

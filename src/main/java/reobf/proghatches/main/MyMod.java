@@ -59,6 +59,7 @@ import appeng.core.Api;
 import appeng.core.features.registries.InterfaceTerminalRegistry;
 import appeng.core.features.registries.RegistryContainer;
 import appeng.core.localization.GuiText;
+import appeng.crafting.v2.resolvers.CraftableItemResolver.CraftFromPatternTask;
 import appeng.helpers.BlockingModeIgnoreList;
 import appeng.helpers.DualityInterface;
 import appeng.helpers.IInterfaceHost;
@@ -131,7 +132,7 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 )
 public class MyMod {
 	public static MyMod instance;
-	{
+	{CraftFromPatternTask.class.getDeclaredFields();
 	//	BaseMetaPipeEntity.class.getDeclaredFields();
 		instance = this;
 	}

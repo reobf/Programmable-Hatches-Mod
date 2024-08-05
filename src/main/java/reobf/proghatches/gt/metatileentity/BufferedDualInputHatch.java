@@ -422,6 +422,27 @@ public int getInventoryFluidLimit() {
 			}else{unlockDelay=0;}
 			return false;
 		}
+		private boolean fluidEqualsIngoreAmount(FluidTank a, FluidTank b) {
+		
+			if (a.getFluid() == null && a.getFluid() == null)
+				return true;
+			if (a.getFluid() != null && (!a.getFluid().equals(b.getFluid())))
+				return false;
+
+			return true;
+		}
+		   public  boolean areItemStacksEqualIngoreAmount(ItemStack p_77989_0_, ItemStack p_77989_1_)
+		    {
+		        return p_77989_0_ == null && p_77989_1_ == null ? true : (p_77989_0_ != null && p_77989_1_ != null ? isItemStackEqualIngoreAmount(p_77989_0_,p_77989_1_) : false);
+		    }
+
+		    /**
+		     * compares ItemStack argument to the instance ItemStack; returns true if both ItemStacks are equal
+		     */
+		    private boolean isItemStackEqualIngoreAmount(ItemStack p_77959_1_,ItemStack thiz)
+		    {
+		        return false ? false : (thiz.getItem() != p_77959_1_.getItem() ? false : (thiz.getItemDamage() != p_77959_1_.getItemDamage() ? false : (thiz.stackTagCompound == null && p_77959_1_.stackTagCompound != null ? false : thiz.stackTagCompound == null || thiz.stackTagCompound.equals(p_77959_1_.stackTagCompound))));
+		    }
 
 		private boolean fluidEquals(FluidTank a, FluidTank b) {
 			// if(a==b)return false;
@@ -502,20 +523,26 @@ public int getInventoryFluidLimit() {
 					hasJob = true;
 				}
 				if (fluidEquals(mStoredFluidInternalSingle[ix], fin[ix])) {
+					if((fin[ix].getFluidAmount()>0&&mStoredFluidInternal[ix].getFluidAmount()>0)&&!fluidEqualsIngoreAmount(mStoredFluidInternal[ix], fin[ix])){
+					return;
+				}
 				} else {
 					return;
 				}
-				;
+				
 			}
 			for (int ix = 0; ix < i; ix++) {
 				if (iin[ix] != null && iin[ix].stackSize > 0) {
 					hasJob = true;
 				}
 				if (ItemStack.areItemStacksEqual(mStoredItemInternalSingle[ix], iin[ix])) {
+					if((iin[ix]!=null&&mStoredItemInternal[ix]!=null)&&!areItemStacksEqualIngoreAmount(mStoredItemInternal[ix], iin[ix])){
+						return;
+					}
 				} else {
 					return;
 				}
-				;
+				
 			}
 			if (!hasJob) {
 				return;

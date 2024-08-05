@@ -71,6 +71,7 @@ import gregtech.api.util.GT_Utility;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.block.BlockIOHub;
+import reobf.proghatches.eucrafting.IInputMightBeEmptyPattern;
 import reobf.proghatches.eucrafting.IInstantCompletable;
 import reobf.proghatches.gt.metatileentity.util.ICircuitProvider;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
@@ -342,7 +343,7 @@ for(ItemStack is:mInventory)
 
 	}
 
-	public static class CircuitProviderPatternDetial implements ICraftingPatternDetails {
+	public static class CircuitProviderPatternDetial implements ICraftingPatternDetails,IInputMightBeEmptyPattern {
 		@Nonnull
 		final public ItemStack out;
 		@Nonnull
@@ -376,6 +377,7 @@ for(ItemStack is:mInventory)
 			if (o == null)
 				throw new IllegalArgumentException("null");
 			this.out = o;
+			if(o.stackSize<=0)throw new IllegalArgumentException("invalid stackSize");
 			hash = AEItemStack.create(out).hashCode() ^ 0x1234abcd;
 			/*
 			 * if(out ==null){ Thread.dumpStack();

@@ -730,5 +730,29 @@ this.piority=newValue;
 	
 }
 
+@MENetworkEventSubscribe
+public void powerRender(final MENetworkPowerStatusChange c) {
+    this.updateStatus();
+}
+
+
+@MENetworkEventSubscribe
+public void chanRender(final MENetworkChannelsChanged changedChannels) {
+    this.updateStatus();
+}
+@MENetworkEventSubscribe
+public void updateChannels(final MENetworkChannelsChanged changedChannels) {
+    this.updateStatus();
+}
+protected void updateStatus() {
+   
+            try {
+				this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
+			} catch (GridAccessException e) {
+			
+				e.printStackTrace();
+			}
+       
+}
 
 }

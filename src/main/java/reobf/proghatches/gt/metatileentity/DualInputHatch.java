@@ -1903,7 +1903,7 @@ public class OptioanlSharedContents{
 						cahce.getItemInventory().getStorageList().findPrecise(AEItemStack.create(is))
 						).map(IAEItemStack::getItemStack).orElse(null));
 				shadowItems.add(ris);	
-				cachedItems.add(Optional.ofNullable(ris).map(s->s.copy()).get());
+				cachedItems.add(Optional.ofNullable(ris).map(s->s.copy()).orElse(null));
 			}
 		}
 		for(int i=0;i<markedFluid.size();i++){
@@ -1916,7 +1916,7 @@ public class OptioanlSharedContents{
 						cahce.getFluidInventory().getStorageList().findPrecise(AEFluidStack.create(is))
 						).map(IAEFluidStack::getFluidStack).orElse(null));
 				shadowFluid.add(ris);	
-				cachedFluid.add(Optional.ofNullable(ris).map(s->s.copy()).get());
+				cachedFluid.add(Optional.ofNullable(ris).map(s->s.copy()).orElse(null));
 			}
 		}
 		

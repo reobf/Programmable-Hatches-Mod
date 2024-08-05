@@ -174,7 +174,7 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		retLate.add("MixinCanCraftExempt");
 		if(ff)retLate.add("MixinNoFuzzyForProgrammingCircuit");
 		if(ff)retLate.add("MixinHandleProgrammingOnRecipeStart");
-		
+		retLate.add("MixinCraftFromPatternTaskPatch");
 		
 		if (FMLLaunchHandler.side().isClient()) {
 			if (!"true".equals(pp.get("noAEItemSortMixins")))

@@ -744,10 +744,11 @@ public void chanRender(final MENetworkChannelsChanged changedChannels) {
 public void updateChannels(final MENetworkChannelsChanged changedChannels) {
     this.updateStatus();
 }
+static MENetworkCellArrayUpdate event=new MENetworkCellArrayUpdate();
 protected void updateStatus() {
    
             try {
-				this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
+				this.getProxy().getGrid().postEvent(event);
 			} catch (GridAccessException e) {
 			
 				e.printStackTrace();

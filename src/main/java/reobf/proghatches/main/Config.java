@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -72,8 +73,12 @@ public class Config {
 		try (InputStream in = (defaulted ? getInputEN : getInput).apply(key)) {
 			if (in == null) {
 				if (defaulted) {
-					obj.addMachineType("!!!error!!! failed to translate")
-							.toolTipFinisher("do not remove en_US folder!");
+					obj.addMachineType("!!!error!!! failed to translate");
+					obj.getClass().getMethod("toolTipFinisher", String.class).invoke(obj,"do not remove en_US folder!");
+					
+					
+					
+					
 					return;
 				}
 				get(obj, key, true);
@@ -109,7 +114,14 @@ public class Config {
 		}
 
 		if (Config.appendAddedBy)
-			obj.toolTipFinisher(LangManager.translateToLocal("programmable_hatches.addedby"));
+			try {
+				
+				obj.getClass().getMethod("toolTipFinisher", String.class).invoke(obj,LangManager.translateToLocal("programmable_hatches.addedby"));
+		
+			} catch (Exception e) {
+			
+				e.printStackTrace();
+			}
 		;
 	}
 

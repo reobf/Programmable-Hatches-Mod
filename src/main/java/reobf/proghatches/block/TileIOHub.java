@@ -411,10 +411,13 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 			final TileIOHub.OCApi database = (TileIOHub.OCApi) env;
 			database.markDirty();
 			// do not directly swap ref just in case...
-			ItemStack[] ia = Arrays.stream(inv).map(ItemStack::copy).toArray(ItemStack[]::new);
+			ItemStack[] ia = inv.clone();
+			for(int i=0;i<ia.length;i++){if(ia[i]!=null)ia[i]=ia[i].copy();}
 			NBTTagCompound[] fa = Arrays.stream(ft).map(s -> s.writeToNBT(new NBTTagCompound()))
 					.toArray(NBTTagCompound[]::new);
-			ItemStack[] ib = Arrays.stream(database.TileIOHubthis().inv).map(ItemStack::copy).toArray(ItemStack[]::new);
+			//ItemStack[] ib = Arrays.stream(database.TileIOHubthis().inv).map(ItemStack::copy).toArray(ItemStack[]::new);
+			ItemStack[] ib =database.TileIOHubthis().inv.clone();
+			for(int i=0;i<ib.length;i++){if(ib[i]!=null)ib[i]=ib[i].copy();}
 			NBTTagCompound[] fb = Arrays.stream(database.TileIOHubthis().ft)
 					.map(s -> s.writeToNBT(new NBTTagCompound())).toArray(NBTTagCompound[]::new);
 
@@ -726,7 +729,9 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		public int optSlot(Arguments args, int n) {
 			return InventoryAware$class.optSlot(this, args, n);
 		}
-
+		public int selectedSlotIndex() {
+			return slotselected-1;
+		}
 		@Override
 		public int selectedSlot() {
 
@@ -771,7 +776,9 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		public int optTank(Arguments arg0, int arg1) {
 			return TankAware$class.optTank(this, arg0, arg1);
 		}
-
+		public int selectedTankIndex() {
+			return tankselected-1;
+		}
 		@Override
 		public int selectedTank() {
 
@@ -1035,7 +1042,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 			if (invRobot.getSizeInventory() <= 0) {
 				return new Object[] { 0 };
 			}
-			final ItemStack stack = invRobot.getStackInSlot(selectedSlot());
+			final ItemStack stack = invRobot.getStackInSlot(selectedSlotIndex());
 			final IMEMonitor<IAEItemStack> inv = this.getItemInventory();
 			if (stack == null || inv == null) {
 				return new Object[] { 0 };
@@ -1050,17 +1057,17 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 			if (notInjected == null) {
 				stack.stackSize -= amount;
 				if (stack.stackSize <= 0) {
-					invRobot.setInventorySlotContents(selectedSlot(), (ItemStack) null);
+					invRobot.setInventorySlotContents(selectedSlotIndex(), (ItemStack) null);
 				} else {
-					invRobot.setInventorySlotContents(selectedSlot(), stack);
+					invRobot.setInventorySlotContents(selectedSlotIndex(), stack);
 				}
 				array = new Object[] { amount };
 			} else {
 				stack.stackSize = stack.stackSize - amount + (int) notInjected.getStackSize();
 				if (stack.stackSize <= 0) {
-					invRobot.setInventorySlotContents(selectedSlot(), (ItemStack) null);
+					invRobot.setInventorySlotContents(selectedSlotIndex(), (ItemStack) null);
 				} else {
-					invRobot.setInventorySlotContents(selectedSlot(), stack);
+					invRobot.setInventorySlotContents(selectedSlotIndex(), stack);
 				}
 				array = new Object[] { stack2.stackSize - notInjected.getStackSize() };
 			}
@@ -1074,7 +1081,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 			final String address = args.checkString(0);
 			final int entry = args.checkInteger(1);
 			final int amount = args.optInteger(2, 64);
-			final int selected = selectedSlot();
+			final int selected = selectedSlotIndex();
 			final IInventory invRobot = TileIOHub.this;
 			if (invRobot.getSizeInventory() <= 0) {
 				return new Object[] { 0 };
@@ -1150,7 +1157,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		@Callback(doc = "function([number:amount]):number -- Transfer selected fluid to your ae system.")
 		public Object[] sendFluids(final Context context, final Arguments args) {
 			markDirty();
-			final int selected = selectedTank();
+			final int selected = selectedTankIndex();
 			final MultiTank tanks = tank();
 			if (tanks.tankCount() <= 0) {
 				return new Object[] { 0 };
@@ -1186,7 +1193,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 			final int entry = args.checkInteger(1);
 			final int amount = args.optInteger(2, 1000);
 			final MultiTank tanks = tank();
-			final int selected = selectedTank();
+			final int selected = selectedTankIndex();
 			if (tanks.tankCount() <= 0) {
 				return new Object[] { 0 };
 			}
@@ -1347,11 +1354,15 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 
 		return true;
 	}
-
+	private boolean sameFluid(FluidStack fs1,FluidStack fs2){
+		if(fs1==null||fs2==null){return false;}
+		
+		return fs1.getFluid()==fs2.getFluid();
+	}
 	@Override
 	public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
 		for (FluidTank f : ft) {
-			if (f.getFluid().getFluid() == resource.getFluid()) {
+			if (sameFluid(f.getFluid(), resource)) {
 				int suc = f.fill(resource, doFill);
 				if (suc > 0)
 					return suc;
@@ -1371,7 +1382,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		int suc = 0;
 		int todo = resource.amount;
 		for (FluidTank f : ft) {
-			if (f.getFluid().getFluid() == resource.getFluid()) {
+			if (sameFluid(f.getFluid(), resource)) {
 				int tmp;
 				suc += (tmp = f.drain(todo, doDrain).amount);
 				todo -= tmp;

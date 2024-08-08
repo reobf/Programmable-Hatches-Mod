@@ -67,11 +67,11 @@ public class PHRecipes implements Runnable {
         		{ Infinite }, 
         		{ Bio },
         		{ Optical/*,Nano,*/ },
-        		{ Piko/*,Exotic,*/  },
+        		{ Piko/*,Exotic,*/  },//dreamcraft circuit
         		{ Quantum/*,Cosmic,*/  }, 
-        		{ Quantum /*Transcendent*/ } };//Transcendent circuit is not craftable 
+        		{ Quantum /*Transcendent*/ } };
      
-      /*Materials[][] matNH = { 
+      Materials[][] matNewVersion = { 
       		{ Primitive }, 
       		{ Basic }, 
       		{ Good }, 
@@ -83,12 +83,12 @@ public class PHRecipes implements Runnable {
       		{ SuperconductorUHV }, 
       		{ Infinite }, 
       		{ Bio },
-      		{ Nano },
-      		{ Piko  },
-      		{ Quantum  }, 
-      		{ Transcendent } }; */
+      		{ Optical },
+      		{ Exotic  },
+      		{ Cosmic  }, 
+      		{ Cosmic/*Transcendent*/ }}; 
       
-      
+   
  ItemList[] multi = { null, null, null, null, Hatch_Input_Multi_2x2_EV, Hatch_Input_Multi_2x2_IV,
         	            Hatch_Input_Multi_2x2_LuV, Hatch_Input_Multi_2x2_ZPM, Hatch_Input_Multi_2x2_UV, Hatch_Input_Multi_2x2_UHV,
         	            Hatch_Input_Multi_2x2_UEV,
@@ -100,6 +100,18 @@ public class PHRecipes implements Runnable {
 
        
 if(Config.skipRecipeAdding)return;
+
+if(
+GameRegistry.findItem("dreamcraft","item.PolychromePikoCircuit")!=null
+){
+	  MyMod.LOG.info("Found new dreamcraft Nano-Piko-Quantum circuit, use oredict: Exotic-Cosmic-Transcendent.");
+	mat=matNewVersion;}
+else{
+	 MyMod.LOG.info("Old version.");
+	
+}
+//You just like breaking changes, isn't that true, GTNH dev?
+
 
 IRecipe rec = new ShapedOreRecipe(new ItemStack(MyMod.plunger),"CRR","TSR","Q F",
 		'R',"plateAnyRubber",

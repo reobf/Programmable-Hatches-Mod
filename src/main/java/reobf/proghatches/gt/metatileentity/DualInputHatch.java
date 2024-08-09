@@ -1429,6 +1429,8 @@ boolean loadOldVer=true;
 
 	@Override
 	public void updateSlots() {
+		
+		
 		if (this.getBaseMetaTileEntity().isServerSide()) {
 			for (int i = 0; i < getMaxType(); i++) {
 				if (mStoredFluid[i].getFluid() != null && mStoredFluid[i].getFluidAmount() <= 0) {

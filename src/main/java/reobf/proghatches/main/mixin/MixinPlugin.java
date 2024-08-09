@@ -175,7 +175,7 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		if(ff)retLate.add("MixinNoFuzzyForProgrammingCircuit");
 		if(ff)retLate.add("MixinHandleProgrammingOnRecipeStart");
 		retLate.add("MixinCraftFromPatternTaskPatch");
-		retLate.add("MixinGloemCore");
+		retLate.add("MixinGolemCore");
 		
 		
 		if (FMLLaunchHandler.side().isClient()) {

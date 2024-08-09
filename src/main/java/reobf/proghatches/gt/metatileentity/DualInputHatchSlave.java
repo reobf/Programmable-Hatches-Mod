@@ -11,6 +11,10 @@ import java.util.Optional;
 
 import com.google.common.collect.ImmutableMap;
 
+import appeng.api.networking.crafting.ICraftingMedium;
+import appeng.api.networking.crafting.ICraftingProvider;
+import appeng.api.util.IInterfaceViewable;
+import appeng.helpers.ICustomNameObject;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -18,6 +22,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -28,15 +33,20 @@ import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.recipe.check.CheckRecipeResult;
+import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
+import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_CraftingInput_ME;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
+import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.main.registration.Registration;
 
 public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch> extends GT_MetaTileEntity_Hatch_InputBus
-		implements IDualInputHatch {
+		implements IDualInputHatch , IRecipeProcessingAwareDualHatch {
 
 	private T master; // use getMaster() to access
 	private int masterX, masterY, masterZ;
@@ -239,15 +249,34 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch> ext
 					+ tag.getInteger("masterZ"));
 		}
 
-		/*
-		 * if (tag.hasKey("masterName")) {
-		 * currenttip.add(EnumChatFormatting.GOLD + tag.getString("masterName")
-		 * + EnumChatFormatting.RESET); }
-		 */
+		
+		  if (tag.hasKey("masterName")) {
+		  currenttip.add(EnumChatFormatting.GOLD + tag.getString("masterName")
+		  + EnumChatFormatting.RESET); }
+		 
 
 		super.getWailaBody(itemStack, currenttip, accessor, config);
 	}
+  
+    public String getNameOf(T tg) {
+    	
+    	if(tg instanceof ICustomNameObject){
+    		ICustomNameObject iv=(ICustomNameObject) tg;
+    		if(iv.hasCustomName())
+    		return iv.getCustomName();
+    		
+    	}
+    	
+        StringBuilder name = new StringBuilder();
+        if (tg instanceof ICraftingMedium &&((ICraftingMedium)tg).getCrafterIcon() != null) {
+            name.append(((ICraftingMedium)tg).getCrafterIcon().getDisplayName());
+        } else {
+            name.append(tg.getLocalName());
+        }
 
+      
+        return name.toString();
+    }
 	@Override
 	public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
 			int z) {
@@ -257,7 +286,8 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch> ext
 			tag.setInteger("masterX", masterX);
 			tag.setInteger("masterY", masterY);
 			tag.setInteger("masterZ", masterZ);
-		}
+		} 
+		if (getMaster() != null) tag.setString("masterName", getNameOf(getMaster()));
 		/*
 		 * if (getMaster() != null) tag.setString("masterName",
 		 * getMaster().getnam);
@@ -265,4 +295,25 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch> ext
 
 		super.getWailaNBTData(player, tile, tag, world, x, y, z);
 	}
+
+	@Override
+	public void startRecipeProcessing() {
+		
+		if(getMaster() != null) 
+			if(getMaster() instanceof IRecipeProcessingAwareDualHatch)
+			((IRecipeProcessingAwareDualHatch)getMaster()).startRecipeProcessing();
+		
+	}
+
+	@Override
+	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+		if(getMaster() != null) 
+			if(getMaster() instanceof IRecipeProcessingAwareDualHatch)
+			((IRecipeProcessingAwareDualHatch)getMaster()).endRecipeProcessing(controller);
+		return CheckRecipeResultRegistry.SUCCESSFUL;
+	}
+	  @Override
+	    public List<ItemStack> getItemsForHoloGlasses() {
+	        return getMaster() != null ? getMaster().getItemsForHoloGlasses() : null;
+	    }
 }

@@ -37,9 +37,9 @@ public class MixinCraftFromPatternTaskPatch {
 		}
 		return shouldPatch();
 	}
-	@Shadow 
+	@Shadow (remap=false)
 	  protected  IAEItemStack[] patternInputs;
-	@Inject(method="<init>",at = { @At("RETURN") })
+	@Inject(method="<init>",at = { @At("RETURN") },remap=false)
 	public void calculateOneStep(CraftingRequest<IAEItemStack> request, ICraftingPatternDetails pattern,
             int priority, boolean allowSimulation, boolean isComplex,CallbackInfo xx){
 		if(shouldPatch())

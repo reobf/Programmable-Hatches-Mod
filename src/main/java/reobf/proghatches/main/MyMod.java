@@ -122,6 +122,7 @@ import reobf.proghatches.net.UpgradesMessage;
 import reobf.proghatches.oc.WirelessPeripheralManager;
 import reobf.proghatches.util.ProghatchesUtil;
 import tconstruct.armor.player.TPlayerStats;
+import thaumcraft.common.entities.golems.ItemGolemCore;
 
 @Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.7.10]",
 dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
@@ -132,7 +133,7 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 )
 public class MyMod {
 	public static MyMod instance;
-	{CraftFromPatternTask.class.getDeclaredFields();
+	{ItemGolemCore.class.getDeclaredFields();
 	//	BaseMetaPipeEntity.class.getDeclaredFields();
 		instance = this;
 	}

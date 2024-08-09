@@ -14,6 +14,7 @@ import scala.Option;
 import scala.Some;
 import scala.Tuple2;
 import li.cil.oc.util.BlockPosition;
+import li.cil.oc.util.ExtendedArguments.ExtendedArguments;
 import scala.collection.immutable.IndexedSeq;
 import scala.collection.mutable.Buffer;
 import scala.reflect.ClassTag;
@@ -110,7 +111,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 	public TileIOHub() {
 
 	}
-
+	private int offset=0;
 	@Override
 	public Node node() {
 
@@ -563,7 +564,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 
 		@Override
 		public BlockPosition position() {
-			return BlockPosition.apply(xCoord, yCoord, zCoord);
+			return BlockPosition.apply(xCoord, yCoord, zCoord,this.world());
 		}
 
 		@Override
@@ -730,18 +731,18 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 			return InventoryAware$class.optSlot(this, args, n);
 		}
 		public int selectedSlotIndex() {
-			return slotselected-1;
+			return slotselected-offset;
 		}
 		@Override
 		public int selectedSlot() {
 
 			return slotselected;
 		}
-
+		
 		@Override
 		public void selectedSlot_$eq(int arg0) {
 			markDirty();
-			if (arg0 < 0 + 1 || arg0 >= inv.length + 1) {
+			if (arg0 < 0 + offset || arg0 >= inv.length + offset) {
 				throw new RuntimeException("invalid slot");
 			}
 			slotselected = arg0;
@@ -777,7 +778,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 			return TankAware$class.optTank(this, arg0, arg1);
 		}
 		public int selectedTankIndex() {
-			return tankselected-1;
+			return tankselected-offset;
 		}
 		@Override
 		public int selectedTank() {
@@ -788,7 +789,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		@Override
 		public void selectedTank_$eq(int arg0) {
 			markDirty();
-			if (arg0 < 0 + 1 || arg0 >= ft.length + 1) {
+			if (arg0 < 0 + offset || arg0 >= ft.length + offset) {
 				throw new RuntimeException("invalid slot");
 			}
 			tankselected = arg0;
@@ -824,9 +825,9 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		@APIType({ "fluid" })
 		@Callback(doc = "function([index:number]):number -- Select a tank and/or get the number of the currently selected tank.")
 		public Object[] selectTank(final Context context, final Arguments args) {
-			int i = args.checkInteger(0);
+			int i = optTank(args,0);
 			this.selectedTank_$eq(i);
-			return new Object[] { i };
+			return new Object[] { i+1 };
 		}
 
 		@APIType({ "fluid" })
@@ -853,13 +854,13 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 			markDirty();
 			return TankControl$class.transferFluidTo(this, context, args);
 		}
-
+		
 		@APIType({ "item" })
 		@Callback(doc = "function([slot:number]):number -- Get the currently selected slot; set the selected slot if specified.")
 		public Object[] select(final Context context, final Arguments args) {
-			int i = args.checkInteger(0);
+			int i = optSlot(args,0);
 			this.selectedSlot_$eq(i);
-			return new Object[] { i };
+			return new Object[] { i+1 };
 		}
 
 		@APIType({ "item" })
@@ -1539,7 +1540,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 						public IDrawable[] getBackground() {
 							// System.out.println(h.getSlotIndex()+"
 							// "+(slotselected-1));
-							if (h.getSlotIndex() == slotselected - 1) {
+							if (h.getSlotIndex() == slotselected - offset) {
 								return special;
 							}
 							;
@@ -1564,7 +1565,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 						public IDrawable[] getBackground() {
 							// System.out.println(h.getSlotIndex()+"
 							// "+(slotselected-1));
-							if (h == tankselected - 1) {
+							if (h == tankselected - offset) {
 								return special0;
 							}
 							;
@@ -1649,8 +1650,8 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 
 	}
 
-	int slotselected = 1;
-	int tankselected = 1;
+	int slotselected = offset;;
+	int tankselected = offset;;
 
 	@Override
 	public IGridNode getActionableNode() {

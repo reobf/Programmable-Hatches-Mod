@@ -45,7 +45,7 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.main.registration.Registration;
 
-public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch> extends GT_MetaTileEntity_Hatch_InputBus
+public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch&IMetaTileEntity> extends GT_MetaTileEntity_Hatch_InputBus
 		implements IDualInputHatch , IRecipeProcessingAwareDualHatch {
 
 	private T master; // use getMaster() to access

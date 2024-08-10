@@ -382,7 +382,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 	public class OCApi implements li.cil.oc.api.network.Environment, WorldInventoryAnalytics, WorldTankAnalytics,
 			WorldFluidContainerAnalytics, TankInventoryControl, InventoryAnalytics, MultiTank, InventoryTransfer,
 			FluidContainerTransfer, InventoryControl, TankControl, ItemInventoryControl, InventoryWorldControlMk2,
-			NetworkControl<TileIOHub> {
+			TankWorldControl,NetworkControl<TileIOHub> {
 		@Callback(doc = "function():string -- Returns the custom name of this IO Hub, or 'IOHub' if absent. Use quartz cutter to (re-)name.")
 		public Object[] getCustomName(final Context context, final Arguments args) {
 			return new Object[] { TileIOHub.this.getInventoryName() };
@@ -688,8 +688,13 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		public Object[] fill(final Context context, final Arguments args) {
 			markDirty();
 			return TankInventoryControl$class.fill(this, context, args);
-		}
-
+		}/*
+		@APIType({ "fluid" })
+		@Callback(doc = "function([amount:number]):boolean -- Transfers fluid from the selected tank to a tank in the selected inventory slot.")
+		public Object[] fillRobot(final Context context, final Arguments args) {
+			markDirty();
+			return TankInventoryControl$class.fill(this, context, args);
+		}*/
 		@APIType({ "item" })
 		@Callback(doc = "function([slot:number]):table -- Get a description of the stack in the specified slot or the selected slot.")
 		public Object[] getStackInInternalSlot(final Context context, final Arguments args) {
@@ -1267,8 +1272,28 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 			// TODO Auto-generated method stub
 
 		}
-
+		
+		@Callback(doc="function(side:number [, tank:number]):boolean -- Compare the fluid in the selected tank with the fluid in the specified tank on the specified side. Returns true if equal.")
+		@Override
+		public Object[] compareFluid(Context arg0, Arguments arg1) {
+			TankWorldControl$class.compareFluid(this, arg0, arg1);
+			return null;
+		}
+		@Callback(doc="function(side:number[, amount:number=1000]):boolean, number of string -- Eject the specified amount of fluid to the specified side. Returns the amount ejected or an error message.")
+		public Object[] fillRobot(Context arg0, Arguments arg1) {
+			return TankWorldControl$class.fill(this, arg0, arg1);
+		}
+		@Callback(doc="function(side:boolean[, amount:number=1000]):boolean, number or string -- Drains the specified amount of fluid from the specified side. Returns the amount drained, or an error message.")
+		public Object[] drainRobot(Context arg0, Arguments arg1) {
+			return TankWorldControl$class.drain(this, arg0, arg1);
+		}
+		
+		
 		// end of oc
+		
+	
+		
+		
 	}
 
 	@Override

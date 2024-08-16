@@ -779,6 +779,7 @@ public void setCustomName(String name) {
 
 		
 		
+		
 		if(ss.isAnotherWindow()&&
 				 (hasAEGUI() && !ss.getPlayer().getEntityWorld().isRemote)
 				 
@@ -787,7 +788,11 @@ public void setCustomName(String name) {
 				.openGui(MyMod.instance, side.ordinal(), 	
 						ss.getPlayer().getEntityWorld(), this.getPos().x,
 						 this.getPos().y, this.getPos().z);}
-			
+		
+		if (!tmpout)
+			duality.addWidgets(builder, 16,ss);
+		else
+			duality.addWidgetsOut(builder, 16,ss);
 		
 		if(2>1)return;
 		builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
@@ -812,11 +817,11 @@ public void setCustomName(String name) {
 		 * duality.getInput().addWidgets(builder,16); else
 		 * 
 		 */
-		if (!tmpout)
+		/*if (!tmpout)
 			duality.addWidgets(builder, 16);
 		else
 			duality.addWidgetsOut(builder, 16);
-
+*/
 		if (2 > 1)
 			return;
 

@@ -44,6 +44,7 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
@@ -479,7 +480,7 @@ public int getInventoryFluidLimit() {
 				scheduled.push(tick);
 			}*/
 			
-			justHadNewItems = true;
+			markJustHadNewItems();
 			onClassify();
 			programLocal();
 		}
@@ -562,7 +563,7 @@ public int getInventoryFluidLimit() {
 				iin[ix] = null;
 			}
 			tickFirstClassify=-1;//make it instantly accessible
-			justHadNewItems = true;
+			markJustHadNewItems();
 			onClassify();
 			if (program)
 				programLocal();
@@ -631,7 +632,15 @@ public int getInventoryFluidLimit() {
 
 		return new BufferedDualInputHatch(mName, mTier, mDescriptionArray, mTextures, mMultiFluid, bufferNum);
 	}
-
+	//private long lastMark;
+	//avoid settting justHadNewItems to true every tick
+	public void markJustHadNewItems() {
+		/*long now=this.getBaseMetaTileEntity().getTimer();
+		if(now>=lastMark-1){return;}
+		lastMark=now;*/
+	justHadNewItems =true;
+		
+	}
 	public void initBackend() {
 		for (int i = 0; i < bufferNum; i++)
 			inv0.add(new DualInvBuffer());
@@ -693,6 +702,32 @@ public int getInventoryFluidLimit() {
 	private boolean isOnLastTick;
 	// public boolean prevdirty;
 	public int preventSleep;
+	
+	@Override
+	public void startRecipeProcessing() {
+
+		if (isInputEmpty() == false)
+			for (DualInvBuffer inv0 : this.sortByEmpty()) {
+
+				if (inv0.full() == false) {
+					if (!inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)) {
+						inv0.classify(this.mStoredFluid, mInventory);
+					}
+				}
+
+				//inv0.clearRecipeIfNeeded();
+			}
+
+		super.startRecipeProcessing();
+	}
+	public static class DeferredEvaluator{
+		public DeferredEvaluator(Supplier<Boolean> provider){this.provider=provider;}
+		Supplier<Boolean> provider;Boolean cache;
+		public boolean get(){
+			if(cache==null){cache=provider.get();}
+			return cache;
+		}
+	}
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		super.onPostTick(aBaseMetaTileEntity, aTick);
@@ -720,13 +755,13 @@ public int getInventoryFluidLimit() {
 		//System.out.println("sleep);
 		//Boolean inputEmpty=null;
 		
-		
+		DeferredEvaluator inputEmpty=new DeferredEvaluator(this::isInputEmpty);
 		if(dirty){
 			sleep=false;//wake up
 			sleepTime=0;
 		}else if(!sleep){
-			boolean inputEmpty=isInputEmpty();//not dirty but awake, check if need to sleep
-			if(inputEmpty){
+			/*boolean inputEmpty=isInputEmpty();*///not dirty but awake, check if need to sleep
+			if(inputEmpty.get()){
 				if(preventSleep==0)
 				if(Config.sleep)sleep=true;
 				
@@ -740,7 +775,7 @@ public int getInventoryFluidLimit() {
 		// if(inputEmpty==null)inputEmpty=isInputEmpty();
 		if(!sleep||updateEveryTick())
 		 for (DualInvBuffer inv0 : this.sortByEmpty()) {
-			if (on && dirty) {
+			if (on && dirty&&!inputEmpty.get()) {
 				if (inv0.full() == false) {
 					if (!inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)) {
 						inv0.classify(this.mStoredFluid, mInventory);
@@ -1572,7 +1607,10 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 
 		return super.onRightclick(aBaseMetaTileEntity, aPlayer);
 	}
+	
 
+
+	
 	@Override
 	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
 		dirty = true;

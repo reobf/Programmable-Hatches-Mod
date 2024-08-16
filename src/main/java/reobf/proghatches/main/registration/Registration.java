@@ -31,6 +31,7 @@ import reobf.proghatches.gt.cover.ProgrammingCover;
 import reobf.proghatches.gt.cover.SmartArmCover;
 import reobf.proghatches.gt.cover.WirelessControlCover;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch;
+import reobf.proghatches.gt.metatileentity.DataHatchME;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
 import reobf.proghatches.gt.metatileentity.DualInputHatchSlave;
 import reobf.proghatches.gt.metatileentity.FilterOutputBus;
@@ -81,7 +82,7 @@ public class Registration implements Runnable {
 	public static final int MultiCircuitBusOffset = 150;//-153
 	public static final int MultiCircuitDualInputHatchOffset = 154;//-157
 	public static final int MultiCircuitQuadDualInputHatchOffset = 158;//-161
-	
+	public static final int DataHatchMEOffset = 162;
 	
     @SuppressWarnings("deprecation")
 	@Override
@@ -374,6 +375,14 @@ public class Registration implements Runnable {
                 LangManager.translateToLocalFormatted("bus.input.multicircuit.name",GT_Values.VN[i]),
                 i+4
                 );
+       
+        new DataHatchME(
+                Config.metaTileEntityOffset + DataHatchMEOffset,
+                "data.input.me",
+                LangManager.translateToLocalFormatted("data.input.me.name")
+                
+                );
+        
         /*for (int i = 0; i < 4; i++) {
 
             new DualInputHatch(

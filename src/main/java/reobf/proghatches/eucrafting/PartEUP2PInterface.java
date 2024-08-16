@@ -1,5 +1,7 @@
 package reobf.proghatches.eucrafting;
 
+import static gregtech.api.enums.Mods.GregTech;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -26,6 +28,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -46,17 +49,23 @@ import com.glodblock.github.inventory.IAEFluidTank;
 import com.glodblock.github.inventory.IDualHost;
 import com.glodblock.github.inventory.InventoryHandler;
 import com.glodblock.github.inventory.gui.GuiType;
+import com.glodblock.github.loader.ItemAndBlockHolder;
 import com.glodblock.github.util.BlockPos;
 import com.glodblock.github.util.DualityFluidInterface;
 import com.glodblock.github.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
+import com.gtnewhorizons.modularui.api.drawable.IDrawable;
+import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
+import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.math.Color;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.widget.Widget;
+import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
@@ -89,11 +98,14 @@ import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IConfigManager;
+import appeng.api.util.WorldCoord;
 import appeng.container.ContainerNull;
+import appeng.core.Api;
 import appeng.helpers.DualityInterface;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.IPriorityHost;
 import appeng.integration.modules.waila.part.BasePartWailaDataProvider;
+import appeng.items.tools.powered.powersink.IC2;
 import appeng.me.GridAccessException;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.parts.automation.UpgradeInventory;
@@ -111,14 +123,18 @@ import appeng.util.item.AEItemStack;
 import cofh.api.energy.IEnergyReceiver;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
+import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IEnergyConnected;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
 import gregtech.api.util.GT_ModHandler;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import ic2.api.energy.tile.IEnergySink;
+import ic2.api.item.IC2Items;
+import ic2.core.Ic2Items;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 
@@ -352,7 +368,15 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 	private long accepted;
 	private int redstoneticks;
 	private ArrayList<ItemStack> is = new ArrayList<>();;
-
+	/**
+	*0b000->all<br/>
+	*0b110->item/fluid <br/>
+	*0b101->energy<br/>
+	*0b011->machine<br/>
+	*bit equals 1=disable the duty
+	*
+	**/
+	private int duty=0b111; 
 	public PartEUP2PInterface(ItemStack is) {
 		super(is);
 		id = UUID.randomUUID();
@@ -534,11 +558,9 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		}
 		
 		return te;
-		
-		
 	}
 	public IMetaTileEntity getTargetTile(){
-		
+		if((duty&0b100)>0){return null;}
 		TileEntity te;
 		if(data!=null){
 			DimensionalCoord pos = data.getPos();
@@ -1089,7 +1111,9 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 
 	@Override
 	public boolean isBusy() {
-		return duality.isBusy()||getTargetInv()==null;
+		if((duty&0b001)>0)return true;
+		TileEntity t = getTargetInv();
+		return duality.isBusy();
 	}
 
 	@Override
@@ -1120,7 +1144,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		}
 		;
 		inputid = ProghatchesUtil.deser(data, "EUFI_INPUT");
-
+		duty = data.getInteger("duty");
 		amp = data.getLong("amp");
 		voltage = data.getLong("voltage");
 		accepted = data.getLong("accepted");
@@ -1152,6 +1176,7 @@ int succs;
 		duality.writeToNBT(data);
 		ProghatchesUtil.ser(data, id, "EUFI");
 		ProghatchesUtil.ser(data, inputid, "EUFI_INPUT");
+		data.setInteger("duty", duty);
 		data.setLong("amp", amp);
 		data.setLong("voltage", voltage);
 		data.setLong("accepted", accepted);
@@ -1242,18 +1267,70 @@ int succs;
 	public ModularWindow createWindow(UIBuildContext buildContext) {
 		NBTTagCompound tag = buildContext.getPlayer().getEntityData();
 
-		return tag.getBoolean("extraarg") ? createWindowOut(buildContext, 0) : createWindowIn(buildContext);
+		return tag.getBoolean("extraarg") ? createWindowOut(buildContext, 0,buildContext) : createWindowIn(buildContext);
 	}
 
 	public ModularWindow createWindowIn(UIBuildContext buildContext) {
 		ModularWindow.Builder builder = ModularWindow.builder(176, 107);
 		// builder.setGuiTint(buildContext.getGuiColorization);
 		builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
-		return addWidgets(builder, 0).build();
+		return addWidgets(builder, 0,buildContext).build();
 	}
+	
+	private static final UITexture ON = UITexture.fullImage(GregTech.ID,
+			"blocks/iconsets/OVERLAY_FRONT_IMPLOSION_COMPRESSOR_ACTIVE.png");
+	private static IDrawable[] buttonIcon=new IDrawable[]{
+			new ItemDrawable(new ItemStack( ItemAndBlockHolder.FLUID_INTERFACE)),
+			new ItemDrawable(new ItemStack(Ic2Items.chargedReBattery.getItem())),
+			ON
+	};
+	public ModularWindow.Builder addWidgetsOut(ModularWindow.Builder builder, int yshift, UIBuildContext ss) {
+		/*builder.widget(((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(true, true))
+				.setGetter(() -> d2i(duty))
+				.setSetter(s -> duty = i2d(s))
+				.setLength(4)
+				.setTextureGetter(i -> {
+					return GT_UITextures.OVERLAY_BUTTON_CROSS;
+				})
 
-	public ModularWindow.Builder addWidgetsOut(ModularWindow.Builder builder, int yshift) {
+				.addTooltip(0, LangManager.translateToLocal("proghatches.eucreafting.duty.all"))
+				.addTooltip(1, LangManager.translateToLocal("proghatches.eucreafting.duty.io"))
+				.addTooltip(2, LangManager.translateToLocal("proghatches.eucreafting.duty.eu"))
+				.addTooltip(3, LangManager.translateToLocal("proghatches.eucreafting.duty.machine"))
 
+				.setPos(8, 60)
+
+		);*/
+		new FakeSyncWidget.IntegerSyncer(()->duty, s->duty=s);
+		for(int ix=0;ix<3;ix++){
+			int inx = ix;
+			CycleButtonWidget c=new CycleButtonWidget();
+			builder.widget(((CycleButtonWidget)c.setSynced(true, true))
+				.setGetter(() -> ((duty&(1<<inx))>0)?1:0).setSetter(s -> duty= (duty&(~(1<<inx)))|(s<<inx)).setLength(2)
+				.setTextureGetter(i -> {
+					return  (buttonIcon[inx]);
+					/*if (i == 0)
+						return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
+
+					return GT_UITextures.OVERLAY_BUTTON_CROSS;*/
+				})
+				
+				.addTooltip(0, LangManager.translateToLocal("proghatches.eucreafting.duty.0."+inx))
+				.addTooltip(1, LangManager.translateToLocal("proghatches.eucreafting.duty.1."+inx))
+				.setSize(16,16)
+				.setPos(4+ix*16, 80-8-5)
+				.setBackground(() -> {
+					
+	                if (c.getState()==0) {
+	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
+	                       };
+	                } else {
+	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+	                       };
+	                }
+	            })
+
+		);}
 		builder.widget(TextWidget.localised("proghatches.eu.interface.hint.input.title").setPos(58, 30));
 		builder.widget(TextWidget.dynamicString(() -> {
 			// PartEUP2PInterface in = PartEUP2PInterface.this.getInput();
@@ -1303,9 +1380,91 @@ int succs;
 
 		return builder;
 	}
+	private int d2i(int i){
+		if(i==0b000)return 0;
+		if(i==0b110)return 1;
+		if(i==0b101)return 2;
+		if(i==0b011)return 3;
+		return 0;
+	}
+	private int i2d(int i){
+		if(i==0)return 0b000;
+		if(i==1)return 0b110;
+		if(i==2)return 0b101;
+		if(i==3)return 0b011;
+		return 0;
+	}
+	
+	public ModularWindow.Builder addWidgets(ModularWindow.Builder builder, int yshift, UIBuildContext buildContext) {
+		new FakeSyncWidget.IntegerSyncer(()->duty, s->duty=s);
+		for(int ix=0;ix<3;ix++){
+			int inx = ix;
+			CycleButtonWidget c=new CycleButtonWidget();
+			builder.widget(((CycleButtonWidget)c.setSynced(true, true))
+				.setGetter(() -> ((duty&(1<<inx))>0)?1:0).setSetter(s -> duty= (duty&(~(1<<inx)))|(s<<inx)).setLength(2)
+				.setTextureGetter(i -> {
+					return  (buttonIcon[inx]);
+					/*if (i == 0)
+						return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
 
-	public ModularWindow.Builder addWidgets(ModularWindow.Builder builder, int yshift) {
+					return GT_UITextures.OVERLAY_BUTTON_CROSS;*/
+				})
+				
+				.addTooltip(0, LangManager.translateToLocal("proghatches.eucreafting.duty.0."+inx))
+				.addTooltip(1, LangManager.translateToLocal("proghatches.eucreafting.duty.1."+inx))
+				.setSize(16,16)
+				.setPos(4+ix*16, 80-8-5)
+				.setBackground(() -> {
+					
+	                if (c.getState()==0) {
+	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
+	                       };
+	                } else {
+	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+	                       };
+	                }
+	            })
 
+		);}
+
+		/*builder.widget(((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(true, true))
+				
+				.setGetter(() -> d2i(duty))
+				.setSetter(s -> duty = i2d(s))
+				.setLength(4)
+				.setTextureGetter(i -> {
+					return GT_UITextures.OVERLAY_BUTTON_CROSS;
+				})
+
+				.addTooltip(0, LangManager.translateToLocal("proghatches.eucreafting.duty.all"))
+				.addTooltip(1, LangManager.translateToLocal("proghatches.eucreafting.duty.io"))
+				.addTooltip(2, LangManager.translateToLocal("proghatches.eucreafting.duty.eu"))
+				.addTooltip(3, LangManager.translateToLocal("proghatches.eucreafting.duty.machine"))
+
+				.setPos(8, 60)
+
+		);*/
+		
+		
+		
+		/*builder.widget( new ButtonWidget()
+			
+			.setOnClick((a,b)->{
+				
+				
+			})
+			.setTicker(s->{
+				Block bl;
+				DimensionalCoord wc=(DimensionalCoord) new DimensionalCoord(getTile()).add(this.getSide(), 1);
+				bl=wc.getWorld().getBlock(wc.x, wc.y, wc.z);
+				ItemStack ist = bl.getPickBlock(new MovingObjectPosition (buildContext.getPlayer()), buildContext.getPlayer().worldObj,wc.x, wc.y, wc.z, buildContext.getPlayer());
+				s.setBackground(GT_UITextures.BUTTON_STANDARD, new ItemDrawable(ist));
+			})
+			.setSize(16,16)
+			.setPos(8+20, 60)
+
+		);
+		*/
 		updatev = true;
 
 		builder.widget(((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(true, true))
@@ -1320,7 +1479,7 @@ int succs;
 				.addTooltip(0, LangManager.translateToLocal("proghatches.eucreafting.finish.false"))
 				.addTooltip(1, LangManager.translateToLocal("proghatches.eucreafting.finish.true"))
 
-				.setPos(8, 80)
+				.setPos(4, 90-5)
 
 		);
 		/*
@@ -1492,11 +1651,11 @@ int succs;
 		}
 	}
 
-	public ModularWindow createWindowOut(UIBuildContext buildContext, int yshift) {
+	public ModularWindow createWindowOut(UIBuildContext buildContext, int yshift, UIBuildContext buildContext2) {
 		ModularWindow.Builder builder = ModularWindow.builder(176, 107);
 		builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
 
-		return addWidgetsOut(builder, yshift).build();
+		return addWidgetsOut(builder, yshift,buildContext2).build();
 	}
 
 	@Override
@@ -1615,6 +1774,7 @@ int succs;
 			}
 
 			coll.add(this);
+			coll.removeIf(s->(s.duty&0b010)>0);
 			// ArrayList<PartEUP2PInterface> con=new ArrayList<>(coll.size());
 
 			ArrayList<PartEUP2PInterface> dead = new ArrayList<>();

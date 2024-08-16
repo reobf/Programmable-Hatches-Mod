@@ -176,8 +176,8 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		if(ff)retLate.add("MixinHandleProgrammingOnRecipeStart");
 		retLate.add("MixinCraftFromPatternTaskPatch");
 		retLate.add("MixinGolemCore");
-		
-		
+		retLate.add("MixinGolem");
+		retLate.add("MixinStorageChangeEvent");
 		if (FMLLaunchHandler.side().isClient()) {
 			if (!"true".equals(pp.get("noAEItemSortMixins")))
 				if(ff)retLate.add("MixinAEItemStackCompare");

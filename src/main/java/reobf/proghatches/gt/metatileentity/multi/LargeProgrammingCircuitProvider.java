@@ -778,9 +778,13 @@ int lasthash;
 		if (getBaseMetaTileEntity().isActive()) {
 			if(removeStorageCircuit&&(aTick%50==0)){
 				try{
-				IItemList<IAEItemStack> list=new  appeng.util.item.ItemList();
+				/*IItemList<IAEItemStack> list=new  appeng.util.item.ItemList();
 				this.getProxy().getStorage().getItemInventory()
 				.getAvailableItems(list);
+				*/
+				IItemList<IAEItemStack> list=this.getProxy().getStorage().getItemInventory().getStorageList();
+				
+				
 				//findFuzzyDamage(list,AEItemStack.create(new ItemStack(MyMod.progcircuit)),FuzzyMode.IGNORE_ALL,true)
 				list.forEach(s->{
 					if(s.getItem()==MyMod.progcircuit)

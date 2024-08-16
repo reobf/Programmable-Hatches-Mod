@@ -12,6 +12,7 @@ import gregtech.api.GregTech_API;
 import gregtech.api.util.GT_Utility;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
+import thaumcraft.common.config.ConfigItems;
 
 public class ProgHatchCreativeTab extends CreativeTabs {
 
@@ -53,6 +54,8 @@ public class ProgHatchCreativeTab extends CreativeTabs {
 		p_78018_1_.add(new ItemStack(MyMod.upgrades, 1, 1));
 		p_78018_1_.add(new ItemStack(MyMod.upgrades, 1, 2));
 		p_78018_1_.add(new ItemStack(MyMod.alert, 1));
+		p_78018_1_.add(new ItemStack(MyMod.lazer_p2p_part));
+		p_78018_1_.add(new ItemStack(ConfigItems.itemGolemCore,1,120));
 		// p_78018_1_.add(new ItemStack(MyMod.euupgrade, 1));
 	}
 

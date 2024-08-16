@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.print.DocFlavor.INPUT_STREAM;
+
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -28,6 +30,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
+import com.github.technus.tectech.thing.CustomItemList;
 import com.glodblock.github.loader.ItemAndBlockHolder;
 
 import appeng.core.Api;
@@ -48,6 +51,8 @@ import mods.railcraft.common.core.Railcraft;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
+import thaumcraft.api.ThaumcraftApi;
+import thaumcraft.common.config.ConfigItems;
 //spotless:off
 public class PHRecipes implements Runnable {
     ItemStack[] arms = { Robot_Arm_LV.get(1), // GT++ deprecated ulv tier arm
@@ -982,6 +987,45 @@ Api.INSTANCE.definitions()
  .duration(20 * SECONDS)
  .eut(GT_Values.VP[3])
  .addTo(RecipeMaps.assemblerRecipes);
+ 
+ 
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+		 Hatch_Input_Bus_ME_Advanced.get(1),
+		 Hatch_DataAccess_UV.get(1),
+		 com.github.technus.tectech.thing. CustomItemList.Machine_Multi_DataBank.get(1),
+		 com.github.technus.tectech.thing. CustomItemList.dataInAss_Hatch.get(1),
+		 com.github.technus.tectech.thing. CustomItemList.dataOutAss_Hatch.get(1),
+		 com.github.technus.tectech.thing. CustomItemList.LASERpipe.get(4)
+		 )
+ //.fluidInputs(Materials.Enderium.getMolten(144*10))
+ .itemOutputs(
+		 new ItemStack(
+		         GregTech_API.sBlockMachines,
+		         1,
+		         Config.metaTileEntityOffset+Registration.DataHatchMEOffset))
+ .duration(20 * SECONDS)
+ .eut(GT_Values.VP[8])
+ .addTo(RecipeMaps.assemblerRecipes);
+ 
+ 
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+		 new ItemStack(
+				 ConfigItems.itemGolemCore,1,8),
+		 ItemList.Duct_Tape.get(64)
+		 )
+ .fluidInputs(Materials.AdvancedGlue.getFluid(8000))
+ .itemOutputs(
+		 new ItemStack(
+				 ConfigItems.itemGolemCore,1,120))
+ .duration(20 * SECONDS)
+ .eut(GT_Values.VP[3])
+ .addTo(RecipeMaps.assemblerRecipes);
+ 
+ 
+ 
+ 
  
   }
 

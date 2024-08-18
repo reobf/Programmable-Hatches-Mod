@@ -3,6 +3,7 @@ package reobf.proghatches.gt.metatileentity;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -429,7 +430,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	@Override
 	public FluidTankInfo[] getTankInfo(ForgeDirection side) {
 	
-		return new FluidTankInfo[]{new FluidTankInfo(this.fluidTank)};
+		return new FluidTankInfo[]{new FluidTankInfo(this.content)};
 	}
 	@Override
 	public boolean canDrain(ForgeDirection side, Fluid aFluid) {
@@ -448,14 +449,61 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	}
 	@Override
 	public int fill(FluidStack aFluid, boolean doFill) {
-	
+		try{
 		return content.fill(aFluid, doFill);
+		}finally{
+			post();
+		}
 	}
 	@Override
 	public int fill(ForgeDirection side, FluidStack aFluid, boolean doFill) {
-	
+	try{
 		return content.fill(aFluid, doFill);
+		}finally{
+			post();
+		}
 	}	
+	@Override
+	public FluidStack getFluid() {
+		
+		return content.getFluid();
+	}
+	 public boolean isDrainableStackSeparate() {
+	     return true;
+	 }
+	@Override
+	public FluidStack getDrainableStack() {
+		
+		return content.getFluid();
+	}
+	@Override
+	public FluidStack drain(int maxDrain, boolean doDrain) {
+		try{
+		return content.drain(maxDrain, doDrain);
+		}finally{
+			post();
+		}
+	}
+	@Override
+	public FluidStack drain(ForgeDirection side, FluidStack aFluid, boolean doDrain) {
+		try{
+		if (content.getFluid() != null && aFluid != null && content.getFluid().isFluidEqual(aFluid))
+	         return drain(aFluid.amount, doDrain);
+		return null;
+		}finally{
+			post();
+		}
+		
+	}
+	@Override
+	public FluidStack drain(ForgeDirection side, int maxDrain, boolean doDrain) {
+		try{
+		return content.drain(maxDrain, doDrain);
+		}finally{
+			post();
+		}
+	}
+	
 	boolean autoUnlock;
 	boolean suppressSticky;
 	

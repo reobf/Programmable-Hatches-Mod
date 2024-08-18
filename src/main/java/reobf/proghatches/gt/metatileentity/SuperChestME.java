@@ -449,8 +449,14 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
     }
 	boolean autoUnlock;
 	boolean suppressSticky;
+	
+
+	
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
+		
+		
+		
 		if(!aBaseMetaTileEntity.getWorld().isRemote&&(aTick&16)!=0){
 			this.getBaseMetaTileEntity().setActive(
 			this.getProxy().isPowered()&&this.getProxy().isActive()
@@ -759,5 +765,18 @@ protected void updateStatus() {
 			}
        
 }
+@Override
+public void setInventorySlotContents(int aIndex, ItemStack aStack) {
+	super.setInventorySlotContents(aIndex, aStack);
+	post();
+}
+
+@Override
+public ItemStack decrStackSize(int aIndex, int aAmount) {
+	try{return super.decrStackSize(aIndex, aAmount);}finally{
+	post();}
+}
+
+
 
 }

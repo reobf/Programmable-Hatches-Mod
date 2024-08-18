@@ -276,10 +276,9 @@ public class MyMod {
 		InterfaceTerminalRegistry.instance().register(TileFluidInterface_EU.class);
 		InterfaceTerminalRegistry.instance().register(PatternDualInputHatch.Inst.class);
 		
-		//these are not viewable, but has to be registered to respect overridden allowsPatternOptimization()
-		//why not just check all machines? What can be the loss?
-		InterfaceTerminalRegistry.instance().register(ProgrammingCircuitProvider.class);
-		InterfaceTerminalRegistry.instance().register(LargeProgrammingCircuitProvider.class);
+		
+		//InterfaceTerminalRegistry.instance().register(ProgrammingCircuitProvider.class);
+		//InterfaceTerminalRegistry.instance().register(LargeProgrammingCircuitProvider.class);
 		
 		
 		

@@ -35,7 +35,7 @@ public interface IEUManager extends IGridCache {
 		public default boolean isP2POut() {
 			return false;
 		}
-
+		public boolean allowOvercommit();
 		public long getVoltage();
 
 		public default long inject(long a, long v) {

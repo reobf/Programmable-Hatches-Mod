@@ -188,7 +188,7 @@ public static void cb(final IEnergyGrid eg, final CraftingGridCache cc, Callback
 			.stream().filter(sp->sp.getUUID().equals(ProghatchesUtil.deser(s.getKey().getTagCompound().getNBTTagCompoundCopy(), "EUFI")))
 			.findFirst();
 			if(!opt.isPresent())break a;
-			if(opt.get().getAmp()>0){break a;}
+			if((!opt.get().allowOvercommit())&&opt.get().getAmp()>0){break a;}
 			long get = man.request(s.getKey().getTagCompound().getNBTTagCompoundCopy().getLong("voltage"), missing);
 			if(get>0){
 			

@@ -103,6 +103,7 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.FirstObjectHolder;
+import reobf.proghatches.gt.metatileentity.util.IInputStateProvider;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.gt.metatileentity.util.ListeningFluidTank;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
@@ -112,7 +113,7 @@ import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class BufferedDualInputHatch extends DualInputHatch implements IRecipeProcessingAwareDualHatch {
+public class BufferedDualInputHatch extends DualInputHatch implements IRecipeProcessingAwareDualHatch,IInputStateProvider {
 	public Deque<Long> scheduled=new LinkedList<>();//no randomaccess, LinkedList will work fine
 	
 

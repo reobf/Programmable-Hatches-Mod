@@ -47,6 +47,7 @@ import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.networking.events.MENetworkPowerStatusChange;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.IActionHost;
+import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.ICellContainer;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEInventoryHandler;
@@ -78,10 +79,12 @@ import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
 import gregtech.api.util.GT_Utility;
+import li.cil.oc.server.machine.Machine;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -95,11 +98,14 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidEvent;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidContainerItem;
+import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.MappingFluidTank;
@@ -180,7 +186,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	
 	@Override
 	public int getPriority() {
-		
+	
 		return piority;
 	}
 	private ItemStack visualStack() {
@@ -381,7 +387,15 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	}
 	@Override
 	public boolean isItemValidForSlot(int aIndex, ItemStack aStack) {
-		return(aStack.getItem() instanceof ItemFluidPacket);
+		return
+				
+				(aStack.getItem() instanceof ItemFluidPacket)||
+				
+				GT_Utility.getFluidForFilledItem(aStack, true)!=null
+				;
+				
+				
+				
 	}
 	@Override
 	public boolean allowPullStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
@@ -393,7 +407,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	public boolean allowPutStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
 			ItemStack aStack) {
 		
-		return true;
+		return isItemValidForSlot(aIndex, aStack);
 				
 	}
 	@Override
@@ -413,13 +427,23 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 		return true;
 	}
 	@Override
+	public FluidTankInfo[] getTankInfo(ForgeDirection side) {
+	
+		return new FluidTankInfo[]{new FluidTankInfo(this.fluidTank)};
+	}
+	@Override
 	public boolean canDrain(ForgeDirection side, Fluid aFluid) {
-		if(side!=this.getBaseMetaTileEntity().getFrontFacing())return false;
+		//if(side!=this.getBaseMetaTileEntity().getFrontFacing())return false;
 		return super.canDrain(side, aFluid);
 	}
 	@Override
+	public int getCapacity() {
+	
+		return content.getCapacity();
+	}
+	@Override
 	public boolean canFill(ForgeDirection side, Fluid aFluid) {
-		if(side!=this.getBaseMetaTileEntity().getFrontFacing())return false;
+		//if(side!=this.getBaseMetaTileEntity().getFrontFacing())return false;
 		return super.canFill(side, aFluid);
 	}
 	@Override
@@ -434,6 +458,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	}	
 	boolean autoUnlock;
 	boolean suppressSticky;
+	
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		if(!aBaseMetaTileEntity.getWorld().isRemote&&(aTick&16)!=0){
@@ -459,13 +484,55 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 		super.onPostTick(aBaseMetaTileEntity, aTick);
 		boolean needToSort=false;
 		for(int i=0;i<mInventory.length;i++){
+			if(mInventory[i]==null)continue;
+			
 			if(mInventory[i]!=null&&mInventory[i].getItem() instanceof ItemFluidPacket){
 				needToSort=true;
 				FluidStack fs = ItemFluidPacket.getFluidStack(mInventory[i]);
 				if(fs==null){continue;}
 				if(fill(fs, false)!=fs.amount){continue;}
 			 fill(fs, true);mInventory[i]=null;
+			 continue;
 			}
+			
+			if(
+			FluidContainerRegistry.isFilledContainer(mInventory[i])){
+				FluidStack f = GT_Utility.getFluidForFilledItem(mInventory[i], true);
+				ItemStack it = GT_Utility.getContainerForFilledItem(mInventory[i], true);
+				f.amount*=mInventory[i].stackSize;
+				if(f!=null&&content.fill(f, false)==f.amount){
+				content.fill(f, true);
+				it.stackSize=mInventory[i].stackSize;
+				mInventory[i]=it;
+				needToSort=true;
+			}
+			}
+			if(mInventory[i]==null)continue;
+			
+			if(FluidContainerRegistry.isEmptyContainer(mInventory[i])
+					||(mInventory[i].getItem() instanceof IFluidContainerItem
+				&&((IFluidContainerItem)mInventory[i].getItem()).getFluid(mInventory[i])==null
+							)
+				){
+				needToSort=true;
+				try {
+					IAEItemStack notadd = this.getProxy().getStorage().getItemInventory().injectItems(
+					        AEApi.instance().storage().createItemStack(mInventory[i]),
+					        Actionable.MODULATE,
+					        new MachineSource(this));
+					if(notadd!=null){
+						
+						mInventory[i].stackSize=(int) notadd.getStackSize();
+					}else{
+						mInventory[i]=null;
+					}
+				} catch (GridAccessException e) {
+				
+				}
+				
+				
+			}
+			
 			
 		}
 		if(needToSort)fillStacksIntoFirstSlots();

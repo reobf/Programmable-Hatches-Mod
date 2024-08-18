@@ -39,6 +39,7 @@ import appeng.api.parts.IPartCollisionHelper;
 import appeng.api.parts.IPartRenderHelper;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.IInterfaceViewable;
 import appeng.block.AEBaseBlock;
 import appeng.client.render.BaseBlockRender;
 import appeng.client.render.BusRenderHelper;
@@ -66,6 +67,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -76,13 +78,16 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.eucrafting.IEUManager.ISource;
+import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
+import reobf.proghatches.gt.metatileentity.util.ArrayListInv;
+import reobf.proghatches.gt.metatileentity.util.FakePatternInv;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class PartEUSource extends AEBasePart
-		implements IGuiProvidingPart, ICraftingProvider, IGridTickable, IInstantCompletable, IPartGT5Power, ISource,ILazer {
+		implements IGuiProvidingPart, ICraftingProvider, IGridTickable, IInstantCompletable, IPartGT5Power, ISource,ILazer,IInterfaceViewable {
 
 	public static class WailaDataProvider extends BasePartWailaDataProvider {
 
@@ -983,6 +988,45 @@ public double taxPercentage(){
 	}
 	public List<ILazer> getLazerP2POuts() {
 		return null;
+	}
+
+	@Override
+	public int rows() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int rowSize() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public IInventory getPatterns() {
+	
+		return ProgrammingCircuitProvider.EMPTY;//new ArrayListInv(ImmutableList.of(buildToken(1)));
+	}
+
+	
+
+	@Override
+	public boolean shouldDisplay() {
+		
+		return false;
+	}
+
+
+	@Override
+	public TileEntity getTileEntity() {
+	
+		return getTile();
+	}
+
+	@Override
+	public String getName() {
+	
+		return "";
 	}
 	
 }

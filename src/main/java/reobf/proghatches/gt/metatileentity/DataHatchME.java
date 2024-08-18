@@ -4,6 +4,7 @@ import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_DATA_ACCESS;
 import static net.minecraft.util.StatCollector.translateToLocal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -41,7 +42,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.gt.metatileentity.util.IMEStorageChangeAwareness;
 import reobf.proghatches.main.registration.Registration;
-import scala.actors.threadpool.Arrays;
+
 
 public class DataHatchME extends GT_MetaTileEntity_Hatch_DataAccess implements IPowerChannelState,IGridProxyable,IMEStorageChangeAwareness{
 	public DataHatchME(int aID, String aName, String aNameRegional) {

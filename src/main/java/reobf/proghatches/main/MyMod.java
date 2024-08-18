@@ -50,6 +50,7 @@ import appeng.api.config.Upgrades;
 import appeng.api.implementations.IUpgradeableHost;
 import appeng.client.gui.implementations.GuiPriority;
 import appeng.client.gui.widgets.ITooltip;
+import appeng.container.implementations.ContainerOptimizePatterns;
 import appeng.container.implementations.ContainerPriority;
 import appeng.container.slot.AppEngSlot;
 import appeng.container.slot.SlotDisabled;
@@ -110,7 +111,9 @@ import reobf.proghatches.eucrafting.PartEUP2PInterface;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
 
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
+import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
+import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
 import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
@@ -133,7 +136,7 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 )
 public class MyMod {
 	public static MyMod instance;
-	{ItemGolemCore.class.getDeclaredFields();
+	{ContainerOptimizePatterns.class.getDeclaredFields();
 	//	BaseMetaPipeEntity.class.getDeclaredFields();
 		instance = this;
 	}
@@ -272,6 +275,13 @@ public class MyMod {
 		InterfaceTerminalRegistry.instance().register(PartFluidP2PInterface.class);
 		InterfaceTerminalRegistry.instance().register(TileFluidInterface_EU.class);
 		InterfaceTerminalRegistry.instance().register(PatternDualInputHatch.Inst.class);
+		
+		//these are not viewable, but has to be registered to respect overridden allowsPatternOptimization()
+		//why not just check all machines? What can be the loss?
+		InterfaceTerminalRegistry.instance().register(ProgrammingCircuitProvider.class);
+		InterfaceTerminalRegistry.instance().register(LargeProgrammingCircuitProvider.class);
+		
+		
 		
 	//	ItemList list=new ItemList();
 	//	list.add(AEItemStack.create(ItemProgrammingCircuit.wrap(new ItemStack(Blocks.cactus))));

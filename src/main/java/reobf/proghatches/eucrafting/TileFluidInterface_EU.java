@@ -73,6 +73,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.eucrafting.IEUManager.IDrain;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.SISOPatternDetail;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.WrappedPatternDetail;
+import reobf.proghatches.gt.metatileentity.util.IDisallowOptimize;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
@@ -558,7 +559,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 		return new WrappedPatternDetail(d, extraIn, extraOut, priority);
 	}
 
-	public static class WrappedPatternDetail implements ICraftingPatternDetails {
+	public static class WrappedPatternDetail implements ICraftingPatternDetails,IDisallowOptimize {
 		@Override
 		public boolean equals(Object obj) {
 			if (obj == null) {
@@ -694,7 +695,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 		}
 	}
 
-	public static class SISOPatternDetail implements ICraftingPatternDetails {
+	public static class SISOPatternDetail implements ICraftingPatternDetails,IDisallowOptimize {
 
 		public SISOPatternDetail(ItemStack in, ItemStack out) {
 			Objects.requireNonNull(in);
@@ -830,7 +831,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 							wrap(api, a, b, Integer.MAX_VALUE - 1));
 
 				} else {
-					craftingTracker.addCraftingOption(medium, api);
+					craftingTracker.addCraftingOption(TileFluidInterface_EU.this/*medium*/, api);
 				}
 			}
 
@@ -1202,4 +1203,7 @@ public class TileFluidInterface_EU extends TileFluidInterface
 		return getCrafterIcon();
 	}	
 	public long getAmp(){return this.amp;};
+	public boolean allowOvercommit() {
+		return false;
+	}
 }

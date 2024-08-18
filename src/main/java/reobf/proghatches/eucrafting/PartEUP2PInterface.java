@@ -39,6 +39,8 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import reobf.proghatches.eucrafting.IEUManager.IDrain;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.SISOPatternDetail;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.WrappedPatternDetail;
+import reobf.proghatches.gt.metatileentity.util.IInputStateProvider;
+import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
@@ -132,6 +134,7 @@ import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockB
 import gregtech.api.util.GT_ModHandler;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
+import gregtech.common.tileentities.machines.IDualInputHatch;
 import ic2.api.energy.tile.IEnergySink;
 import ic2.api.item.IC2Items;
 import ic2.core.Ic2Items;
@@ -559,6 +562,31 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		
 		return te;
 	}
+	public IMetaTileEntity getTargetTile0(){
+		if((duty&0b100)>0){return null;}
+		TileEntity te;
+		if(data!=null){
+			DimensionalCoord pos = data.getPos();
+			te= data.getTile().getWorldObj().getTileEntity(pos.x,pos.y,pos.z);
+		}else{
+			int x=this.host.getTile().xCoord;
+			int y=this.host.getTile().yCoord;
+			int z=this.host.getTile().zCoord;
+			ForgeDirection fd = this.getSide();
+			te=this.host.getTile().getWorldObj().getTileEntity(
+					x+fd.offsetX,y+fd.offsetY,z+fd.offsetZ);
+		}
+		if(te==null)
+		return null;
+		
+		if(te instanceof IGregTechTileEntity){
+		IMetaTileEntity mte = ((IGregTechTileEntity) te).getMetaTileEntity();
+			return mte;
+		}	
+		return null;
+		
+	}
+	@Deprecated
 	public IMetaTileEntity getTargetTile(){
 		if((duty&0b100)>0){return null;}
 		TileEntity te;
@@ -621,64 +649,58 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 			try {
 			this.getOutputs().forEach(all::add);
 			} catch (GridAccessException e) {}
-			//phase0
-			for(PartEUP2PInterface part:all){
-				boolean order=part.pushtick==getTick();
-				if(part.pass==-1&&!order){
-					part.pass=0;
-				}
-				
-				if(part.pass==0){
-					IMetaTileEntity t = part.getTargetTile();
-					if(t!=null&&t instanceof IIdleStateProvider){
-						if(((IIdleStateProvider) t).failThisTick()){
-							if(part.fails++==0){part.pass=1;if(part.passReason==0)part.passReason=2;};//fail 1 time, assume no valid inputs, just pass it
+			
+			/*if(pass<=0){
+				ok=true;
+				for(PartEUP2PInterface t:all){
+					IMetaTileEntity te = t.getTargetTile0();
+					if(te instanceof IDualInputHatch){
+						if(((IDualInputHatch) te).getFirstNonEmptyInventory().isPresent()){
+							ok=false;
 						}
-					}else{
-						dummy.add(part);
+						if(te instanceof IInputStateProvider){
+							if(false==((IInputStateProvider) te).isInputEmpty())
+								ok=false;
+						}
+						
 					}
 				}
-			}	
-			//phase1
-			boolean allok=all.stream().filter(s->!dummy.contains(s)).map(s->s.pass==1).reduce(Boolean::logicalAnd).orElse(false);
-			if(allok){
-				ok=true;
-				all.forEach(s->s.pass=2);
+				if(ok)pass=2;
+			}
+			*/
+			
+			
+			if(2>1){
+					//phase0
+					for(PartEUP2PInterface part:all){
+						boolean order=part.pushtick==getTick();
+						if(part.pass==-1&&!order){
+							part.pass=0;
+						}
+						
+						if(part.pass==0){
+							IMetaTileEntity t = part.getTargetTile();
+							if(t!=null&&t instanceof IIdleStateProvider){
+								if(((IIdleStateProvider) t).failThisTick()){
+									if(part.fails++==0){part.pass=1;if(part.passReason==0)part.passReason=2;};//fail 1 time, assume no valid inputs, just pass it
+								}
+							}else{
+								dummy.add(part);
+							}
+						}
+					}	
+					//phase1
+					boolean allok=all.stream().filter(s->!dummy.contains(s)).map(s->s.pass==1).reduce(Boolean::logicalAnd).orElse(false);
+					if(allok){
+						ok=true;
+						all.forEach(s->s.pass=2);
+					}
 			}
 			
 			
 			
+			
 		}
-		
-		
-		/*if (!this.isOutput()) {
-			boolean[] hasFail=new boolean[1];
-			
-		  
-			all.add(this);
-			try {
-				this.getOutputs().forEach(all::add);
-			} catch (GridAccessException e) {}
-			all.forEach(s->{
-				IMetaTileEntity t = s.getTargetTile();
-				if(t!=null&&t instanceof IIdleStateProvider){
-					
-				
-					if(((IIdleStateProvider) t).failThisTick()){
-						if(s.fails++==0){s.pass=true;};//fail 2 times, so assume no valid inputs, just pass it
-					}
-					//if(!(!prev_pass&&pass))
-					if(!pass)
-					{hasFail[0]=true;}
-				}
-				
-			});
-			
-			if(!hasFail[0]&&amp>0){ok=true;}
-			
-		}	
-		*/	
-			
 
 		
 		
@@ -1011,7 +1033,7 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 							TileFluidInterface_EU.wrap(api, a, b, Integer.MAX_VALUE - 1));
 
 				} else {
-					craftingTracker.addCraftingOption(medium, api);
+					craftingTracker.addCraftingOption(PartEUP2PInterface.this/*medium*/, api);
 				}
 			}
 
@@ -1898,4 +1920,7 @@ int succs;
 		
 	}
 	public long getAmp(){return this.amp;};
+	public boolean allowOvercommit() {
+		return true;
+	}
 }

@@ -863,4 +863,9 @@ if(supportsFluids())
 			return this.getGridNode(ForgeDirection.UP);
 		}
 		public Object getTile(){return this.getBaseMetaTileEntity();}
+		@Override
+		public boolean allowsPatternOptimization() {
+			// TODO Auto-generated method stub
+			return IInterfaceViewable.super.allowsPatternOptimization();
+		}
 }

@@ -73,7 +73,9 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.eucrafting.IInputMightBeEmptyPattern;
 import reobf.proghatches.eucrafting.IInstantCompletable;
+import reobf.proghatches.gt.metatileentity.util.FakePatternInv;
 import reobf.proghatches.gt.metatileentity.util.ICircuitProvider;
+import reobf.proghatches.gt.metatileentity.util.IDisallowOptimize;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
@@ -343,7 +345,7 @@ for(ItemStack is:mInventory)
 
 	}
 
-	public static class CircuitProviderPatternDetial implements ICraftingPatternDetails,IInputMightBeEmptyPattern {
+	public static class CircuitProviderPatternDetial implements ICraftingPatternDetails,IInputMightBeEmptyPattern,IDisallowOptimize {
 		@Nonnull
 		final public ItemStack out;
 		@Nonnull
@@ -738,7 +740,7 @@ public int rowSize() {
 }
 
 
-static IInventory EMPTY=new IInventory(){
+public static IInventory EMPTY=new IInventory(){
 
 	@Override
 	public int getSizeInventory() {
@@ -817,11 +819,18 @@ static IInventory EMPTY=new IInventory(){
 		
 		return false;
 	}};;
+	
 @Override
 public IInventory getPatterns() {
+	
+	
+	
 
-	return EMPTY;
+
+return EMPTY;//new FakePatternInv(mInventory);
 }
+
+
 @Override
 public String getName() {
 	
@@ -835,6 +844,11 @@ public TileEntity getTileEntity() {
 
 @Override
 public boolean shouldDisplay() {
+
+	return false;
+}
+@Override
+public boolean allowsPatternOptimization() {
 
 	return false;
 }

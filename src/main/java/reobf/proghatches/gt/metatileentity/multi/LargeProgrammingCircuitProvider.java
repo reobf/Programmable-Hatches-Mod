@@ -125,6 +125,8 @@ import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.ProviderChainer;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
+import reobf.proghatches.gt.metatileentity.util.ArrayListInv;
+import reobf.proghatches.gt.metatileentity.util.FakePatternInv;
 import reobf.proghatches.gt.metatileentity.util.ICircuitProvider;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
@@ -1224,7 +1226,7 @@ static IInventory EMPTY=new IInventory(){
 
 public IInventory getPatterns() {
 
-	return EMPTY;
+	return EMPTY;//new ArrayListInv(patternCache);
 }
 
 public String getName() {
@@ -1265,6 +1267,10 @@ public IGridNode getActionableNode() {
 	
 	return getProxy().getNode();
 }
+@Override
+public boolean allowsPatternOptimization() {
 
+	return false;
+}
 
 }

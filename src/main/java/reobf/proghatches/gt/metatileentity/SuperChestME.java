@@ -407,16 +407,14 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	public boolean allowPullStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
 			ItemStack aStack) {
 	
-		return aBaseMetaTileEntity.getFrontFacing()==side
-				&&aIndex==0
+		return true
 				;
 	}
 	@Override
 	public boolean allowPutStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
 			ItemStack aStack) {
 		
-		return aBaseMetaTileEntity.getFrontFacing()==side
-				&&aIndex!=0
+		return true
 				;
 	}
 	protected void fillStacksIntoFirstSlots() {

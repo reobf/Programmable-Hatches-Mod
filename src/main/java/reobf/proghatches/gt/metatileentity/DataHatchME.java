@@ -12,6 +12,7 @@ import com.github.technus.tectech.thing.casing.GT_Block_CasingsTT;
 import com.github.technus.tectech.util.CommonValues;
 import com.google.common.collect.ImmutableMap;
 
+import appeng.api.config.FuzzyMode;
 import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridHost;
@@ -22,6 +23,7 @@ import appeng.api.networking.events.MENetworkStorageEvent;
 import appeng.api.util.DimensionalCoord;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
+import appeng.util.item.AEItemStack;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Textures;
@@ -94,7 +96,7 @@ public AENetworkProxy getProxy() {
             gridProxy = new AENetworkProxy(
                 (IGridProxyable) getBaseMetaTileEntity(),
                 "proxy",
-                new ItemStack(Items.apple),
+                new ItemStack(GregTech_API.sBlockMachines,1, getBaseMetaTileEntity().getMetaTileID()),
                 true);
             gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
             updateValidGridProxySides();
@@ -131,11 +133,14 @@ public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 private void updateCache() {
 	try{
 		ArrayList<ItemStack> list=new ArrayList<>(getProxy().getStorage().getItemInventory().getStorageList().size());
-		getProxy().getStorage().getItemInventory().getStorageList().forEach(s->{
+		getProxy().getStorage().getItemInventory().getStorageList().findFuzzy(AEItemStack.create(ItemList.Tool_DataStick.get(1)), FuzzyMode.IGNORE_ALL)
+		
+		/*;
+		getProxy().getStorage().getItemInventory().getStorageList()*/
+		.forEach(s->{
 			ItemStack is = ItemList.Tool_DataStick.get(1);
-			if(is.getItem()==s.getItem()&&is.getItemDamage()==s.getItemDamage()){
-			//do not call getItemDamage#getItemStack(), because it will create new NBT instance which is useless...
-				ItemStack cp = s.getItemStack();
+			if(/*is.getItem()==s.getItem()&&*/is.getItemDamage()==s.getItemDamage()){
+			ItemStack cp = s.getItemStack();
 				cp.stackSize=1;
 				list.add(cp);
 				

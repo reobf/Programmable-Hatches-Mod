@@ -23,6 +23,7 @@ public abstract class MixinMachineIdle2 implements IIdleStateProvider{
 @Shadow int mMaxProgresstime;
 boolean fail;
  public void onPreTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
+	
 	a(aBaseMetaTileEntity);fail=false;
 }
 

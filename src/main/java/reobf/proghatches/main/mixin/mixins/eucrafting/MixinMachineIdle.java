@@ -41,12 +41,12 @@ boolean fail;
 	 
  }
 
-
+/*
 @Override
 public int getIdle() {
 	return jobdone;
 }
-
+*/
 
 @Override
 public boolean failThisTick() {

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -1895,27 +1896,43 @@ public class OptioanlSharedContents{
 		shadowFluid.clear();
 		cachedItems.clear();
 		cachedFluid.clear();
+		HashSet<Object> dup=new HashSet<>();
 		for(int i=0;i<markedItems.size();i++){
 			ItemStack is=markedItems.get(i);
 			if(is==null||cahce==null){
 				shadowItems.add(null);
 				cachedItems.add(null);
 			}else{
+				AEItemStack toextract=AEItemStack.create(is);
+				toextract.setStackSize(1);
+				if(!dup.add(toextract)){
+					shadowItems.add(null);
+					cachedItems.add(null);
+					markedItems.set(i, null);
+					continue;};
 				ItemStack ris=(Optional.ofNullable(
-						cahce.getItemInventory().getStorageList().findPrecise(AEItemStack.create(is))
+						cahce.getItemInventory().getStorageList().findPrecise(toextract)
 						).map(IAEItemStack::getItemStack).orElse(null));
 				shadowItems.add(ris);	
 				cachedItems.add(Optional.ofNullable(ris).map(s->s.copy()).orElse(null));
 			}
 		}
+		dup.clear();
 		for(int i=0;i<markedFluid.size();i++){
 			FluidStack is=markedFluid.get(i);
 			if(is==null||cahce==null){
 				shadowFluid.add(null);
 				cachedFluid.add(null);
 			}else{
+				AEFluidStack toextract=AEFluidStack.create(is);
+				toextract.setStackSize(1);
+				if(!dup.add(toextract)){
+					shadowFluid.add(null);
+					cachedFluid.add(null);
+					markedFluid.set(i, null);
+					continue;};
 				FluidStack ris=(Optional.ofNullable(
-						cahce.getFluidInventory().getStorageList().findPrecise(AEFluidStack.create(is))
+						cahce.getFluidInventory().getStorageList().findPrecise(toextract)
 						).map(IAEFluidStack::getFluidStack).orElse(null));
 				shadowFluid.add(ris);	
 				cachedFluid.add(Optional.ofNullable(ris).map(s->s.copy()).orElse(null));
@@ -2048,7 +2065,7 @@ public class OptioanlSharedContents{
 			}
 		}
 		if(damage==1){
-			if(itemMEUpgrades<1){
+			if(itemMEUpgrades+fluidMEUpgrades<4){
 				
 				itemMEUpgrades++;
 				heldItem.stackSize--;
@@ -2057,7 +2074,7 @@ public class OptioanlSharedContents{
 			}
 		}
 		if(damage==2){
-			if(fluidMEUpgrades<1){
+			if(itemMEUpgrades+fluidMEUpgrades<4){
 				
 				fluidMEUpgrades++;
 				heldItem.stackSize--;

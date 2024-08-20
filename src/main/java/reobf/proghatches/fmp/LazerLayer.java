@@ -4,6 +4,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import gregtech.api.interfaces.tileentity.IColoredTileEntity;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.eucrafting.ILazer;
+import reobf.proghatches.eucrafting.PartLazerP2P.RestrictedTarget;
 
 public class LazerLayer extends LayerBase implements ILazer ,IColoredTileEntity{
 
@@ -72,6 +74,17 @@ public class LazerLayer extends LayerBase implements ILazer ,IColoredTileEntity{
 		return null;
 	}
 	public List<ILazer> getLazerP2POuts() {
+		return null;
+	}
+
+	@Override
+	public Collection<? extends RestrictedTarget> collectAllEndpoints() {
+		return null;
+	}
+
+	@Override
+	public Object getForward() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 }

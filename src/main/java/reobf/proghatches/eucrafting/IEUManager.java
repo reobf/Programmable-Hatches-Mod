@@ -3,6 +3,7 @@ package reobf.proghatches.eucrafting;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -14,7 +15,7 @@ import appeng.api.networking.IGridStorage;
 
 public interface IEUManager extends IGridCache {
 	public long inject(ISource s, long amp, long v);
-
+	public Stream<IDrain> getDrain(long v);
 	public void voltageChanged(IDrain gridNode);
 
 	public interface ISource {
@@ -66,7 +67,10 @@ public interface IEUManager extends IGridCache {
 			this.myGrid = g;
 
 		}
-
+			public Stream<IDrain> getDrain(long v){
+				
+				return cache.get(v).stream();
+			}
 		public long inject(ISource s, long amp, long v) {
 			if (amp == 0) {
 				return 0;

@@ -37,6 +37,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import reobf.proghatches.eucrafting.IEUManager.IDrain;
+import reobf.proghatches.eucrafting.PartLazerP2P.RestrictedTarget;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.SISOPatternDetail;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.WrappedPatternDetail;
 import reobf.proghatches.gt.metatileentity.util.IInputStateProvider;
@@ -636,6 +637,9 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 	@Override
 	public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
 
+		
+		
+		
 		returnItems();
 		duality.tickingRequest(node, ticksSinceLastCall);
 		dualityFluid.tickingRequest(node, ticksSinceLastCall);
@@ -1923,4 +1927,10 @@ int succs;
 	public boolean allowOvercommit() {
 		return true;
 	}
+	@Override
+	public boolean allowsPatternOptimization() {
+		
+		return expectedamp==0;
+	}
+	
 }

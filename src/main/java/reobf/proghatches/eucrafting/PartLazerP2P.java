@@ -1,7 +1,11 @@
 package reobf.proghatches.eucrafting;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.github.technus.tectech.mechanics.pipe.IConnectsToEnergyTunnel;
 import com.github.technus.tectech.thing.metaTileEntity.hatch.GT_MetaTileEntity_Hatch_DynamoTunnel;
@@ -23,9 +27,11 @@ import appeng.me.GridAccessException;
 import appeng.parts.p2p.PartP2PTunnelStatic;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.enums.GT_Values;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_TieredMachineBlock;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.init.Blocks;
@@ -64,11 +70,7 @@ extends PartP2PTunnelStatic<PartLazerP2P> implements ILazer,IGridTickable{
 		return 0;
 	}
 
-	@Override
-	public boolean isHost() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	
 
 	@Override
 	public ILazer getLazerP2PIn(ForgeDirection dir) {
@@ -81,7 +83,7 @@ extends PartP2PTunnelStatic<PartLazerP2P> implements ILazer,IGridTickable{
 		
 		return side;
 	}
-
+/*
 	@Override
 	public List<ILazer> getLazerP2POuts() {
 		if(this.output)return ImmutableList.of();
@@ -92,25 +94,41 @@ extends PartP2PTunnelStatic<PartLazerP2P> implements ILazer,IGridTickable{
 		}
 		return all;
 	}
-
-	@Override
-	public TileEntity findConnected() {
-		// TODO Auto-generated method stub
-		return ILazer.super.findConnected();
-	}
+*/
 	
-	private List<D> collectAllEndpoints(){
+	public static class RestrictedTarget<D extends MetaTileEntity&IConnectsToEnergyTunnel>{
+		Deque<Consumer<Long>> callback =new ArrayDeque<>();
+		public RestrictedTarget<D> mark(Consumer<Long> cb){
+			callback.addLast(cb);
+			return this;
+		}
+		D target;
+		long limit;//-1 means not restricted
+		public RestrictedTarget(D target,long limit){
+			this.target=target;
+			this.limit=limit;
+		}
+		public RestrictedTarget(D target){
+			this.target=target;
+			this.limit=-1;
+		}
+		
+		
+		
+		
+	}
+	public List<RestrictedTarget<D>> collectAllEndpoints(){
 		if(this.output)return ImmutableList.of();
-		ArrayList<D> all=new ArrayList<>();
+		ArrayList<RestrictedTarget<D>> all=new ArrayList<>();
 		try {
 			getOutputs().forEach(s->{
 				
 				
 			Object o=	s.getForward();
-			if(o instanceof PartLazerP2P){
-				all.addAll(((PartLazerP2P) o).collectAllEndpoints());
+			if(o instanceof ILazer){
+				all.addAll((Collection<? extends RestrictedTarget<D>>) ((ILazer) o).collectAllEndpoints());
 			}else if(isDist(o )){
-				all.add( (D) o);
+				all.add( new RestrictedTarget((D) o));
 			}	
 			
 			
@@ -125,7 +143,7 @@ extends PartP2PTunnelStatic<PartLazerP2P> implements ILazer,IGridTickable{
 	/**
 	 * make it works both for tectech&bartworks
 	 * */
-	public boolean isSourece(Object o){
+	public static boolean isSourece(Object o){
 		if(o instanceof IConnectsToEnergyTunnel){
 			if(o instanceof MetaTileEntity){
 				
@@ -139,7 +157,7 @@ extends PartP2PTunnelStatic<PartLazerP2P> implements ILazer,IGridTickable{
 	}/**
 	 * make it works both for tectech&bartworks
 	 * */
-	public boolean isDist(Object o){
+	static public boolean isDist(Object o){
 		if(o instanceof IConnectsToEnergyTunnel){
 			if(o instanceof MetaTileEntity){
 				return ((MetaTileEntity) o).maxEUInput()>1;
@@ -203,7 +221,7 @@ extends PartP2PTunnelStatic<PartLazerP2P> implements ILazer,IGridTickable{
 		return null;
 		
 	}
-	private Object getForward() {
+	public Object getForward() {
 	      
 	        {TileEntity thiz = this.getHost().getTile();
 	        	ForgeDirection face=this.getLazerDir();
@@ -265,34 +283,46 @@ extends PartP2PTunnelStatic<PartLazerP2P> implements ILazer,IGridTickable{
 	public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall) {
 	if(this.output){	return TickRateModulation.SAME;}
 	S source = getBackward();
-	List<D> dist = collectAllEndpoints();
+	List<RestrictedTarget<D>> dist = collectAllEndpoints();
 	if(source!=null)
 	moveForward(source,dist);
 		
 		
 	return TickRateModulation.SAME;
 	}
-	public void moveForward(S s,List<D> d){
+	public static<S extends MetaTileEntity&IConnectsToEnergyTunnel,
+	D extends MetaTileEntity&IConnectsToEnergyTunnel
+	> void moveForward(Object ss,List<RestrictedTarget<D>> dist){
+		S s=(S) ss;
 		long record[]=new long[]{s.maxAmperesOut() * 20L * s.maxEUOutput()};
 		
-		for(D dd:d){
+		for(RestrictedTarget<D> dd:dist){
 			moveForward(s,dd, record);
 			if(record[0]<=0){break;}
 		}
 	
 	}
-	public void moveForward(S s,D d
+	public static<S extends MetaTileEntity&IConnectsToEnergyTunnel,
+	D extends MetaTileEntity&IConnectsToEnergyTunnel
+	> void moveForward(S s,RestrictedTarget<D> dd0
 			,long[] max
 			){
+		D dd=(D) dd0.target;
+		dd0.callback.forEach(st->{
+			
+			if(s instanceof GT_MetaTileEntity_TieredMachineBlock)
+			st.accept(GT_Values.V[((GT_MetaTileEntity_TieredMachineBlock) s).mTier]);
+			
 		
-		if (s.maxEUOutput() > ( d).maxEUInput()) {
-            d.doExplosion(s.maxEUOutput());
+		});
+		if (s.maxEUOutput() > ( dd).maxEUInput()) {
+            dd.doExplosion(s.maxEUOutput());
             s.setEUVar(s.getBaseMetaTileEntity().getStoredEU() - s.maxEUOutput());
             return;
         } else if (s.maxEUOutput()
-                == ( d).maxEUInput()) {
+                == ( dd).maxEUInput()) {
         	
-        	D aMetaTileEntity = d;
+        	D aMetaTileEntity = dd;
         	IGregTechTileEntity aBaseMetaTileEntity = s.getBaseMetaTileEntity();
                     long diff = Math.min(
                             s.maxAmperesOut() * 20L * s.maxEUOutput(),
@@ -305,7 +335,7 @@ extends PartP2PTunnelStatic<PartLazerP2P> implements ILazer,IGridTickable{
                     max[0]-=diff;
                     s.setEUVar(aBaseMetaTileEntity.getStoredEU() - diff);
 
-                    d.setEUVar(d.getBaseMetaTileEntity().getStoredEU() + diff);
+                    dd.setEUVar(dd.getBaseMetaTileEntity().getStoredEU() + diff);
                 }
 	}
 	

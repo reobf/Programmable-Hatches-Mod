@@ -3,6 +3,7 @@ package reobf.proghatches.eucrafting;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -10,7 +11,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
+import javax.annotation.concurrent.Immutable;
+
+import com.github.technus.tectech.thing.metaTileEntity.pipe.GT_MetaTileEntity_Pipe_Energy;
 import com.glodblock.github.client.textures.FCPartsTexture;
 import com.google.common.collect.ImmutableList;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
@@ -57,6 +62,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import mcp.mobius.waila.api.IWailaConfigHandler;
@@ -78,6 +86,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.eucrafting.IEUManager.ISource;
+import reobf.proghatches.eucrafting.PartLazerP2P.RestrictedTarget;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
 import reobf.proghatches.gt.metatileentity.util.ArrayListInv;
@@ -87,7 +96,7 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class PartEUSource extends AEBasePart
-		implements IGuiProvidingPart, ICraftingProvider, IGridTickable, IInstantCompletable, IPartGT5Power, ISource,ILazer,IInterfaceViewable {
+		implements IGuiProvidingPart, ICraftingProvider, IGridTickable, IInstantCompletable, IPartGT5Power, ISource/*,ILazer*/,IInterfaceViewable {
 
 	public static class WailaDataProvider extends BasePartWailaDataProvider {
 
@@ -732,9 +741,20 @@ public double taxPercentage(){
 	}
 	int cpucount;
 
-	
+	int tick;
+	@SuppressWarnings("unchecked")
 	@Override
 	public TickRateModulation tickingRequest(final IGridNode node, final int ticksSinceLastCall) {
+		
+//		if(lazerMode()&&(tick++)%20==1)
+//		{
+//		Object source = getBackward();
+//		List dist = (List<RestrictedTarget>) collectAllEndpoints();
+//		if(source!=null)
+//		PartLazerP2P.moveForward(source,dist);
+//		}
+		
+		
 		returnItems();
 		/*
 		 * if(cpucount++>10) try {cpucount=0; for (ICraftingCPU cluster :
@@ -960,34 +980,25 @@ public double taxPercentage(){
 		return actual;
 	}
 
-	@Override
-	public boolean canConnect(ForgeDirection side) {
-		// TODO Auto-generated method stub
-		return true;
-	}
-	
-	@Override
-	public byte getColorization() {
-	
-		return 11;
-	}
 
-	@Override
-	public byte setColorization(byte aColor) {
 	
-		return 11;
-	}
-	public  boolean isHost() {
-		return false;
-	}
 	public ILazer getLazerP2PIn(ForgeDirection dir) {
 		return null;
 	}
 	public ForgeDirection getLazerDir() {
 		return this.side;
 	}
-	public List<ILazer> getLazerP2POuts() {
-		return null;
+
+
+	private Stream<ILazer> getOutputs() {
+		try {
+			return  ((IEUManager) getProxy().getGrid().getCache(IEUManager.class))
+					.getDrain(this.getVoltage()).map(s->s instanceof ILazer?(ILazer)s:null);
+			
+			
+		} catch (GridAccessException e) {
+		}
+		return ImmutableList.<ILazer>of().stream();
 	}
 
 	@Override
@@ -1028,5 +1039,167 @@ public double taxPercentage(){
 	
 		return "";
 	}
-	
+//	public Object getForward() {
+//	      
+//        {TileEntity thiz = this.getHost().getTile();
+//        	ForgeDirection face=this.getLazerDir();
+//        	
+//         
+//            final ForgeDirection opposite = face;
+//            for (short dist = 1; dist < 1000; dist++) {
+//               
+//            	TileEntity rawtile = thiz
+//                        .getWorldObj().getTileEntity(
+//                        		thiz.xCoord+dist*opposite.offsetX,
+//                        		thiz.yCoord+dist*opposite.offsetY,
+//                        		thiz.zCoord+dist*opposite.offsetZ
+//                        		);
+//            	if(rawtile==null)return null;
+//            	IGregTechTileEntity tGTTileEntity  =rawtile instanceof IGregTechTileEntity?(IGregTechTileEntity)rawtile:null;
+//                if (tGTTileEntity != null) {
+//                    IMetaTileEntity aMetaTileEntity = tGTTileEntity.getMetaTileEntity();
+//                    if (aMetaTileEntity != null) {
+//                        if (PartLazerP2P.isDist(aMetaTileEntity) 
+//                              //  && opposite.getOpposite() == tGTTileEntity.getFrontFacing()
+//                                ) {
+//                            return ( aMetaTileEntity);
+//                        } else if (aMetaTileEntity instanceof GT_MetaTileEntity_Pipe_Energy) {
+//                            if (((GT_MetaTileEntity_Pipe_Energy) aMetaTileEntity).connectionCount < 2) {
+//                            	   return null;
+//                            } else {
+//                                ((GT_MetaTileEntity_Pipe_Energy) aMetaTileEntity).markUsed();
+//                            }
+//                            continue;
+//                        } 
+//                    }
+//                }else{
+//                	
+//                	if(rawtile instanceof ILazer){
+//                		
+//                		return ((ILazer) rawtile).getLazerP2PIn(opposite);
+//                		
+//                		
+//                	}
+//                	
+//                }
+//                
+//                
+//                
+//                
+//            }
+//        }
+//		return null;
+//    }	
+//	
+//	@Override
+//	public boolean canConnect(ForgeDirection side) {
+//		// TODO Auto-generated method stub
+//		return true;
+//	}
+//	
+//	@Override
+//	public byte getColorization() {
+//	
+//		return 11;
+//	}
+//
+//	@Override
+//	public byte setColorization(byte aColor) {
+//	
+//		return 11;
+//	}
+//	@SuppressWarnings({ "rawtypes", "unchecked" })
+//	@Override
+//	public Collection<? extends RestrictedTarget> collectAllEndpoints() {
+//		//if(this.output)return ImmutableList.of();
+//		ArrayList<RestrictedTarget> all=new ArrayList<>();
+//		try {
+//			getOutputs().forEach(s->{
+//				
+//				
+//			Object o=	s.getForward();
+//			if(o instanceof ILazer){
+//				all.addAll((Collection<? extends RestrictedTarget>) ((ILazer) o).collectAllEndpoints());
+//			}else if(PartLazerP2P.isDist(o )){
+//				all.add( new RestrictedTarget( (MetaTileEntity) o));
+//			}	
+//			
+//			
+//			});
+//		} catch (Exception e) {}
+//		
+//		all.forEach(s->{
+//			s.limit=Math.min(s.mark(ss->lazerInject((long) ss)).limit,0);
+//		});
+//		
+//		
+//		return all;
+//		/*Collection<? extends RestrictedTarget> all=new ArrayList<>();
+//	    this.getOutputs().forEach(s->{
+//	    	
+//	    	all.add(new RestrictedTarget(s));
+//	    	
+//	    });
+//		
+//		return all;*/
+//	}
+//	public void lazerInject(long val){
+//		
+//	}
+//	
+//	public boolean lazerMode(){return false;}
+//	@SuppressWarnings("unchecked")
+//	private IMetaTileEntity getBackward() {
+//		
+//		 {TileEntity thiz = this.getHost().getTile();
+//     	ForgeDirection face=this.getLazerDir();
+//     	
+//      
+//         final ForgeDirection opposite = face;
+//         for (short dist = 1; dist < 1000; dist++) {
+//            
+//         	TileEntity rawtile = thiz
+//                     .getWorldObj().getTileEntity(
+//                     		thiz.xCoord+dist*opposite.offsetX,
+//                     		thiz.yCoord+dist*opposite.offsetY,
+//                     		thiz.zCoord+dist*opposite.offsetZ
+//                     		);
+//         	if(rawtile==null)return null;
+//         	IGregTechTileEntity tGTTileEntity  =rawtile instanceof IGregTechTileEntity?(IGregTechTileEntity)rawtile:null;
+//             if (tGTTileEntity != null) {
+//                 IMetaTileEntity aMetaTileEntity = tGTTileEntity.getMetaTileEntity();
+//                 if (aMetaTileEntity != null) {
+//                     if (PartLazerP2P.isSourece(aMetaTileEntity )
+//                            // && ((IConnectsToEnergyTunnel)tGTTileEntity).canConnect(opposite.getOpposite()))
+//                    		 ){
+//                    	 
+//                         return  (aMetaTileEntity);
+//                     } else if (aMetaTileEntity instanceof GT_MetaTileEntity_Pipe_Energy) {
+//                         if (((GT_MetaTileEntity_Pipe_Energy) aMetaTileEntity).connectionCount < 2) {
+//                         	   return null;
+//                         } else {
+//                             ((GT_MetaTileEntity_Pipe_Energy) aMetaTileEntity).markUsed();
+//                         }
+//                         continue;
+//                     } 
+//                 }
+//             }else{
+//             	
+//             	/*if(rawtile instanceof ILazer){
+//             		
+//             		return ((ILazer) rawtile).getLazerP2PIn(opposite);
+//             		
+//             		
+//             	}*/
+//             	
+//             }
+//             
+//             
+//             
+//             
+//         }
+//     }
+//		return null;
+//		
+//	}
 }

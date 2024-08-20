@@ -1206,4 +1206,9 @@ public class TileFluidInterface_EU extends TileFluidInterface
 	public boolean allowOvercommit() {
 		return false;
 	}
+	@Override
+	public boolean allowsPatternOptimization() {
+		
+		return expectedamp==0;
+	}
 }

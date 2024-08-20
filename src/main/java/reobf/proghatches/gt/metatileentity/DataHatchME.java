@@ -88,7 +88,10 @@ private void updateValidGridProxySides() {
         getProxy().setValidSides(EnumSet.of(getBaseMetaTileEntity().getFrontFacing()));
     
 }
-
+@Override
+public void onFacingChange() {
+	updateValidGridProxySides();
+}
 @Override
 public AENetworkProxy getProxy() {
     if (gridProxy == null) {
@@ -117,20 +120,30 @@ public boolean isPowered() {
 public boolean isActive() {
     return getProxy() != null && getProxy().isActive();
 
-}/*
-@MENetworkEventSubscribe
-public void storageChange(MENetworkStorageEvent w){
-	updateCache();
-	
-} */
+}
+
+
+
+private boolean prevOk;
 @Override
 public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-	if(aTick%200==123)updateCache();
-
+	if((!aBaseMetaTileEntity.getWorld().isRemote)&&aTick%40==20){
+		boolean ok=(getProxy().isPowered())	&&(getProxy().isActive());
+		//System.out.println("power check");
+		if(aTick%400==20||ok!=prevOk){
+			//System.out.println("force update");
+			updateCache();}
+		prevOk=ok;
+	}
+	
+	
 	super.onPostTick(aBaseMetaTileEntity, aTick);
 }
 
 private void updateCache() {
+	if(
+		(!getProxy().isPowered())	||(!getProxy().isActive())
+			){inv=new ItemStack[]{};return;}
 	try{
 		ArrayList<ItemStack> list=new ArrayList<>(getProxy().getStorage().getItemInventory().getStorageList().size());
 		getProxy().getStorage().getItemInventory().getStorageList().findFuzzy(AEItemStack.create(ItemList.Tool_DataStick.get(1)), FuzzyMode.IGNORE_ALL)

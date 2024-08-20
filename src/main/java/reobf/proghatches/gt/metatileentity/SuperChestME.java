@@ -142,10 +142,10 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	            default : return 0;
 	        }
 	    }
-	@MENetworkEventSubscribe
+	/*@MENetworkEventSubscribe
     public void channel(final MENetworkChannelsChanged c) {
 		post();
-    }
+    }*/
 	private void post(){
 		 
 		 try {
@@ -158,12 +158,12 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 			//e.printStackTrace();
 		}
 	   
-	}
+	}/*
 	@MENetworkEventSubscribe
 	    public void power(final MENetworkPowerStatusChange c) {
 		post();
 		
-	 }
+	 }*/
 	@Override
 	public IGridNode getActionableNode() {
 		
@@ -740,7 +740,7 @@ this.piority=newValue;
 }
 
 
-
+/*
 @MENetworkEventSubscribe
 public void powerRender(final MENetworkPowerStatusChange c) {
     this.updateStatus();
@@ -753,8 +753,8 @@ public void chanRender(final MENetworkChannelsChanged changedChannels) {
 }
 @MENetworkEventSubscribe
 public void updateChannels(final MENetworkChannelsChanged changedChannels) {
-    this.updateStatus();
-}
+   this.updateStatus();
+}*/ 
 protected void updateStatus() {
    
             try {

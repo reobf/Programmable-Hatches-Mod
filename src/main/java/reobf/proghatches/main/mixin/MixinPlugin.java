@@ -179,7 +179,7 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		retLate.add("MixinGolem");
 		retLate.add("MixinStorageChangeEvent");
 		retLate.add("MixinOptimize");
-		retLate.add("part2.MixinNoMultiplyForCircuit");
+		//retLate.add("part2.MixinNoMultiplyForCircuit");
 		if (FMLLaunchHandler.side().isClient()) {
 			if (!"true".equals(pp.get("noAEItemSortMixins")))
 				if(ff)retLate.add("MixinAEItemStackCompare");

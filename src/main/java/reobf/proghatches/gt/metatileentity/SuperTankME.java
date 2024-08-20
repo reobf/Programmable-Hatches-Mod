@@ -138,11 +138,11 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	}
 	
 	
-	@MENetworkEventSubscribe
+	/*@MENetworkEventSubscribe
     public void channel(final MENetworkChannelsChanged c) {
 		post();
 		
-    }
+    }*/
 	private void post(){
 		 
 		 try {
@@ -155,12 +155,12 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 			//e.printStackTrace();
 		}
 	   
-	}
+	}/*
 	@MENetworkEventSubscribe
 	    public void power(final MENetworkPowerStatusChange c) {
 		post();
 		
-	 }
+	 }*/
 	@Override
 	public IGridNode getActionableNode() {
 		
@@ -844,13 +844,13 @@ this.piority=newValue;
 
 	
 }
-
+/*
 @MENetworkEventSubscribe
 public void powerRender(final MENetworkPowerStatusChange c) {
     this.updateStatus();
-}
+}*/
 
-
+/*
 @MENetworkEventSubscribe
 public void chanRender(final MENetworkChannelsChanged changedChannels) {
     this.updateStatus();
@@ -858,7 +858,7 @@ public void chanRender(final MENetworkChannelsChanged changedChannels) {
 @MENetworkEventSubscribe
 public void updateChannels(final MENetworkChannelsChanged changedChannels) {
     this.updateStatus();
-}
+}*/
 static MENetworkCellArrayUpdate event=new MENetworkCellArrayUpdate();
 protected void updateStatus() {
    

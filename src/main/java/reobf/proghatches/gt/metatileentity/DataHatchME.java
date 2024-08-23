@@ -132,7 +132,7 @@ public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		//System.out.println("power check");
 		if(aTick%400==20||ok!=prevOk){
 			//System.out.println("force update");
-			updateCache();}
+			updateCache();updateValidGridProxySides();}
 		prevOk=ok;
 	}
 	
@@ -207,6 +207,7 @@ public void loadNBTData(NBTTagCompound aNBT) {
     }
 
     getProxy().readFromNBT(aNBT);
+   
 }
 @Override
 public IGridNode getGridNode(ForgeDirection dir) {

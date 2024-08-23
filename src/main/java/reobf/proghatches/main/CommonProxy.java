@@ -13,6 +13,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import gregtech.api.util.GT_ModHandler;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import reobf.proghatches.Tags;
+import reobf.proghatches.ae.ItemPartAmountMaintainer;
 import reobf.proghatches.block.BlockAnchorAlert;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.block.ItemBlockAnchorAlert;
@@ -140,6 +141,15 @@ public class CommonProxy {
 						MyMod.euinterface_p2p = new ItemPartEUP2PInterface()
 								.setUnlocalizedName("proghatches.euinterface.p2p").setTextureName("?"),
 						"proghatches.euinterface.p2p");
+		GameRegistry
+		.registerItem(
+				MyMod.amountmaintainer = new ItemPartAmountMaintainer()
+						.setUnlocalizedName("proghatches.amountmaintainer").setTextureName("?"),
+				"amountmaintainer");
+		
+		
+		
+		
 	}
 
 	public static ProgHatchCreativeTab tab;

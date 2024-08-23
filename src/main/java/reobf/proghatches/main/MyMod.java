@@ -171,6 +171,7 @@ public class MyMod {
 	public static Item lazer_p2p_part;
 	public static Item upgrades;
 	public static Block alert;
+	public static Item amountmaintainer;
 
 	@Mod.EventHandler
 	// preInit "Run before anything else. Read your config, create blocks,

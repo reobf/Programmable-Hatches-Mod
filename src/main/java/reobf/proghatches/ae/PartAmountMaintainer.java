@@ -1,0 +1,626 @@
+package reobf.proghatches.ae;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.glodblock.github.common.item.ItemFluidPacket;
+
+import com.glodblock.github.inventory.MEMonitorIFluidHandler;
+import com.glodblock.github.util.BlockPos;
+import com.google.common.collect.ImmutableMap;
+import com.gtnewhorizons.modularui.api.ModularUITextures;
+import com.gtnewhorizons.modularui.api.drawable.IDrawable;
+import com.gtnewhorizons.modularui.api.drawable.Text;
+import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
+import com.gtnewhorizons.modularui.api.math.Alignment;
+import com.gtnewhorizons.modularui.api.math.Color;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow;
+import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
+import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
+import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
+import com.gtnewhorizons.modularui.common.widget.SlotWidget;
+import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
+import com.gtnewhorizons.modularui.common.widget.TextWidget;
+import com.gtnewhorizons.modularui.common.widget.textfield.NumericWidget;
+
+import appeng.api.AEApi;
+import appeng.api.config.AccessRestriction;
+import appeng.api.config.Actionable;
+import appeng.api.config.IncludeExclude;
+import appeng.api.config.Settings;
+import appeng.api.config.StorageFilter;
+import appeng.api.config.Upgrades;
+import appeng.api.implementations.IPowerChannelState;
+import appeng.api.networking.GridFlags;
+import appeng.api.networking.IGridNode;
+import appeng.api.networking.security.BaseActionSource;
+import appeng.api.networking.security.MachineSource;
+import appeng.api.networking.storage.IBaseMonitor;
+import appeng.api.networking.storage.IStorageGrid;
+import appeng.api.networking.ticking.IGridTickable;
+import appeng.api.networking.ticking.ITickManager;
+import appeng.api.networking.ticking.TickRateModulation;
+import appeng.api.networking.ticking.TickingRequest;
+import appeng.api.parts.IPartCollisionHelper;
+import appeng.api.parts.IPartItem;
+import appeng.api.parts.IPartRenderHelper;
+import appeng.api.storage.IExternalStorageHandler;
+import appeng.api.storage.IMEInventory;
+import appeng.api.storage.IMEMonitor;
+import appeng.api.storage.StorageChannel;
+import appeng.api.storage.data.IAEFluidStack;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IItemList;
+import appeng.client.texture.CableBusTextures;
+import appeng.core.Api;
+import appeng.core.api.definitions.ApiItems;
+import appeng.items.tools.ToolMemoryCard;
+import appeng.me.GridAccessException;
+import appeng.me.cache.GridStorageCache;
+import appeng.me.storage.MEInventoryHandler;
+import appeng.parts.AEBasePart;
+import appeng.parts.PartBasicState;
+import appeng.parts.p2p.PartP2PRedstone;
+import appeng.parts.p2p.PartP2PTunnel;
+import appeng.util.Platform;
+import appeng.util.item.AEFluidStack;
+import appeng.util.item.AEItemStack;
+import appeng.util.prioitylist.PrecisePriorityList;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.util.GT_Util;
+import gregtech.api.util.GT_Utility;
+import mrtjp.projectred.core.ItemPart;
+import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.StatCollector;
+import net.minecraft.util.Vec3;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import reobf.proghatches.eucrafting.EUUtil;
+import reobf.proghatches.eucrafting.IGuiProvidingPart;
+
+public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidingPart,IGridTickable,IPowerChannelState{
+
+	private int mode;
+	
+	
+	//bit0 ->when offline,clear or maintain
+	//bit1 ->when online,invert redstone
+	private int redstone;
+	
+	public PartAmountMaintainer(ItemStack is) {
+		super(is);
+		 this.getProxy().setFlags(GridFlags.REQUIRE_CHANNEL);
+	}
+
+	@Override
+	public TickingRequest getTickingRequest(IGridNode node) {
+		
+		return new TickingRequest(1,1,false,false);
+	}
+	
+	//AEItemStack empty=AEItemStack.create(new ItemStack(Items.apple,0));
+	//AEFluidStack emptyf=AEFluidStack.create(new FluidStack(FluidRegistry.WATER,0));
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	static private Map<StorageChannel,IAEStack> EMPTY=(Map<StorageChannel, IAEStack>)(Object)ImmutableMap.of(
+			StorageChannel.FLUIDS,AEFluidStack.create(new FluidStack(FluidRegistry.WATER,0)),
+			StorageChannel.ITEMS,AEItemStack.create(new ItemStack(Items.apple,0))
+			);
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall) {
+		if(getProxy().isActive()==false)return TickRateModulation.SAME;
+		for(StorageChannel ch:new StorageChannel[]{StorageChannel.FLUIDS,StorageChannel.ITEMS})
+		{
+		IMEInventory inv = getInv(ch);
+		if(inv!=null){
+			
+			IItemList list;
+			if(inv instanceof IMEMonitor){
+				inv.injectItems(EMPTY.get(ch),  Actionable.MODULATE, source);//dirty hack, trigger update
+				list = ((IMEMonitor) inv).getStorageList();
+				
+			}else{
+				list=inv.getAvailableItems(ch.createList());
+			}
+			
+			end:{
+				IAEStack opt=maybe(ch);
+				if(opt==null)break end;
+				IAEStack  is=	 list.findPrecise(
+						//AEItemStack.create(new ItemStack(Items.apple))
+						opt
+						);
+				
+				long amount;
+				if(is==null){
+					amount=0;
+					is=opt.copy();
+					is.setStackSize(0);
+				}else{
+					amount=is.getStackSize();
+				}
+			
+				
+				
+				long expected=opt.getStackSize();
+				sc:if(amount>expected){
+					try{
+					IAEStack take = inv.extractItems(is.copy().setStackSize(amount-expected), Actionable.SIMULATE, source);
+					if(take==null){break sc;}
+					IAEStack notadd =getStorage(getProxy().getStorage(),ch).injectItems( take, Actionable.SIMULATE, source);
+					if(notadd==null||notadd.getStackSize()==0){
+						IAEStack realtake = inv.extractItems(is.copy().setStackSize(amount-expected), Actionable.MODULATE, source);
+						/*IAEStack notadd =*/getStorage(getProxy().getStorage(),ch).injectItems( realtake, Actionable.MODULATE, source);
+					}
+					
+					}catch(GridAccessException e){}
+				}
+				sc:if(amount<expected){
+					try{
+						IAEStack take = getStorage(getProxy().getStorage(),ch).extractItems(is.copy().setStackSize(-amount+expected), Actionable.SIMULATE, source);
+						if(take==null){break sc;}//ae2fc fluid inv disallow injecting null
+						IAEStack notadd =inv.injectItems( take, Actionable.SIMULATE, source);
+						if(notadd==null||notadd.getStackSize()==0){
+							IAEStack realtake = getStorage(getProxy().getStorage(),ch).extractItems(is.copy().setStackSize(-amount+expected), Actionable.MODULATE, source);
+							/*IAEStack notadd =*/inv.injectItems( realtake, Actionable.MODULATE, source);
+						}
+						
+						}catch(GridAccessException e){}
+				}	
+			}		
+				
+				
+				
+				
+				
+				
+				
+				
+				
+			
+			
+		/*list.forEach(s->{
+		System.out.println(s);
+			
+		});*/
+		
+			
+			
+			
+			
+		
+		}
+		
+		
+		}
+		
+		
+		
+		return TickRateModulation.SAME;
+	}
+	
+	
+	 @Override
+	    public void getBoxes(final IPartCollisionHelper bch) {
+	        bch.addBox(2, 2, 14, 14, 14, 16);
+	        bch.addBox(5, 5, 12, 11, 11, 14);
+	    }  @Override
+	    @SideOnly(Side.CLIENT)
+	    public void renderInventory(final IPartRenderHelper rh, final RenderBlocks renderer) {
+	        rh.setTexture(
+	                CableBusTextures.PartMonitorSides.getIcon(),
+	                CableBusTextures.PartMonitorSides.getIcon(),
+	                CableBusTextures.PartMonitorBack.getIcon(),
+	                this.getItemStack().getIconIndex(),
+	                CableBusTextures.PartMonitorSides.getIcon(),
+	                CableBusTextures.PartMonitorSides.getIcon());
+
+	        rh.setBounds(2, 2, 14, 14, 14, 16);
+	        rh.renderInventoryBox(renderer);
+
+	        rh.setBounds(5, 5, 12, 11, 11, 13);
+	        rh.renderInventoryBox(renderer);
+
+	        rh.setBounds(5, 5, 13, 11, 11, 14);
+	        rh.renderInventoryBox(renderer);
+	    } @Override
+	    @SideOnly(Side.CLIENT)
+	    public void renderStatic(final int x, final int y, final int z, final IPartRenderHelper rh,
+	            final RenderBlocks renderer) {
+	        this.setRenderCache(rh.useSimplifiedRendering(x, y, z, this, this.getRenderCache()));
+	        rh.setTexture(
+	                CableBusTextures.PartMonitorSides.getIcon(),
+	                CableBusTextures.PartMonitorSides.getIcon(),
+	                CableBusTextures.PartMonitorBack.getIcon(),
+	                this.getItemStack().getIconIndex(),
+	                CableBusTextures.PartMonitorSides.getIcon(),
+	                CableBusTextures.PartMonitorSides.getIcon());
+
+	        rh.setBounds(2, 2, 14, 14, 14, 16);
+	        rh.renderBlock(x, y, z, renderer);
+
+	        rh.setTexture(
+	                CableBusTextures.PartMonitorSides.getIcon(),
+	                CableBusTextures.PartMonitorSides.getIcon(),
+	                CableBusTextures.PartMonitorBack.getIcon(),
+	                this.getItemStack().getIconIndex(),
+	                CableBusTextures.PartMonitorSides.getIcon(),
+	                CableBusTextures.PartMonitorSides.getIcon());
+
+	        rh.setBounds(5, 5, 12, 11, 11, 13);
+	        rh.renderBlock(x, y, z, renderer);
+
+	        rh.setTexture(
+	                CableBusTextures.PartMonitorSidesStatus.getIcon(),
+	                CableBusTextures.PartMonitorSidesStatus.getIcon(),
+	                CableBusTextures.PartMonitorBack.getIcon(),
+	                this.getItemStack().getIconIndex(),
+	                CableBusTextures.PartMonitorSidesStatus.getIcon(),
+	                CableBusTextures.PartMonitorSidesStatus.getIcon());
+
+	        rh.setBounds(5, 5, 13, 11, 11, 14);
+	        rh.renderBlock(x, y, z, renderer);
+
+	        //this.renderLights(x, y, z, rh, renderer);
+	    }
+		
+	    
+	    
+	    
+	    @SuppressWarnings("deprecation")
+		@Override
+		public boolean onPartActivate(EntityPlayer player, Vec3 pos) {
+/*if(player.getHeldItem()!=null&&player.getHeldItem().getItem()instanceof ToolMemoryCard){
+	
+	NBTTagCompound a = ((ToolMemoryCard)player.getHeldItem().getItem()).getData(player.getHeldItem());
+    if (a.hasKey("freq")) {
+        final long freq = a.getLong("freq");
+        final ItemStack newType = ItemStack.loadItemStackFromNBT(a);
+
+		if (newType != null) {
+			
+				if(Api.INSTANCE.definitions().parts().p2PTunnelRedstone().isSameAs(newType)){
+					
+					System.out.println(freq);
+					
+					
+					
+				};
+				
+			
+		}
+    }
+	
+}*/
+			// System.out.println(this.getTile().getWorldObj().isRemote);
+			if (player.isSneaking())
+				return false;
+			TileEntity t = this.getTile();
+			// System.out.println(getSide());
+			EUUtil.open(player, player.getEntityWorld(), t.xCoord, t.yCoord, t.zCoord, getSide());
+			//System.out.println(player.getHeldItem());
+			return true;
+		}
+
+		@Override
+		public ModularWindow createWindow(UIBuildContext buildContext) {
+			ModularWindow.Builder builder = ModularWindow.builder(176, 107+20);
+			builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
+			builder.bindPlayerInventory(buildContext.getPlayer());
+		
+			   String freqTooltip = String.format("%X", freq).replaceAll("(.{4})", "$0 ").trim();
+			ItemStackHandler is=new ItemStackHandler();
+			
+			if(freq!=0){
+			ItemStack stack = Api.INSTANCE.definitions().parts().p2PTunnelRedstone().maybeStack(1).get();
+			
+			stack.setStackDisplayName("freq:"+freqTooltip);
+			is.setStackInSlot(0, stack);
+			}
+			builder.widget( TextWidget.dynamicString(()->{
+				try{
+				PartP2PTunnel p2p = getProxy().getP2P().getInput(freq);
+			if(p2p.isActive()&&p2p.isPowered()){
+				return StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.online");
+			}}catch(Exception e){}
+			
+			
+			return StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.offline");
+				
+			}).setPos(30,10));
+			builder.widget( new SlotWidget(new BaseSlot(is, 0,true)){
+				@Override
+				protected void phantomClick(ClickData clickData, ItemStack cursorStack) {
+					if(cursorStack==null){
+						freq=0;
+						is.setStackInSlot(0, null);
+					}
+					if(cursorStack!=null&&cursorStack.getItem()instanceof ToolMemoryCard){
+						
+						NBTTagCompound a = ((ToolMemoryCard)cursorStack.getItem()).getData(cursorStack);
+					    if (a.hasKey("freq")) {
+					        final long freqx = a.getLong("freq");
+					        final ItemStack newType = ItemStack.loadItemStackFromNBT(a);
+
+							if (newType != null) {
+								
+									if(Api.INSTANCE.definitions().parts().p2PTunnelRedstone().isSameAs(newType)){
+										
+										
+										freq=freqx;
+										String freqTooltip = String.format("%X", freq).replaceAll("(.{4})", "$0 ").trim();
+										ItemStack stack = Api.INSTANCE.definitions().parts().p2PTunnelRedstone().maybeStack(1).get();
+										stack.setStackDisplayName("freq:"+freqTooltip);
+										is.setStackInSlot(0, stack);
+										
+										
+									};
+									
+								
+							}
+					    }}
+					
+					
+					
+				}
+				
+				
+			}.setPos(3+4, 3)
+					.addTooltip( StatCollector.translateToLocal("proghatches.amountmaintainer.memorycard"))
+			           );
+			
+			
+			
+			
+			
+			ItemStackHandler iss=new ItemStackHandler(mark);
+			builder.widget( new SlotWidget(new BaseSlot(iss, 0,true)){
+				@Override
+				protected void phantomClick(ClickData clickData, ItemStack cursorStack) {
+					if(cursorStack==null){
+						mark[0]=null;
+						
+					}else{
+						ItemStack fis = mode==0?null:tryConvertToFluid(cursorStack);
+						
+						mark[0]=fis==null?cursorStack:fis;
+						mark[0]=mark[0].copy();
+						mark[0].stackSize=1;
+					}
+		
+				}
+				
+				
+			}.setPos(60, 3).addTooltip(StatCollector.translateToLocal("proghatches.amountmaintainer.phantomslot")));
+			
+			
+			builder.widget(
+	                new NumericWidget().setSetter(val -> amount =  (long) val)
+	                    .setGetter(() -> amount)
+	                    .setBounds(1, 9_007_199_254_740_991D)
+	                    .setScrollValues(1, 4, 64)
+	                    .setTextAlignment(Alignment.Center)
+	                    .setTextColor(Color.WHITE.normal)
+	                    .setSize(60, 18)
+	                    .setPos(60+18, 3)
+	                    .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD)
+	                    .addTooltips(Arrays.asList(
+	                    		StatCollector.translateToLocal("proghatches.amountmaintainer.amount.0"),
+	                    		StatCollector.translateToLocal("proghatches.amountmaintainer.amount.1"),
+	                    		StatCollector.translateToLocal("proghatches.amountmaintainer.amount.2"),
+	                    		StatCollector.translateToLocal("proghatches.amountmaintainer.amount.3"))
+	                    		
+	                    		)
+					);
+			
+			builder.widget(new CycleButtonWidget().setGetter(()->mode)
+					.setSetter(s->mode=s).setLength(2)
+	           .setTextureGetter(s->{
+	        	   if(s==0)return GT_UITextures.OVERLAY_BUTTON_VOID_EXCESS_ITEM;
+	        	   if(s==1)return GT_UITextures.OVERLAY_BUTTON_VOID_EXCESS_FLUID;
+	        			   return GT_UITextures.OVERLAY_BUTTON_VOID_EXCESS_ALL;
+	           })
+	           .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.0"))
+	           .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.1"))
+					.setBackground(() -> {
+	               {
+	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+	                       };
+	                }
+	            })
+	            
+	            .setSize(18, 18)
+	            .setPos(120+20, 3));
+			
+			
+			builder.widget(new CycleButtonWidget().setGetter(()->redstone)
+					.setSetter(s->redstone=s).setLength(4)
+	           .setTextureGetter(s->{
+	        	
+	        			   return GT_UITextures.OVERLAY_BUTTON_REDSTONE_ON;
+	           })
+	           .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.mode.0"))
+	           .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.mode.1"))
+	           .addTooltip(2, StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.mode.2"))
+	           .addTooltip(3, StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.mode.3"))
+	           
+					.setBackground(() -> {
+	               {
+	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+	                       };
+	                }
+	            })
+	            
+	            .setSize(18, 18)
+	            .setPos(3+4, 3+18));
+			
+			
+			builder.widget(new DrawableWidget().setDrawable(GT_UITextures.OVERLAY_BUTTON_REDSTONE_ON).setPos(3+4+20, 3+18).setSize(18,18).setEnabled(s->{on=isOn();return on;})
+					.addTooltip(StatCollector.translateToLocalFormatted("proghatches.amountmaintainer.redstone.state.on",amount))
+					)
+			;
+			builder.widget(new DrawableWidget().setDrawable(GT_UITextures.OVERLAY_BUTTON_REDSTONE_OFF).setPos(3+4+20, 3+18).setSize(18,18).setEnabled(s->!on)
+					.addTooltip(StatCollector.translateToLocalFormatted("proghatches.amountmaintainer.redstone.state.off"))
+					)
+			;
+			builder.widget(new FakeSyncWidget.BooleanSyncer(()->on, s->on=s));
+			
+			return builder.build();
+		}
+		private boolean on;
+		static Field f ;
+		static{try {
+			f=PartP2PRedstone.class.getDeclaredField("power");
+		f.setAccessible(true);
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}}
+		
+		public Boolean getSignal(){
+			
+			try {
+				PartP2PTunnel p2p = getProxy().getP2P().getInput(freq);
+			if(p2p!=null){
+				if(p2p.isActive()&&p2p.isPowered()){
+				
+					
+					return f.getInt(((PartP2PRedstone)p2p))>0;
+					
+				}
+				
+			}
+			
+			} catch (GridAccessException e) {
+				
+			}
+			
+			 catch (Exception e) {e.printStackTrace();
+		
+			}
+				return null;
+			
+			
+		}
+		long freq;
+		private BaseActionSource source=new MachineSource(this);
+		
+		
+		@Override
+		public void readFromNBT(NBTTagCompound data) {
+			freq=data.getLong("freq");
+			mode=data.getInteger("mode");
+			redstone=data.getInteger("redstone");
+			amount=data.getLong("amount");
+			mark[0]=ItemStack.loadItemStackFromNBT(data.getCompoundTag("mark"));
+			super.readFromNBT(data);
+		}
+		@Override
+		public void writeToNBT(NBTTagCompound data) {
+			data.setLong("freq", freq);
+			data.setInteger("mode", mode);
+			data.setInteger("redstone", redstone);
+			data.setLong("amount", amount);
+			if(mark[0]!=null)data.setTag("mark", mark[0].writeToNBT(new NBTTagCompound()));
+			
+			super.writeToNBT(data);
+		}
+		long amount=64;
+		
+		HashMap<StorageChannel,IMEInventory> inv=new HashMap();
+		HashMap<StorageChannel,Integer> handlerHash=new HashMap();
+		public ItemStack[] mark=new ItemStack[1];
+	public IMEInventory getInv(StorageChannel ch){
+		  final TileEntity self = this.getHost().getTile();
+	        final TileEntity target = new BlockPos(self).getOffSet(this.getSide()).getTileEntity();
+		
+	        final int newHandlerHash = Platform.generateTileHash(target);
+	        if (newHandlerHash != 0 && newHandlerHash == this.handlerHash.getOrDefault(ch, 0)) {
+	            return this.inv.get(ch);
+	        }
+	        
+	        final IExternalStorageHandler esh = AEApi.instance().registries().externalStorage()
+              .getHandler(target, this.getSide().getOpposite(), ch, this.source);
+      if (esh != null) {
+          final IMEInventory<?> inv = esh
+                  .getInventory(target, this.getSide().getOpposite(), ch, this.source);
+         this.inv.put(ch,inv);
+         handlerHash.put(ch, newHandlerHash);
+          return inv;
+      }
+		return null;
+		
+	}
+	
+	public IAEStack maybe(StorageChannel c){
+		
+		
+		
+		if(c==StorageChannel.ITEMS)return maybeItem();
+		return maybeFluid();
+	}
+	public AEItemStack maybeItem(){
+		if(mark[0]==null)return null;
+		
+		FluidStack fs = GT_Utility.getFluidFromDisplayStack(mark[0]);
+		if(fs==null){
+			AEItemStack is=AEItemStack.create(mark[0]);
+			is.setStackSize(requestedAmount());
+		return is;
+		}
+		return null;
+	}
+	
+	
+	public long requestedAmount(){return isOn()?amount:0;}
+	public boolean isOn(){
+		
+		Boolean b=getSignal();
+		if(b==null){return (redstone&0b1)==0;}
+		return ((redstone&0b10)!=0)^b;
+	}
+	
+	
+	
+	public AEFluidStack maybeFluid(){
+		if(mark[0]==null)return null;
+		FluidStack fs = GT_Utility.getFluidFromDisplayStack(mark[0]);
+		if(fs!=null){
+			AEFluidStack is=AEFluidStack.create(fs);
+			is.setStackSize(requestedAmount());
+		return is;
+		}
+		return null;
+	}
+	private ItemStack tryConvertToFluid(ItemStack is){
+		
+		FluidStack fs = GT_Utility.getFluidForFilledItem(is, true);
+		if(fs!=null){
+		return GT_Utility.getFluidDisplayStack(fs, false);
+		}
+		
+		return null;
+	}
+	private IMEMonitor getStorage(IStorageGrid g,StorageChannel c){
+		if(c==StorageChannel.ITEMS)return g.getItemInventory();
+		return g.getFluidInventory();
+		
+		
+	}
+
+
+}

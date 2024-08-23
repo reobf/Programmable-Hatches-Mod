@@ -43,6 +43,8 @@ import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricat
 import reobf.proghatches.gt.metatileentity.ProviderChainer;
 import reobf.proghatches.gt.metatileentity.RemoteInputBus;
 import reobf.proghatches.gt.metatileentity.RemoteInputHatch;
+import reobf.proghatches.gt.metatileentity.RestrictedInputBusME;
+import reobf.proghatches.gt.metatileentity.RestrictedInputHatchME;
 import reobf.proghatches.gt.metatileentity.SuperChestME;
 import reobf.proghatches.gt.metatileentity.SuperTankME;
 import reobf.proghatches.gt.metatileentity.SuperfluidHatch;
@@ -83,7 +85,8 @@ public class Registration implements Runnable {
 	public static final int MultiCircuitDualInputHatchOffset = 154;//-157
 	public static final int MultiCircuitQuadDualInputHatchOffset = 158;//-161
 	public static final int DataHatchMEOffset = 162;
-	
+	public static final int RestrictedHatchME = 163;
+	public static final int RestrictedBusME=164;
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -382,6 +385,22 @@ public class Registration implements Runnable {
                 LangManager.translateToLocalFormatted("data.input.me.name")
                 
                 );
+        
+        
+        new RestrictedInputHatchME(
+                Config.metaTileEntityOffset + RestrictedHatchME,
+                false, "fluid.input.me.restriced",
+                LangManager.translateToLocalFormatted("fluid.input.me.restriced.name")
+                
+                );
+        new RestrictedInputBusME(
+                Config.metaTileEntityOffset + RestrictedBusME,
+                false, "fluid.input.bus.me.restriced",
+                LangManager.translateToLocalFormatted("fluid.input.bus.me.restriced.name")
+                
+                );
+        
+        
         
         /*for (int i = 0; i < 4; i++) {
 

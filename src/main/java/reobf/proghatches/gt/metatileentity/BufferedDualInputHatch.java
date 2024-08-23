@@ -707,7 +707,7 @@ public int getInventoryFluidLimit() {
 	@Override
 	public void startRecipeProcessing() {
 
-		if (isInputEmpty() == false)
+		if (isInputEmpty() == false&&getBaseMetaTileEntity().isAllowedToWork())
 			for (DualInvBuffer inv0 : this.sortByEmpty()) {
 
 				if (inv0.full() == false) {

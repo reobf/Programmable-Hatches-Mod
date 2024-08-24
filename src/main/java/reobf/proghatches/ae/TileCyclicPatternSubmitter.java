@@ -1,0 +1,639 @@
+package reobf.proghatches.ae;
+
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.function.Supplier;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.gtnewhorizons.modularui.api.ModularUITextures;
+import com.gtnewhorizons.modularui.api.drawable.IDrawable;
+import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
+import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
+import com.gtnewhorizons.modularui.api.screen.ITileWithModularUI;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow;
+import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
+import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
+import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
+import com.gtnewhorizons.modularui.common.widget.Scrollable;
+import com.gtnewhorizons.modularui.common.widget.SlotGroup;
+import com.gtnewhorizons.modularui.common.widget.SlotWidget;
+import com.gtnewhorizons.modularui.common.widget.TextWidget;
+
+import appeng.api.config.Actionable;
+import appeng.api.implementations.ICraftingPatternItem;
+import appeng.api.implementations.IPowerChannelState;
+import appeng.api.networking.GridFlags;
+import appeng.api.networking.IGridNode;
+import appeng.api.networking.crafting.ICraftingCPU;
+import appeng.api.networking.crafting.ICraftingLink;
+import appeng.api.networking.crafting.ICraftingPatternDetails;
+import appeng.api.networking.crafting.ICraftingRequester;
+import appeng.api.networking.security.IActionHost;
+import appeng.api.networking.security.MachineSource;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.AECableType;
+import appeng.api.util.DimensionalCoord;
+import appeng.crafting.CraftingLink;
+import appeng.me.GridAccessException;
+import appeng.me.cluster.implementations.CraftingCPUCluster;
+import appeng.me.helpers.AENetworkProxy;
+import appeng.me.helpers.IGridProxyable;
+import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GUITextureSet;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
+import mcp.mobius.waila.api.IWailaDataProvider;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.ICrafting;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
+import reobf.proghatches.main.MyMod;
+import reobf.proghatches.util.ProghatchesUtil;
+
+
+public class TileCyclicPatternSubmitter extends TileEntity implements IGridProxyable, ICraftingRequester, ITileWithModularUI{
+	public static final int ALL = 0;
+	public static final int DIM = 1;
+	public static final int OWNER = 2;
+	
+	ItemStack[] inv=new ItemStack[16];
+	/**
+	 * 
+	 */
+	public static IWailaDataProvider provider=new IWailaDataProvider(){
+
+		@Override
+		public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config) {
+			
+			return null;
+		}
+
+		@Override
+		public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+				IWailaConfigHandler config) {
+		
+			return currenttip;
+		}
+
+		@Override
+		public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+				IWailaConfigHandler config) {
+			
+		
+			
+			return currenttip;
+		}
+
+		@Override
+		public List<String> getWailaTail(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+				IWailaConfigHandler config) {
+		
+			return currenttip;
+		}
+
+		@Override
+		public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity t, NBTTagCompound tag, World world, int x,
+				int y, int z) {
+			/*TileCyclicPatternSubmitter te=(TileCyclicPatternSubmitter) t;
+			tag.setBoolean("", te.task==null);
+		*/
+			
+			return tag;
+		}};
+	
+	
+	
+	
+	@Override
+	public IGridNode getGridNode(ForgeDirection dir) {
+	
+		return createProxy().getNode();
+	}
+
+	@Override
+	public AECableType getCableConnectionType(ForgeDirection dir) {
+		
+		return AECableType.SMART;
+	}
+
+	@Override
+	public void securityBreak() {
+	
+	}
+
+	@Override
+	public AENetworkProxy getProxy() {
+		
+		return createProxy();
+	}
+	AENetworkProxy proxy;
+    protected AENetworkProxy createProxy() {
+    	if(proxy!=null)return proxy;
+    	
+    	proxy=new AENetworkProxy(this, "proxy", new ItemStack(MyMod.alert), true);
+    	
+    	proxy.setFlags(GridFlags.REQUIRE_CHANNEL);
+    	proxy.setValidSides(EnumSet.range(ForgeDirection.DOWN, ForgeDirection.EAST));
+        return proxy; }
+	@Override
+	public DimensionalCoord getLocation() {
+	
+		return new DimensionalCoord(this);
+	}
+
+	@Override
+	public void gridChanged() {
+		
+		
+	}
+	UUID owner;
+    
+    
+	public void mark(EntityPlayer placer) {
+	createProxy().setOwner((EntityPlayer) placer);
+	owner=placer.getUniqueID();
+	}
+	
+	boolean danglingLink;
+	@Override
+	public void readFromNBT(NBTTagCompound compound) {	
+		//mode=compound.getInteger("m");
+		owner=ProghatchesUtil.deser(compound, "OWNER_UUID");
+		if(owner.getLeastSignificantBits()==0&&owner.getMostSignificantBits()==0)owner=null;
+		createProxy().readFromNBT(compound);
+		
+		NBTTagCompound tag=compound.getCompoundTag("link");
+		
+		if(tag.hasNoTags()==false){
+		    	
+		    	last=new CraftingLink(tag, (ICraftingCPU)null);//work-around
+		    	danglingLink=true;
+		    }
+		 for(int i=0;i<inv.length;++i)
+		 if(compound.hasKey("inv"+i))
+			 inv[i]=ItemStack.loadItemStackFromNBT((NBTTagCompound) compound.getTag("inv"+i));
+		 else
+			 inv[i]=null;
+		 
+		 index=compound.getInteger("index");
+		 abortingMode =compound.getBoolean("abortingMode");
+		 on =compound.getBoolean("on");
+		super.readFromNBT(compound);
+	}
+	@Override
+	public void writeToNBT(NBTTagCompound compound) {
+		//compound.setInteger("m", mode);
+		if(owner!=null)
+		ProghatchesUtil.ser(compound, owner, "OWNER_UUID");
+	    createProxy().writeToNBT(compound);
+	    
+	    if(last!=null){
+	    	NBTTagCompound tag=new NBTTagCompound();
+	    	last.writeToNBT(tag);
+	    	compound.setTag("link", tag);
+	    }
+	   for(int i=0;i<inv.length;++i)
+	    if(inv[i]!=null)compound.setTag("inv"+i, inv[i].writeToNBT(new NBTTagCompound()));
+	   compound.setInteger("index", index);
+	   compound.setBoolean("abortingMode", abortingMode);
+	   compound.setBoolean("on", on);
+	   super.writeToNBT(compound);
+	}
+	MachineSource source=new  MachineSource(this);
+	
+	ICraftingLink  last;
+	boolean abortingMode;
+@Override
+public void updateEntity() {
+	ticksSinceLoaded++;
+	super.updateEntity();
+	if(!getProxy().isReady())
+	getProxy().onReady();
+	
+	if(!getWorldObj().isRemote&&ticksSinceLoaded%20==12){
+		
+		int old = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
+		this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, 
+				((this.getProxy().isActive()&&this.getProxy().isPowered())
+				?0b1000:0)|(old&0b111)
+				, 6);
+		
+	}
+	
+	
+	if(!getWorldObj().isRemote&&ticksSinceLoaded%20==2&&on&&(this.getProxy().isActive()&&this.getProxy().isPowered()))
+	end:try {CraftingCPUCluster cpu=null;
+		if(last!=null){
+		if(last.isDone()||last.isCanceled()){
+			last=null;
+			index=(index+1);
+			index=index%16;
+			}
+		cpu = getCpu(last);
+		}
+		if(last==null){
+				int i=0;
+				while(inv[index]==null&&i<16){i++;
+					index=(index+1)%16;}
+				
+			ICraftingPatternDetails pat=null;
+			if(inv[index] !=null&&inv[index].getItem() instanceof ICraftingPatternItem ){
+				pat=((ICraftingPatternItem )inv[index].getItem()).getPatternForItem(inv[index], worldObj);
+			}
+			
+			if(pat==null)break end;
+			PatternCraftingJob job=new PatternCraftingJob(pat,getProxy().getStorage());
+			if(job.canBeDone(getProxy(), source)){
+				last=getProxy().getCrafting().submitJob(job, this, null, true, source);
+				
+			}
+		}else{
+			
+			if(abortingMode){
+				if(last.isDone()==false){
+				if(cpu!=null){
+					try {
+						Map c=(Map) task.get(cpu);
+					if(c.isEmpty()){
+						cpu.cancel();
+						//last.cancel();
+						
+					}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+				}
+				}
+			}
+		}
+	
+	
+	
+	} catch (GridAccessException e) {
+		
+		e.printStackTrace();
+	};
+
+	
+	
+	
+	
+	
+}
+Field task;
+{
+	
+	try {
+		 task=	CraftingCPUCluster.class.getDeclaredField("tasks");
+		task.setAccessible(true);
+	} catch (Exception e) {
+	
+		e.printStackTrace();
+	}
+
+
+}
+
+
+public CraftingCPUCluster getCpu(ICraftingLink cid){
+	try {
+		//fast check by reference, normally this will scuueed
+		CraftingCPUCluster found=danglingLink?null: (CraftingCPUCluster) getProxy().getCrafting().getCpus().stream().filter(s->{
+			if(s instanceof CraftingCPUCluster){
+				CraftingCPUCluster c=(CraftingCPUCluster) s;
+				boolean b=c.isBusy();
+				if(b){
+				
+					if(c.getLastCraftingLink()==cid){
+							
+					return true;
+				    }
+				}
+			}
+			return false;
+		}).findFirst().orElse(null);
+		
+		//not found? try checking CraftingID  this might happen when game save/load
+		if(found==null){
+			found=(CraftingCPUCluster) getProxy().getCrafting().getCpus().stream().filter(s->{
+					if(s instanceof CraftingCPUCluster){
+						CraftingCPUCluster c=(CraftingCPUCluster) s;
+						boolean b=c.isBusy();
+						if(b){
+						
+							if(Objects.equals(c.getLastCraftingLink().getCraftingID(),(cid).getCraftingID())){
+							last=c.getLastCraftingLink();
+							//update last to real link
+							danglingLink=false;
+							return true;
+						    }
+							
+						}
+						
+						
+					}
+					return false;
+				}).findFirst().orElse(null);
+		}
+		
+			return found;
+	} catch (GridAccessException e) {
+		
+		e.printStackTrace();
+	}
+	return null;
+	
+	
+}
+
+
+public CraftingCPUCluster getCpu(String cid){
+	try {
+		return (CraftingCPUCluster) getProxy().getCrafting().getCpus().stream().filter(s->{
+			if(s instanceof CraftingCPUCluster){
+				CraftingCPUCluster c=(CraftingCPUCluster) s;
+				if(c.isBusy()){
+				if(c.getLastCraftingLink().getCraftingID().equals(cid)){
+					return true;
+					
+				}
+				}
+				
+				
+			}
+			return false;
+		}).findFirst().orElse(null);
+	} catch (GridAccessException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return null;
+	
+}
+public void onChunkUnload() {
+	
+	this.getProxy().onChunkUnload();
+	super.onChunkUnload();
+}
+
+public void invalidate() {
+
+	this.getProxy().invalidate();
+	super.invalidate();
+}
+
+@Override
+public void validate() {
+	this.getProxy().validate();
+	super.validate();
+}
+int ticksSinceLoaded;
+
+@Override
+public IGridNode getActionableNode() {
+	
+	return getProxy().getNode();
+}
+
+@Override
+public ImmutableSet<ICraftingLink> getRequestedJobs() {
+	
+	return last==null?ImmutableSet.of():ImmutableSet.of(last);
+}
+
+@Override
+public IAEItemStack injectCraftedItems(ICraftingLink link, IAEItemStack items, Actionable mode) {
+	
+	return items;
+}
+
+@Override
+public void jobStateChange(ICraftingLink link) {
+/*if(last==link){
+	last=null;
+	
+}*/
+	
+}
+
+
+
+int index;
+
+protected class UIFactory {
+
+	private final UIBuildContext uiBuildContext;
+
+	public UIFactory(UIBuildContext buildContext) {
+		this.uiBuildContext = buildContext;
+	}
+
+	public ModularWindow createWindow() {
+		ModularWindow.Builder builder = ModularWindow.builder(getGUIWidth(), getGUIHeight());
+		builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
+		// builder.setGuiTint(getUIBuildContext().getGuiColorization());
+		if (doesBindPlayerInventory()) {
+			builder.bindPlayerInventory(getUIBuildContext().getPlayer());
+		}
+		// builder.bindPlayerInventory(builder.getPlayer(), 7,
+		// getGUITextureSet().getItemSlot());
+
+		addTitleToUI(builder);
+		addUIWidgets(builder);
+		/*
+		 * if (getUIBuildContext().isAnotherWindow()) { builder.widget(
+		 * ButtonWidget.closeWindowButton(true) .setPos(getGUIWidth() - 15,
+		 * 3)); }
+		 */
+
+		/*
+		 * final CoverInfo coverInfo = uiBuildContext.getTile()
+		 * .getCoverInfoAtSide(uiBuildContext.getCoverSide()); final
+		 * GT_CoverBehaviorBase<?> behavior = coverInfo.getCoverBehavior();
+		 * if (coverInfo.getMinimumTickRate() > 0 &&
+		 * behavior.allowsTickRateAddition()) { builder.widget( new
+		 * GT_CoverTickRateButton(coverInfo, builder).setPos(getGUIWidth() -
+		 * 24, getGUIHeight() - 24)); }
+		 */
+		return builder.build();
+	}
+
+	/**
+	 * Override this to add widgets for your UI.
+	 */
+
+	// IItemHandlerModifiable fakeInv=new ItemHandlerModifiable();
+
+	protected void addUIWidgets(ModularWindow.Builder builder) {
+		final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(inv, 0, inv.length);
+		Scrollable sc = new Scrollable().setVerticalScroll();
+		builder.widget(new FakeSyncWidget.IntegerSyncer(() -> index, s -> index = s));
+		builder.widget(new FakeSyncWidget.BooleanSyncer(() -> on, s -> on = s));
+		//builder.widget(new FakeSyncWidget.IntegerSyncer(() -> tankselected, s -> tankselected = s));
+		final IDrawable[] background = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot() };
+		final IDrawable[] special = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot(),
+				new ItemDrawable(new ItemStack(MyMod.progcircuit))
+				//GT_UITextures.OVERLAY_BUTTON_CROSS
+				
+		};
+		sc.widget(SlotGroup.ofItemHandler(inventoryHandler, 4)
+
+				.startFromSlot(0).endAtSlot(inv.length-1).background(background)
+				.slotCreator(s->new BaseSlot(inventoryHandler, s,true))
+				.widgetCreator((h) -> (SlotWidget) new SlotWidget(h) {
+					
+
+					public IDrawable[] getBackground() {
+						// System.out.println(h.getSlotIndex()+"
+						// "+(slotselected-1));
+						if (h.getSlotIndex() == index) {
+							return special;
+						}
+						;
+						return background;
+					};
+				})
+
+				.build()
+
+		);
+		builder.widget(sc.setPos(3 + 4, 3 + 8).setSize(18 * 4, 18 * 4));
+		
+		
+		
+		builder.widget(new CycleButtonWidget().setToggle(()->abortingMode, s->abortingMode=s)
+           .setTextureGetter(s->{
+        	   if(s==0)return GT_UITextures.OVERLAY_BUTTON_CROSS;
+        	
+        			   return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
+           })
+           .addTooltip(0, StatCollector.translateToLocal("proghatches.submitter.mode.0"))
+           .addTooltip(1, StatCollector.translateToLocal("proghatches.submitter.mode.1"))
+				.setBackground(() -> {
+               {
+                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+                       };
+                }
+            })
+            
+            .setSize(18, 18)
+            .setPos(120+20, 3));
+		
+		builder.widget(new ButtonWidget()
+		        .setOnClick((a,b)->{
+		        	if(a.mouseButton==0){
+		        	if(on)last=null;
+		        	on=!on;
+		        			
+		        	}
+		        	if(a.mouseButton==1){
+		        		on=false;
+		        		last=null;
+		        		index=(index+1)%16;
+		        		
+		        	}
+		        	
+		        })
+		        	
+		        	
+		        	.addTooltips(Arrays.asList(
+		        			StatCollector.translateToLocal("proghatches.submitter.power.0"),
+		        			StatCollector.translateToLocal("proghatches.submitter.power.1"))
+		        			)		
+		        .setBackground(() -> {
+					if (on) {
+						return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
+								GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_ON };
+					} else {
+						return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+								GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
+					}
+		            })
+		            
+		            .setSize(18, 18)
+		            .setPos(120+20, 3+20));
+		/*sc = new Scrollable().setVerticalScroll();
+
+		final IDrawable[] background0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot() };
+		final IDrawable[] special0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot(),
+				GT_UITextures.OVERLAY_SLOT_ARROW_ME };
+
+		
+
+		builder.widget(sc.setPos(3 + 18 * 4 + 4, 3 + 8).setSize(18, 18 * 4));
+		*/
+
+	}
+
+	public UIBuildContext getUIBuildContext() {
+		return uiBuildContext;
+	}
+
+	/*
+	 * public boolean isCoverValid() { return !getUIBuildContext().getTile()
+	 * .isDead() && getUIBuildContext().getTile()
+	 * .getCoverBehaviorAtSideNew(getUIBuildContext().getCoverSide()) !=
+	 * GregTech_API.sNoBehavior; }
+	 */
+
+	protected void addTitleToUI(ModularWindow.Builder builder) {
+		/*
+		 * ItemStack coverItem =
+		 * GT_Utility.intToStack(getUIBuildContext().getCoverID()); if
+		 * (coverItem != null) { builder.widget( new
+		 * ItemDrawable(coverItem).asWidget() .setPos(5, 5) .setSize(16,
+		 * 16)) .widget( new
+		 * TextWidget(coverItem.getDisplayName()).setDefaultColor(
+		 * COLOR_TITLE.get()) .setPos(25, 9)); }
+		 */
+	}
+
+	protected int getGUIWidth() {
+		return 176;
+	}
+
+	protected int getGUIHeight() {
+		return 107 + 18 * 3 + 18;
+	}
+
+	protected boolean doesBindPlayerInventory() {
+		return true;
+	}
+
+	protected int getTextColorOrDefault(String textType, int defaultColor) {
+		return defaultColor;
+	}
+
+	protected final Supplier<Integer> COLOR_TITLE = () -> getTextColorOrDefault("title", 0x222222);
+	protected final Supplier<Integer> COLOR_TEXT_GRAY = () -> getTextColorOrDefault("text_gray", 0x555555);
+	protected final Supplier<Integer> COLOR_TEXT_WARN = () -> getTextColorOrDefault("text_warn", 0xff0000);
+}
+@Override
+public ModularWindow createWindow(UIBuildContext buildContext) {
+	
+	return new UIFactory(buildContext).createWindow();
+}
+boolean on=true;
+
+}

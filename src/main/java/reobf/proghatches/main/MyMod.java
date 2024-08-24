@@ -172,6 +172,7 @@ public class MyMod {
 	public static Item upgrades;
 	public static Block alert;
 	public static Item amountmaintainer;
+	public static Block submitter;
 
 	@Mod.EventHandler
 	// preInit "Run before anything else. Read your config, create blocks,

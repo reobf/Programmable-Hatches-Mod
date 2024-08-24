@@ -13,7 +13,9 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import gregtech.api.util.GT_ModHandler;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import reobf.proghatches.Tags;
+import reobf.proghatches.ae.BlockCyclicPatternSubmitter;
 import reobf.proghatches.ae.ItemPartAmountMaintainer;
+import reobf.proghatches.ae.TileCyclicPatternSubmitter;
 import reobf.proghatches.block.BlockAnchorAlert;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.block.ItemBlockAnchorAlert;
@@ -61,7 +63,7 @@ public class CommonProxy {
 		GameRegistry.registerTileEntity(TileAnchorAlert.class, "proghatches.chunk_loading_alert");
 		
 		GameRegistry.registerTileEntity(TileFluidInterface_EU.class, "proghatches.euinterface");
-		
+		GameRegistry.registerTileEntity(TileCyclicPatternSubmitter.class, "proghatches.submitter");
 		ItemMEPlunger a=new ItemMEPlunger(100000);
 		
 	
@@ -117,6 +119,7 @@ public class CommonProxy {
 		
 		MyMod.iohub = GameRegistry.registerBlock(new BlockIOHub(), ItemBlockIOHub.class, "proghatches.iohub");
 		MyMod.alert = GameRegistry.registerBlock(new BlockAnchorAlert(Material.rock),ItemBlockAnchorAlert.class, "proghatches.chunk_loading_alert");
+		MyMod.submitter = GameRegistry.registerBlock(new BlockCyclicPatternSubmitter(Material.rock), "proghatches.submitter");
 		
 		MyMod.pstation = GameRegistry.registerBlock(new TileWirelessPeripheralStation.Block(),
 				TileWirelessPeripheralStation.ItemBlock.class, "proghatches.peripheral_station");
@@ -180,6 +183,8 @@ public class CommonProxy {
 		registrar.registerNBTProvider(TileFluidInterface_EU.provider, BlockEUInterface.class);
 		registrar.registerBodyProvider(TileAnchorAlert.provider, BlockAnchorAlert.class);
 		registrar.registerNBTProvider(TileAnchorAlert.provider, BlockAnchorAlert.class);
+		registrar.registerBodyProvider(TileCyclicPatternSubmitter.provider, BlockCyclicPatternSubmitter.class);
+		registrar.registerNBTProvider(TileCyclicPatternSubmitter.provider, BlockCyclicPatternSubmitter.class);
 		
 		
 		

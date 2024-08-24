@@ -110,7 +110,11 @@ public class RestrictedInputHatchME extends GT_MetaTileEntity_Hatch_Input_ME
 	}
 	  private static final int SLOT_COUNT = 16;
 	public void updateInformationSlot(int index) {
-        if (index < 0 || index >= SLOT_COUNT) {
+		 if(getBaseMetaTileEntity().isAllowedToWork()==false){
+			 storedInformationFluids[index] = null;
+        	
+        }
+		if (index < 0 || index >= SLOT_COUNT) {
             return;
         }
 

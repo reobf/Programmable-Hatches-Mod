@@ -79,6 +79,8 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.modularui.IAddGregtechLogo;
 import gregtech.api.interfaces.modularui.IAddUIWidgets;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.BaseMetaTileEntity;
+import gregtech.api.metatileentity.CommonMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Input;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
@@ -127,7 +129,12 @@ public class RestrictedInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME{
 	  
 	  
 	  public ItemStack updateInformationSlot(int aIndex, ItemStack aStack) {
-	        if (aIndex >= 0 && aIndex < SLOT_COUNT) {
+	        if(getBaseMetaTileEntity().isAllowedToWork()==false){
+	        	 setInventorySlotContents(aIndex + SLOT_COUNT, null);
+	        	return null;
+	        }
+		  
+		  if (aIndex >= 0 && aIndex < SLOT_COUNT) {
 	            if (aStack == null) {
 	                super.setInventorySlotContents(aIndex + SLOT_COUNT, null);
 	            } else {

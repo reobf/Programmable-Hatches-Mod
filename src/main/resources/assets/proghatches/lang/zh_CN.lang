@@ -521,4 +521,8 @@ proghatches.amountmaintainer.phantomslot=欲明确要标记物品本身还是所
 item.amountmaintainer.name.tooltip.0=使用存储内物品/流体来维持目标容器的物品/流体数量
 item.amountmaintainer.name.tooltip.1=就好像目标容器是ME接口的一个配置格一样
 item.amountmaintainer.name.tooltip.2=只对指定类型物品/流体活跃,不会移除或加入其它类型物品/流体
-
+tile.proghatch.submitter.name=循环样板提交器(WIP)
+proghatches.submitter.mode.0=样板被发配后不等待产物直接取消合成任务: 否
+proghatches.submitter.mode.1=样板被发配后不等待产物直接取消合成任务: 是
+proghatches.submitter.power.0=左键: 开启/关闭 (关闭时会丢失当前合成任务的跟踪)
+proghatches.submitter.power.1=右键: 关闭并移动光标

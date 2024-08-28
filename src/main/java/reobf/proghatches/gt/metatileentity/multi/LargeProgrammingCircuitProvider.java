@@ -52,7 +52,7 @@ import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget.IntegerSyncer;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
-import com.gtnewhorizons.modularui.common.widget.textfield.NumericWidget;
+
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
@@ -128,6 +128,7 @@ import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricat
 import reobf.proghatches.gt.metatileentity.util.ArrayListInv;
 import reobf.proghatches.gt.metatileentity.util.FakePatternInv;
 import reobf.proghatches.gt.metatileentity.util.ICircuitProvider;
+import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;

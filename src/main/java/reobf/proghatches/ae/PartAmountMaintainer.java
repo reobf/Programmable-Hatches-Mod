@@ -29,7 +29,6 @@ import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
-import com.gtnewhorizons.modularui.common.widget.textfield.NumericWidget;
 
 import appeng.api.AEApi;
 import appeng.api.config.AccessRestriction;
@@ -93,6 +92,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.eucrafting.EUUtil;
 import reobf.proghatches.eucrafting.IGuiProvidingPart;
+import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 
 public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidingPart,IGridTickable,IPowerChannelState{
 

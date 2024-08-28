@@ -222,16 +222,20 @@ public int getInventoryFluidLimit() {
 	// public FluidStack[] dualFluid(){return
 	// asFluidStack.apply(inv0.mStoredFluidInternal);}
 	public ArrayList<DualInvBuffer> inv0 = new ArrayList<DualInvBuffer>();
-
+	
 	public class DualInvBuffer implements IDualInputInventory {
 		public long tickFirstClassify=-1;
-		public FluidTank[] mStoredFluidInternal;
-		public ItemStack[] mStoredItemInternal;
-		public FluidTank[] mStoredFluidInternalSingle;
-		public ItemStack[] mStoredItemInternalSingle;
+		protected FluidTank[] mStoredFluidInternal;
+		protected ItemStack[] mStoredItemInternal;
+		protected FluidTank[] mStoredFluidInternalSingle;
+		protected ItemStack[] mStoredItemInternalSingle;
 		public boolean recipeLocked;
 		public int i;
 		public int f;
+		
+		public int ip=-1;
+		public int fp=-1;
+		
 		public boolean lock;
 	
 		// public boolean lock;

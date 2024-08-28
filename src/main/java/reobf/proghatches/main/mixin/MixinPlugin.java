@@ -75,7 +75,7 @@ String cfg=
 "noFixTossBug=false"+System.lineSeparator()+
 "noRecipeFilterForDualHatch=false"+System.lineSeparator()+
 "noRemoveUnusedCacheInModularUIContainer=false"+System.lineSeparator()+
-"noFixRecursiveCraft=false"+System.lineSeparator()+
+//"noFixRecursiveCraft=false"+System.lineSeparator()+
 "noEUCraftingMixins=false"+System.lineSeparator()+
 "noAEItemSortMixins=false"+System.lineSeparator()
 
@@ -138,16 +138,17 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		
 
 		
-		if (!"true".equals(pp.get("noFixRecursiveCraft")))
-			if(ff)retLate.add("eucrafting." + "MixinCraftingRecursiveWorkaround");
+		//if (!"true".equals(pp.get("noFixRecursiveCraft")))
+			
 		if (!"true".equals(pp.get("noEUCraftingMixins"))) {
 			if(ff)retLate.add("eucrafting." + "MixinMachineIdle");
 			if(ff)retLate.add("eucrafting." + "MixinMachineIdle2");
 			if(ff)retLate.add("eucrafting." + "MixinCpuClusterEUAutoRequest");
 			if(ff)retLate.add("eucrafting." + "MixinRemoveExcessiveEU");
-		
-			if(ff)retLate.add("eucrafting." + "MixinEUSourceCoverChunkUnloadNotification");
+			if(ff)retLate.add("eucrafting." + "MixinCraftingRecursiveWorkaround");
+			
 		}	
+		if(ff)retLate.add("eucrafting." + "MixinEUSourceCoverChunkUnloadNotification");
 		if(ff)	retLate.add("eucrafting." + "MixinCoverInsertion");
 		if (FMLLaunchHandler.side().isClient()) {
 			if(ff)retLate.add("eucrafting." + "MixinWirelessRename");

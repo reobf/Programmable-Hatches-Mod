@@ -1,6 +1,8 @@
 package reobf.proghatches.main;
 
+import java.io.File;
 import java.lang.reflect.Field;
+import java.net.Proxy;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +23,9 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemEditableBook;
 import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.StatCollector;
@@ -136,18 +140,38 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
  */
 )
 public class MyMod {
+	public static final Logger LOG = LogManager.getLogger(Tags.MODID);
 	public static MyMod instance;
 	{
-		instance = this;
-		GregtechWailaDataProvider
-		.class.getDeclaredFields();
+	instance = this;}
+	
+	static{
+	 class test extends Item{@Override public  int getItemStackLimit() {return 0;}}
+	try{
+		Boolean b1=(Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
+		boolean b2=test.class.getDeclaredMethod("getItemStackLimit")!=null;
+	if(((b1!=null)&&b1)==false&&b2==true){
+		
+	
+		
+		for(int i=0;i<20;i++)
+		{
+		LOG.fatal("!!!ATTENTION!!!");
+		LOG.fatal("You are using dev version of ProgrammableHatches in obfuscated env! Use the one without '-dev' suffix!");
+		LOG.fatal("Will stop the game, since it's impossible to proceed.");
+		};
+		
+		FMLCommonHandler.instance().exitJava(1, false);
+		//throw new AssertionError("You are using dev version of ProgrammableHatches in obfuscated env! Use the one without '-dev' suffix!");
+	}
+	}catch(Exception e){}
 	}
 	public static Deque<Runnable> scheduled=new ArrayDeque<Runnable>();
 	//public static ShutDownReason ACCESS_LOOP=new SimpleShutDownReason("proghatch.access_loop", true){public String getID() {return "proghatch.access_loop";};};
 	public static SimpleNetworkWrapper net = new SimpleNetworkWrapper(Tags.MODID);
 	public static Item progcircuit;
 	public static Item toolkit;
-	public static final Logger LOG = LogManager.getLogger(Tags.MODID);
+
 	// static {CraftingCPUCluster.class.getDeclaredFields();}
 	@SidedProxy(clientSide = "reobf.proghatches.main.ClientProxy", serverSide = "reobf.proghatches.main.CommonProxy")
 	public static CommonProxy proxy;

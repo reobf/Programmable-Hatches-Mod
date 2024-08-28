@@ -101,6 +101,7 @@ import gregtech.api.util.shutdown.SimpleShutDownReason;
 import gregtech.common.blocks.GT_Block_Machines;
 import gregtech.common.covers.CoverInfo;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_HeatExchanger;
+import gregtech.crossmod.waila.GregtechWailaDataProvider;
 import reobf.proghatches.Tags;
 import reobf.proghatches.block.ChunkTrackingGridCahce;
 import reobf.proghatches.eucrafting.BlockEUInterface;
@@ -136,9 +137,10 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 )
 public class MyMod {
 	public static MyMod instance;
-	{ContainerOptimizePatterns.class.getDeclaredFields();
-	//	BaseMetaPipeEntity.class.getDeclaredFields();
+	{
 		instance = this;
+		GregtechWailaDataProvider
+		.class.getDeclaredFields();
 	}
 	public static Deque<Runnable> scheduled=new ArrayDeque<Runnable>();
 	//public static ShutDownReason ACCESS_LOOP=new SimpleShutDownReason("proghatch.access_loop", true){public String getID() {return "proghatch.access_loop";};};

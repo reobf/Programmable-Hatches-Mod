@@ -3,6 +3,7 @@ package reobf.proghatches.ae;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.glodblock.github.common.item.ItemFluidPacket;
@@ -12,7 +13,9 @@ import com.glodblock.github.util.BlockPos;
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
+import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
 import com.gtnewhorizons.modularui.api.drawable.Text;
+import com.gtnewhorizons.modularui.api.drawable.shapes.Rectangle;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.math.Alignment;
 import com.gtnewhorizons.modularui.api.math.Color;
@@ -94,7 +97,7 @@ import reobf.proghatches.eucrafting.IGuiProvidingPart;
 public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidingPart,IGridTickable,IPowerChannelState{
 
 	private int mode;
-	
+	private int rsmode;
 	
 	//bit0 ->when offline,clear or maintain
 	//bit1 ->when online,invert redstone
@@ -119,9 +122,32 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 			StorageChannel.ITEMS,AEItemStack.create(new ItemStack(Items.apple,0))
 			);
 	
+	boolean lastredstone;
+	
+	public boolean shouldProceed(boolean red, boolean lastredstone){
+	switch (rsmode) {
+	case 0:return true;
+	case 1:return false;
+	case 2:return red;
+	case 3:return !red;
+	case 4:return red&&(!lastredstone);
+	case 5:return (!red)&&lastredstone;
+	
+	}	
+		
+		
+	return true;}
+	
+	
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall) {
+		if(upgrade[0]==null)rsmode=0;
+		boolean red=this.getHost().hasRedstone(this.getSide());
+		boolean should=shouldProceed(red,lastredstone);
+		lastredstone=red;
+		if(!should){return TickRateModulation.SAME;}
 		if(getProxy().isActive()==false)return TickRateModulation.SAME;
 		for(StorageChannel ch:new StorageChannel[]{StorageChannel.FLUIDS,StorageChannel.ITEMS})
 		{
@@ -316,9 +342,12 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 			return true;
 		}
 
+		
 		@Override
 		public ModularWindow createWindow(UIBuildContext buildContext) {
 			ModularWindow.Builder builder = ModularWindow.builder(176, 107+20);
+			
+			
 			builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
 			builder.bindPlayerInventory(buildContext.getPlayer());
 		
@@ -331,6 +360,13 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 			stack.setStackDisplayName("freq:"+freqTooltip);
 			is.setStackInSlot(0, stack);
 			}
+			
+			
+			
+			
+			
+			
+			
 			builder.widget( TextWidget.dynamicString(()->{
 				try{
 				PartP2PTunnel p2p = getProxy().getP2P().getInput(freq);
@@ -379,7 +415,7 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 				}
 				
 				
-			}.setPos(3+4, 3)
+			}.disableShiftInsert().setPos(3+4, 3)
 					.addTooltip( StatCollector.translateToLocal("proghatches.amountmaintainer.memorycard"))
 			           );
 			
@@ -479,6 +515,54 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 			;
 			builder.widget(new FakeSyncWidget.BooleanSyncer(()->on, s->on=s));
 			
+			
+			ItemStackHandler iss0=new ItemStackHandler(upgrade){
+				
+				public boolean isItemValid(int slot, ItemStack stack) {
+				return	Api.INSTANCE.definitions().materials().cardRedstone().isSameAs(stack);
+					
+				};
+			public int getSlotLimit(int slot) {
+				return 1;};
+			};
+			
+			builder.widget( new SlotWidget(new BaseSlot(iss0, 0)){
+				
+			
+			}
+			.setPos(60, 3+20).addTooltip(StatCollector.translateToLocal("proghatches.amountmaintainer.rscard")));
+			
+			builder.widget(new CycleButtonWidget().setGetter(()->rsmode)
+					.setSetter(s->rsmode=s).setLength(6)
+	           .setTextureGetter(s->{
+	        	   if(s==0)return new ItemDrawable(new ItemStack(Items.redstone));
+	        	   if(s==1)return new ItemDrawable(new ItemStack(Items.gunpowder));
+	        	   if(s==2)return GT_UITextures.OVERLAY_BUTTON_REDSTONE_ON;
+	        	   if(s==3)return GT_UITextures.OVERLAY_BUTTON_REDSTONE_OFF;
+	        	   if(s==4)return GT_UITextures.OVERLAY_BUTTON_ARROW_GREEN_UP;
+	        	   return GT_UITextures.OVERLAY_BUTTON_ARROW_GREEN_DOWN;
+	           })
+	           .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.0"))
+	           .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.1"))
+	           .addTooltip(2, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.2"))
+	           .addTooltip(3, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.3"))
+	           .addTooltip(4, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.4"))
+	           .addTooltip(5, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.5"))
+	           
+	           
+	           
+					.setBackground(() -> {
+	               {
+	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+	                       };
+	                }
+	            })
+	            .setEnabled((a)->(upgrade[0]!=null))
+	            .setSize(18, 18)
+	            .setPos(60+20, 3+20));
+		
+			
+			
 			return builder.build();
 		}
 		private boolean on;
@@ -518,25 +602,30 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 		}
 		long freq;
 		private BaseActionSource source=new MachineSource(this);
-		
+		ItemStack[] upgrade=new ItemStack[1];
 		
 		@Override
 		public void readFromNBT(NBTTagCompound data) {
 			freq=data.getLong("freq");
 			mode=data.getInteger("mode");
+			rsmode=data.getInteger("rsmode");
 			redstone=data.getInteger("redstone");
 			amount=data.getLong("amount");
+			lastredstone=data.getBoolean("lastredstone" );
 			mark[0]=ItemStack.loadItemStackFromNBT(data.getCompoundTag("mark"));
+			upgrade[0]=ItemStack.loadItemStackFromNBT(data.getCompoundTag("upgrade"));
 			super.readFromNBT(data);
 		}
 		@Override
 		public void writeToNBT(NBTTagCompound data) {
 			data.setLong("freq", freq);
 			data.setInteger("mode", mode);
+			data.setInteger("rsmode", rsmode);
 			data.setInteger("redstone", redstone);
 			data.setLong("amount", amount);
+			data.setBoolean("lastredstone", lastredstone);
 			if(mark[0]!=null)data.setTag("mark", mark[0].writeToNBT(new NBTTagCompound()));
-			
+			if(upgrade[0]!=null)data.setTag("upgrade", upgrade[0].writeToNBT(new NBTTagCompound()));
 			super.writeToNBT(data);
 		}
 		long amount=64;
@@ -622,5 +711,9 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 		
 	}
 
-
+	   @Override
+	    public void getDrops(final List<ItemStack> drops, final boolean wrenched) {
+		  if(upgrade[0]!=null)
+		   drops.add(upgrade[0]);
+	    }
 }

@@ -173,5 +173,18 @@ public boolean rotateBlock(World worldObj, int x, int y, int z, ForgeDirection a
 return true;
 
 }  
-
+@Override
+public boolean hasComparatorInputOverride() {
+	
+	return true;
+}
+@Override
+public int getComparatorInputOverride(World worldIn, int x, int y, int z, int side) {
+	TileEntity te = worldIn.getTileEntity(x, y, z);
+	TileCyclicPatternSubmitter ts=(TileCyclicPatternSubmitter) te;
+	
+	
+	
+	return (ts.index*16)/ts.inv.length;
+}
 }

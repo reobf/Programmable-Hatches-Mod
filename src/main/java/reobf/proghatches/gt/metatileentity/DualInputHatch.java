@@ -1420,9 +1420,18 @@ boolean loadOldVer=true;
 	public int fluidSlotsPerRow() {
 		return 1;
 	}
-
+	
+	boolean recipe;
+	
 	@Override
-	public void startRecipeProcessing() {
+	public final void startRecipeProcessing() {
+		
+		if(recipe){return;}
+		recipe=true;
+		startRecipeProcessingImpl();
+	}
+	
+	public  void startRecipeProcessingImpl() {
 		if (program)
 			program();
 		shared.startRecipeProcessing();
@@ -1477,8 +1486,19 @@ boolean loadOldVer=true;
 	        slots.merge(sID, toSet, (a, b) -> a - b);
 	    }
 	}
+	CheckRecipeResult lastresult;
 	@Override
-	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+	public final CheckRecipeResult  endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+	
+		
+		if(recipe){recipe=false;
+			return lastresult=endRecipeProcessingImpl(controller);
+		}
+		
+		return lastresult;
+	}
+
+	public CheckRecipeResult endRecipeProcessingImpl(GT_MetaTileEntity_MultiBlockBase controller) {
 		this.markDirty();
 		updateSlots();
 		boolean success=shared.endRecipeProcessing(controller);

@@ -112,7 +112,7 @@ GameRegistry.findItem("dreamcraft","item.PolychromePikoCircuit")!=null
 	  MyMod.LOG.info("Found new dreamcraft Nano-Piko-Quantum circuit, use oredict: Exotic-Cosmic-Transcendent.");
 	mat=matNewVersion;}
 else{
-	 MyMod.LOG.info("Old version.");
+	 MyMod.LOG.info("Good ol' version.");
 	
 }
 //You just like breaking changes, isn't that true, GTNH dev?
@@ -1175,11 +1175,39 @@ Api.INSTANCE.definitions()
 	 }
 	 
 	 
+	 /*
+	 GT_Values.RA.stdBuilder()
+	 .itemInputs(
+			
+			 gregtech.api.enums.ItemList.Shape_Mold_Block.get(0)
+			
+	).fluidInputs( Materials.Grade8PurifiedWater.getFluid(256000))
+	.itemOutputs( new ItemStack(
+           MyMod.submitter))		 
+
+	  .duration(150 * SECONDS)
+	 .eut(GT_Values.VP[8])
+	 .addTo(RecipeMaps.fluidSolidifierRecipes);
 	 
 	 
-	 
+	 GT_Values.RA.stdBuilder()
+	 .itemInputs(
+			
+			 gregtech.api.enums.ItemList.Shape_Mold_Plate.get(0)
+			
+	).fluidInputs( Materials.Grade4PurifiedWater.getFluid(64000))
+	.itemOutputs( new ItemStack(
+           MyMod.amountmaintainer))		 
+
+	  .duration(150 * SECONDS)
+	 .eut(GT_Values.VP[7])
+	 .addTo(RecipeMaps.fluidSolidifierRecipes);
+	 */
 	 
  }
+ 
+
+ 
     boolean flag=true;
     public void smartArm(){  
     	for (int i = 0; i < GT_Values.VP.length - 1; i++) {

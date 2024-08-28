@@ -309,7 +309,7 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch&IMet
 	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
 		if(getMaster() != null) 
 			if(getMaster() instanceof IRecipeProcessingAwareDualHatch)
-			((IRecipeProcessingAwareDualHatch)getMaster()).endRecipeProcessing(controller);
+			return ((IRecipeProcessingAwareDualHatch)getMaster()).endRecipeProcessing(controller);
 		return CheckRecipeResultRegistry.SUCCESSFUL;
 	}
 	  @Override

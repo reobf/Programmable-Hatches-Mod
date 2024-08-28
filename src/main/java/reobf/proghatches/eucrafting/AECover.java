@@ -55,8 +55,14 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
+import reobf.proghatches.util.StackTraceUtil;
 
 public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
+	
+	
+	public static boolean mixinReady;//mixin will set this to true
+	public static boolean getWailaBody;
+	public static boolean getNBTData;
 	public static interface IMemoryCardSensitive {
 		//public boolean shiftClick(EntityPlayer entityPlayer);
 
@@ -206,8 +212,45 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 			return null;
 		}
 	}
-
+	static int h0="gregtech.crossmod.waila.GregtechWailaDataProvider".hashCode();
 	public static interface Data extends ISerializableObject, IGridProxyable {
+		
+		
+		default public boolean isWailaCall(){
+			if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
+					
+					/*String s=t.fillInStackTrace().getStackTrace()[6].getMethodName();
+					if (s.hashCode()==h0&&s.equals("getNBTData")) {
+						return true;
+					}
+					 s=t.fillInStackTrace().getStackTrace()[5].getMethodName();
+					if (s.hashCode()==h0&&s.equals("getNBTData")) {
+						return true;
+					}*/
+			if(mixinReady){
+				
+				return getNBTData;
+			}else{
+				String s=StackTraceUtil.getCallerMethod(6);
+				if (s.hashCode()==h0&&s.equals("gregtech.crossmod.waila.GregtechWailaDataProvider")) {
+					return true;
+				}
+				 s=StackTraceUtil.getCallerMethod(5);
+				if (s.hashCode()==h0&&s.equals("gregtech.crossmod.waila.GregtechWailaDataProvider")) {
+					return true;
+				}
+			}
+				
+				
+				
+				
+				
+					
+				
+				}
+			return false;
+			}
+		
 		IInterfaceHost getInterfaceOrNull();
 		default boolean hasModularGUI(){return false;}
 		default String tagName(){
@@ -492,22 +535,29 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 		return is;
 	}
 
-	private Throwable t = new Throwable();
+	//private static Throwable t = new Throwable();
 
 	@Override
 	public Data createDataObject() {
 
-		a: if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
-			// gregtech.api.metatileentity.CoverableTileEntity.getWailaBody
-			if (!t.fillInStackTrace().getStackTrace()[4].getMethodName().equals("getWailaBody")) {
-				break a;
-			}
+		 if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+		
+			 
+			 if(mixinReady){
+				 if(getWailaBody){	return new DummyData();}
+			 }else{
+			String s=StackTraceUtil.getCallerMethod(6);
+			if(s.hashCode()==h0&&s.equals("gregtech.crossmod.waila.GregtechWailaDataProvider")){
+			
 			// do not actually load cover data on client side
 			// or there'll be some performance issue
 			// this happens when waila trying to get cover info
 			return new DummyData();
+			}
+			
+			
 
-		}
+		}}
 		;
 
 		try {
@@ -631,6 +681,7 @@ protected Data onCoverScrewdriverClickImpl(ForgeDirection side, int aCoverID, Da
 	 * e.printStackTrace(); } }
 	 */
 	static Method m;
+	
 	static {
 		try {
 			m = GridNode.class.getDeclaredMethod("isValidDirection", ForgeDirection.class);
@@ -848,4 +899,5 @@ protected Data onCoverScrewdriverClickImpl(ForgeDirection side, int aCoverID, Da
 		return super.isCoverPlaceable(side, aStack, aTileEntity);
 	}
 	
+
 }

@@ -34,6 +34,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_DataAccess;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_Utility;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -279,4 +280,10 @@ public ITexture[] getTexturesActive(ITexture aBaseTexture) {
 public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
     return new ITexture[] { aBaseTexture,  TextureFactory.of(BlockIcons.OVERLAY_ME_INPUT_HATCH) };
 }
+@Override
+public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
+	
+	return false;//no gui
+}
+
 }

@@ -705,7 +705,7 @@ public int getInventoryFluidLimit() {
 	public int preventSleep;
 	
 	@Override
-	public void startRecipeProcessing() {
+	public void startRecipeProcessingImpl() {
 
 		if (isInputEmpty() == false&&getBaseMetaTileEntity().isAllowedToWork())
 			for (DualInvBuffer inv0 : this.sortByEmpty()) {
@@ -719,7 +719,7 @@ public int getInventoryFluidLimit() {
 				//inv0.clearRecipeIfNeeded();
 			}
 
-		super.startRecipeProcessing();
+		super.startRecipeProcessingImpl();
 	}
 	public static class DeferredEvaluator{
 		public DeferredEvaluator(Supplier<Boolean> provider){this.provider=provider;}
@@ -1613,9 +1613,9 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 
 	
 	@Override
-	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+	public CheckRecipeResult endRecipeProcessingImpl(GT_MetaTileEntity_MultiBlockBase controller) {
 		dirty = true;
-		return super.endRecipeProcessing(controller);
+		return super.endRecipeProcessingImpl(controller);
 	}
 
 	@Override

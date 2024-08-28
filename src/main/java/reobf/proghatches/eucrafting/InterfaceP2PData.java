@@ -426,6 +426,7 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
 
 	@Override
 	public NBTBase saveDataToNBT() {
+		if(isWailaCall())return new NBTTagCompound();
 		NBTBase t = Data.super.saveDataToNBT();
 		((NBTTagCompound) t).setInteger("p", p);
 		duality.writeToNBT((NBTTagCompound) t);

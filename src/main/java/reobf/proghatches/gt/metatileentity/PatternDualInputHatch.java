@@ -254,6 +254,10 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 			throw new AssertionError();
 		}
 	}
+	public int fluidSlots(){
+		return 16;
+		
+	}
 
 	ItemStack[] pattern = new ItemStack[36];
 
@@ -508,7 +512,7 @@ if(supportsFluids())
 
 		for (int i = 0; i < 16; i++)
 			mInventory[i] = null;
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < this.fluidSlots(); i++)
 			mStoredFluid[i].setFluid(null);
 		;
 

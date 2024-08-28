@@ -11,12 +11,15 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import com.glodblock.github.common.item.ItemFluidEncodedPattern;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
+import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
+import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.screen.ITileWithModularUI;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
@@ -41,9 +44,11 @@ import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.crafting.ICraftingRequester;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
+import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
+import appeng.core.Api;
 import appeng.crafting.CraftingLink;
 import appeng.me.GridAccessException;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
@@ -57,6 +62,7 @@ import mcp.mobius.waila.api.IWailaDataProvider;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -75,8 +81,8 @@ public class TileCyclicPatternSubmitter extends TileEntity implements IGridProxy
 	public static final int ALL = 0;
 	public static final int DIM = 1;
 	public static final int OWNER = 2;
-	
-	ItemStack[] inv=new ItemStack[16];
+	int SLOT_SIZE=32;
+	ItemStack[] inv=new ItemStack[SLOT_SIZE];
 	/**
 	 * 
 	 */
@@ -198,6 +204,10 @@ public class TileCyclicPatternSubmitter extends TileEntity implements IGridProxy
 		 index=compound.getInteger("index");
 		 abortingMode =compound.getBoolean("abortingMode");
 		 on =compound.getBoolean("on");
+		 lastredstone =compound.getBoolean("lastredstone"); 
+		 rsmode=compound.getInteger("rsmode");
+		upgrade[0]=ItemStack.loadItemStackFromNBT(compound.getCompoundTag("upgrade"));
+			
 		super.readFromNBT(compound);
 	}
 	@Override
@@ -217,6 +227,11 @@ public class TileCyclicPatternSubmitter extends TileEntity implements IGridProxy
 	   compound.setInteger("index", index);
 	   compound.setBoolean("abortingMode", abortingMode);
 	   compound.setBoolean("on", on);
+	   
+	   compound.setBoolean("lastredstone", lastredstone);
+	   compound.setInteger("rsmode", rsmode);
+	   if(upgrade[0]!=null)compound.setTag("upgrade", upgrade[0].writeToNBT(new NBTTagCompound()));
+		
 	   super.writeToNBT(compound);
 	}
 	MachineSource source=new  MachineSource(this);
@@ -226,6 +241,15 @@ public class TileCyclicPatternSubmitter extends TileEntity implements IGridProxy
 @Override
 public void updateEntity() {
 	ticksSinceLoaded++;
+	
+	if(upgrade[0]==null)rsmode=0;
+	boolean red=this.worldObj.isBlockIndirectlyGettingPowered(this.xCoord, this.yCoord, this.zCoord);
+	boolean should=shouldProceed(red,lastredstone);
+	lastredstone=red;
+	if(!should){return ;}
+	
+	
+	
 	super.updateEntity();
 	if(!getProxy().isReady())
 	getProxy().onReady();
@@ -247,14 +271,14 @@ public void updateEntity() {
 		if(last.isDone()||last.isCanceled()){
 			last=null;
 			index=(index+1);
-			index=index%16;
+			index=index%SLOT_SIZE;
 			}
 		cpu = getCpu(last);
 		}
 		if(last==null){
 				int i=0;
-				while(inv[index]==null&&i<16){i++;
-					index=(index+1)%16;}
+				while(inv[index]==null&&i<SLOT_SIZE){i++;
+					index=(index+1)%SLOT_SIZE;}
 				
 			ICraftingPatternDetails pat=null;
 			if(inv[index] !=null&&inv[index].getItem() instanceof ICraftingPatternItem ){
@@ -486,18 +510,50 @@ protected class UIFactory {
 	// IItemHandlerModifiable fakeInv=new ItemHandlerModifiable();
 
 	protected void addUIWidgets(ModularWindow.Builder builder) {
-		final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(inv, 0, inv.length);
+		final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(inv, 0, inv.length){
+			public boolean isItemValid(int slot, ItemStack stack) {
+				return	stack.getItem() instanceof ICraftingPatternItem;
+				};
+			
+		};
 		Scrollable sc = new Scrollable().setVerticalScroll();
 		builder.widget(new FakeSyncWidget.IntegerSyncer(() -> index, s -> index = s));
 		builder.widget(new FakeSyncWidget.BooleanSyncer(() -> on, s -> on = s));
 		//builder.widget(new FakeSyncWidget.IntegerSyncer(() -> tankselected, s -> tankselected = s));
-		final IDrawable[] background = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot() };
-		final IDrawable[] special = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot(),
+		final IDrawable[] background = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot(), GT_UITextures.OVERLAY_SLOT_PATTERN_ME};
+		final IDrawable[] special = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot(), GT_UITextures.OVERLAY_SLOT_PATTERN_ME,
 				new ItemDrawable(new ItemStack(MyMod.progcircuit))
 				//GT_UITextures.OVERLAY_BUTTON_CROSS
 				
 		};
-		sc.widget(SlotGroup.ofItemHandler(inventoryHandler, 4)
+	
+	
+		
+		
+	     for (int row = 0; row * 4 < inventoryHandler.getSlots() - 1; row++) {
+	            int columnsToMake = Math.min(inventoryHandler.getSlots() - row * 4, 4);
+	            for (int column = 0; column < columnsToMake; column++) {
+	            	int indexl= row * 4 + column;
+	                sc.widget(new SlotWidget(new BaseSlot(inventoryHandler, indexl,true)) {
+						
+	                	public boolean onMouseScroll(int direction) {
+							return false;};
+						public IDrawable[] getBackground() {
+							
+							if (indexl == index) {
+								return special;
+							}
+							;
+							return background;
+						}}.setPos(column * 18, row * 18)
+	                       );
+	            }
+	        }
+	            
+		
+		/*
+		 * SlotGroup do not respect Scrollable!!!
+		 * sc.widget(SlotGroup.ofItemHandler(inventoryHandler, 4)
 
 				.startFromSlot(0).endAtSlot(inv.length-1).background(background)
 				.slotCreator(s->new BaseSlot(inventoryHandler, s,true))
@@ -517,8 +573,9 @@ protected class UIFactory {
 
 				.build()
 
-		);
-		builder.widget(sc.setPos(3 + 4, 3 + 8).setSize(18 * 4, 18 * 4));
+		);*/
+	
+		builder.widget(sc.setPos(3 + 4, 3 + 8).setSize(18 * 4+1, 18 * 4));
 		
 		
 		
@@ -543,14 +600,14 @@ protected class UIFactory {
 		builder.widget(new ButtonWidget()
 		        .setOnClick((a,b)->{
 		        	if(a.mouseButton==0){
-		        	if(on)last=null;
+		        	//if(on)last=null;
 		        	on=!on;
 		        			
 		        	}
 		        	if(a.mouseButton==1){
 		        		on=false;
 		        		last=null;
-		        		index=(index+1)%16;
+		        		index=(index+1)%SLOT_SIZE;
 		        		
 		        	}
 		        	
@@ -573,6 +630,54 @@ protected class UIFactory {
 		            
 		            .setSize(18, 18)
 		            .setPos(120+20, 3+20));
+		
+		
+		
+		ItemStackHandler iss0=new ItemStackHandler(upgrade){
+			
+			public boolean isItemValid(int slot, ItemStack stack) {
+			return	Api.INSTANCE.definitions().materials().cardRedstone().isSameAs(stack);
+				
+			};
+		public int getSlotLimit(int slot) {
+			return 1;};
+		};
+		
+		builder.widget( new SlotWidget(new BaseSlot(iss0, 0)){
+			
+		
+		}
+		.setPos(60+40, 3+20).addTooltip(StatCollector.translateToLocal("proghatches.amountmaintainer.rscard")));
+		
+		builder.widget(new CycleButtonWidget().setGetter(()->rsmode)
+				.setSetter(s->rsmode=s).setLength(4)
+           .setTextureGetter(s->{
+        	   if(s==0)return new ItemDrawable(new ItemStack(Items.redstone));
+        	   if(s==1)return new ItemDrawable(new ItemStack(Items.gunpowder));
+        	   if(s==2)return GT_UITextures.OVERLAY_BUTTON_REDSTONE_ON;
+        	   if(s==3)return GT_UITextures.OVERLAY_BUTTON_REDSTONE_OFF;
+        	   if(s==4)return GT_UITextures.OVERLAY_BUTTON_ARROW_GREEN_UP;
+        	   return GT_UITextures.OVERLAY_BUTTON_ARROW_GREEN_DOWN;
+           })
+           .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.0"))
+           .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.1"))
+           .addTooltip(2, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.2"))
+           .addTooltip(3, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.3"))
+          // .addTooltip(4, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.4"))
+          // .addTooltip(5, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.5"))
+           
+           
+           
+				.setBackground(() -> {
+               {
+                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+                       };
+                }
+            })
+            .setEnabled((a)->(upgrade[0]!=null))
+            .setSize(18, 18)
+            .setPos(60+20+40, 3+20));
+		
 		/*sc = new Scrollable().setVerticalScroll();
 
 		final IDrawable[] background0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot() };
@@ -628,12 +733,29 @@ protected class UIFactory {
 	protected final Supplier<Integer> COLOR_TITLE = () -> getTextColorOrDefault("title", 0x222222);
 	protected final Supplier<Integer> COLOR_TEXT_GRAY = () -> getTextColorOrDefault("text_gray", 0x555555);
 	protected final Supplier<Integer> COLOR_TEXT_WARN = () -> getTextColorOrDefault("text_warn", 0xff0000);
-}
+}	int rsmode;
+ItemStack upgrade[]=new ItemStack[1];
 @Override
 public ModularWindow createWindow(UIBuildContext buildContext) {
 	
 	return new UIFactory(buildContext).createWindow();
 }
 boolean on=true;
+
+boolean lastredstone;
+
+public boolean shouldProceed(boolean red, boolean lastredstone){
+switch (rsmode) {
+case 0:return true;
+case 1:return false;
+case 2:return red;
+case 3:return !red;
+case 4:return red&&(!lastredstone);
+case 5:return (!red)&&lastredstone;
+
+}	
+	
+	
+return true;}
 
 }

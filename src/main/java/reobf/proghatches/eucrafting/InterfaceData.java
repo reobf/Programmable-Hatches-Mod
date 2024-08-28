@@ -357,6 +357,7 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
 
 	@Override
 	public NBTBase saveDataToNBT() {
+		if(isWailaCall())return new NBTTagCompound();
 		NBTBase t = Data.super.saveDataToNBT();
 		((NBTTagCompound) t).setInteger("p", p);
 		// ((NBTTagCompound) t).setString("name",name);

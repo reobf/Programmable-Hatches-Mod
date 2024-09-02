@@ -1,6 +1,6 @@
 package reobf.proghatches.oc;
 
-import javafx.scene.shape.Arc;
+
 import li.cil.oc.api.driver.item.Slot;
 import li.cil.oc.api.machine.Architecture;
 import li.cil.oc.api.network.EnvironmentHost;

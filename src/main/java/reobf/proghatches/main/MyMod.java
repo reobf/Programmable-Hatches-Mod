@@ -142,7 +142,7 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 public class MyMod {
 	public static final Logger LOG = LogManager.getLogger(Tags.MODID);
 	public static MyMod instance;
-	{FluidConvertingInventoryAdaptor.class.getDeclaredFields();
+	{//FluidConvertingInventoryAdaptor.class.getDeclaredFields();
 	instance = this;}
 	
 	static{

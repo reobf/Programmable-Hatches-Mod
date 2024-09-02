@@ -39,6 +39,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.common.util.ForgeDirection;
+import reobf.proghatches.main.Config;
 
 public class PartLazerP2P
 <S extends MetaTileEntity&IConnectsToEnergyTunnel,
@@ -255,7 +256,7 @@ extends PartP2PTunnelStatic<PartLazerP2P> implements ILazer,IGridTickable{
 	                        } 
 	                    }
 	                }else{
-	                	
+	                	if(Config.recursiveLazer)
 	                	if(rawtile instanceof ILazer){
 	                		
 	                		return ((ILazer) rawtile).getLazerP2PIn(opposite);

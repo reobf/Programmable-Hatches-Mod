@@ -78,10 +78,17 @@ import gregtech.api.render.TextureFactory;
 import gregtech.common.tileentities.casings.upgrade.Inventory;
 import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_CraftingInput_ME;
 import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
+import li.cil.oc.api.network.Environment;
+import li.cil.oc.api.network.Message;
+import li.cil.oc.api.network.Node;
+import li.cil.oc.api.network.SidedEnvironment;
+import li.cil.oc.api.network.Visibility;
 
 
 public class PatternDualInputHatch extends BufferedDualInputHatch
-		implements ICraftingProvider, IGridProxyable, ICustomNameObject, IInterfaceViewable, IPowerChannelState, IActionHost {
+		implements ICraftingProvider, IGridProxyable, ICustomNameObject, IInterfaceViewable, IPowerChannelState, IActionHost
+		
+		{
 
 	public PatternDualInputHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
 			boolean mMultiFluid, int bufferNum) {
@@ -872,4 +879,11 @@ if(supportsFluids())
 			// TODO Auto-generated method stub
 			return IInterfaceViewable.super.allowsPatternOptimization();
 		}
+
+		
+		
+		
+		
+		
+	
 }

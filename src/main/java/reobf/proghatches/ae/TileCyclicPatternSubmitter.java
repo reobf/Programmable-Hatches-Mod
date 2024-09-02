@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableSet;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
+import com.gtnewhorizons.modularui.api.drawable.Text;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
@@ -26,6 +27,7 @@ import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.DynamicTextWidget;
 import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
 import com.gtnewhorizons.modularui.common.widget.Scrollable;
@@ -50,6 +52,7 @@ import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.core.Api;
 import appeng.crafting.CraftingLink;
+import appeng.crafting.CraftingLinkNexus;
 import appeng.me.GridAccessException;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.me.helpers.AENetworkProxy;
@@ -77,6 +80,10 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
 
+/**
+ * @author zyf
+ *
+ */
 public class TileCyclicPatternSubmitter extends TileEntity implements IGridProxyable, ICraftingRequester, ITileWithModularUI{
 	public static final int ALL = 0;
 	public static final int DIM = 1;
@@ -191,8 +198,8 @@ public class TileCyclicPatternSubmitter extends TileEntity implements IGridProxy
 		NBTTagCompound tag=compound.getCompoundTag("link");
 		
 		if(tag.hasNoTags()==false){
-		    	
-		    	last=new CraftingLink(tag, (ICraftingCPU)null);//work-around
+				tag.setBoolean("req", true);
+		    	last=new CraftingLink(tag, this);
 		    	danglingLink=true;
 		    }
 		 for(int i=0;i<inv.length;++i)
@@ -238,6 +245,14 @@ public class TileCyclicPatternSubmitter extends TileEntity implements IGridProxy
 	
 	ICraftingLink  last;
 	boolean abortingMode;
+	boolean submitfail;
+
+int state;
+public int state(){
+	if(submitfail)return 1;
+	if(last!=null&&(!last.isCanceled())&&(!last.isDone()))return 2;
+	return 0;
+}
 @Override
 public void updateEntity() {
 	ticksSinceLoaded++;
@@ -272,8 +287,8 @@ public void updateEntity() {
 			last=null;
 			index=(index+1);
 			index=index%SLOT_SIZE;
-			}
-		cpu = getCpu(last);
+			}else{
+		cpu = getCpu(last);}
 		}
 		if(last==null){
 				int i=0;
@@ -290,7 +305,7 @@ public void updateEntity() {
 			if(job.canBeDone(getProxy(), source)){
 				last=getProxy().getCrafting().submitJob(job, this, null, true, source);
 				
-			}
+			}submitfail=last!=null;
 		}else{
 			
 			if(abortingMode){
@@ -338,27 +353,36 @@ Field task;
 
 
 }
-
-
+static Field nexus;
+static Field cpuside;
+static Field cpu;
+static{try {
+	nexus=CraftingLink.class.getDeclaredField("tie");
+	nexus.setAccessible(true);
+	cpuside=CraftingLinkNexus.class.getDeclaredField("cpu");
+	cpuside.setAccessible(true);
+	cpu=CraftingLink.class.getDeclaredField("cpu");
+	cpu.setAccessible(true);
+} catch (Exception e) {
+	e.printStackTrace();
+}}
+static boolean broken;
 public CraftingCPUCluster getCpu(ICraftingLink cid){
 	try {
-		//fast check by reference, normally this will scuueed
-		CraftingCPUCluster found=danglingLink?null: (CraftingCPUCluster) getProxy().getCrafting().getCpus().stream().filter(s->{
-			if(s instanceof CraftingCPUCluster){
-				CraftingCPUCluster c=(CraftingCPUCluster) s;
-				boolean b=c.isBusy();
-				if(b){
-				
-					if(c.getLastCraftingLink()==cid){
-							
-					return true;
-				    }
-				}
-			}
-			return false;
-		}).findFirst().orElse(null);
+		end:if(broken==false)
+		try {
+			CraftingLinkNexus nex=(CraftingLinkNexus) nexus.get(cid);
+			if(nex==null)break end;
+			ICraftingLink other=(ICraftingLink) cpuside.get(nex);
+			if(other==null)break end;
+			ICraftingCPU ret=(ICraftingCPU) cpu.get(other);
+			if(ret instanceof CraftingCPUCluster){return (CraftingCPUCluster) ret;}
+		} catch (Exception e) {
+			broken=true;
+			e.printStackTrace();
+		}
 		
-		//not found? try checking CraftingID  this might happen when game save/load
+		CraftingCPUCluster found=null;
 		if(found==null){
 			found=(CraftingCPUCluster) getProxy().getCrafting().getCpus().stream().filter(s->{
 					if(s instanceof CraftingCPUCluster){
@@ -367,9 +391,8 @@ public CraftingCPUCluster getCpu(ICraftingLink cid){
 						if(b){
 						
 							if(Objects.equals(c.getLastCraftingLink().getCraftingID(),(cid).getCraftingID())){
-							last=c.getLastCraftingLink();
-							//update last to real link
-							danglingLink=false;
+							//last=c.getLastCraftingLink();
+						
 							return true;
 						    }
 							
@@ -510,6 +533,12 @@ protected class UIFactory {
 	// IItemHandlerModifiable fakeInv=new ItemHandlerModifiable();
 
 	protected void addUIWidgets(ModularWindow.Builder builder) {
+		
+		builder.widget(new FakeSyncWidget.IntegerSyncer(()->state(), s->state=s));
+		builder.widget(
+				new DynamicTextWidget(()->new Text(StatCollector.translateToLocal("proghatches.submitter.state."+state)))
+				.setSynced(false)
+				.setPos(5, 3));
 		final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(inv, 0, inv.length){
 			public boolean isItemValid(int slot, ItemStack stack) {
 				return	stack.getItem() instanceof ICraftingPatternItem;

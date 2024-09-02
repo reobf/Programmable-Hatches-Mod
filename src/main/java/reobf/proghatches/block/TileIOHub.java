@@ -93,13 +93,14 @@ import li.cil.oc.api.network.Component;
 import li.cil.oc.api.network.Connector;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
+import li.cil.oc.api.network.SidedEnvironment;
 import li.cil.oc.api.network.Visibility;
 import li.cil.oc.api.internal.Database;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 
-public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Environment,
+public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Environment,SidedEnvironment,
 		/*
 		 * WorldInventoryAnalytics,WorldTankAnalytics,
 		 * WorldFluidContainerAnalytics, TankInventoryControl,
@@ -1682,6 +1683,18 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 	public IGridNode getActionableNode() {
 
 		return getProxy().getNode();
+	}
+
+	@Override
+	public Node sidedNode(ForgeDirection side) {
+	
+		return null;
+	}
+
+	@Override
+	public boolean canConnect(ForgeDirection side) {
+	
+		return false;
 	}
 
 }

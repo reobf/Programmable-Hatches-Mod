@@ -273,6 +273,7 @@ public class Config {
 			.getResourceAsStream("/assets/proghatches/lang/en_US/" + s + ".lang");
 	static Function<String, InputStream> getInput = s -> Config.class.getResourceAsStream("/assets/proghatches/lang/"
 			+ LangManager.translateToLocal("programmable_hatches.gt.lang.dir") + "/" + s + ".lang");
+	public static boolean recursiveLazer=false;
 	
 	
 	

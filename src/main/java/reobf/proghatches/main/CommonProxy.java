@@ -44,6 +44,7 @@ import reobf.proghatches.main.registration.PHRecipes;
 import reobf.proghatches.main.registration.ProgHatchCreativeTab;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.oc.ItemAPICard;
+import reobf.proghatches.oc.ItemCPU;
 import reobf.proghatches.oc.ItemGTRedstoneCard;
 import reobf.proghatches.oc.ItemWirelessPeripheralCard;
 import reobf.proghatches.oc.TileCoprocessor;
@@ -113,7 +114,8 @@ public class CommonProxy {
 				MyMod.upgrades = new ItemUpgrades().setUnlocalizedName("prog_upgrades").setTextureName("?"),
 				"prog_upgrades");
 		
-		
+		GameRegistry.registerItem(MyMod.cpu = new ItemCPU().setUnlocalizedName("test_cpu").setTextureName("?"),
+				"test_cpu");
 		
 		
 		
@@ -127,6 +129,8 @@ public class CommonProxy {
 		li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.oc_redstone);
 		li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.oc_api);
 		li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.pitem);
+		li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.cpu);
+		
 		GT_ModHandler.addToRecyclerBlackList(new ItemStack(MyMod.progcircuit));
 		FMLInterModComms.sendMessage("Waila", "register", "reobf.proghatches.main.CommonProxy.callbackRegister");
 		//System.out.println(AEConfig.instance);

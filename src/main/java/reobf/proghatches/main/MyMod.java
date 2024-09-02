@@ -142,7 +142,7 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 public class MyMod {
 	public static final Logger LOG = LogManager.getLogger(Tags.MODID);
 	public static MyMod instance;
-	{
+	{FluidConvertingInventoryAdaptor.class.getDeclaredFields();
 	instance = this;}
 	
 	static{
@@ -199,6 +199,7 @@ public class MyMod {
 	public static Block alert;
 	public static Item amountmaintainer;
 	public static Block submitter;
+	public static Item cpu;
 
 	@Mod.EventHandler
 	// preInit "Run before anything else. Read your config, create blocks,
@@ -219,7 +220,7 @@ public class MyMod {
 	public void init(FMLInitializationEvent event) {
 		proxy.init(event);
 		AEApi.instance().partHelper().registerNewLayer("reobf.proghatches.fmp.LazerLayer", "reobf.proghatches.eucrafting.ILazer");
-		
+	
 		FMLCommonHandler.instance().bus().register(this);
 		MinecraftForge.EVENT_BUS.register(this);
 	}

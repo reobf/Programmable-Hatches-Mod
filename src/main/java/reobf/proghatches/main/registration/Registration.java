@@ -32,6 +32,7 @@ import reobf.proghatches.gt.cover.SmartArmCover;
 import reobf.proghatches.gt.cover.WirelessControlCover;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch;
 import reobf.proghatches.gt.metatileentity.DataHatchME;
+import reobf.proghatches.gt.metatileentity.DualInputHachOC;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
 import reobf.proghatches.gt.metatileentity.DualInputHatchSlave;
 import reobf.proghatches.gt.metatileentity.FilterOutputBus;
@@ -87,6 +88,9 @@ public class Registration implements Runnable {
 	public static final int DataHatchMEOffset = 162;
 	public static final int RestrictedHatchME = 163;
 	public static final int RestrictedBusME=164;
+	public final static int DualInputHatchOCOffset = 165;
+	
+	
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -399,7 +403,13 @@ public class Registration implements Runnable {
                 LangManager.translateToLocalFormatted("fluid.input.bus.me.restriced.name")
                 
                 );
-        
+        new DualInputHachOC(
+                Config.metaTileEntityOffset + DualInputHatchOCOffset,
+                 "hatch.input.dual.oc",
+                LangManager.translateToLocalFormatted("hatch.input.dual.oc"), 10, true
+              
+                
+                );
         
         
         /*for (int i = 0; i < 4; i++) {

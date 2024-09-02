@@ -5,12 +5,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.Future;
 
+import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.common.item.ItemFluidPacket;
 
 import com.glodblock.github.inventory.MEMonitorIFluidHandler;
 import com.glodblock.github.util.BlockPos;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
@@ -40,6 +44,10 @@ import appeng.api.config.Upgrades;
 import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
+import appeng.api.networking.crafting.ICraftingCPU;
+import appeng.api.networking.crafting.ICraftingJob;
+import appeng.api.networking.crafting.ICraftingLink;
+import appeng.api.networking.crafting.ICraftingRequester;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.storage.IBaseMonitor;
@@ -62,9 +70,11 @@ import appeng.api.storage.data.IItemList;
 import appeng.client.texture.CableBusTextures;
 import appeng.core.Api;
 import appeng.core.api.definitions.ApiItems;
+import appeng.crafting.CraftingLink;
 import appeng.items.tools.ToolMemoryCard;
 import appeng.me.GridAccessException;
 import appeng.me.cache.GridStorageCache;
+import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.parts.AEBasePart;
 import appeng.parts.PartBasicState;
@@ -94,7 +104,7 @@ import reobf.proghatches.eucrafting.EUUtil;
 import reobf.proghatches.eucrafting.IGuiProvidingPart;
 import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 
-public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidingPart,IGridTickable,IPowerChannelState{
+public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidingPart,IGridTickable,IPowerChannelState, ICraftingRequester{
 
 	private int mode;
 	private int rsmode;
@@ -139,10 +149,44 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 	return true;}
 	
 	
+	Future<ICraftingJob>  job;
+	ICraftingLink link;
+	int reqcooldown;
+	public void requestForMissing(IAEStack primitive){
+		if(upgrade[1]==null)return;
+		if(reqcooldown>0)reqcooldown--;
+	IAEItemStack iaeStack=(primitive instanceof IAEItemStack)?(IAEItemStack) primitive:
+		ItemFluidDrop.newAeStack((AEFluidStack) primitive);
+		
+		try {
+		if(link==null){
+			if(job==null){
+			reqcooldown=40;
+			job=getProxy().getCrafting().beginCraftingJob(this.getTile().getWorldObj(), getProxy().getGrid(), source, iaeStack, null);
+			}
+			else{
+				if(job.isDone()){
+				link = getProxy().getCrafting().submitJob(job.get(), this, null, false, source);
+				job=null;}
+				if(job.isCancelled()){job=null;}
+			}
+		}else{
+			if(link.isCanceled()||link.isDone()){link=null;}
+			
+		}
+	
+	
+	} catch (Exception e1) {}
+	}
+	
+	
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall) {
+	      
+      //  validateLink();
+		
 		if(upgrade[0]==null)rsmode=0;
 		boolean red=this.getHost().hasRedstone(this.getSide());
 		boolean should=shouldProceed(red,lastredstone);
@@ -198,6 +242,8 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 				sc:if(amount<expected){
 					try{
 						IAEStack take = getStorage(getProxy().getStorage(),ch).extractItems(is.copy().setStackSize(-amount+expected), Actionable.SIMULATE, source);
+						long missing=-amount+expected-(take==null?0:take.getStackSize());
+						if(missing>0)requestForMissing(is.copy().setStackSize(missing));
 						if(take==null){break sc;}//ae2fc fluid inv disallow injecting null
 						IAEStack notadd =inv.injectItems( take, Actionable.SIMULATE, source);
 						if(notadd==null||notadd.getStackSize()==0){
@@ -532,6 +578,7 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 			}
 			.setPos(60, 3+20).addTooltip(StatCollector.translateToLocal("proghatches.amountmaintainer.rscard")));
 			
+		
 			builder.widget(new CycleButtonWidget().setGetter(()->rsmode)
 					.setSetter(s->rsmode=s).setLength(6)
 	           .setTextureGetter(s->{
@@ -560,7 +607,23 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 	            .setEnabled((a)->(upgrade[0]!=null))
 	            .setSize(18, 18)
 	            .setPos(60+20, 3+20));
-		
+	
+			ItemStackHandler iss1=new ItemStackHandler(upgrade){
+				
+				public boolean isItemValid(int slot, ItemStack stack) {
+				return	Api.INSTANCE.definitions().materials().cardCrafting().isSameAs(stack);
+					
+				};
+			public int getSlotLimit(int slot) {
+				return 1;};
+			};
+			
+			builder.widget( new SlotWidget(new BaseSlot(iss1, 1)){
+				
+			
+			}
+			.setPos(60+40, 3+20).addTooltip(StatCollector.translateToLocal("proghatches.amountmaintainer.craftcard")));
+			
 			
 			
 			return builder.build();
@@ -602,7 +665,8 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 		}
 		long freq;
 		private BaseActionSource source=new MachineSource(this);
-		ItemStack[] upgrade=new ItemStack[1];
+		ItemStack[] upgrade=new ItemStack[2];
+		private boolean danglingLink;
 		
 		@Override
 		public void readFromNBT(NBTTagCompound data) {
@@ -614,7 +678,15 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 			lastredstone=data.getBoolean("lastredstone" );
 			mark[0]=ItemStack.loadItemStackFromNBT(data.getCompoundTag("mark"));
 			upgrade[0]=ItemStack.loadItemStackFromNBT(data.getCompoundTag("upgrade"));
+			upgrade[1]=ItemStack.loadItemStackFromNBT(data.getCompoundTag("upgrade1"));
 			super.readFromNBT(data);
+			NBTTagCompound tag=data.getCompoundTag("link");
+			
+			if(tag.hasNoTags()==false){
+					tag.setBoolean("req", true);
+					link=new CraftingLink(tag,this);
+			    	danglingLink=true;
+			    }
 		}
 		@Override
 		public void writeToNBT(NBTTagCompound data) {
@@ -626,7 +698,13 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 			data.setBoolean("lastredstone", lastredstone);
 			if(mark[0]!=null)data.setTag("mark", mark[0].writeToNBT(new NBTTagCompound()));
 			if(upgrade[0]!=null)data.setTag("upgrade", upgrade[0].writeToNBT(new NBTTagCompound()));
+			if(upgrade[1]!=null)data.setTag("upgrade1", upgrade[1].writeToNBT(new NBTTagCompound()));
 			super.writeToNBT(data);
+			if(link!=null){
+		    	NBTTagCompound tag=new NBTTagCompound();
+		    	link.writeToNBT(tag);
+		    	data.setTag("link", tag);
+		    }
 		}
 		long amount=64;
 		
@@ -715,5 +793,57 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 	    public void getDrops(final List<ItemStack> drops, final boolean wrenched) {
 		  if(upgrade[0]!=null)
 		   drops.add(upgrade[0]);
+		  if(upgrade[1]!=null)
+			   drops.add(upgrade[1]);
 	    }
+
+	@Override
+	public ImmutableSet<ICraftingLink> getRequestedJobs() {
+	
+		return link==null?ImmutableSet.of():ImmutableSet.of(link);
+	}
+
+	@Override
+	public IAEItemStack injectCraftedItems(ICraftingLink link, IAEItemStack items, Actionable mode) {
+	
+		return items;
+	}
+
+	@Override
+	public void jobStateChange(ICraftingLink link) {
+	
+		
+	}
+
+public void validateLink(){
+	try {
+	if(link!=null)
+	if(danglingLink)
+	{
+		 getProxy().getCrafting().getCpus().stream().filter(s->{
+			if(s instanceof CraftingCPUCluster){
+				CraftingCPUCluster c=(CraftingCPUCluster) s;
+				boolean b=c.isBusy();
+				if(b){
+				
+					if(Objects.equals(c.getLastCraftingLink().getCraftingID(),link.getCraftingID())){
+						link=c.getLastCraftingLink();
+						danglingLink=false;
+					return true;
+				    }
+				}
+			}
+			return false;
+		}).findFirst().orElse(null);
+	}
+		
+			
+	} catch (GridAccessException e) {
+		
+		e.printStackTrace();
+	}
+
+	
+	
+}
 }

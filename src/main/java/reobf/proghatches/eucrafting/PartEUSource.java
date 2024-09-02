@@ -75,6 +75,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
@@ -574,8 +575,30 @@ public class PartEUSource extends AEBasePart
 		return builder.build();
 
 	}
+	
+	static Field fis;
+	static{
+	try {
+		fis=	AEBasePart.class.getDeclaredField("is");
+		fis.setAccessible(true);
+	} catch (NoSuchFieldException | SecurityException e) {
+		
+		e.printStackTrace();
+	}
+		
+	}
+	public ItemStack getIS(){
+		try {
+			return (ItemStack) fis.get(this);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+		e.printStackTrace();
+			return new ItemStack(Items.apple);
+		}
+		
+		
+	}
 public long maxWorkingVoltage(){
-	int damage=this.is.getItemDamage();
+	int damage=this.getIS().getItemDamage();
 	if(damage>=1&&damage<=15){
 	return GT_Values.V[damage-1];
 	}	
@@ -585,7 +608,7 @@ public long maxWorkingVoltage(){
 	return Long.MAX_VALUE;
 }
 public int maxWorkingVoltageTier(){
-	int damage=this.is.getItemDamage();
+	int damage=this.getIS().getItemDamage();
 	if(damage>=1&&damage<=15){
 	return damage-1;
 	}	
@@ -595,7 +618,7 @@ public int maxWorkingVoltageTier(){
 	return 15;
 }
 public double taxPercentage(){	
-	int damage=this.is.getItemDamage();
+	int damage=this.getIS().getItemDamage();
 	if(damage>=16&&damage<=30){
 		return 0.95d;
 	}	

@@ -7,7 +7,7 @@ import com.gtnewhorizons.modularui.api.forge.ItemHandlerHelper;
 import gregtech.api.util.GT_Utility;
 
 public class MappingItemHandler implements com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable
-
+,IInterhandlerGroup
 {
 
 	public MappingItemHandler(ItemStack[] is, int index, int num) {
@@ -123,5 +123,12 @@ public class MappingItemHandler implements com.gtnewhorizons.modularui.api.forge
 			is[var1 - index] = var2;
 
 	}
-
+	
+	public MappingItemHandler id(long i){id=i;return this;}
+long id;
+	@Override
+	public long handlerID() {
+		return id;
+	}
+	
 }

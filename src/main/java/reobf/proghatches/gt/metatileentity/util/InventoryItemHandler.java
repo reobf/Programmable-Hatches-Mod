@@ -6,13 +6,15 @@ import net.minecraft.item.ItemStack;
 import com.gtnewhorizons.modularui.api.forge.ItemHandlerHelper;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 
+import gregtech.api.util.GT_Utility;
+
 //spotless:off
 /**
  * original ItemStackHandler directly sets the mInventory's content.
  * call {@link IInventory#setInventorySlotContents(int, ItemStack)} instead, to notify the classifying process
  */
 //spotless:on
-public class InventoryItemHandler extends ItemStackHandler {
+public class InventoryItemHandler extends ItemStackHandler implements IInterhandlerGroup {
 
 	public InventoryItemHandler(ItemStack[] mInventory, IInventory dualInputHatch) {
 		super(mInventory);
@@ -67,10 +69,12 @@ public class InventoryItemHandler extends ItemStackHandler {
 		}
 	}
 
+	
+	
+	public InventoryItemHandler id(long i){id=i;return this;}
+long id;
 	@Override
-	public void setStackInSlot(int slot, ItemStack stack) {
-
-		inv.setInventorySlotContents(slot, stack);
+	public long handlerID() {
+		return id;
 	}
-
 }

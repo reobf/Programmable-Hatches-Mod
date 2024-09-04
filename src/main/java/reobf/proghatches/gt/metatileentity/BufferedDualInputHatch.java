@@ -847,49 +847,49 @@ public int getInventoryFluidLimit() {
 		markDirty();
 		dirty = true;
 	}
-
+final int offset=0;
 	public void add1by1Slot(ModularWindow.Builder builder, int index, IDrawable... background) {
 		final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(inv0.get(index).mStoredItemInternal,
-				1000, 1);
+				offset, 1).id(1);
 		if (background.length == 0) {
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
-		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 1).startFromSlot(1000)
+		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 1).startFromSlot(offset)
 				  .slotCreator(BaseSlotPatched.newInst(inventoryHandler))
-				.endAtSlot(1000).background(background).build().setPos(3, 3));
+				.endAtSlot(offset).background(background).build().setPos(3, 3));
 	}
 
 	public void add2by2Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
 		final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(inv0.get(index).mStoredItemInternal,
-				1000, 4);
+				offset, 4).id(1);
 		if (background.length == 0) {
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
-		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 2).startFromSlot(1000)
+		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 2).startFromSlot(offset)
 				  .slotCreator(BaseSlotPatched.newInst(inventoryHandler))
-				.endAtSlot(1003).background(background).build().setPos(3, 3));
+				.endAtSlot(offset+3).background(background).build().setPos(3, 3));
 	}
 
 	public void add3by3Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
 		final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(inv0.get(index).mStoredItemInternal,
-				1000, 9);
+				offset, 9).id(1);
 		if (background.length == 0) {
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
-		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 3).startFromSlot(1000)
+		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 3).startFromSlot(offset)
 				  .slotCreator(BaseSlotPatched.newInst(inventoryHandler))
-				.endAtSlot(1008).background(background).build().setPos(3, 3));
+				.endAtSlot(offset+8).background(background).build().setPos(3, 3));
 	}
 
 	public void add4by4Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
 		final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(inv0.get(index).mStoredItemInternal,
-				1000, 16);
+				offset, 16).id(1);
 		if (background.length == 0) {
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
-		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 4).startFromSlot(1000)
+		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 4).startFromSlot(offset)
 				  .slotCreator(BaseSlotPatched.newInst(inventoryHandler))
-				.endAtSlot(1015).background(background).build().setPos(3, 3)
+				.endAtSlot(offset+15).background(background).build().setPos(3, 3)
 
 		);
 	}

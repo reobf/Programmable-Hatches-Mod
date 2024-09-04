@@ -538,3 +538,4 @@ proghatches.submitter.state.0=§3Idle
 proghatches.submitter.state.1=§cFailed
 proghatches.submitter.state.2=§aSubmitted
 hatch.input.dual.oc=Programmable Dual Input Hub(ME)
+tile.proghatches.card_reader.name=Sensor Card Reader

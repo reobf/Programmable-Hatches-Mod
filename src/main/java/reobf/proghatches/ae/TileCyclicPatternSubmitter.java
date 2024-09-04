@@ -305,7 +305,7 @@ public void updateEntity() {
 			if(job.canBeDone(getProxy(), source)){
 				last=getProxy().getCrafting().submitJob(job, this, null, true, source);
 				
-			}submitfail=last!=null;
+			}submitfail=last==null;
 		}else{
 			
 			if(abortingMode){

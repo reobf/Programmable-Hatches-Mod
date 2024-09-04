@@ -394,7 +394,7 @@ boolean loadOldVer=true;
 	@Override
 	public ItemStackHandler getInventoryHandler() {
 		if (bridge == null)
-			bridge = new InventoryItemHandler(mInventory, this);
+			bridge = new InventoryItemHandler(mInventory, this).id(1);
 		return bridge;
 	}
 

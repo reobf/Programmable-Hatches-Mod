@@ -538,3 +538,4 @@ proghatches.submitter.state.0=§3空闲
 proghatches.submitter.state.1=§c失败
 proghatches.submitter.state.2=§a已提交
 hatch.input.dual.oc=可编程二合一输入枢纽(ME)
+tile.proghatches.card_reader.name=传感器卡片读卡器

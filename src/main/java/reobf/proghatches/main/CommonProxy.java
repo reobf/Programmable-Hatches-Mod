@@ -43,12 +43,15 @@ import reobf.proghatches.main.registration.EUCraftingCreativeTab;
 import reobf.proghatches.main.registration.PHRecipes;
 import reobf.proghatches.main.registration.ProgHatchCreativeTab;
 import reobf.proghatches.main.registration.Registration;
+import reobf.proghatches.oc.BlockCardReader;
 import reobf.proghatches.oc.ItemAPICard;
 import reobf.proghatches.oc.ItemCPU;
 import reobf.proghatches.oc.ItemGTRedstoneCard;
 import reobf.proghatches.oc.ItemWirelessPeripheralCard;
+import reobf.proghatches.oc.TileCardReader;
 import reobf.proghatches.oc.TileCoprocessor;
 import reobf.proghatches.oc.TileWirelessPeripheralStation;
+import thaumcraft.client.renderers.block.BlockCandleRenderer;
 
 public class CommonProxy {
 
@@ -65,6 +68,7 @@ public class CommonProxy {
 		
 		GameRegistry.registerTileEntity(TileFluidInterface_EU.class, "proghatches.euinterface");
 		GameRegistry.registerTileEntity(TileCyclicPatternSubmitter.class, "proghatches.submitter");
+		GameRegistry.registerTileEntity(TileCardReader.class, "proghatches.card_reader");
 		ItemMEPlunger a=new ItemMEPlunger(100000);
 		
 	
@@ -125,7 +129,9 @@ public class CommonProxy {
 		
 		MyMod.pstation = GameRegistry.registerBlock(new TileWirelessPeripheralStation.Block(),
 				TileWirelessPeripheralStation.ItemBlock.class, "proghatches.peripheral_station");
-
+		
+		MyMod.reader = GameRegistry.registerBlock(new BlockCardReader(Material.rock),
+				 "proghatches.card_reader");
 		li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.oc_redstone);
 		li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.oc_api);
 		li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.pitem);

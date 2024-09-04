@@ -18,6 +18,7 @@ System.out.println("xxxxxxxxxxxxxxxx");
 		return new String[] {
 				EUInterfaceTransformer.class.getName() ,
 				AEItemTransformer.class.getName() ,
+				MUITransformer.class.getName()
 		};
 	}
 

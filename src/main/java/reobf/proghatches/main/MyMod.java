@@ -200,6 +200,7 @@ public class MyMod {
 	public static Item amountmaintainer;
 	public static Block submitter;
 	public static Item cpu;
+	public static Block reader;
 
 	@Mod.EventHandler
 	// preInit "Run before anything else. Read your config, create blocks,

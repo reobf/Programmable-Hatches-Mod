@@ -228,7 +228,7 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
 	}
     protected ModularWindow createStackSizeConfigurationWindow(final EntityPlayer player) {
         final int WIDTH = 78;
-        final int HEIGHT = 80+18;
+        final int HEIGHT = 80+18+18;
         final int PARENT_WIDTH = getGUIWidth();
         final int PARENT_HEIGHT = getGUIHeight();
         ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
@@ -243,7 +243,7 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
         builder.widget(
             TextWidget.localised("proghatches.restricted.bound.down")
                 .setPos(3, 2)
-                .setSize(74, 14))
+                .setSize(74, 14+18))
             .widget(
                 new NumericWidget().setSetter(val -> restrict_lowbound = (int) val)
                     .setGetter(() -> restrict_lowbound)
@@ -252,11 +252,11 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
                     .setTextAlignment(Alignment.Center)
                     .setTextColor(Color.WHITE.normal)
                     .setSize(70, 18)
-                    .setPos(3, 18)
+                    .setPos(3, 18+18)
                     .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD));
         builder.widget(
             TextWidget.localised("proghatches.restricted.bound.up")
-                .setPos(3, 42)
+                .setPos(3, 42+18)
                 .setSize(74, 14))
             .widget(
                 new NumericWidget().setSetter(val -> restrict = (int) val)
@@ -266,7 +266,7 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
                     .setTextAlignment(Alignment.Center)
                     .setTextColor(Color.WHITE.normal)
                     .setSize(70, 18)
-                    .setPos(3, 58)
+                    .setPos(3, 58+18)
                     .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD));   
         builder.widget(createMultiplesModeButton(builder,HEIGHT));
         return builder.build();

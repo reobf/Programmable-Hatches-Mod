@@ -378,9 +378,18 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		);
 	}
 
+	/*public static class test{
+		@Callback(doc = "function()")
+		public Object[] test(final Context context, final Arguments args) {
+			return new Object[] {  };
+		}
+		
+	}
+	*/
+	
 	//
 	// begin of oc
-	public class OCApi implements li.cil.oc.api.network.Environment, WorldInventoryAnalytics, WorldTankAnalytics,
+	public class OCApi/* extends test*/ implements li.cil.oc.api.network.Environment, WorldInventoryAnalytics, WorldTankAnalytics,
 			WorldFluidContainerAnalytics, TankInventoryControl, InventoryAnalytics, MultiTank, InventoryTransfer,
 			FluidContainerTransfer, InventoryControl, TankControl, ItemInventoryControl, InventoryWorldControlMk2,
 			TankWorldControl,NetworkControl<TileIOHub> {
@@ -1462,7 +1471,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		getProxy().readFromNBT(compound);
 
 		NBTTagCompound nd = (NBTTagCompound) compound.getTag("mainNode");
-		if (nd != null && node != null)
+		if (nd .hasNoTags()!=false && node != null)
 			node.load(nd);
 		for (Entry<String, li.cil.oc.api.network.Environment> ent : subapi.entrySet()) {
 			nd = (NBTTagCompound) compound.getTag(ent.getKey());
@@ -1688,13 +1697,13 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 	@Override
 	public Node sidedNode(ForgeDirection side) {
 	
-		return null;
+		return node();
 	}
 
 	@Override
 	public boolean canConnect(ForgeDirection side) {
 	
-		return false;
+		return true;
 	}
 
 }

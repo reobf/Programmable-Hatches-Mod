@@ -1,5 +1,7 @@
 package reobf.proghatches.eucrafting;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import appeng.api.AEApi;
@@ -10,7 +12,9 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import reobf.proghatches.main.mixin.MixinPlugin;
 
 public class ItemPartEUP2PInterface extends Item implements IPartItem {
 
@@ -49,6 +53,12 @@ public class ItemPartEUP2PInterface extends Item implements IPartItem {
 	@SideOnly(Side.CLIENT)
 	public int getSpriteNumber() {
 		return 0;
+	}@SideOnly(Side.CLIENT)
+	@Override
+	public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
+		if(MixinPlugin.noEUMixin){p_77624_3_.add(
+				StatCollector.translateToLocal("proghatch.eucrafting.warn")
+				);}
+		super.addInformation(p_77624_1_, p_77624_2_, p_77624_3_, p_77624_4_);
 	}
-
 }

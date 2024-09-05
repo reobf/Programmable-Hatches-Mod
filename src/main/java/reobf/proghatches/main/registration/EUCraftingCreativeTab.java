@@ -31,19 +31,19 @@ public class EUCraftingCreativeTab extends CreativeTabs {
 	@Override
 	public void displayAllReleventItems(List p_78018_1_) {
 		p_78018_1_.addAll(Registration.items_eucrafting);
-		for(int i=0;i<=30;i++)
-			p_78018_1_.add(new ItemStack(MyMod.eu_source_part,1,i));
-		
+		//for(int i=0;i<=30;i++)
+		//	p_78018_1_.add(new ItemStack(MyMod.eu_source_part,1,i));
+		p_78018_1_.add(new ItemStack(MyMod.eu_source_part,1,0));
 		p_78018_1_.add(new ItemStack(MyMod.block_euinterface));
-		// p_78018_1_.add(new ItemStack(MyMod.cover, 1, 2));
+		
 		p_78018_1_.add(new ItemStack(MyMod.euinterface_p2p));
 		p_78018_1_.add(new ItemStack(MyMod.cover, 1, 3));
 
 		p_78018_1_.add(new ItemStack(MyMod.cover, 1, 32));
 		p_78018_1_.add(new ItemStack(MyMod.cover, 1, 33));
-		p_78018_1_.add(new ItemStack(MyMod.cover, 1, 34));
-		p_78018_1_.add(new ItemStack(MyMod.cover, 1, 35));
-		p_78018_1_.add(new ItemStack(MyMod.cover, 1, 36));
+		//p_78018_1_.add(new ItemStack(MyMod.cover, 1, 34));
+		//p_78018_1_.add(new ItemStack(MyMod.cover, 1, 35));
+		//p_78018_1_.add(new ItemStack(MyMod.cover, 1, 36));
 		p_78018_1_.add(new ItemStack(MyMod.cover, 1, 37));
 		
 		super.displayAllReleventItems(p_78018_1_);

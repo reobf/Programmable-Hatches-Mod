@@ -80,6 +80,7 @@ String cfg=
 "noAEItemSortMixins=false"+System.lineSeparator()
 
 ;
+public static boolean noEUMixin;
 static public ArrayList<String> retLate = new ArrayList<>();
 
 //spotless:on
@@ -146,8 +147,15 @@ static public ArrayList<String> retLate = new ArrayList<>();
 			if(ff)retLate.add("eucrafting." + "MixinCpuClusterEUAutoRequest");
 			if(ff)retLate.add("eucrafting." + "MixinRemoveExcessiveEU");
 			if(ff)retLate.add("eucrafting." + "MixinCraftingRecursiveWorkaround");
+		}	else{
 			
-		}	
+			
+			noEUMixin=true;
+		}
+		
+		
+		
+		
 		if(ff)retLate.add("eucrafting." + "MixinEUSourceCoverChunkUnloadNotification");
 		if(ff)	retLate.add("eucrafting." + "MixinCoverInsertion");
 		if (FMLLaunchHandler.side().isClient()) {

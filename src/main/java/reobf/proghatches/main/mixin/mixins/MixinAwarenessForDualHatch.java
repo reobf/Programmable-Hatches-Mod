@@ -37,7 +37,7 @@ public abstract class MixinAwarenessForDualHatch {
 	@Shadow
 	public CheckRecipeResult checkRecipeResult;
 
-	@Inject(method = "startRecipeProcessing", at = { @At(value = "RETURN") })
+	@Inject(method = "startRecipeProcessing", at = { @At(value = "RETURN") },require=1)
 	public void a(CallbackInfo c) {
 		for (IDualInputHatch hatch : (mDualInputHatches)) {
 			if (hatch == null || !((MetaTileEntity) hatch).isValid())
@@ -48,7 +48,7 @@ public abstract class MixinAwarenessForDualHatch {
 		}
 	}
 
-	@Inject(method = "endRecipeProcessing", at = { @At(value = "RETURN") })
+	@Inject(method = "endRecipeProcessing", at = { @At(value = "RETURN") },require=1)
 	public void b(CallbackInfo c) {
 		Consumer<CheckRecipeResult> setResultIfFailure = result -> {
 			if (!result.wasSuccessful()) {

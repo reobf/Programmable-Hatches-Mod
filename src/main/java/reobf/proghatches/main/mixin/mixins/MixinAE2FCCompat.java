@@ -31,14 +31,17 @@ public class MixinAE2FCCompat {
 			CallbackInfoReturnable<InventoryAdaptor> ret) {
 		*/
 	
-	@Inject(method = "wrap", remap = false, at = { @At(value="INVOKE_ASSIGN",target="getTileEntity") }, 
+	@Inject(method = "wrap", remap = true, at = { @At(value="INVOKE_ASSIGN",target="Lnet/minecraft/world/World;getTileEntity(III)Lnet/minecraft/tileentity/TileEntity;") }, 
 			locals=LocalCapture.CAPTURE_FAILHARD,
-			cancellable = true)
+			cancellable = true,
+			
+			require=1)
 	private static void wrap(TileEntity capProvider, ForgeDirection face,
 			CallbackInfoReturnable<InventoryAdaptor> ret, TileEntity inter) {
 		
 		
-		
+		System.out.println(face);
+		Thread.dumpStack();
 		if (face == ForgeDirection.UNKNOWN) {
 			return;
 		}

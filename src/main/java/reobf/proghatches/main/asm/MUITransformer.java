@@ -14,10 +14,12 @@ import reobf.proghatches.main.asm.repack.objectwebasm.tree.ClassNode;
 import reobf.proghatches.main.asm.repack.objectwebasm.tree.MethodNode;
 
 public class MUITransformer  implements IClassTransformer {
-
+boolean done;
 	@Override
 	public byte[] transform(String name, String transformedName, byte[] basicClass) {
+		if(!done)
 		if(name.equals("com.gtnewhorizons.modularui.common.internal.wrapper.ModularUIContainer")){
+			done=true;
 			ClassReader classReader = new ClassReader(basicClass);
 			ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS|ClassWriter.COMPUTE_FRAMES);
 			ClassNode n=new ClassNode(Opcodes.ASM5){
@@ -65,7 +67,7 @@ boolean done;
 	
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-	if(name.equals("iterator")/*desc.equals("java/util/List.iterator()Ljava/util/Iterator;")*/){
+	if(name.equals("iterator")/*desc.equals("()Ljava/util/Iterator;")*/){
 			ready=true;
 		}
 		if(arr.size()<=2)
@@ -94,7 +96,7 @@ boolean done;
 					, "(Lcom/gtnewhorizons/modularui/common/internal/wrapper/BaseSlot;Lcom/gtnewhorizons/modularui/common/internal/wrapper/BaseSlot;)Z", false);
 			
 			super.visitJumpInsn(Opcodes.IFEQ, l);//result==false, pass     
-			//result==true? this hould work like 'continue'
+			//result==true
 			super.visitInsn(Opcodes.POP2);	//pop away top 2 ClickPriority to match stackmap
 			super.visitJumpInsn(Opcodes.GOTO, loop_entry);//return to loop entry
 			super.visitLabel(l);						   

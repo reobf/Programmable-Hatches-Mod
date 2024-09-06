@@ -18,10 +18,13 @@ import reobf.proghatches.ae.ItemPartAmountMaintainer;
 import reobf.proghatches.ae.TileCyclicPatternSubmitter;
 import reobf.proghatches.block.BlockAnchorAlert;
 import reobf.proghatches.block.BlockIOHub;
+import reobf.proghatches.block.BlockReactorSyncer;
 import reobf.proghatches.block.ItemBlockAnchorAlert;
 import reobf.proghatches.block.ItemBlockIOHub;
+import reobf.proghatches.block.ItemBlockReactorSyncer;
 import reobf.proghatches.block.TileAnchorAlert;
 import reobf.proghatches.block.TileIOHub;
+import reobf.proghatches.block.TileReactorSyncer;
 import reobf.proghatches.eucrafting.BlockEUInterface;
 import reobf.proghatches.eucrafting.EUUtil;
 import reobf.proghatches.eucrafting.ItemBlockEUInterface;
@@ -69,6 +72,7 @@ public class CommonProxy {
 		GameRegistry.registerTileEntity(TileFluidInterface_EU.class, "proghatches.euinterface");
 		GameRegistry.registerTileEntity(TileCyclicPatternSubmitter.class, "proghatches.submitter");
 		GameRegistry.registerTileEntity(TileCardReader.class, "proghatches.card_reader");
+		GameRegistry.registerTileEntity(TileReactorSyncer.class, "proghatches.reactor_syncer");
 		ItemMEPlunger a=new ItemMEPlunger(100000);
 		
 	
@@ -132,6 +136,10 @@ public class CommonProxy {
 		
 		MyMod.reader = GameRegistry.registerBlock(new BlockCardReader(Material.rock),
 				 "proghatches.card_reader");
+		MyMod.reactorsyncer = GameRegistry.registerBlock(new BlockReactorSyncer(Material.rock),
+				ItemBlockReactorSyncer.class
+				,
+				 "proghatches.reactor_syncer");
 		li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.oc_redstone);
 		li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.oc_api);
 		li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.pitem);

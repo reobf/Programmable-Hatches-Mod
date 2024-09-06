@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.Optional;
+import java.util.WeakHashMap;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
@@ -87,6 +89,8 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.Phase;
+import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -504,4 +508,12 @@ public class MyMod {
 			
 		}}
 	
+	public static WeakHashMap<Object,Runnable> callbacks=new WeakHashMap<>();
+	public static Block reactorsyncer;
+	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
+	public void pretick(final TickEvent.ServerTickEvent event) {
+		if(event.phase==Phase.START&&event.side==Side.SERVER){
+			callbacks.forEach((a,b)->b.run());
+		}
+	}
 }

@@ -40,8 +40,8 @@ public class MixinAE2FCCompat {
 			CallbackInfoReturnable<InventoryAdaptor> ret, TileEntity inter) {
 		
 		
-		System.out.println(face);
-		Thread.dumpStack();
+		//System.out.println(face);
+		//Thread.dumpStack();
 		if (face == ForgeDirection.UNKNOWN) {
 			return;
 		}
@@ -56,8 +56,8 @@ public class MixinAE2FCCompat {
 
 		if (iscover || ispart) {
 
-			BlockPos pos = /*new BlockPos(capProvider.xCoord + face.offsetX, capProvider.yCoord + face.offsetY,
-					capProvider.zCoord + face.offsetZ);*/new BlockPos(inter);
+			BlockPos pos = new BlockPos(capProvider.xCoord + face.offsetX, capProvider.yCoord + face.offsetY,
+					capProvider.zCoord + face.offsetZ);
 
 			InventoryAdaptor item = InventoryAdaptor.getAdaptor(capProvider, face);
 			IFluidHandler fluid = capProvider instanceof IFluidHandler ? (IFluidHandler) capProvider : null;

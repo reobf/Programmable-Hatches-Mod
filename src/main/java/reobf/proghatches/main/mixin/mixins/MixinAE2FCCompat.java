@@ -48,16 +48,24 @@ public class MixinAE2FCCompat {
 		boolean iscover = check(capProvider, face);
 		boolean ispart = false;
 		if (iscover == false) {
-		/*	TileEntity inter = capProvider.getWorldObj().getTileEntity(capProvider.xCoord + face.offsetX,
-					capProvider.yCoord + face.offsetY, capProvider.zCoord + face.offsetZ);
-			*/
+	
 			ispart = Util.getPart(inter, face.getOpposite()) instanceof PartEUP2PInterface;
 		}
 
 		if (iscover || ispart) {
 
 			BlockPos pos = new BlockPos(capProvider.xCoord + face.offsetX, capProvider.yCoord + face.offsetY,
-					capProvider.zCoord + face.offsetZ);
+					capProvider.zCoord + face.offsetZ){
+				@Override
+				public TileEntity getTileEntity() {
+					return null;
+					//attached TE is never a interface!
+					
+				}
+			};
+					
+				
+					
 
 			InventoryAdaptor item = InventoryAdaptor.getAdaptor(capProvider, face);
 			IFluidHandler fluid = capProvider instanceof IFluidHandler ? (IFluidHandler) capProvider : null;

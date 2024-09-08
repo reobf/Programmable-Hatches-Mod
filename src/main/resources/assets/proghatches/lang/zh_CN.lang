@@ -545,3 +545,7 @@ tile.reactor_syncer.tooltip.1=有助于不停机情况下直接操作反应堆�
 tile.reactor_syncer.tooltip.2=注意:原版红石每2tick更新 最好使用红石P2P,红石导管和红色合金导线
 tile.reactor_syncer.tooltip=3
 tile.proghatch.reactor_syncer.name=反应堆更新同步器
+hatch.dualinput.slave.inv.mapping.name=二合一输入区映射镜像
+hatch.dualinput.slave.inv.mapping.me.name=二合一输入区映射镜像(ME)
+programmable_hatches.gt.pattern.mapping=添加样板(ME映射镜像)
+hatch.dualinput.slave.inv.mapping.me.missing=未连接

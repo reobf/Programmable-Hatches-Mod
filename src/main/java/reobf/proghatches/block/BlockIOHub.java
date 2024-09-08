@@ -22,6 +22,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
 
 public class BlockIOHub extends BlockContainer {
+	private IIcon inv_me_slave;
 	public BlockIOHub() {
 		super(new GT_Material_Machines());
 		
@@ -49,6 +50,7 @@ public class BlockIOHub extends BlockContainer {
 		provider_active_overlay = reg.registerIcon("proghatches:provider_active");
 		provider_in_overlay = reg.registerIcon("proghatches:provider_in");
 		provider_in_active_overlay = reg.registerIcon("proghatches:provider_in_active");
+		inv_me_slave = reg.registerIcon("proghatches:inv_me_slave");
 		super.registerBlockIcons(reg);
 	}
 
@@ -100,7 +102,7 @@ public class BlockIOHub extends BlockContainer {
 	static public int magicNO_provider_active_overlay = 0x7d;
 	static public int magicNO_provider_in_overlay = 0x7c;
 	static public int magicNO_provider_in_active_overlay = 0x7b;
-
+	static public int magicNO_inv_me_slave = 0x7a;
 	@SideOnly(value = Side.CLIENT)
 	@Override
 	public IIcon getIcon(int side, int meta) {
@@ -110,6 +112,7 @@ public class BlockIOHub extends BlockContainer {
 		if(meta==0x7d)return provider_active_overlay;
 		if(meta==0x7c)return provider_in_overlay;
 		if(meta==0x7b)return provider_in_active_overlay;
+		if(meta==0x7a)return inv_me_slave;
 		//spotless:on
 		return super.getIcon(side, meta);
 	}

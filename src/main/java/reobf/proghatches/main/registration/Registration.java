@@ -34,11 +34,13 @@ import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch;
 import reobf.proghatches.gt.metatileentity.DataHatchME;
 import reobf.proghatches.gt.metatileentity.DualInputHachOC;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
+import reobf.proghatches.gt.metatileentity.DualInputHatchInventoryMappingSlave;
 import reobf.proghatches.gt.metatileentity.DualInputHatchSlave;
 import reobf.proghatches.gt.metatileentity.FilterOutputBus;
 import reobf.proghatches.gt.metatileentity.IngredientBuffer;
 import reobf.proghatches.gt.metatileentity.MultiCircuitInputBus;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
+import reobf.proghatches.gt.metatileentity.PatternDualInputHatchInventoryMappingSlave;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
 import reobf.proghatches.gt.metatileentity.ProviderChainer;
@@ -61,7 +63,7 @@ public class Registration implements Runnable {
     public static ArrayList<ItemStack> items_eucrafting = new ArrayList<ItemStack>();
     public final static int DualInputHatchOffset = 0;// -15
     public final static int QuadDualInputHatchOffset = 16;// -31
-    public final static int BufferedQuadDualInputHatchOffset = 100;//-115
+    
     public final static int BufferedDualInputHatchOffset = 32;// -47
     public final static int CircuitProviderOffset = 48;
     public final static int SlaveOffset = 49;
@@ -74,6 +76,8 @@ public class Registration implements Runnable {
     public final static int FilterOffset = 74;// -77
 	private static final int RecipeCheckResultDetectorOffset = 78;
 	public final static int IngBufferOffset = 79;// -80
+	
+	public final static int BufferedQuadDualInputHatchOffset = 100;//-115
 	public final static int LargeProviderOffset = 116;
 	public final static int ChainerOffset = 117;
     public final static int CircuitProviderOffsetT0 = 118;
@@ -89,7 +93,8 @@ public class Registration implements Runnable {
 	public static final int RestrictedHatchME = 163;
 	public static final int RestrictedBusME=164;
 	public final static int DualInputHatchOCOffset = 165;
-	
+	public final static int MappingSlaveOffset=166;
+	public final static int PatternMappingSlaveOffset=167;
 	
     @SuppressWarnings("deprecation")
 	@Override
@@ -410,8 +415,14 @@ public class Registration implements Runnable {
               
                 
                 );
+        new DualInputHatchInventoryMappingSlave<>(
+                Config.metaTileEntityOffset + MappingSlaveOffset,
+                "hatch.dualinput.slave.inv.mapping",
+                LangManager.translateToLocal("hatch.dualinput.slave.inv.mapping.name"),  6);
         
-        
+        new PatternDualInputHatchInventoryMappingSlave<>( 
+        		Config.metaTileEntityOffset + PatternMappingSlaveOffset,  "hatch.dualinput.slave.inv.mapping.me",
+        		LangManager.translateToLocal("hatch.dualinput.slave.inv.mapping.me.name"), 6);
         /*for (int i = 0; i < 4; i++) {
 
             new DualInputHatch(

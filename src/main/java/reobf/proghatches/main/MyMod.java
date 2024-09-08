@@ -120,6 +120,7 @@ import reobf.proghatches.eucrafting.PartEUP2PInterface;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
 
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
+import reobf.proghatches.gt.metatileentity.PatternDualInputHatchInventoryMappingSlave;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
 import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
@@ -127,6 +128,7 @@ import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.mixin.mixins.MixinFixPipeCoverBug;
+import reobf.proghatches.net.MasterSetMessage;
 import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
 import reobf.proghatches.net.RenameMessage;
@@ -216,6 +218,7 @@ public class MyMod {
 		net.registerMessage(new PriorityMessage.Handler(), PriorityMessage.class, 1, Side.SERVER);
 		net.registerMessage(new RenameMessage.Handler(), RenameMessage.class, 2, Side.SERVER);
 		net.registerMessage(new UpgradesMessage.Handler(), UpgradesMessage.class, 3, Side.CLIENT);
+		net.registerMessage(new MasterSetMessage.Handler(), MasterSetMessage.class, 4, Side.CLIENT);
 		
 		proxy.preInit(event);
 	}
@@ -309,7 +312,7 @@ public class MyMod {
 		InterfaceTerminalRegistry.instance().register(PartFluidP2PInterface.class);
 		InterfaceTerminalRegistry.instance().register(TileFluidInterface_EU.class);
 		InterfaceTerminalRegistry.instance().register(PatternDualInputHatch.Inst.class);
-		
+		InterfaceTerminalRegistry.instance().register(PatternDualInputHatchInventoryMappingSlave.class);
 		
 		//InterfaceTerminalRegistry.instance().register(ProgrammingCircuitProvider.class);
 		//InterfaceTerminalRegistry.instance().register(LargeProgrammingCircuitProvider.class);

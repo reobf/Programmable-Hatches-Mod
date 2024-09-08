@@ -559,12 +559,12 @@ if(supportsFluids())
 		return Integer.MAX_VALUE;
 	}
 	
-	
+	public boolean skipActiveCheck;
 	
 	
 	@Override
 	public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
-		if (!isActive())
+		if (!isActive()&&!skipActiveCheck)
 			return false;
 		if (!isEmpty())
 			return false;
@@ -881,8 +881,7 @@ if(supportsFluids())
 		}
 
 		
-		
-		
+	
 		
 		
 	

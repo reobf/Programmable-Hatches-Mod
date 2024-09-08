@@ -1148,6 +1148,7 @@ final int offset=0;
 				// flush changes to client
 				// sometimes vanilla detection will fail so sync it manually
 				// System.out.println(last-getBaseMetaTileEntity().getTimer());
+				if(getBaseMetaTileEntity()!=null)
 				if (last >= getBaseMetaTileEntity().getTimer())
 					getWindow().getContext().getContainer().inventorySlots.forEach(s -> ((Slot) s).onSlotChanged());
 
@@ -1670,4 +1671,5 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 	
 		return super.onRightclick(aBaseMetaTileEntity, aPlayer, side, aX, aY, aZ);
 	}
+	
 }

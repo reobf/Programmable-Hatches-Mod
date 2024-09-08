@@ -126,6 +126,7 @@ import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.IMultiCircuitSupport;
 import reobf.proghatches.gt.metatileentity.util.IProgrammingCoverBlacklisted;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
+import reobf.proghatches.gt.metatileentity.util.ISkipStackSizeCheck;
 import reobf.proghatches.gt.metatileentity.util.InventoryItemHandler;
 import reobf.proghatches.gt.metatileentity.util.ListeningFluidTank;
 import reobf.proghatches.item.ItemProgrammingCircuit;
@@ -136,7 +137,7 @@ import reobf.proghatches.net.UpgradesMessage;
 
 public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		implements IConfigurationCircuitSupport, IAddGregtechLogo, IAddUIWidgets, IDualInputHatch,
-		IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch/*,IMultiCircuitSupport*/ {
+		IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch,ISkipStackSizeCheck/*,IMultiCircuitSupport*/ {
 
 	static java.text.DecimalFormat format = new java.text.DecimalFormat("#,###");
 	public boolean mMultiFluid;
@@ -270,7 +271,7 @@ public void reinitTierBasedField() {
 	public NBTTagCompound writeToNBT(ItemStack is, NBTTagCompound tag) {
 		is.writeToNBT(tag);
 		tag.setInteger("ICount", is.stackSize);
-      
+		
 		return tag;
 	}
 

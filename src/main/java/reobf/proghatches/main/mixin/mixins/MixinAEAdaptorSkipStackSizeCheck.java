@@ -16,6 +16,7 @@ import appeng.util.inv.WrapperMCISidedInventory;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import net.minecraft.inventory.IInventory;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
+import reobf.proghatches.gt.metatileentity.util.ISkipStackSizeCheck;
 
 
 @Mixin(value = AdaptorIInventory.class, remap = false)
@@ -68,7 +69,7 @@ public class MixinAEAdaptorSkipStackSizeCheck {
 	public boolean check(Object s){	
 		if(s!=null&&s instanceof IGregTechTileEntity){
 		return	Optional.ofNullable(((IGregTechTileEntity)s).getMetaTileEntity())
-		.map(ss->ss instanceof DualInputHatch?(DualInputHatch)ss:null)
+		.map(ss->ss instanceof ISkipStackSizeCheck?(ISkipStackSizeCheck)ss:null)
 		.isPresent();}return false;}
 	
 }

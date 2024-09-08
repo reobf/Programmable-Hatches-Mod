@@ -546,3 +546,7 @@ tile.reactor_syncer.tooltip.2=Note that vanilla redstone update every 2 ticks!
 tile.reactor_syncer.tooltip.3=Better use Redstone P2P, Redstone Conduit or Redalloy Wire instead.
 tile.reactor_syncer.tooltip=4
 tile.proghatch.reactor_syncer.name=Reactor Update Synchronizer
+hatch.dualinput.slave.inv.mapping.name=Dual Inventory Mapping Slave
+hatch.dualinput.slave.inv.mapping.me.name=Dual Inventory Mapping Slave(ME)
+programmable_hatches.gt.pattern.mapping=Insert Pattern(ME Mapping Slave)
+hatch.dualinput.slave.inv.mapping.me.missing=Not Linked

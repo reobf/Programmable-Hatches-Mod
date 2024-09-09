@@ -2037,7 +2037,7 @@ public class OptioanlSharedContents{
 	
 	public ArrayList<ItemStack> circuitInv=new ArrayList<>();
 	public void clearCircuit() {
-		mInventory[0]=null;
+		mInventory[getCircuitSlot()]=null;
 		circuitInv.clear();
 		for(int i=0;i<circuitUpgrades;i++){circuitInv.add(null);}
 	}

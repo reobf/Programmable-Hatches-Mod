@@ -373,7 +373,7 @@ catch (Exception ignored) {
 
 // Pulls version first from the VERSION env and then git tag
 String identifiedVersion = null
-String versionOverride = '0.0.18p21'
+String versionOverride = '0.0.18p22'
 try {
     // Produce a version based on the tag, or for branches something like 0.2.2-configurable-maven-and-extras.38+43090270b6-dirty
     if (versionOverride == null) {

@@ -72,6 +72,7 @@ import appeng.helpers.DualityInterface;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.IPriorityHost;
 import appeng.items.tools.ToolMemoryCard;
+import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.parts.AEBasePart;
 import appeng.server.AECommand;
 import appeng.tile.inventory.AppEngInternalAEInventory;
@@ -148,7 +149,7 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 public class MyMod {
 	public static final Logger LOG = LogManager.getLogger(Tags.MODID);
 	public static MyMod instance;
-	{//FluidConvertingInventoryAdaptor.class.getDeclaredFields();
+	{CraftingCPUCluster.class.getDeclaredFields();
 	instance = this;}
 	
 	static{

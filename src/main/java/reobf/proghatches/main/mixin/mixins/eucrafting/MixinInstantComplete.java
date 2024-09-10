@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -20,20 +21,40 @@ import reobf.proghatches.eucrafting.IInstantCompletable;
 
 @Mixin(value = CraftingCPUCluster.class, remap = false, priority = 1)
 public class MixinInstantComplete {
-	//spotless:off
-	@Inject(at = {@At(value = "INVOKE", shift = Shift.BEFORE, target = "markDirty()V") }, 
-			method = "executeCrafting", require = 1, locals = LocalCapture.CAPTURE_FAILHARD
-	)
-	//spotless:on
-	public void a(IEnergyGrid eg, CraftingGridCache cc, CallbackInfo ci, Iterator i, Map.Entry e,
-			ICraftingPatternDetails details, InventoryCrafting ic, boolean pushedPattern, Iterator var8,
-			ICraftingMedium m) {
 
-		if (m instanceof IInstantCompletable) {
+	private ICraftingMedium temp;
+	
+	
+	@ModifyVariable(at = @At(value = "INVOKE_ASSIGN",  target = "pushPattern") , 
+			method = "executeCrafting"
+	)
+	
+	public ICraftingMedium a(/*IEnergyGrid eg, CraftingGridCache cc, CallbackInfo ci,		*/ICraftingMedium m) {
+		return temp=m;
+		/*if (m instanceof IInstantCompletable) {
 			((IInstantCompletable) m).complete();
 
-		}
+		}*/
 
 	}
+	
+	@Inject(at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "markDirty") , 
+			method = "executeCrafting"
+	)
+	
+	public void b(IEnergyGrid eg, CraftingGridCache cc, CallbackInfo ci) {
+		
+		if (temp instanceof IInstantCompletable) {
+			((IInstantCompletable) temp).complete();
+
+		}temp=null;
+
+	}
+	
+	
+	
+	
+	
+
 
 }

@@ -389,7 +389,7 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
-
+		if(aNBT.hasKey("x")==false)return;
 		super.loadNBTData(aNBT);
 		int[] i = aNBT.getIntArray("coord");
 		x = i[0];

@@ -132,7 +132,7 @@ public class IngredientBuffer extends GT_MetaTileEntity_TieredMachineBlock imple
 
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
-		// TODO
+		if(aNBT.hasKey("x")==false)return;
 		if (mStoredFluid != null) {
 			for (int i = 0; i < mStoredFluid.length; i++) {
 				if (aNBT.hasKey("mFluid" + i)) {

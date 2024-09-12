@@ -483,7 +483,7 @@ public FluidStack getFillableStack() {
 
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
-
+		if(aNBT.hasKey("x")==false)return;
 		super.loadNBTData(aNBT);
 		int[] i = aNBT.getIntArray("coord");
 		x = i[0];

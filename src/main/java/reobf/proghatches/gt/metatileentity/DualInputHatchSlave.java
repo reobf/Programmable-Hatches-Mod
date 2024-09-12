@@ -91,6 +91,7 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch&IMet
 
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
+		if(aNBT.hasKey("x")==false)return;
 		super.loadNBTData(aNBT);
 
 		if (aNBT.hasKey("master")) {

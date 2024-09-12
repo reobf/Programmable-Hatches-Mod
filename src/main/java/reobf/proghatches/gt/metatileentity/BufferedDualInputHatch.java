@@ -1181,6 +1181,7 @@ final int offset=0;
 
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
+		if(aNBT.hasKey("x")==false)return;
 		dirty = aNBT.getBoolean("dirty");
 		for (int i = 0; i < bufferNum; i++) {
 			final int ii = i;

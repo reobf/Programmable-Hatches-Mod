@@ -19,6 +19,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.IFluidHandler;
 import reobf.proghatches.eucrafting.AECover;
+import reobf.proghatches.eucrafting.CoverToMachineAdaptor;
 import reobf.proghatches.eucrafting.PartEUP2PInterface;
 
 @Mixin(FluidConvertingInventoryAdaptor.class)
@@ -31,6 +32,7 @@ public class MixinAE2FCCompat {
 			CallbackInfoReturnable<InventoryAdaptor> ret) {
 		*/
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Inject(method = "wrap", remap = true, at = { @At(value="INVOKE_ASSIGN",target="Lnet/minecraft/world/World;getTileEntity(III)Lnet/minecraft/tileentity/TileEntity;") }, 
 			locals=LocalCapture.CAPTURE_FAILHARD,
 			cancellable = true,
@@ -45,36 +47,30 @@ public class MixinAE2FCCompat {
 		if (face == ForgeDirection.UNKNOWN) {
 			return;
 		}
-		boolean iscover = check(capProvider, face);
+		
+		
+		
 		boolean ispart = false;
-		if (iscover == false) {
-	
-			ispart = Util.getPart(inter, face.getOpposite()) instanceof PartEUP2PInterface;
-		}
+		ispart = Util.getPart(inter, face.getOpposite()) instanceof PartEUP2PInterface;
+		
 
-		if (iscover || ispart) {
+		if ( ispart) {
 
 			BlockPos pos = new BlockPos(capProvider.xCoord + face.offsetX, capProvider.yCoord + face.offsetY,
-					capProvider.zCoord + face.offsetZ){
-				@Override
-				public TileEntity getTileEntity() {
-					return null;
-					//attached TE is never a interface!
-					
-				}
-			};
-					
-				
-					
-
+					capProvider.zCoord + face.offsetZ);
 			InventoryAdaptor item = InventoryAdaptor.getAdaptor(capProvider, face);
 			IFluidHandler fluid = capProvider instanceof IFluidHandler ? (IFluidHandler) capProvider : null;
 			boolean onmi = false;
-
 			ret.setReturnValue(new FluidConvertingInventoryAdaptor(capProvider, item, fluid, face, pos, onmi));
-
 		}
-
+		boolean iscover = check(capProvider, face);
+		if(iscover){
+			InventoryAdaptor item = InventoryAdaptor.getAdaptor(capProvider, face);
+			IFluidHandler fluid = capProvider instanceof IFluidHandler ? (IFluidHandler) capProvider : null;
+			
+			ret.setReturnValue( new CoverToMachineAdaptor(capProvider,item,fluid,face)
+			);
+		};
 	}
 
 	private static boolean check(TileEntity te, ForgeDirection face) {

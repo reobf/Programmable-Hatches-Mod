@@ -587,7 +587,7 @@ for(ItemStack is:mInventory)
 
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
-
+		if(aNBT.hasKey("x")==false)return;
 		super.loadNBTData(aNBT);
 		 this.ret = this.readList((NBTTagList) aNBT.getTag("ret"));
 		int[] count = new int[1];

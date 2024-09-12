@@ -227,7 +227,7 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
 
 	AENetworkProxy gridProxy;
 	ForgeDirection side = ForgeDirection.UNKNOWN;
-	DimensionalCoord pos = new DimensionalCoord(0, 0, 0, 0);
+	DimensionalCoord pos = new DimensionalCoord(0, 0, 0, -1000);
 
 	public AENetworkProxy getGridProxy() {
 		return gridProxy;
@@ -575,14 +575,15 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
 	boolean first = true;
 
 	@Override
-	public void accept(ForgeDirection side, ICoverable aTileEntity,boolean b) {
-		Data.super.accept(side, aTileEntity,b);
+	public boolean accept(ForgeDirection side, ICoverable aTileEntity,boolean b) {
+		boolean ok=Data.super.accept(side, aTileEntity,b);
 		this.duality.setPartHostInfo(ForgeDirection.UNKNOWN, fakehost, getTile());
 		String s=tagName();
 		if(s!=null&&!s.equals("")){
 			duality.setCustomName(s);
 			setTag(null);
-		}
+		}	
+		return ok;
 	}
 
 	public boolean click(EntityPlayer player) {

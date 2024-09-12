@@ -73,7 +73,7 @@ public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlaye
 	
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
-		
+		if(aNBT.hasKey("x")==false)return;
 		super.loadNBTData(aNBT);
 		lastSuccess=aNBT.getInteger("lastSuccess");
 		pulses=aNBT.getInteger("pulses");

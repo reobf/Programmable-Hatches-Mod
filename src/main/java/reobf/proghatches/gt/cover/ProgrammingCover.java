@@ -24,6 +24,7 @@ import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IMachineProgress;
+import gregtech.api.metatileentity.BaseTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
 import gregtech.api.util.GT_CoverBehavior;
 import gregtech.api.util.GT_CoverBehaviorBase;
@@ -42,33 +43,34 @@ public class ProgrammingCover extends GT_CoverBehavior implements IProgrammer {
 	}
 
 	public void impl(ICoverable aTileEntity) {
-
-		if ((((aTileEntity instanceof IMachineProgress)) && (!((IMachineProgress) aTileEntity).isAllowedToWork()))) {
+	
+		/*if ((((aTileEntity instanceof IMachineProgress)) && (!((IMachineProgress) aTileEntity).isAllowedToWork()))) {
 			return;
-		}
+		}*/
 		TileEntity tile = (TileEntity) aTileEntity;
 
-		if (!(tile instanceof ISidedInventory)) {
+	/*	if (!(tile instanceof ISidedInventory)) {
 			return;
 		}
 		if (!(tile instanceof IGregTechTileEntity)) {
 			return;
-		}
-		if (((IGregTechTileEntity) tile).getMetaTileEntity() instanceof IProgrammingCoverBlacklisted) {
+		}*/
+		IMetaTileEntity meta = ((IGregTechTileEntity) tile).getMetaTileEntity();
+		if (meta instanceof IProgrammingCoverBlacklisted) {
 
 			return;
 		}
 
-		IMetaTileEntity meta = ((IGregTechTileEntity) tile).getMetaTileEntity();
+		
 
 		if (!(meta instanceof IConfigurationCircuitSupport)) {
 			return;
 		}
 		
 		ArrayList<ItemStack> isa = new ArrayList<>();
-		int[] slots = ((ISidedInventory) tile).getAccessibleSlotsFromSide(ForgeDirection.UNKNOWN.ordinal());
+		int[] slots = ( aTileEntity).getAccessibleSlotsFromSide(ForgeDirection.UNKNOWN.ordinal());
 		for (int slot : slots) {
-			ItemStack is = ((ISidedInventory) tile).getStackInSlot(slot);
+			ItemStack is = (aTileEntity).getStackInSlot(slot);
 			if (is == null)
 				continue;
 			if (is.getItem() != MyMod.progcircuit)

@@ -318,6 +318,7 @@ public void reinitTierBasedField() {
 
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
+		if(aNBT.hasKey("x")==false)return;
 		super.loadNBTData(aNBT);
 		shared.deser(aNBT.getCompoundTag("shared"));
 		fluidLimit= aNBT.getBoolean("fluidLimit");

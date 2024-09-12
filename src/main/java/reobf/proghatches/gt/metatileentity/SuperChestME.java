@@ -649,7 +649,7 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
  @Override
 public void loadNBTData(NBTTagCompound aNBT) {
 	
-	 getProxy().readFromNBT(aNBT);
+	if(aNBT.hasKey("proxy"))getProxy().readFromNBT(aNBT);
 	super.loadNBTData(aNBT);
 	piority=aNBT.getInteger("piority");
 	sticky=	aNBT.getBoolean("sticky");

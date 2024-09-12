@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.glodblock.github.loader.ItemAndBlockHolder;
 import com.google.common.io.ByteArrayDataInput;
@@ -36,6 +37,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
 import gregtech.api.gui.modularui.GT_UIInfos;
 import gregtech.api.interfaces.tileentity.ICoverable;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.CoverableTileEntity;
 import gregtech.api.net.GT_Packet_SendCoverData;
 import gregtech.api.util.GT_CoverBehaviorBase;
 import gregtech.api.util.ISerializableObject;
@@ -48,7 +51,11 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -92,7 +99,10 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 		public NBTTagCompound getTag() {
 			return null;
 		}
-
+		@Override
+		public boolean accept(ForgeDirection side, ICoverable aTileEntity, boolean onPlace) {
+			return true;
+		}
 		@Override
 		public ISerializableObject copy() {
 			// TODO Auto-generated method stub
@@ -377,6 +387,8 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 
 		@Override
 		default public void loadDataFromNBT(NBTBase aNBT) {
+			//StackTraceUtil.getCallerMethod(1);
+			
 			NBTTagCompound tag = (NBTTagCompound) aNBT;
 
 			setTag(tag.getCompoundTag("itemtag"));
@@ -437,7 +449,7 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 		default public void destroy() {
 			MyMod.LOG.info("Node destroy@" + getPos());
 
-			try {
+			try {if(this.getProxy().getNode()==null)return;
 				IReadOnlyCollection<IGridConnection> col = this.getProxy().getNode().getConnections();
 				Collection<IGridConnection> a = new ArrayList<>(col.size());// make
 																			// a
@@ -451,7 +463,7 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 				this.getProxy().invalidate();
 
 				this.getProxy().getGrid().getCache(ITickManager.class).removeNode(this.getProxy().getNode(), this);
-			} catch (GridAccessException e) {
+			} catch (Exception e) {
 
 				// e.printStackTrace();
 			}
@@ -460,14 +472,49 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 		default boolean supportFluid() {
 			return false;
 		}
-
-		default public void accept(ForgeDirection side, ICoverable aTileEntity,boolean onPlace) {
+		static  DimensionalCoord unset_val =new DimensionalCoord(0,0,0,-1000);
+		/**
+		 * @param side
+		 * @param aTileEntity
+		 * @param onPlace
+		 * @return
+		 */
+		@SuppressWarnings("unchecked")
+		default public boolean accept(ForgeDirection side, ICoverable aTileEntity,boolean onPlace) {
+			if(getPos().equals(unset_val)){
+			//newly placed
+			}else if(getPos().equals(new DimensionalCoord((TileEntity)aTileEntity))
+					){
+			//normal chunk save+load
+			}else{
+				
+			//cover on machine item place, drop it 'cause its data is broken
+			UUID own = ((IGregTechTileEntity) aTileEntity).getOwnerUuid();
+					if(aTileEntity instanceof IGregTechTileEntity){
+						MinecraftServer.getServer().getConfigurationManager().playerEntityList
+						.stream().filter(s->
+								((EntityPlayer)s).getUniqueID().equals(own)
+								).findFirst()
+						.ifPresent(s->{
+							
+							((EntityPlayer)s).addChatComponentMessage(new ChatComponentTranslation("programmable_hatches.cover.me.drop"));
+						});
+						;
+						
+						
+					}
+					
+				
+				aTileEntity.dropCover(side, side, true);
+				return false;
+				
+			}
 			setPos(new DimensionalCoord((TileEntity) aTileEntity));
 			setSide(side);
 			Optional.ofNullable(aTileEntity.getCoverItemAtSide(side)).filter(s -> s.hasDisplayName())
 					.ifPresent(s -> setCustomName(s.getDisplayName()));
 			;
-
+			return true;
 		}
 
 		public default void setCustomName(String s) {
@@ -714,8 +761,8 @@ protected Data onCoverScrewdriverClickImpl(ForgeDirection side, int aCoverID, Da
 	protected Data doCoverThingsImpl(ForgeDirection side, byte aInputRedstone, int aCoverID, Data data,
 			ICoverable aTileEntity, long aTimer) {
 		if (data.firstUpdate())
-			data.accept(side, aTileEntity,false);
-
+			if(!data.accept(side, aTileEntity,false)){return data;};
+		
 		if (!data.getProxy().isReady()) {
 			data.getProxy().onReady();
 			data.onReady();

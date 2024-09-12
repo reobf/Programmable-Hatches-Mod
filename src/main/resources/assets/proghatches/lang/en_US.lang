@@ -550,3 +550,4 @@ hatch.dualinput.slave.inv.mapping.name=Dual Inventory Mapping Slave
 hatch.dualinput.slave.inv.mapping.me.name=Dual Inventory Mapping Slave(ME)
 programmable_hatches.gt.pattern.mapping=Insert Pattern(ME Mapping Slave)
 hatch.dualinput.slave.inv.mapping.me.missing=Not Linked
+programmable_hatches.cover.me.drop=Cover is dropped, please re-attach it to update ME Network info. 

@@ -36,7 +36,7 @@ public class BridgingData implements Data {
 
 	NBTTagCompound tag;
 	ForgeDirection side = ForgeDirection.UNKNOWN;
-	DimensionalCoord pos = new DimensionalCoord(0, 0, 0, 0);
+	DimensionalCoord pos = new DimensionalCoord(0, 0, 0, -1000);
 	AENetworkProxy gridProxy;
 
 	@Override

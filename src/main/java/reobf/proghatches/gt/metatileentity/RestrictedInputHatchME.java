@@ -282,6 +282,7 @@ public void saveNBTData(NBTTagCompound aNBT) {
     }
 @Override
 public void loadNBTData(NBTTagCompound aNBT) {
+	if(aNBT.hasKey("x")==false)return;
 	super.loadNBTData(aNBT);
 	 restrict=aNBT.getInteger( "restrict");
 	 restrict_lowbound=aNBT.getInteger( "restrict_l");

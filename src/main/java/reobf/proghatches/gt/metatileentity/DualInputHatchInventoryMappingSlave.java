@@ -82,7 +82,7 @@ extends GT_MetaTileEntity_TieredMachineBlock implements ISkipStackSizeCheck{
 	}
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
-		
+		if(aNBT.hasKey("x")==false)return;
 		
 		allowAllSides=aNBT.getBoolean("allowAllSides");
 		if (aNBT.hasKey("master")) {

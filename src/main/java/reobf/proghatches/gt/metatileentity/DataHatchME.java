@@ -195,7 +195,8 @@ public void saveNBTData(NBTTagCompound aNBT) {
 
 @Override
 public void loadNBTData(NBTTagCompound aNBT) {
-    super.loadNBTData(aNBT);
+	if(aNBT.hasKey("x")==false)return;
+	super.loadNBTData(aNBT);
     if (aNBT.hasKey("dataStickCache")) {
         NBTTagList nbtTagList = aNBT.getTagList("dataStickCache", 10);
         int c = Math.min(nbtTagList.tagCount(), aNBT.getInteger("dataStickCacheLen"));

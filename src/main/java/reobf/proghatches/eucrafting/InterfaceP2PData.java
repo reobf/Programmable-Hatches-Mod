@@ -232,7 +232,7 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
 
 	AENetworkProxy gridProxy;
 	ForgeDirection side = ForgeDirection.UNKNOWN;
-	DimensionalCoord pos = new DimensionalCoord(0, 0, 0, 0);
+	DimensionalCoord pos = new DimensionalCoord(0, 0, 0, -1000);
 
 	public AENetworkProxy getGridProxy() {
 		return gridProxy;
@@ -582,8 +582,8 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
 	boolean first = true;
 
 	@Override
-	public void accept(ForgeDirection side, ICoverable aTileEntity,boolean b) {
-		Data.super.accept(side, aTileEntity,b);
+	public boolean accept(ForgeDirection side, ICoverable aTileEntity,boolean b) {
+		boolean ok=Data.super.accept(side, aTileEntity,b);
 		this.duality.setPartHostInfo(ForgeDirection.UNKNOWN, fakehost, getTile());
 		
 		String s=tagName();
@@ -592,7 +592,7 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
 			setTag(null);
 		}
 		
-	
+		return ok;
 	
 	
 	}

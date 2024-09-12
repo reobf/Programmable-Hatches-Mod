@@ -34,7 +34,8 @@ public abstract class MixinAddProgCircuitExemptToInputFilter {
 		if (aStack.getItem() != MyMod.progcircuit)
 			return;
 		Optional<ItemStack> op = ItemProgrammingCircuit.getCircuit(aStack);
-		c.setReturnValue(containsInput(op.orElse(null)));
+		c.setReturnValue(op.isPresent()?containsInput(op.orElse(null)):true);
+		//containsInput(null)->false but it should be accepted, so return true
 	}
 
 	@Shadow

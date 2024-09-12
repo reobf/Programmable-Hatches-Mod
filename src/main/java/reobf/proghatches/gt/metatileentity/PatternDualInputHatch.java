@@ -481,6 +481,7 @@ if(supportsFluids())
 }
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
+		if(aNBT.hasKey("x")==false)return;
 		additionalConnection=aNBT.getBoolean("additionalConnection");
 		NBTTagCompound tag = aNBT.getCompoundTag("patternSlots");
 		if (tag != null)

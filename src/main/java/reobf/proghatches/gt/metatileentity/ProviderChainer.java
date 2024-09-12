@@ -272,7 +272,7 @@ public class ProviderChainer extends GT_MetaTileEntity_Hatch
 	@SuppressWarnings("unchecked")
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
-
+		if(aNBT.hasKey("x")==false)return;
 		super.loadNBTData(aNBT);
 
 		getProxy().readFromNBT(aNBT);

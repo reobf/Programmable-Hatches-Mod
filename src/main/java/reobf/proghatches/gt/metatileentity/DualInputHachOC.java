@@ -189,6 +189,7 @@ public void saveNBTData(NBTTagCompound aNBT) {
 }
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
+		if(aNBT.hasKey("x")==false)return;
 		super.loadNBTData(aNBT);
 		if(node!=null){
 			NBTTagCompound tnode= aNBT.getCompoundTag("node");

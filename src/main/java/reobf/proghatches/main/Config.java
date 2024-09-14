@@ -98,14 +98,19 @@ public class Config {
 				String func = str.substring(0, a0);
 				String args = str.substring(a0 + 1, a1);
 				String type = str.substring(a1 + 1 + 2, str.length());
+				
+				
 				MethodType tp = MethodType.fromMethodDescriptorString(
 
 						type + (func.equals("toolTipFinisher") ? "V"
-								: "Lgregtech/api/util/GT_Multiblock_Tooltip_Builder;")
+								: "L"+GT_Multiblock_Tooltip_Builder.class.getName().replace(".", "/")+";")
 
 						, Config.class.getClassLoader());
 				call(obj, args, MethodHandles.lookup().findVirtual(GT_Multiblock_Tooltip_Builder.class, func, tp), tp);
-
+				
+				
+				
+				
 			}
 
 		} catch (Exception e) {

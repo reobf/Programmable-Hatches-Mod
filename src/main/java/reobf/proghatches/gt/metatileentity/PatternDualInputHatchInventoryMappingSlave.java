@@ -103,7 +103,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 	public PatternDualInputHatchInventoryMappingSlave(int aID, String aName, String aNameRegional, int aTier) {
 		super(aID, aName, aNameRegional, aTier, 0,
 
-				Config.get("DIHIMS", ImmutableMap.of()));
+				Config.get("PDIHIMS", ImmutableMap.of()));
 		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
 	}
 
@@ -952,6 +952,14 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
 		return super.getGUIHeight() + 20;
 	}
-	
+	  @Override
+	    public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
+	        float aX, float aY, float aZ) {
+	        additionalConnection = !additionalConnection;
+	        updateValidGridProxySides();
+	        aPlayer.addChatComponentMessage(
+	            new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
+	        return true;
+	    }
 
 }

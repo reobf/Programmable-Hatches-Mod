@@ -550,3 +550,7 @@ hatch.dualinput.slave.inv.mapping.me.name=二合一输入区映射镜像(ME)
 programmable_hatches.gt.pattern.mapping=添加样板(ME映射镜像)
 hatch.dualinput.slave.inv.mapping.me.missing=未连接
 programmable_hatches.cover.me.drop=覆盖板已掉落 请手动重新安装以更新ME网络信息
+tile.reactor_syncer.info.rs=红石强度:
+tile.reactor_syncer.info.update=是更新刻:
+tile.reactor_syncer.info.max=设为15
+tile.reactor_syncer.info.min=设为0

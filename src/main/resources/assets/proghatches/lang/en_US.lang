@@ -551,3 +551,7 @@ hatch.dualinput.slave.inv.mapping.me.name=Dual Inventory Mapping Slave(ME)
 programmable_hatches.gt.pattern.mapping=Insert Pattern(ME Mapping Slave)
 hatch.dualinput.slave.inv.mapping.me.missing=Not Linked
 programmable_hatches.cover.me.drop=Cover is dropped, please re-attach it to update ME Network info. 
+tile.reactor_syncer.info.rs=Redstone:
+tile.reactor_syncer.info.update=Update tick:
+tile.reactor_syncer.info.max=Set to 15
+tile.reactor_syncer.info.min=Set to 0

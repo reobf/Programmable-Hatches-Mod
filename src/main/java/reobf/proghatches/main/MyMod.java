@@ -7,6 +7,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
 
@@ -48,7 +51,9 @@ import org.apache.logging.log4j.Logger;
 import com.glodblock.github.client.gui.GuiDualInterface;
 import com.glodblock.github.client.gui.container.ContainerDualInterface;
 import com.glodblock.github.common.parts.PartFluidP2PInterface;
+import com.glodblock.github.crossmod.opencomputers.DriverLevelMaintainer;
 import com.glodblock.github.inventory.FluidConvertingInventoryAdaptor;
+import com.glodblock.github.loader.ItemAndBlockHolder;
 
 import appeng.api.AEApi;
 import appeng.api.config.FuzzyMode;
@@ -98,6 +103,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
+import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -111,15 +117,17 @@ import gregtech.common.blocks.GT_Block_Machines;
 import gregtech.common.covers.CoverInfo;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_HeatExchanger;
 import gregtech.crossmod.waila.GregtechWailaDataProvider;
+import li.cil.oc.api.Driver;
 import reobf.proghatches.Tags;
 import reobf.proghatches.block.ChunkTrackingGridCahce;
+import reobf.proghatches.block.TileIOHub;
 import reobf.proghatches.eucrafting.BlockEUInterface;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.AECover.IMemoryCardSensitive;
 import reobf.proghatches.eucrafting.InterfaceData;
 import reobf.proghatches.eucrafting.PartEUP2PInterface;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
-
+import reobf.proghatches.gt.metatileentity.DualInputHachOC;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatchInventoryMappingSlave;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
@@ -129,19 +137,20 @@ import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.mixin.mixins.MixinFixPipeCoverBug;
+import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.net.MasterSetMessage;
 import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
 import reobf.proghatches.net.RenameMessage;
 import reobf.proghatches.net.UpgradesMessage;
+import reobf.proghatches.oc.ItemAPICard;
+import reobf.proghatches.oc.ItemGTRedstoneCard;
 import reobf.proghatches.oc.WirelessPeripheralManager;
 import reobf.proghatches.util.ProghatchesUtil;
 import tconstruct.armor.player.TPlayerStats;
 import thaumcraft.common.entities.golems.ItemGolemCore;
 
-@Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.7.10]",
-dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
-,acceptableRemoteVersions="*"
+@Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.7.10]", dependencies = "required-after:appliedenergistics2;required-after:gregtech;", acceptableRemoteVersions = "*"
 /*
  * ,dependencies= "required-after:neenergistics;"
  */
@@ -149,32 +158,43 @@ dependencies = "required-after:appliedenergistics2;required-after:gregtech;"
 public class MyMod {
 	public static final Logger LOG = LogManager.getLogger(Tags.MODID);
 	public static MyMod instance;
-	{CraftingCPUCluster.class.getDeclaredFields();
-	instance = this;}
-	
-	static{
-	 class test extends Item{@Override public  int getItemStackLimit() {return 0;}}
-	try{
-		Boolean b1=(Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
-		boolean b2=test.class.getDeclaredMethod("getItemStackLimit")!=null;
-	if(((b1!=null)&&b1)==false&&b2==true){
-		
-	
-		
-		for(int i=0;i<20;i++)
-		{
-		LOG.fatal("!!!ATTENTION!!!");
-		LOG.fatal("You are using dev version of ProgrammableHatches in obfuscated env! Use the one without '-dev' suffix!");
-		LOG.fatal("Will stop the game, since it's impossible to proceed.");
-		};
-		
-		FMLCommonHandler.instance().exitJava(1, false);
-		//throw new AssertionError("You are using dev version of ProgrammableHatches in obfuscated env! Use the one without '-dev' suffix!");
+	{
+		DualityInterface.class.getDeclaredFields();
+		instance = this;
 	}
-	}catch(Exception e){}
+
+	static {
+		class test extends Item {
+			@Override
+			public int getItemStackLimit() {
+				return 0;
+			}
+		}
+		try {
+			Boolean b1 = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
+			boolean b2 = test.class.getDeclaredMethod("getItemStackLimit") != null;
+			if (((b1 != null) && b1) == false && b2 == true) {
+
+				for (int i = 0; i < 20; i++) {
+					LOG.fatal("!!!ATTENTION!!!");
+					LOG.fatal(
+							"You are using dev version of ProgrammableHatches in obfuscated env! Use the one without '-dev' suffix!");
+					LOG.fatal("Will stop the game, since it's impossible to proceed.");
+				}
+				;
+
+				FMLCommonHandler.instance().exitJava(1, false);
+				// throw new AssertionError("You are using dev version of
+				// ProgrammableHatches in obfuscated env! Use the one without
+				// '-dev' suffix!");
+			}
+		} catch (Exception e) {
+		}
 	}
-	public static Deque<Runnable> scheduled=new ArrayDeque<Runnable>();
-	//public static ShutDownReason ACCESS_LOOP=new SimpleShutDownReason("proghatch.access_loop", true){public String getID() {return "proghatch.access_loop";};};
+	public static Deque<Runnable> scheduled = new ArrayDeque<Runnable>();
+	// public static ShutDownReason ACCESS_LOOP=new
+	// SimpleShutDownReason("proghatch.access_loop", true){public String getID()
+	// {return "proghatch.access_loop";};};
 	public static SimpleNetworkWrapper net = new SimpleNetworkWrapper(Tags.MODID);
 	public static Item progcircuit;
 	public static Item toolkit;
@@ -199,7 +219,7 @@ public class MyMod {
 	public static Item euinterface_p2p;
 	public static Item book;
 	public static Item fixer;
-	//public static Item eu_tool;
+	// public static Item eu_tool;
 	public static Item plunger;
 	public static Item lazer_p2p_part;
 	public static Item upgrades;
@@ -220,20 +240,46 @@ public class MyMod {
 		net.registerMessage(new RenameMessage.Handler(), RenameMessage.class, 2, Side.SERVER);
 		net.registerMessage(new UpgradesMessage.Handler(), UpgradesMessage.class, 3, Side.CLIENT);
 		net.registerMessage(new MasterSetMessage.Handler(), MasterSetMessage.class, 4, Side.CLIENT);
-		
+
 		proxy.preInit(event);
 	}
 
+	public static Map<Object, Class> OCApi = new HashMap<>();
+
 	@Mod.EventHandler
-	
+
 	public void init(FMLInitializationEvent event) {
 		proxy.init(event);
-		AEApi.instance().partHelper().registerNewLayer("reobf.proghatches.fmp.LazerLayer", "reobf.proghatches.eucrafting.ILazer");
-	
+		AEApi.instance().partHelper().registerNewLayer("reobf.proghatches.fmp.LazerLayer",
+				"reobf.proghatches.eucrafting.ILazer");
+
 		FMLCommonHandler.instance().bus().register(this);
 		MinecraftForge.EVENT_BUS.register(this);
+
+		OCApi.put(iohub, TileIOHub.OCApi.class);
+		OCApi.put(oc_api, ItemAPICard.APIEnv.class);
+		OCApi.put(oc_redstone, ItemGTRedstoneCard.RedstoneEnv.class);
+		OCApi.put(new ItemStack( GregTech_API.sBlockMachines,
+		         1,
+		         Config.metaTileEntityOffset+Registration.DualInputHatchOCOffset), DualInputHachOC.class);
+		OCApi.forEach((k, v) -> Driver.add(new li.cil.oc.api.driver.EnvironmentProvider() {
+
+			@Override
+			public Class<?> getEnvironment(ItemStack itemStack) {
+				Object kk = k;
+				if (kk instanceof Block) {
+					kk = Item.getItemFromBlock((Block) kk);
+				}
+				if (itemStack != null && (itemStack.getItem() == kk||(kk instanceof ItemStack?(
+						((ItemStack)kk).getItem()==itemStack.getItem()&&((ItemStack)kk).getItemDamage()==itemStack.getItemDamage()
+						):false))) {
+					return v;
+				}
+				return null;
+			}
+		}));
 	}
-	
+
 	@SubscribeEvent
 	public void overrideTutorialBookClickBehaviour(PlayerInteractEvent ev) {
 		if (Optional.ofNullable(ev.entityPlayer.getHeldItem()).map(ItemStack::getItem)
@@ -256,17 +302,23 @@ public class MyMod {
 
 	@SubscribeEvent
 	public void join(PlayerLoggedInEvent e) {
-		//if(Config.fixCircuit)
-		//e.player.addChatComponentMessage(new ChatComponentTranslation("proghatch.join.fixCircuit"));
-		
-	/*	if (e.player.getEntityData().hasKey("ProgrammableHatchesTutorialGet3") == false) {
-			e.player.getEntityData().setBoolean("ProgrammableHatchesTutorialGet3", true);
-*/
-			
-			if(e.player.getExtendedProperties(GET_PROGHATCHBOOK)!=null){
-				Prop p=(Prop) e.player.getExtendedProperties(GET_PROGHATCHBOOK);
-				if(p.get){return;}
-				p.get=true;
+		// if(Config.fixCircuit)
+		// e.player.addChatComponentMessage(new
+		// ChatComponentTranslation("proghatch.join.fixCircuit"));
+
+		/*
+		 * if
+		 * (e.player.getEntityData().hasKey("ProgrammableHatchesTutorialGet3")
+		 * == false) { e.player.getEntityData().setBoolean(
+		 * "ProgrammableHatchesTutorialGet3", true);
+		 */
+
+		if (e.player.getExtendedProperties(GET_PROGHATCHBOOK) != null) {
+			Prop p = (Prop) e.player.getExtendedProperties(GET_PROGHATCHBOOK);
+			if (p.get) {
+				return;
+			}
+			p.get = true;
 			EntityItem entityitem = e.player.dropPlayerItemWithRandomChoice(
 					Optional.of(tutorial("programmable_hatches.eucreafting.tutorial")).map(s -> {
 						s.stackTagCompound.setString("proghatchesSpecialTag", "true");
@@ -280,21 +332,21 @@ public class MyMod {
 			}).get(), false);
 			entityitem.delayBeforeCanPickup = 0;
 			entityitem.func_145797_a(e.player.getCommandSenderName());
-			
-			
-			
 
 		}
 		;
 
 	}
 
+	/**
+	 * @param event
+	 */
 	@Mod.EventHandler
-	
+
 	public void postInit(FMLPostInitializationEvent event) {
 		proxy.postInit(event);
-		//Api.INSTANCE.registries().p2pTunnel().addNewAttunement(null, null);
-		//ShutDownReasonRegistry.register(ACCESS_LOOP);
+		// Api.INSTANCE.registries().p2pTunnel().addNewAttunement(null, null);
+		// ShutDownReasonRegistry.register(ACCESS_LOOP);
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
 		for (ItemStack s : new ItemStack[] { new ItemStack(block_euinterface), new ItemStack(euinterface_p2p) })
 
@@ -314,21 +366,34 @@ public class MyMod {
 		InterfaceTerminalRegistry.instance().register(TileFluidInterface_EU.class);
 		InterfaceTerminalRegistry.instance().register(PatternDualInputHatch.Inst.class);
 		InterfaceTerminalRegistry.instance().register(PatternDualInputHatchInventoryMappingSlave.class);
-		
-		//InterfaceTerminalRegistry.instance().register(ProgrammingCircuitProvider.class);
-		//InterfaceTerminalRegistry.instance().register(LargeProgrammingCircuitProvider.class);
-		
-		
-		
-	//	ItemList list=new ItemList();
-	//	list.add(AEItemStack.create(ItemProgrammingCircuit.wrap(new ItemStack(Blocks.cactus))));
-	//	list.findFuzzy(AEItemStack.create(ItemProgrammingCircuit.wrap(new ItemStack(Blocks.bed))), FuzzyMode.IGNORE_ALL);
+
+		// InterfaceTerminalRegistry.instance().register(ProgrammingCircuitProvider.class);
+		// InterfaceTerminalRegistry.instance().register(LargeProgrammingCircuitProvider.class);
+
+		try {
+			Field f = BlockingModeIgnoreList.class.getDeclaredField("IgnoredItems");
+			f.setAccessible(true);
+			((List) f.get(null)).add(Items.apple);
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+
+		// ItemList list=new ItemList();
+		// list.add(AEItemStack.create(ItemProgrammingCircuit.wrap(new
+		// ItemStack(Blocks.cactus))));
+		// list.findFuzzy(AEItemStack.create(ItemProgrammingCircuit.wrap(new
+		// ItemStack(Blocks.bed))), FuzzyMode.IGNORE_ALL);
+
 	}
+
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void tick(final TickEvent.ServerTickEvent event) {
-		while(scheduled.isEmpty()==false)
-		scheduled.removeLast().run();
+		while (scheduled.isEmpty() == false)
+			scheduled.removeLast().run();
 	}
+
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void playerInteract(final PlayerInteractEvent event) {
 
@@ -373,14 +438,14 @@ public class MyMod {
 	}
 
 	@Mod.EventHandler
-	
+
 	public void serverStarting(FMLServerStartingEvent event) {
 		proxy.serverStarting(event);
 		WirelessPeripheralManager.stations.clear();
 		WirelessPeripheralManager.cards.clear();
 		ChunkTrackingGridCahce.callbacks.clear();
-		//Just in case weak references are not GCed in time
-		//only useful for intergreted server?
+		// Just in case weak references are not GCed in time
+		// only useful for intergreted server?
 		event.registerServerCommand(new CommandAnchor());
 	}
 
@@ -401,8 +466,9 @@ public class MyMod {
 
 		ArrayList<String> pages = new ArrayList<>();
 		int size = Integer.valueOf(LangManager.translateToLocalFormatted(key + ".pages"));
-		for (int i = 0; i < size; i++){
-			//System.out.println(LangManager.translateToLocalFormatted(key + ".pages." + i));
+		for (int i = 0; i < size; i++) {
+			// System.out.println(LangManager.translateToLocalFormatted(key +
+			// ".pages." + i));
 			pages.add(LangManager.translateToLocalFormatted(key + ".pages." + i).replace("\\n", "\n"));
 		}
 		ItemStack is = ProghatchesUtil.getWrittenBook(it, "ProgrammableHatchesTutorial", key, "programmable_hatches",
@@ -459,65 +525,83 @@ public class MyMod {
 		}
 
 	}
-	@SubscribeEvent
-    public void onUnload(WorldEvent.Unload event) {
-		if(event.world.isRemote)return;
-		//World unloading seems to not post ChunkEvent.Unload?
-		//Well, warning twice is better than not warning, right?
-		try{
-		ChunkTrackingGridCahce.callbacks.forEach((a,b)->{
-			if(a!=null){a.unload(event.world);}
-		});
-		}catch(Throwable t){t.printStackTrace();}
-		
-    }
-	@SubscribeEvent
-    public void onUnload(ChunkEvent.Unload event) {
-		if(event.world.isRemote)return;
-		//on client side, out-of-sight causes chunk unload! That's not what we want, so ignore it.
-		try{
-			ChunkTrackingGridCahce.callbacks.forEach((a,b)->{
-			if(a!=null){a.unload(event.getChunk());}
-		});
-		}catch(Throwable t){t.printStackTrace();}
-    }
-	public  static final String GET_PROGHATCHBOOK="GET_PROGHATCHBOOK";
-	   @SubscribeEvent
-	  
-	   public void onEntityConstructing(EntityEvent.EntityConstructing event) {
-	        if (event.entity instanceof EntityPlayer &&((EntityPlayer) event.entity).getExtendedProperties("GET_PROGHATCHBOOK") == null) {
-	        	event.entity.registerExtendedProperties(GET_PROGHATCHBOOK, new Prop());
-	        }
-	    }
 
-	public static class Prop implements   IExtendedEntityProperties {
+	@SubscribeEvent
+	public void onUnload(WorldEvent.Unload event) {
+		if (event.world.isRemote)
+			return;
+		// World unloading seems to not post ChunkEvent.Unload?
+		// Well, warning twice is better than not warning, right?
+		try {
+			ChunkTrackingGridCahce.callbacks.forEach((a, b) -> {
+				if (a != null) {
+					a.unload(event.world);
+				}
+			});
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+
+	}
+
+	@SubscribeEvent
+	public void onUnload(ChunkEvent.Unload event) {
+		if (event.world.isRemote)
+			return;
+		// on client side, out-of-sight causes chunk unload! That's not what we
+		// want, so ignore it.
+		try {
+			ChunkTrackingGridCahce.callbacks.forEach((a, b) -> {
+				if (a != null) {
+					a.unload(event.getChunk());
+				}
+			});
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+	}
+
+	public static final String GET_PROGHATCHBOOK = "GET_PROGHATCHBOOK";
+
+	@SubscribeEvent
+
+	public void onEntityConstructing(EntityEvent.EntityConstructing event) {
+		if (event.entity instanceof EntityPlayer
+				&& ((EntityPlayer) event.entity).getExtendedProperties("GET_PROGHATCHBOOK") == null) {
+			event.entity.registerExtendedProperties(GET_PROGHATCHBOOK, new Prop());
+		}
+	}
+
+	public static class Prop implements IExtendedEntityProperties {
 		boolean get;
 		public int alert_mask;
+
 		@Override
 		public void saveNBTData(NBTTagCompound compound) {
-			
+
 			compound.setInteger("alert_mask", alert_mask);
-			compound.setBoolean(GET_PROGHATCHBOOK+"_get", get);
+			compound.setBoolean(GET_PROGHATCHBOOK + "_get", get);
 		}
 
 		@Override
 		public void loadNBTData(NBTTagCompound compound) {
-			get=compound.getBoolean(GET_PROGHATCHBOOK+"_get");
-			alert_mask=compound.getInteger("alert_mask");
+			get = compound.getBoolean(GET_PROGHATCHBOOK + "_get");
+			alert_mask = compound.getInteger("alert_mask");
 		}
 
 		@Override
 		public void init(Entity entity, World world) {
-		
-			
-		}}
-	
-	public static WeakHashMap<Object,Runnable> callbacks=new WeakHashMap<>();
+
+		}
+	}
+
+	public static WeakHashMap<Object, Runnable> callbacks = new WeakHashMap<>();
 	public static Block reactorsyncer;
+
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void pretick(final TickEvent.ServerTickEvent event) {
-		if(event.phase==Phase.START&&event.side==Side.SERVER){
-			callbacks.forEach((a,b)->b.run());
+		if (event.phase == Phase.START && event.side == Side.SERVER) {
+			callbacks.forEach((a, b) -> b.run());
 		}
 	}
 }

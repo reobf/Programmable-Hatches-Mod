@@ -94,7 +94,7 @@ public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.ite
 
 		}
 
-		@Callback(doc = "getWireless(frequency:number[,isPublic:boolean]) --get GT wireless redstone, 'isPublic' defaults to true", direct = false)
+		@Callback(doc = "getWireless(frequency:number[,isPublic:boolean]) -- get GT wireless redstone, 'isPublic' defaults to true", direct = false)
 		public Object[] getWireless(final Context context, final Arguments args) {
 			boolean ispublic = args.isBoolean(1) ? args.checkBoolean(1) : true;
 			UUID uid = getUUID(stack);
@@ -105,7 +105,7 @@ public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.ite
 					ProghatchesUtil.getSignalAt(ispublic ? null : uid, args.checkInteger(0), getMode(stack)) };
 		}
 
-		@Callback(doc = "setWireless(frequency:number,signal:number[,isPublic:boolean]) --set GT wireless redstone, 'isPublic' defaults to true", direct = false)
+		@Callback(doc = "setWireless(frequency:number,signal:number[,isPublic:boolean]) --s et GT wireless redstone, 'isPublic' defaults to true", direct = false)
 		public Object[] setWireless(final Context context, final Arguments args) {
 
 			boolean ispublic = args.isBoolean(2) ? args.checkBoolean(2) : true;
@@ -120,7 +120,7 @@ public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.ite
 			return null;
 		}
 
-		@Callback(doc = "setGateMode(mode:string) --set GateMode, available modes: AND,NAND,OR,NOR,SINGLE_SOURCE", direct = false)
+		@Callback(doc = "setGateMode(mode:string) -- set GateMode, available modes: AND,NAND,OR,NOR,SINGLE_SOURCE", direct = false)
 		public Object[] setGateMode(final Context context, final Arguments args) {
 
 			// try{
@@ -140,7 +140,7 @@ public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.ite
 			return new Object[] { getMode(stack).toString() };
 		}
 
-		@Callback(doc = "clearWireless(isPublic:boolean[,frequency:number]) --clear GT wireless redstone, will clear all signals emitted by this card if 'frequency' is absent.", direct = false)
+		@Callback(doc = "clearWireless(isPublic:boolean[,frequency:number]) -- clear GT wireless redstone, will clear all signals emitted by this card if 'frequency' is absent.", direct = false)
 		public Object[] clearWireless(final Context context, final Arguments args) {
 
 			boolean ispublic = args.checkBoolean(0);
@@ -158,7 +158,7 @@ public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.ite
 			return null;
 		}
 
-		@Callback(doc = "getUUID() --get bound owner's UUID, or nil if absent", direct = false)
+		@Callback(doc = "getUUID() -- get bound owner's UUID, or nil if absent", direct = false)
 		public Object[] getOwnerUUID(final Context context, final Arguments args) {
 
 			return new Object[] {

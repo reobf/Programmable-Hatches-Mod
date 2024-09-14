@@ -614,15 +614,21 @@ for(ItemStack is:mInventory)
 	public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
 			int z) {
 		tag.setBoolean("disabled", disabled);
+		for(int i=0;i<((IInventory)tile).getSizeInventory();i++)
+			{ItemStack is = ((IInventory)tile).getStackInSlot(i);
+			if(is!=null)
+			tag.setTag("#"+i,is.writeToNBT(new NBTTagCompound()) );;
+			}
 		super.getWailaNBTData(player, tile, tag, world, x, y, z);
 	}
 
 	@Override
 	public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
 			IWailaConfigHandler config) {
+		
 		for(int i=0;i<((IInventory) accessor.getTileEntity()).getSizeInventory();i++)
 		currenttip.add(StatCollector.translateToLocal("proghatches.provider.waila")
-				+ Optional.ofNullable(((IInventory) accessor.getTileEntity()).getStackInSlot(i))
+				+ Optional.ofNullable(ItemStack.loadItemStackFromNBT(accessor.getNBTData().getCompoundTag("#"+i)))
 						.map(s -> s.getDisplayName() + "@" + s.getItemDamage()).orElse("<empty>")
 
 		);

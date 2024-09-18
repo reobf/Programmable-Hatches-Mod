@@ -521,7 +521,7 @@ public int getInventoryFluidLimit() {
 
 		}
 
-		public void classify(ListeningFluidTank[] fin, ItemStack[] iin) {
+		public boolean classify(ListeningFluidTank[] fin, ItemStack[] iin,boolean removeInputOnSuccess) {
 		
 			boolean hasJob = false;
 			for (int ix = 0; ix < f; ix++) {
@@ -530,10 +530,10 @@ public int getInventoryFluidLimit() {
 				}
 				if (fluidEquals(mStoredFluidInternalSingle[ix], fin[ix])) {
 					if((fin[ix].getFluidAmount()>0&&mStoredFluidInternal[ix].getFluidAmount()>0)&&!fluidEqualsIngoreAmount(mStoredFluidInternal[ix], fin[ix])){
-					return;
+					return false;
 				}
 				} else {
-					return;
+					return false;
 				}
 				
 			}
@@ -543,20 +543,21 @@ public int getInventoryFluidLimit() {
 				}
 				if (ItemStack.areItemStacksEqual(mStoredItemInternalSingle[ix], iin[ix])) {
 					if((iin[ix]!=null&&mStoredItemInternal[ix]!=null)&&!areItemStacksEqualIngoreAmount(mStoredItemInternal[ix], iin[ix])){
-						return;
+						return false;
 					}
 				} else {
-					return;
+					return false;
 				}
 				
 			}
 			if (!hasJob) {
-				return;
+				return false;
 			}
 
 			for (int ix = 0; ix < f; ix++) {
 				mStoredFluidInternal[ix].fill(mStoredFluidInternalSingle[ix].getFluid(), true);
-				fin[ix].setFluidDirect(null);
+				if(removeInputOnSuccess)fin[ix].setFluidDirect(null);else
+					if(fin[ix].getFluid()!=null)fin[ix].setFluidDirect(fin[ix].getFluid().copy());
 
 			}
 			for (int ix = 0; ix < i; ix++) {
@@ -565,14 +566,15 @@ public int getInventoryFluidLimit() {
 						mStoredItemInternal[ix] = mStoredItemInternalSingle[ix].copy();
 					else
 						mStoredItemInternal[ix].stackSize += mStoredItemInternalSingle[ix].stackSize;
-				iin[ix] = null;
+				if(removeInputOnSuccess)iin[ix] = null;else
+					if(iin[ix]!=null)iin[ix]=iin[ix].copy();
 			}
 			tickFirstClassify=-1;//make it instantly accessible
 			markJustHadNewItems();
 			onClassify();
 			if (program)
 				programLocal();
-
+			return true;
 		}
 
 		public boolean recordRecipeOrClassify(ListeningFluidTank[] fin, ItemStack[] iin) {
@@ -626,6 +628,35 @@ public int getInventoryFluidLimit() {
 		public FluidStack[] getFluidInputs() {
 
 			return asFluidStack.apply(mStoredFluidInternal,shared.getFluid());
+		}
+
+		public int space() {
+			int ret=Integer.MAX_VALUE;
+			boolean found=false;
+			for (int ix = 0; ix < i; ix++) {
+				
+				if(mStoredItemInternalSingle[ix]!=null&&mStoredItemInternalSingle[ix].stackSize>0){
+					int now=0;
+					if(mStoredItemInternal[ix]!=null)now=mStoredItemInternal[ix].stackSize;
+					int tmp=(itemLimit()-now)/mStoredItemInternalSingle[ix].stackSize;
+				if(tmp<ret){ret=tmp;found=true;}
+				}
+			}
+			for (int ix = 0; ix < f; ix++) {
+				
+				if(mStoredFluidInternalSingle[ix].getFluidAmount()>0){
+					int now=mStoredFluidInternal[ix].getFluidAmount();
+					
+					int tmp=(fluidLimit()-now)/mStoredFluidInternalSingle[ix].getFluidAmount();
+				if(tmp<ret){ret=tmp;found=true;}
+				}
+			}
+			
+			if(found)return ret;
+			return 0;
+			
+			
+			
 		}
 
 	}
@@ -716,7 +747,7 @@ public int getInventoryFluidLimit() {
 
 				if (inv0.full() == false) {
 					if (!inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)) {
-						inv0.classify(this.mStoredFluid, mInventory);
+						if(inv0.classify(this.mStoredFluid, mInventory,true))break;;
 					}
 				}
 
@@ -782,9 +813,9 @@ public int getInventoryFluidLimit() {
 		 for (DualInvBuffer inv0 : this.sortByEmpty()) {
 			if (on && dirty&&!inputEmpty.get()) {
 				if (inv0.full() == false) {
-					if (!inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)) {
-						inv0.classify(this.mStoredFluid, mInventory);
-					}
+					if (inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)||
+							inv0.classify(this.mStoredFluid, mInventory,true))break;;
+					
 				}
 			}
 
@@ -824,11 +855,22 @@ public int getInventoryFluidLimit() {
 			return;
 		for (DualInvBuffer inv0 : this.sortByEmpty()) {
 			if (inv0.full() == false)
-				inv0.classify(this.mStoredFluid, mInventory);
+				if(inv0.classify(this.mStoredFluid, mInventory,true))break;
 		}
 
 	}
+	public DualInvBuffer classifyForce() {
+		if (isRemote())
+			return null;
+		for (DualInvBuffer inv0 : this.sortByEmpty()) {
+			if (inv0.full() == false)
+				if(inv0.classify(this.mStoredFluid, mInventory,true)||
+						inv0.recordRecipeOrClassify(mStoredFluid, mInventory)
+						)return inv0;
+		}
+		return null;
 
+	}
 	boolean dirty;
 
 	@Override

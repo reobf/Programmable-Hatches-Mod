@@ -7,3 +7,4 @@ No fluid support, patterns with fluid will be rejected.
 Buffer: {bufferNum}
 For each buffer:
 Slot maximum stacksize:2^31-1
+§eHas better performance working with large amount of Co-Processing Units.

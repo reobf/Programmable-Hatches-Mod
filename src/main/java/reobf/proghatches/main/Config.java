@@ -33,8 +33,9 @@ public class Config {
 	public static boolean sleep=true;
 	public static boolean MECover=false;
 	public static boolean delayUnlock=true;
+	public static boolean	fastPatternDualInput =true;
 	public static void synchronizeConfiguration(File configFile) {
-	
+
 		Configuration configuration = new Configuration(configFile);
 		
 		/*if(!configuration.hasKey(lang, greeting)){
@@ -57,6 +58,8 @@ public class Config {
 				"When on, hatch will sleep when not busy, to ease server load.");
 		MECover = configuration.getBoolean("MECover on MEHatch", "Experimental", MECover,
 				"When on, ME Cover will be allowed to be placed on machine that requires ME channel.");
+		fastPatternDualInput = configuration.getBoolean("Fast PatternDualInputHatch","Experimental", fastPatternDualInput,
+				"When on, optimize performance of DualHatches that directly accept Encoded Patterns. Useful when number of Co-Processors is very large.");
 		
 		
 		

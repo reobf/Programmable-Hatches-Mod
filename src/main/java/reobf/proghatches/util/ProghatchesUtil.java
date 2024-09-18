@@ -167,9 +167,9 @@ public class ProghatchesUtil {
 				if (aPages[i].length() < 256)
 					tNBTList.appendTag(new NBTTagString(aPages[i]));
 				else
-					GT_Log.err.println("WARNING: String for written Book too long! -> " + aPages[i]);
+					MyMod.LOG.warn("WARNING: String for written Book too long! -> " + aPages[i]);
 			} else {
-				GT_Log.err.println("WARNING: Too much Pages for written Book! -> " + aTitle);
+				MyMod.LOG.warn("WARNING: Too much Pages for written Book! -> " + aTitle);
 				break;
 			}
 		}

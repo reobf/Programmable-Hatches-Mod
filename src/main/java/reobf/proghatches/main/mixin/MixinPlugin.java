@@ -191,7 +191,7 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		retLate.add("part2.MixinIsWailaCall");
 		retLate.add("part2.MixinOC");
 		retLate.add("part2.MixinRecursiveSlotClickProtection");
-		//retLate.add("part2.MixinBlockModeAltBehaviour");
+		retLate.add("part2.MixinMultiPattern");
 		if (FMLLaunchHandler.side().isClient()) {
 			if (!"true".equals(pp.get("noAEItemSortMixins")))
 				if(ff)retLate.add("MixinAEItemStackCompare");

@@ -159,7 +159,7 @@ public class MyMod {
 	public static final Logger LOG = LogManager.getLogger(Tags.MODID);
 	public static MyMod instance;
 	{
-		DualityInterface.class.getDeclaredFields();
+		CraftingCPUCluster.class.getDeclaredFields();
 		instance = this;
 	}
 

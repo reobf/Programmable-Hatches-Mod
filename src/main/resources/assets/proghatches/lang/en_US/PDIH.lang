@@ -7,3 +7,4 @@ Buffer: {bufferNum}
 For each buffer:
 Capacity: 2^31-1 L{mMultiFluid?} x{fluidSlots} types of fluid{mMultiFluid:}{mMultiFluid!}
 Slot maximum stacksize:2^31-1
+§eHas better performance working with large amount of Co-Processing Units.

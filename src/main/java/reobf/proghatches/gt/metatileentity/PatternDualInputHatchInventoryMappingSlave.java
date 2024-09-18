@@ -82,7 +82,9 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import reobf.proghatches.block.BlockIOHub;
+import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
+import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.ISkipStackSizeCheck;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.lang.LangManager;
@@ -94,7 +96,9 @@ import reobf.proghatches.net.UpgradesMessage;
 
 public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch & IDualInputHatch & IMetaTileEntity>
 		extends GT_MetaTileEntity_TieredMachineBlock implements IAddUIWidgets, ICraftingMedium, ICustomNameObject,
-		IGridProxyable, IInterfaceViewable, IPowerChannelState, IActionHost, ICraftingProvider {
+		IGridProxyable, IInterfaceViewable, IPowerChannelState, IActionHost, ICraftingProvider
+		,IMultiplePatternPushable
+		{
 	private T master; // use getMaster() to access
 	public int masterX, masterY, masterZ;
 	public boolean masterSet = false; // indicate if values of masterX,
@@ -799,7 +803,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 							return false;
 						}
 						FluidStack splitted = new FluidStack(fs.getFluid(), tosplit);
-						master.mStoredFluid[index].setFluid(splitted);
+						master.mStoredFluid[f].setFluidDirect(splitted);
 						f++;
 					}
 
@@ -814,13 +818,15 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 							clearInv(master);
 							return false;
 						}
-						master.mInventory[index] = splitted;
+						master.mInventory[i] = splitted;
 						i++;
 					}
 				}
 
 			}
-
+			if(master instanceof BufferedDualInputHatch){
+				((BufferedDualInputHatch) master).classifyForce();
+			}
 			return true;// hoo ray
 		}
 
@@ -962,4 +968,113 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 	        return true;
 	    }
 
+	@Override
+	public int pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
+		if(Config.fastPatternDualInput==false)return 0;
+		
+		if (getMaster() instanceof PatternDualInputHatch) {
+			PatternDualInputHatch dih = ((PatternDualInputHatch) getMaster());
+			try{
+			dih.skipActiveCheck=true;
+			return dih.pushPatternMulti(patternDetails, table, maxTodo);
+			}finally{dih.skipActiveCheck=false;}
+		}
+		int suc=0;
+		if (master != null) {
+			if (!isInputEmpty(master)) {
+				return 0;
+			}
+
+			int i = 0;
+			int f = 0;
+			int ilimit = master.getInventoryStackLimit();
+			int flimit = master.getInventoryFluidLimit();
+			boolean isplit = master.disableLimited;
+			boolean fsplit = !master.fluidLimit;
+			for (int index = 0; index < table.getSizeInventory(); index++) {
+				ItemStack is = (table.getStackInSlot(index));
+				if (is == null)
+					continue;
+				is = is.copy();
+				if (is.getItem() instanceof ItemFluidPacket) {
+					FluidStack fs = ItemFluidPacket.getFluidStack(is);
+					if (fs == null) {
+						continue;
+					}
+					while (fs.amount > 0) {
+						if (f >= master.mStoredFluid.length) {
+							clearInv(master);
+							return 0;
+						}
+						int tosplit = Math.min(fs.amount, flimit);
+						fs.amount -= tosplit;
+						if ((!fsplit) && fs.amount > 0) {
+							clearInv(master);
+							return 0;
+						}
+						FluidStack splitted = new FluidStack(fs.getFluid(), tosplit);
+						master.mStoredFluid[f].setFluidDirect(splitted);
+						f++;
+					}
+
+				} else {
+					while (is.stackSize > 0) {
+						if (master.isValidSlot(i) == false) {
+							clearInv(master);
+							return 0;
+						}
+						ItemStack splitted = is.splitStack(Math.min(is.stackSize, ilimit));
+						if ((!isplit) && is.stackSize > 0) {
+							clearInv(master);
+							return 0;
+						}
+						master.mInventory[i] = splitted;
+						i++;
+					}
+				}
+
+			}
+			suc++;maxTodo--;
+			
+			if(master instanceof BufferedDualInputHatch){
+			DualInvBuffer theBuffer=((BufferedDualInputHatch) master).classifyForce();
+			
+			if(theBuffer!=null){
+				int todo=Math.min(theBuffer.space(),maxTodo);
+				
+				if(todo>0){
+					for(int ix=0;ix<theBuffer.i;ix++){
+						if(theBuffer.mStoredItemInternalSingle[ix]!=null){
+							theBuffer.mStoredItemInternal[ix].stackSize+=theBuffer.mStoredItemInternalSingle[ix].stackSize*todo;
+						}}
+					
+					
+					for(int ix=0;ix<theBuffer.f;ix++){
+						if(theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount()>0){
+							theBuffer.mStoredFluidInternal[ix].getFluid().amount+=theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount()*todo;
+						}}
+					
+					suc+=todo;
+				}
+				
+				
+			}
+			
+			
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	}
+	return suc;
+	
+
+}
 }

@@ -7,3 +7,4 @@
 缓冲容量: 2^31-1 L{mMultiFluid?} x{fluidSlots}种流体{mMultiFluid:}{mMultiFluid!}
 {slots}格
 每格堆叠限制:2^31-1
+§e针对高并行CPU合成有特殊优化

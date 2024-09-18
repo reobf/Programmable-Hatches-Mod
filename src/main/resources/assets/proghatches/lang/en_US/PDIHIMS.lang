@@ -1,3 +1,4 @@
 Not a hatch, is not a part of Multiblock
 Link with Crafting Input Buffer using Data Stick to share input area inventory
 Can be used to extend Patterns attached to master hatch
+§eHas better performance working with large amount of Co-Processing Units.

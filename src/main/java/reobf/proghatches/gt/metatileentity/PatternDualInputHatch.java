@@ -23,8 +23,10 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidTank;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
+import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.lang.LangManager;
+import reobf.proghatches.main.Config;
 
 import com.glodblock.github.common.item.ItemFluidPacket;
 import com.google.common.collect.ImmutableList;
@@ -87,7 +89,7 @@ import li.cil.oc.api.network.Visibility;
 
 public class PatternDualInputHatch extends BufferedDualInputHatch
 		implements ICraftingProvider, IGridProxyable, ICustomNameObject, IInterfaceViewable, IPowerChannelState, IActionHost
-		
+		,IMultiplePatternPushable
 		{
 
 	public PatternDualInputHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
@@ -593,7 +595,7 @@ if(supportsFluids())
 					return false;
 				}
 				
-				mStoredFluid[fluids-1].setFluid(ItemFluidPacket.getFluidStack(itemStack));
+				mStoredFluid[fluids-1].setFluidDirect(ItemFluidPacket.getFluidStack(itemStack));
 				
 			} else {
 				items++;
@@ -607,8 +609,13 @@ if(supportsFluids())
 		}
 		markDirty();
 		dirty = true;
-		classify();
-
+		//inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)
+		//classify();
+		for (DualInvBuffer inv0 : this.sortByEmpty()) {
+			if (inv0.full() == false)
+				if(inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)||
+						inv0.classify(this.mStoredFluid, mInventory,true))break;
+		}
 		justHadNewItems = true;
 		return true;
 	}
@@ -879,6 +886,100 @@ if(supportsFluids())
 		public boolean allowsPatternOptimization() {
 			// TODO Auto-generated method stub
 			return IInterfaceViewable.super.allowsPatternOptimization();
+		}
+
+		
+		
+		@Override
+		public int pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
+			if(Config.fastPatternDualInput==false)return 0;
+			if(maxTodo<=0)return 0;
+			if (!isActive()&&!skipActiveCheck)
+				return 0;
+			if (!isEmpty())
+				return 0;
+			if (!supportsFluids()) {
+				for (int i = 0; i < table.getSizeInventory(); ++i) {
+					ItemStack itemStack = table.getStackInSlot(i);
+					if (itemStack == null)
+						continue;
+					if (itemStack.getItem() instanceof ItemFluidPacket)
+						return 0;
+				}
+			}
+
+			int items = 0;
+			int fluids = 0;
+			int size = table.getSizeInventory();
+			for (int i = 0; i < size; i++) {
+				ItemStack itemStack = table.getStackInSlot(i);
+				if (itemStack == null)
+					continue;
+				if (itemStack.getItem() instanceof ItemFluidPacket) {
+					fluids++;
+					if (fluids > this.fluidSlots()) {
+						clearInv();
+						return 0;
+					}
+					
+					mStoredFluid[fluids-1].setFluidDirect(ItemFluidPacket.getFluidStack(itemStack));
+					
+				} else {
+					items++;
+					if (items > 16) {
+						clearInv();
+						return 0;
+					}
+					mInventory[items-1] = itemStack;
+
+				}
+			}
+			markDirty();
+			dirty = true;
+			//classify();
+			int suc=0;
+			DualInvBuffer theBuffer=classifyForce();
+			//if(theBuffer!=null){
+				suc++;maxTodo--;
+			//}
+			/*for (DualInvBuffer inv0 : this.sortByEmpty()) {
+				if (inv0.full() == false)
+					if(inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)||
+							inv0.classify(this.mStoredFluid, mInventory, true)
+							){
+						theBuffer=inv0;suc++;maxTodo--;
+						break;}
+			}*/
+			if(theBuffer!=null){//if succeeded, it's safe to simply add to stacksize to push more patterns 
+				int todo=Math.min(theBuffer.space()
+						/*space() will return correct result here
+						 *it assumes item/fluid type is correct
+						 * */
+						,maxTodo);
+				
+				if(todo>0){
+					for(int ix=0;ix<theBuffer.i;ix++){
+						if(theBuffer.mStoredItemInternalSingle[ix]!=null){
+							theBuffer.mStoredItemInternal[ix].stackSize+=theBuffer.mStoredItemInternalSingle[ix].stackSize*todo;
+						}
+						if(theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount()>0){
+							theBuffer.mStoredFluidInternal[ix].getFluid().amount+=theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount();
+						}
+					}
+					suc+=todo;
+				}
+				
+				
+			}
+			
+			
+			
+			
+			
+			
+			
+			justHadNewItems = true;
+			return suc;
 		}
 
 		

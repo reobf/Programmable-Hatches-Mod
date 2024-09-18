@@ -35,7 +35,7 @@ public abstract class MixinEUSourceCoverChunkUnloadNotification extends BaseTile
 			final CoverInfo coverInfo = getCoverInfoAtSide(side);
 			if (coverInfo.isValid()) {
 
-				Object be = coverInfo.getCoverBehavior();
+				GT_CoverBehaviorBase be = coverInfo.getCoverBehavior();
 				
 				
 				if (be != null && be instanceof AECover) {

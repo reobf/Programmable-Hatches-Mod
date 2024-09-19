@@ -54,6 +54,7 @@ import com.glodblock.github.common.parts.PartFluidP2PInterface;
 import com.glodblock.github.crossmod.opencomputers.DriverLevelMaintainer;
 import com.glodblock.github.inventory.FluidConvertingInventoryAdaptor;
 import com.glodblock.github.loader.ItemAndBlockHolder;
+import com.gtnewhorizon.structurelib.alignment.constructable.IMultiblockInfoContainer;
 
 import appeng.api.AEApi;
 import appeng.api.config.FuzzyMode;
@@ -379,7 +380,7 @@ public class MyMod {
 
 			e.printStackTrace();
 		}
-
+		//IMultiblockInfoContainer.MULTIBLOCK_MAP.put(GET_PROGHATCHBOOK, null)
 		// ItemList list=new ItemList();
 		// list.add(AEItemStack.create(ItemProgrammingCircuit.wrap(new
 		// ItemStack(Blocks.cactus))));

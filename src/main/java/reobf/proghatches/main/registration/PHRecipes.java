@@ -51,6 +51,7 @@ import mods.railcraft.common.core.Railcraft;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
+import tconstruct.smeltery.TinkerSmeltery;
 import thaumcraft.api.ThaumcraftApi;
 import thaumcraft.common.config.ConfigItems;
 //spotless:off
@@ -1066,7 +1067,7 @@ Api.INSTANCE.definitions()
  
  GT_Values.RA.stdBuilder()
  .itemInputs(
-		 new ItemStack( GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset+Registration.SlaveOffset),
+		 new ItemStack(GregTech_API.sBlockMachines,0,Config.metaTileEntityOffset+Registration.SlaveOffset),
 		 new ItemStack(GameRegistry.findItem("RIO", "tile.remote_interface")),
 		 new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 0),
 		 new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 1)
@@ -1077,30 +1078,32 @@ Api.INSTANCE.definitions()
  .duration(20 * SECONDS).eut(GT_Values.VP[3]).addTo(RecipeMaps.assemblerRecipes);
  
  
- GT_Values.RA.stdBuilder()
+
+ GT_Values.RA.stdBuilder()  
+ .metadata(RESEARCH_ITEM,  new ItemStack( GregTech_API.sBlockMachines,
+         1,Config.metaTileEntityOffset+Registration.MappingSlaveOffset))
+ .metadata(RESEARCH_TIME, 1 * HOURS)
  .itemInputs(
-		 Hatch_CraftingInput_Bus_ME.get(1),
+		 new ItemStack( GregTech_API.sBlockMachines,
+		         1,
+		 Config.metaTileEntityOffset+Registration.MappingSlaveOffset),	
+		 new ItemStack( ItemAndBlockHolder.INTERFACE),
+		 new ItemStack( ItemAndBlockHolder.INTERFACE),
+		 new ItemStack( ItemAndBlockHolder.INTERFACE),
 		 new ItemStack(GameRegistry.findItem("RIO", "tile.remote_interface")),
 		 new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 0),
 		 new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 1)
 		 )
- .itemOutputs(new ItemStack( GregTech_API.sBlockMachines,
-         1,
-         Config.metaTileEntityOffset+Registration.PatternMappingSlaveOffset))
- .duration(20 * SECONDS).eut(GT_Values.VP[3]).addTo(RecipeMaps.assemblerRecipes);
- 
- GT_Values.RA.stdBuilder()
- .itemInputs(
-		 new ItemStack( GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset+Registration.PatternOffset),
-			
-		 new ItemStack(GameRegistry.findItem("RIO", "tile.remote_interface")),
-		 new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 0),
-		 new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 1)
+ .fluidInputs(
+		 new FluidStack(TinkerSmeltery.moltenEnderFluid,1000),
+		 Enderium.getMolten(1000),
+		 HeeEndium.getMolten(1000),
+		 FluidRegistry.getFluid("endergoo")==null?Water.getFluid(1): new FluidStack(FluidRegistry.getFluid("endergoo"),1000)
 		 )
  .itemOutputs(new ItemStack( GregTech_API.sBlockMachines,
          1,
          Config.metaTileEntityOffset+Registration.PatternMappingSlaveOffset))
- .duration(20 * SECONDS).eut(GT_Values.VP[3]).addTo(RecipeMaps.assemblerRecipes);
+ .duration(2000000 * SECONDS).eut(GT_Values.VP[1]).addTo(GT_RecipeConstants.AssemblyLine);
  
  
  GT_Values.RA.stdBuilder()

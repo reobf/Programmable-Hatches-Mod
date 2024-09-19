@@ -10,17 +10,17 @@ import reobf.proghatches.gt.metatileentity.DualInputHatch;
 
 public class ListeningFluidTank extends FluidTank {
 
-	public ListeningFluidTank(int capacity, DualInputHatch thiz) {
+	public ListeningFluidTank(int capacity, IOnFillCallback thiz) {
 		super(capacity);
 		addListener(thiz::onFill);
 	}
 
-	public ListeningFluidTank(FluidStack stack, int capacity, DualInputHatch thiz) {
+	public ListeningFluidTank(FluidStack stack, int capacity, IOnFillCallback thiz) {
 		super(stack, capacity);
 		addListener(thiz::onFill);
 	}
 
-	public ListeningFluidTank(Fluid fluid, int amount, int capacity, DualInputHatch thiz) {
+	public ListeningFluidTank(Fluid fluid, int amount, int capacity, IOnFillCallback thiz) {
 		super(fluid, amount, capacity);
 		addListener(thiz::onFill);
 	}

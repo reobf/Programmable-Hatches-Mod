@@ -345,8 +345,9 @@ public int getInventoryFluidLimit() {
 					}
 				}
 			}
-			
+			if(i==0)
 			if(tag.getInteger("i")>0)i = tag.getInteger("i");
+			if(f==0)
 			if(tag.getInteger("f")>0)f = tag.getInteger("f");
 			recipeLocked = tag.getBoolean("recipeLocked");
 			lock = tag.getBoolean("lock");

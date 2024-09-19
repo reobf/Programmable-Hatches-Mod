@@ -248,7 +248,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 								.get("PDIH"+(sf?"":"B"),
 										ImmutableMap
 												.of("bufferNum", bufferNum,
-														"fluidSlots", fluidSlots(tier),/* "cap",
+														"fluidSlots", 16/*fluidSlots()*/,/* "cap",
 														format.format((int) (4000 * Math.pow(4, tier)
 																/ (mMultiFluid ? 4 : 1))),*/
 														"mMultiFluid", mMultiFluid, "slots",

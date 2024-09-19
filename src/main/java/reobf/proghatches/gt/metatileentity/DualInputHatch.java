@@ -124,6 +124,7 @@ import gregtech.common.tileentities.machines.IDualInputInventory;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.IMultiCircuitSupport;
+import reobf.proghatches.gt.metatileentity.util.IOnFillCallback;
 import reobf.proghatches.gt.metatileentity.util.IProgrammingCoverBlacklisted;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.gt.metatileentity.util.ISkipStackSizeCheck;
@@ -137,7 +138,7 @@ import reobf.proghatches.net.UpgradesMessage;
 
 public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		implements IConfigurationCircuitSupport, IAddGregtechLogo, IAddUIWidgets, IDualInputHatch,
-		IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch,ISkipStackSizeCheck/*,IMultiCircuitSupport*/ {
+		IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch,ISkipStackSizeCheck,IOnFillCallback/*,IMultiCircuitSupport*/ {
 
 	static java.text.DecimalFormat format = new java.text.DecimalFormat("#,###");
 	public boolean mMultiFluid;
@@ -1610,7 +1611,7 @@ public void add4by4Slots(ModularWindow.Builder builder, IDrawable... background)
 }
 
 //insertion
-protected static final int INSERTION = 2001;
+public static final int INSERTION = 2001;
 protected ModularWindow createInsertionWindow(UIBuildContext buildContext) {
 	int len = (int) Math.round(Math.sqrt(mInventory.length-1));
 	final int WIDTH = 18 * len + 6;

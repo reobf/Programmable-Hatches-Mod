@@ -15,7 +15,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 @Mixin(value=BaseMetaTileEntity.class,remap=false)
 public abstract class MixinOC extends CommonMetaTileEntity implements Environment,SidedEnvironment{
 
-	@Override
+	@Override 
 	public Node sidedNode(ForgeDirection side) {
 		IMetaTileEntity mte = getMetaTileEntity();
 		if(mte instanceof SidedEnvironment){return ((SidedEnvironment) mte).sidedNode(side);}

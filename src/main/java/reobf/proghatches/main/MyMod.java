@@ -160,7 +160,7 @@ public class MyMod {
 	public static final Logger LOG = LogManager.getLogger(Tags.MODID);
 	public static MyMod instance;
 	{
-		CraftingCPUCluster.class.getDeclaredFields();
+		//CraftingCPUCluster.class.getDeclaredFields();
 		instance = this;
 	}
 
@@ -371,15 +371,7 @@ public class MyMod {
 		// InterfaceTerminalRegistry.instance().register(ProgrammingCircuitProvider.class);
 		// InterfaceTerminalRegistry.instance().register(LargeProgrammingCircuitProvider.class);
 
-		try {
-			Field f = BlockingModeIgnoreList.class.getDeclaredField("IgnoredItems");
-			f.setAccessible(true);
-			((List) f.get(null)).add(Items.apple);
-
-		} catch (Exception e) {
-
-			e.printStackTrace();
-		}
+		
 		//IMultiblockInfoContainer.MULTIBLOCK_MAP.put(GET_PROGHATCHBOOK, null)
 		// ItemList list=new ItemList();
 		// list.add(AEItemStack.create(ItemProgrammingCircuit.wrap(new

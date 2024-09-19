@@ -36,6 +36,8 @@ import reobf.proghatches.gt.metatileentity.DualInputHachOC;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
 import reobf.proghatches.gt.metatileentity.DualInputHatchInventoryMappingSlave;
 import reobf.proghatches.gt.metatileentity.DualInputHatchSlave;
+import reobf.proghatches.gt.metatileentity.DualInputHatchSlaveBus;
+import reobf.proghatches.gt.metatileentity.DualInputHatchSlaveHatch;
 import reobf.proghatches.gt.metatileentity.FilterOutputBus;
 import reobf.proghatches.gt.metatileentity.IngredientBuffer;
 import reobf.proghatches.gt.metatileentity.MultiCircuitInputBus;
@@ -95,6 +97,8 @@ public class Registration implements Runnable {
 	public final static int DualInputHatchOCOffset = 165;
 	public final static int MappingSlaveOffset=166;
 	public final static int PatternMappingSlaveOffset=167;
+	public static final int SlaveBusOffset = 168;
+	public static final int SlaveHatchOffset = 169;
 	
     @SuppressWarnings("deprecation")
 	@Override
@@ -423,6 +427,18 @@ public class Registration implements Runnable {
         new PatternDualInputHatchInventoryMappingSlave<>( 
         		Config.metaTileEntityOffset + PatternMappingSlaveOffset,  "hatch.dualinput.slave.inv.mapping.me",
         		LangManager.translateToLocal("hatch.dualinput.slave.inv.mapping.me.name"), 6);
+      
+        
+        new DualInputHatchSlaveBus<>(
+                Config.metaTileEntityOffset + SlaveBusOffset,
+                "hatch.dualinput.slave.item",
+                LangManager.translateToLocal("hatch.dualinput.slave.item.name"));
+        new DualInputHatchSlaveHatch<>(
+                Config.metaTileEntityOffset + SlaveHatchOffset,
+                "hatch.dualinput.slave.fluid",
+                LangManager.translateToLocal("hatch.dualinput.slave.fluid.name"));
+        
+        
         /*for (int i = 0; i < 4; i++) {
 
             new DualInputHatch(

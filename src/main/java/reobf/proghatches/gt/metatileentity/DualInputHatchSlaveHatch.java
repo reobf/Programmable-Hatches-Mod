@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import org.joml.Math;
+
 import com.google.common.collect.ImmutableMap;
 
 import appeng.api.networking.crafting.ICraftingMedium;
@@ -26,13 +28,16 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTank;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.ItemList;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Input;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_MultiInput;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
@@ -46,7 +51,7 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.main.registration.Registration;
 
-public class DualInputHatchSlaveBus<T extends MetaTileEntity & IDualInputHatch&IMetaTileEntity> extends GT_MetaTileEntity_Hatch_InputBus
+public class DualInputHatchSlaveHatch<T extends MetaTileEntity & IDualInputHatch&IMetaTileEntity> extends GT_MetaTileEntity_Hatch_MultiInput
 		implements   IRecipeProcessingAwareHatch {
 
 	private T master; // use getMaster() to access
@@ -55,22 +60,22 @@ public class DualInputHatchSlaveBus<T extends MetaTileEntity & IDualInputHatch&I
 	private boolean recipe;
 										// masterY, masterZ are valid
 
-	public DualInputHatchSlaveBus(int aID, String aName, String aNameRegional) {
-		super(aID, aName, aNameRegional, 6, 0, reobf.proghatches.main.Config.get("DHSB", ImmutableMap.of())
+	public DualInputHatchSlaveHatch(int aID, String aName, String aNameRegional) {
+		super(aID, 1, aName, aNameRegional, 6, reobf.proghatches.main.Config.get("DHSH", ImmutableMap.of())
 		
 		);
 		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
-		disableSort = true;
+		
 	}
 
-	public DualInputHatchSlaveBus(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures) {
-		super(aName, aTier, 0, aDescription, aTextures);
-		disableSort = true;
+	public DualInputHatchSlaveHatch(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures) {
+		super(aName, 1, 6, aDescription, aTextures);
+		
 	}
 
 	@Override
 	public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
-		return new DualInputHatchSlaveBus<>(mName, mTier, mDescriptionArray, mTextures);
+		return new DualInputHatchSlaveHatch<>(mName, mTier, mDescriptionArray, mTextures);
 	}
 
 	/*@Override
@@ -332,64 +337,47 @@ public class DualInputHatchSlaveBus<T extends MetaTileEntity & IDualInputHatch&I
 		}
 		return tmpinv;
 	}
-	ItemStack[] tmpi;
-	@Override
-	public int getSizeInventory() {
-		if(recipe){
-			if(tmpi==null){tmpi=getDual().getItemInputs();}
-			return tmpi .length;
-			
-		}
-		return 0;
-	}
-	@Override
-	public void setInventorySlotContents(int aIndex, ItemStack aStack) {
-		if (recipe) {
-			if (tmpi == null) {
-				tmpi = getDual().getItemInputs();
-			}
-			ItemStack is = getDual().getItemInputs()[aIndex];
-			if (is == null && aStack != null)
-				throw new UnsupportedOperationException();
-			if (aStack != null) {
-				if (aStack.getItem() != is.getItem() || ItemStack.areItemStackTagsEqual(aStack, is) == false) {
-					throw new UnsupportedOperationException();
-				}
-				is.stackSize = aStack.stackSize;
-			} else if(is!=null){
-				is.stackSize = 0;
-
-			}
-		}
-		
-			
-		
-		}
-	@Override
-	public ItemStack decrStackSize(int aIndex, int aAmount) {
-		if(recipe){
-			if(tmpi==null){tmpi=getDual().getItemInputs();}
-			ItemStack is=getDual().getItemInputs()[aIndex];
-			if(is ==null)return is;
-			aAmount=Math.min(aAmount, is.stackSize);
-			return is.splitStack(aAmount);
-		}
-		
-		return null;
-	}
-	@Override
-	public ItemStack getStackInSlot(int aIndex) {
+	FluidStack[] tmpf;
 	
+	
+	@Override
+	public FluidStack[] getStoredFluid() {
 		if(recipe){
-			if(tmpi==null){tmpi=getDual().getItemInputs();}
-			return getDual().getItemInputs()[aIndex];
+			if(tmpf==null){tmpf=getDual().getFluidInputs();}
+			return tmpf;
+			
+		}
+		return new FluidStack[0];
+	}
+	
+	@Override
+	public FluidStack drain(ForgeDirection from, FluidStack aFluid, boolean doDrain) {
+		if(recipe){
+			if(tmpf==null){tmpf=getDual().getFluidInputs();}
+			if(aFluid==null)return null;
+			
+			FluidStack ret=aFluid.copy();
+			ret.amount=0;
+			int todo=aFluid.amount;
+			for(FluidStack f:tmpf){
+				if(f!=null&&f.getFluid()==ret.getFluid()){
+					int realtodo=Math.min(f.amount,todo);
+					f.amount-=realtodo;
+					ret.amount+=realtodo;
+					todo-=realtodo;
+				}
+				if(todo==0){break;}
+			}
+			return ret.amount==0?null:ret;
 			
 		}
 		return null;
 	}
+	
+	
 	@Override
 	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
-		recipe=false;tmpinv=null;tmpi=null;
+		recipe=false;tmpinv=null;tmpf=null;
 		if(getMaster() != null) 
 			if(getMaster() instanceof IRecipeProcessingAwareDualHatch)
 			return ((IRecipeProcessingAwareDualHatch)getMaster()).endRecipeProcessing(controller);

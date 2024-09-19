@@ -1071,7 +1071,9 @@ Api.INSTANCE.definitions()
 		 new ItemStack(GameRegistry.findItem("RIO", "tile.remote_interface")),
 		 new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 0),
 		 new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 1)
+		
 		 )
+ .fluidInputs(new FluidStack(TinkerSmeltery.moltenEnderFluid,1000))
  .itemOutputs(new ItemStack( GregTech_API.sBlockMachines,
          1,
          Config.metaTileEntityOffset+Registration.MappingSlaveOffset))
@@ -1231,6 +1233,72 @@ Api.INSTANCE.definitions()
  .eut(GT_Values.VP[7])
  .addTo(RecipeMaps.fluidSolidifierRecipes);
  */
+ 
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+		 Hatch_Input_Bus_ME
+		 .get(1) , new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1,29)
+)
+
+ .itemOutputs(new ItemStack(
+         GregTech_API.sBlockMachines,
+         1,
+         Config.metaTileEntityOffset + Registration.RestrictedBusME)		 )
+
+  .duration(100 * SECONDS)
+ .eut(480)
+ .addTo(RecipeMaps.assemblerRecipes);
+ 
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+		 Hatch_Input_ME
+		 .get(1) , new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1,29)
+)
+
+ .itemOutputs(new ItemStack(
+         GregTech_API.sBlockMachines,
+         1,
+         Config.metaTileEntityOffset + Registration.RestrictedHatchME)		 )
+
+  .duration(100 * SECONDS)
+ .eut(480)
+ .addTo(RecipeMaps.assemblerRecipes);
+  
+ 
+ 
+ 
+ for(ItemList i:new ItemList[]{ItemList.ItemFilter_Export,ItemList.ItemFilter_Import})
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+		 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.SlaveOffset) ,CertusQuartz.getPlates(4),i.get(1)
+)
+
+ .itemOutputs(new ItemStack(
+         GregTech_API.sBlockMachines,
+         1,
+         Config.metaTileEntityOffset + Registration.SlaveBusOffset)		 )
+
+  .duration(100 * SECONDS)
+ .eut(480)
+ .addTo(RecipeMaps.assemblerRecipes);
+ 
+ 
+ 
+
+ 
+ GT_Values.RA.stdBuilder()
+ .itemInputs(
+		 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.SlaveOffset)
+		 , Lapis.getPlates(4),ItemList.FluidFilter.get(1)
+)
+
+.itemOutputs(new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.SlaveHatchOffset)		 )
+.duration(100 * SECONDS)
+.eut(480)
+.addTo(RecipeMaps.assemblerRecipes);
+ 
+ 
+ 
   }
 
         ///////////////////////////////////

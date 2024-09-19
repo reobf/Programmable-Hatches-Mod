@@ -554,3 +554,5 @@ tile.reactor_syncer.info.rs=红石强度:
 tile.reactor_syncer.info.update=是更新刻:
 tile.reactor_syncer.info.max=设为15
 tile.reactor_syncer.info.min=设为0
+hatch.dualinput.slave.item.name=物品输入镜像
+hatch.dualinput.slave.fluid.name=流体输入镜像

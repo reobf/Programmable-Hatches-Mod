@@ -551,7 +551,7 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 	            .setPos(3+4, 3+18));
 			
 			
-			builder.widget(new DrawableWidget().setDrawable(GT_UITextures.OVERLAY_BUTTON_REDSTONE_ON).setPos(3+4+20, 3+18).setSize(18,18).setEnabled(s->{on=isOn();return on;})
+			builder.widget(new DrawableWidget().setDrawable(GT_UITextures.OVERLAY_BUTTON_REDSTONE_ON).setPos(3+4+20, 3+18).setSize(18,18).setEnabled(s->{return on;})
 					.addTooltip(StatCollector.translateToLocalFormatted("proghatches.amountmaintainer.redstone.state.on",amount))
 					)
 			;
@@ -559,7 +559,9 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 					.addTooltip(StatCollector.translateToLocalFormatted("proghatches.amountmaintainer.redstone.state.off"))
 					)
 			;
-			builder.widget(new FakeSyncWidget.BooleanSyncer(()->on, s->on=s));
+			builder.widget(new FakeSyncWidget.BooleanSyncer(()->{on=isOn();  return on;}, s->on=s)
+					.setSynced(true, false)
+					);
 			
 			
 			ItemStackHandler iss0=new ItemStackHandler(upgrade){
@@ -728,6 +730,9 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
          this.inv.put(ch,inv);
          handlerHash.put(ch, newHandlerHash);
           return inv;
+      }else{
+    	  
+    	  handlerHash.put(ch, 0);
       }
 		return null;
 		

@@ -110,6 +110,7 @@ import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.BaseMetaPipeEntity;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
 import gregtech.api.net.GT_Packet_SendCoverData;
 import gregtech.api.util.shutdown.ShutDownReason;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
@@ -144,6 +145,7 @@ import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
 import reobf.proghatches.net.RenameMessage;
 import reobf.proghatches.net.UpgradesMessage;
+import reobf.proghatches.net.WayPointMessage;
 import reobf.proghatches.oc.ItemAPICard;
 import reobf.proghatches.oc.ItemGTRedstoneCard;
 import reobf.proghatches.oc.WirelessPeripheralManager;
@@ -160,7 +162,7 @@ public class MyMod {
 	public static final Logger LOG = LogManager.getLogger(Tags.MODID);
 	public static MyMod instance;
 	{
-		//CraftingCPUCluster.class.getDeclaredFields();
+		//GT_MetaTileEntity_MultiBlockBase.class.getDeclaredFields();
 		instance = this;
 	}
 
@@ -241,7 +243,7 @@ public class MyMod {
 		net.registerMessage(new RenameMessage.Handler(), RenameMessage.class, 2, Side.SERVER);
 		net.registerMessage(new UpgradesMessage.Handler(), UpgradesMessage.class, 3, Side.CLIENT);
 		net.registerMessage(new MasterSetMessage.Handler(), MasterSetMessage.class, 4, Side.CLIENT);
-
+		net.registerMessage(new WayPointMessage.Handler(), WayPointMessage.class, 5, Side.CLIENT);
 		proxy.preInit(event);
 	}
 
@@ -536,7 +538,21 @@ public class MyMod {
 		}
 
 	}
-
+	@SubscribeEvent
+	public void onLoad(ChunkEvent.Load event) {
+		if (event.world.isRemote)
+			return;
+		
+		try {
+			ChunkTrackingGridCahce.callbacks.forEach((a, b) -> {
+				if (a != null) {
+					a.load(event.getChunk());
+				}
+			});
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+	}
 	@SubscribeEvent
 	public void onUnload(ChunkEvent.Unload event) {
 		if (event.world.isRemote)

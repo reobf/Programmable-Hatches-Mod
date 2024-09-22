@@ -1,18 +1,27 @@
 package reobf.proghatches.block;
 
+
+
+import appeng.me.GridAccessException;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import journeymap.client.JourneymapClient;
+import journeymap.client.model.Waypoint;
+import journeymap.client.waypoint.WaypointStore;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
+import reobf.proghatches.main.MyMod;
+import reobf.proghatches.net.WayPointMessage;
 
 public class BlockAnchorAlert extends BlockContainer{
 
@@ -37,8 +46,32 @@ public void onBlockPlacedBy(World worldIn, int x, int y, int z, EntityLivingBase
 }@Override
 public boolean onBlockActivated(World worldIn, int x, int y, int z, EntityPlayer player, int side, float subX,
 		float subY, float subZ) {
-	if(worldIn.isRemote)return true;
+	if(worldIn.isRemote){
+		/*journeymap.client.model.Waypoint deathpoint = journeymap.client.model.Waypoint
+				.at(x, y, z, Waypoint.Type.Normal,worldIn.provider.dimensionId);
+        WaypointStore.instance().save(deathpoint);
+		*/
+		
+		return true;}
+	
+	
+	
+	
 	TileAnchorAlert a=((TileAnchorAlert)worldIn.getTileEntity(x, y, z));
+	
+	if(player.isSneaking()){
+		try {
+			MyMod.net.sendTo(new WayPointMessage(((ChunkTrackingGridCahce)
+					(a).getProxy().getGrid().getCache(IChunkTrackingGridCahce.class)
+					).improperlyUnloaded), (EntityPlayerMP) player);
+		} catch (GridAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		a.printUnloaded(player);
+		
+		return true;}
+	
 	
 	if(player.getUniqueID().equals(a.owner)==false){
 		player.addChatComponentMessage(new ChatComponentTranslation("proghatch.chunk_loading_alert.owner"));

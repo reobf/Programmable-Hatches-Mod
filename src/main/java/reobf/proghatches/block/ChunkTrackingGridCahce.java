@@ -1,5 +1,10 @@
 package reobf.proghatches.block;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -9,19 +14,28 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.apache.commons.io.output.ByteArrayOutputStream;
+
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridBlock;
+import appeng.api.networking.IGridCache;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.IGridStorage;
+import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.util.DimensionalCoord;
+import appeng.me.Grid;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.DimensionManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.MyMod.Prop;
 
@@ -29,6 +43,7 @@ public class ChunkTrackingGridCahce implements IChunkTrackingGridCahce{
 	public ChunkTrackingGridCahce(final IGrid g) {
 	        this.myGrid = g;
 	        callbacks.put(this, null);
+	        
 	    }  
 	private final IGrid myGrid;
 	
@@ -36,9 +51,10 @@ public class ChunkTrackingGridCahce implements IChunkTrackingGridCahce{
 	
 	
 	
-	 static class ChunkInfo implements Cloneable{
-		 
-		 public String toString() {
+	 public static class ChunkInfo implements Cloneable,Serializable{
+	
+		private static final long serialVersionUID = 12312312;
+		public String toString() {
 			 
 			 return chunkx+" "+ chunky+" "+dim;
 			 
@@ -48,8 +64,13 @@ public class ChunkTrackingGridCahce implements IChunkTrackingGridCahce{
 			 this.chunky=worldy>>4;
 			 this.dim=w.provider.dimensionId;
 		 }
-		 final int chunkx,chunky;
-		 final int dim;
+		public ChunkInfo(int worldx,int worldy,int w){
+			 this.chunkx=worldx;
+			 this.chunky=worldy;
+			 this.dim=w;
+		 }
+		 public final int chunkx,chunky;
+		 public  final int dim;
 		 @Override
 		public boolean equals(Object obj) {
 			if(obj==null)return false;
@@ -114,26 +135,45 @@ IGridBlock gb = gridNode.getGridBlock();
 			if(w==null){
 				return;//?
 			}
-			
-		track.merge(new ChunkInfo(loc.x, loc.z,w), 1, (a,b)->a+b);
+			ChunkInfo ci=new ChunkInfo(loc.x, loc.z,w);
+		/*if(improperlyUnloaded.remove(ci)){
+			//System.out.println(123);
+			}*/
+		track.merge(ci, 1, (a,b)->a+b);
 		}
 	}
+	
 
 	@Override
 	public void onSplit(IGridStorage destinationStorage) {
-	
-		
+		populateGridStorage( destinationStorage);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onJoin(IGridStorage sourceStorage) {
+		NBTTagCompound tag = sourceStorage.dataObject();
+		//improperlyUnloaded.clear();
+		if(tag.getTag("improperlyUnloaded") instanceof NBTTagIntArray==false){return;}
+		int[] x=tag.getIntArray("improperlyUnloaded");
+	for(int i=0;i<x.length;i+=3){
 		
+		improperlyUnloaded.add(new ChunkInfo(x[i], x[i+1],(x[i+2])));
+	}
 		
 	}
 
 	@Override
 	public void populateGridStorage(IGridStorage destinationStorage) {
-	
+		NBTTagCompound tag = destinationStorage.dataObject();
+		IntArrayList arr=new IntArrayList();
+		improperlyUnloaded.forEach(s->{
+			arr.add(s.chunkx);
+			arr.add(s.chunky);
+			arr.add(s.dim);
+		});
+		
+		tag.setIntArray("improperlyUnloaded", arr.toIntArray());
 		
 	}
 	
@@ -319,10 +359,11 @@ IGridBlock gb = gridNode.getGridBlock();
 		
 	}
 	
-	
+	public HashSet<ChunkInfo> improperlyUnloaded=new HashSet<ChunkInfo>();
    public void unload(Chunk  o) {ChunkInfo info;
 		Integer tck = track.get(info=new ChunkInfo(o.xPosition<<4, o.zPosition<<4, o.worldObj));
-		if(tck!=null){
+		if(tck!=null&&tck>0){
+			improperlyUnloaded.add(info);
 			warnAlt(info,tck);
 		}
 	}
@@ -333,6 +374,21 @@ IGridBlock gb = gridNode.getGridBlock();
 				warnAlt(a,b);
 			}
 		});
+	}
+
+	public void load(Chunk chunk) {
+		ChunkInfo ci=new ChunkInfo(chunk.xPosition<<4, chunk.zPosition<<4,chunk.worldObj);
+		if(improperlyUnloaded.remove(ci)){
+			//System.out.println(123);
+			
+		};
+	}
+
+	public static void merge(ChunkTrackingGridCahce cache, ChunkTrackingGridCahce cache2) {
+	if(cache.improperlyUnloaded.isEmpty())
+		cache.improperlyUnloaded.addAll(cache2.improperlyUnloaded);
+	else if(cache2.improperlyUnloaded.isEmpty())
+		cache2.improperlyUnloaded.addAll(cache.improperlyUnloaded);
 	}
 	
 	

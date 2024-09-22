@@ -21,9 +21,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.ForgeDirection;
+import reobf.proghatches.block.ChunkTrackingGridCahce.ChunkInfo;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
@@ -83,13 +89,19 @@ public class TileAnchorAlert extends TileEntity implements IGridProxyable{
 		
 		}catch(Exception e){}
 		
-		tag.setInteger("loaded", 
-				
-				((TileAnchorAlert)te).getLoadedChunks()
-				
-				
-				
-				);
+		try {
+			tag.setInteger("loaded", 
+					
+					((ChunkTrackingGridCahce)
+							((TileAnchorAlert)te).getProxy().getGrid().getCache(IChunkTrackingGridCahce.class)
+							).improperlyUnloaded.size()
+					
+					
+					
+					);
+		} catch (GridAccessException e) {
+		
+		}
 			
 			return tag;
 		}};
@@ -207,8 +219,9 @@ public int getLoadedChunks(){
 		
 		.stream().filter(s->{
 			
-			return this.worldObj.getChunkProvider().chunkExists(s.chunkx,s.chunky);
-			
+			WorldServer wd = DimensionManager.getWorld(s.dim);
+				if(wd==null)return false;
+				return wd.getChunkProvider().chunkExists(s.chunkx,s.chunky);
 		}).count();
 		
 		;
@@ -221,6 +234,39 @@ public int getLoadedChunks(){
 	}
 	
 	return loadedChunksCache;
+}
+
+public void printUnloaded(EntityPlayer player) {
+	 try {
+		 boolean any[]=new boolean[1];
+		((ChunkTrackingGridCahce)
+					((TileAnchorAlert)this).getProxy().getGrid().getCache(IChunkTrackingGridCahce.class)
+					).improperlyUnloaded.forEach((s)->{
+						
+						/*WorldServer wd = DimensionManager.getWorld(s.dim);
+						if(wd==null||
+						 false==wd.getChunkProvider().chunkExists(s.chunkx,s.chunky)){
+							*/ any[0]=true;
+							ChunkInfo info = s;
+							player.addChatComponentMessage(new ChatComponentTranslation("proghatch.chunk_loading_alert.info",
+									"X:"+info.chunkx+",Z:"+info.chunky+",dim:"+info.dim+" "+
+									"Center:"+((info.chunkx<<4)+8)+","+((info.chunky<<4)+8)
+									
+									));
+						/*};
+						*/
+					});;
+	
+	 
+	 if(any[0]==false){
+			player.addChatComponentMessage(new ChatComponentTranslation("proghatch.chunk_loading_alert.info.none"));
+					
+		 
+	 }
+	 } catch (GridAccessException e) {
+		e.printStackTrace();
+	}
+	
 }
 
 

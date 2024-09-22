@@ -82,4 +82,6 @@ api("com.github.GTNewHorizons:NotEnoughEnergistics:1.5.1:dev")
 	 api("com.github.GTNewHorizons:ProjectRed:4.9.3-GTNH:dev") 
 	api("com.github.GTNewHorizons:MrTJPCore:1.1.6:dev")
 	
+	 api('com.github.GTNewHorizons:Navigator:1.0.12:dev')
+     runtimeOnlyNonPublishable(rfg.deobf('maven.modrinth:journeymap:5.2.6'))
 }

@@ -80,10 +80,7 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
 
-/**
- * @author zyf
- *
- */
+
 public class TileCyclicPatternSubmitter extends TileEntity implements IGridProxyable, ICraftingRequester, ITileWithModularUI{
 	public static final int ALL = 0;
 	public static final int DIM = 1;
@@ -287,6 +284,7 @@ public void updateEntity() {
 			last=null;
 			index=(index+1);
 			index=index%SLOT_SIZE;
+			updateComparator();
 			}else{
 		cpu = getCpu(last);}
 		}
@@ -338,6 +336,10 @@ public void updateEntity() {
 	
 	
 	
+	
+}
+private void updateComparator() {
+	this.getWorldObj().notifyBlocksOfNeighborChange(this.xCoord, this.yCoord, this.zCoord, this.getBlockType());
 	
 }
 Field task;
@@ -486,7 +488,7 @@ public void jobStateChange(ICraftingLink link) {
 
 
 
-int index;
+ int index=0;
 
 protected class UIFactory {
 
@@ -546,7 +548,7 @@ protected class UIFactory {
 			
 		};
 		Scrollable sc = new Scrollable().setVerticalScroll();
-		builder.widget(new FakeSyncWidget.IntegerSyncer(() -> index, s -> index = s));
+		builder.widget(new FakeSyncWidget.IntegerSyncer(() -> index, s ->{ index = s;updateComparator();}));
 		builder.widget(new FakeSyncWidget.BooleanSyncer(() -> on, s -> on = s));
 		//builder.widget(new FakeSyncWidget.IntegerSyncer(() -> tankselected, s -> tankselected = s));
 		final IDrawable[] background = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot(), GT_UITextures.OVERLAY_SLOT_PATTERN_ME};

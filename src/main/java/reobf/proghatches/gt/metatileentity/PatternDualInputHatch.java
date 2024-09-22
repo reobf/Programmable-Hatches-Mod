@@ -960,10 +960,20 @@ if(supportsFluids())
 				if(todo>0){
 					for(int ix=0;ix<theBuffer.i;ix++){
 						if(theBuffer.mStoredItemInternalSingle[ix]!=null){
+							if(theBuffer.mStoredItemInternal[ix]==null){
+								theBuffer.mStoredItemInternal[ix]=theBuffer.mStoredItemInternalSingle[ix].copy();
+								theBuffer.mStoredItemInternal[ix].stackSize=0;//circuit?
+							}
 							theBuffer.mStoredItemInternal[ix].stackSize+=theBuffer.mStoredItemInternalSingle[ix].stackSize*todo;
-						}
+						}}
+						
+						for(int ix=0;ix<theBuffer.f;ix++){
 						if(theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount()>0){
-							theBuffer.mStoredFluidInternal[ix].getFluid().amount+=theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount();
+							if(theBuffer.mStoredFluidInternal[ix].getFluidAmount()<=0){
+								theBuffer.mStoredFluidInternal[ix].setFluid(theBuffer.mStoredFluidInternalSingle[ix].getFluid().copy());
+								theBuffer.mStoredFluidInternal[ix].getFluid().amount=0;
+							}
+							theBuffer.mStoredFluidInternal[ix].getFluid().amount+=theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount()*todo;
 						}
 					}
 					suc+=todo;

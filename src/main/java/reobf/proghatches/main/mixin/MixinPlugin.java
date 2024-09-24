@@ -168,8 +168,13 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		
 		if(ff)retLate.add("MixinAEAdaptorSkipStackSizeCheck");
 		if(ff)retLate.add("MixinAwarenessForDualHatch");
-		if (!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))
+		
+		
+		/*if (!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))
 			if(ff)retLate.add("MixinRemoveUnunsedItemStackCache");
+		
+		*/
+		
 		if(ff)retLate.add("MixinAE2FCCompat");
 
 		if (!"true".equals(pp.get("noRecipeFilterForDualHatch"))) {

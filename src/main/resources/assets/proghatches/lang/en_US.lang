@@ -561,3 +561,7 @@ hatch.dualinput.slave.fluid.name=Fluid Input Slave
 proghatch.chunk_loading_alert.info=Alerting Anchor: Chunk [%s] is not properly unloaded.
 proghatch.chunk_loading_alert.info.none=Alerting Anchor: No improperly-unloaded chunks.
 proghatch.waypoint.info=Alerting Anchor Mark
+programmable_hatches.buffer.waila.hidden=§rAnd %s more §2Idle§r Buffers...
+proghatch.dualhatch.optinv.broken=§4This Multiblock Machine does not support Upgrades! Please create issue if you see this.
+
+ 

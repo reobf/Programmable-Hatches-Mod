@@ -442,8 +442,7 @@ private Optional<IRecipeProcessingAwareHatch> getInput(){
 */
 @SuppressWarnings("unchecked")
 private boolean distribute() {
-	//Optional<IRecipeProcessingAwareHatch> in = getInput();
-	//in.ifPresent(s->s.startRecipeProcessing());
+	
 	startRecipeProcessing();
 	Iterator<?> possibleSource=null;
 	try{

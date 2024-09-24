@@ -70,11 +70,14 @@ import com.gtnewhorizons.modularui.common.internal.wrapper.ModularUIContainer;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
+import com.gtnewhorizons.modularui.common.widget.DynamicTextWidget;
+import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
 import com.gtnewhorizons.modularui.common.widget.Scrollable;
 import com.gtnewhorizons.modularui.common.widget.SlotGroup;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
+import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import appeng.api.AEApi;
 import appeng.api.IAppEngApi;
@@ -119,6 +122,7 @@ import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_TooltipDataCache;
 import gregtech.api.util.GT_Utility;
 import gregtech.api.util.GT_TooltipDataCache.TooltipData;
+import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import reobf.proghatches.eucrafting.AECover;
@@ -136,6 +140,10 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.net.UpgradesMessage;
 
+/**
+ * @author zyf
+ *
+ */
 public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		implements IConfigurationCircuitSupport, IAddGregtechLogo, IAddUIWidgets, IDualInputHatch,
 		IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch,ISkipStackSizeCheck,IOnFillCallback/*,IMultiCircuitSupport*/ {
@@ -148,7 +156,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		
 	}
 	//boolean extraCircuit;
-	public DualInputHatch(int id, String name, String nameRegional, int tier,  boolean mMultiFluid,boolean extraCircuit,
+	/*public DualInputHatch(int id, String name, String nameRegional, int tier,  boolean mMultiFluid,boolean extraCircuit,
 			String... optional) {
 
 		super(id, name, nameRegional, tier, getSlots(tier) + 4, (optional.length > 0 ? optional
@@ -170,7 +178,7 @@ public class DualInputHatch extends GT_MetaTileEntity_Hatch_InputBus
 		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, id));
 		this.mMultiFluid = mMultiFluid;
 		initTierBasedField();
-	}
+	}*/
 	public DualInputHatch(int id, String name, String nameRegional, int tier, int slot, boolean mMultiFluid,
 			String... optional) {
 		
@@ -298,16 +306,25 @@ public void reinitTierBasedField() {
 					aNBT.setTag("mFluid" + i, mStoredFluid[i].writeToNBT(new NBTTagCompound()));
 			}
 		}
-		
+		try{
 		NBTTagList greggy=aNBT.getTagList("Inventory", 10);
-		for(int i=0;i<mInventory.length;i++){
-		
+		for(int i=0;i<greggy.tagCount();i++){
+			NBTTagCompound t=((NBTTagCompound)greggy.getCompoundTagAt(i));
+			int index=t.getInteger("IntSlot");
+			t.setInteger("Count", mInventory[index].stackSize);
+		}}catch(Exception e){
+			//burh
+			e.printStackTrace();
+		}
+		/*for(int i=0;i<mInventory.length;i++){
+			final ItemStack tStack = mInventory[i];
+            
 			if( mInventory[i]!=null){	
 				NBTTagCompound t;
 				t=((NBTTagCompound)greggy.getCompoundTagAt(i));
 				if(t!=null)t.setInteger("Count", mInventory[i].stackSize);}
 			
-		}
+		}*/
 		
 		
 		
@@ -332,22 +349,25 @@ public void reinitTierBasedField() {
 				}
 			}
 		}
-		if(loadOldVer){try{
+		/*
+		 GT will read 'Count' Tag
+		try{
 		NBTTagList greggy=aNBT.getTagList("Inventory", 10);
-		for(int i=0;i<mInventory.length;i++){
-			if(aNBT.hasKey("IntegerStackSize"+i)){
-			int realsize=aNBT.getInteger("IntegerStackSize"+i);
-			ItemStack is= ItemStack.loadItemStackFromNBT(greggy.getCompoundTagAt(i));
-			is.stackSize=realsize;
-			mInventory[i]=is;
-			}
+		
+		for(int i=0;i<greggy.tagCount();i++){
+			NBTTagCompound t=((NBTTagCompound)greggy.getCompoundTagAt(i));
+			int index=t.getInteger("IntSlot");
+			mInventory[index]=  ItemStack.loadItemStackFromNBT(t);
+			mInventory[index].stackSize=t.getInteger("Count");
 		}
+		
 		}catch(Exception e){
 			//meh
-		}
-		}
+			e.printStackTrace();
+		}*/
+		
 	}
-boolean loadOldVer=true;
+
 	@Override
 	public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
 		DualInputHatch neo =
@@ -396,6 +416,7 @@ boolean loadOldVer=true;
 
 	@Override
 	public ItemStackHandler getInventoryHandler() {
+		
 		if (bridge == null)
 			bridge = new InventoryItemHandler(mInventory, this).id(1);
 		return bridge;
@@ -647,12 +668,14 @@ boolean loadOldVer=true;
 		builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
 		builder.setGuiTint(getGUIColorization());
 		builder.setDraggable(true);
+		
+		
 		builder.widget(circuitSlot(this.getInventoryHandler(), getCircuitSlot())
 				.setPos(8-1, 8-1)
 				);
 		for(int i=0;i<shared.circuitUpgrades;i++)
 		builder.widget(catalystSlot(new ItemStackHandler(shared.circuitInv), i).setPos(8-1, 8-1+18+18*i));
-				
+			
 		
 		int posoffset=0;
 		for(int i=0;i<shared.itemMEUpgrades;i++){
@@ -794,7 +817,12 @@ boolean loadOldVer=true;
 		}
 		
 		
-		
+		builder.widget(TextWidget.localised("proghatch.dualhatch.optinv.broken")
+				.setEnabled((a)->shared.broken)
+		);
+		builder.widget(new FakeSyncWidget.BooleanSyncer(()->shared.broken, s->shared.broken=s)
+				
+				.setSynced(true, false));
 		
 		
 		return builder.build();
@@ -1459,7 +1487,7 @@ boolean loadOldVer=true;
 		}else*/
 		super.updateSlots();
 	}
-	private void fillStacksIntoFirstSlotsExtraCircuit() {
+	/*private void fillStacksIntoFirstSlotsExtraCircuit() {
 	    final int L = mInventory.length - 4;
 	    HashMap<GT_Utility.ItemId, Integer> slots = new HashMap<>(L);
 	    HashMap<GT_Utility.ItemId, ItemStack> stacks = new HashMap<>(L);
@@ -1488,14 +1516,16 @@ boolean loadOldVer=true;
 	        mInventory[slot].stackSize = toSet;
 	        slots.merge(sID, toSet, (a, b) -> a - b);
 	    }
-	}
+	}*/
 	CheckRecipeResult lastresult;
 	@Override
 	public final CheckRecipeResult  endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
 	
 		
 		if(recipe){recipe=false;
-			return lastresult=endRecipeProcessingImpl(controller);
+			 lastresult=endRecipeProcessingImpl(controller);
+			 if(lastresult.wasSuccessful()==false)controller.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
+			 return lastresult;
 		}
 		
 		return lastresult;
@@ -2015,18 +2045,25 @@ public class OptioanlSharedContents{
 		}
 		return ls;
 	}
-	
+	boolean broken;
 	
 	
 	public ItemStack[] getItems(){
 		ArrayList<ItemStack> all=new ArrayList<>();
 		all.addAll(circuitInv);
-		all.addAll(cachedItems);
 		all.add(mInventory[getCircuitSlot()]);
+		if(recipe==false){broken=true;
+			return all.toArray(new ItemStack[0]);
+		}
+		all.addAll(cachedItems);
 		return all.toArray(new ItemStack[0]);
 		}
 	
 	public FluidStack[] getFluid(){
+		if(recipe==false){
+			broken=true;
+			return new FluidStack[0];
+		}
 		ArrayList<FluidStack> all=new ArrayList<>();
 		all.addAll(cachedFluid);
 		return all.toArray(new FluidStack[0]);}

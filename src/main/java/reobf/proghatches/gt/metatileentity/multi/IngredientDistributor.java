@@ -717,6 +717,14 @@ static class TransferCheckResult{
 	
 	
 }
+private ItemStack cp(ItemStack c){
+	if(c!=null)return c.copy();
+	return null;
+}
+private IAEItemStack cp(IAEItemStack c){
+	if(c!=null)return c.copy();
+	return null;
+}
 static Field f,f2;
 @SuppressWarnings({ "unchecked", "unused" })
 private TransferCheckResult checkMEBus(GT_MetaTileEntity_Hatch_OutputBus_ME bus,ItemStack check,int index){
@@ -730,15 +738,21 @@ private TransferCheckResult checkMEBus(GT_MetaTileEntity_Hatch_OutputBus_ME bus,
 	try {
 		IItemList<IAEItemStack> itemCache =(IItemList<IAEItemStack>) f.get(bus);
 		Iterator<IAEItemStack> itr = itemCache.iterator();
+		//if(check!=null)
 		while(itr.hasNext()){IAEItemStack next;
 			if((next=itr.next()).isSameType(check)==false){
-				return TransferCheckResult.ofFail("cache.diff.bus",index,check.copy(),next.copy());
+				if(check==null)
+					return TransferCheckResult.ofFail("cache.diff.bus.null",index,cp(next));
+				return TransferCheckResult.ofFail("cache.diff.bus",index,cp(next),cp(check));
 			}
 		}
 		itr = bus.getProxy().getStorage().getItemInventory().getStorageList().iterator();
+		//if(check!=null)
 		while(itr.hasNext()){IAEItemStack next;
 			if((next=itr.next()).isSameType(check)==false){
-				return TransferCheckResult.ofFail("net.diff.bus",index,check.copy(),next.copy());
+				if(check==null)
+					return TransferCheckResult.ofFail("net.diff.bus.null",index,cp(next));
+				return TransferCheckResult.ofFail("net.diff.bus",index,cp(next),cp(check));
 			}
 		}
 		if(check!=null){
@@ -771,15 +785,22 @@ private TransferCheckResult checkMEHatch(GT_MetaTileEntity_Hatch_Output_ME bus,F
 	try {
 		IItemList<IAEFluidStack> itemCache =(IItemList<IAEFluidStack>) f2.get(bus);
 		Iterator<IAEFluidStack> itr = itemCache.iterator();
+		//if(check!=null)
 		while(itr.hasNext()){IAEFluidStack next;
 			if(!sameType(next=itr.next(),(check))){
-				return TransferCheckResult.ofFail("cache.diff.hatch",index,check.copy(),next.copy());
+				if(check==null)
+					return TransferCheckResult.ofFail("net.diff.hatch.null",index,cp(next));
+				return TransferCheckResult.ofFail("cache.diff.hatch",index,cp(next),cp(check));
 			}
 		}
+			
 		itr = bus.getProxy().getStorage().getFluidInventory().getStorageList().iterator();
+		//if(check!=null)
 		while(itr.hasNext()){IAEFluidStack next;
 			if(!sameType(next=itr.next(),(check))){
-				return TransferCheckResult.ofFail("net.diff.hatch",index,check.copy(),next.copy());
+				if(check==null)
+					return TransferCheckResult.ofFail("net.diff.hatch.null",index,cp(next));
+				return TransferCheckResult.ofFail("net.diff.hatch",index,cp(next),cp(check));
 			}
 		}if(check!=null){
 		IAEFluidStack notadded = bus.getProxy().getStorage().getFluidInventory().injectItems(
@@ -796,6 +817,17 @@ private TransferCheckResult checkMEHatch(GT_MetaTileEntity_Hatch_Output_ME bus,F
 	
 	
 	return TransferCheckResult.ofSuccess();
+}
+private IAEFluidStack cp(IAEFluidStack c) {
+
+	if(c!=null)return c.copy();
+	return null;
+}
+
+private FluidStack cp(FluidStack c) {
+	
+	if(c!=null)return c.copy();
+	return null;
 }
 static BaseActionSource fakeSource=new  BaseActionSource();
 

@@ -563,5 +563,7 @@ proghatch.chunk_loading_alert.info.none=Alerting Anchor: No improperly-unloaded 
 proghatch.waypoint.info=Alerting Anchor Mark
 programmable_hatches.buffer.waila.hidden=§rAnd %s more §2Idle§r Buffers...
 proghatch.dualhatch.optinv.broken=§4This Multiblock Machine does not support Upgrades! Please create issue if you see this.
-
- 
+proghatch.ingbuf.fail.net.diff.bus.null=The bus#%s has %s in its ME storage while it should be empty.
+proghatch.ingbuf.fail.cache.diff.bus.null=The bus#%s has %s in its cache while it should be empty.
+proghatch.ingbuf.fail.net.diff.hatch.null=The hatch#%s has %s in its ME storage while it should be empty.
+proghatch.ingbuf.fail.cache.diff.hatch.null=The hatch#%s has %s in its cache while it should be empty.

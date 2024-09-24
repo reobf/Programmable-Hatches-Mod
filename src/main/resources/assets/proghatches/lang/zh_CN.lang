@@ -561,3 +561,7 @@ proghatch.chunk_loading_alert.info.none=警告锚: 没有非正常卸载区块
 proghatch.waypoint.info=警告锚标记
 programmable_hatches.buffer.waila.hidden=§r以及%s个空闲的§2就绪§r缓存...
 proghatch.dualhatch.optinv.broken=§4这个多方块不兼容升级！如果看到这行字请提issue
+proghatch.ingbuf.fail.net.diff.bus.null=%s号ME输出总线内部缓存含有:%s 尽管不需要向此网络输出但其应该被清空
+proghatch.ingbuf.fail.cache.diff.bus.null=%s号ME输出总线内部缓存含有:%s 尽管不需要向此网络输出但其应该被清空
+proghatch.ingbuf.fail.net.diff.hatch.null=%s号ME输出仓内部缓存含有:%s 尽管不需要向此网络输出但其应该被清空
+proghatch.ingbuf.fail.cache.diff.hatch.null=%s号ME输出仓内部缓存含有:%s 尽管不需要向此网络输出但其应该被清空

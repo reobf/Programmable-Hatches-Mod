@@ -165,13 +165,16 @@ import reobf.proghatches.util.ProghatchesUtil;
 import tconstruct.armor.player.TPlayerStats;
 import thaumcraft.common.entities.golems.ItemGolemCore;
 
-@Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.7.10]", dependencies = "required-after:appliedenergistics2;required-after:gregtech;", acceptableRemoteVersions = "*"
+@Mod(modid = MyMod.MODID, version = Tags.VERSION, name =  MyMod.MODNAME, acceptedMinecraftVersions = "[1.7.10]", dependencies = "required-after:appliedenergistics2;required-after:gregtech;", acceptableRemoteVersions = "*"
 /*
  * ,dependencies= "required-after:neenergistics;"
  */
 )
 public class MyMod {
-	public static final Logger LOG = LogManager.getLogger(Tags.MODID);
+	
+	final public static String MODID="programmablehatches";
+	final public static String MODNAME="ProgrammableHatches";
+	public static final Logger LOG = LogManager.getLogger(MODID);
 	public static MyMod instance;
 	{
 		//GT_MetaTileEntity_MultiBlockBase.class.getDeclaredFields();
@@ -210,7 +213,7 @@ public class MyMod {
 	// public static ShutDownReason ACCESS_LOOP=new
 	// SimpleShutDownReason("proghatch.access_loop", true){public String getID()
 	// {return "proghatch.access_loop";};};
-	public static SimpleNetworkWrapper net = new SimpleNetworkWrapper(Tags.MODID);
+	public static SimpleNetworkWrapper net = new SimpleNetworkWrapper( MyMod.MODID);
 	public static Item progcircuit;
 	public static Item toolkit;
 

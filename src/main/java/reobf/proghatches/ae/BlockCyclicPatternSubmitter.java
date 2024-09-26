@@ -5,6 +5,8 @@ package reobf.proghatches.ae;
 import static net.minecraftforge.common.util.ForgeDirection.DOWN;
 import static net.minecraftforge.common.util.ForgeDirection.UP;
 
+import java.util.Map;
+
 import com.gtnewhorizons.modularui.api.UIInfos;
 import com.gtnewhorizons.modularui.common.internal.network.NetworkUtils;
 

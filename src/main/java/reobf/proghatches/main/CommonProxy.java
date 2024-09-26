@@ -62,7 +62,7 @@ public class CommonProxy {
 		Config.synchronizeConfiguration(event.getSuggestedConfigurationFile());
 
 		MyMod.LOG.info(Config.greeting);
-		MyMod.LOG.info("I am " + Tags.MODNAME + " at version " + Tags.VERSION);
+		MyMod.LOG.info("I am " +  MyMod.MODNAME + " at version " + Tags.VERSION);
 
 		GameRegistry.registerTileEntity(TileIOHub.class, "proghatches.iohub");
 		GameRegistry.registerTileEntity(TileWirelessPeripheralStation.class, "proghatches.peripheral_station");

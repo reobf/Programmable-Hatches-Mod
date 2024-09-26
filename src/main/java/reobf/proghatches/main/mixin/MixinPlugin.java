@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import reobf.proghatches.Tags;
-
+import reobf.proghatches.main.MyMod;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -308,7 +308,7 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		}
 	}
 
-	public static final Logger LOG = LogManager.getLogger(Tags.MODID + "Mixin");
+	public static final Logger LOG = LogManager.getLogger( MyMod.MODID + "Mixin");
 	private static final Path MODS_DIRECTORY_PATH = new File(Launch.minecraftHome, "mods/").toPath();
 
 	public static List<File> findJarOf(final Map<String, String> classTrait) {

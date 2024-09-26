@@ -8,10 +8,14 @@ import com.gtnewhorizons.modularui.api.drawable.AdaptableUITexture;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
+import com.gtnewhorizons.modularui.api.forge.PlayerMainInvWrapper;
+import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.screen.ITileWithModularUI;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
@@ -23,14 +27,17 @@ import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.gui.modularui.GUITextureSet;
+import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import ic2.core.block.reactor.tileentity.TileEntityNuclearReactorElectric;
 import ic2.core.block.reactor.tileentity.TileEntityReactorAccessHatch;
 import ic2.core.block.reactor.tileentity.TileEntityReactorChamberElectric;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.block.TileIOHub.UIFactory;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 
 public class TileReactorSyncer extends TileEntity implements ITileWithModularUI{
@@ -44,14 +51,19 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI{
 	MyMod.callbacks.put(this,this::pretick);
 	}
 	
-	
+	boolean skipCycleZero;
 	public void pretick(){
 		if((!isDead)&&(!isInvalid())){
 			TileEntityNuclearReactorElectric reactor=findTarget();
+			
 			if(reactor!=null) 
 				tick=reactor.updateTicker%20;else tick=-1;
-			
+		
 			int new_power=tick!=-1?values[tick]:0;
+			if(cycles==0&&skipCycleZero){
+				new_power=0;
+			}
+			if(tick==0)cycles++;
 			if(power!=new_power){
 				
 			
@@ -61,6 +73,7 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI{
 			}
 			
 			power=new_power;
+			
 		}
 	}
 	
@@ -86,9 +99,15 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI{
 		return null;
 	}
 	
+	int cycles;
+	@Override
+	public void invalidate() {
+		cycles=0;
+		super.invalidate();
+	}
 	@Override
     public void onChunkUnload() {
-      
+		cycles=0;
         super.onChunkUnload();
         isDead = true;
     }
@@ -99,7 +118,30 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI{
         isDead = false;
     }
 
+    public static SlotGroup playerHotBarGroup(EntityPlayer player, IDrawable background) {
+        PlayerMainInvWrapper wrapper = new PlayerMainInvWrapper(player.inventory);
+        SlotGroup slotGroup = new SlotGroup();
 
+      /*  for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                SlotWidget slot = new SlotWidget(new BaseSlot(wrapper, col + (row + 1) * 9))
+                        .setPos(new Pos2d(col * 18, row * 18));
+                slotGroup.addSlot(slot);
+                if (background != null) {
+                    slot.setBackground(background);
+                }
+            }
+        }*/
+
+        for (int i = 0; i < 9; i++) {
+            SlotWidget slot = new SlotWidget(new BaseSlot(wrapper, i)).setPos(new Pos2d(i * 18, 0));
+            slotGroup.addSlot(slot);
+            if (background != null) {
+                slot.setBackground(background);
+            }
+        }
+        return slotGroup;
+    }
 	@Override
 	public ModularWindow createWindow(UIBuildContext buildContext) {
 		return new UIFactory(buildContext).createWindow();
@@ -117,7 +159,12 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI{
 			builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
 			// builder.setGuiTint(getUIBuildContext().getGuiColorization());
 			if (doesBindPlayerInventory()) 
-				builder.bindPlayerInventory(getUIBuildContext().getPlayer());
+				{
+				builder.widget(playerHotBarGroup(uiBuildContext.getPlayer(), null)
+						.setPos(new Pos2d(3, getGUIHeight()-18-3)));
+			//	builder.bindPlayerInventory(null)
+		
+				}
 		
 			addTitleToUI(builder);
 			addUIWidgets(builder);
@@ -138,6 +185,24 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI{
 		 * @param builderx
 		 */
 		protected void addUIWidgets(ModularWindow.Builder builderx) {
+			
+			builderx.widget(((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(false, true))
+					.setGetter(() -> skipCycleZero ? 1 : 0).setSetter(s ->skipCycleZero = s == 1).setLength(2)
+					.setTextureGetter(i -> {
+						if (i == 1)
+							return GT_UITextures.OVERLAY_BUTTON_EXPORT;
+						return GT_UITextures.OVERLAY_BUTTON_IMPORT;
+					})
+
+					.addTooltip(1, LangManager.translateToLocal("tile.reactor_syncer.skip.true"))
+					.addTooltip(0, LangManager.translateToLocal("tile.reactor_syncer.skip.false"))
+					.addTooltip( LangManager.translateToLocal("tile.reactor_syncer.skip.0"))
+					.addTooltip( LangManager.translateToLocal("tile.reactor_syncer.skip.1"))
+					.addTooltip( LangManager.translateToLocal("tile.reactor_syncer.skip.2"))
+					.setPos(3, getGUIHeight()-60)
+
+			);
+			
 			Scrollable builder=new Scrollable().setHorizontalScroll();
 			for(int i=0;i<20;i++){
 				
@@ -244,6 +309,7 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI{
 		for(int i=0;i<20;i++){
 			compound.setInteger("##"+i, values[i]);
 		}
+		compound.setBoolean("skipCycleZero",skipCycleZero);
 		super.writeToNBT(compound);
 	}
 	@Override
@@ -251,6 +317,7 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI{
 		for(int i=0;i<20;i++){
 			values[i]=compound.getInteger("##"+i );
 		}
+		skipCycleZero=compound.getBoolean("skipCycleZero");
 		super.readFromNBT(compound);
 	}
 }

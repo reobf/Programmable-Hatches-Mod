@@ -567,3 +567,9 @@ proghatch.ingbuf.fail.net.diff.bus.null=The bus#%s has %s in its ME storage whil
 proghatch.ingbuf.fail.cache.diff.bus.null=The bus#%s has %s in its cache while it should be empty.
 proghatch.ingbuf.fail.net.diff.hatch.null=The hatch#%s has %s in its ME storage while it should be empty.
 proghatch.ingbuf.fail.cache.diff.hatch.null=The hatch#%s has %s in its cache while it should be empty.
+tile.reactor_syncer.skip.true=No Redstone in the first Reactor Cycle: true
+tile.reactor_syncer.skip.false=No Redstone in the first Reactor Cycle: false
+tile.reactor_syncer.skip.0=Reactor updates every 20 ticks, however every time you load the game the counter shuffles.
+tile.reactor_syncer.skip.1=This option gives you one update cycle to restore everything.
+tile.reactor_syncer.skip.2=Especially useful if the game was saved in a bad tick, and the counter happens to be 0 at random.
+

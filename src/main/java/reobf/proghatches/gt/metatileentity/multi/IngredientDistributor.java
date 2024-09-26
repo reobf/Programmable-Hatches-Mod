@@ -740,7 +740,7 @@ private TransferCheckResult checkMEBus(GT_MetaTileEntity_Hatch_OutputBus_ME bus,
 		Iterator<IAEItemStack> itr = itemCache.iterator();
 		//if(check!=null)
 		while(itr.hasNext()){IAEItemStack next;
-			if((next=itr.next()).isSameType(check)==false){
+			if((next=itr.next()).isSameType(check)==false&&next.getStackSize()>0){
 				if(check==null)
 					return TransferCheckResult.ofFail("cache.diff.bus.null",index,cp(next));
 				return TransferCheckResult.ofFail("cache.diff.bus",index,cp(next),cp(check));
@@ -749,7 +749,7 @@ private TransferCheckResult checkMEBus(GT_MetaTileEntity_Hatch_OutputBus_ME bus,
 		itr = bus.getProxy().getStorage().getItemInventory().getStorageList().iterator();
 		//if(check!=null)
 		while(itr.hasNext()){IAEItemStack next;
-			if((next=itr.next()).isSameType(check)==false){
+			if((next=itr.next()).isSameType(check)==false&&next.getStackSize()>0){
 				if(check==null)
 					return TransferCheckResult.ofFail("net.diff.bus.null",index,cp(next));
 				return TransferCheckResult.ofFail("net.diff.bus",index,cp(next),cp(check));
@@ -787,7 +787,7 @@ private TransferCheckResult checkMEHatch(GT_MetaTileEntity_Hatch_Output_ME bus,F
 		Iterator<IAEFluidStack> itr = itemCache.iterator();
 		//if(check!=null)
 		while(itr.hasNext()){IAEFluidStack next;
-			if(!sameType(next=itr.next(),(check))){
+			if(!sameType(next=itr.next(),(check))&&next.getStackSize()>0){
 				if(check==null)
 					return TransferCheckResult.ofFail("net.diff.hatch.null",index,cp(next));
 				return TransferCheckResult.ofFail("cache.diff.hatch",index,cp(next),cp(check));
@@ -797,7 +797,7 @@ private TransferCheckResult checkMEHatch(GT_MetaTileEntity_Hatch_Output_ME bus,F
 		itr = bus.getProxy().getStorage().getFluidInventory().getStorageList().iterator();
 		//if(check!=null)
 		while(itr.hasNext()){IAEFluidStack next;
-			if(!sameType(next=itr.next(),(check))){
+			if(!sameType(next=itr.next(),(check))&&next.getStackSize()>0){
 				if(check==null)
 					return TransferCheckResult.ofFail("net.diff.hatch.null",index,cp(next));
 				return TransferCheckResult.ofFail("net.diff.hatch",index,cp(next),cp(check));

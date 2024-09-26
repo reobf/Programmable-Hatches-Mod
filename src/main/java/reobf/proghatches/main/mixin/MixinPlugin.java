@@ -194,6 +194,7 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		retLate.add("MixinStorageChangeEvent");
 		retLate.add("MixinOptimize");
 		retLate.add("part2.MixinIsWailaCall");
+		retLate.add("part2.MixinPresetsInject");
 		retLate.add("part2.MixinOC");
 		retLate.add("part2.MixinRecursiveSlotClickProtection");
 		retLate.add("part2.MixinMultiPattern");

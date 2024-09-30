@@ -86,6 +86,8 @@ import com.gtnewhorizons.modularui.common.widget.SlotGroup;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
+
+import appeng.me.storage.DriveWatcher;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -129,7 +131,7 @@ public int getInventoryFluidLimit() {
 			
 		return	(int) Math.min(val, Integer.MAX_VALUE);	*/
 	//return super.getInventoryFluidLimit();
-		
+	  
 		return (int) ((int) (32000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1)));
 }
 	public int fluidLimit() {
@@ -1224,6 +1226,7 @@ final int offset=0;
 			final int ii = i;
 			inv0.get(i).fromTag((NBTTagCompound) aNBT.getTag("BUFFER_" + ii));
 		}
+		merge = aNBT.getBoolean("merge");
 		justHadNewItems = aNBT.getBoolean("justHadNewItems");
 		updateEveryTick = aNBT.getBoolean("updateEveryTick");
 		preventSleep=aNBT.getInteger("preventSleep");
@@ -1236,7 +1239,8 @@ final int offset=0;
 		for (int i = 0; i < bufferNum; i++)
 
 			aNBT.setTag("BUFFER_" + i, inv0.get(i).toTag());
-
+		
+		aNBT.setBoolean("merge", merge);
 		aNBT.setBoolean("justHadNewItems", justHadNewItems);
 		aNBT.setBoolean("updateEveryTick", updateEveryTick);
 		aNBT.setInteger("preventSleep",preventSleep );
@@ -1359,11 +1363,19 @@ final int offset=0;
 	private Predicate<DualInvBuffer> not(Predicate<DualInvBuffer> s) {
 		return s.negate();
 	}
-
+boolean merge;
 	@Override
 	public Iterator<? extends IDualInputInventory> inventories() {
 		markDirty();
 		dirty=true;
+		
+		
+	
+		if(merge){
+		return mergeSame();
+			
+		}
+		
 		
 		if(Config.experimentalOptimize){
 			
@@ -1615,15 +1627,16 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 		super.updateSlots();
 	}
 
+	
 	@Override
 	public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
 		
-		mergeSame().forEachRemaining(s->{
+		/*mergeSame().forEachRemaining(s->{
 			
-			System.out.println(s);
+			System.out.println(Arrays.toString(s.getItemInputs()));
 			
 			
-		});
+		});*/
 		BaseMetaTileEntity tile = (BaseMetaTileEntity) this.getBaseMetaTileEntity();
 		if (tile.isServerSide()) {
 			if (!tile.privateAccess() || aPlayer.getDisplayName().equalsIgnoreCase(tile.getOwnerName())) {
@@ -1651,6 +1664,30 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 						 */
 						aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.gt.updateEveryTick"));
 
+						markDirty();
+						return true;
+					}
+
+				}
+				if (tCurrentItem != null) {
+					boolean suc = false;
+					for (int id : OreDictionary.getOreIDs(tCurrentItem)) {
+						if (OreDictionary.getOreName(id).equals(ToolDictNames.craftingToolSaw.toString())) {
+							suc = true;
+							break;
+						}
+						;
+					}
+					if (suc) {
+						GT_ModHandler.damageOrDechargeItem(tCurrentItem, 1, 1000, aPlayer);
+						GT_Utility.sendSoundToPlayers(tile.getWorld(), SoundResource.IC2_TOOLS_CHAINSAW_CHAINSAW_USE_TWO, 1.0F, -1,
+								tile.getXCoord(), tile.getYCoord(), tile.getZCoord());
+						/*merge = !merge;
+
+						GT_Utility.sendChatToPlayer(aPlayer, "merge:" + merge);
+						
+						aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.gt.merge"));
+*/
 						markDirty();
 						return true;
 					}
@@ -1800,6 +1837,7 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 		);
 		return (Iterator<? extends IDualInputInventory>) a.asMap().values().stream().map(
 				s->{
+					if(s.size()==1){return s.iterator().next();}
 				return	new IDualInputInventory(){
 					void init(){
 						Iterator<DualInvBuffer> itr = s.iterator();

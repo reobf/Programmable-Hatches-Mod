@@ -22,6 +22,8 @@ import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableList;
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
+import com.gtnewhorizon.structurelib.structure.AutoPlaceEnvironment;
+import com.gtnewhorizon.structurelib.structure.IItemSource;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.IStructureElement;
 import com.gtnewhorizon.structurelib.structure.IStructureElementChain;
@@ -62,6 +64,8 @@ import gregtech.api.interfaces.fluid.IFluidStore;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_EnhancedMultiBlockBase;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Input;
+import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Output;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_OutputBus;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
@@ -77,14 +81,18 @@ import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_Output_ME;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.block.BlockIOHub;
+import reobf.proghatches.gt.metatileentity.CommunicationPortHatch;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.lang.LangManager;
@@ -99,7 +107,51 @@ implements ISurvivalConstructable {
 		super(aName);
 	
 	}
-	
+	 public static <T> IStructureElement<T> ofFrameAdder(Materials aFrameMaterial,Consumer<T> onadded) {
+		IStructureElement<Object> frame = GT_StructureUtility.ofFrame(aFrameMaterial); 
+		 
+		 return new IStructureElement<T>() {
+
+			@Override
+			public boolean check(T t, World world, int x, int y, int z) {
+			boolean b=frame.check(t, world, x, y, z);
+			if(b)onadded.accept(t);
+				return b;
+			}
+			@Override
+			public com.gtnewhorizon.structurelib.structure.IStructureElement.BlocksToPlace getBlocksToPlace(T t,
+					World world, int x, int y, int z, ItemStack trigger, AutoPlaceEnvironment env) {
+			
+				return frame.getBlocksToPlace(t, world, x, y, z, trigger, env);
+			}
+			@Override
+			public com.gtnewhorizon.structurelib.structure.IStructureElement.PlaceResult survivalPlaceBlock(T t,
+					World world, int x, int y, int z, ItemStack trigger, AutoPlaceEnvironment env) {
+			
+				return frame.survivalPlaceBlock(t, world, x, y, z, trigger, env);
+			}
+			@SuppressWarnings("deprecation")
+			@Override
+			public com.gtnewhorizon.structurelib.structure.IStructureElement.PlaceResult survivalPlaceBlock(T t,
+					World world, int x, int y, int z, ItemStack trigger, IItemSource s, EntityPlayerMP actor,
+					Consumer<IChatComponent> chatter) {
+			
+				return frame.survivalPlaceBlock(t, world, x, y, z, trigger, s, actor, chatter);
+			}
+			@Override
+			public boolean spawnHint(T t, World world, int x, int y, int z, ItemStack trigger) {
+				
+				return frame.spawnHint(aFrameMaterial, world, x, y, z, trigger);
+			}
+
+			@Override
+			public boolean placeBlock(T t, World world, int x, int y, int z, ItemStack trigger) {
+				
+				return frame.placeBlock(aFrameMaterial, world, x, y, z, trigger);
+			}
+		};
+		 
+	 }
 	public static boolean addDual(IngredientDistributor thiz,IGregTechTileEntity aTileEntity, short aBaseCasingIndex){
 		 if (aTileEntity == null) return false;
 	        IMetaTileEntity aMetaTileEntity = aTileEntity.getMetaTileEntity();
@@ -118,6 +170,7 @@ implements ISurvivalConstructable {
 		
 		
 	}
+	CommunicationPortHatch port;
 	boolean allMEHatch=true;
 	boolean hasHatchThisLayer;
 	boolean hasBusThisLayer;
@@ -146,7 +199,10 @@ implements ISurvivalConstructable {
 	}
 	
 	return ok;	};
-		
+	
+	boolean isLiteVersion;
+	
+	
 	@SuppressWarnings("unchecked")
 	IStructureDefinition<IngredientDistributor> STRUCTURE_DEFINITION = StructureDefinition.<IngredientDistributor> builder()
 		.addShape("first", StructureUtility.transpose (new String[][] { { "m","f","c"}, { "m","f","c"}, { "m","f","c"}}  ))
@@ -157,8 +213,26 @@ implements ISurvivalConstructable {
 		
 		.addShape("last", StructureUtility.transpose (new String[][] { { " "," "," "}, { " ","f"," "}, { " ","f"," "}  }))	
 		
-		.addElement('c', ofBlock(GregTech_API.sBlockCasings4, 12))
-		.addElement('f', GT_StructureUtility.ofFrame(Materials.Terbium))
+		.addElement('c',
+				
+				
+				
+				
+				
+						ofBlock(GregTech_API.sBlockCasings4, 12)
+						
+				
+				
+				
+				)
+		.addElement('f',StructureUtility.ofChain(
+				GT_StructureUtility.ofFrame(Materials.Terbium),
+				ofFrameAdder(Materials.Yttrium,s->((IngredientDistributor) s).onCheapFrameFound())
+			
+				
+				
+				
+				))
 		.addElement('h',
 				buildHatchAdder(IngredientDistributor.class)
 				.atLeast(GT_HatchElement.OutputBus.withAdder(IngredientDistributor::addBus)
@@ -187,9 +261,59 @@ implements ISurvivalConstructable {
 		.addElement('m', buildHatchAdder(IngredientDistributor.class)
 				.atLeast(GT_HatchElement.Maintenance,GT_HatchElement.Energy)
 				.casingIndex(CASING_INDEX).dot(3)
-				.buildAndChain(GregTech_API.sBlockCasings4, 12))
+				.buildAndChain(
+						buildHatchAdder(IngredientDistributor.class)
+						.atLeast(
+								new IHatchElement<IngredientDistributor>(){
+
+							@Override
+							public List<? extends Class<? extends IMetaTileEntity>> mteClasses() {
+							
+								return ImmutableList.of(CommunicationPortHatch.class);
+							}
+
+							@Override
+							public IGT_HatchAdder<? super IngredientDistributor> adder() {
+							
+								return (s,w,u)->{
+									if(s==null)return false;
+									if(s.port!=null)return false;
+									s.port=(CommunicationPortHatch) w.getMetaTileEntity();
+									if(s.port==null)return false;
+									s.port.updateTexture(CASING_INDEX);
+									  return true;
+									
+								};
+							}
+
+							@Override
+							public String name() {
+							
+								return "commport";
+							}
+
+							@Override
+							public long count(IngredientDistributor t) {
+							
+								return port==null?0:1;
+							}}
+								)
+						
+								.hatchItemFilter(s->(
+								//have to return this or will this not be displayed in NEI 'availale hatches' list
+								is->is.getItemDamage()==Registration.CommunicationPortHatchOffset+Config.metaTileEntityOffset
+								))
+						
+						
+						
+						.casingIndex(CASING_INDEX).dot(3).build(),
+						
+						ofBlock(GregTech_API.sBlockCasings4, 12)
+						)
+				)
 		
 		.addElement('◎', buildHatchAdder(IngredientDistributor.class)
+				
 				.atLeast(
 						
 						new IHatchElement<IngredientDistributor>(){
@@ -237,6 +361,10 @@ implements ISurvivalConstructable {
 	
 	
 
+	private void onCheapFrameFound() {
+		isLiteVersion=true;
+		return ;
+	}
 	@Override
 	public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
 		
@@ -335,6 +463,8 @@ implements ISurvivalConstructable {
 	}
 	@Override
 	public boolean checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack) {
+		isLiteVersion=false;
+		port=null;
 		if(checkPiece("first", 1, 1, 0)&&
 		checkPiece("second", 0, 1, 0)&&
 		checkPiece("third", -1, 1, 0)
@@ -348,8 +478,13 @@ implements ISurvivalConstructable {
 			index--;
 		};
 		
-		
+		if(port!=null&&allMEHatch==false){return false;}
 		return checkPiece("last", index, 1, 0)&&this.mEnergyHatches.size()>0;
+				
+				
+				
+				
+				
 		
 		
 		
@@ -400,20 +535,66 @@ protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inve
 
 */
 
-
-
+boolean yield;
+int count;
+int cd;
+int cdmax=1;
 @Override
-protected void runMachine(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-super.runMachine(aBaseMetaTileEntity, aTick);
-if(!mMachine)return;
+	protected void runMachine(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
+		super.runMachine(aBaseMetaTileEntity, aTick);
+		if (!mMachine)
+			return;
 
+		
+		if (ready > 0 && aBaseMetaTileEntity.isAllowedToWork()) {
+			boolean trylock = false;
+			boolean porton = false;
+			if (port != null && !lockRecipe && isAllMEOutputEmpty() == true
+					&& (!port.getBaseMetaTileEntity().getRedstone() || count > 0) && !isInputEmpty()) {
+				count++;
+				porton = true;
+				if (count > 100) {
+					count = 0;
+					trylock = true;
+				}
+			} else {
+				count = 0;
+			}
+			if(port!=null){
+			yield=(!porton&&count==0&&port.getBaseMetaTileEntity().getRedstone()&&!lockRecipe);
+			
+			
+			port.setRS(porton);}
+			if(trylock){
+				
+				 cd=0;
+				 cdmax=1;
+			}
+			if ((port != null && lockRecipe && isAllMEOutputEmpty() == false) || port == null || trylock)
+				if(++cd>=cdmax){
+					cd=0;
+					if (distribute()) {
+						ready--;
+						if (port != null) {
+							if (trylock)
+								lockRecipe = true;
+	
+						}
+						lastfail = null;
+						cd=0;
+						cdmax=1;
+					}else{
+						if(cdmax<16)cdmax*=2;
+					}	
+				}
 
-if(ready>0&&aBaseMetaTileEntity.isAllowedToWork()){
-	if(distribute()){
-			ready--;
-			lastfail=null;
-	}
-}
+			if (port != null) {
+				if (isAllMEOutputEmpty()) {
+					lockRecipe = false;
+				}
+			}
+
+		}
 }
 /*
 @SuppressWarnings({ "unchecked", "rawtypes", "unused" })
@@ -440,6 +621,33 @@ private Optional<IRecipeProcessingAwareHatch> getInput(){
 	
 }
 */
+
+public boolean isInputEmpty(){
+	startRecipeProcessing();
+	
+	
+	try{
+	if(mDualInputHatches.size()==1){
+	return	!mDualInputHatches.get(0).getFirstNonEmptyInventory().isPresent();
+	}
+	if(mInputBusses.size()==1){
+	GT_MetaTileEntity_Hatch_InputBus bus = mInputBusses.get(0);
+		for(int i=0;i<bus.getSizeInventory();i++){
+			if(bus.getStackInSlot(i)!=null||bus.getStackInSlot(i).stackSize>0){return false;}
+		}
+	}
+	if(mInputHatches.size()==1){
+		ArrayList<FluidStack> bus =getStoredFluids();
+			for(int i=0;i<bus.size();i++){
+				if(bus.get(i)!=null||bus.get(i).amount>0){return false;}
+			}
+		}
+	return true;
+	}finally{
+		endRecipeProcessing();
+		
+	}
+}
 @SuppressWarnings("unchecked")
 private boolean distribute() {
 	
@@ -725,16 +933,58 @@ private IAEItemStack cp(IAEItemStack c){
 	if(c!=null)return c.copy();
 	return null;
 }
+private boolean isAllMEOutputEmpty(){
+	
+	for(GT_MetaTileEntity_Hatch_OutputBus o:mOutputBusses){
+		if(o instanceof GT_MetaTileEntity_Hatch_OutputBus_ME){
+		
+			IItemList<IAEItemStack> itemCache;
+			try {
+			itemCache = (IItemList<IAEItemStack>) f.get(o);
+			if(itemCache.isEmpty()==false){return false;}
+			itemCache=o.getProxy().getStorage().getItemInventory().getStorageList();
+			if(itemCache.isEmpty()==false){return false;}
+			
+			} catch (Exception e) {e.printStackTrace();
+			}
+		}else return false;
+	}
+
+	for(GT_MetaTileEntity_Hatch_Output o:mOutputHatches){
+		if(o instanceof GT_MetaTileEntity_Hatch_Output_ME){
+		
+			IItemList<IAEFluidStack> itemCache;
+			try {
+			itemCache = (IItemList<IAEFluidStack>) f2.get(o);
+			if(itemCache.isEmpty()==false){return false;}
+			itemCache=o.getProxy().getStorage().getFluidInventory().getStorageList();
+			if(itemCache.isEmpty()==false){return false;}
+			} catch (Exception e) {e.printStackTrace();
+			}
+		}else return false;
+	}
+	return true;
+}
+
 static Field f,f2;
-@SuppressWarnings({ "unchecked", "unused" })
-private TransferCheckResult checkMEBus(GT_MetaTileEntity_Hatch_OutputBus_ME bus,ItemStack check,int index){
-	if(f==null)
+static{
+if(f==null)
 	try {
 		f=GT_MetaTileEntity_Hatch_OutputBus_ME.class.getDeclaredField("itemCache");
      f.setAccessible(true);
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
+if(f2==null)
+	try {
+		f2=GT_MetaTileEntity_Hatch_Output_ME.class.getDeclaredField("fluidCache");
+     f2.setAccessible(true);
+	} catch (Exception e) {
+		e.printStackTrace();
+	}}
+@SuppressWarnings({ "unchecked", "unused" })
+private TransferCheckResult checkMEBus(GT_MetaTileEntity_Hatch_OutputBus_ME bus,ItemStack check,int index){
+	
 	try {
 		IItemList<IAEItemStack> itemCache =(IItemList<IAEItemStack>) f.get(bus);
 		Iterator<IAEItemStack> itr = itemCache.iterator();
@@ -775,13 +1025,7 @@ private TransferCheckResult checkMEBus(GT_MetaTileEntity_Hatch_OutputBus_ME bus,
 }
 @SuppressWarnings({ "unchecked", "unused" })
 private TransferCheckResult checkMEHatch(GT_MetaTileEntity_Hatch_Output_ME bus,FluidStack check,int index){
-	if(f2==null)
-	try {
-		f2=GT_MetaTileEntity_Hatch_Output_ME.class.getDeclaredField("fluidCache");
-     f2.setAccessible(true);
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
+	
 	try {
 		IItemList<IAEFluidStack> itemCache =(IItemList<IAEFluidStack>) f2.get(bus);
 		Iterator<IAEFluidStack> itr = itemCache.iterator();
@@ -1047,6 +1291,10 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	blocking=aNBT.getBoolean("blocking");
 	emptyRun=aNBT.getBoolean("emptyRun");
 	allMEHatch=aNBT.getBoolean("allMEHatch");
+	count=aNBT.getInteger("count");
+	cd=aNBT.getInteger("cd");
+	cdmax=aNBT.getInteger("cdmax");
+	lockRecipe=aNBT.getBoolean("lockRecipe");
 	super.loadNBTData(aNBT);
 }
 @Override
@@ -1055,11 +1303,18 @@ public void saveNBTData(NBTTagCompound aNBT) {
 	aNBT.setBoolean("blocking", blocking);
 	aNBT.setBoolean("emptyRun", emptyRun);
 	aNBT.setBoolean("allMEHatch", allMEHatch);
+	
+	aNBT.setInteger("count", count);
+	aNBT.setInteger("cd", cd);
+	aNBT.setInteger("cdmax", cdmax);
+	aNBT.setBoolean("lockRecipe", lockRecipe);
 	super.saveNBTData(aNBT);
 }
+
+boolean lockRecipe;
 @Override
 public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-	
+	if(isLiteVersion)blocking=false;
 	if( !aBaseMetaTileEntity.getWorld().isRemote&&mMachine){
 	if (!allMEHatch) {
 		blocking=false;
@@ -1117,7 +1372,40 @@ public void addUIWidgets(com.gtnewhorizons.modularui.api.screen.ModularWindow.Bu
         		 val -> {
         	 blocking=val;
                    }).setSynced(true, true))
-	            ;
+	           .widget(new FakeSyncWidget.BooleanSyncer(
+	          		 ()->lockRecipe,
+	          		 val -> {
+	          			lockRecipe=val;
+	                     }).setSynced(true, false))
+	           .widget(new FakeSyncWidget.BooleanSyncer(
+		          		 ()->port!=null,
+		          		 val -> {
+		          			clientport=val;
+		                     }).setSynced(true, false))
+	           
+	           .widget(new FakeSyncWidget.IntegerSyncer(
+		          		 ()->count,
+		          		 val -> {
+		          			count=val;
+		                     }).setSynced(true, false))
+	           .widget(new FakeSyncWidget.IntegerSyncer(
+		          		 ()->cd,
+		          		 val -> {
+		          			cd=val;
+		                     }).setSynced(true, false))
+	           .widget(new FakeSyncWidget.IntegerSyncer(
+		          		 ()->cdmax,
+		          		 val -> {
+		          			cdmax=val;
+		                     }).setSynced(true, false))
+	           .widget(new FakeSyncWidget.BooleanSyncer(
+		          		 ()->yield,
+		          		 val -> {
+		          			yield=val;
+		                     }).setSynced(true, false))
+	           ;
+	        
+	        
 }
 
 ButtonWidget createBlockingModeButton(IWidgetBuilder<?> builder) {
@@ -1164,6 +1452,8 @@ public static boolean addBus(IngredientDistributor thiz, IGregTechTileEntity aTi
 	if(thiz.hasBusThisLayer){return false;}
 	return thiz.addOutputBusToMachineList(aTileEntity, s);
 }
+
+boolean clientport;
 protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inventorySlot) {
 	
 	super.drawTexts(screenElements, inventorySlot);
@@ -1177,5 +1467,44 @@ protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inve
             .setEnabled(widget -> {
                 return (getBaseMetaTileEntity().isAllowedToWork())&&lastfail!=null;
             }));
+    
+    screenElements.widget(
+      		 TextWidget.dynamicString(()->
+      		 {		if(yield)return StatCollector.translateToLocal("proghatch.ingbuf.yield");
+      			 if(count>0)return StatCollector.translateToLocal("proghatch.ingbuf.acquring");
+      			if(lockRecipe)return StatCollector.translateToLocal("proghatch.ingbuf.locked");
+      			 
+      			return StatCollector.translateToLocal("proghatch.ingbuf.idle");
+      		 }
+      		 
+      				 ).setDefaultColor(COLOR_TEXT_WHITE.get())
+              .setEnabled(widget -> clientport));
+    
+    
+    
+    screenElements.widget(
+   		 TextWidget.dynamicString(()->
+   		"lock:"+lockRecipe
+   		 
+   				 ).setDefaultColor(COLOR_TEXT_WHITE.get())
+           .setEnabled(widget -> clientport));
+   
+    screenElements.widget(
+      		 TextWidget.dynamicString(()->
+      		"count:"+count
+      		 
+      				 ).setDefaultColor(COLOR_TEXT_WHITE.get())
+              .setEnabled(widget -> clientport));
+    
+    screenElements.widget(
+     		 TextWidget.dynamicString(()->
+     		cd+"/"+cdmax
+     		 
+     				 ).setDefaultColor(COLOR_TEXT_WHITE.get())
+             .setEnabled(widget -> clientport));
+   
+    
+    
+    
 }
 }

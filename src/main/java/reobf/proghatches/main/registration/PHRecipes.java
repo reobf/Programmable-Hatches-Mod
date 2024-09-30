@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import javax.print.DocFlavor.INPUT_STREAM;
 
@@ -60,7 +61,9 @@ public class PHRecipes implements Runnable {
             Robot_Arm_LV.get(1), Robot_Arm_MV.get(1), Robot_Arm_HV.get(1), Robot_Arm_EV.get(1), Robot_Arm_IV.get(1),
             Robot_Arm_LuV.get(1), Robot_Arm_ZPM.get(1), Robot_Arm_UV.get(1), Robot_Arm_UHV.get(1), Robot_Arm_UEV.get(1),
             Robot_Arm_UIV.get(1), Robot_Arm_UMV.get(1), Robot_Arm_UXV.get(1), Robot_Arm_MAX.get(1) };
-      Materials[][] mat = { 
+      Materials[][] mat =null;
+      
+      Supplier<Materials[][]> metget=()->new Materials[][]{ 
         		{ Primitive }, 
         		{ Basic }, 
         		{ Good }, 
@@ -113,6 +116,7 @@ GameRegistry.findItem("dreamcraft","item.PolychromePikoCircuit")!=null
 	  MyMod.LOG.info("Found new dreamcraft Nano-Piko-Quantum circuit, use oredict: Exotic-Cosmic-Transcendent.");
 	mat=matNewVersion;}
 else{
+	mat=metget.get();
 	 MyMod.LOG.info("Good ol' version.");
 	
 }

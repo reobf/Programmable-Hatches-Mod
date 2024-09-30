@@ -570,3 +570,14 @@ tile.reactor_syncer.skip.false=第一个反应堆更新周期不输出信号: fa
 tile.reactor_syncer.skip.0=反应堆每20tick更新,但每次读档计数器会被随机重置
 tile.reactor_syncer.skip.1=这个选项空出第一个更新周期不输出信号,以便你恢复现场,拯救你的反应堆于水火
 tile.reactor_syncer.skip.2=尤其是考虑到可能再换棒到一半时存档,再读档时计数器会正好随机到0
+proghatches.restricted.refresh.0=刷新
+proghatches.restricted.refresh.1=只是查询当前能够拉取的数量 实际数量取决于运行时
+programmable_hatches.gt.merge=合并锁定同一配方的缓存,向多方块显示为单个缓存
+proghatches.restricted.multiples.alt=限制拉取数量为数量下限的2的幂次倍
+proghatches.restricted.multiples.exact=不限制
+hatch.commport.name=状态总线通讯端口
+proghatch.ingbuf.yield=状态: 总线已让渡给其它主机 总线被释放前此主机不会工作
+proghatch.ingbuf.acquring=状态: 总线被此机占据 以阻止其它主机锁定新配方 释放总线前会尝试锁定新配方
+proghatch.ingbuf.locked=状态: 配方已锁定 无视总线状态 仅处理锁定配方 在输出清空后回到空闲状态
+proghatch.ingbuf.idle=状态: 总线空闲
+

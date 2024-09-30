@@ -34,6 +34,7 @@ import reobf.proghatches.main.registration.Registration;
 
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
+import com.gtnewhorizons.modularui.api.drawable.AdaptableUITexture;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.Text;
 import com.gtnewhorizons.modularui.api.math.Alignment;
@@ -47,6 +48,7 @@ import com.gtnewhorizons.modularui.api.widget.Interactable;
 import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.fluid.FluidStackTank;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
@@ -143,8 +145,14 @@ public class RestrictedInputHatchME extends GT_MetaTileEntity_Hatch_Input_ME
             if(resultFluid!=null&&resultFluid.amount<restrict_lowbound){
             	resultFluid=null;
             }
-            if(resultFluid!=null&&restrict_lowbound>0&&multiples){
+            if(resultFluid!=null&&restrict_lowbound>0&&multiples==1){
             	resultFluid.amount=(resultFluid.amount/restrict_lowbound)*restrict_lowbound;
+            }
+            if(resultFluid!=null&&restrict_lowbound>0&&multiples==2){
+            //	s.stackSize=(s.stackSize/restrict_lowbound)*restrict_lowbound;
+            	
+            	resultFluid.amount=1<<(31-Integer.numberOfLeadingZeros(resultFluid.amount/restrict_lowbound));
+            	resultFluid.amount*=restrict_lowbound;
             }
              storedInformationFluids[index] = resultFluid;
         } catch (final GridAccessException ignored) {}
@@ -197,34 +205,70 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
             .setSize(16, 16)
             .setPos(80, 10));
            // .widget(new FakeSyncWidget.BooleanSyncer(() -> autoPullFluidList, this::setAutoPullFluidList));
-
+        builder.widget(new ButtonWidget().setOnClick((clickData, widget) -> {
+            if (clickData.mouseButton == 0) {
+              if (!widget.isClient()) {
+               
+            	  for (int index = 0; index < SLOT_COUNT; index++) {
+                      updateInformationSlot(index);
+                  }
+            }
+        }})
+            .setBackground(() -> {
+               {
+                    return new IDrawable[] {
+                    		GT_UITextures.BUTTON_STANDARD
+                      };
+                }
+            })
+            .addTooltips(
+                Arrays.asList(
+                		StatCollector.translateToLocal("proghatches.restricted.refresh.0"),
+                		StatCollector.translateToLocal("proghatches.restricted.refresh.1")))
+            .setSize(16, 16)
+            .setPos(80, 10+18));
+        
         
         super.addUIWidgets(builder, buildContext);
         
     }
-    boolean multiples;
-    ButtonWidget createMultiplesModeButton(IWidgetBuilder<?> builder,int HEIGHT) {
+    int multiples;
+    Widget createMultiplesModeButton(IWidgetBuilder<?> builder,int HEIGHT) {
 		
-		Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
-
-			multiples=!multiples;
-		}).attachSyncer(new FakeSyncWidget.BooleanSyncer(()->multiples, val -> {
-			multiples=val;
-				}), builder)
-				.setBackground(() -> {
-	                if (multiples) {
-	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
-	                        GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_ON };
-	                } else {
-	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
-	                        GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
-	                }
-	            })
-				.addTooltip(LangManager.translateToLocal("proghatches.restricted.multiples"))
+    	Widget button = new CycleButtonWidget()
+				.setLength(3)
+				.addTooltip(
+						0,LangManager.translateToLocal("proghatches.restricted.multiples.exact"))
+				.addTooltip(
+						1,LangManager.translateToLocal("proghatches.restricted.multiples"))
+				.addTooltip(
+						2,LangManager.translateToLocal("proghatches.restricted.multiples.alt"))	
+				.setGetter(()->multiples)				
+				.setSetter(s->multiples=s)
+				
+			.setBackground(() -> {
+		                if (multiples==1) {
+		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
+		                        mode0 };
+		                } 
+		                
+		                else if (multiples==2) {
+		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
+		                        mode1 };
+		                } 
+		                
+		                else {
+		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+		                        GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
+		                }
+		            })
+				
+				
+				
 				.setTooltipShowUpDelay(TOOLTIP_DELAY)
 				
 				.setPos(new Pos2d(3, HEIGHT-3-16)).setSize(16, 16);
-		return (ButtonWidget) button;
+		return  button;
 	}
     protected ModularWindow createStackSizeConfigurationWindow(final EntityPlayer player) {
         final int WIDTH = 78;
@@ -278,7 +322,7 @@ public void saveNBTData(NBTTagCompound aNBT) {
     super.saveNBTData(aNBT);
     aNBT.setInteger("restrict", restrict);
     aNBT.setInteger("restrict_l", restrict_lowbound);
-    aNBT.setBoolean("multiples", multiples);
+    aNBT.setInteger("multiples", multiples);
     }
 @Override
 public void loadNBTData(NBTTagCompound aNBT) {
@@ -286,8 +330,11 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	super.loadNBTData(aNBT);
 	 restrict=aNBT.getInteger( "restrict");
 	 restrict_lowbound=aNBT.getInteger( "restrict_l");
-	 multiples=aNBT.getBoolean("multiples");
+	 multiples=aNBT.getInteger("multiples");
 }
-
+static AdaptableUITexture mode0= AdaptableUITexture
+.of("proghatches", "restrict_mode0", 18, 18, 1);
+static AdaptableUITexture mode1= AdaptableUITexture
+.of("proghatches", "restrict_mode1", 18, 18, 1);
 
 }

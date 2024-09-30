@@ -31,6 +31,7 @@ import reobf.proghatches.gt.cover.ProgrammingCover;
 import reobf.proghatches.gt.cover.SmartArmCover;
 import reobf.proghatches.gt.cover.WirelessControlCover;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch;
+import reobf.proghatches.gt.metatileentity.CommunicationPortHatch;
 import reobf.proghatches.gt.metatileentity.DataHatchME;
 import reobf.proghatches.gt.metatileentity.DualInputHachOC;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
@@ -99,7 +100,7 @@ public class Registration implements Runnable {
 	public final static int PatternMappingSlaveOffset=167;
 	public static final int SlaveBusOffset = 168;
 	public static final int SlaveHatchOffset = 169;
-	
+	public static final int CommunicationPortHatchOffset= 170;
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -438,7 +439,12 @@ public class Registration implements Runnable {
                 "hatch.dualinput.slave.fluid",
                 LangManager.translateToLocal("hatch.dualinput.slave.fluid.name"));
         
-        
+        new CommunicationPortHatch(
+                Config.metaTileEntityOffset + CommunicationPortHatchOffset,
+                "hatch.commport",
+                LangManager.translateToLocalFormatted("hatch.commport.name"), 4
+                
+                );
         /*for (int i = 0; i < 4; i++) {
 
             new DualInputHatch(

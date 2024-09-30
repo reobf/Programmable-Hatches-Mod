@@ -2,6 +2,7 @@ package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.enums.GT_Values.TIER_COLORS;
 import static gregtech.api.enums.GT_Values.VN;
+import static gregtech.api.enums.Mods.GregTech;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_INPUT_FLUID_HATCH;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_INPUT_FLUID_HATCH_ACTIVE;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
@@ -30,11 +31,15 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 import reobf.proghatches.lang.LangManager;
+import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 import sun.misc.Unsafe;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
+import com.gtnewhorizons.modularui.api.drawable.AdaptableUITexture;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.Text;
 import com.gtnewhorizons.modularui.api.math.Alignment;
@@ -48,6 +53,7 @@ import com.gtnewhorizons.modularui.api.widget.Interactable;
 import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.fluid.FluidStackTank;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
@@ -156,10 +162,15 @@ public class RestrictedInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME{
 	                    if(s!=null&&s.stackSize<restrict_lowbound){
 	                    	s=null;
 	                    }
-	                    if(s!=null&&restrict_lowbound>0&&multiples){
+	                    if(s!=null&&restrict_lowbound>0&&multiples==1){
 	                    	s.stackSize=(s.stackSize/restrict_lowbound)*restrict_lowbound;
 	                    }
-	                    
+	                    if(s!=null&&restrict_lowbound>0&&multiples==2){
+	                    //	s.stackSize=(s.stackSize/restrict_lowbound)*restrict_lowbound;
+	                    	
+	                    	s.stackSize=1<<(31-Integer.numberOfLeadingZeros(s.stackSize/restrict_lowbound));
+	                    	s.stackSize*=restrict_lowbound;
+	                    }
 	                    
 	                    
 	                    
@@ -197,6 +208,8 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
     public void addUIWidgets(ModularWindow.Builder builder, UIBuildContext buildContext) {
        
         buildContext.addSyncedWindow(CONFIG_WINDOW_ID, this::createStackSizeConfigurationWindow);
+       
+        
         builder.widget(new ButtonWidget().setOnClick((clickData, widget) -> {
             if (clickData.mouseButton == 0) {
               if (!widget.isClient()) {
@@ -215,6 +228,32 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
                 		StatCollector.translateToLocal("proghatches.restricted.configure")))
             .setSize(16, 16)
             .setPos(80, 10));
+        
+        
+        builder.widget(new ButtonWidget().setOnClick((clickData, widget) -> {
+            if (clickData.mouseButton == 0) {
+              if (!widget.isClient()) {
+               
+            	  for (int index = 0; index < SLOT_COUNT; index++) {
+                      updateInformationSlot(index, mInventory[index]);
+                  }
+            }
+        }})
+            .setBackground(() -> {
+               {
+                    return new IDrawable[] {
+                    		GT_UITextures.BUTTON_STANDARD
+                      };
+                }
+            })
+            .addTooltips(
+                Arrays.asList(
+                		StatCollector.translateToLocal("proghatches.restricted.refresh.0"),
+                		StatCollector.translateToLocal("proghatches.restricted.refresh.1")))
+            .setSize(16, 16)
+            .setPos(80, 10+18));
+        
+        
      // .widget(new FakeSyncWidget.BooleanSyncer(() -> autoPullFluidList, this::setAutoPullFluidList));
 
         
@@ -270,32 +309,48 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
         
         
         return builder.build();
-    }
-   boolean multiples;
-    ButtonWidget createMultiplesModeButton(IWidgetBuilder<?> builder,int HEIGHT) {
-		
-		Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
+    } 
+    
+    
 
-			multiples=!multiples;
-		}).attachSyncer(new FakeSyncWidget.BooleanSyncer(()->multiples, val -> {
-			multiples=val;
-				}), builder)
-				 .setBackground(() -> {
-		                if (multiples) {
+    
+   int multiples;
+    Widget createMultiplesModeButton(IWidgetBuilder<?> builder,int HEIGHT) {
+		
+		Widget button = new CycleButtonWidget()
+				.setLength(3)
+				.addTooltip(
+						0,LangManager.translateToLocal("proghatches.restricted.multiples.exact"))
+				.addTooltip(
+						1,LangManager.translateToLocal("proghatches.restricted.multiples"))
+				.addTooltip(
+						2,LangManager.translateToLocal("proghatches.restricted.multiples.alt"))	
+				.setGetter(()->multiples)				
+				.setSetter(s->multiples=s)
+				
+			.setBackground(() -> {
+		                if (multiples==1) {
 		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
-		                        GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_ON };
-		                } else {
+		                        mode0 };
+		                } 
+		                
+		                else if (multiples==2) {
+		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
+		                        mode1 };
+		                } 
+		                
+		                else {
 		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
 		                        GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
 		                }
 		            })
 				
 				
-				.addTooltip(LangManager.translateToLocal("proghatches.restricted.multiples"))
+				
 				.setTooltipShowUpDelay(TOOLTIP_DELAY)
 				
 				.setPos(new Pos2d(3, HEIGHT-3-16)).setSize(16, 16);
-		return (ButtonWidget) button;
+		return  button;
 	}
 int restrict=Integer.MAX_VALUE;
 int restrict_lowbound=1;
@@ -304,7 +359,7 @@ public void saveNBTData(NBTTagCompound aNBT) {
     super.saveNBTData(aNBT);
     aNBT.setInteger("restrict", restrict);
     aNBT.setInteger("restrict_l", restrict_lowbound);
-    aNBT.setBoolean("multiples", multiples);
+    aNBT.setInteger("multiples", multiples);
     }
 @Override
 public void loadNBTData(NBTTagCompound aNBT) {
@@ -312,8 +367,12 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	super.loadNBTData(aNBT);
 	 restrict=aNBT.getInteger( "restrict");
 	 restrict_lowbound=aNBT.getInteger( "restrict_l");
-	 multiples=aNBT.getBoolean("multiples");
+	 multiples=aNBT.getInteger("multiples");
 }
 
+static AdaptableUITexture mode0= AdaptableUITexture
+.of("proghatches", "restrict_mode0", 18, 18, 1);
+static AdaptableUITexture mode1= AdaptableUITexture
+.of("proghatches", "restrict_mode1", 18, 18, 1);
 
 }

@@ -580,4 +580,4 @@ proghatch.ingbuf.yield=状态: 总线已让渡给其它主机 总线被释放前
 proghatch.ingbuf.acquring=状态: 总线被此机占据 以阻止其它主机锁定新配方 释放总线前会尝试锁定新配方
 proghatch.ingbuf.locked=状态: 配方已锁定 无视总线状态 仅处理锁定配方 在输出清空后回到空闲状态
 proghatch.ingbuf.idle=状态: 总线空闲
-
+GT5U.gui.text.proghatch.commport=无法在非阻挡模式下和状态总线通讯端口运行

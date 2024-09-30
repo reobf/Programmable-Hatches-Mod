@@ -582,4 +582,4 @@ proghatch.ingbuf.yield=State: Yield. Because the Statusbus is acquired by anothe
 proghatch.ingbuf.acquring=State: Acquring. Prevent other hosts from locking new recipe.
 proghatch.ingbuf.locked=State: Locked. Will unlock if output network is empty.
 proghatch.ingbuf.idle=State: Idle.
-
+GT5U.gui.text.proghatch.commport=Cannot run in non-Blocking Mode with Statusbus Communication Port.

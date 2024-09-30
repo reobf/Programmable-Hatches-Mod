@@ -1315,6 +1315,10 @@ boolean lockRecipe;
 @Override
 public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 	if(isLiteVersion)blocking=false;
+	if(blocking==false&&port!=null){
+		
+		LargeProgrammingCircuitProvider.shut(this,"proghatch.commport");
+	}
 	if( !aBaseMetaTileEntity.getWorld().isRemote&&mMachine){
 	if (!allMEHatch) {
 		blocking=false;

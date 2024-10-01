@@ -18,8 +18,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -51,8 +53,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.gson.internal.Streams;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
+import com.gtnewhorizons.modularui.api.drawable.AdaptableUITexture;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
+import com.gtnewhorizons.modularui.api.drawable.SizedDrawable;
 import com.gtnewhorizons.modularui.api.drawable.Text;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
@@ -106,8 +110,10 @@ import appeng.util.item.AEStack;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.SoundResource;
+import gregtech.api.enums.Textures;
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.IConfigurationCircuitSupport;
+import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.modularui.IAddGregtechLogo;
 import gregtech.api.interfaces.modularui.IAddUIWidgets;
@@ -297,7 +303,7 @@ public void reinitTierBasedField() {
 	public void saveNBTData(NBTTagCompound aNBT) {
 		super.saveNBTData(aNBT);
 		aNBT.setTag("shared", shared.ser());
-		aNBT.setBoolean("fluidLimit", fluidLimit);
+		aNBT.setInteger("fluidLimit", fluidLimit);
 		aNBT.setBoolean("program", program);
 		aNBT.setBoolean("mMultiFluid", mMultiFluid);
 		if (mStoredFluid != null) {
@@ -339,7 +345,7 @@ public void reinitTierBasedField() {
 		if(aNBT.hasKey("x")==false)return;
 		super.loadNBTData(aNBT);
 		shared.deser(aNBT.getCompoundTag("shared"));
-		fluidLimit= aNBT.getBoolean("fluidLimit");
+		fluidLimit= aNBT.getInteger("fluidLimit");
 		program = aNBT.getBoolean("program");
 		mMultiFluid = aNBT.getBoolean("mMultiFluid");
 		if (mStoredFluid != null) {
@@ -380,7 +386,14 @@ public void reinitTierBasedField() {
 	
 		return neo;
 	}
-
+	private CycleButtonWidget createButton(Supplier<Integer> getter, IntConsumer setter, Function<Integer, IDrawable> picture,
+			List<String> tooltip, int offset,int len) {
+		return (CycleButtonWidget) new CycleButtonWidget().setLength(len).setGetter(getter).setSetter(s->setter.accept(s))
+				
+				.setTextureGetter(picture)
+				.setBackground(GT_UITextures.BUTTON_STANDARD).setTooltipShowUpDelay(TOOLTIP_DELAY)
+				.setPos(7 + offset * 18, 62).setSize(18, 18).addTooltips(tooltip);
+	}
 	private Widget createButton(Supplier<Boolean> getter, Consumer<Boolean> setter, UITexture picture,
 			Supplier<GT_TooltipDataCache.TooltipData> tooltipDataSupplier, int offset) {
 		return new CycleButtonWidget().setToggle(getter, setter).setStaticTexture(picture)
@@ -461,7 +474,29 @@ public void reinitTierBasedField() {
 	public MarkerWidget(DualInputHatch dualInputHatch) {
 		thiz=dualInputHatch;
 	}
-	}
+	}	
+    private static final SizedDrawable t0 = 
+    		new SizedDrawable(
+    		AdaptableUITexture.of("appliedenergistics2", "guis/states", 16, 16, 0)
+    		.getSubArea(3/16f, 9/16f, 4/16f, 10/16f)
+    		,16,16,1,1
+    		)
+    		;
+    private static final SizedDrawable t1 = 
+    		new SizedDrawable(
+    		AdaptableUITexture.of("proghatches", "states", 16, 16, 0)
+    		,16,16,1,1
+    	    		)
+    		;
+    private static final SizedDrawable t2 = 
+    		new SizedDrawable(
+    		AdaptableUITexture.of("appliedenergistics2", "guis/states", 16, 16, 0)
+    		.getSubArea(4/16f, 9/16f, 5/16f, 10/16f)
+    		,16,16,1,1
+    	    		)
+    		;
+    		
+ 
     @Override
 	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 		builder.widget(new MarkerWidget(this));
@@ -505,14 +540,25 @@ public void reinitTierBasedField() {
 				, val -> {
 			fluidLimit = val;
 			//updateSlots();
-		}, GT_UITextures.OVERLAY_BUTTON_CHECKMARK, 
-		ImmutableList.of(
-				StatCollector.translateToLocal("programmable_hatches.gt.fluidlimit.0"),
-				StatCollector.translateToLocal("programmable_hatches.gt.fluidlimit.1")
-				)
+		}, s->{
+			if(s==0)return t0;
+			if(s==1)return t1;
+			return t2;
+					
+		}, 
+		ImmutableList.of(StatCollector.translateToLocal("programmable_hatches.gt.fluidlimit.neo")
+				/*tatCollector.translateToLocal("programmable_hatches.gt.fluidlimit.0"),
+				StatCollector.translateToLocal("programmable_hatches.gt.fluidlimit.1"),
+				StatCollector.translateToLocal("programmable_hatches.gt.fluidlimit.2")*/				)
 	
 		
-		, 0)
+		, 0,3)
+				.addTooltip(0, StatCollector.translateToLocal("programmable_hatches.gt.fluidlimit.neo.0"))
+				.addTooltip(1, StatCollector.translateToLocal("programmable_hatches.gt.fluidlimit.neo.1"))
+				
+				.addTooltip(2, StatCollector.translateToLocal("programmable_hatches.gt.fluidlimit.neo.2"))
+				
+				
 				.setPos(7+ 1 * 18, 62 - 18 - moveButtons() * 18));
 
 		
@@ -1230,14 +1276,14 @@ public void reinitTierBasedField() {
 
 	public void onFill() {
 	}
- boolean fluidLimit=true;
+ int fluidLimit=1;
 	@Override
 	public int fill(FluidStack aFluid, boolean doFill) {
 		if (aFluid == null || aFluid.getFluid().getID() <= 0 || aFluid.amount <= 0 || !canTankBeFilled()
 				|| !isFluidInputAllowed(aFluid))
 			return 0;
 		
-		if(!fluidLimit){int oldamount=aFluid.amount;
+		if(fluidLimit==0){int oldamount=aFluid.amount;
 			aFluid=aFluid.copy();
 			for(ListeningFluidTank tk:this.mStoredFluid){
 				if(tk.getFluidAmount()==0)tk.setFluid(null);
@@ -1250,7 +1296,7 @@ public void reinitTierBasedField() {
 		}
 		
 		
-		if(fluidLimit){
+		if(fluidLimit==1){
 		
 		if (!hasFluid(aFluid) && getFirstEmptySlot() != -1) {
 			int tFilled = Math.min(aFluid.amount, getCapacity());
@@ -1274,7 +1320,25 @@ public void reinitTierBasedField() {
 			return tFilled;
 		}
 	}
-		
+		if(fluidLimit==2){
+			
+		int oldamount=aFluid.amount;
+		aFluid=aFluid.copy();
+		for(ListeningFluidTank tk:this.mStoredFluid){
+			if(tk.getFluidAmount()==0){
+				tk.setFluid(null);
+				if((aFluid.amount-=tk.fill(aFluid, doFill))<=0){
+				break;
+				};
+				}
+		}
+		for(ListeningFluidTank tk:this.mStoredFluid){
+			if((aFluid.amount-=tk.fill(aFluid, doFill))<=0){
+				break;
+			};
+		}	
+		return oldamount-aFluid.amount;
+	}
 		return 0;
 	}
 

@@ -583,3 +583,7 @@ proghatch.ingbuf.acquring=State: Acquring. Prevent other hosts from locking new 
 proghatch.ingbuf.locked=State: Locked. Will unlock if output network is empty.
 proghatch.ingbuf.idle=State: Idle.
 GT5U.gui.text.proghatch.commport=Cannot run in non-Blocking Mode with Statusbus Communication Port.
+programmable_hatches.gt.fluidlimit.neo=Fluid filling policy
+programmable_hatches.gt.fluidlimit.neo.0=Normal: Fill fluid slots of lower index, then higher.
+programmable_hatches.gt.fluidlimit.neo.1=Limiting: Only fill slot of same fluid, if no same fluid present then fill the first empty slot.
+programmable_hatches.gt.fluidlimit.neo.2=Empty first: Fill empty fluid slots first, then try Nomal mode.

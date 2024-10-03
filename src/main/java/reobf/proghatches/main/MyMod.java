@@ -128,6 +128,7 @@ import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.api.util.shutdown.SimpleShutDownReason;
 import gregtech.common.blocks.GT_Block_Machines;
 import gregtech.common.covers.CoverInfo;
+import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_HeatExchanger;
 import gregtech.crossmod.waila.GregtechWailaDataProvider;
 import li.cil.oc.api.Driver;
@@ -177,7 +178,7 @@ public class MyMod {
 	public static final Logger LOG = LogManager.getLogger(MODID);
 	public static MyMod instance;
 	{
-		//GT_MetaTileEntity_MultiBlockBase.class.getDeclaredFields();
+		GT_MetaTileEntity_Hatch_InputBus_ME.class.getDeclaredFields();
 		instance = this;
 	}
 

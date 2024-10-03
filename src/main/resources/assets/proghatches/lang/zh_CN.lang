@@ -585,3 +585,7 @@ programmable_hatches.gt.fluidlimit.neo=流体注入策略
 programmable_hatches.gt.fluidlimit.neo.0=常规: 按照槽位序号从小到大依次注入
 programmable_hatches.gt.fluidlimit.neo.1=限制: 仅注入含有相同流体的槽,如果没有则注入第一个空槽
 programmable_hatches.gt.fluidlimit.neo.2=空优先: 总是先注入空流体槽,再尝试常规模式(结果高度依赖于物流设备的具体实现,请不要假设二合一接口以外的设备能符合期望)
+proghatches.decoy.reservefirst.enabled=保留第一个槽给最高优先存储: true
+proghatches.decoy.reservefirst.disabled=保留第一个槽给最高优先存储: false
+fluid.input.bus.me.decoy.name=装配线诱骗存储输入总线(ME)
+fluid.input.me.decoy.name=装配线诱骗存储输入仓(ME)

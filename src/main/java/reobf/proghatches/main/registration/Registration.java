@@ -33,6 +33,8 @@ import reobf.proghatches.gt.cover.WirelessControlCover;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch;
 import reobf.proghatches.gt.metatileentity.CommunicationPortHatch;
 import reobf.proghatches.gt.metatileentity.DataHatchME;
+import reobf.proghatches.gt.metatileentity.DecoyInputBusME;
+import reobf.proghatches.gt.metatileentity.DecoyInputHatchME;
 import reobf.proghatches.gt.metatileentity.DualInputHachOC;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
 import reobf.proghatches.gt.metatileentity.DualInputHatchInventoryMappingSlave;
@@ -101,6 +103,8 @@ public class Registration implements Runnable {
 	public static final int SlaveBusOffset = 168;
 	public static final int SlaveHatchOffset = 169;
 	public static final int CommunicationPortHatchOffset= 170;
+	public static final int DecoyBusME= 171;
+	public static final int DecoyHatchME= 172;
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -445,6 +449,19 @@ public class Registration implements Runnable {
                 LangManager.translateToLocalFormatted("hatch.commport.name"), 4
                 
                 );
+        new DecoyInputBusME(
+                Config.metaTileEntityOffset + DecoyBusME,
+                "fluid.input.bus.me.decoy",
+                LangManager.translateToLocalFormatted("fluid.input.bus.me.decoy.name")
+                
+                );
+        new DecoyInputHatchME(
+                Config.metaTileEntityOffset + DecoyHatchME,
+                "fluid.input.me.decoy",
+                LangManager.translateToLocalFormatted("fluid.input.me.decoy.name")
+                
+                );
+        
         /*for (int i = 0; i < 4; i++) {
 
             new DualInputHatch(

@@ -587,3 +587,7 @@ programmable_hatches.gt.fluidlimit.neo=Fluid filling policy
 programmable_hatches.gt.fluidlimit.neo.0=Normal: Fill fluid slots of lower index, then higher.
 programmable_hatches.gt.fluidlimit.neo.1=Limiting: Only fill slot of same fluid, if no same fluid present then fill the first empty slot.
 programmable_hatches.gt.fluidlimit.neo.2=Empty first: Fill empty fluid slots first, then try Nomal mode.
+proghatches.decoy.reservefirst.enabled=Reserve the first slot for inventory of highest priority: true
+proghatches.decoy.reservefirst.disabled=Reserve the first slot for inventory of highest priority: false
+fluid.input.bus.me.decoy.name=Assline Decoy Stocking Input Bus (ME)
+fluid.input.me.decoy.name=Assline Decoy Stocking Input Hatch (ME)

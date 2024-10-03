@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
@@ -1286,7 +1287,7 @@ public void reinitTierBasedField() {
 		if(fluidLimit==0){int oldamount=aFluid.amount;
 			aFluid=aFluid.copy();
 			for(ListeningFluidTank tk:this.mStoredFluid){
-				if(tk.getFluidAmount()==0)tk.setFluid(null);
+				if(tk.getFluidAmount()==0)tk.setFluidDirect(null);
 				if((aFluid.amount-=tk.fill(aFluid, doFill))<=0){
 					break;
 					};
@@ -1324,19 +1325,24 @@ public void reinitTierBasedField() {
 			
 		int oldamount=aFluid.amount;
 		aFluid=aFluid.copy();
+		LinkedList<ListeningFluidTank> tks=new LinkedList<>();
 		for(ListeningFluidTank tk:this.mStoredFluid){
 			if(tk.getFluidAmount()==0){
-				tk.setFluid(null);
-				if((aFluid.amount-=tk.fill(aFluid, doFill))<=0){
+				tk.setFluidDirect(null);
+				tks.add(tk);
+				if((aFluid.amount-=tk.fillDirect(aFluid, doFill))<=0){
 				break;
 				};
 				}
 		}
 		for(ListeningFluidTank tk:this.mStoredFluid){
-			if((aFluid.amount-=tk.fill(aFluid, doFill))<=0){
+			tks.add(tk);
+			if((aFluid.amount-=tk.fillDirect(aFluid, doFill))<=0){
 				break;
 			};
 		}	
+		tks.forEach(s->s.onChange());
+		
 		return oldamount-aFluid.amount;
 	}
 		return 0;

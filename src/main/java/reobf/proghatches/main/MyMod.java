@@ -1,17 +1,25 @@
 package reobf.proghatches.main;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.net.Proxy;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.function.BiConsumer;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nullable;
 
@@ -54,6 +62,8 @@ import com.glodblock.github.common.parts.PartFluidP2PInterface;
 import com.glodblock.github.crossmod.opencomputers.DriverLevelMaintainer;
 import com.glodblock.github.inventory.FluidConvertingInventoryAdaptor;
 import com.glodblock.github.loader.ItemAndBlockHolder;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.gtnewhorizon.structurelib.alignment.constructable.IMultiblockInfoContainer;
 
 import appeng.api.AEApi;
@@ -86,6 +96,7 @@ import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.item.AEItemStack;
 import appeng.util.item.ItemList;
 import codechicken.multipart.MultipartGenerator;
+import codechicken.nei.recipe.StackInfo;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -117,6 +128,7 @@ import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.api.util.shutdown.SimpleShutDownReason;
 import gregtech.common.blocks.GT_Block_Machines;
 import gregtech.common.covers.CoverInfo;
+import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
 import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_HeatExchanger;
 import gregtech.crossmod.waila.GregtechWailaDataProvider;
 import li.cil.oc.api.Driver;
@@ -150,19 +162,23 @@ import reobf.proghatches.oc.ItemAPICard;
 import reobf.proghatches.oc.ItemGTRedstoneCard;
 import reobf.proghatches.oc.WirelessPeripheralManager;
 import reobf.proghatches.util.ProghatchesUtil;
+
 import tconstruct.armor.player.TPlayerStats;
 import thaumcraft.common.entities.golems.ItemGolemCore;
 
-@Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.7.10]", dependencies = "required-after:appliedenergistics2;required-after:gregtech;", acceptableRemoteVersions = "*"
+@Mod(modid = MyMod.MODID, version = Tags.VERSION, name =  MyMod.MODNAME, acceptedMinecraftVersions = "[1.7.10]", dependencies = "required-after:appliedenergistics2;required-after:gregtech;", acceptableRemoteVersions = "*"
 /*
  * ,dependencies= "required-after:neenergistics;"
  */
 )
 public class MyMod {
-	public static final Logger LOG = LogManager.getLogger(Tags.MODID);
+	
+	final public static String MODID="programmablehatches";
+	final public static String MODNAME="ProgrammableHatches";
+	public static final Logger LOG = LogManager.getLogger(MODID);
 	public static MyMod instance;
 	{
-		//GT_MetaTileEntity_MultiBlockBase.class.getDeclaredFields();
+		GT_MetaTileEntity_Hatch_InputBus_ME.class.getDeclaredFields();
 		instance = this;
 	}
 
@@ -198,7 +214,7 @@ public class MyMod {
 	// public static ShutDownReason ACCESS_LOOP=new
 	// SimpleShutDownReason("proghatch.access_loop", true){public String getID()
 	// {return "proghatch.access_loop";};};
-	public static SimpleNetworkWrapper net = new SimpleNetworkWrapper(Tags.MODID);
+	public static SimpleNetworkWrapper net = new SimpleNetworkWrapper( MyMod.MODID);
 	public static Item progcircuit;
 	public static Item toolkit;
 
@@ -249,10 +265,16 @@ public class MyMod {
 
 	public static Map<Object, Class> OCApi = new HashMap<>();
 
+	/**
+	 * @param event
+	 */
 	@Mod.EventHandler
 
 	public void init(FMLInitializationEvent event) {
 		proxy.init(event);
+		
+		
+		
 		AEApi.instance().partHelper().registerNewLayer("reobf.proghatches.fmp.LazerLayer",
 				"reobf.proghatches.eucrafting.ILazer");
 
@@ -348,6 +370,8 @@ public class MyMod {
 
 	public void postInit(FMLPostInitializationEvent event) {
 		proxy.postInit(event);
+		
+		
 		// Api.INSTANCE.registries().p2pTunnel().addNewAttunement(null, null);
 		// ShutDownReasonRegistry.register(ACCESS_LOOP);
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());

@@ -62,7 +62,7 @@ public class CommonProxy {
 		Config.synchronizeConfiguration(event.getSuggestedConfigurationFile());
 
 		MyMod.LOG.info(Config.greeting);
-		MyMod.LOG.info("I am " + Tags.MODNAME + " at version " + Tags.VERSION);
+		MyMod.LOG.info("I am " +  MyMod.MODNAME + " at version " + Tags.VERSION);
 
 		GameRegistry.registerTileEntity(TileIOHub.class, "proghatches.iohub");
 		GameRegistry.registerTileEntity(TileWirelessPeripheralStation.class, "proghatches.peripheral_station");
@@ -116,7 +116,8 @@ public class CommonProxy {
 		GameRegistry.registerItem(MyMod.eu_token = new ItemEUToken().setUnlocalizedName("eu_token").setTextureName("?"),
 				"eu_token");
 
-		GameRegistry.registerItem(MyMod.book = new ItemBookTutorial().setUnlocalizedName("writtenBook")
+		GameRegistry.registerItem(MyMod.book = new ItemBookTutorial()
+				.setUnlocalizedName("writtenBook")
 				.setTextureName("book_written").setMaxStackSize(16), "book_tutorial");
 		GameRegistry.registerItem(
 				MyMod.upgrades = new ItemUpgrades().setUnlocalizedName("prog_upgrades").setTextureName("?"),

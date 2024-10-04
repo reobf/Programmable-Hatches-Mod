@@ -780,7 +780,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 			int ilimit = master.getInventoryStackLimit();
 			int flimit = master.getInventoryFluidLimit();
 			boolean isplit = master.disableLimited;
-			boolean fsplit = !master.fluidLimit;
+			boolean fsplit = master.fluidLimit==0;
 			for (int index = 0; index < table.getSizeInventory(); index++) {
 				ItemStack is = (table.getStackInSlot(index));
 				if (is == null)
@@ -990,7 +990,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 			int ilimit = master.getInventoryStackLimit();
 			int flimit = master.getInventoryFluidLimit();
 			boolean isplit = master.disableLimited;
-			boolean fsplit = !master.fluidLimit;
+			boolean fsplit = master.fluidLimit==0;
 			for (int index = 0; index < table.getSizeInventory(); index++) {
 				ItemStack is = (table.getStackInSlot(index));
 				if (is == null)

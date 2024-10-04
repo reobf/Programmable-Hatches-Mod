@@ -280,6 +280,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	IMEInventoryHandler<AEItemStack> handler
 	=new MEInventoryHandler(new UnlimitedWrapper()
 	, StorageChannel .ITEMS){
+		
 		public boolean getSticky() {return sticky&&!suppressSticky;};
 		public int getPriority() {return piority;};
 		{

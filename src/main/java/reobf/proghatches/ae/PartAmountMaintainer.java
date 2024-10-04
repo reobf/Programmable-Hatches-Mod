@@ -181,7 +181,7 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 	
 	
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
 	@Override
 	public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall) {
 	      
@@ -191,7 +191,10 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 		boolean red=this.getHost().hasRedstone(this.getSide());
 		boolean should=shouldProceed(red,lastredstone);
 		lastredstone=red;
-		if(!should){return TickRateModulation.SAME;}
+		if(!should){
+			handlerHash.clear();
+			inv.clear();
+			return TickRateModulation.SAME;}
 		if(getProxy().isActive()==false)return TickRateModulation.SAME;
 		for(StorageChannel ch:new StorageChannel[]{StorageChannel.FLUIDS,StorageChannel.ITEMS})
 		{
@@ -200,8 +203,9 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 			
 			IItemList list;
 			if(inv instanceof IMEMonitor){
-				inv.injectItems(EMPTY.get(ch),  Actionable.MODULATE, source);//dirty hack, trigger update
-				list = ((IMEMonitor) inv).getStorageList();
+			//	inv.injectItems(EMPTY.get(ch),  Actionable.MODULATE, source);//dirty hack, trigger update
+				// cache is invalid! just use the deprecated way to get the inv
+				list = ((IMEMonitor) inv).getAvailableItems(ch.createList());
 				
 			}else{
 				list=inv.getAvailableItems(ch.createList());
@@ -415,7 +419,7 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 			
 			builder.widget( TextWidget.dynamicString(()->{
 				try{
-				PartP2PTunnel p2p = getProxy().getP2P().getInput(freq);
+				PartP2PTunnel p2p =freq==0?null: getProxy().getP2P().getInput(freq);
 			if(p2p.isActive()&&p2p.isPowered()){
 				return StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.online");
 			}}catch(Exception e){}
@@ -643,7 +647,7 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 		public Boolean getSignal(){
 			
 			try {
-				PartP2PTunnel p2p = getProxy().getP2P().getInput(freq);
+				PartP2PTunnel p2p =freq==0?null: getProxy().getP2P().getInput(freq);
 			if(p2p!=null){
 				if(p2p.isActive()&&p2p.isPowered()){
 				

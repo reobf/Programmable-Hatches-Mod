@@ -1,24 +1,34 @@
 package reobf.proghatches.gt.metatileentity;
 
+import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
+import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
+import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 
 import gregtech.api.GregTech_API;
+import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
+import gregtech.api.util.GT_TooltipDataCache;
 import gregtech.api.util.GT_Utility;
 import gregtech.api.util.GT_TooltipDataCache.TooltipData;
 import net.minecraft.item.ItemStack;
@@ -34,10 +44,52 @@ public class MultiCircuitInputBus extends GT_MetaTileEntity_Hatch_InputBus imple
 		// TODO Auto-generated method stub
 		return super.getInventoryHandler();
 	}
+
+int uiButtonCount;
+private Widget createToggleButton(Supplier<Boolean> getter, Consumer<Boolean> setter, UITexture picture,
+        Supplier<GT_TooltipDataCache.TooltipData> tooltipDataSupplier) {
+        return new CycleButtonWidget().setToggle(getter, setter)
+            .setStaticTexture(picture)
+            .setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE)
+            .setTooltipShowUpDelay(TOOLTIP_DELAY)
+            .setPos(7 + (uiButtonCount++ * BUTTON_SIZE), 62)
+            .setSize(BUTTON_SIZE, BUTTON_SIZE)
+            .setGTTooltip(tooltipDataSupplier);
+    }
+private void addSortStacksButton(ModularWindow.Builder builder) {
+    builder.widget(
+        createToggleButton(
+            () -> !disableSort,
+            val -> disableSort = !val,
+            GT_UITextures.OVERLAY_BUTTON_SORTING_MODE,
+            () -> mTooltipCache.getData(SORTING_MODE_TOOLTIP)));
+}
+
+private void addOneStackLimitButton(ModularWindow.Builder builder) {
+    builder.widget(createToggleButton(() -> !disableLimited, val -> {
+        disableLimited = !val;
+        updateSlots();
+    }, GT_UITextures.OVERLAY_BUTTON_ONE_STACK_LIMIT, () -> mTooltipCache.getData(ONE_STACK_LIMIT_TOOLTIP)));
+}
+private static final String SORTING_MODE_TOOLTIP = "GT5U.machines.sorting_mode.tooltip";
+private static final String ONE_STACK_LIMIT_TOOLTIP = "GT5U.machines.one_stack_limit.tooltip";
+private static final int BUTTON_SIZE = 18;
 @Override
 public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-	
+	 buildContext.addCloseListener(() -> uiButtonCount = 0);
+     addSortStacksButton(builder);
+     addOneStackLimitButton(builder);
 	super.addUIWidgets(builder, buildContext);
+	
+
+	switch (mTier) {
+    case 0 : getBaseMetaTileEntity().add1by1Slot(builder);
+    case 1 : getBaseMetaTileEntity().add2by2Slots(builder);
+    case 2 : getBaseMetaTileEntity().add3by3Slots(builder);
+    default : getBaseMetaTileEntity().add4by4Slots(builder);
+}
+	
+	
 	ProghatchesUtil.attachZeroSizedStackRemover(builder, buildContext);
 	for(int i=1;i<4;i++)
 		builder.widget(

@@ -92,7 +92,10 @@ public class CoverToMachineAdaptor<T extends TileEntity&ICoverable> extends Inve
 	        this.invFluids = invFluids;
 		this.te=te;
 		this.fd=fd;
-	}T te;ForgeDirection fd;    private final InventoryAdaptor invItems;
+	}
+	T te;
+	
+	ForgeDirection fd;    private final InventoryAdaptor invItems;
     private final IFluidHandler invFluids;
 	@Override
 	public Iterator<ItemSlot> iterator() {

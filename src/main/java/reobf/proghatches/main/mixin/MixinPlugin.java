@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import reobf.proghatches.Tags;
-
+import reobf.proghatches.main.MyMod;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -168,8 +168,13 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		
 		if(ff)retLate.add("MixinAEAdaptorSkipStackSizeCheck");
 		if(ff)retLate.add("MixinAwarenessForDualHatch");
-		if (!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))
+		
+		
+		/*if (!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))
 			if(ff)retLate.add("MixinRemoveUnunsedItemStackCache");
+		
+		*/
+		
 		if(ff)retLate.add("MixinAE2FCCompat");
 
 		if (!"true".equals(pp.get("noRecipeFilterForDualHatch"))) {
@@ -189,10 +194,12 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		retLate.add("MixinStorageChangeEvent");
 		retLate.add("MixinOptimize");
 		retLate.add("part2.MixinIsWailaCall");
+		retLate.add("part2.MixinPresetsInject");
 		retLate.add("part2.MixinOC");
 		retLate.add("part2.MixinRecursiveSlotClickProtection");
 		retLate.add("part2.MixinMultiPattern");
 		retLate.add("part2.MixinSplitDetect");
+		retLate.add("part2.MixinMEBusOverride");
 		if (FMLLaunchHandler.side().isClient()) {
 			if (!"true".equals(pp.get("noAEItemSortMixins")))
 				if(ff)retLate.add("MixinAEItemStackCompare");
@@ -302,7 +309,7 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		}
 	}
 
-	public static final Logger LOG = LogManager.getLogger(Tags.MODID + "Mixin");
+	public static final Logger LOG = LogManager.getLogger( MyMod.MODID + "Mixin");
 	private static final Path MODS_DIRECTORY_PATH = new File(Launch.minecraftHome, "mods/").toPath();
 
 	public static List<File> findJarOf(final Map<String, String> classTrait) {

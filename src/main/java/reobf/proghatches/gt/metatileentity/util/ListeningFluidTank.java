@@ -36,14 +36,16 @@ public class ListeningFluidTank extends FluidTank {
 
 	@Override
 	public int fill(FluidStack resource, boolean doFill) {
-		
+		int filled = 0;
 		try {
-			return super.fill(resource, doFill);
+			return filled=super.fill(resource, doFill);
 		} finally {
-			callback.ifPresent(Runnable::run);
+			if(filled>0)callback.ifPresent(Runnable::run);
 		}
 	}
-
+public void onChange(){
+	callback.ifPresent(Runnable::run);
+}
 	@Override
 	public void setFluid(FluidStack fluid) {
 		

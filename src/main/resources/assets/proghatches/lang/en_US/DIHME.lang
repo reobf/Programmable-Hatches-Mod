@@ -1,0 +1,8 @@
+Fluid Input for Multiblocks
+Basically an Advanced Stocking Input Hatch (ME),but pull fluid from storage with higher priority first.
+And try to consume fluid evenly from all storages then in reversed priority.
+Can be used to trick Assembly Line into working, when recipe requires same fluid in different slots.
+Use it as the last input hatch of Assembly Line, and access other 15 buses' inventory via Storage Bus
+and watch this bus do the trick.
+Might carsh the machine and void materials if used improperly.
+Shift+Screwdriver RMB to toggle reserve first slot if storage of highest priority is empty

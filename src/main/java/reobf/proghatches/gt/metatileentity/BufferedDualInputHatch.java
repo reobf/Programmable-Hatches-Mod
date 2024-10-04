@@ -14,6 +14,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.function.Consumer;
@@ -33,6 +34,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.JsonToNBT;
@@ -51,8 +53,11 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.oredict.OreDictionary;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multiset;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
@@ -82,6 +87,7 @@ import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
+import appeng.me.storage.DriveWatcher;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -125,7 +131,7 @@ public int getInventoryFluidLimit() {
 			
 		return	(int) Math.min(val, Integer.MAX_VALUE);	*/
 	//return super.getInventoryFluidLimit();
-		
+	  
 		return (int) ((int) (32000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1)));
 }
 	public int fluidLimit() {
@@ -225,6 +231,7 @@ public int getInventoryFluidLimit() {
 	
 	public class DualInvBuffer implements IDualInputInventory {
 		public long tickFirstClassify=-1;
+		
 		protected FluidTank[] mStoredFluidInternal;
 		protected ItemStack[] mStoredItemInternal;
 		protected FluidTank[] mStoredFluidInternalSingle;
@@ -451,18 +458,7 @@ public int getInventoryFluidLimit() {
 		        return false ? false : (thiz.getItem() != p_77959_1_.getItem() ? false : (thiz.getItemDamage() != p_77959_1_.getItemDamage() ? false : (thiz.stackTagCompound == null && p_77959_1_.stackTagCompound != null ? false : thiz.stackTagCompound == null || thiz.stackTagCompound.equals(p_77959_1_.stackTagCompound))));
 		    }
 
-		private boolean fluidEquals(FluidTank a, FluidTank b) {
-			// if(a==b)return false;
-			// if(a==null||b==null)return false;
-			if (a.getFluidAmount() != b.getFluidAmount())
-				return false;
-			if (a.getFluid() == null && a.getFluid() == null)
-				return true;
-			if (a.getFluid() != null && (!a.getFluid().equals(b.getFluid())))
-				return false;
-
-			return true;
-		}
+	
 
 		/**
 		 * classify() with less check, for better performance
@@ -1230,6 +1226,7 @@ final int offset=0;
 			final int ii = i;
 			inv0.get(i).fromTag((NBTTagCompound) aNBT.getTag("BUFFER_" + ii));
 		}
+		merge = aNBT.getBoolean("merge");
 		justHadNewItems = aNBT.getBoolean("justHadNewItems");
 		updateEveryTick = aNBT.getBoolean("updateEveryTick");
 		preventSleep=aNBT.getInteger("preventSleep");
@@ -1242,7 +1239,8 @@ final int offset=0;
 		for (int i = 0; i < bufferNum; i++)
 
 			aNBT.setTag("BUFFER_" + i, inv0.get(i).toTag());
-
+		
+		aNBT.setBoolean("merge", merge);
 		aNBT.setBoolean("justHadNewItems", justHadNewItems);
 		aNBT.setBoolean("updateEveryTick", updateEveryTick);
 		aNBT.setInteger("preventSleep",preventSleep );
@@ -1365,11 +1363,19 @@ final int offset=0;
 	private Predicate<DualInvBuffer> not(Predicate<DualInvBuffer> s) {
 		return s.negate();
 	}
-
+boolean merge;
 	@Override
 	public Iterator<? extends IDualInputInventory> inventories() {
 		markDirty();
 		dirty=true;
+		
+		
+	
+		if(merge){
+		return mergeSame();
+			
+		}
+		
 		
 		if(Config.experimentalOptimize){
 			
@@ -1533,7 +1539,7 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 				+tag.getInteger("sleepTime")
 				
 				);
-		
+		int idle[]=new int[1];
 		IntStream.range(0, tag.getInteger("inv_size")).forEach(s -> {
 			NBTTagCompound sub = (NBTTagCompound) tag.getTag("No" + s);
 			boolean noClear = sub.getBoolean("noClear");
@@ -1548,6 +1554,8 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 				info = LangManager.translateToLocal("programmable_hatches.buffer.waila.001");
 				break;
 			case 0b010:
+				idle[0]++;
+				if(idle[0]>5)return;
 				info = LangManager.translateToLocal("programmable_hatches.buffer.waila.010");
 				break;
 			case 0b011:
@@ -1599,8 +1607,9 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 				Arrays.stream(lock_fluid.split("\n")).map(ss -> " " + ss).forEach(currenttip::add);
 
 		});
-
 		;
+		if(idle[0]>5)
+		currenttip.add(LangManager.translateToLocalFormatted("programmable_hatches.buffer.waila.hidden",(idle[0]-5)+""));
 
 	}
 
@@ -1618,8 +1627,16 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 		super.updateSlots();
 	}
 
+	
 	@Override
 	public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
+		
+		/*mergeSame().forEachRemaining(s->{
+			
+			System.out.println(Arrays.toString(s.getItemInputs()));
+			
+			
+		});*/
 		BaseMetaTileEntity tile = (BaseMetaTileEntity) this.getBaseMetaTileEntity();
 		if (tile.isServerSide()) {
 			if (!tile.privateAccess() || aPlayer.getDisplayName().equalsIgnoreCase(tile.getOwnerName())) {
@@ -1647,6 +1664,30 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 						 */
 						aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.gt.updateEveryTick"));
 
+						markDirty();
+						return true;
+					}
+
+				}
+				if (tCurrentItem != null) {
+					boolean suc = false;
+					for (int id : OreDictionary.getOreIDs(tCurrentItem)) {
+						if (OreDictionary.getOreName(id).equals(ToolDictNames.craftingToolSaw.toString())) {
+							suc = true;
+							break;
+						}
+						;
+					}
+					if (suc) {
+						GT_ModHandler.damageOrDechargeItem(tCurrentItem, 1, 1000, aPlayer);
+						GT_Utility.sendSoundToPlayers(tile.getWorld(), SoundResource.IC2_TOOLS_CHAINSAW_CHAINSAW_USE_TWO, 1.0F, -1,
+								tile.getXCoord(), tile.getYCoord(), tile.getZCoord());
+						/*merge = !merge;
+
+						GT_Utility.sendChatToPlayer(aPlayer, "merge:" + merge);
+						
+						aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.gt.merge"));
+*/
 						markDirty();
 						return true;
 					}
@@ -1709,11 +1750,154 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 		}
 		return true;
 	}
-	@Override
+	/*@Override
 	public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer, ForgeDirection side,
 			float aX, float aY, float aZ) {
 	
 		return super.onRightclick(aBaseMetaTileEntity, aPlayer, side, aX, aY, aZ);
-	}
+	}*/
+	@SuppressWarnings("unchecked")
+	public Iterator<? extends IDualInputInventory> mergeSame(){
+		
+		
+		 class Wrapper{
+			 DualInvBuffer d;
+			 public Wrapper(DualInvBuffer s) {
+			d=s;
+			}
+
+			@Override
+			public int hashCode() {
+				int hash=0;
+				 for(int i=0;i<d.mStoredFluidInternalSingle.length;i++){
+					FluidStack f=d.mStoredFluidInternalSingle[i].getFluid();
+					if(f!=null)
+					hash^= f.hashCode();
+					int a=hash&1;
+					hash=hash>>>1;
+					if(a!=0)hash|=0x80000000;
+				 }
+				 for(int i=0;i<d.mStoredItemInternalSingle.length;i++){
+					 ItemStack f=d.mStoredItemInternalSingle[i];
+						if(f!=null){
+						hash^= 
+						f.stackSize*31+
+						+Item.getIdFromItem(f.getItem());
+						if(f.getTagCompound()!=null){
+							hash^=f.getTagCompound().hashCode();
+						}
+						}
+						int a=hash&1;
+						hash=hash>>>1;
+						if(a!=0)hash|=0x80000000;
+				 }
+				
+				return hash;
+			}
+			 
+			 @Override
+			public boolean equals(Object obj) {
+				 if(obj==this){return true;}
+				 boolean empty=true;
+				 DualInvBuffer a=d;
+				 DualInvBuffer b=((Wrapper) obj).d;
+				 for(int i=0;i<a.mStoredFluidInternalSingle.length;i++){
+					 if(!fluidEquals(
+					 a.mStoredFluidInternalSingle[i],
+					 b.mStoredFluidInternalSingle[i])	 
+					){return false;}
+					 if(a.mStoredFluidInternalSingle[i].getFluidAmount()>0)
+					 empty=false;
+					 
+				 }
+				 for(int i=0;i<a.mStoredItemInternalSingle.length;i++){
+					 if(!ItemStack.areItemStacksEqual(
+					 a.mStoredItemInternalSingle[i],
+					 b.mStoredItemInternalSingle[i])	 
+					){return false;}
+					 if(a.mStoredItemInternalSingle[i]!=null)
+					 empty=false;
+					 
+				 }
+				 if(empty)return false;
+				return true;
+			}
+			 
+		 }
+		 
+		 
+		 
+		  Multimap<Wrapper,DualInvBuffer> a=HashMultimap
+				 .create();
+		inv0.stream().filter((DualInvBuffer::isAccessibleForMulti))
+		 .forEach(
+				 s->{
+					 a.put(new Wrapper(s), s);
+				 }
+		);
+		return (Iterator<? extends IDualInputInventory>) a.asMap().values().stream().map(
+				s->{
+					if(s.size()==1){return s.iterator().next();}
+				return	new IDualInputInventory(){
+					void init(){
+						Iterator<DualInvBuffer> itr = s.iterator();
+						int icount=0;
+						ItemStack[][] idata=new ItemStack[s.size()][];
+						int fcount=0;
+						FluidStack[][] fdata=new FluidStack[s.size()][];
+						for(int i=0;i<s.size();i++){
+							DualInvBuffer e = itr.next();
+							idata[i]=e.getItemInputs();
+							icount+=idata[i].length;
+							fdata[i]=e.getFluidInputs();
+							fcount+=fdata[i].length;
+						}
+						i=new ItemStack[icount];
+						f=new FluidStack[fcount];
+						int ic=0;
+						for(ItemStack[] ii:idata){
+							for(ItemStack iii:ii){
+								i[ic]=iii;
+								ic++;
+							}
+						}
+						ic=0;
+						for(FluidStack[] ii:fdata){
+							for(FluidStack iii:ii){
+								f[ic]=iii;
+								ic++;
+							}
+						}
+						
+					}
+					ItemStack[] i;
+					FluidStack[] f;
+					@Override
+					public ItemStack[] getItemInputs() {
+						if(i==null)init();
+						
+						return i;
+					}
+				
+					@Override
+					public FluidStack[] getFluidInputs() {
+						if(f==null)init();
+						return f;
+					}};
+				}
+				).iterator();
+	}	
 	
+	static public  boolean fluidEquals(FluidTank a, FluidTank b) {
+		// if(a==b)return false;
+		// if(a==null||b==null)return false;
+		if (a.getFluidAmount() != b.getFluidAmount())
+			return false;
+		if (a.getFluid() == null && a.getFluid() == null)
+			return true;
+		if (a.getFluid() != null && (!a.getFluid().equals(b.getFluid())))
+			return false;
+
+		return true;
+	}
 }

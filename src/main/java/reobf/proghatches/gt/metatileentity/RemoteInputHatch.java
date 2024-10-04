@@ -66,6 +66,7 @@ import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_Utility;
+import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
 import reobf.proghatches.gt.metatileentity.util.RecursiveLinkExcpetion;
 import reobf.proghatches.lang.LangManager;
@@ -636,8 +637,9 @@ public FluidStack getFillableStack() {
 
 		});
 
-		if (fail.get())
-			return CheckRecipeResultRegistry.CRASH;
+		if (fail.get()){
+			controller.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
+			return CheckRecipeResultRegistry.CRASH;}
 
 		tmp = null;
 		return CheckRecipeResultRegistry.SUCCESSFUL;

@@ -44,6 +44,7 @@ import appeng.api.storage.IMEInventoryHandler;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.IStorageMonitorable;
 import appeng.api.storage.StorageChannel;
+import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
@@ -63,11 +64,13 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
+import gregtech.api.util.GT_Config;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -133,9 +136,17 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 
 		try {
 			GridStorageCache st = (GridStorageCache) proxy.getStorage();
-			
+			ArrayList<Object> order =new ArrayList();
 			TreeMultimap<Integer, IMEInventoryHandler<IAEItemStack>> orderMap = TreeMultimap.create((a, b) -> -a + b,
-					(a, b) -> a.hashCode() - b.hashCode());
+					(a, b) -> {
+					if(a==b)return 0;
+					int diff=a.hashCode() - b.hashCode();
+					if(diff!=0)return diff;
+					if(order.indexOf(a)==-1)order.add(a);
+					if(order.indexOf(b)==-1)order.add(b);
+					return order.indexOf(a)-order.indexOf(b);
+					}
+					);
 			for (final ICellProvider cc : get(st)) {
 			
 			List<IMEInventoryHandler> list = cc
@@ -537,4 +548,16 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 		return request.copy().setStackSize(requested-num);
 	}
 
+	
+	@Override
+	public void saveNBTData(NBTTagCompound aNBT) {
+		aNBT.setBoolean("reserveFirst", reserveFirst);
+		super.saveNBTData(aNBT);
+	}
+	@Override
+	public void loadNBTData(NBTTagCompound aNBT) {
+		reserveFirst=aNBT.getBoolean("reserveFirst");
+		super.loadNBTData(aNBT);
+	}
+	
 }

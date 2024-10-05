@@ -109,6 +109,7 @@ import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
+import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.gt.metatileentity.util.MappingFluidTank;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
@@ -116,7 +117,7 @@ import reobf.proghatches.util.IIconTexture;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContainer, IGridProxyable
-,IPriorityHost
+,IPriorityHost,IStoageCellUpdate
 {
 
 	public SuperTankME(String aName, int aTier, int aInvSlotCount, String[] aDescription, ITexture[][][] aTextures) {
@@ -297,6 +298,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 		super.onFirstTick(aBaseMetaTileEntity);
 		getProxy().onReady();
 		onColorChangeServer(aBaseMetaTileEntity.getColorization());
+		post();
 	}
  final FluidTank content=new FluidTank(10000){
 	 
@@ -341,6 +343,8 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 			int acc=content.fill(input.getFluidStack(), type==Actionable.MODULATE);
 			IAEFluidStack  ret = input.copy();
 			ret.decStackSize(acc);
+			if(voidOverflow&&(content.getFluidAmount()>0&&content.getFluid().getFluid()==input.getFluid())
+					){return null;}
 			if(ret.getStackSize()==0)return null;
 			return ret;
 		}
@@ -449,10 +453,13 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	}
 	@Override
 	public int fill(FluidStack aFluid, boolean doFill) {
+		
 		try{
 		return content.fill(aFluid, doFill);
 		}finally{
 			post();
+			if(voidOverflow&&(content.getFluidAmount()>0&&content.getFluid().getFluid()==aFluid.getFluid())
+			){return aFluid.amount;}
 		}
 	}
 	@Override
@@ -461,6 +468,8 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 		return content.fill(aFluid, doFill);
 		}finally{
 			post();
+			if(voidOverflow&&(content.getFluidAmount()>0&&content.getFluid().getFluid()==aFluid.getFluid())
+					){return aFluid.amount;}
 		}
 	}	
 	@Override
@@ -506,9 +515,30 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	
 	boolean autoUnlock;
 	boolean suppressSticky;
-	
+	boolean wasActive;
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
+		
+		if(!aBaseMetaTileEntity.getWorld().isRemote){
+			if(update){update=false;updateStatus();}
+			if(wasActive!=this.getProxy().isActive()){
+				wasActive=this.getProxy().isActive();
+				post();
+			}
+			
+			
+			if (voidFull ) {
+			 voidOverflow = false;
+			 content.setFluid(null);
+         }
+		if(content.getFluidAmount()>0){
+			
+			if(content.getFluidAmount()>0)
+				content.getFluid().amount=Math.min
+				(commonSizeCompute(mTier),content.getFluid().amount);
+		}
+		}
+		
 		if(!aBaseMetaTileEntity.getWorld().isRemote&&(aTick&16)!=0){
 			this.getBaseMetaTileEntity().setActive(
 			this.getProxy().isPowered()&&this.getProxy().isActive()
@@ -705,7 +735,46 @@ builder.widget(new FluidSlotWidget(content)
 			.setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
 			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.piority"))
 			.setPos(3+2,18*3+3+1).setSize(16*8,16))
+ .widget(new CycleButtonWidget().setToggle(() -> voidFull, val -> {
+	 voidFull = val;
+  
+     if (!voidFull) {
+         GT_Utility.sendChatToPlayer(
+             buildContext.getPlayer(),
+             GT_Utility.trans("269", "Void Full Mode Disabled"));
+     } else {
+         GT_Utility.sendChatToPlayer(
+             buildContext.getPlayer(),
+             GT_Utility.trans("270", "Void Full Mode Enabled"));
+     }
+ })
+     .setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE)
+     .setStaticTexture(GT_UITextures.OVERLAY_BUTTON_TANK_VOID_ALL)
+     .setGTTooltip(() -> mTooltipCache.getData("GT5U.machines.digitaltank.voidfull.tooltip"))
+     .setTooltipShowUpDelay(TOOLTIP_DELAY)
+     .setPos(3+18*3,3+18*2)
+     .setSize(18, 18))
  
+ .widget(new CycleButtonWidget().setToggle(() -> voidOverflow, val -> {
+	 voidOverflow = val;
+	
+     if (!voidOverflow) {
+         GT_Utility.sendChatToPlayer(
+             buildContext.getPlayer(),
+             GT_Utility.trans("267", "Overflow Voiding Mode Disabled"));
+     } else {
+         GT_Utility.sendChatToPlayer(
+             buildContext.getPlayer(),
+             GT_Utility.trans("268", "Overflow Voiding Mode Enabled"));
+     }
+ })
+     .setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE)
+     .setStaticTexture(GT_UITextures.OVERLAY_BUTTON_TANK_VOID_EXCESS)
+     .setGTTooltip(() -> mTooltipCache.getData("GT5U.machines.digitaltank.voidoverflow.tooltip"))
+     .setTooltipShowUpDelay(TOOLTIP_DELAY)
+     .setPos(3+18*4,3+18*2)
+     .setSize(18, 18))
+ ;
  ;
  
  
@@ -736,7 +805,8 @@ public void loadNBTData(NBTTagCompound aNBT) {
 		cachedFilter=FluidStack.loadFluidStackFromNBT(tag);
 		updateFilter(cachedFilter);	
 	}
-		
+	voidFull=aNBT.getBoolean("voidFull" );
+	voidOverflow= aNBT.getBoolean("voidOverflow" );
 	
 }
  protected static int commonSizeCompute(int tier) {
@@ -770,7 +840,8 @@ public void saveNBTData(NBTTagCompound aNBT) {
 		aNBT.setTag("cahcedFilter", tag);
 	}
 	
-	
+	aNBT.setBoolean("voidFull", voidFull);
+	 aNBT.setBoolean("voidOverflow", voidOverflow);
 	
 	
 }
@@ -779,6 +850,8 @@ public void setItemNBT(NBTTagCompound aNBT) {
 	content.writeToNBT(aNBT);
     if(piority!=0)aNBT.setInteger("piority", piority);
     if(sticky)aNBT.setBoolean("sticky", sticky);
+    if(voidFull)aNBT.setBoolean("voidFull", voidFull);
+    if(voidOverflow)aNBT.setBoolean("voidOverflow", voidOverflow);
 }
 @Override
 public boolean shouldDropItemAt(int index) {
@@ -860,7 +933,7 @@ public void updateChannels(final MENetworkChannelsChanged changedChannels) {
     this.updateStatus();
 }*/
 static MENetworkCellArrayUpdate event=new MENetworkCellArrayUpdate();
-protected void updateStatus() {
+public void updateStatus() {
    
             try {
 				this.getProxy().getGrid().postEvent(event);
@@ -870,5 +943,15 @@ protected void updateStatus() {
 			}
        
 }
+boolean voidFull;
+boolean voidOverflow;
+private boolean update;
+@Override
+public void cellUpdate() {
+	update=true;
+	
+}
+
+
 
 }

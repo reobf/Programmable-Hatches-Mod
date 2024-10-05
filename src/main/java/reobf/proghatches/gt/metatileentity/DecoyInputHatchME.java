@@ -54,6 +54,7 @@ import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME
 import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_Input_ME;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -112,9 +113,17 @@ public class DecoyInputHatchME  extends GT_MetaTileEntity_Hatch_Input_ME impleme
 
 		try {
 			GridStorageCache st = (GridStorageCache) proxy.getStorage();
-			
+			ArrayList<Object> order =new ArrayList();
 			TreeMultimap<Integer, IMEInventoryHandler<IAEFluidStack>> orderMap = TreeMultimap.create((a, b) -> -a + b,
-					(a, b) -> a.hashCode() - b.hashCode());
+					(a, b) -> {
+					if(a==b)return 0;
+					int diff=a.hashCode() - b.hashCode();
+					if(diff!=0)return diff;
+					if(order.indexOf(a)==-1)order.add(a);
+					if(order.indexOf(b)==-1)order.add(b);
+					return order.indexOf(a)-order.indexOf(b);
+					}
+					);
 			for (final ICellProvider cc : get(st)) {
 			
 			List<IMEInventoryHandler> list = cc
@@ -512,5 +521,15 @@ public IAEStack overridedExtract(IMEMonitor thiz, IAEStack request, Actionable m
 	}
 	if(requested==num)return null;
 	return request.copy().setStackSize(requested-num);
+}	
+@Override
+public void saveNBTData(NBTTagCompound aNBT) {
+	aNBT.setBoolean("reserveFirst", reserveFirst);
+	super.saveNBTData(aNBT);
+}
+@Override
+public void loadNBTData(NBTTagCompound aNBT) {
+	reserveFirst=aNBT.getBoolean("reserveFirst");
+	super.loadNBTData(aNBT);
 }
 }

@@ -94,6 +94,7 @@ import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
+import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.gt.metatileentity.util.MappingFluidTank;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
@@ -101,7 +102,7 @@ import reobf.proghatches.util.IIconTexture;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContainer, IGridProxyable
-,IPriorityHost
+,IPriorityHost,IStoageCellUpdate
 {
 
 	public SuperChestME(String aName, int aTier, int aInvSlotCount, String[] aDescription, ITexture[][][] aTextures) {
@@ -295,7 +296,8 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 
 		super.onFirstTick(aBaseMetaTileEntity);
 		getProxy().onReady();
-		onColorChangeServer(aBaseMetaTileEntity.getColorization());
+		onColorChangeServer(aBaseMetaTileEntity.getColorization());	
+		post();
 	}
 
 	public class UnlimitedWrapper implements IMEInventory<IAEItemStack> {
@@ -308,6 +310,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 
 		@Override
 		public IAEItemStack injectItems(IAEItemStack input, Actionable type, BaseActionSource src) {
+			try{
 			long l=input.getStackSize();
 			long compl=0;
 			if(l>Integer.MAX_VALUE){compl=l-Integer.MAX_VALUE;}
@@ -336,7 +339,15 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 			}
 			
 			
-			return null;
+			return null;}finally{
+				
+				if(voidOverflow&&(mInventory[0]!=null&&
+						ItemStack.areItemStackTagsEqual(mInventory[0],input.getItemStack())&&
+						mInventory[0].getItem()==input.getItem()&&
+						mInventory[0].getItemDamage()==input.getItemDamage()
+						)
+						){return null;}
+			}
 		}
 
 		@Override
@@ -451,13 +462,28 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	boolean autoUnlock;
 	boolean suppressSticky;
 	
-
+	boolean wasActive;
 	
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		
-		
-		
+		if(!aBaseMetaTileEntity.getWorld().isRemote){
+			if(update){update=false;updateStatus();}
+			if(wasActive!=this.getProxy().isActive()){
+				wasActive=this.getProxy().isActive();
+				post();
+			}
+			if (voidFull ) {
+			 voidOverflow = false;
+             mInventory[0]=null;
+         }
+		if(mInventory[0]!=null){
+			
+			if(mInventory[0]!=null)
+				mInventory[0].stackSize=Math.min
+				(commonSizeCompute(mTier),mInventory[0].stackSize);
+		}
+		}
 		if(!aBaseMetaTileEntity.getWorld().isRemote&&(aTick&16)!=0){
 			this.getBaseMetaTileEntity().setActive(
 			this.getProxy().isPowered()&&this.getProxy().isActive()
@@ -634,8 +660,46 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.piority"))
 			.setPos(3+2,18*3+3+1).setSize(16*8,16))
  
- ;
+ .widget(new CycleButtonWidget().setToggle(() -> voidFull, val -> {
+	 voidFull = val;
+  
+     if (!voidFull) {
+         GT_Utility.sendChatToPlayer(
+             buildContext.getPlayer(),
+             GT_Utility.trans("269", "Void Full Mode Disabled"));
+     } else {
+         GT_Utility.sendChatToPlayer(
+             buildContext.getPlayer(),
+             GT_Utility.trans("270", "Void Full Mode Enabled"));
+     }
+ })
+     .setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE)
+     .setStaticTexture(GT_UITextures.OVERLAY_BUTTON_TANK_VOID_ALL)
+     .setGTTooltip(() -> mTooltipCache.getData("GT5U.machines.digitaltank.voidfull.tooltip"))
+     .setTooltipShowUpDelay(TOOLTIP_DELAY)
+     .setPos(3+18*3,3+18*2)
+     .setSize(18, 18))
  
+ .widget(new CycleButtonWidget().setToggle(() -> voidOverflow, val -> {
+	 voidOverflow = val;
+  
+     if (!voidOverflow) {
+         GT_Utility.sendChatToPlayer(
+             buildContext.getPlayer(),
+             GT_Utility.trans("267", "Overflow Voiding Mode Disabled"));
+     } else {
+         GT_Utility.sendChatToPlayer(
+             buildContext.getPlayer(),
+             GT_Utility.trans("268", "Overflow Voiding Mode Enabled"));
+     }
+ })
+     .setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE)
+     .setStaticTexture(GT_UITextures.OVERLAY_BUTTON_TANK_VOID_EXCESS)
+     .setGTTooltip(() -> mTooltipCache.getData("GT5U.machines.digitaltank.voidoverflow.tooltip"))
+     .setTooltipShowUpDelay(TOOLTIP_DELAY)
+     .setPos(3+18*4,3+18*2)
+     .setSize(18, 18))
+ ;
  
  
 }
@@ -661,6 +725,8 @@ public void loadNBTData(NBTTagCompound aNBT) {
 		cachedFilter[0]=ItemStack.loadItemStackFromNBT(tag);
 		updateFilter(cachedFilter[0]);	
 	}
+	voidFull=aNBT.getBoolean("voidFull" );
+	voidOverflow= aNBT.getBoolean("voidOverflow" );
 }
  
 @Override
@@ -685,6 +751,8 @@ public void saveNBTData(NBTTagCompound aNBT) {
 		cachedFilter[0].writeToNBT(tag);
 		aNBT.setTag("cahcedFilter", tag);
 	}
+	aNBT.setBoolean("voidFull", voidFull);
+	 aNBT.setBoolean("voidOverflow", voidOverflow);
 	
 }@Override
 public void onFacingChange() {
@@ -707,6 +775,8 @@ public void setItemNBT(NBTTagCompound aNBT) {
     aNBT.setTag("Inventory", tItemList);
     if(piority!=0)aNBT.setInteger("piority", piority);
     if(sticky)aNBT.setBoolean("sticky", sticky);
+    if(voidFull)aNBT.setBoolean("voidFull", voidFull);
+    if(voidOverflow)aNBT.setBoolean("voidOverflow", voidOverflow);
 }
 @Override
 public boolean shouldDropItemAt(int index) {
@@ -756,7 +826,8 @@ public void chanRender(final MENetworkChannelsChanged changedChannels) {
 public void updateChannels(final MENetworkChannelsChanged changedChannels) {
    this.updateStatus();
 }*/ 
-protected void updateStatus() {
+boolean update;
+public void updateStatus() {
    
             try {
 				this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
@@ -778,6 +849,19 @@ public ItemStack decrStackSize(int aIndex, int aAmount) {
 	post();}
 }
 
-
+boolean voidFull;
+boolean voidOverflow;
+@MENetworkEventSubscribe
+public void powerRender(final MENetworkPowerStatusChange c) {
+    this.updateStatus();
+}
+public void updateChannels(final MENetworkChannelsChanged changedChannels) {
+    this.updateStatus();
+}
+@Override
+public void cellUpdate() {
+	update=true;
+	
+}
 
 }

@@ -94,6 +94,7 @@ import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
+import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.gt.metatileentity.util.MappingFluidTank;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
@@ -101,7 +102,7 @@ import reobf.proghatches.util.IIconTexture;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContainer, IGridProxyable
-,IPriorityHost
+,IPriorityHost,IStoageCellUpdate
 {
 
 	public SuperChestME(String aName, int aTier, int aInvSlotCount, String[] aDescription, ITexture[][][] aTextures) {
@@ -467,6 +468,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		
 		if(!aBaseMetaTileEntity.getWorld().isRemote){
+			if(update){update=false;updateStatus();}
 			if(wasActive!=this.getProxy().isActive()){
 				wasActive=this.getProxy().isActive();
 				post();
@@ -824,7 +826,8 @@ public void chanRender(final MENetworkChannelsChanged changedChannels) {
 public void updateChannels(final MENetworkChannelsChanged changedChannels) {
    this.updateStatus();
 }*/ 
-protected void updateStatus() {
+boolean update;
+public void updateStatus() {
    
             try {
 				this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
@@ -848,5 +851,17 @@ public ItemStack decrStackSize(int aIndex, int aAmount) {
 
 boolean voidFull;
 boolean voidOverflow;
+@MENetworkEventSubscribe
+public void powerRender(final MENetworkPowerStatusChange c) {
+    this.updateStatus();
+}
+public void updateChannels(final MENetworkChannelsChanged changedChannels) {
+    this.updateStatus();
+}
+@Override
+public void cellUpdate() {
+	update=true;
+	
+}
 
 }

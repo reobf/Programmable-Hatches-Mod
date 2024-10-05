@@ -109,6 +109,7 @@ import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
+import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.gt.metatileentity.util.MappingFluidTank;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
@@ -116,7 +117,7 @@ import reobf.proghatches.util.IIconTexture;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContainer, IGridProxyable
-,IPriorityHost
+,IPriorityHost,IStoageCellUpdate
 {
 
 	public SuperTankME(String aName, int aTier, int aInvSlotCount, String[] aDescription, ITexture[][][] aTextures) {
@@ -519,6 +520,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		
 		if(!aBaseMetaTileEntity.getWorld().isRemote){
+			if(update){update=false;updateStatus();}
 			if(wasActive!=this.getProxy().isActive()){
 				wasActive=this.getProxy().isActive();
 				post();
@@ -931,7 +933,7 @@ public void updateChannels(final MENetworkChannelsChanged changedChannels) {
     this.updateStatus();
 }*/
 static MENetworkCellArrayUpdate event=new MENetworkCellArrayUpdate();
-protected void updateStatus() {
+public void updateStatus() {
    
             try {
 				this.getProxy().getGrid().postEvent(event);
@@ -943,6 +945,12 @@ protected void updateStatus() {
 }
 boolean voidFull;
 boolean voidOverflow;
+private boolean update;
+@Override
+public void cellUpdate() {
+	update=true;
+	
+}
 
 
 

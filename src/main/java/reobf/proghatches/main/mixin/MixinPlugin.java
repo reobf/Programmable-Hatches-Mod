@@ -33,6 +33,8 @@ import org.spongepowered.asm.lib.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import reobf.proghatches.Tags;
 import reobf.proghatches.main.MyMod;
@@ -87,7 +89,8 @@ static public ArrayList<String> retLate = new ArrayList<>();
 	@SuppressWarnings("unused")
 	@Override
 	public List<String> getMixins() {
-	
+		
+		
 		boolean ff=true;
 		
 		File f = new File(System.getProperty("user.dir") + File.separator + "config", "proghatches.mixin.properties");

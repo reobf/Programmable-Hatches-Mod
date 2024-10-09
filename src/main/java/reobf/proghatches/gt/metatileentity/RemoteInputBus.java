@@ -56,12 +56,13 @@ import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.RecursiveLinkExcpetion;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
-public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements IRecipeProcessingAwareHatch {
+public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements IRecipeProcessingAwareHatch , IDataCopyablePlaceHolder {
 
 	static public ArrayList<String> blacklist = new ArrayList<>();
 	static {
@@ -675,4 +676,25 @@ public AutoCloseable mark(){
 	
 	return ()->{record.remove(this);};
 }
+
+@Override
+public NBTTagCompound getCopiedData(EntityPlayer player) {
+ NBTTagCompound ret=new NBTTagCompound();
+ writeType(ret, player);
+ ret.setInteger("x", x);
+ ret.setInteger("y", y);
+ ret.setInteger("z", z);
+ ret.setBoolean("linked", linked);
+return ret;
+}
+@Override
+public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) { 
+	if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+	if(nbt.hasKey("x"))x=nbt.getInteger("x");
+	if(nbt.hasKey("y")) y=nbt.getInteger("y");
+	if(nbt.hasKey("z"))z=nbt.getInteger("z");
+	if(nbt.hasKey("linked")) linked=nbt.getBoolean("linked");
+return true;
+}
+
 }

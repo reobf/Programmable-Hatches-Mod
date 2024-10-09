@@ -7,6 +7,9 @@ import com.google.common.collect.ImmutableList;
 import com.gtnewhorizon.gtnhmixins.ILateMixinLoader;
 import com.gtnewhorizon.gtnhmixins.LateMixin;
 
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ModContainer;
+
 @LateMixin
 public class LateMixinPlugin implements ILateMixinLoader{
 
@@ -19,6 +22,9 @@ public class LateMixinPlugin implements ILateMixinLoader{
 	@Override
 	public List<String> getMixins(Set<String> loadedMods) {
 		System.out.println("aaaaaaaaaaa");
+		
+		
+		
 		return MixinPlugin.retLate;
 	}
 

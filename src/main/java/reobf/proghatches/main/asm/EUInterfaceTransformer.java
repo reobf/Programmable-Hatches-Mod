@@ -6,10 +6,10 @@ package reobf.proghatches.main.asm;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.List;
 
-
-
-
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ModContainer;
 import net.minecraft.launchwrapper.IClassTransformer;
 import reobf.proghatches.main.asm.repack.objectwebasm.ClassReader;
 import reobf.proghatches.main.asm.repack.objectwebasm.ClassWriter;

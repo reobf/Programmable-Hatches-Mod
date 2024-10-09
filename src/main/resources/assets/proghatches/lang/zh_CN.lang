@@ -589,3 +589,6 @@ proghatches.decoy.reservefirst.enabled=保留第一个槽给最高优先存储: 
 proghatches.decoy.reservefirst.disabled=保留第一个槽给最高优先存储: false
 fluid.input.bus.me.decoy.name=装配线诱骗存储输入总线(ME)
 fluid.input.me.decoy.name=装配线诱骗存储输入仓(ME)
+fluid.input.bus.me.pfilter.name=优先级过滤存储输入总线(ME)
+fluid.input.me.pfilter.name=优先级过滤存储输入仓(ME)
+proghatches.priority.filter=自动拉取优先级过滤

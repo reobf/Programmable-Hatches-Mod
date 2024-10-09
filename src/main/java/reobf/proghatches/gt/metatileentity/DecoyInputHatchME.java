@@ -1,5 +1,7 @@
 package reobf.proghatches.gt.metatileentity;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +14,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.function.Supplier;
 
 import org.spongepowered.asm.mixin.Unique;
 
@@ -59,10 +62,12 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolderSuper;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.main.registration.Registration;
 
-public class DecoyInputHatchME  extends GT_MetaTileEntity_Hatch_Input_ME implements IMEHatchOverrided{
+public class DecoyInputHatchME  extends GT_MetaTileEntity_Hatch_Input_ME implements IMEHatchOverrided,IDataCopyablePlaceHolderSuper{
 
 	public DecoyInputHatchME(int aID, /*boolean autoPullAvailable,*/ String aName, String aNameRegional) {
 		super(aID, /*autoPullAvailable*/true, aName, aNameRegional);
@@ -531,5 +536,31 @@ public void saveNBTData(NBTTagCompound aNBT) {
 public void loadNBTData(NBTTagCompound aNBT) {
 	reserveFirst=aNBT.getBoolean("reserveFirst");
 	super.loadNBTData(aNBT);
+}
+@Override
+public Supplier<Lookup> lookup() {
+	return ()->MethodHandles.lookup();
+}
+@Override
+public boolean impl_pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+	if(nbt.hasKey("reserveFirst"))reserveFirst=nbt.getBoolean("reserveFirst");
+	return true;
+}
+
+@Override
+public NBTTagCompound impl_getCopiedData(EntityPlayer player, NBTTagCompound tag) {
+	 tag.setBoolean("reserveFirst", reserveFirst);
+	return tag;
+}@Override
+public NBTTagCompound getCopiedData(EntityPlayer player) {
+	return IDataCopyablePlaceHolderSuper.super.getCopiedData(player);
+}
+@Override
+public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+	return IDataCopyablePlaceHolderSuper.super.pasteCopiedData(player, nbt);
+}
+@Override
+public String getCopiedDataIdentifier(EntityPlayer player) {
+	return IDataCopyablePlaceHolderSuper.super.getCopiedDataIdentifier(player);
 }
 }

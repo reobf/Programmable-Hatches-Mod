@@ -42,11 +42,12 @@ import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.main.registration.Registration;
 
 public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch&IMetaTileEntity> extends GT_MetaTileEntity_Hatch_InputBus
-		implements IDualInputHatch , IRecipeProcessingAwareDualHatch {
+		implements IDualInputHatch , IRecipeProcessingAwareDualHatch,IDataCopyablePlaceHolder {
 
 	private T master; // use getMaster() to access
 	private int masterX, masterY, masterZ;
@@ -317,4 +318,26 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch&IMet
 	    public List<ItemStack> getItemsForHoloGlasses() {
 	        return getMaster() != null ? getMaster().getItemsForHoloGlasses() : null;
 	    }
+	  
+	  @Override
+	  public NBTTagCompound getCopiedData(EntityPlayer player) {
+	   NBTTagCompound ret=new NBTTagCompound();
+	   writeType(ret, player);
+		 ret.setInteger("masterX", masterX);
+	   ret.setInteger("masterY", masterY);
+	   ret.setInteger("masterZ", masterZ);
+	   ret.setBoolean("masterSet", masterSet);
+	 
+	  return ret;
+	  }
+	  @Override
+	  public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) { 
+	  	if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+	  	if(nbt.hasKey("masterX"))masterX=nbt.getInteger("masterX");
+	  	if(nbt.hasKey("masterY")) masterY=nbt.getInteger("masterY");
+	  	if(nbt.hasKey("masterZ"))masterZ=nbt.getInteger("masterZ");
+	  	if(nbt.hasKey("masterSet")) masterSet=nbt.getBoolean("masterSet");
+		master=null;
+	  return true;
+	  }
 }

@@ -7,11 +7,15 @@ import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_INPUT_FLUID_HATC
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_INPUT_FLUID_HATCH_ACTIVE;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -29,6 +33,8 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolderSuper;
 import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
@@ -77,6 +83,7 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
+import cpw.mods.fml.common.Optional.Interface;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.SoundResource;
@@ -99,10 +106,13 @@ import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
 import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_Input_ME;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 
-public class RestrictedInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME{
+public class RestrictedInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME implements IDataCopyablePlaceHolderSuper{
 	
 	public RestrictedInputBusME(int aID, boolean autoPullAvailable, String aName, String aNameRegional) {
 		super(aID, autoPullAvailable, aName, aNameRegional);
@@ -374,5 +384,63 @@ static AdaptableUITexture mode0= AdaptableUITexture
 .of("proghatches", "restrict_mode0", 18, 18, 1);
 static AdaptableUITexture mode1= AdaptableUITexture
 .of("proghatches", "restrict_mode1", 18, 18, 1);
+
+/*
+@Override
+public NBTTagCompound getCopiedData(EntityPlayer player) {
+ NBTTagCompound ret=super_getCopiedData(player,()->MethodHandles.lookup());
+ ret.setInteger("multiples", multiples);
+ ret.setInteger("restrict", restrict);
+ ret.setInteger("restrict_lowbound", restrict_lowbound);
+return ret;
+}
+@Override
+public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+boolean suc=super_pasteCopiedData(player, nbt,()->MethodHandles.lookup());
+if(suc){
+	if(nbt.hasKey("multiples"))multiples=nbt.getInteger("multiples");
+	if(nbt.hasKey("restrict"))restrict=nbt.getInteger("restrict");
+	if(nbt.hasKey("restrict_lowbound"))restrict_lowbound=nbt.getInteger("restrict_lowbound");
+}
+return suc;
+}
+@Override
+public String getCopiedDataIdentifier(EntityPlayer player) {
+	return super_getCopiedDataIdentifier(player,()->MethodHandles.lookup());
+}*/
+
+@Override
+public Supplier<Lookup> lookup() {
+	return ()->MethodHandles.lookup();
+}
+
+@Override
+public boolean impl_pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+	if(nbt.hasKey("multiples"))multiples=nbt.getInteger("multiples");
+	if(nbt.hasKey("restrict"))restrict=nbt.getInteger("restrict");
+	if(nbt.hasKey("restrict_lowbound"))restrict_lowbound=nbt.getInteger("restrict_lowbound");
+	return true;
+}
+
+@Override
+public NBTTagCompound impl_getCopiedData(EntityPlayer player, NBTTagCompound ret) {
+	 ret.setInteger("multiples", multiples);
+	 ret.setInteger("restrict", restrict);
+	 ret.setInteger("restrict_lowbound", restrict_lowbound);
+	return ret;
+}
+
+@Override
+public NBTTagCompound getCopiedData(EntityPlayer player) {
+	return IDataCopyablePlaceHolderSuper.super.getCopiedData(player);
+}
+@Override
+public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+	return IDataCopyablePlaceHolderSuper.super.pasteCopiedData(player, nbt);
+}
+@Override
+public String getCopiedDataIdentifier(EntityPlayer player) {
+	return IDataCopyablePlaceHolderSuper.super.getCopiedDataIdentifier(player);
+}
 
 }

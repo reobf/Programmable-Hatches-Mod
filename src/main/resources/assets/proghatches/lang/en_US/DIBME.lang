@@ -1,8 +1,26 @@
 Item Input for Multiblocks
-Basically an Advanced Stocking Input Bus (ME),but pull items from storage with higher priority first.
-And try to consume items evenly from all storages then in reversed priority.
-Can be used to trick Assembly Line into working, when recipe requires same items in different slots.
-Use it as the last input bus of Assembly Line, and access other 15 buses' inventory via Storage Bus
-and watch this bus do the trick.
-Might carsh the machine and void materials if used improperly.
+Use to solve Assline refusing to work if handling recipe with duplicated items
+and you are using independent ME network for each Advanced ME Input Bus.
+You don't need this Bus if: Your all 16 ME Input Buses share the same network
+or there's no duplicated items in the Assline recipe you handles.
+You may choose to rename the duplicated items to workaround this bug(?) of course.
+Why the Assline refuses to work:
+Assline will check type of the first item in ME Bus, but check number and consume from the LAST ME Bus that contains the same item.
+e.g. For recipe {screw x1,plate x1,plate x1,plate x1}, Assline will check the 4th ME Bus to see if there's 3 plates.
+Assline will not work, because there's only 1 plate in last Bus' ME network regardless of the 2nd nad 3rd ME Bus.
+Even if x3 the recipe to pass the check, Assline will extract only from the 4th ME Bus and exhaust the ME storage
+leaving the remaining 2 recipes unfinished or stuck.
+How to use:
+First 15 ME storages connect to corresponding Advanced ME Input Bus, do not connect the 16th ME storage.
+Use this ME Bus as the last Bus, and access the first 15 ME storages and the 16th ME storage via Storage Bus.
+Set priority acsending with the index of the ME network.
+Finally enable 'Auto Pull'.
+----------------------------------------------------------------------------------------------------------------------------------------
+This ME Bus disguises as if 'all 16 ME Input Buses share the same network' to trick Assline into working,
+and extract items via Storage Bus in a more resonable order.
+This ME Bus will always auto-pull items in ME network with higher priority, to make sure the items in 16th ME storage will always
+be in the first slot.
+And since it's the last ME Bus and is accessible to all 16 networks, it will always be the ME Bus to be checked and extracted from.
+So a valid recipe will always pass the check. When consuming items, it will do it in order of reserved priority,
+that is, Bus of lower index gets consumed first, just like normal Buses.
 Shift+Screwdriver RMB to toggle reserve first slot if storage of highest priority is empty

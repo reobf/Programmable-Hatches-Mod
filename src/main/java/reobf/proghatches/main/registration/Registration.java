@@ -46,6 +46,8 @@ import reobf.proghatches.gt.metatileentity.IngredientBuffer;
 import reobf.proghatches.gt.metatileentity.MultiCircuitInputBus;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatchInventoryMappingSlave;
+import reobf.proghatches.gt.metatileentity.PriorityFilterInputBusME;
+import reobf.proghatches.gt.metatileentity.PriorityFilterInputHatchME;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
 import reobf.proghatches.gt.metatileentity.ProviderChainer;
@@ -105,6 +107,8 @@ public class Registration implements Runnable {
 	public static final int CommunicationPortHatchOffset= 170;
 	public static final int DecoyBusME= 171;
 	public static final int DecoyHatchME= 172;
+	public static final int PFilterBusME= 173;
+	public static final int PFilterHatchME= 174;
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -461,7 +465,18 @@ public class Registration implements Runnable {
                 LangManager.translateToLocalFormatted("fluid.input.me.decoy.name")
                 
                 );
-        
+        new PriorityFilterInputBusME(
+                Config.metaTileEntityOffset + PFilterBusME,
+                "fluid.input.bus.me.pfilter",
+                LangManager.translateToLocalFormatted("fluid.input.bus.me.pfilter.name")
+                
+                );
+        new PriorityFilterInputHatchME(
+                Config.metaTileEntityOffset + PFilterHatchME,
+                "fluid.input.me.pfilter",
+                LangManager.translateToLocalFormatted("fluid.input.me.pfilter.name")
+                
+                );
         /*for (int i = 0; i < 4; i++) {
 
             new DualInputHatch(

@@ -1,5 +1,7 @@
 package reobf.proghatches.gt.metatileentity;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +16,7 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.function.Supplier;
 
 import javax.naming.OperationNotSupportedException;
 
@@ -75,10 +78,12 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.oredict.OreDictionary;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolderSuper;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.main.registration.Registration;
 
-public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME implements IMEHatchOverrided {
+public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME implements IMEHatchOverrided,IDataCopyablePlaceHolderSuper {
 
 	public DecoyInputBusME(int aID, /* boolean autoPullAvailable, */ String aName, String aNameRegional) {
 		super(aID, /* autoPullAvailable */true, aName, aNameRegional);
@@ -105,7 +110,7 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 		return new DecoyInputBusME(mName, mTier, mDescriptionArray, mTextures);
 	}
 
-	@Unique
+	
 	private static Field f;
 
 	static {
@@ -119,7 +124,7 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 		f.setAccessible(true);
 	}
 
-	@Unique
+	
 	private static Set<ICellProvider> get(GridStorageCache thiz) {
 
 		try {
@@ -559,5 +564,55 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 		reserveFirst=aNBT.getBoolean("reserveFirst");
 		super.loadNBTData(aNBT);
 	}
+
+
+	@Override
+	public Supplier<Lookup> lookup() {
+		return ()->MethodHandles.lookup();
+	}
+
+	@Override
+	public boolean impl_pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+		if(nbt.hasKey("reserveFirst"))reserveFirst=nbt.getBoolean("reserveFirst");
+		return true;
+	}
+
+	@Override
+	public NBTTagCompound impl_getCopiedData(EntityPlayer player, NBTTagCompound tag) {
+		 tag.setBoolean("reserveFirst", reserveFirst);
+		return tag;
+	}
 	
+	/*
+	@Override
+	public NBTTagCompound getCopiedData(EntityPlayer player) {
+	 NBTTagCompound ret=super_getCopiedData(player,()->MethodHandles.lookup());
+	
+	 ret.setBoolean("reserveFirst", reserveFirst);
+	return ret;
+	}
+	@Override
+	public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+	boolean suc=super_pasteCopiedData(player, nbt,()->MethodHandles.lookup());
+	if(suc){
+		if(nbt.hasKey("reserveFirst"))reserveFirst=nbt.getBoolean("reserveFirst");
+	}
+	return suc;
+	}
+	@Override
+	public String getCopiedDataIdentifier(EntityPlayer player) {
+		return super_getCopiedDataIdentifier(player,()->MethodHandles.lookup());
+	}*/
+	@Override
+	public NBTTagCompound getCopiedData(EntityPlayer player) {
+		return IDataCopyablePlaceHolderSuper.super.getCopiedData(player);
+	}
+	@Override
+	public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+		return IDataCopyablePlaceHolderSuper.super.pasteCopiedData(player, nbt);
+	}
+	@Override
+	public String getCopiedDataIdentifier(EntityPlayer player) {
+		return IDataCopyablePlaceHolderSuper.super.getCopiedDataIdentifier(player);
+	}
 }

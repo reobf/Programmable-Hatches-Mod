@@ -84,6 +84,7 @@ import net.minecraftforge.fluids.FluidTank;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.ISkipStackSizeCheck;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
@@ -97,7 +98,7 @@ import reobf.proghatches.net.UpgradesMessage;
 public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch & IDualInputHatch & IMetaTileEntity>
 		extends GT_MetaTileEntity_TieredMachineBlock implements IAddUIWidgets, ICraftingMedium, ICustomNameObject,
 		IGridProxyable, IInterfaceViewable, IPowerChannelState, IActionHost, ICraftingProvider
-		,IMultiplePatternPushable
+		,IMultiplePatternPushable,IDataCopyablePlaceHolder
 		{
 	private T master; // use getMaster() to access
 	public int masterX, masterY, masterZ;
@@ -1085,4 +1086,27 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 	
 
 }
+
+
+	  @Override
+	  public NBTTagCompound getCopiedData(EntityPlayer player) {
+	   NBTTagCompound ret=new NBTTagCompound();
+	   writeType(ret, player);
+		 ret.setInteger("masterX", masterX);
+	   ret.setInteger("masterY", masterY);
+	   ret.setInteger("masterZ", masterZ);
+	   ret.setBoolean("masterSet", masterSet);
+	 
+	  return ret;
+	  }
+	  @Override
+	  public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) { 
+	  	if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+	  	if(nbt.hasKey("masterX"))masterX=nbt.getInteger("masterX");
+	  	if(nbt.hasKey("masterY")) masterY=nbt.getInteger("masterY");
+	  	if(nbt.hasKey("masterZ"))masterZ=nbt.getInteger("masterZ");
+	  	if(nbt.hasKey("masterSet")) masterSet=nbt.getBoolean("masterSet");
+		master=null;
+	  return true;
+	  }
 }

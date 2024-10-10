@@ -10,6 +10,7 @@ import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -48,6 +49,7 @@ import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.AdaptableUITexture;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.Text;
+import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.math.Alignment;
 import com.gtnewhorizons.modularui.api.math.Color;
 import com.gtnewhorizons.modularui.api.math.Pos2d;
@@ -139,9 +141,91 @@ public class RestrictedInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME im
 	  static private int  _mDescriptionArray_offset;
 	  static private int  _mDescription_offset;
 	  
+	  static Field f1,f2,f3;
 	  
 	  
+	  static{
+		  try {
+			f1=GT_MetaTileEntity_Hatch_InputBus_ME.class.getDeclaredField("shadowInventory");  
+			f2=GT_MetaTileEntity_Hatch_InputBus_ME.class.getDeclaredField("savedStackSizes");
+			f3=GT_MetaTileEntity_Hatch_InputBus_ME.class.getDeclaredField("processingRecipe");
+			f1.
+	setAccessible(true);
+	f2.
+	setAccessible(true);
+	f3.setAccessible(true);
+		  } catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		  
+		  
+	  }
+	  public ItemStack[] shadowInventory(){
+		 try {
+			return (ItemStack[]) f1.get(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		  
+	  }
+	  public int[] savedStackSizes(){
+		  try {
+				return (int[]) f2.get(this);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+		  
+	  }
+	  public boolean  processingRecipe(){
+		  try {
+				return (boolean) f3.get(this);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+		  
+		  
+	  }
 	  
+	  @Override
+	public ItemStack getStackInSlot(int aIndex) {
+		
+		  ItemStack s= super.getStackInSlot(aIndex);
+	     if(!processingRecipe()){return s;}
+		  if(s==null)return null;
+		  if(aIndex==getCircuitSlot())return s;
+		  s=s.copy();
+		  if(s!=null&&s.stackSize>restrict){
+          	s.stackSize=restrict;
+          }
+          if(s!=null&&s.stackSize<restrict_lowbound){
+          	s=null;
+          }
+          if(s!=null&&restrict_lowbound>0&&multiples==1){
+          	s.stackSize=(s.stackSize/restrict_lowbound)*restrict_lowbound;
+          }
+          if(s!=null&&restrict_lowbound>0&&multiples==2){
+          //	s.stackSize=(s.stackSize/restrict_lowbound)*restrict_lowbound;
+          	s.stackSize=1<<(31-Integer.numberOfLeadingZeros(s.stackSize/restrict_lowbound));
+          	s.stackSize*=restrict_lowbound;
+          }
+		  
+		  //if(s.stackSize<0)s=null;
+		  
+		  if(s!=null){
+		   this.shadowInventory()[aIndex] = s;
+           this.savedStackSizes()[aIndex] = this.shadowInventory()[aIndex].stackSize;
+           this.setInventorySlotContents(aIndex + SLOT_COUNT, this.shadowInventory()[aIndex]);
+           return this.shadowInventory()[aIndex];
+		  }else{
+			  this.setInventorySlotContents(aIndex + SLOT_COUNT, null);
+			  
+		  }
+		  return s;
+	}
 	  
 	  
 	  public ItemStack updateInformationSlot(int aIndex, ItemStack aStack) {
@@ -329,6 +413,7 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
 		
 		Widget button = new CycleButtonWidget()
 				.setLength(3)
+				.setTextureGetter((I)->UITexture.EMPTY)
 				.addTooltip(
 						0,LangManager.translateToLocal("proghatches.restricted.multiples.exact"))
 				.addTooltip(

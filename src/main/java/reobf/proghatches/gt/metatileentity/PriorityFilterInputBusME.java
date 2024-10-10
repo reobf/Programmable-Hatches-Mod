@@ -231,7 +231,7 @@ int filter;
 		
 		
 		final int WIDTH = 78;
-        final int HEIGHT = 80+18+18;
+		  final int HEIGHT = parent.getSize().height+18+18+3;
         final int PARENT_WIDTH = getGUIWidth();
         final int PARENT_HEIGHT = getGUIHeight();
         ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
@@ -250,7 +250,7 @@ int filter;
                         .add(WIDTH - 3, 0)));
         builder.widget(
             TextWidget.localised("proghatches.priority.filter")
-                .setPos(3, 80)
+                .setPos(3, parent.getSize().height)
                 .setSize(74, 18))
             .widget(
                 new NumericWidget().setSetter(val -> filter = (int) val)
@@ -260,7 +260,7 @@ int filter;
                     .setTextAlignment(Alignment.Center)
                     .setTextColor(Color.WHITE.normal)
                     .setSize(70, 18)
-                    .setPos(3, 80+18)
+                    .setPos(3, parent.getSize().height+18)
                     .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD));
   
         
@@ -329,6 +329,16 @@ int filter;
 	        
 	    }
 	
+	  @Override
+	public void saveNBTData(NBTTagCompound aNBT) {
+		  aNBT.setInteger("filter", filter);
+		super.saveNBTData(aNBT);
+	}
+	  @Override
+	public void loadNBTData(NBTTagCompound aNBT) {
+		filter  =aNBT.getInteger("filter" );
+		super.loadNBTData(aNBT);
+	}
 	  @Override
 		public NBTTagCompound getCopiedData(EntityPlayer player) {
 			return IDataCopyablePlaceHolderSuper.super.getCopiedData(player);

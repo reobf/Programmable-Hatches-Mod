@@ -5,5 +5,5 @@ Programming Cover function integrated
 Buffer: 1
 For each buffer:
 Capacity: 100,000,000L x24 types of fluid
-16 Slots
+4 Slots
 Slot maximum stacksize:64

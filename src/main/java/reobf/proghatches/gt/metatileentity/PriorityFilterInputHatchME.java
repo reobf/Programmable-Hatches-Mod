@@ -256,7 +256,7 @@ int filter;
             .widget(
                 new NumericWidget().setSetter(val -> filter = (int) val)
                     .setGetter(() -> filter)
-                    .setBounds(1, Integer.MAX_VALUE)
+                    .setBounds(Integer.MIN_VALUE, Integer.MAX_VALUE)
                     .setScrollValues(1, 4, 64)
                     .setTextAlignment(Alignment.Center)
                     .setTextColor(Color.WHITE.normal)

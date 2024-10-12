@@ -31,6 +31,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
+import com.github.technus.tectech.recipe.TT_recipeAdder;
 import com.github.technus.tectech.thing.CustomItemList;
 import com.glodblock.github.loader.ItemAndBlockHolder;
 
@@ -1262,17 +1263,19 @@ public class PHRecipes implements Runnable {
 	 .itemInputs(
 			  Api.INSTANCE.definitions().parts().storageBus().maybeStack(1).get(),
 			  new ItemStack(ItemAndBlockHolder.FLUID_STORAGE_BUS),
+			  Api.INSTANCE.definitions().blocks().craftingMonitor().maybeStack(1).get(),
 		     new ItemStack(ItemAndBlockHolder.LEVEL_MAINTAINER)
-			 ).fluidInputs( Materials.Grade4PurifiedWater.getFluid(1000))
+			 )
 	 .itemOutputs(new ItemStack(MyMod.amountmaintainer))
-	 .duration(20 * SECONDS).eut(GT_Values.VP[3]).addTo(RecipeMaps.assemblerRecipes);
+	 .duration(20 * SECONDS).eut(GT_Values.VP[6]).addTo(RecipeMaps.assemblerRecipes);
 	 
 	 GT_Values.RA.stdBuilder()
 	 .itemInputs(
-			 new ItemStack(ItemAndBlockHolder.LEVEL_MAINTAINER)
-			 ).fluidInputs( Materials.Grade8PurifiedWater.getFluid(16000))
+			 new ItemStack(ItemAndBlockHolder.LEVEL_MAINTAINER),
+			 Api.INSTANCE.definitions().blocks().craftingStorage1k().maybeStack(32).get()
+			 )
 	 .itemOutputs(new ItemStack(MyMod.submitter))
-	 .duration(20 * SECONDS).eut(GT_Values.VP[3]).addTo(RecipeMaps.fluidSolidifierRecipes);
+	 .duration(20 * SECONDS).eut(GT_Values.VP[8]).addTo(RecipeMaps.assemblerRecipes);
 	 
 	 GT_Values.RA.stdBuilder()
 	 .itemInputs(
@@ -1556,8 +1559,47 @@ public class PHRecipes implements Runnable {
 	.addTo(RecipeMaps.assemblerRecipes);
 	 
 	 
-	 
+	 TT_recipeAdder.addResearchableAssemblylineRecipe(
+			 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.RestrictedBusME)
+			 , 10_000, 1, 2000, 1, 
+			 new ItemStack[]{
+					 ItemList.Hatch_Input_ME_Advanced.get(1), new ItemStack(Items.comparator),
+					 Api.INSTANCE.definitions().parts().toggleBus().maybeStack(1).get(),
+					 Api.INSTANCE.definitions().parts().invertedToggleBus().maybeStack(1).get(),
+					 Api.INSTANCE.definitions().parts().toggleBus().maybeStack(1).get(),
+					 Api.INSTANCE.definitions().parts().invertedToggleBus().maybeStack(1).get(),
+					
+			 }
+			 , 
+			 new FluidStack[]{
+					 Materials.RedstoneAlloy.getMolten(144*6)
+			 }		 
+			 , 
+			 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.PFilterBusME)
+			 , SECONDS*120, (int) GT_Values.VP[8]);
+	  
+	
+	 TT_recipeAdder.addResearchableAssemblylineRecipe(
+			 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.RestrictedHatchME)
+			 , 10_000, 1, 2000, 1, 
+			 new ItemStack[]{
+					 ItemList.Hatch_Input_Bus_ME_Advanced.get(1), new ItemStack(Items.comparator),
+					 Api.INSTANCE.definitions().parts().toggleBus().maybeStack(1).get(),
+					 Api.INSTANCE.definitions().parts().invertedToggleBus().maybeStack(1).get(),
+					 Api.INSTANCE.definitions().parts().toggleBus().maybeStack(1).get(),
+					 Api.INSTANCE.definitions().parts().invertedToggleBus().maybeStack(1).get(),
+					
+			 }
+			 , 
+			 new FluidStack[]{
+					 Materials.RedstoneAlloy.getMolten(144*6)
+			 }		 
+			 , 
+			 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.PFilterHatchME)
+			 , SECONDS*120, (int) GT_Values.VP[9]);
 	  }
-    
+	
 }
+    
+
 

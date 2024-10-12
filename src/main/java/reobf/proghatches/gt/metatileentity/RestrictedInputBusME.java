@@ -197,6 +197,13 @@ public class RestrictedInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME im
 	     if(!processingRecipe()){return s;}
 		  if(s==null)return null;
 		  if(aIndex==getCircuitSlot())return s;
+		  
+		   if(getBaseMetaTileEntity().isAllowedToWork()==false){
+			   this.shadowInventory()[aIndex] = null;
+	           this.savedStackSizes()[aIndex] = 0;
+	           this.setInventorySlotContents(aIndex + SLOT_COUNT, null);
+			   return null;
+		   }
 		  s=s.copy();
 		  if(s!=null&&s.stackSize>restrict){
           	s.stackSize=restrict;

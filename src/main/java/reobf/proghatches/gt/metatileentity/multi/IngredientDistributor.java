@@ -712,12 +712,14 @@ private boolean distribute() {
 	}
 	if(possibleSource==null)return false;
 	Iterator<IDualInputInventory > itr = (Iterator<IDualInputInventory>) possibleSource;
-	if(allMEHatch&&blocking){
-		while(itr.hasNext()){
-			if(moveToOutpusME(itr.next())){
-				return true;
-			};
-			
+	if(blocking){
+		if(allMEHatch){
+			while(itr.hasNext()){
+				if(moveToOutpusME(itr.next())){
+					return true;
+				};
+				
+			}
 		}
 		return false;
 	}
@@ -1167,7 +1169,7 @@ private boolean moveToOutpus(IDualInputInventory opt,boolean checkSpace) {
 	}
 	for(int index=0;index<f.length;++index){
 		if(mOutputHatches.get(index) instanceof GT_MetaTileEntity_Hatch_Output_ME){
-			if(i[index]!=null){
+			if(f[index]!=null){
 				GT_MetaTileEntity_Hatch_Output_ME bus=(GT_MetaTileEntity_Hatch_Output_ME) mOutputHatches.get(index);
 				try {
 					IAEFluidStack notadded=null;
@@ -1204,8 +1206,24 @@ private boolean moveToOutpus(IDualInputInventory opt,boolean checkSpace) {
 	for(int index=0;index<i.length;++index){
 		if(mOutputBusses.get(index) instanceof GT_MetaTileEntity_Hatch_OutputBus_ME){
 			int before=i[index].stackSize;
-			i[index].stackSize=((GT_MetaTileEntity_Hatch_OutputBus_ME)mOutputBusses.get(index)).store(i[index]);
-	    	if(i[index].stackSize!=before)anyDiff=true;	
+		
+			try {
+				IAEItemStack notadd = ((GT_MetaTileEntity_Hatch_OutputBus_ME)mOutputBusses.get(index)).getProxy().getStorage().getItemInventory()
+				.injectItems(AEApi.instance()
+						.storage()
+						.createItemStack(i[index]), Actionable.MODULATE, getActionSourceFor(mOutputBusses.get(index)));
+			if(notadd!=null)
+				i[index].stackSize=(int) notadd.getStackSize();
+			else
+				i[index].stackSize=0;
+			} catch (Exception e) {
+				
+				e.printStackTrace();
+			}
+			
+			//i[index].stackSize=((GT_MetaTileEntity_Hatch_OutputBus_ME)mOutputBusses.get(index)).store(i[index]);
+	    	
+			if(i[index].stackSize!=before)anyDiff=true;	
 			
 			continue;
 		}
@@ -1218,7 +1236,23 @@ private boolean moveToOutpus(IDualInputInventory opt,boolean checkSpace) {
 	for(int index=0;index<f.length;++index){
 		if(mOutputHatches.get(index) instanceof GT_MetaTileEntity_Hatch_Output_ME){
 			int before=f[index].amount;
-			f[index].amount-=((GT_MetaTileEntity_Hatch_Output_ME)mOutputHatches.get(index)).tryFillAE(f[index]);
+			//f[index].amount-=((GT_MetaTileEntity_Hatch_Output_ME)mOutputHatches.get(index)).tryFillAE(f[index]);
+			try {
+				IAEFluidStack notadd = ((GT_MetaTileEntity_Hatch_Output_ME)mOutputHatches.get(index)).getProxy().getStorage().getFluidInventory()
+				.injectItems(AEApi.instance()
+						.storage()
+						.createFluidStack(f[index]), Actionable.MODULATE, getActionSourceFor(mOutputHatches.get(index)));
+			if(notadd!=null)
+				f[index].amount=(int) notadd.getStackSize();
+			else
+				f[index].amount=0;
+			} catch (Exception e) {
+				
+				e.printStackTrace();
+			}
+			
+			
+			
 			if(f[index].amount!=before)anyDiff=true;	
 			
 			continue;
@@ -1295,6 +1329,7 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	cd=aNBT.getInteger("cd");
 	cdmax=aNBT.getInteger("cdmax");
 	lockRecipe=aNBT.getBoolean("lockRecipe");
+	isLiteVersion=aNBT.getBoolean("isLiteVersion");
 	super.loadNBTData(aNBT);
 }
 @Override
@@ -1303,7 +1338,7 @@ public void saveNBTData(NBTTagCompound aNBT) {
 	aNBT.setBoolean("blocking", blocking);
 	aNBT.setBoolean("emptyRun", emptyRun);
 	aNBT.setBoolean("allMEHatch", allMEHatch);
-	
+	aNBT.setBoolean("isLiteVersion", isLiteVersion);
 	aNBT.setInteger("count", count);
 	aNBT.setInteger("cd", cd);
 	aNBT.setInteger("cdmax", cdmax);
@@ -1314,20 +1349,26 @@ public void saveNBTData(NBTTagCompound aNBT) {
 boolean lockRecipe;
 @Override
 public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-	if(isLiteVersion)blocking=false;
-	if(blocking==false&&port!=null&&aBaseMetaTileEntity.isAllowedToWork()){
-		
-		LargeProgrammingCircuitProvider.shut(this,"proghatch.commport");
+	
+	if(mMachine){
+		if(isLiteVersion)blocking=false;
+		if(blocking==false&&port!=null&&aBaseMetaTileEntity.isAllowedToWork()){
+			
+			LargeProgrammingCircuitProvider.shut(this,"proghatch.commport");
+		}
+		if( !aBaseMetaTileEntity.getWorld().isRemote&&mMachine){
+		if (!allMEHatch) {
+			blocking=false;
+		}
+		if (mMaxProgresstime > 0 && mProgresstime+1 >= mMaxProgresstime) {
+			  if(ready<=0&&!emptyRun)ready++;
+			  
+		  }
+		 }
 	}
-	if( !aBaseMetaTileEntity.getWorld().isRemote&&mMachine){
-	if (!allMEHatch) {
-		blocking=false;
-	}
-	if (mMaxProgresstime > 0 && mProgresstime+1 >= mMaxProgresstime) {
-		  if(ready<=0&&!emptyRun)ready++;
-		  
-	  }
-	 }
+	
+	
+	
 	super.onPostTick(aBaseMetaTileEntity, aTick);
 }
 boolean emptyRun;

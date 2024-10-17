@@ -1563,7 +1563,7 @@ public class PHRecipes implements Runnable {
 			 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.RestrictedBusME)
 			 , 10_000, 1, 2000, 1, 
 			 new ItemStack[]{
-					 ItemList.Hatch_Input_ME_Advanced.get(1), new ItemStack(Items.comparator),
+					 ItemList.Hatch_Input_Bus_ME_Advanced.get(1), new ItemStack(Items.comparator),
 					 Api.INSTANCE.definitions().parts().toggleBus().maybeStack(1).get(),
 					 Api.INSTANCE.definitions().parts().invertedToggleBus().maybeStack(1).get(),
 					 Api.INSTANCE.definitions().parts().toggleBus().maybeStack(1).get(),
@@ -1583,7 +1583,7 @@ public class PHRecipes implements Runnable {
 			 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.RestrictedHatchME)
 			 , 10_000, 1, 2000, 1, 
 			 new ItemStack[]{
-					 ItemList.Hatch_Input_Bus_ME_Advanced.get(1), new ItemStack(Items.comparator),
+					 ItemList.Hatch_Input_ME_Advanced.get(1), new ItemStack(Items.comparator),
 					 Api.INSTANCE.definitions().parts().toggleBus().maybeStack(1).get(),
 					 Api.INSTANCE.definitions().parts().invertedToggleBus().maybeStack(1).get(),
 					 Api.INSTANCE.definitions().parts().toggleBus().maybeStack(1).get(),

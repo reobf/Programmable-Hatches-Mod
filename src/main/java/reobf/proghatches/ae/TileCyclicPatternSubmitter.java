@@ -250,6 +250,7 @@ public int state(){
 	if(last!=null&&(!last.isCanceled())&&(!last.isDone()))return 2;
 	return 0;
 }
+boolean asManyAsPossible;
 @Override
 public void updateEntity() {
 	ticksSinceLoaded++;
@@ -300,7 +301,13 @@ public void updateEntity() {
 			
 			if(pat==null)break end;
 			PatternCraftingJob job=new PatternCraftingJob(pat,getProxy().getStorage());
-			if(job.canBeDone(getProxy(), source)){
+			
+			
+			int howmany;
+			if((howmany=job.canBeDone(getProxy(), source))>0){
+				if(asManyAsPossible){
+					job.times=howmany;
+				}
 				last=getProxy().getCrafting().submitJob(job, this, null, true, source);
 				
 			}submitfail=last==null;

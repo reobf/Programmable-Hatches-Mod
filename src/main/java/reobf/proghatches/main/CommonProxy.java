@@ -14,14 +14,17 @@ import gregtech.api.util.GT_ModHandler;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockCyclicPatternSubmitter;
+import reobf.proghatches.ae.BlockStorageProxy;
 import reobf.proghatches.ae.ItemPartAmountMaintainer;
 import reobf.proghatches.ae.TileCyclicPatternSubmitter;
+import reobf.proghatches.ae.TileStorageProxy;
 import reobf.proghatches.block.BlockAnchorAlert;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.block.BlockReactorSyncer;
 import reobf.proghatches.block.ItemBlockAnchorAlert;
 import reobf.proghatches.block.ItemBlockIOHub;
 import reobf.proghatches.block.ItemBlockReactorSyncer;
+import reobf.proghatches.block.ItemBlockTooltip;
 import reobf.proghatches.block.TileAnchorAlert;
 import reobf.proghatches.block.TileIOHub;
 import reobf.proghatches.block.TileReactorSyncer;
@@ -73,6 +76,8 @@ public class CommonProxy {
 		GameRegistry.registerTileEntity(TileCyclicPatternSubmitter.class, "proghatches.submitter");
 		GameRegistry.registerTileEntity(TileCardReader.class, "proghatches.card_reader");
 		GameRegistry.registerTileEntity(TileReactorSyncer.class, "proghatches.reactor_syncer");
+		GameRegistry.registerTileEntity(TileStorageProxy.class, "proghatches.proxy");
+		
 		ItemMEPlunger a=new ItemMEPlunger(100000);
 		
 	
@@ -127,6 +132,7 @@ public class CommonProxy {
 				"test_cpu");
 		
 		
+		MyMod.storageproxy = GameRegistry.registerBlock(new BlockStorageProxy(),ItemBlockTooltip.class, "proghatches.proxy",new Object[]{"tile.proghatches.proxy.tooltip"});
 		
 		MyMod.iohub = GameRegistry.registerBlock(new BlockIOHub(), ItemBlockIOHub.class, "proghatches.iohub");
 		MyMod.alert = GameRegistry.registerBlock(new BlockAnchorAlert(Material.rock),ItemBlockAnchorAlert.class, "proghatches.chunk_loading_alert");

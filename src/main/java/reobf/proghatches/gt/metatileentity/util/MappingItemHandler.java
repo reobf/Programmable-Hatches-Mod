@@ -9,7 +9,7 @@ import gregtech.api.util.GT_Utility;
 public class MappingItemHandler implements com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable
 ,IInterhandlerGroup
 {
-
+	public Runnable update=()->{};
 	public MappingItemHandler(ItemStack[] is, int index, int num) {
 		this.is = is;
 		this.index = index;
@@ -44,6 +44,7 @@ public class MappingItemHandler implements com.gtnewhorizons.modularui.api.forge
 
 	@Override
 	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+		try{
 		if (stack == null) {
 			return null;
 		} else {
@@ -75,11 +76,12 @@ public class MappingItemHandler implements com.gtnewhorizons.modularui.api.forge
 
 				return reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, stack.stackSize - limit) : null;
 			}
-		}
+		}}finally{update.run();}
 	}
 
 	@Override
 	public ItemStack extractItem(int slot, int amount, boolean simulate) {
+	try{
 		if (amount == 0) {
 			return null;
 		} else {
@@ -106,7 +108,7 @@ public class MappingItemHandler implements com.gtnewhorizons.modularui.api.forge
 					return ItemHandlerHelper.copyStackWithSize(existing, toExtract);
 				}
 			}
-		}
+		}}finally{update.run();}
 	}
 
 	@Override
@@ -116,12 +118,13 @@ public class MappingItemHandler implements com.gtnewhorizons.modularui.api.forge
 
 	@Override
 	public void setStackInSlot(int var1, ItemStack var2) {
+		try{
 		if (phantom) {
 			is[var1 - index] = GT_Utility.copyAmount(0, var2);
 
 		} else
 			is[var1 - index] = var2;
-
+		}finally{update.run();}
 	}
 	
 	public MappingItemHandler id(long i){id=i;return this;}

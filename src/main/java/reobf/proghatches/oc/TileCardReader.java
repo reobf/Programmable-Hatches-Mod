@@ -129,7 +129,7 @@ public class TileCardReader extends TileEntity implements ITileWithModularUI,IIn
 	@Override
 	public boolean canExtractItem(int p_102008_1_, ItemStack p_102008_2_, int p_102008_3_) {
 	return false;
-	}@Callback("function(index:number,line:number[,showLabel:boolean=true,conact:boolean=false]):string -- Get the #line text of the #index(0 is the first slot!) Sensor Card."
+	}@Callback(doc="function(index:number,line:number[,showLabel:boolean=true,conact:boolean=false]):string -- Get the #line text of the #index(0 is the first slot!) Sensor Card."
 			+ " If conact is false, return 3 values(left, center and right text, might be nil if missing!). Otherwise concat those 3 texts with space and return only 1 value.")
 	public Object[] getText(final Context context, final Arguments args){
 		return get(args.checkInteger(0),args.checkInteger(1),args.optBoolean(2,true),args.optBoolean(2,false));
@@ -161,7 +161,7 @@ public class TileCardReader extends TileEntity implements ITileWithModularUI,IIn
 		return new Object[]{Joiner.on(" ").join(arr)};
 	}
 	
-	@Callback("function(index:number):string -- As its name suggests. Note that index 0 is the first slot.")
+	@Callback(doc="function(index:number):string -- As its name suggests. Note that index 0 is the first slot.")
 	public Object[] getTitle(final Context context, final Arguments args){
 		ItemStack is;
 		try{

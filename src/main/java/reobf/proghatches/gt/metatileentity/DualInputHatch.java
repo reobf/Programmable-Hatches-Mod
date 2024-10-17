@@ -1550,13 +1550,43 @@ public void reinitTierBasedField() {
 				}
 			}
 		}
-	/*	if(extraCircuit){
-			for (int i = 0; i < mInventory.length - 4; i++)
-		    if (mInventory[i] != null && mInventory[i].stackSize <= 0) mInventory[i] = null;
-			 if (!disableSort)fillStacksIntoFirstSlotsExtraCircuit();
-		}else*/
-		super.updateSlots();
+		 for (int i = 0; i < mInventory.length - 1; i++)
+	            if (mInventory[i] != null && mInventory[i].stackSize <= 0) mInventory[i] = null;
+		 if (!disableSort)fillStacksIntoFirstSlots();
+	
 	}
+	
+	 protected void fillStacksIntoFirstSlots() {
+	        final int L = mInventory.length - 1;
+	        HashMap<GT_Utility.ItemId, Integer> slots = new HashMap<>(L);
+	        HashMap<GT_Utility.ItemId, ItemStack> stacks = new HashMap<>(L);
+	        List<GT_Utility.ItemId> order = new ArrayList<>(L);
+	        List<Integer> validSlots = new ArrayList<>(L);
+	        for (int i = 0; i < L; i++) {
+	            if (!isValidSlot(i)) continue;
+	            validSlots.add(i);
+	            ItemStack s = mInventory[i];
+	            if (s == null) continue;
+	            GT_Utility.ItemId sID = GT_Utility.ItemId.createNoCopy(s);
+	            slots.merge(sID, s.stackSize, Integer::sum);
+	            if (!stacks.containsKey(sID)) stacks.put(sID, s);
+	            order.add(sID);
+	            mInventory[i] = null;
+	        }
+	        int slotindex = 0;
+	        for (GT_Utility.ItemId sID : order) {
+	            int toSet = slots.get(sID);
+	            if (toSet == 0) continue;
+	            int slot = validSlots.get(slotindex);
+	            slotindex++;
+	            mInventory[slot] = stacks.get(sID)
+	                .copy();
+	            toSet = Math.min(toSet, getInventoryStackLimit());
+	            mInventory[slot].stackSize = toSet;
+	            slots.merge(sID, toSet, (a, b) -> a - b);
+	        }
+	    }
+
 	/*private void fillStacksIntoFirstSlotsExtraCircuit() {
 	    final int L = mInventory.length - 4;
 	    HashMap<GT_Utility.ItemId, Integer> slots = new HashMap<>(L);

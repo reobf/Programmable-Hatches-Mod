@@ -32,6 +32,7 @@ public class PatternCraftingJob implements ICraftingJob{
 	}public  boolean supportsCPUCluster(final ICraftingCPU cluster) {
         return true;
     }
+	int times;
 	ICraftingPatternDetails target;
 	@Override
 	public boolean isSimulation() {
@@ -54,7 +55,7 @@ public class PatternCraftingJob implements ICraftingJob{
 	@Override
 	public IAEItemStack getOutput() {
 		for(IAEItemStack is:target.getOutputs()){
-			if(is!=null)return is;
+			if(is!=null)return is.copy().setStackSize(times*is.getStackSize());
 		}
 		return null;
 	}
@@ -70,30 +71,38 @@ public class PatternCraftingJob implements ICraftingJob{
 	
 		return CompletableFuture.completedFuture(this);
 	}
-public boolean canBeDone(AENetworkProxy gg,MachineSource src){
+	
+public int canBeDone(AENetworkProxy gg,MachineSource src){
+	int max=Integer.MAX_VALUE;
 	try{
 		IStorageGrid g=gg.getStorage();
 		gg.getCrafting().getCraftingPatterns().containsValue(target);
 	for(IAEItemStack is:target.getCondensedInputs())
 	{
-		IAEItemStack ext = g.getItemInventory().extractItems(is, Actionable.SIMULATE,src);
-		if(ext==null){return false;}
-		if(ext.getStackSize()!=is.getStackSize()){return false;}
+		IAEItemStack ext = g.getItemInventory().extractItems(is.copy().setStackSize(Integer.MAX_VALUE)
+				, Actionable.SIMULATE,src);
+		if(ext==null){return 0;}
+		if(ext.getStackSize()>=is.getStackSize()){
+			max=Math.min((int) (ext.getStackSize()/is.getStackSize()),max);
+		}else return 0;
 		
 	}
-	return true;
+	return max;
 	}catch(
-			GridAccessException E){return false;}
+			GridAccessException E){return 0;}
 }
 public final IStorageGrid context;
 @Override
 public void startCrafting(MECraftingInventory storage, ICraftingCPU craftingCPUCluster, BaseActionSource src) {
-	((CraftingCPUCluster) craftingCPUCluster).addCrafting(target, 1);
+	((CraftingCPUCluster) craftingCPUCluster).addCrafting(target, times);
 	IAEItemStack failing=null;
 	boolean success=true;
 	LinkedList<IAEItemStack> all=new LinkedList<>();
 	for(IAEItemStack is:target.getCondensedInputs())
 	{
+		is=is.copy().setStackSize(is.getStackSize()*times);
+		
+		
 		IAEItemStack ext = context.getItemInventory().extractItems(is, Actionable.MODULATE,src);
 		if(ext==null){success=false;failing=is;}
 		if(ext.getStackSize()!=is.getStackSize()){success=false;failing=is;}

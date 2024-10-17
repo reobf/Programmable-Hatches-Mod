@@ -808,7 +808,7 @@ public int getInventoryFluidLimit() {
 		// if(inputEmpty==null)inputEmpty=isInputEmpty();
 		if(!sleep||updateEveryTick())
 		 for (DualInvBuffer inv0 : this.sortByEmpty()) {
-			if (on && dirty&&!inputEmpty.get()) {
+			if (on &&!inputEmpty.get()) {
 				if (inv0.full() == false) {
 					if (inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)||
 							inv0.classify(this.mStoredFluid, mInventory,true))break;;

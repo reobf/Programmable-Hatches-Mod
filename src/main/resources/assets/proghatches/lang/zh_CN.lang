@@ -592,3 +592,15 @@ fluid.input.me.decoy.name=装配线诱骗存储输入仓(ME)
 fluid.input.bus.me.pfilter.name=优先级过滤存储输入总线(ME)
 fluid.input.me.pfilter.name=优先级过滤存储输入仓(ME)
 proghatches.priority.filter=自动拉取优先级过滤
+proghatch.proxy.disable=关闭
+proghatch.proxy.Strict=严格匹配
+proghatch.proxy.ignoreNBT=忽略NBT标签
+proghatch.proxy.oredict=使用矿辞
+proghatch.proxy.passthrough=所有物品
+tile.proghatch.storageproxy.0.name=ME存储代理
+tile.proghatch.storageproxy.1.name=ME流体存储代理
+tile.proghatches.proxy.tooltip.0=1
+tile.proghatches.proxy.tooltip.0.0=向ME存储总线提供受过滤的访问
+tile.proghatches.proxy.tooltip.1=1
+tile.proghatches.proxy.tooltip.1.0=向ME流体存储总线提供受过滤的访问
+

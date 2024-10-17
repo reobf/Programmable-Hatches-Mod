@@ -462,7 +462,7 @@ public class MyMod {
 		proxy.serverStarting(event);
 		WirelessPeripheralManager.stations.clear();
 		WirelessPeripheralManager.cards.clear();
-		ChunkTrackingGridCahce.callbacks.clear();
+		ChunkTrackingGridCahce.cacheinst.clear();
 		// Just in case weak references are not GCed in time
 		// only useful for intergreted server?
 		event.registerServerCommand(new CommandAnchor());
@@ -552,10 +552,14 @@ public class MyMod {
 		// World unloading seems to not post ChunkEvent.Unload?
 		// Well, warning twice is better than not warning, right?
 		try {
-			ChunkTrackingGridCahce.callbacks.forEach((a, b) -> {
+			ChunkTrackingGridCahce.cacheinst.removeIf((aa) -> {
+				ChunkTrackingGridCahce a = aa.get();
+				if(a==null)return true;
 				if (a != null) {
 					a.unload(event.world);
 				}
+				
+				return false;
 			});
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -568,10 +572,14 @@ public class MyMod {
 			return;
 		
 		try {
-			ChunkTrackingGridCahce.callbacks.forEach((a, b) -> {
+			ChunkTrackingGridCahce.cacheinst.removeIf((aa) -> {
+				ChunkTrackingGridCahce a = aa.get();
+				if(a==null)return true;
 				if (a != null) {
 					a.load(event.getChunk());
 				}
+				
+				return false;
 			});
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -584,10 +592,14 @@ public class MyMod {
 		// on client side, out-of-sight causes chunk unload! That's not what we
 		// want, so ignore it.
 		try {
-			ChunkTrackingGridCahce.callbacks.forEach((a, b) -> {
+			ChunkTrackingGridCahce.cacheinst.removeIf((aa) -> {
+				ChunkTrackingGridCahce a = aa.get();
+				if(a==null)return true;
 				if (a != null) {
-					a.unload(event.getChunk());
+					a.load(event.getChunk());
 				}
+				
+				return false;
 			});
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -630,6 +642,7 @@ public class MyMod {
 
 	public static WeakHashMap<Object, Runnable> callbacks = new WeakHashMap<>();
 	public static Block reactorsyncer;
+	public static Block storageproxy;
 
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void pretick(final TickEvent.ServerTickEvent event) {

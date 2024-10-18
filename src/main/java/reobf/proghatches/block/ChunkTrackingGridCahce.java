@@ -45,12 +45,14 @@ public class ChunkTrackingGridCahce implements IChunkTrackingGridCahce{
 	public ChunkTrackingGridCahce(final IGrid g) {
 	        this.myGrid = g;
 	       // callbacks.put(this, null);
-	        cacheinst.add(new WeakReference<ChunkTrackingGridCahce>(this));
+	       
+	        if(!g.getPivot().getWorld().isRemote)
+	        cacheinst.add((this));
 	    }  
-	private final IGrid myGrid;
+	public final IGrid myGrid;
 	
 	//public static WeakHashMap<ChunkTrackingGridCahce,Object> callbacks=new WeakHashMap<>();
-	public static ArrayList<WeakReference<ChunkTrackingGridCahce>> cacheinst=new ArrayList<>();
+	public static ArrayList<ChunkTrackingGridCahce> cacheinst=new ArrayList<>();
 	
 	
 	 public static class ChunkInfo implements Cloneable,Serializable{

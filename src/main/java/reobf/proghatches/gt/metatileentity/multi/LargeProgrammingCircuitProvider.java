@@ -831,10 +831,10 @@ int lasthash;
 					postEvent();
 			}
 		} else {
-
+			if(patternCache.size()>0)postEvent();
 			patternCache.clear();
 			cacheState = CacheState.POWEROFF;
-			postEvent();
+			
 
 		}
 

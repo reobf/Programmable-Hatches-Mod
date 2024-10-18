@@ -466,6 +466,7 @@ public class MyMod {
 		// Just in case weak references are not GCed in time
 		// only useful for intergreted server?
 		event.registerServerCommand(new CommandAnchor());
+		event.registerServerCommand(new CommandAnchor2());
 	}
 
 	public static ItemStack tutorial() {
@@ -546,63 +547,95 @@ public class MyMod {
 	}
 
 	@SubscribeEvent
-	public void onUnload(WorldEvent.Unload event) {
+	public void  onUnload(WorldEvent.Unload event) {
+		if(disable)return;
 		if (event.world.isRemote)
 			return;
 		// World unloading seems to not post ChunkEvent.Unload?
 		// Well, warning twice is better than not warning, right?
-		try {
+		try {//System.out.println(ChunkTrackingGridCahce.cacheinst.size());
+			max=Math.max(max, ChunkTrackingGridCahce.cacheinst.size());
 			ChunkTrackingGridCahce.cacheinst.removeIf((aa) -> {
-				ChunkTrackingGridCahce a = aa.get();
-				if(a==null)return true;
+				ChunkTrackingGridCahce a = aa;
+				if(a.myGrid.getPivot()==null){
+					//System.out.println(a.myGrid);
+				
+				a=null;}
+				if(a==null){
+					return true;
+					}
 				if (a != null) {
 					a.unload(event.world);
 				}
 				
 				return false;
-			});
+			});//System.out.println(ChunkTrackingGridCahce.cacheinst.size());
 		} catch (Throwable t) {
-			t.printStackTrace();
+			throw new AssertionError(t);
 		}
 
 	}
+	static int max=0;
+	static boolean disable=false;
 	@SubscribeEvent
 	public void onLoad(ChunkEvent.Load event) {
+		if(disable)return;
 		if (event.world.isRemote)
 			return;
 		
 		try {
+			//System.out.println(ChunkTrackingGridCahce.cacheinst.size());
+			max=Math.max(max, ChunkTrackingGridCahce.cacheinst.size());
 			ChunkTrackingGridCahce.cacheinst.removeIf((aa) -> {
-				ChunkTrackingGridCahce a = aa.get();
-				if(a==null)return true;
+				ChunkTrackingGridCahce a = aa;
+				if(a.myGrid.getPivot()==null){
+				//	System.out.println(a.myGrid);
+				a=null;
+				
+				}
+				if(a==null){
+					return true;
+					}
 				if (a != null) {
 					a.load(event.getChunk());
 				}
 				
 				return false;
 			});
+			//System.out.println(ChunkTrackingGridCahce.cacheinst.size());
+			
 		} catch (Throwable t) {
-			t.printStackTrace();
+			throw new AssertionError(t);
+			
 		}
 	}
 	@SubscribeEvent
 	public void onUnload(ChunkEvent.Unload event) {
+		if(disable)return;
 		if (event.world.isRemote)
 			return;
 		// on client side, out-of-sight causes chunk unload! That's not what we
 		// want, so ignore it.
 		try {
+			max=Math.max(max, ChunkTrackingGridCahce.cacheinst.size());
+		//	System.out.println(ChunkTrackingGridCahce.cacheinst.size());
 			ChunkTrackingGridCahce.cacheinst.removeIf((aa) -> {
-				ChunkTrackingGridCahce a = aa.get();
-				if(a==null)return true;
+				ChunkTrackingGridCahce a = aa;
+				if(a.myGrid.getPivot()==null){
+					//System.out.println(a.myGrid);
+				a=null;
+				}
+				if(a==null){
+					return true;
+					}
 				if (a != null) {
 					a.load(event.getChunk());
 				}
 				
 				return false;
-			});
+			});//System.out.println(ChunkTrackingGridCahce.cacheinst.size());
 		} catch (Throwable t) {
-			t.printStackTrace();
+			throw new AssertionError(t);
 		}
 	}
 

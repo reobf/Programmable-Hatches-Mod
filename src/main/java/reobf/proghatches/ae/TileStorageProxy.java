@@ -148,7 +148,7 @@ public class TileStorageProxy extends TileEntity implements
 	
 ItemStack[] is=new ItemStack[36];
 
-int fuzzmode;
+int fuzzmode=2;
 //0 disabled
 //1 strict
 //4 ignore nbt
@@ -157,7 +157,8 @@ int fuzzmode;
 String dict="";
 String lastdict="";
 Predicate<IAEItemStack> dictfilter;
-FluidStack[] fs=new FluidStack[36];	
+FluidStack[] fs=new FluidStack[36];
+public boolean noAdvConfig;	
 	
 public Predicate<IAEItemStack> itemFilter(){
 	return 
@@ -766,6 +767,7 @@ private boolean checkFluid(IAEFluidStack s) {
 		dict=	compound.getString("dict" );
 		fuzzmode=compound.getInteger("fuzzmode");
 		fluid=compound.getBoolean("fluid");
+		noAdvConfig=compound.getBoolean("noAdvConfig");
 		NBTTagList nbttaglist = compound.getTagList("Items", 10);
 	        Arrays.fill(this.is,null);
 
@@ -789,6 +791,7 @@ private boolean checkFluid(IAEFluidStack s) {
 		compound.setString("dict", dict);
 		compound.setInteger("fuzzmode", fuzzmode);
 		compound.setBoolean("fluid", fluid);
+		compound.setBoolean("noAdvConfig",noAdvConfig);
 		NBTTagList nbttaglist = new NBTTagList();
 
         for (int i = 0; i < this.is.length; ++i)
@@ -880,7 +883,7 @@ private boolean checkFluid(IAEFluidStack s) {
 		
 		;
 
-		
+		if(!noAdvConfig)
 		builder.widget(
 		new CycleButtonWidget().setLength(5)
 		.setSetter(s->{this.fuzzmode=s;gridChanged();})
@@ -902,7 +905,7 @@ private boolean checkFluid(IAEFluidStack s) {
 		     .setSize(18, 18)
 		);
 		
-		
+		if(!noAdvConfig)
 		builder.widget(new TextFieldWidget()	
 				
 				.setGetter(()->dict)

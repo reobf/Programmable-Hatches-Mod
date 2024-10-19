@@ -45,6 +45,7 @@ public class BlockStorageProxy  extends BlockContainer implements INameAndToolti
 
 		TileStorageProxy te=new TileStorageProxy();
 		 if(meta==1)te.fluid=true;
+		 if(meta==2)te.noAdvConfig=true;
 		 return te;
 	}
 
@@ -89,6 +90,7 @@ public class BlockStorageProxy  extends BlockContainer implements INameAndToolti
 	    {
 	        list.add(new ItemStack(itemIn, 1, 0));
 	        list.add(new ItemStack(itemIn, 1, 1));
+	        list.add(new ItemStack(itemIn, 1, 2));
 	    }
 
 	@Override

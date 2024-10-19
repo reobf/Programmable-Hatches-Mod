@@ -28,7 +28,9 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.FuzzyMode;
+import appeng.api.networking.IGridNode;
 import appeng.api.networking.security.BaseActionSource;
+import appeng.api.networking.security.IActionHost;
 import appeng.api.storage.ICellProvider;
 import appeng.api.storage.IMEInventoryHandler;
 import appeng.api.storage.IMEMonitor;
@@ -36,10 +38,13 @@ import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
+import appeng.core.AELog;
+import appeng.helpers.IPriorityHost;
 import appeng.me.GridAccessException;
 import appeng.me.cache.GridStorageCache;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.storage.MEInventoryHandler;
+import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 import appeng.util.item.MeaningfulItemIterator;
 import gregtech.api.GregTech_API;
@@ -54,14 +59,17 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolderSuper;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 import reobf.proghatches.main.registration.Registration;
+import reobf.proghatches.util.ProghatchesUtil;
 
-public class PriorityFilterInputHatchME extends GT_MetaTileEntity_Hatch_Input_ME implements IMEHatchOverrided,IDataCopyablePlaceHolderSuper{
+public class PriorityFilterInputHatchME extends GT_MetaTileEntity_Hatch_Input_ME implements IMEHatchOverrided,IDataCopyablePlaceHolderSuper,
+IPriorityHost,IActionHost{
 
 	public PriorityFilterInputHatchME(int aID, /*boolean autoPullAvailable,*/ String aName, String aNameRegional) {
 		super(aID, /*autoPullAvailable*/true, aName, aNameRegional);
@@ -350,4 +358,53 @@ int filter;
 		public String getCopiedDataIdentifier(EntityPlayer player) {
 			return IDataCopyablePlaceHolderSuper.super.getCopiedDataIdentifier(player);
 		}
+		@Override
+		public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
+		
+		
+		if(ProghatchesUtil.handleUse(aPlayer, this))return true;
+			
+		
+		return super.onRightclick(aBaseMetaTileEntity, aPlayer);
+		}
+		
+		
+		private static boolean isEditMode(ItemStack stack) {
+		       
+		        NBTTagCompound tagCompound = Platform.openNbtData(stack);
+		        try {
+		            if (tagCompound.hasKey("PRIORITY_CARD_MODE")) {
+		                return (tagCompound.getString("PRIORITY_CARD_MODE")).equals("EDIT");
+		            }
+		        } catch (final IllegalArgumentException e) {
+		            AELog.debug(e);
+		        }
+		        return true;
+		  }
+		@Override
+		public int getPriority() {
+			
+			return filter;
+		}
+		@Override
+		public void setPriority(int newValue) {
+			filter=newValue;
+			markDirty();
+		}
+		@Override
+		public IGridNode getGridNode(ForgeDirection dir) {
+		
+			return this.getProxy().getNode();
+		}
+		@Override
+		public void securityBreak() {
+		
+			
+		}
+		@Override
+		public IGridNode getActionableNode() {
+		
+			return this.getProxy().getNode();
+		}
+		
 }

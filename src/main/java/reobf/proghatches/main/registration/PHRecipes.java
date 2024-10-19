@@ -1597,6 +1597,45 @@ public class PHRecipes implements Runnable {
 			 , 
 			 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.PFilterHatchME)
 			 , SECONDS*120, (int) GT_Values.VP[9]);
+	 
+	 
+	 GT_Values.RA.stdBuilder()
+	 .itemInputs(
+			 new ItemStack(ItemAndBlockHolder.INTERFACE),
+			 ItemList.FluidFilter.get(36)
+	)
+	.itemOutputs(new ItemStack(MyMod.storageproxy,1,1)		 )
+	.duration(100 * SECONDS)
+	.eut(480*4*4)
+	.addTo(RecipeMaps.assemblerRecipes);
+	 
+	
+	 for(ItemList item: new ItemList[]{ItemList.ItemFilter_Import,ItemList.ItemFilter_Export}){
+	GT_Values.RA.stdBuilder()
+	.itemInputs(
+			  Api.INSTANCE.definitions().blocks().iface().maybeStack(1).get(),
+			  item.get(36),
+			  Api.INSTANCE.definitions().materials().cardFuzzy().maybeStack(1).get(),
+			  Api.INSTANCE.definitions().materials().cardOreFilter().maybeStack(1).get()
+	)
+	.itemOutputs(new ItemStack(MyMod.storageproxy,1,0)		 )
+	.duration(100 * SECONDS)
+	.eut(480*4*4*4)
+	.addTo(RecipeMaps.assemblerRecipes);
+	GT_Values.RA.stdBuilder()
+	.itemInputs(
+			  Api.INSTANCE.definitions().blocks().iface().maybeStack(1).get(),
+			  item.get(36),
+			  GT_Utility.getIntegratedCircuit(9)
+	)
+	.itemOutputs(new ItemStack(MyMod.storageproxy,1,2)		 )
+	.duration(100 * SECONDS)
+	.eut(480*4*4)
+	.addTo(RecipeMaps.assemblerRecipes);
+	
+	
+	 }
+	 
 	  }
 	
 }

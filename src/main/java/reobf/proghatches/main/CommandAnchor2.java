@@ -38,7 +38,7 @@ public int getRequiredPermissionLevel() {
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) {
 		try{if(args[0].equals("tracking")){
-		MyMod.disable=!MyMod.disable;	
+		//MyMod.disable=!MyMod.disable;	
 		sender .addChatMessage(new ChatComponentText("tracking:"+!MyMod.disable));
 		sender .addChatMessage(new ChatComponentText("max caches:"+MyMod.max));
 		sender .addChatMessage(new ChatComponentText("current caches:"+ChunkTrackingGridCahce.cacheinst.size()));

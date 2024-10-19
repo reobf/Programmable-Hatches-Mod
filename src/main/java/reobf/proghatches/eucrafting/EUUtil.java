@@ -34,7 +34,7 @@ import reobf.proghatches.net.OpenPartGuiMessage;
 public class EUUtil {
 	public static void register() {
 		AEApi.instance().registries().gridCache().registerGridCache(IEUManager.class, EUManager.class);
-		AEApi.instance().registries().gridCache().registerGridCache(IChunkTrackingGridCahce.class, ChunkTrackingGridCahce.class);
+		//AEApi.instance().registries().gridCache().registerGridCache(IChunkTrackingGridCahce.class, ChunkTrackingGridCahce.class);
 
 	}
 

@@ -1379,7 +1379,7 @@ public class PHRecipes implements Runnable {
 	 
 	 
 	 if(flag){
-		 GT_Values.RA.stdBuilder()
+		 /*GT_Values.RA.stdBuilder()
 		 .itemInputs(
 				 new ItemStack(
 				       GameRegistry.findItem("computronics","computronics.chatBox")),
@@ -1391,7 +1391,7 @@ public class PHRecipes implements Runnable {
 	
 		  .duration(100 * SECONDS)
 		 .eut(480)
-		 .addTo(RecipeMaps.assemblerRecipes);
+		 .addTo(RecipeMaps.assemblerRecipes);*/
 		 
 		 
 		 GT_Values.RA.stdBuilder()

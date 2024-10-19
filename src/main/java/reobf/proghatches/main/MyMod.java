@@ -465,8 +465,8 @@ public class MyMod {
 		ChunkTrackingGridCahce.cacheinst.clear();
 		// Just in case weak references are not GCed in time
 		// only useful for intergreted server?
-		event.registerServerCommand(new CommandAnchor());
-		event.registerServerCommand(new CommandAnchor2());
+		//event.registerServerCommand(new CommandAnchor());
+		//event.registerServerCommand(new CommandAnchor2());
 	}
 
 	public static ItemStack tutorial() {
@@ -576,7 +576,7 @@ public class MyMod {
 
 	}
 	static int max=0;
-	static boolean disable=false;
+	final static boolean disable=true;
 	@SubscribeEvent
 	public void onLoad(ChunkEvent.Load event) {
 		if(disable)return;

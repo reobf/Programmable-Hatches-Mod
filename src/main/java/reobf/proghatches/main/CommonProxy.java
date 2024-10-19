@@ -3,6 +3,7 @@ package reobf.proghatches.main;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import appeng.api.AEApi;
 import appeng.core.AEConfig;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLInterModComms;

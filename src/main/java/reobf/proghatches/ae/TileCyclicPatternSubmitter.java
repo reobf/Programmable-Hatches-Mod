@@ -204,11 +204,14 @@ public class TileCyclicPatternSubmitter extends TileEntity implements IGridProxy
 			 inv[i]=ItemStack.loadItemStackFromNBT((NBTTagCompound) compound.getTag("inv"+i));
 		 else
 			 inv[i]=null;
-		 
+		 asManyAsPossible = compound.getBoolean("asManyAsPossible");
+		 submitfail = compound.getBoolean("submitfail");
 		 index=compound.getInteger("index");
 		 abortingMode =compound.getBoolean("abortingMode");
 		 on =compound.getBoolean("on");
 		 lastredstone =compound.getBoolean("lastredstone"); 
+		 forceForward=compound.getBoolean("forceForward" );
+		 skipIfFail=compound.getBoolean("skipIfFail" );
 		 rsmode=compound.getInteger("rsmode");
 		upgrade[0]=ItemStack.loadItemStackFromNBT(compound.getCompoundTag("upgrade"));
 			
@@ -231,8 +234,11 @@ public class TileCyclicPatternSubmitter extends TileEntity implements IGridProxy
 	   compound.setInteger("index", index);
 	   compound.setBoolean("abortingMode", abortingMode);
 	   compound.setBoolean("on", on);
-	   
+	   compound.setBoolean("asManyAsPossible",asManyAsPossible);
+	   compound.setBoolean("submitfail",submitfail);
 	   compound.setBoolean("lastredstone", lastredstone);
+	   compound.setBoolean("forceForward", forceForward);
+	   compound.setBoolean("skipIfFail", skipIfFail);
 	   compound.setInteger("rsmode", rsmode);
 	   if(upgrade[0]!=null)compound.setTag("upgrade", upgrade[0].writeToNBT(new NBTTagCompound()));
 		
@@ -251,10 +257,14 @@ public int state(){
 	return 0;
 }
 boolean asManyAsPossible;
+boolean skipIfFail;
+private boolean forceForward;
+int cd;
+int cdmax;
 @Override
 public void updateEntity() {
 	ticksSinceLoaded++;
-	
+	cd++;
 	if(upgrade[0]==null)rsmode=0;
 	boolean red=this.worldObj.isBlockIndirectlyGettingPowered(this.xCoord, this.yCoord, this.zCoord);
 	boolean should=shouldProceed(red,lastredstone);
@@ -278,8 +288,11 @@ public void updateEntity() {
 	}
 	
 	
-	if(!getWorldObj().isRemote&&ticksSinceLoaded%20==2&&on&&(this.getProxy().isActive()&&this.getProxy().isPowered()))
+	if(!getWorldObj().isRemote&&(
+			ticksSinceLoaded%20==2
+			)&&on&&(this.getProxy().isActive()&&this.getProxy().isPowered()))
 	end:try {CraftingCPUCluster cpu=null;
+	
 		if(last!=null){
 		if(last.isDone()||last.isCanceled()){
 			last=null;
@@ -291,7 +304,12 @@ public void updateEntity() {
 		}
 		if(last==null){
 				int i=0;
-				while(inv[index]==null&&i<SLOT_SIZE){i++;
+				if(forceForward){
+				i++;index++;
+				forceForward=false;
+				}
+				while(inv[index]==null&&i<SLOT_SIZE){
+					i++;
 					index=(index+1)%SLOT_SIZE;}
 				
 			ICraftingPatternDetails pat=null;
@@ -310,7 +328,9 @@ public void updateEntity() {
 				}
 				last=getProxy().getCrafting().submitJob(job, this, null, true, source);
 				
-			}submitfail=last==null;
+			}
+			submitfail=last==null;
+			if(skipIfFail)forceForward=submitfail;
 		}else{
 			
 			if(abortingMode){
@@ -726,7 +746,40 @@ protected class UIFactory {
 
 		builder.widget(sc.setPos(3 + 18 * 4 + 4, 3 + 8).setSize(18, 18 * 4));
 		*/
-
+		builder.widget(new CycleButtonWidget().setToggle(()->asManyAsPossible, s->asManyAsPossible=s)
+		           .setTextureGetter(s->{
+		        	   if(s==0)return GT_UITextures.OVERLAY_BUTTON_CROSS;
+		        	
+		        			   return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
+		           })
+		           .addTooltip(0, StatCollector.translateToLocal("proghatches.submitter.number.mode.0"))
+		           .addTooltip(1, StatCollector.translateToLocal("proghatches.submitter.number.mode.1"))
+						.setBackground(() -> {
+		               {
+		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+		                       };
+		                }
+		            })
+		            
+		            .setSize(18, 18)
+		            .setPos(120+20, 3+20+20));
+		builder.widget(new CycleButtonWidget().setToggle(()->skipIfFail, s->skipIfFail=s)
+		           .setTextureGetter(s->{
+		        	   if(s==0)return GT_UITextures.OVERLAY_BUTTON_CROSS;
+		        	
+		        			   return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
+		           })
+		           .addTooltip(0, StatCollector.translateToLocal("proghatches.submitter.skip.mode.0"))
+		           .addTooltip(1, StatCollector.translateToLocal("proghatches.submitter.skip.mode.1"))
+						.setBackground(() -> {
+		               {
+		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+		                       };
+		                }
+		            })
+		            
+		            .setSize(18, 18)
+		            .setPos(120+20, 3+20+20+20));
 	}
 
 	public UIBuildContext getUIBuildContext() {

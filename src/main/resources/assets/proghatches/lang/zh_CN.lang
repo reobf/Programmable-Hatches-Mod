@@ -606,3 +606,7 @@ tile.proghatches.proxy.tooltip.1=1
 tile.proghatches.proxy.tooltip.1.0=向ME流体存储总线提供受过滤的访问
 tile.proghatches.proxy.tooltip.2=1
 tile.proghatches.proxy.tooltip.2.0=向ME存储总线提供受过滤的访问
+proghatches.submitter.number.mode.0=单次提交一个样板
+proghatches.submitter.number.mode.1=尽可能多地提交样板
+proghatches.submitter.skip.mode.0=提交失败后下次重试
+proghatches.submitter.skip.mode.1=跳过提交失败的样板

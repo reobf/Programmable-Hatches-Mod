@@ -32,7 +32,7 @@ public class PatternCraftingJob implements ICraftingJob{
 	}public  boolean supportsCPUCluster(final ICraftingCPU cluster) {
         return true;
     }
-	int times;
+	int times=1;
 	ICraftingPatternDetails target;
 	@Override
 	public boolean isSimulation() {
@@ -104,7 +104,7 @@ public void startCrafting(MECraftingInventory storage, ICraftingCPU craftingCPUC
 		
 		
 		IAEItemStack ext = context.getItemInventory().extractItems(is, Actionable.MODULATE,src);
-		if(ext==null){success=false;failing=is;}
+		if(ext==null){success=false;failing=is;}else
 		if(ext.getStackSize()!=is.getStackSize()){success=false;failing=is;}
 		
 		if(ext!=null)

@@ -148,7 +148,7 @@ public class TileStorageProxy extends TileEntity implements
 	
 ItemStack[] is=new ItemStack[36];
 
-int fuzzmode=2;
+int fuzzmode=1;
 //0 disabled
 //1 strict
 //4 ignore nbt
@@ -783,6 +783,24 @@ private boolean checkFluid(IAEFluidStack s) {
 	                this.is[j] = ItemStack.loadItemStackFromNBT(nbttagcompound1);
 	            }
 	        }
+	        
+	        NBTTagList nbttaglist0 = compound.getTagList("Fluids", 10);
+	        Arrays.fill(this.fs,null);
+
+	       
+
+	        for (int i = 0; i < nbttaglist0.tagCount(); ++i)
+	        {
+	            NBTTagCompound nbttagcompound1 = nbttaglist0.getCompoundTagAt(i);
+	            int j = nbttagcompound1.getByte("Slot") & 255;
+
+	            if (j >= 0 && j < this.fs.length)
+	            {
+	                this.fs[j] = FluidStack.loadFluidStackFromNBT(nbttagcompound1);
+	            }
+	        }   
+	        
+	        
 		super.readFromNBT(compound);
 	}
 	@Override
@@ -806,6 +824,20 @@ private boolean checkFluid(IAEFluidStack s) {
         }
 
         compound.setTag("Items", nbttaglist);
+         nbttaglist = new NBTTagList();
+
+        for (int i = 0; i < this.fs.length; ++i)
+        {
+            if (this.fs[i] != null)
+            {
+                NBTTagCompound nbttagcompound1 = new NBTTagCompound();
+                nbttagcompound1.setByte("Slot", (byte)i);
+                this.fs[i].writeToNBT(nbttagcompound1);
+                nbttaglist.appendTag(nbttagcompound1);
+            }
+        }
+
+        compound.setTag("Fluids", nbttaglist);
 		super.writeToNBT(compound);
 	}
 	

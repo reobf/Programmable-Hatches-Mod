@@ -608,3 +608,7 @@ tile.proghatches.proxy.tooltip.1=1
 tile.proghatches.proxy.tooltip.1.0=Provide filtered access to ME Fluid Storage Bus
 tile.proghatches.proxy.tooltip.2=1
 tile.proghatches.proxy.tooltip.2.0=Provide filtered access to ME Storage Bus
+proghatches.submitter.number.mode.0=Submit one Pattern per time
+proghatches.submitter.number.mode.1=Submit as many Patterns as possible
+proghatches.submitter.skip.mode.0=Retry next time when failed to submit
+proghatches.submitter.skip.mode.1=Skip current pattern when failed to submit

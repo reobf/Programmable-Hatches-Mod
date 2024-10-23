@@ -77,8 +77,8 @@ public class Config {
 			if (in == null) {
 				if (defaulted) {
 					obj.addMachineType("!!!error!!! failed to translate");
-					obj.getClass().getMethod("toolTipFinisher", String.class).invoke(obj,"do not remove en_US folder!");
-					
+					//obj.getClass().getMethod("toolTipFinisher", String.class).invoke(obj,);
+					finisher(obj,"do not remove en_US folder!");
 					
 					
 					
@@ -105,8 +105,8 @@ public class Config {
 				
 				MethodType tp = MethodType.fromMethodDescriptorString(
 
-						type + (func.equals("toolTipFinisher") ? "V"
-								: "L"+GT_Multiblock_Tooltip_Builder.class.getName().replace(".", "/")+";")
+						type + (/*func.equals("toolTipFinisher") ? "V"
+								:*/ "L"+GT_Multiblock_Tooltip_Builder.class.getName().replace(".", "/")+";")
 
 						, Config.class.getClassLoader());
 				call(obj, args, MethodHandles.lookup().findVirtual(GT_Multiblock_Tooltip_Builder.class, func, tp), tp);
@@ -122,15 +122,26 @@ public class Config {
 		}
 
 		if (Config.appendAddedBy)
-			try {
-				
-				obj.getClass().getMethod("toolTipFinisher", String.class).invoke(obj,LangManager.translateToLocal("programmable_hatches.addedby"));
-		
-			} catch (Exception e) {
-			
-				e.printStackTrace();
-			}
+			finisher(obj,LangManager.translateToLocal("programmable_hatches.addedby"));
 		;
+	}
+
+	private static void finisher(Object obj,String str) {
+		try {
+			
+			obj.getClass().getMethod("toolTipFinisher", String.class).invoke(obj,str);
+		} catch (Exception e) {
+			try {
+			MyMod.LOG.warn("toolTipFinisher with String arg not found.");
+			MyMod.LOG.warn("Try toolTipFinisher with String[] arg.");
+			e.printStackTrace();
+			obj.getClass().getMethod("toolTipFinisher", String[].class).invoke(obj,new Object[]{new String[]{str}});
+			} catch (Exception ee) {
+				MyMod.LOG.fatal("????");
+				ee.printStackTrace();
+			}
+			e.printStackTrace();
+		}
 	}
 
 	private static void call(Object callee, String args, MethodHandle virtual, MethodType type) {

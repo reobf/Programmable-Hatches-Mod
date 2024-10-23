@@ -1552,4 +1552,7 @@ protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inve
     
     
 }
+
+
+
 }

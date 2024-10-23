@@ -1352,19 +1352,21 @@ public void reinitTierBasedField() {
 	public FluidStack drain(int maxDrain, boolean doDrain) {
 		if (getFluid() == null || !canTankBeEmptied())
 			return null;
-		if (getFluid().amount <= 0 && isFluidChangingAllowed()) {
+		if (getFluid().amount <= 0 /*&& isFluidChangingAllowed()*/) {
 			setFluid(null, getFluidSlot(getFluid()));
 			getBaseMetaTileEntity().markDirty();
 			return null;
 		}
 		FluidStack tRemove = getFluid().copy();
 		tRemove.amount = Math.min(maxDrain, tRemove.amount);
+		FluidStack f = getFluid();
+		int slot=getFluidSlot(f);
 		if (doDrain) {
-			getFluid().amount -= tRemove.amount;
+			f.amount -= tRemove.amount;
 			getBaseMetaTileEntity().markDirty();
 		}
-		if (getFluid() == null || getFluid().amount <= 0 && isFluidChangingAllowed()) {
-			setFluid(null, getFluidSlot(getFluid()));
+		if (f == null || f.amount <= 0 /*&& isFluidChangingAllowed()*/) {
+			setFluid(null, slot);
 			getBaseMetaTileEntity().markDirty();
 		}
 		return tRemove;
@@ -1380,10 +1382,10 @@ public void reinitTierBasedField() {
 		if (aFluid == null || !hasFluid(aFluid))
 			return null;
 		FluidStack tStored = mStoredFluid[getFluidSlot(aFluid)].getFluid();
-		if (tStored.amount <= 0 && isFluidChangingAllowed()) {
+		if (tStored.amount <= 0 /*&& isFluidChangingAllowed()*/) {
 			setFluid(null, getFluidSlot(tStored));
 			getBaseMetaTileEntity().markDirty();
-			return null;
+			return drain(from, aFluid, doDrain);
 		}
 		FluidStack tRemove = tStored.copy();
 		tRemove.amount = Math.min(aFluid.amount, tRemove.amount);
@@ -1391,7 +1393,7 @@ public void reinitTierBasedField() {
 			tStored.amount -= tRemove.amount;
 			getBaseMetaTileEntity().markDirty();
 		}
-		if (tStored.amount <= 0 && isFluidChangingAllowed()) {
+		if (tStored.amount <= 0/* && isFluidChangingAllowed()*/) {
 			setFluid(null, getFluidSlot(tStored));
 			getBaseMetaTileEntity().markDirty();
 		}
@@ -2378,5 +2380,14 @@ public Net getNetwork(){
 	
 }
 
+@Override
+public FluidStack drain(ForgeDirection side, int maxDrain, boolean doDrain) {
+	
+	return drain( maxDrain, doDrain);
+}
+@Override
+public boolean canDrain(ForgeDirection side, Fluid aFluid) {
 
+	return true;
+}
 }

@@ -4,6 +4,8 @@ import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -15,6 +17,7 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 
+import com.glodblock.github.inventory.MEMonitorIFluidHandler;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
@@ -44,10 +47,14 @@ import appeng.api.networking.events.MENetworkCellArrayUpdate;
 import appeng.api.networking.events.MENetworkChannelsChanged;
 import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.networking.events.MENetworkPowerStatusChange;
+import appeng.api.networking.events.MENetworkStorageEvent;
 import appeng.api.networking.security.BaseActionSource;
+import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.ICellContainer;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEInventoryHandler;
+import appeng.api.storage.IMEMonitor;
+import appeng.api.storage.MEMonitorHandler;
 import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
@@ -62,8 +69,10 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.me.storage.MEIInventoryWrapper;
 import appeng.me.storage.MEInventoryHandler;
+import appeng.me.storage.MEMonitorIInventory;
 import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
+import appeng.util.inv.IMEAdaptor;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import appeng.util.item.FluidList;
@@ -147,13 +156,50 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
     public void channel(final MENetworkChannelsChanged c) {
 		post();
     }*/
+	 
+	 
+	 static Field m;
+	 static{
+		 try {
+			m=MEMonitorHandler.class.getDeclaredField("hasChanged");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		 m.setAccessible(true);
+	 }
+	public static  void forceUpdate(MEMonitorHandler thiz) {
+	      
+		try {
+			m.setBoolean(thiz, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	 }
+	 private AEItemStack last;
 	private void post(){
 		 
 		 try {
 			 
 			this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
-			
-			//System.out.println(getGridNode(null).isActive());
+			this.getProxy().getGrid().postEvent(new MENetworkStorageEvent(handler0, StorageChannel.ITEMS));
+			try {
+                
+				if(last!=null){
+				this.getProxy().getStorage()
+                        .postAlterationOfStoredItems(StorageChannel.ITEMS, 
+                        		ImmutableList.of(last.copy().setStackSize(-last.getStackSize()))
+                        		,new MachineSource(this));
+				}
+                last=AEItemStack.create(mInventory[0]);
+                if(last!=null){
+    				this.getProxy().getStorage()
+                            .postAlterationOfStoredItems(StorageChannel.ITEMS, 
+                            		ImmutableList.of(last.copy().setStackSize(last.getStackSize()))
+                            		,new MachineSource(this));
+    				}
+                
+                
+            } catch (final GridAccessException ignore) {}
 		} catch (GridAccessException e) {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
@@ -182,7 +228,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	@Override
 	public List<IMEInventoryHandler> getCellArray(StorageChannel channel) {
 		if(channel==StorageChannel.ITEMS)
-		return ImmutableList.of(handler);
+		return ImmutableList.of(handler0);
 		else
 			return ImmutableList.of();
 			
@@ -288,7 +334,12 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 			updateFilter=s->
 		this.setPartitionList(new PrecisePriorityList(s));
 		}
-	};
+	};	
+	
+	IMEMonitor handler0= new MEMonitorHandler(handler
+			);
+	/*IMEMonitor handler0= new MEMonitorHandler(handler
+			);*/
 	boolean sticky;
 	int piority;
 	@Override
@@ -463,11 +514,17 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	boolean suppressSticky;
 	
 	boolean wasActive;
-	
+	int rep;
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		
 		if(!aBaseMetaTileEntity.getWorld().isRemote){
+			if(rep>0){rep--;update=true;}
+			if(this.getBaseMetaTileEntity().hasInventoryBeenModified()){
+				update=true;
+				rep=1;
+			};
+			
 			if(update){update=false;updateStatus();}
 			if(wasActive!=this.getProxy().isActive()){
 				wasActive=this.getProxy().isActive();
@@ -727,6 +784,7 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	}
 	voidFull=aNBT.getBoolean("voidFull" );
 	voidOverflow= aNBT.getBoolean("voidOverflow" );
+	last=AEItemStack.create(mInventory[0]);
 }
  
 @Override
@@ -829,12 +887,7 @@ public void updateChannels(final MENetworkChannelsChanged changedChannels) {
 boolean update;
 public void updateStatus() {
    
-            try {
-				this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
-			} catch (GridAccessException e) {
-			
-				e.printStackTrace();
-			}
+         post();
        
 }
 @Override

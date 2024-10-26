@@ -1602,7 +1602,7 @@ public class PHRecipes implements Runnable {
 	 GT_Values.RA.stdBuilder()
 	 .itemInputs(
 			 new ItemStack(ItemAndBlockHolder.INTERFACE),
-			 ItemList.FluidFilter.get(36)
+			 ItemList.FluidFilter.get(8)
 	)
 	.itemOutputs(new ItemStack(MyMod.storageproxy,1,1)		 )
 	.duration(100 * SECONDS)
@@ -1614,7 +1614,7 @@ public class PHRecipes implements Runnable {
 	GT_Values.RA.stdBuilder()
 	.itemInputs(
 			  Api.INSTANCE.definitions().blocks().iface().maybeStack(1).get(),
-			  item.get(36),
+			  item.get(8),
 			  Api.INSTANCE.definitions().materials().cardFuzzy().maybeStack(1).get(),
 			  Api.INSTANCE.definitions().materials().cardOreFilter().maybeStack(1).get()
 	)
@@ -1625,7 +1625,7 @@ public class PHRecipes implements Runnable {
 	GT_Values.RA.stdBuilder()
 	.itemInputs(
 			  Api.INSTANCE.definitions().blocks().iface().maybeStack(1).get(),
-			  item.get(36),
+			  item.get(8),
 			  GT_Utility.getIntegratedCircuit(9)
 	)
 	.itemOutputs(new ItemStack(MyMod.storageproxy,1,2)		 )
@@ -1636,8 +1636,18 @@ public class PHRecipes implements Runnable {
 	
 	 }
 	 
-	  }
+	  
+	 for(int i=0;i<3;i++){
+	IRecipe rec2 = new ShapedOreRecipe(new ItemStack(MyMod.partproxy,1,i),"C",'C',
+			new ItemStack(MyMod.storageproxy,1,i)
+			);
+	CraftingManager.getInstance().getRecipeList().add(rec2);
+	IRecipe rec3 = new ShapedOreRecipe(new ItemStack(MyMod.storageproxy,1,i),"C",'C',
+			new ItemStack(MyMod.partproxy,1,i)
+			);
+	CraftingManager.getInstance().getRecipeList().add(rec3);
 	
+	}}
 }
     
 

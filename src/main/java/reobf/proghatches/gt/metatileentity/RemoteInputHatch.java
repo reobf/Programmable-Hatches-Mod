@@ -116,11 +116,19 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
 		}
 		try {
 			String s = aPlayer.getHeldItem().getTagCompound().getString("dataLines0");
-			String[] splits = s.split("§b|§r");
+			s=s.replaceAll("§b|§r|§m", "");
+			s=s.replaceAll("(-){2,}", "");
+			s=s.replace(" ", "");
+			s=s.replace("X", "");
+			s=s.replace("Y", "");
+			s=s.replace("Z", "");
+			s=s.replace("D", "");
+			
+			String[] splits = s.split(":");
 			int x = Integer.valueOf(splits[1].replace(",", ""));
-			int y = Integer.valueOf(splits[3].replace(",", ""));
-			int z = Integer.valueOf(splits[5].replace(",", ""));
-			int d = Integer.valueOf(splits[7].replace(",", ""));
+			int y = Integer.valueOf(splits[2].replace(",", ""));
+			int z = Integer.valueOf(splits[3].replace(",", ""));
+			int d = Integer.valueOf(splits[4].replace(",", ""));
 			World w = this.getBaseMetaTileEntity().getWorld();
 			if (d == w.provider.dimensionId) {
 
@@ -610,6 +618,7 @@ public FluidStack getFillableStack() {
 		if (tmp == null)
 			return CheckRecipeResultRegistry.SUCCESSFUL;
 		TileEntity tile = getTile().orElse(null);
+		if(tile!=null)tile.markDirty();
 		boolean missing = (tile == null);
 		IFluidHandler fh = null;
 		if (tile instanceof IFluidHandler)

@@ -106,11 +106,19 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 		}
 		try {
 			String s = aPlayer.getHeldItem().getTagCompound().getString("dataLines0");
-			String[] splits = s.split("§b|§r");
+			s=s.replaceAll("§b|§r|§m", "");
+			s=s.replaceAll("(-){2,}", "");
+			s=s.replace(" ", "");
+			s=s.replace("X", "");
+			s=s.replace("Y", "");
+			s=s.replace("Z", "");
+			s=s.replace("D", "");
+			
+			String[] splits = s.split(":");
 			int x = Integer.valueOf(splits[1].replace(",", ""));
-			int y = Integer.valueOf(splits[3].replace(",", ""));
-			int z = Integer.valueOf(splits[5].replace(",", ""));
-			int d = Integer.valueOf(splits[7].replace(",", ""));
+			int y = Integer.valueOf(splits[2].replace(",", ""));
+			int z = Integer.valueOf(splits[3].replace(",", ""));
+			int d = Integer.valueOf(splits[4].replace(",", ""));
 			World w = this.getBaseMetaTileEntity().getWorld();
 			if (d == w.provider.dimensionId) {
 
@@ -143,7 +151,7 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 			}
 			;
 
-		} catch (Exception w) {
+		} catch (Exception w) {//w.printStackTrace();
 			this.linked = false;
 			aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.remote.fail"));
 
@@ -551,6 +559,7 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 	public void removePhantom() {
 		try{
 		getTile().filter(s -> s instanceof IInventory).ifPresent(s -> {
+			s.markDirty();
 			int index=-1;
 			TileEntity gt = s;
 			if (gt != null && gt instanceof IGregTechTileEntity) {

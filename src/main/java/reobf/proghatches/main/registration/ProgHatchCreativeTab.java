@@ -60,6 +60,13 @@ public class ProgHatchCreativeTab extends CreativeTabs {
 		p_78018_1_.add(new ItemStack(MyMod.submitter));
 		p_78018_1_.add(new ItemStack(MyMod.reader));
 		p_78018_1_.add(new ItemStack(MyMod.reactorsyncer));
+		p_78018_1_.add(new ItemStack(MyMod.partproxy,1,0));
+		p_78018_1_.add(new ItemStack(MyMod.partproxy,1,1));
+		p_78018_1_.add(new ItemStack(MyMod.partproxy,1,2));
+		p_78018_1_.add(new ItemStack(MyMod.storageproxy,1,0));
+		p_78018_1_.add(new ItemStack(MyMod.storageproxy,1,1));
+		p_78018_1_.add(new ItemStack(MyMod.storageproxy,1,2));
+		p_78018_1_.add(new ItemStack(MyMod.exciter,1,0));
 		//p_78018_1_.add(new ItemStack(MyMod.storageproxy));
 		// p_78018_1_.add(new ItemStack(MyMod.euupgrade, 1));
 	}

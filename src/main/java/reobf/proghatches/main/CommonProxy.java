@@ -17,6 +17,8 @@ import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockCyclicPatternSubmitter;
 import reobf.proghatches.ae.BlockStorageProxy;
 import reobf.proghatches.ae.ItemPartAmountMaintainer;
+import reobf.proghatches.ae.ItemPartStorageProxy;
+import reobf.proghatches.ae.ItemPartSubnetExciter;
 import reobf.proghatches.ae.TileCyclicPatternSubmitter;
 import reobf.proghatches.ae.TileStorageProxy;
 import reobf.proghatches.block.BlockAnchorAlert;
@@ -175,8 +177,16 @@ public class CommonProxy {
 				MyMod.amountmaintainer = new ItemPartAmountMaintainer()
 						.setUnlocalizedName("proghatches.amountmaintainer").setTextureName("?"),
 				"amountmaintainer");
-		
-		
+		GameRegistry
+		.registerItem(
+				MyMod.partproxy = new ItemPartStorageProxy()
+						.setUnlocalizedName("proghatches.storageproxy.part").setTextureName("?"),
+				"proghatches.storageproxy.part");
+		GameRegistry
+		.registerItem(
+				MyMod.exciter = new ItemPartSubnetExciter()
+						.setUnlocalizedName("proghatches.exciter").setTextureName("?"),
+				"proghatches.exciter");
 		
 		
 	}

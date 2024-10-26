@@ -73,7 +73,7 @@ public class TileStorageProxy extends TileEntity implements
  
  {
 	boolean fluid;
-	private AENetworkProxy gridProxy;
+	public  AENetworkProxy gridProxy;
 
 	@Override
 	public IGridNode getGridNode(ForgeDirection dir) {
@@ -158,7 +158,8 @@ String dict="";
 String lastdict="";
 Predicate<IAEItemStack> dictfilter;
 FluidStack[] fs=new FluidStack[36];
-public boolean noAdvConfig;	
+public boolean noAdvConfig;
+public boolean isProxyExternal;	
 	
 public Predicate<IAEItemStack> itemFilter(){
 	return 
@@ -763,11 +764,12 @@ private boolean checkFluid(IAEFluidStack s) {
 	}
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		getProxy().readFromNBT(compound);
+		if(!isProxyExternal)getProxy().readFromNBT(compound);
 		dict=	compound.getString("dict" );
 		fuzzmode=compound.getInteger("fuzzmode");
 		fluid=compound.getBoolean("fluid");
 		noAdvConfig=compound.getBoolean("noAdvConfig");
+		isProxyExternal=compound.getBoolean("isProxyExternal");
 		NBTTagList nbttaglist = compound.getTagList("Items", 10);
 	        Arrays.fill(this.is,null);
 
@@ -805,11 +807,12 @@ private boolean checkFluid(IAEFluidStack s) {
 	}
 	@Override
 	public void writeToNBT(NBTTagCompound compound) {
-		getProxy().writeToNBT(compound);
+		if(!isProxyExternal)getProxy().writeToNBT(compound);
 		compound.setString("dict", dict);
 		compound.setInteger("fuzzmode", fuzzmode);
 		compound.setBoolean("fluid", fluid);
 		compound.setBoolean("noAdvConfig",noAdvConfig);
+		compound.setBoolean("isProxyExternal",isProxyExternal);
 		NBTTagList nbttaglist = new NBTTagList();
 
         for (int i = 0; i < this.is.length; ++i)

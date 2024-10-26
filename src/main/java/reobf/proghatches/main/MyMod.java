@@ -676,6 +676,8 @@ public class MyMod {
 	public static WeakHashMap<Object, Runnable> callbacks = new WeakHashMap<>();
 	public static Block reactorsyncer;
 	public static Block storageproxy;
+	public static Item partproxy;
+	public static Item exciter;
 
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void pretick(final TickEvent.ServerTickEvent event) {

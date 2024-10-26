@@ -7,6 +7,7 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -17,6 +18,7 @@ import javax.annotation.Nonnull;
 
 import com.glodblock.github.client.textures.FCPartsTexture;
 import com.glodblock.github.common.item.ItemFluidPacket;
+import com.glodblock.github.inventory.MEMonitorIFluidHandler;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
@@ -39,6 +41,7 @@ import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import appeng.api.AEApi;
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
+import appeng.api.config.FuzzyMode;
 import appeng.api.implementations.tiles.IColorableTile;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
@@ -46,12 +49,15 @@ import appeng.api.networking.events.MENetworkCellArrayUpdate;
 import appeng.api.networking.events.MENetworkChannelsChanged;
 import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.networking.events.MENetworkPowerStatusChange;
+import appeng.api.networking.events.MENetworkStorageEvent;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.ICellContainer;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEInventoryHandler;
+import appeng.api.storage.IMEMonitor;
+import appeng.api.storage.MEMonitorHandler;
 import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
@@ -66,8 +72,13 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.me.storage.MEIInventoryWrapper;
 import appeng.me.storage.MEInventoryHandler;
+import appeng.me.storage.MEMonitorIInventory;
 import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
+import appeng.util.inv.IInventoryDestination;
+import appeng.util.inv.IMEAdaptor;
+import appeng.util.inv.IMEAdaptorIterator;
+import appeng.util.inv.ItemSlot;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import appeng.util.item.FluidList;
@@ -108,6 +119,7 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
+
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.gt.metatileentity.util.MappingFluidTank;
@@ -143,14 +155,35 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
     public void channel(final MENetworkChannelsChanged c) {
 		post();
 		
-    }*/
+    }*/	 private AEFluidStack last;
 	private void post(){
 		 
 		 try {
 			 
-			this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
-			
-			//System.out.println(getGridNode(null).isActive());
+				this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
+				this.getProxy().getGrid().postEvent(new MENetworkStorageEvent(handler0, StorageChannel.FLUIDS));
+				try {
+	                
+					if(last!=null){
+					this.getProxy().getStorage()
+	                        .postAlterationOfStoredItems(StorageChannel.FLUIDS, 
+	                        		ImmutableList.of(last.copy().setStackSize(-last.getStackSize()))
+	                        		,new MachineSource(this));
+					}
+	                last=AEFluidStack.create(content.getFluid());
+	                if(last!=null){
+	    				this.getProxy().getStorage()
+	                            .postAlterationOfStoredItems(StorageChannel.FLUIDS, 
+	                            		ImmutableList.of(last.copy().setStackSize(last.getStackSize()))
+	                            		,new MachineSource(this));
+	    				}
+	                
+	                
+	            } catch (final GridAccessException ignore) {}
+		
+				
+				
+				
 		} catch (GridAccessException e) {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
@@ -179,7 +212,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	@Override
 	public List<IMEInventoryHandler> getCellArray(StorageChannel channel) {
 		if(channel==StorageChannel.FLUIDS)
-		return ImmutableList.of(handler);
+		return ImmutableList.of(handler0);
 		else
 			return ImmutableList.of();
 			
@@ -286,7 +319,8 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 		this.setPartitionList(new PrecisePriorityList(s));
 		}
 	};	
-
+IMEMonitor handler0= new MEMonitorHandler(handler
+		);
 
 	
 	
@@ -516,10 +550,16 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	boolean autoUnlock;
 	boolean suppressSticky;
 	boolean wasActive;
+	int rep;
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		
-		if(!aBaseMetaTileEntity.getWorld().isRemote){
+		if(!aBaseMetaTileEntity.getWorld().isRemote)
+		{	if(rep>0){rep--;update=true;}
+		if(this.getBaseMetaTileEntity().hasInventoryBeenModified()){
+			update=true;
+			rep=1;
+		};
 			if(update){update=false;updateStatus();}
 			if(wasActive!=this.getProxy().isActive()){
 				wasActive=this.getProxy().isActive();
@@ -807,7 +847,7 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	}
 	voidFull=aNBT.getBoolean("voidFull" );
 	voidOverflow= aNBT.getBoolean("voidOverflow" );
-	
+	last=AEFluidStack.create(content.getFluid());
 }
  protected static int commonSizeCompute(int tier) {
      switch (tier) {
@@ -935,12 +975,7 @@ public void updateChannels(final MENetworkChannelsChanged changedChannels) {
 static MENetworkCellArrayUpdate event=new MENetworkCellArrayUpdate();
 public void updateStatus() {
    
-            try {
-				this.getProxy().getGrid().postEvent(event);
-			} catch (GridAccessException e) {
-			
-				e.printStackTrace();
-			}
+	 post();
        
 }
 boolean voidFull;
@@ -951,7 +986,5 @@ public void cellUpdate() {
 	update=true;
 	
 }
-
-
 
 }

@@ -278,6 +278,7 @@ implements ISurvivalConstructable {
 								return (s,w,u)->{
 									if(s==null)return false;
 									if(s.port!=null)return false;
+									if(w.getMetaTileEntity() instanceof CommunicationPortHatch==false)return false;
 									s.port=(CommunicationPortHatch) w.getMetaTileEntity();
 									if(s.port==null)return false;
 									s.port.updateTexture(CASING_INDEX);
@@ -740,6 +741,7 @@ public void setResultIfFailure(CheckRecipeResult result) {
 
 TransferCheckResult lastfail;
 boolean blocking;
+int blockingNotAvailableReason;
 private boolean moveToOutpusME(IDualInputInventory opt) {
 	ItemStack[] i = opt.getItemInputs();
 	FluidStack[] f = opt.getFluidInputs();
@@ -1350,8 +1352,11 @@ boolean lockRecipe;
 @Override
 public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 	
-	if(mMachine){
-		if(isLiteVersion)blocking=false;
+	if(mMachine&&!aBaseMetaTileEntity.getWorld().isRemote){
+		if(isLiteVersion){
+			blocking=false;
+			blockingNotAvailableReason=1;
+		}
 		if(blocking==false&&port!=null&&aBaseMetaTileEntity.isAllowedToWork()){
 			
 			LargeProgrammingCircuitProvider.shut(this,"proghatch.commport");
@@ -1359,12 +1364,15 @@ public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		if( !aBaseMetaTileEntity.getWorld().isRemote&&mMachine){
 		if (!allMEHatch) {
 			blocking=false;
+			blockingNotAvailableReason=2;
 		}
 		if (mMaxProgresstime > 0 && mProgresstime+1 >= mMaxProgresstime) {
 			  if(ready<=0&&!emptyRun)ready++;
 			  
 		  }
 		 }
+		
+		if(blocking)blockingNotAvailableReason=0;
 	}
 	
 	
@@ -1448,6 +1456,11 @@ public void addUIWidgets(com.gtnewhorizons.modularui.api.screen.ModularWindow.Bu
 		          		 val -> {
 		          			yield=val;
 		                     }).setSynced(true, false))
+	           .widget(new FakeSyncWidget.IntegerSyncer(
+		          		 ()->blockingNotAvailableReason,
+		          		 val -> {
+		          			blockingNotAvailableReason=val;
+		                     }).setSynced(true, false))
 	           ;
 	        
 	        
@@ -1504,7 +1517,7 @@ protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inve
 	super.drawTexts(screenElements, inventorySlot);
 
     screenElements.widget(
-    		 TextWidget.dynamicString(()->
+    		new TextWidget().setStringSupplier(()->
     		 lastfail==null?"":
     		lastfail.format()
     		 
@@ -1514,7 +1527,7 @@ protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inve
             }));
     
     screenElements.widget(
-      		 TextWidget.dynamicString(()->
+    		new TextWidget().setStringSupplier(()->
       		 {		if(yield)return StatCollector.translateToLocal("proghatch.ingbuf.yield");
       			 if(count>0)return StatCollector.translateToLocal("proghatch.ingbuf.acquring");
       			if(lockRecipe)return StatCollector.translateToLocal("proghatch.ingbuf.locked");
@@ -1528,7 +1541,7 @@ protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inve
     
     
     screenElements.widget(
-   		 TextWidget.dynamicString(()->
+    		 TextWidget.dynamicString(()->
    		"lock:"+lockRecipe
    		 
    				 ).setDefaultColor(COLOR_TEXT_WHITE.get())
@@ -1549,6 +1562,15 @@ protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inve
              .setEnabled(widget -> clientport));
    
     
+    screenElements.widget(
+    		new TextWidget().setStringSupplier(()->
+    		StatCollector.translateToLocal(
+    				
+    				"proghatch.ingbuf.noblocking.reason."+
+    		 blockingNotAvailableReason)
+    		 
+    				 ).setDefaultColor(COLOR_TEXT_RED.get())
+            .setEnabled(widget -> blockingNotAvailableReason>0));
     
     
 }

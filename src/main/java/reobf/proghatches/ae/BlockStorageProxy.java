@@ -29,8 +29,10 @@ import reobf.proghatches.block.TileIOHub;
 import reobf.proghatches.lang.LangManager;
 
 public class BlockStorageProxy  extends BlockContainer implements INameAndTooltips {
+	@SideOnly(Side.CLIENT)
 	private IIcon blockIconAlt;
-
+	@SideOnly(Side.CLIENT)
+	private IIcon blockIconAlt2;
 	public BlockStorageProxy() {
 		
 		super(new GT_Material_Machines());
@@ -58,11 +60,13 @@ public class BlockStorageProxy  extends BlockContainer implements INameAndToolti
     public void registerBlockIcons(IIconRegister reg)
     {super.registerBlockIcons(reg);
         this.blockIconAlt = reg.registerIcon("proghatches:proxy_fluid");
+        this.blockIconAlt2 = reg.registerIcon("proghatches:proxy_item_adv");
     }
 	@SideOnly(Side.CLIENT)
 	@Override
 	public IIcon getIcon(int side, int meta) {
 		if(meta==1)return blockIconAlt;
+		if(meta==0)return blockIconAlt2;
 		return super.getIcon(side, meta);
 	}
 

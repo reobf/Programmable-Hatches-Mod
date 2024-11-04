@@ -1317,7 +1317,7 @@ public class PHRecipes implements Runnable {
 	 .itemOutputs(new ItemStack( GregTech_API.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset+Registration.PatternMappingSlaveOffset))
-	 .duration(2000000 * SECONDS).eut(GT_Values.VP[1]).addTo(GT_RecipeConstants.AssemblyLine);
+	 .duration(20000 * SECONDS).eut(GT_Values.VP[1]).addTo(GT_RecipeConstants.AssemblyLine);
 	 
 	 /*GT_Values.RA.stdBuilder()  
 	 .metadata(RESEARCH_ITEM, new ItemStack(Items.apple))

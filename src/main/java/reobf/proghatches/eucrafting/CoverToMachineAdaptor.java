@@ -132,8 +132,42 @@ public class CoverToMachineAdaptor<T extends TileEntity&ICoverable> extends Inve
 	            IInventoryDestination destination) {
 	        return invItems != null ? invItems.simulateSimilarRemove(amount, filter, fuzzyMode, destination) : null;
 	    }
-	    
 	    private int checkItemFluids(IFluidHandler tank, InventoryAdaptor inv, ForgeDirection direction) {
+	        if (tank == null && inv == null)
+	          return 2; 
+	    
+	        if (tank != null && tank.getTankInfo(direction) != null) {
+	          List<FluidTankInfo[]> tankInfos = (List)new LinkedList<>();
+	          
+	          if (false) {} else {
+	            tankInfos.add(tank.getTankInfo(direction));
+	          } 
+	          boolean hasTank = false;
+	          for (FluidTankInfo[] tankInfoArray : tankInfos) {
+	            for (FluidTankInfo tankInfo : tankInfoArray) {
+	              hasTank = true;
+	              FluidStack fluid = tankInfo.fluid;
+	              if (fluid != null && fluid.amount > 0)
+	                return 1; 
+	            } 
+	          } 
+	          if (!hasTank && inv == null)
+	            return 2; 
+	        } 
+	        if (isGTMachine(tank))
+	          return gtMachineCircuitCheck(inv); 
+	        return (inv != null && inv.containsItems()) ? 1 : 0;
+	      }
+	    private boolean isGTMachine(Object o) {
+	 
+	        if (o instanceof TileEntity) {
+	          TileEntity te = (TileEntity)o;
+	          return te.getBlockType().getUnlocalizedName().equals("gt.blockmachines");
+	        } 
+	        return false;
+	      }
+
+	    private int checkItemFluids0(IFluidHandler tank, InventoryAdaptor inv, ForgeDirection direction) {
 	        if (tank == null && inv == null) {
 	            return 2;
 	        }
@@ -186,7 +220,11 @@ public ItemStack simulateAdd(ItemStack toBeSimulated) {
     return simulateAdd(toBeSimulated, InsertionMode.DEFAULT);
 }
 	@Override
-	public boolean containsItems() {
+	public boolean containsItems() { 
+		
+		
+
+
 		  return checkItemFluids(this.invFluids, this.invItems, this.fd) > 0;
 	}
 	

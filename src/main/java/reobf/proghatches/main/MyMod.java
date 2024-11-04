@@ -52,6 +52,8 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -70,6 +72,7 @@ import appeng.api.AEApi;
 import appeng.api.config.FuzzyMode;
 import appeng.api.config.Upgrades;
 import appeng.api.implementations.IUpgradeableHost;
+import appeng.api.storage.data.IAEFluidStack;
 import appeng.client.gui.implementations.GuiPriority;
 import appeng.client.gui.widgets.ITooltip;
 import appeng.container.implementations.ContainerOptimizePatterns;
@@ -93,6 +96,7 @@ import appeng.parts.AEBasePart;
 import appeng.server.AECommand;
 import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.inventory.AppEngInternalInventory;
+import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import appeng.util.item.ItemList;
 import codechicken.multipart.MultipartGenerator;
@@ -176,9 +180,21 @@ public class MyMod {
 	final public static String MODID="programmablehatches";
 	final public static String MODNAME="ProgrammableHatches";
 	public static final Logger LOG = LogManager.getLogger(MODID);
+	
+	
 	public static MyMod instance;
 	{
-		GT_MetaTileEntity_Hatch_InputBus_ME.class.getDeclaredFields();
+		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment") ){
+		
+		/*CraftingCPUCluster.class.getDeclaredFields();
+		NBTTagCompound t=new NBTTagCompound();
+		AEFluidStack.create(new FluidStack(FluidRegistry.WATER,123).writeToNBT(t));
+		*/
+		
+		}
+		
+		
+		
 		instance = this;
 	}
 
@@ -678,6 +694,8 @@ public class MyMod {
 	public static Block storageproxy;
 	public static Item partproxy;
 	public static Item exciter;
+
+	public static Block[] condensers=new Block[16];
 
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void pretick(final TickEvent.ServerTickEvent event) {

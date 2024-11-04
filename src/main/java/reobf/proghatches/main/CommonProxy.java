@@ -1,9 +1,15 @@
 package reobf.proghatches.main;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+
+import java.util.List;
+
 import appeng.api.AEApi;
+import appeng.block.AEBaseItemBlock;
 import appeng.core.AEConfig;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLInterModComms;
@@ -11,14 +17,18 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.util.GT_ModHandler;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import reobf.proghatches.Tags;
+import reobf.proghatches.ae.BlockCraftingCondenser;
 import reobf.proghatches.ae.BlockCyclicPatternSubmitter;
 import reobf.proghatches.ae.BlockStorageProxy;
 import reobf.proghatches.ae.ItemPartAmountMaintainer;
 import reobf.proghatches.ae.ItemPartStorageProxy;
 import reobf.proghatches.ae.ItemPartSubnetExciter;
+import reobf.proghatches.ae.TileCraftingCondenser;
 import reobf.proghatches.ae.TileCyclicPatternSubmitter;
 import reobf.proghatches.ae.TileStorageProxy;
 import reobf.proghatches.block.BlockAnchorAlert;
@@ -189,8 +199,36 @@ public class CommonProxy {
 				"proghatches.exciter");
 		
 		
+		a();
+		
+		
+		GameRegistry.registerTileEntity(TileCraftingCondenser.class, "proghatches.craftingdumper");
+		
 	}
-
+ static public class ToolTipAEBaseItemBlock extends AEBaseItemBlock{
+				 public ToolTipAEBaseItemBlock(Block id) {
+					 super(id);
+					bt=(BlockCraftingCondenser) id;
+				}  BlockCraftingCondenser bt;
+				@SideOnly(Side.CLIENT)
+				@Override
+				public void addCheckedInformation(ItemStack itemStack, EntityPlayer player, List<String> toolTip,
+						boolean advancedToolTips) {
+					//toolTip.add("proghatches.condenser.tooltip");
+					bt.addTips(toolTip);
+				}
+			 }
+	private static void a(){
+		for(int i=0;i<=8;i++){
+			 
+			
+		MyMod.condensers[i] = GameRegistry.registerBlock(new BlockCraftingCondenser(i),ToolTipAEBaseItemBlock.class, "proghatches.craftingdumper."+ i);
+		}
+		
+	}
+	
+	
+	
 	public static ProgHatchCreativeTab tab;
 
 	public void init(FMLInitializationEvent event) {

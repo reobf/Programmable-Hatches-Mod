@@ -11,10 +11,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.FuzzyMode;
+import appeng.api.networking.crafting.ICraftingMedium;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.energy.IEnergyGrid;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.container.ContainerNull;
 import appeng.crafting.MECraftingInventory;
 import appeng.me.cache.CraftingGridCache;
 import appeng.tile.crafting.TileCraftingTile;
@@ -22,6 +24,8 @@ import appeng.util.item.AEItemStack;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -213,6 +217,11 @@ public static void cb(final IEnergyGrid eg, final CraftingGridCache cc, Callback
 	storage.clear();
 	needed.clear();
 	}catch(Exception e){MyMod.LOG.error("caught error in mixin",e);}
-}}
+}
+
+
+
+
+}
 
 

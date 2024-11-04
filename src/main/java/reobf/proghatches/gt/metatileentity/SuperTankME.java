@@ -161,7 +161,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 		 try {
 			 
 				this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
-				this.getProxy().getGrid().postEvent(new MENetworkStorageEvent(handler0, StorageChannel.FLUIDS));
+				//this.getProxy().getGrid().postEvent(new MENetworkStorageEvent(handler, StorageChannel.FLUIDS));
 				try {
 	                
 					if(last!=null){
@@ -212,7 +212,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 	@Override
 	public List<IMEInventoryHandler> getCellArray(StorageChannel channel) {
 		if(channel==StorageChannel.FLUIDS)
-		return ImmutableList.of(handler0);
+		return ImmutableList.of(handler);
 		else
 			return ImmutableList.of();
 			
@@ -319,7 +319,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 		this.setPartitionList(new PrecisePriorityList(s));
 		}
 	};	
-IMEMonitor handler0= new MEMonitorHandler(handler
+IMEMonitor handler0x= new MEMonitorHandler(handler
 		);
 
 	
@@ -394,7 +394,7 @@ IMEMonitor handler0= new MEMonitorHandler(handler
 
 		@Override
 		public IItemList<IAEFluidStack> getAvailableItems(IItemList<IAEFluidStack> out) {
-		out.addStorage(AEFluidStack.create(content.getFluid()));
+		if(content.getFluidAmount()>0)out.addStorage(AEFluidStack.create(content.getFluid()));
 			return out;
 		}
 
@@ -764,7 +764,7 @@ builder.widget(new FluidSlotWidget(content)
  
  
  builder.widget(new TextFieldWidget()	
-		 .setPattern(BaseTextFieldWidget.NATURAL_NUMS)
+		 .setPattern(BaseTextFieldWidget.WHOLE_NUMS)
 		.setGetter(()->piority+"")
 		.setSetter(s->
 		{try{piority=Integer.parseInt(s);}catch(Exception e){piority=0;};post();})

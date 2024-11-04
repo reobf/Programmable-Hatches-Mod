@@ -310,9 +310,23 @@ public void saveNBTData(NBTTagCompound aNBT) {
 			in.readFully(b);
 			NBTTagCompound tag = CompressedStreamTools.func_152457_a(b, new NBTSizeTracker(Long.MAX_VALUE));
 			IAEStack ch=
-			in.readInt()==1?AEItemStack.loadItemStackFromNBT(tag):AEFluidStack.loadFluidStackFromNBT(tag);
+			in.readInt()==1?AEItemStack.loadItemStackFromNBT(tag):loadFluidStackFromNBT(tag);
 			stack=ch;
 		}
+		  public static IAEFluidStack loadFluidStackFromNBT(final NBTTagCompound i) {
+		        final FluidStack itemstack = FluidStack.loadFluidStackFromNBT(i);
+		        if (itemstack == null) {
+		            return null;
+		        }
+		        final AEFluidStack fluid = AEFluidStack.create(itemstack);
+		        // fluid.priority = i.getInteger( "Priority" );
+		        fluid.setStackSize(i.getLong("Cnt"));
+		        fluid.setCountRequestable(i.getLong("Req"));
+		        fluid.setCraftable(i.getBoolean("Craft"));
+		        fluid.setCountRequestableCrafts(i.getLong("ReqMade"));
+		        fluid.setUsedPercent(i.getFloat("UsedPercent"));
+		        return fluid;
+		    }
 		}
 	public static class TargetStack implements Serializable{
 		

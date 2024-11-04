@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import appeng.api.AEApi;
 import appeng.api.parts.IPartItem;
+import appeng.core.Api;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -81,7 +82,7 @@ public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p
 @Override
 public IIcon getIconIndex(ItemStack p_77650_1_) {
 
-	return super.getIconIndex(p_77650_1_);
+	return Api.INSTANCE.blocks().blockFluix.block().getIcon(0, 0);
 }
 	@Override
 	@SideOnly(Side.CLIENT)

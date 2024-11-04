@@ -7,7 +7,9 @@ import com.gtnewhorizons.modularui.api.KeyboardUtil;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import reobf.proghatches.lang.LangManager;
@@ -36,8 +38,11 @@ public int getMetadata(int p_77647_1_) {
 
 	return (p_77647_1_);
 }
-
-
+@Override
+public boolean getHasSubtypes() {
+	
+	return true;
+}
 @Override
 public String getUnlocalizedName(ItemStack stack) {
 	if(field_150939_a instanceof INameAndTooltips){

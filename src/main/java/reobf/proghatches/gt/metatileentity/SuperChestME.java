@@ -181,7 +181,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 		 try {
 			 
 			this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
-			this.getProxy().getGrid().postEvent(new MENetworkStorageEvent(handler0, StorageChannel.ITEMS));
+			//this.getProxy().getGrid().postEvent(new MENetworkStorageEvent(handler0, StorageChannel.ITEMS));
 			try {
                 
 				if(last!=null){
@@ -228,7 +228,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	@Override
 	public List<IMEInventoryHandler> getCellArray(StorageChannel channel) {
 		if(channel==StorageChannel.ITEMS)
-		return ImmutableList.of(handler0);
+		return ImmutableList.of(handler);
 		else
 			return ImmutableList.of();
 			
@@ -336,7 +336,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 		}
 	};	
 	
-	IMEMonitor handler0= new MEMonitorHandler(handler
+	IMEMonitor handler0x= new MEMonitorHandler(handler
 			);
 	/*IMEMonitor handler0= new MEMonitorHandler(handler
 			);*/
@@ -428,7 +428,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 		}
 		@Override
 		public IItemList<IAEItemStack> getAvailableItems(IItemList<IAEItemStack> out) {
-		out.addStorage(AEItemStack.create(mInventory[0]));
+			if(mInventory[0]!=null)out.addStorage(AEItemStack.create(mInventory[0]));
 			return out;
 		}
 
@@ -705,7 +705,7 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
  
  
  builder.widget(new TextFieldWidget()	
-		 .setPattern(BaseTextFieldWidget.NATURAL_NUMS)
+		 .setPattern(BaseTextFieldWidget.WHOLE_NUMS)
 		.setGetter(()->piority+"")
 		.setSetter(s->
 		{try{piority=Integer.parseInt(s);}catch(Exception e){piority=0;};post();})

@@ -26,6 +26,7 @@ import java.util.TreeSet;
 
 import org.spongepowered.asm.mixin.Unique;
 
+import com.glodblock.github.common.item.ItemFluidDrop;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.TreeMultimap;
@@ -158,7 +159,7 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 				.getCellArray(StorageChannel.ITEMS);
 			
 			for(IMEInventoryHandler l:list){
-				 if(!(l instanceof MEInventoryHandler))continue;
+				// if(!(l instanceof MEInventoryHandler))continue;
 				/* if(l instanceof MEInventoryHandler){
 				 MEInventoryHandler hh=(MEInventoryHandler) l; 
 					if((hh.getInternal() instanceof MEPassThrough)) continue;
@@ -191,7 +192,7 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 					if (option == null) {
 						return;
 					}
-
+					if(option.getItem()instanceof ItemFluidDrop){return;}
 					final IAEItemStack st = this.records.get(option);
 
 					if (st != null) {
@@ -228,7 +229,7 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 					if (option == null) {
 						return;
 					}
-
+					if(option.getItem()instanceof ItemFluidDrop){return;}
 					final IAEItemStack st = this.records.get(option);
 
 					if (st != null) {
@@ -449,7 +450,7 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 	@Override
 	public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
 
-		/*try {
+		try {
 			System.out.println(overridedExtract(
 					((IStorageGrid) this.getProxy().getNode().getGrid().getCache(IStorageGrid.class)).getItemInventory(),
 					
@@ -459,7 +460,7 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 		} catch (Exception e) {
 			
 			e.printStackTrace();
-		}*/
+		}
 		
 		return super.onRightclick(aBaseMetaTileEntity, aPlayer);
 	}

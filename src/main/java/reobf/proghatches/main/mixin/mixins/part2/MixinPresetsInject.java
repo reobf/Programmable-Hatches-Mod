@@ -1,7 +1,9 @@
 package reobf.proghatches.main.mixin.mixins.part2;
 
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -11,6 +13,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import com.google.common.collect.Sets;
 
 import codechicken.nei.recipe.StackInfo;
 import gregtech.api.GregTech_API;
@@ -86,7 +90,14 @@ public class MixinPresetsInject {
 		
 		
 		
-		
+		add.accept("",
+				IntStream.range(0, 9).mapToObj(s->MyMod.condensers[s])
+				.map(s->new ItemStack(s))
+				.map(StackInfo::getItemStackGUID
+						).collect(Collectors.toSet())
+						
+				)
+				;
 		
 		
 		

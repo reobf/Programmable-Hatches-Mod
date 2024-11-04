@@ -135,7 +135,7 @@ public class DecoyInputHatchME  extends GT_MetaTileEntity_Hatch_Input_ME impleme
 				.getCellArray(StorageChannel.FLUIDS);
 			
 			for(IMEInventoryHandler l:list){
-				 if(!(l instanceof MEInventoryHandler))continue;
+				// if(!(l instanceof MEInventoryHandler))continue;
 				/* if(l instanceof MEInventoryHandler){
 				 MEInventoryHandler hh=(MEInventoryHandler) l; 
 					if((hh.getInternal() instanceof MEPassThrough)) continue;

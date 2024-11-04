@@ -122,7 +122,7 @@ int filter;
 				.getCellArray(StorageChannel.ITEMS);
 			if(cc.getPriority()==filter)
 			for(IMEInventoryHandler l:list){
-				 if(!(l instanceof MEInventoryHandler))continue;
+				 //if(!(l instanceof MEInventoryHandler))continue;
 				 all.add( l);
 			}
 			
@@ -171,7 +171,7 @@ int filter;
 				.getCellArray(StorageChannel.ITEMS);
 			if(cc.getPriority()==filter)
 			for(IMEInventoryHandler l:list){
-				 if(!(l instanceof MEInventoryHandler))continue;
+				 //if(!(l instanceof MEInventoryHandler))continue;
 				 IAEStack ext = l.extractItems(request, mode, src);
 				 if(ext!=null)
 				 request.decStackSize(ext.getStackSize());

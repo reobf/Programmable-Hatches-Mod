@@ -857,8 +857,8 @@ static class TransferCheckResult{
 				r=AEItemStack.loadItemStackFromNBT(tag.getCompoundTag("o"+i));
 				if(type==3)
 				r=FluidStack.loadFluidStackFromNBT(tag.getCompoundTag("o"+i));
-				if(type==4)
-				r=AEFluidStack.loadFluidStackFromNBT(tag.getCompoundTag("o"+i));
+				//if(type==4)
+				//r=AEFluidStack.loadFluidStackFromNBT(tag.getCompoundTag("o"+i));
 				
 				
 				
@@ -902,16 +902,20 @@ static class TransferCheckResult{
 					tag.setTag("o"+i, tmp);
 					tag.setInteger("t"+i, 2);
 				}
+				
+				if(o instanceof AEFluidStack){
+					/*NBTTagCompound tmp = new NBTTagCompound();
+					((AEFluidStack) o).writeToNBT(tmp);
+					tag.setTag("o"+i, tmp);
+					tag.setInteger("t"+i, 4);*/
+					o=((AEFluidStack) o).getFluidStack();
+				}
+				
 				if(o instanceof FluidStack){
 					tag.setTag("o"+i, ((FluidStack) o).writeToNBT(new NBTTagCompound()));
 					tag.setInteger("t"+i, 3);
 				}
-				if(o instanceof AEFluidStack){
-					NBTTagCompound tmp = new NBTTagCompound();
-					((AEFluidStack) o).writeToNBT(tmp);
-					tag.setTag("o"+i, tmp);
-					tag.setInteger("t"+i, 4);
-				}
+				
 				if(o instanceof Number){
 				
 					tag.setString("o"+i, o.toString());
@@ -1037,7 +1041,7 @@ private TransferCheckResult checkMEHatch(GT_MetaTileEntity_Hatch_Output_ME bus,F
 		while(itr.hasNext()){IAEFluidStack next;
 			if(!sameType(next=itr.next(),(check))&&next.getStackSize()>0){
 				if(check==null)
-					return TransferCheckResult.ofFail("net.diff.hatch.null",index,cp(next));
+					return TransferCheckResult.ofFail("cache.diff.hatch.null",index,cp(next));
 				return TransferCheckResult.ofFail("cache.diff.hatch",index,cp(next),cp(check));
 			}
 		}

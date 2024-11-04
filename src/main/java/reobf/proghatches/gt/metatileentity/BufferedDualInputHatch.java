@@ -44,6 +44,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
@@ -616,6 +617,12 @@ public int getInventoryFluidLimit() {
 			
 			ItemStack[] condensed = filterStack.apply(mStoredItemInternal,shared.getItems());
 			
+			
+			if(!trunOffEnsure){condensed=ensureIntMax(condensed);}
+			
+			
+			
+			
 			return condensed;
 			
 			
@@ -623,8 +630,10 @@ public int getInventoryFluidLimit() {
 
 		@Override
 		public FluidStack[] getFluidInputs() {
-
-			return asFluidStack.apply(mStoredFluidInternal,shared.getFluid());
+			FluidStack[] condensed = asFluidStack.apply(mStoredFluidInternal,shared.getFluid());
+			if(!trunOffEnsure){condensed=ensureIntMax(condensed);}
+			
+			return condensed;
 		}
 
 		public int space() {
@@ -1118,7 +1127,7 @@ final int offset=0;
 });
 		return wd;
 	}
-
+static int EX_CONFIG=985211;
 	private NBTTagCompound cv(String s) {
 		try {
 			return (NBTTagCompound) JsonToNBT.func_150315_a(s);
@@ -1130,7 +1139,11 @@ final int offset=0;
 	ButtonWidget createPowerSwitchButton(IWidgetBuilder<?> builder) {
 		IGregTechTileEntity thiz = this.getBaseMetaTileEntity();
 		Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
-
+			if(clickData.shift==true){
+				if(widget.getContext().isClient()==false)widget.getContext().openSyncedWindow(EX_CONFIG);
+				return;
+				
+			}
 			if (thiz.isAllowedToWork()) {
 				thiz.disableWorking();
 			} else {
@@ -1169,7 +1182,7 @@ final int offset=0;
 		}
 		
 		
-		
+		buildContext.addSyncedWindow(EX_CONFIG, (s) -> createWindowEx(s));
 	
 	
 		//.setPos(new Pos2d(getGUIWidth() - 18 - 3, 5)).setSize(16, 16)
@@ -1899,5 +1912,43 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 			return false;
 
 		return true;
+	}
+	protected ModularWindow createWindowEx(final EntityPlayer player) {
+		
+		final int WIDTH = 18 * 6 + 6;
+		final int HEIGHT = 18 * 4 + 6;
+		final int PARENT_WIDTH = getGUIWidth();
+		final int PARENT_HEIGHT = getGUIHeight();
+		ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
+		builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+		builder.setGuiTint(getGUIColorization());
+		builder.setDraggable(true);
+	
+
+		builder.setPos((size, window) -> Alignment.Center.getAlignedPos(size, new Size(PARENT_WIDTH, PARENT_HEIGHT))
+				.add(Alignment.TopRight.getAlignedPos(new Size(PARENT_WIDTH, PARENT_HEIGHT), new Size(WIDTH, HEIGHT))));
+		
+		builder.widget(new CycleButtonWidget().setToggle(() -> updateEveryTick, (s) -> {
+			updateEveryTick = s;
+			
+		}).setStaticTexture(GT_UITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+				.setPos(3 + 18 * 0, 3 + 18 * 0).setSize(18, 18)
+				.setGTTooltip(() -> mTooltipCache.getData("programmable_hatches.gt.forcecheck"))
+
+		);
+		builder.widget(new CycleButtonWidget().setToggle(() ->!trunOffEnsure , (s) -> {
+			trunOffEnsure =! s;
+			
+		}).setStaticTexture(GT_UITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+				.setPos(3 + 18 * 1, 3 + 18 * 0).setSize(18, 18)
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.ensureintmax.0"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.ensureintmax.1"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.ensureintmax.2"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.ensureintmax.3"))
+		);
+		return builder.build();
+		
 	}
 }

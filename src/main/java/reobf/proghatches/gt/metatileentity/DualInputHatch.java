@@ -13,12 +13,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -26,6 +30,8 @@ import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import org.spongepowered.include.com.google.common.collect.ImmutableSet;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -128,6 +134,7 @@ import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_TooltipDataCache;
 import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GT_Utility.ItemId;
 import gregtech.api.util.GT_TooltipDataCache.TooltipData;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.common.tileentities.machines.IDualInputHatch;
@@ -303,6 +310,7 @@ public void reinitTierBasedField() {
 	@Override
 	public void saveNBTData(NBTTagCompound aNBT) {
 		super.saveNBTData(aNBT);
+		aNBT.setBoolean("trunOffEnsure",trunOffEnsure);
 		aNBT.setTag("shared", shared.ser());
 		aNBT.setInteger("fluidLimit", fluidLimit);
 		aNBT.setBoolean("program", program);
@@ -345,6 +353,8 @@ public void reinitTierBasedField() {
 	public void loadNBTData(NBTTagCompound aNBT) {
 		if(aNBT.hasKey("x")==false)return;
 		super.loadNBTData(aNBT);
+		if(aNBT.hasKey("trunOffEnsure"))
+		trunOffEnsure=aNBT.getBoolean("trunOffEnsure");
 		shared.deser(aNBT.getCompoundTag("shared"));
 		fluidLimit= aNBT.getInteger("fluidLimit");
 		program = aNBT.getBoolean("program");
@@ -356,6 +366,7 @@ public void reinitTierBasedField() {
 				}
 			}
 		}
+		
 		/*
 		 GT will read 'Count' Tag
 		try{
@@ -962,16 +973,151 @@ public void reinitTierBasedField() {
 		@Override
 		public ItemStack[] getItemInputs() {
 			ItemStack[] is=dualItem();
-			//System.out.println(Arrays.toString(is));
+			if(!trunOffEnsure){is=ensureIntMax(is);}
 			return is;
 		}
 
 		@Override
 		public FluidStack[] getFluidInputs() {
-
-			return dualFluid();
+			FluidStack[] is=dualFluid();
+			if(!trunOffEnsure){is=ensureIntMax(is);}
+			return is;
 		}
 	}
+	
+	static TreeSet recycle=null;
+	static TreeSet retrieve(){
+		
+		TreeSet t= recycle;
+		recycle=null;
+		 return t;
+	}
+	static void dump(TreeSet t){t.clear();
+		recycle=t;
+	
+}
+	
+	static public ItemStack[] ensureIntMax(ItemStack[] in) {
+		class Source implements Comparable<Source>{
+			int num;
+			int index;
+			public Source(int n,int i) {
+				num=n;index=i;
+			}
+			@Override
+			public int compareTo(Source o) {
+				return  Integer.compare(o.num,num);//inversed
+			}
+		}
+		int removed=0;
+		
+		HashMap<ItemId,TreeSet<Source>> count=new HashMap<>(in.length);
+		for(int i=0;i<in.length;i++){
+			TreeSet<Source> set= (recycle==null)?new TreeSet<>():retrieve();
+			
+			set.add(new Source(in[i].stackSize, i));
+			count.merge(ItemId.createNoCopy(in[i]), set, 
+					(a,b)->{a.addAll(b);dump(b);return a;}
+					);
+		Iterator<TreeSet<Source>> itr = count.values().iterator();
+		TreeSet<Source> thiz  ;
+		for(;itr.hasNext();){thiz=itr.next();
+			long howmany=0;
+			Iterator<Source> s = thiz.iterator();
+			end:while(s.hasNext()){
+				howmany+=s.next().num;
+				if(howmany>Integer.MAX_VALUE){
+					s.remove();removed++;
+					while(s.hasNext()){s.next();s.remove();removed++;break end;}
+				}
+			}
+			
+			
+		}
+		}
+		
+		if(removed==0)return in;
+		
+		ItemStack[] ret=new ItemStack[in.length-removed];
+		int[] cnt=new int[1];
+		count.values().stream().flatMap(s->s.stream()).forEach(s->{
+			ret[cnt[0]]=in[s.index];
+			cnt[0]++;
+		});
+		
+		
+		
+		return ret;
+	}
+	
+	boolean trunOffEnsure=true;
+	static public FluidStack[] ensureIntMax(FluidStack[] in) {
+		class Source implements Comparable<Source>{
+			int num;
+			int index;
+			public Source(int n,int i) {
+				num=n;index=i;
+			}
+			@Override
+			public int compareTo(Source o) {
+				return  Integer.compare(o.num,num);//inversed
+			}
+		}
+		int removed=0;
+		
+		IdentityHashMap<Fluid,TreeSet<Source>> count=new IdentityHashMap<>(in.length);
+		//do not use hashcode() for better performance
+		for(int i=0;i<in.length;i++){
+			TreeSet<Source> set= (recycle==null)?new TreeSet<>():retrieve();
+			
+			set.add(new Source(in[i].amount, i));
+			count.merge(in[i].getFluid(), set, 
+					(a,b)->{a.addAll(b);dump(b);return a;}
+					);
+		Iterator<TreeSet<Source>> itr = count.values().iterator();
+		TreeSet<Source> thiz = null;
+		for(;itr.hasNext();){
+			thiz=itr.next();
+			long howmany=0;
+			Iterator<Source> s = thiz.iterator();
+			end:while(s.hasNext()){
+				howmany+=s.next().num;
+				if(howmany>Integer.MAX_VALUE){
+					s.remove();removed++;
+					while(s.hasNext()){s.next();s.remove();removed++;break end;}
+				}
+			}
+			
+			
+		}
+		}
+		
+		if(removed==0)return in;
+		
+		FluidStack[] ret=new FluidStack[in.length-removed];
+		int[] cnt=new int[1];
+		count.values().stream().flatMap(s->s.stream()).forEach(s->{
+			ret[cnt[0]]=in[s.index];
+			cnt[0]++;
+		});
+		
+		
+		
+		return ret;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	public interface VargsFunction<T, R> {
 			R apply(T... t);
 	}

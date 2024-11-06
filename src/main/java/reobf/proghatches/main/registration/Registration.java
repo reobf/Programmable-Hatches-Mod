@@ -58,6 +58,7 @@ import reobf.proghatches.gt.metatileentity.RestrictedInputHatchME;
 import reobf.proghatches.gt.metatileentity.SuperChestME;
 import reobf.proghatches.gt.metatileentity.SuperTankME;
 import reobf.proghatches.gt.metatileentity.SuperfluidHatch;
+import reobf.proghatches.gt.metatileentity.VoidOutputHatch;
 import reobf.proghatches.gt.metatileentity.multi.IngredientDistributor;
 import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
 import reobf.proghatches.lang.LangManager;
@@ -109,6 +110,7 @@ public class Registration implements Runnable {
 	public static final int DecoyHatchME= 172;
 	public static final int PFilterBusME= 173;
 	public static final int PFilterHatchME= 174;
+	public static final int VHatch=175;
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -477,6 +479,13 @@ public class Registration implements Runnable {
                 LangManager.translateToLocalFormatted("fluid.input.me.pfilter.name")
                 
                 );
+        
+       /* new  VoidOutputHatch(  
+        		Config.metaTileEntityOffset + VHatch,
+                "void.hatch",
+                LangManager.translateToLocalFormatted("void.hatch.name"), 5
+                
+        		);*/
         /*for (int i = 0; i < 4; i++) {
 
             new DualInputHatch(

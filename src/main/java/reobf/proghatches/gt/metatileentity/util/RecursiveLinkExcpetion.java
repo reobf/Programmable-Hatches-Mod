@@ -3,7 +3,10 @@ package reobf.proghatches.gt.metatileentity.util;
 
 
 public  class RecursiveLinkExcpetion extends RuntimeException {
-
+	public RecursiveLinkExcpetion(){super(
+		
+			
+			);}
 	/**
 	 * 
 	 */

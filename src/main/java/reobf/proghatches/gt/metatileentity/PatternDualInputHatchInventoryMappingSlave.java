@@ -755,7 +755,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 		for (int i = 0; i < master.mInventory.length; i++) {
 
 			if (master.isValidSlot(i)) {
-				mInventory[i] = null;
+				master.mInventory[i] = null;
 			}
 		}
 

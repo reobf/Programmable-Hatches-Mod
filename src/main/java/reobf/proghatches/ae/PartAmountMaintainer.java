@@ -76,6 +76,7 @@ import appeng.me.GridAccessException;
 import appeng.me.cache.GridStorageCache;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.me.storage.MEInventoryHandler;
+import appeng.me.storage.MEMonitorIInventory;
 import appeng.parts.AEBasePart;
 import appeng.parts.PartBasicState;
 import appeng.parts.p2p.PartP2PRedstone;
@@ -202,12 +203,18 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 		if(inv!=null){
 			
 			IItemList list;
-			if(inv instanceof IMEMonitor){
+			if(inv instanceof MEMonitorIFluidHandler){
 			//	inv.injectItems(EMPTY.get(ch),  Actionable.MODULATE, source);//dirty hack, trigger update
 				// cache is invalid! just use the deprecated way to get the inv
-				list = ((IMEMonitor) inv).getAvailableItems(ch.createList());
+				((MEMonitorIFluidHandler) inv).onTick();
+				list = ((MEMonitorIFluidHandler) inv).getAvailableItems(ch.createList());
 				
-			}else{
+			}else if(inv instanceof MEMonitorIInventory){
+				((MEMonitorIInventory) inv).onTick();
+				list = ((MEMonitorIInventory) inv).getAvailableItems(ch.createList());
+			
+			}
+			else{
 				list=inv.getAvailableItems(ch.createList());
 			}
 			

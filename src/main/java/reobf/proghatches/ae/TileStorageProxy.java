@@ -211,6 +211,7 @@ private boolean checkFluid(IAEFluidStack s) {
 	return false;
 }
 
+
 	@Override
 	public void gridChanged() {
 		  try {
@@ -489,7 +490,7 @@ private boolean checkFluid(IAEFluidStack s) {
 	            
 	            IMEMonitor<IAEFluidStack> fluids=  this.gridProxy.getStorage().getFluidInventory();
 		           IMEMonitor<IAEFluidStack> wrappedfluid=  new IMEMonitor<IAEFluidStack>(){
-
+		        	   
 						@Override
 						public AccessRestriction getAccess() {
 							

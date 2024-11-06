@@ -41,6 +41,7 @@ import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
+import appeng.api.util.DimensionalCoord;
 import gregtech.GT_Mod;
 import gregtech.api.GregTech_API;
 import gregtech.api.gui.modularui.GT_UITextures;
@@ -478,6 +479,7 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 
 	@Override
 	public void setInventorySlotContents(int aIndex, ItemStack aStack) {
+		if(blocked)return;
 		markDirty();
 		if (aIndex == getCircuitSlot()) {
 			mInventory[0] = GT_Utility.copyAmount(0, aStack);
@@ -492,6 +494,7 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 	@Override
 	@Nullable
 	public ItemStack getStackInSlot(int aIndex) {
+		if(blocked)return null;
 		try(AutoCloseable  o=mark()){
 		// justQueried=true;
 		Optional<TileEntity> opt = getTile();
@@ -589,18 +592,26 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 		}
 		
 	}
-
+static HashSet<DimensionalCoord> using=new HashSet<>();
+boolean blocked;
 	@Override
 	public void startRecipeProcessing() {
 		processingRecipe = true;
-
+		if(false==using.add(new DimensionalCoord((TileEntity)this.getBaseMetaTileEntity()))){
+			blocked=true;
+			
+		};
 	}
 
 	protected boolean processingRecipe = false;
 
 	@Override
 	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+		if(!blocked){
+			using.remove(new DimensionalCoord((TileEntity)this.getBaseMetaTileEntity()));
+		}
 		processingRecipe = false;
+		blocked=false;
 		removePhantom();
 		return CheckRecipeResultRegistry.SUCCESSFUL;
 	}

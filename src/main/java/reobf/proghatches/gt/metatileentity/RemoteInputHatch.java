@@ -52,6 +52,7 @@ import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
+import appeng.api.util.DimensionalCoord;
 import gregtech.GT_Mod;
 import gregtech.api.GregTech_API;
 import gregtech.api.gui.modularui.GT_UITextures;
@@ -372,7 +373,7 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
 		}catch(Exception e){return Optional.empty();}
 	}
 	@Override
-	public FluidStack getFluid(int aSlot) {
+	public FluidStack getFluid(int aSlot) { if(blocked){return null;}
 		try(AutoCloseable  o=mark()){
 			Optional<TileEntity> opt = getTile();
 		if (opt.isPresent() && checkBlackList(opt)) {
@@ -398,7 +399,7 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
 		}
 	}
 @Override
-public FluidStack getFillableStack() {
+public FluidStack getFillableStack() { if(blocked){return null;}
 	try(AutoCloseable  o=mark()){
 	Optional<TileEntity> opt = getTile();
 	if (opt.isPresent() && checkBlackList(opt)) {
@@ -580,7 +581,7 @@ public FluidStack getFillableStack() {
 	}// no we don't
 
 	@Override
-	public FluidStack[] getStoredFluid() {
+	public FluidStack[] getStoredFluid() { if(blocked){return new FluidStack[0];}
 	try(AutoCloseable  o=mark()){
 		Optional<TileEntity> opt = getTile();
 		if (opt.isPresent() && checkBlackList(opt)) {
@@ -605,16 +606,25 @@ public FluidStack getFillableStack() {
 		
 	}
 	protected boolean processingRecipe = false;
-
+	static HashSet<DimensionalCoord> using=new HashSet<>();
+	boolean blocked;
 	@Override
 	public void startRecipeProcessing() {
 
 		processingRecipe = true;
+		if(false==using.add(new DimensionalCoord((TileEntity)this.getBaseMetaTileEntity()))){
+			blocked=true;
+			
+		};
 	}
 
 	@Override
 	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+		if(!blocked){
+			using.remove(new DimensionalCoord((TileEntity)this.getBaseMetaTileEntity()));
+		}
 		processingRecipe = false;
+		blocked=false;
 		if (tmp == null)
 			return CheckRecipeResultRegistry.SUCCESSFUL;
 		TileEntity tile = getTile().orElse(null);
@@ -669,7 +679,8 @@ public FluidStack getFillableStack() {
 	 
 	 @Override
 	    public FluidStack drain(ForgeDirection side, FluidStack aFluid, boolean doDrain) {
-			try(AutoCloseable  o=mark()){
+		 if(blocked){return null;}
+		 try(AutoCloseable  o=mark()){
 				Optional<TileEntity> opt = getTile();
 				if (opt.isPresent() && checkBlackList(opt)) {
 					this.linked = false;

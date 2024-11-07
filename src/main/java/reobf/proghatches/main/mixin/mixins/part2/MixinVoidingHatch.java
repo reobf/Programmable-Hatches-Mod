@@ -40,12 +40,13 @@ public class MixinVoidingHatch {
 		}
 		lastNoVoidBusTick=thisTick;
 		for(GT_MetaTileEntity_Hatch_OutputBus xx:GT_Utility.filterValidMTEs(mOutputBusses)){
+			lastNoVoidBusTick=-1;
 			if(xx instanceof VoidOutputBus){
 				if(((VoidOutputBus)xx).dump(aStack)){
 					a.setReturnValue(true);//if it accepts...
 					return;
 				};
-				lastNoVoidBusTick=-1;
+				
 			}
 			
 		};
@@ -63,11 +64,12 @@ public class MixinVoidingHatch {
 		lastNoVoidHatchTick=thisTick;
 		for(GT_MetaTileEntity_Hatch_Output xx:GT_Utility.filterValidMTEs(mOutputHatches)){
 			if(xx instanceof VoidOutputHatch){
+				lastNoVoidHatchTick=-1;
 				if(((VoidOutputHatch)xx).dump(aStack)){
 					a.setReturnValue(true);
 					return;
 				};
-				lastNoVoidHatchTick=-1;
+				
 			}
 			
 		};

@@ -160,5 +160,9 @@ IGridProxyable, IActionHost, IStorageMonitorable, ITileStorageMonitorable,IGuiPr
 			
 			return true;
 		}
-
+@Override
+public void gridChanged() {
+	internal.gridChanged();
+	super.gridChanged();
+}
 }

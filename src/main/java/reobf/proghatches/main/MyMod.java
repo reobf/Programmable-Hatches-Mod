@@ -161,6 +161,7 @@ import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
 import reobf.proghatches.net.RenameMessage;
 import reobf.proghatches.net.UpgradesMessage;
+import reobf.proghatches.net.VoidFXMessage;
 import reobf.proghatches.net.WayPointMessage;
 import reobf.proghatches.oc.ItemAPICard;
 import reobf.proghatches.oc.ItemGTRedstoneCard;
@@ -276,6 +277,8 @@ public class MyMod {
 		net.registerMessage(new UpgradesMessage.Handler(), UpgradesMessage.class, 3, Side.CLIENT);
 		net.registerMessage(new MasterSetMessage.Handler(), MasterSetMessage.class, 4, Side.CLIENT);
 		net.registerMessage(new WayPointMessage.Handler(), WayPointMessage.class, 5, Side.CLIENT);
+		net.registerMessage(new VoidFXMessage.Handler(), VoidFXMessage.class, 6, Side.CLIENT);
+		
 		proxy.preInit(event);
 	}
 

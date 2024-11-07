@@ -480,12 +480,12 @@ public class Registration implements Runnable {
                 
                 );
         
-       /* new  VoidOutputHatch(  
+        new  VoidOutputHatch(  
         		Config.metaTileEntityOffset + VHatch,
                 "void.hatch",
                 LangManager.translateToLocalFormatted("void.hatch.name"), 5
                 
-        		);*/
+        		);
         /*for (int i = 0; i < 4; i++) {
 
             new DualInputHatch(

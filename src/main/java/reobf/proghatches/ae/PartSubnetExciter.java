@@ -213,7 +213,7 @@ public class PartSubnetExciter extends PartBasicState implements IAEPowerStorage
     public void renderDynamic(double x, double y, double z, IPartRenderHelper rh, RenderBlocks renderer) {
     	super.renderDynamic(x, y, z, rh, renderer);
     	if(prevok==true&&ok==false){
-    		
+    	if(	Minecraft.getMinecraft().isGamePaused()){return;}
     		for(int i=0;i<16;i++)
     		Minecraft.getMinecraft().theWorld.spawnParticle("smoke", 	
     				 this.getHost().getTile().xCoord+0.5+this.getSide().offsetX*0.5

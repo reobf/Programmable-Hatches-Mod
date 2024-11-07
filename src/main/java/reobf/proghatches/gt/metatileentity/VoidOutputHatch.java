@@ -222,16 +222,17 @@ public boolean doesEmptyContainers() {
 @SideOnly(Side.CLIENT)
 long remainticks;
 @SideOnly(Side.CLIENT)
-LinkedList<FluidStack> types=new LinkedList<>();
+LinkedList<FluidStack> types;
 @SideOnly(Side.CLIENT)
 public void addVisual(FluidStack f){
+	if(types==null)types=new LinkedList<>();
 	remainticks=40;//(f.amount);
 	types.add(f);
 	if(types.size()>20)types.removeLast();
 }
 @Override@SideOnly(Side.CLIENT)
 public void onPreTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-	
+	if(types==null)types=new LinkedList<>();
 	/*MyMod.net.sendToDimension(new VoidFXMessage(
 			this.getBaseMetaTileEntity(), new FluidStack(FluidRegistry.LAVA, 1000)
 				),this.getBaseMetaTileEntity().getWorld().provider.dimensionId);

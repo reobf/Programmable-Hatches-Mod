@@ -62,7 +62,7 @@ public class VoidOutputBus  extends GT_MetaTileEntity_Hatch_OutputBus {
 	}
     ItemStack[] filter=new ItemStack[16];
     @SideOnly(value = Side.CLIENT)
-    LinkedList<ItemStack> toDisplay=new LinkedList<>();
+    LinkedList<ItemStack> toDisplay;//=new LinkedList<>();
     
     
     

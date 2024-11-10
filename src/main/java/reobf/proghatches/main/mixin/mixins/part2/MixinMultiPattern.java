@@ -163,17 +163,21 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 				}
 
 				long num = MixinCallback.getter.apply(e.getValue());
-
+				final long max = getMaxSkips();
 				int maxtry = Math.min(Math.min(
-						(int) (num > (Integer.MAX_VALUE - 1) ? (Integer.MAX_VALUE - 1) : num) - 1, remainingOperations),
+						(int) (num > (Integer.MAX_VALUE - 1) ? (Integer.MAX_VALUE - 1) : num) - 1, (int)(remainingOperations+max)),
 
 						best);
 
 				if (maxtry <= 0) {
 					return;
 				}
+				
 				used = ((IMultiplePatternPushable) medium).pushPatternMulti(detail, inv, maxtry);
-
+				
+				
+				if(max!=Integer.MAX_VALUE)
+				remainingOperations-=Math.max(used-max,0);
 				MixinCallback.setter.accept(e.getValue(), num - used);
 
 				if (used > 0) {
@@ -199,7 +203,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 			if(getMaxSkips()<=0)return;
 			//int now = temp1.getOrDefault(detail, 0);
 			final long max = getMaxSkips();
-			for (int i = 0; i < max; i=(i<Integer.MAX_VALUE-10)?(i+1):i) {
+			stop:for (int i = 0; i < max; i=(i<Integer.MAX_VALUE-10)?(i+1):i) {
 				
 				if(medium.isBusy()){break;}
 				
@@ -254,7 +258,22 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 						this.waitingFor.add(out.copy());
 						this.postCraftingStatusChange(out.copy());
 					}
+				}else{
+					if (ic != null) {
+		                // put stuff back..
+		                for (int x = 0; x < ic.getSizeInventory(); x++) {
+		                    final ItemStack is = ic.getStackInSlot(x);
+		                    if (is != null) {
+		                        this.inventory.injectItems(AEItemStack.create(is), Actionable.MODULATE, this.machineSrc);
+		                    }
+		                }
+		            }
+					break stop;
+					
 				}
+				
+				
+				
 
 			}
 

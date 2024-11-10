@@ -236,7 +236,7 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
 
 	@Override
 	public boolean isBusy() {
-		// TODO Auto-generated method stub
+		
 		return this.duality.isBusy();
 	}
 

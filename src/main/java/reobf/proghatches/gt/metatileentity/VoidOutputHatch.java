@@ -97,7 +97,7 @@ public class VoidOutputHatch  extends GT_MetaTileEntity_Hatch_Output {
 			final int i=ii;
 		 builder.widget(FluidSlotWidget.phantom(new MappingFluidTank(s->{filter[i]=s==null?null:s.copy();rebuildFilter();}, ()->filter[i]), 
 				 false
-				 ).setPos(3+(i%9)*4, 3+(i/9)*4));
+				 ).setPos(3+(i%4)*16, 3+(i/4)*16));
 				
 				 ;}
 		
@@ -119,10 +119,10 @@ public class VoidOutputHatch  extends GT_MetaTileEntity_Hatch_Output {
 	public VoidOutputHatch(int aID, String aName, String aNameRegional, int tier) {
 		super(aID, aName, aNameRegional, tier,
 				
-				new String[0]
-				/*reobf.proghatches.main.Config.get("FOB",
+				
+				reobf.proghatches.main.Config.get("VOH",
 				ImmutableMap.of())
-				*/
+				
 				
 				,0
 		
@@ -246,7 +246,7 @@ public void onPreTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 	if(remainticks>0&&aBaseMetaTileEntity.getWorld().isRemote){
 		//System.out.println("ss");
 		remainticks--;
-		if(remainticks==0)types.clear();
+		if(remainticks==0){types.clear();return;}
 		/*for(long k=1;k<Integer.MAX_VALUE;k=k*100)
 		if(remainticks>k*100){
 			remainticks-=k;
@@ -408,7 +408,79 @@ public class EntityDropParticleFX extends EntityFX
                 this.setDead();
             }
         }
-    }}
+    }
+    
+    @Override
+    public void renderParticle(Tessellator tess, float timeStep, float rotationX, float rotationXZ, float rotationZ,
+            float rotationYZ, float rotationXY) {
+        double x = (this.prevPosX + (this.posX - this.prevPosX) * timeStep - interpPosX);
+        double y = (this.prevPosY + (this.posY - this.prevPosY) * timeStep - interpPosY);
+        double z = (this.prevPosZ + (this.posZ - this.prevPosZ) * timeStep - interpPosZ);
+
+        float minU = this.particleTextureIndexX / 16.0F;
+        float maxU = minU + 0.0624375F;
+        float minV = this.particleTextureIndexY / 16.0F;
+        float maxV = minV + 0.0624375F;
+        float scale = 0.1F * this.particleScale;
+
+        if (this.particleIcon != null) {
+            minU = this.particleIcon.getMinU();
+            maxU = this.particleIcon.getMaxU();
+            minV = this.particleIcon.getMinV();
+            maxV = this.particleIcon.getMaxV();
+        }
+
+        tess.setColorRGBA_F(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha);
+
+        for (int i = 0; i < 5; i++) {
+            renderParticle(
+                    tess,
+                    x,
+                    y,
+                    z,
+                    rotationX,
+                    rotationXZ,
+                    rotationZ,
+                    rotationYZ,
+                    rotationXY,
+                    minU,
+                    maxU,
+                    minV,
+                    maxV,
+                    scale);
+        }
+    }
+
+    private void renderParticle(Tessellator tess, double x, double y, double z, float rotationX,
+            float rotationXZ, float rotationZ, float rotationYZ, float rotationXY, float minU, float maxU, float minV,
+            float maxV, float scale) {
+        tess.addVertexWithUV(
+                (x - rotationX * scale - rotationYZ * scale),
+                (y - rotationXZ * scale),
+                (z - rotationZ * scale - rotationXY * scale),
+                maxU,
+                maxV);
+        tess.addVertexWithUV(
+                (x - rotationX * scale + rotationYZ * scale),
+                (y + rotationXZ * scale),
+                (z - rotationZ * scale + rotationXY * scale),
+                maxU,
+                minV);
+        tess.addVertexWithUV(
+                (x + rotationX * scale + rotationYZ * scale),
+                (y + rotationXZ * scale),
+                (z + rotationZ * scale + rotationXY * scale),
+                minU,
+                minV);
+        tess.addVertexWithUV(
+                (x + rotationX * scale - rotationYZ * scale),
+                (y - rotationXZ * scale),
+                (z + rotationZ * scale - rotationXY * scale),
+                minU,
+                maxV);
+    }
+
+}
 
 
 

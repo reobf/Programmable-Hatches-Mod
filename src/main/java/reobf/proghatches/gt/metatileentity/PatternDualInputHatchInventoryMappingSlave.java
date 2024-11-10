@@ -1078,10 +1078,13 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 		
 		
 		
-		
+		if(master instanceof BufferedDualInputHatch){
+			((BufferedDualInputHatch)master).justHadNewItems=true;
+		}
 		
 		
 	}
+		
 	return suc;
 	
 

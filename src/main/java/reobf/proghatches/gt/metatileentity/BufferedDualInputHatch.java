@@ -33,6 +33,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -54,6 +55,7 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.oredict.OreDictionary;
 
+import com.glodblock.github.common.item.ItemFluidPacket;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -88,6 +90,7 @@ import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
+import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.me.storage.DriveWatcher;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -110,6 +113,7 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.FirstObjectHolder;
+import reobf.proghatches.gt.metatileentity.util.ICraftingV2;
 import reobf.proghatches.gt.metatileentity.util.IInputStateProvider;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.gt.metatileentity.util.ListeningFluidTank;
@@ -120,7 +124,10 @@ import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class BufferedDualInputHatch extends DualInputHatch implements IRecipeProcessingAwareDualHatch,IInputStateProvider {
+public class BufferedDualInputHatch extends DualInputHatch implements IRecipeProcessingAwareDualHatch,IInputStateProvider
+,ICraftingV2
+
+{
 	public Deque<Long> scheduled=new LinkedList<>();//no randomaccess, LinkedList will work fine
 	
 
@@ -1937,7 +1944,7 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 				.setGTTooltip(() -> mTooltipCache.getData("programmable_hatches.gt.forcecheck"))
 
 		);
-		builder.widget(new CycleButtonWidget().setToggle(() ->!trunOffEnsure , (s) -> {
+		/*builder.widget(new CycleButtonWidget().setToggle(() ->!trunOffEnsure , (s) -> {
 			trunOffEnsure =! s;
 			
 		}).setStaticTexture(GT_UITextures.OVERLAY_BUTTON_CHECKMARK)
@@ -1948,7 +1955,152 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.ensureintmax.2"))
 				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.ensureintmax.3"))
 		);
+		*/
+		builder.widget(new CycleButtonWidget().setToggle(() ->CMMode , (s) -> {
+			CMMode = s;
+			
+		}).setStaticTexture(GT_UITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+				.setPos(3 + 18 * 1, 3 + 18 * 0).setSize(18, 18)
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.0"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.1"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.2"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.3"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.4"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.5"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.6"))
+		);
+		
+		
+		
 		return builder.build();
 		
 	}
+	public boolean isInputEmpty(BufferedDualInputHatch master) {
+
+		for (FluidTank f : master.mStoredFluid) {
+			if (f.getFluidAmount() > 0) {
+				return false;
+			}
+		}
+		for (ItemStack i : master.mInventory) {
+
+			if (i != null && i.stackSize > 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public void clearInv(BufferedDualInputHatch master) {
+
+		for (FluidTank f : master.mStoredFluid) {
+			f.setFluid(null);
+		}
+		for (int i = 0; i < master.mInventory.length; i++) {
+
+			if (master.isValidSlot(i)) {
+				master.mInventory[i] = null;
+			}
+		}
+
+	}
+	boolean CMMode=false;
+	@Override
+	public boolean pushPatternCM(ICraftingPatternDetails patternDetails, InventoryCrafting table,
+			ForgeDirection ejectionDirection) {
+		BufferedDualInputHatch master = this;
+		if (this instanceof PatternDualInputHatch) {
+			PatternDualInputHatch dih = ((PatternDualInputHatch) this);
+			try{
+			dih.skipActiveCheck=true;
+			return dih.pushPattern(patternDetails, table);
+			}finally{dih.skipActiveCheck=false;}
+		}
+		if (master != null) {
+			if (!isInputEmpty(master)) {
+				return false;
+			}
+
+			int i = 0;
+			int f = 0;
+			int ilimit = master.getInventoryStackLimit();
+			int flimit = master.getInventoryFluidLimit();
+			boolean isplit = master.disableLimited;
+			boolean fsplit = master.fluidLimit==0;
+			for (int index = 0; index < table.getSizeInventory(); index++) {
+				ItemStack is = (table.getStackInSlot(index));
+				if (is == null)
+					continue;
+				is = is.copy();
+				if (is.getItem() instanceof ItemFluidPacket) {
+					FluidStack fs = ItemFluidPacket.getFluidStack(is);
+					if (fs == null) {
+						continue;
+					}
+					while (fs.amount > 0) {
+						if (f >= master.mStoredFluid.length) {
+							clearInv(master);
+							return false;
+						}
+						int tosplit = Math.min(fs.amount, flimit);
+						fs.amount -= tosplit;
+						if ((!fsplit) && fs.amount > 0) {
+							clearInv(master);
+							return false;
+						}
+						FluidStack splitted = new FluidStack(fs.getFluid(), tosplit);
+						master.mStoredFluid[f].setFluidDirect(splitted);
+						f++;
+					}
+
+				} else {
+					while (is.stackSize > 0) {
+						if (master.isValidSlot(i) == false) {
+							clearInv(master);
+							return false;
+						}
+						ItemStack splitted = is.splitStack(Math.min(is.stackSize, ilimit));
+						if ((!isplit) && is.stackSize > 0) {
+							clearInv(master);
+							return false;
+						}
+						master.mInventory[i] = splitted;
+						i++;
+					}
+				}
+
+			}
+			if(master instanceof BufferedDualInputHatch){
+				((BufferedDualInputHatch) master).classifyForce();
+			}
+			return true;// hoo ray
+		}
+
+		return false;
+	}
+	@Override
+	public boolean acceptsPlansCM() {
+		
+		return CMMode;
+	}
+	@Override
+	public boolean enableCM() {
+	
+		return CMMode;
+	}
+	
+	
+	/*@Override
+	public FluidTankInfo[] getTankInfo(ForgeDirection from) {
+		if(CMMode)return EMPTY_TK;
+		return super.getTankInfo(from);
+	}
+	private FluidTankInfo[] EMPTY_TK=new FluidTankInfo[0];
+	private int[] EMPTY_INT=new int[0];
+	@Override
+	public int[] getAccessibleSlotsFromSide(int ordinalSide) {
+		if(CMMode)return EMPTY_INT;
+		return super.getAccessibleSlotsFromSide(ordinalSide);
+	}*/
 }

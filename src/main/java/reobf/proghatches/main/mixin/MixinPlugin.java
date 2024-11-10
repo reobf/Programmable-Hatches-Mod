@@ -205,6 +205,7 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		retLate.add("part2.MixinMEBusOverride");
 		retLate.add("part2.MixinCraftingCondender");
 		retLate.add("part2.MixinVoidingHatch");
+		retLate.add("part2.MixinCraftingV2");
 		if (FMLLaunchHandler.side().isClient()) {
 			if (!"true".equals(pp.get("noAEItemSortMixins")))
 				if(ff)retLate.add("MixinAEItemStackCompare");

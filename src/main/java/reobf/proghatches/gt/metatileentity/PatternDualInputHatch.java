@@ -3,11 +3,15 @@ package reobf.proghatches.gt.metatileentity;
 import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.lwjgl.input.Keyboard;
+
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
@@ -69,6 +73,8 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.tile.misc.TileInterface;
 import appeng.util.Platform;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.GT_Mod;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.Textures.BlockIcons;
@@ -85,6 +91,8 @@ import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.SidedEnvironment;
 import li.cil.oc.api.network.Visibility;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
 
 
 public class PatternDualInputHatch extends BufferedDualInputHatch
@@ -986,14 +994,33 @@ if(supportsFluids())
 			
 			
 			
-			
+			saved+=suc;
 			
 			justHadNewItems = true;
 			return suc;
 		}
 
+		long saved;
+	@SideOnly(Side.CLIENT)
+		@Override
+	public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+			IWailaConfigHandler config) {
 		
+		super.getWailaBody(itemStack, currenttip, accessor, config);
+		if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)){
+			currenttip.add("Saved pushPattern calls since chunk load:"+
+			
+			accessor.getNBTData().getLong("saved"));
+		}
+		
+	}
+	@Override
+	public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
+			int z) {
 	
+		super.getWailaNBTData(player, tile, tag, world, x, y, z);
+		tag.setLong("saved", saved);
+	}
 		
 		
 	

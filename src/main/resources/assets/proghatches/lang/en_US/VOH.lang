@@ -1,0 +1,4 @@
+Specify up to 16 types of fluid to void.
+Have highest priority than any other output hatches.
+Only voids fluid, has 0 tank capacity.
+Thus do not affect void protection.

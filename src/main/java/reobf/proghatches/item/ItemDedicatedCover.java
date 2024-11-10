@@ -22,7 +22,7 @@ import reobf.proghatches.main.CommonProxy;
 
 public class ItemDedicatedCover extends Item {
 
-	public static IIcon[] icons = new IIcon[64];
+	public static IIcon[] icons = new IIcon[200];
 
 	public ItemDedicatedCover() {
 		this.setCreativeTab(CommonProxy.tab);
@@ -68,7 +68,7 @@ public static TreeSet<Integer> list;
 		icons[mark(35)] = register.registerIcon("proghatches:cover35");
 		icons[mark(36)] = register.registerIcon("proghatches:cover36");
 		icons[mark(37)] = register.registerIcon("proghatches:cover37");
-
+		icons[mark(100)] = register.registerIcon("proghatches:cover37");
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

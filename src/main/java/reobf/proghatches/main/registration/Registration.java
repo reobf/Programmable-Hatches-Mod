@@ -25,6 +25,7 @@ import reobf.proghatches.eucrafting.InterfaceP2PData;
 import reobf.proghatches.eucrafting.InterfaceP2PEUData;
 import reobf.proghatches.eucrafting.InterfaceP2PNoFluidData;
 import reobf.proghatches.gt.cover.LastWorktimeCover;
+import reobf.proghatches.gt.cover.LevelControlCover;
 import reobf.proghatches.gt.cover.LinkedBusSlaveCover;
 import reobf.proghatches.gt.cover.ProgrammingCover;
 
@@ -58,6 +59,7 @@ import reobf.proghatches.gt.metatileentity.RestrictedInputHatchME;
 import reobf.proghatches.gt.metatileentity.SuperChestME;
 import reobf.proghatches.gt.metatileentity.SuperTankME;
 import reobf.proghatches.gt.metatileentity.SuperfluidHatch;
+import reobf.proghatches.gt.metatileentity.VoidOutputBus;
 import reobf.proghatches.gt.metatileentity.VoidOutputHatch;
 import reobf.proghatches.gt.metatileentity.multi.IngredientDistributor;
 import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
@@ -111,6 +113,7 @@ public class Registration implements Runnable {
 	public static final int PFilterBusME= 173;
 	public static final int PFilterHatchME= 174;
 	public static final int VHatch=175;
+	public static final int VBus=176;
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -187,7 +190,12 @@ public class Registration implements Runnable {
              5,
             4, 1);
        
-        
+        GregTech_API.registerCover(
+                new ItemStack(MyMod.cover, 1, 100),
+                TextureFactory.of(
+                    MACHINE_CASINGS[1][0],
+                    TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
+                new LevelControlCover());
         GregTech_API.registerCover(
             new ItemStack(MyMod.cover, 1, 0),
             TextureFactory.of(
@@ -482,8 +490,14 @@ public class Registration implements Runnable {
         
         new  VoidOutputHatch(  
         		Config.metaTileEntityOffset + VHatch,
-                "void.hatch",
-                LangManager.translateToLocalFormatted("void.hatch.name"), 5
+                "ph.hatch.void",
+                LangManager.translateToLocalFormatted("ph.hatch.void.name"), 5
+                
+        		);
+        new  VoidOutputBus(  
+        		Config.metaTileEntityOffset + VBus,
+                "ph.bus.void",
+                LangManager.translateToLocalFormatted("ph.bus.void.name"), 5
                 
         		);
         /*for (int i = 0; i < 4; i++) {

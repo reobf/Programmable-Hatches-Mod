@@ -424,7 +424,7 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 	}
 
 	boolean reserveFirst;
-	private BaseActionSource requestSource;
+	//private BaseActionSource requestSource;
 
 	@Override
 	public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ) {
@@ -443,14 +443,11 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 		// TODO Auto-generated method stub
 		return super.endRecipeProcessing(controller);
 	}
-    private BaseActionSource getRequestSource() {
-        if (requestSource == null) requestSource = new MachineSource((IActionHost) getBaseMetaTileEntity());
-        return requestSource;
-    }
+    
 	@Override
 	public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
 
-		try {
+		/*try {
 			System.out.println(overridedExtract(
 					((IStorageGrid) this.getProxy().getNode().getGrid().getCache(IStorageGrid.class)).getItemInventory(),
 					
@@ -460,7 +457,7 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 		} catch (Exception e) {
 			
 			e.printStackTrace();
-		}
+		}*/
 		
 		return super.onRightclick(aBaseMetaTileEntity, aPlayer);
 	}

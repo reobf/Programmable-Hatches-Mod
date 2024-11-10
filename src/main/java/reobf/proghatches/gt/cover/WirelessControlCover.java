@@ -73,8 +73,8 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
 		if (d.invert)
 			aInputRedstone = (byte) (15 - aInputRedstone);
 
-		if (!makeSureOnlyOne(side, aTileEntity))
-			return d;
+		/*if (!makeSureOnlyOne(side, aTileEntity))
+			return d;*/
 		if (aTileEntity instanceof IMachineProgress) {
 			IMachineProgress machine = (IMachineProgress) aTileEntity;
 			if (d.safe == false && d.crashed == false) {
@@ -236,9 +236,9 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
 		return new Data(0, false, null);
 	}
 
-	private boolean makeSureOnlyOne(ForgeDirection side, ICoverable aTileEntity) {
+	/*private boolean makeSureOnlyOne(ForgeDirection side, ICoverable aTileEntity) {
 		return IControlsWorkCover.makeSureOnlyOne(side, aTileEntity);
-	}
+	}*/
 
 	@Override
 	public boolean letsEnergyInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity) {

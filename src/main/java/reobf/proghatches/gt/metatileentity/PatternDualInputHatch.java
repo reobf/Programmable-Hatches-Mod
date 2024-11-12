@@ -86,6 +86,7 @@ import gregtech.api.render.TextureFactory;
 import gregtech.common.tileentities.casings.upgrade.Inventory;
 import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_CraftingInput_ME;
 import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
+import it.unimi.dsi.fastutil.Pair;
 import li.cil.oc.api.network.Environment;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
@@ -756,28 +757,42 @@ if(supportsFluids())
 	public boolean isActive() {
 		return getProxy() != null && getProxy().isActive();
 	}
-
+	ItemStack[] patternItemCache = new ItemStack[36];
+	ICraftingPatternDetails[] patternDetailCache = new ICraftingPatternDetails[36];
+	
+	
 	@Override
 	public void provideCrafting(ICraftingProviderHelper craftingTracker) {
 		if (!isActive())
 			return;
 
-		for (ItemStack slot : pattern) {
-			if (slot == null)
+		for (int index = 0; index < pattern.length; index++) {
+			ItemStack slot = pattern[index];
+
+			if (slot == null){
+				patternItemCache[index] = null;
+				patternDetailCache[index] = null;
 				continue;
+				}
+
+			if (patternItemCache[index] == pattern[index]) {//just compare object id
+				craftingTracker.addCraftingOption(this, patternDetailCache[index]);
+				continue;
+			}
+
 			ICraftingPatternDetails details = null;
 			try {
 				details = ((ICraftingPatternItem) slot.getItem()).getPatternForItem(slot,
 						this.getBaseMetaTileEntity().getWorld());
-
 			} catch (Exception e) {
-
 			}
 			if (details == null) {
 				GT_Mod.GT_FML_LOGGER.warn("Found an invalid pattern at " + getBaseMetaTileEntity().getCoords()
 						+ " in dim " + getBaseMetaTileEntity().getWorld().provider.dimensionId);
 				continue;
 			}
+			patternItemCache[index] = pattern[index];
+			patternDetailCache[index] = details;
 			craftingTracker.addCraftingOption(this, details);
 		}
 

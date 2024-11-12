@@ -452,7 +452,7 @@ for(ItemStack is:mInventory)
 		@Override
 		public int getPriority() {
 
-			return Integer.MIN_VALUE;
+			return Integer.MAX_VALUE-10;
 		}
 
 		@Override

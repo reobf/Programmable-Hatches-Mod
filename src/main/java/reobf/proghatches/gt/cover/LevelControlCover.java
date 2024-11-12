@@ -136,12 +136,12 @@ public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
 				builder.widget(new CycleButtonWidget().setGetter(()->getCoverData().invert?1:0)
 						.setSetter(s->getCoverData().invert=s==1).setLength(2)
 		           .setTextureGetter(s->{
-		        	   if(s==0)return GT_UITextures.OVERLAY_BUTTON_VOID_EXCESS_ITEM;
-		        	   if(s==1)return GT_UITextures.OVERLAY_BUTTON_VOID_EXCESS_FLUID;
+		        	   if(s==0)return GT_UITextures.OVERLAY_BUTTON_CROSS;
+		        	   if(s==1)return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
 		        			   return GT_UITextures.OVERLAY_BUTTON_VOID_EXCESS_ALL;
 		           })
-		           //.addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.0"))
-		           //.addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.1"))
+		           .addTooltip(0, StatCollector.translateToLocal("proghatches.levelcontrolcover.invert.0"))
+		           .addTooltip(1, StatCollector.translateToLocal("proghatches.levelcontrolcover.invert.1"))
 						.setBackground(() -> {
 		               {
 		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
@@ -150,7 +150,7 @@ public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
 		            })
 		            
 		            .setSize(18, 18)
-		            .setPos(3+20, 3+20));
+		            .setPos(3+20, 3+40));
 				builder.widget(new CycleButtonWidget().setGetter(()->getCoverData().mode)
 						.setSetter(s->getCoverData().mode=s).setLength(2)
 		           .setTextureGetter(s->{
@@ -168,7 +168,7 @@ public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
 		            })
 		            
 		            .setSize(18, 18)
-		            .setPos(3+20, 3+40));
+		            .setPos(3+20, 3+20));
 				builder.widget(
 	                new NumericWidget().setSetter(val -> getCoverData().amount =  (long) val)
 	                    .setGetter(() -> getCoverData().amount)

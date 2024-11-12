@@ -652,4 +652,5 @@ programmable_hatches.gt.cmmode.3=Do not use Dual Interface, even if your pattern
 programmable_hatches.gt.cmmode.4=Does not accept items from cache of Interface(just like Molcular Assembler).
 programmable_hatches.gt.cmmode.5=So do not place unexpected TEs around, or Interface will be tricked into pushing materials into cache!
 programmable_hatches.gt.cmmode.6=This happens even it TE has no inventory in some version, or just use Interface in panel form.
-
+proghatches.levelcontrolcover.invert.0=On if >=amount
+proghatches.levelcontrolcover.invert.1=On if <=amount

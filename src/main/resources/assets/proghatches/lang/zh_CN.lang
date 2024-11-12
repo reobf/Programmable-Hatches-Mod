@@ -650,3 +650,5 @@ programmable_hatches.gt.cmmode.3=不要用二合一接口,即使样板含有流�
 programmable_hatches.gt.cmmode.4=就像分子装配室一样,无法从接口的缓存中接受物品
 programmable_hatches.gt.cmmode.5=所以不要在周围放TE方块,否则接口会试图向它输送物品,失败后放入缓存卡死合成!
 programmable_hatches.gt.cmmode.6=某些版本中即使TE没有物品栏也被认为是容器!或者使用面板形式的接口避免这个问题
+proghatches.levelcontrolcover.invert.0=开启条件: >=数量
+proghatches.levelcontrolcover.invert.1=开启条件: <=数量

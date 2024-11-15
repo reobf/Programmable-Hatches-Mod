@@ -517,7 +517,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	int rep;
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-		
+		boolean active=this.getProxy().isActive();
 		if(!aBaseMetaTileEntity.getWorld().isRemote){
 			if(rep>0){rep--;update=true;}
 			if(this.getBaseMetaTileEntity().hasInventoryBeenModified()){
@@ -526,8 +526,8 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 			};
 			
 			if(update){update=false;updateStatus();}
-			if(wasActive!=this.getProxy().isActive()){
-				wasActive=this.getProxy().isActive();
+			if(wasActive!=active){
+				wasActive=active;
 				post();
 			}
 			if (voidFull ) {
@@ -543,7 +543,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 		}
 		if(!aBaseMetaTileEntity.getWorld().isRemote&&(aTick&16)!=0){
 			this.getBaseMetaTileEntity().setActive(
-			this.getProxy().isPowered()&&this.getProxy().isActive()
+			this.getProxy().isPowered()&&active
 			)
 			;
 			

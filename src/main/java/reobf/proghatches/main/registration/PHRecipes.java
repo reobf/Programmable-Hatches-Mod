@@ -37,6 +37,7 @@ import com.glodblock.github.loader.ItemAndBlockHolder;
 
 import appeng.core.Api;
 import cpw.mods.fml.common.registry.GameRegistry;
+import crazypants.enderio.EnderIOTab;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.enums.ItemList;
@@ -1647,7 +1648,119 @@ public class PHRecipes implements Runnable {
 			);
 	CraftingManager.getInstance().getRecipeList().add(rec3);
 	
-	}}
+	}
+	 
+	 GT_Values.RA.stdBuilder()
+		.itemInputs(
+				new ItemStack(GameRegistry.findItem("ExtraUtilities", "trashcan"),1,0),
+				Hatch_Output_Bus_IV.get(1),
+				GT_Utility.getIntegratedCircuit(3)
+				
+		)
+		.itemOutputs(
+				new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.VBus)
+						 )
+		.duration(100 * SECONDS)
+		.eut(480*4)
+		.addTo(RecipeMaps.assemblerRecipes);
+	 
+	 GT_Values.RA.stdBuilder()
+		.itemInputs(
+				new ItemStack(GameRegistry.findItem("ExtraUtilities", "trashcan"),1,1),
+				Hatch_Output_IV.get(1),
+				GT_Utility.getIntegratedCircuit(4)
+				
+		)
+		.itemOutputs(
+				new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.VHatch)
+						 )
+		.duration(100 * SECONDS)
+		.eut(480*4)
+		.addTo(RecipeMaps.assemblerRecipes);
+	  
+	 GT_Values.RA.stdBuilder()
+		.itemInputs(
+				Cover_Controller.get(1),
+				new ItemStack(MyMod.cover, 1,37)
+				
+		)
+		.itemOutputs(
+				new ItemStack(MyMod.cover, 1,100)
+						 )
+		.duration(100 * SECONDS)
+		.eut(480)
+		.addTo(RecipeMaps.assemblerRecipes);
+	 
+	 
+	 GT_Values.RA.stdBuilder()
+		.itemInputs(
+				
+				Api.INSTANCE.parts().partExportBus.stack(1),
+				Api.INSTANCE.materials().materialCardFuzzy.stack(1),
+				Optional.of(
+				Api.INSTANCE.definitions().materials().cardOreFilter().maybeStack(1).get()
+				).filter(s->{s.stackSize=0;return true;})
+				.get()
+				
+		)
+		.itemOutputs(
+				new ItemStack(MyMod.stockingexport, 1,0)
+						 )
+		.duration(100 * SECONDS)
+		.eut(480)
+		.addTo(RecipeMaps.assemblerRecipes);
+	 GT_Values.RA.stdBuilder()
+		.itemInputs(
+				
+			new ItemStack( ItemAndBlockHolder.FLUID_EXPORT_BUS),
+				Api.INSTANCE.materials().materialCardFuzzy.stack(1),
+				Optional.of(
+				Api.INSTANCE.definitions().materials().cardOreFilter().maybeStack(1).get()
+				).filter(s->{s.stackSize=0;return true;})
+				.get()
+				
+		)
+		.itemOutputs(
+				new ItemStack(MyMod.stockingexport, 1,1)
+						 )
+		.duration(100 * SECONDS)
+		.eut(480)
+		.addTo(RecipeMaps.assemblerRecipes);
+	 GT_Values.RA.stdBuilder()
+		.itemInputs(
+		Api.INSTANCE.definitions().parts().p2PTunnelME().maybeStack(1).get(),
+		Api.INSTANCE.definitions().blocks().molecularAssembler().maybeStack(1).get()
+		
+		)
+		.itemOutputs(
+				new ItemStack(MyMod.ma_p2p_part, 1,0)
+						 )
+		.duration(1000 * SECONDS)
+		.eut(480)
+		.addTo(RecipeMaps.assemblerRecipes);
+	 GT_Values.RA.stdBuilder()
+		.itemInputs(
+		new ItemStack( GameRegistry.findItem("EnderIO","itemMaterial"),6,1),//Conduit Binder
+		Api.INSTANCE.definitions().blocks().molecularAssembler().maybeStack(1).get()
+		
+		)
+		.itemOutputs(
+				new ItemStack(MyMod.ma_conduit, 8,0)
+						 )
+		.duration(1000 * SECONDS)
+		.eut(480)
+		.addTo(RecipeMaps.assemblerRecipes);
+	 
+	 
+	 
+	 
+	 
+	
+	}
+	
+	
+	
+	
 }
     
 

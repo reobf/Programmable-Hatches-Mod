@@ -78,7 +78,7 @@ String cfg=
 "noRecipeFilterForDualHatch=false"+System.lineSeparator()+
 "noRemoveUnusedCacheInModularUIContainer=false"+System.lineSeparator()+
 //"noFixRecursiveCraft=false"+System.lineSeparator()+
-"noEUCraftingMixins=false"+System.lineSeparator()+
+"addEUCraftingMixins=false"+System.lineSeparator()+
 "noAEItemSortMixins=false"+System.lineSeparator()
 
 ;
@@ -124,6 +124,8 @@ static public ArrayList<String> retLate = new ArrayList<>();
 
 		System.out.println("following warnings like 'Error loading class: xxxx' is normal and safe to ignore");
 
+		//Configuration configuration = new Configuration(f);
+		
 		
 		// load all jars that mixin involves
 		HashMap<String,String> map=	new HashMap<>(6);
@@ -144,7 +146,7 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		
 		//if (!"true".equals(pp.get("noFixRecursiveCraft")))
 			
-		if (!"true".equals(pp.get("noEUCraftingMixins"))) {
+		if ("true".equals(pp.get("addEUCraftingMixins"))) {
 			if(ff)retLate.add("eucrafting." + "MixinMachineIdle");
 			if(ff)retLate.add("eucrafting." + "MixinMachineIdle2");
 			if(ff)retLate.add("eucrafting." + "MixinCpuClusterEUAutoRequest");
@@ -206,6 +208,11 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		retLate.add("part2.MixinCraftingCondender");
 		retLate.add("part2.MixinVoidingHatch");
 		retLate.add("part2.MixinCraftingV2");
+		
+		retLate.add("part2.MixinDirectionCapture");
+		retLate.add("part2.MixinEIOGui");
+		retLate.add("part2.MixinEIOInit");
+		retLate.add("part2.MixinEIOBundle");
 		if (FMLLaunchHandler.side().isClient()) {
 			if (!"true".equals(pp.get("noAEItemSortMixins")))
 				if(ff)retLate.add("MixinAEItemStackCompare");

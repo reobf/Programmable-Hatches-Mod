@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import com.glodblock.github.common.item.ItemFluidDrop;
@@ -67,6 +68,7 @@ import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
+import appeng.api.util.IConfigManager;
 import appeng.client.texture.CableBusTextures;
 import appeng.core.Api;
 import appeng.core.api.definitions.ApiItems;
@@ -107,6 +109,75 @@ import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 
 public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidingPart,IGridTickable,IPowerChannelState, ICraftingRequester{
 
+	 @Override
+	public IConfigManager getConfigManager() {
+		
+		return new IConfigManager() {
+			
+			@Override
+			public void writeToNBT(NBTTagCompound data) {
+				data.setLong("freq", freq);
+				data.setInteger("mode", mode);
+				data.setInteger("rsmode", rsmode);
+				data.setInteger("redstone", redstone);
+				data.setLong("amount", amount);
+				//data.setBoolean("lastredstone", lastredstone);
+				if(mark[0]!=null)data.setTag("mark", mark[0].writeToNBT(new NBTTagCompound()));
+				//if(upgrade[0]!=null)data.setTag("upgrade", upgrade[0].writeToNBT(new NBTTagCompound()));
+				//if(upgrade[1]!=null)data.setTag("upgrade1", upgrade[1].writeToNBT(new NBTTagCompound()));
+				
+				
+				
+			}
+			
+			@Override
+			public void registerSetting(Settings settingName, Enum<?> defaultValue) {
+			
+				
+			}
+			
+			@Override
+			public void readFromNBT(NBTTagCompound data) {
+				freq=data.getLong("freq");
+				mode=data.getInteger("mode");
+				rsmode=data.getInteger("rsmode");
+				redstone=data.getInteger("redstone");
+				amount=data.getLong("amount");
+				//lastredstone=data.getBoolean("lastredstone" );
+				if(data.getCompoundTag("mark").hasNoTags()==false)
+				mark[0]=ItemStack.loadItemStackFromNBT(data.getCompoundTag("mark"));
+				//upgrade[0]=ItemStack.loadItemStackFromNBT(data.getCompoundTag("upgrade"));
+				//upgrade[1]=ItemStack.loadItemStackFromNBT(data.getCompoundTag("upgrade1"));
+			
+				
+				
+				
+				
+			}
+			
+			@Override
+			public Enum<?> putSetting(Settings settingName, Enum<?> newValue) {
+			
+				return null;
+			}
+			
+			@Override
+			public Set<Settings> getSettings() {
+				
+				return null;
+			}
+			
+			@Override
+			public Enum<?> getSetting(Settings settingName) {
+			
+				return null;
+			}
+		};
+	}
+	
+	
+	
+	
 	private int mode;
 	private int rsmode;
 	
@@ -862,4 +933,28 @@ public void validateLink(){
 	
 	
 }
+/*
+@Override
+public Set<Settings> getSettings() {
+	
+	return null;
+}
+
+@Override
+public void registerSetting(Settings settingName, Enum<?> defaultValue) {
+	
+	
+}
+
+@Override
+public Enum<?> getSetting(Settings settingName) {
+	
+	return null;
+}
+
+@Override
+public Enum<?> putSetting(Settings settingName, Enum<?> newValue) {
+	
+	return null;
+}*/
 }

@@ -654,3 +654,14 @@ programmable_hatches.gt.cmmode.5=So do not place unexpected TEs around, or Inter
 programmable_hatches.gt.cmmode.6=This happens even it TE has no inventory in some version, or just use Interface in panel form.
 proghatches.levelcontrolcover.invert.0=On if >=amount
 proghatches.levelcontrolcover.invert.1=On if <=amount
+item.proghatches.stockingexport.0.name=ME Stocking Export Bus
+item.proghatches.stockingexport.1.name=ME Stocking Fluid Export Bus
+item.stockingexport.name.tooltip.0.0=Try to export everything in storage outside, just like oredict card with wildcard(*) config but also applies to item without oredict.
+item.stockingexport.name.tooltip.1.0=Cannot specify target item, only accept up to 16 (Super) Speed Upgrades(base 1, each upgrade x4/x2) .
+item.stockingexport.name.tooltip.0.1=Try to export everything in storage outside
+item.stockingexport.name.tooltip.1.1=Cannot specify target fluid, only accept up to 16 (Super) Speed Upgrades(base 1000mb, each upgrade x4/x2) .
+item.proghatches.part.ma.p2p.name=P2P Tunnel - Molecular Assembly
+item.proghatches.part.ma.p2p.tooltips.0=Delegate crafting requests to a remote point.
+item.proghatches.part.ma.p2p.tooltips.1=Input side for Interface, output side for Molecular Assembler.
+item.proghatches.part.ma.p2p.tooltips.2=Not attunable
+enderio.proghatch.ma.conduit.name=Molecular Assembly Conduit

@@ -139,6 +139,7 @@ import li.cil.oc.api.Driver;
 import reobf.proghatches.Tags;
 import reobf.proghatches.block.ChunkTrackingGridCahce;
 import reobf.proghatches.block.TileIOHub;
+import reobf.proghatches.eio.ItemMAConduit;
 import reobf.proghatches.eucrafting.BlockEUInterface;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.AECover.IMemoryCardSensitive;
@@ -156,6 +157,7 @@ import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.mixin.mixins.MixinFixPipeCoverBug;
 import reobf.proghatches.main.registration.Registration;
+import reobf.proghatches.net.ConnectionModeMessage;
 import reobf.proghatches.net.MasterSetMessage;
 import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
@@ -186,7 +188,7 @@ public class MyMod {
 	public static MyMod instance;
 	{
 		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment") ){
-		
+		DualityInterface.class.getDeclaredFields();
 		/*CraftingCPUCluster.class.getDeclaredFields();
 		NBTTagCompound t=new NBTTagCompound();
 		AEFluidStack.create(new FluidStack(FluidRegistry.WATER,123).writeToNBT(t));
@@ -278,7 +280,7 @@ public class MyMod {
 		net.registerMessage(new MasterSetMessage.Handler(), MasterSetMessage.class, 4, Side.CLIENT);
 		net.registerMessage(new WayPointMessage.Handler(), WayPointMessage.class, 5, Side.CLIENT);
 		net.registerMessage(new VoidFXMessage.Handler(), VoidFXMessage.class, 6, Side.CLIENT);
-		
+		net.registerMessage(new ConnectionModeMessage.Handler(), ConnectionModeMessage.class, 7, Side.SERVER);
 		proxy.preInit(event);
 	}
 
@@ -296,7 +298,8 @@ public class MyMod {
 		
 		AEApi.instance().partHelper().registerNewLayer("reobf.proghatches.fmp.LazerLayer",
 				"reobf.proghatches.eucrafting.ILazer");
-
+		AEApi.instance().partHelper().registerNewLayer("reobf.proghatches.fmp.LayerCraftingMachine",
+				"appeng.api.implementations.tiles.ICraftingMachine");
 		FMLCommonHandler.instance().bus().register(this);
 		MinecraftForge.EVENT_BUS.register(this);
 
@@ -699,6 +702,9 @@ public class MyMod {
 	public static Item exciter;
 
 	public static Block[] condensers=new Block[16];
+	public static Item stockingexport;
+	public static Item ma_p2p_part;
+	public static ItemMAConduit ma_conduit;
 
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void pretick(final TickEvent.ServerTickEvent event) {

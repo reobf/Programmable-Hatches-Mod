@@ -1789,13 +1789,13 @@ public void reinitTierBasedField() {
 @Override
 public int getInventoryStackLimit() {
 	
-	return 64+64*Math.max(0,mTier-3);
+	return 64+64*Math.max(0,mTier-3)*Math.max(0,mTier-3);
 }
 
 
 public static int getInventoryStackLimit(int mTier) {
 	
-	return 64+64*Math.max(0,mTier-3);
+	return 64+64*Math.max(0,mTier-3)*Math.max(0,mTier-3);
 }
 
 public int fluidBuff(){

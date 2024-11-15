@@ -652,3 +652,14 @@ programmable_hatches.gt.cmmode.5=所以不要在周围放TE方块,否则接口�
 programmable_hatches.gt.cmmode.6=某些版本中即使TE没有物品栏也被认为是容器!或者使用面板形式的接口避免这个问题
 proghatches.levelcontrolcover.invert.0=开启条件: >=数量
 proghatches.levelcontrolcover.invert.1=开启条件: <=数量
+item.proghatches.stockingexport.0.name=ME库存输出总线
+item.proghatches.stockingexport.1.name=ME库存流体输出总线
+item.stockingexport.name.tooltip.0.0=尝试输出存储内的一切物品,就像使用通配符(*)配置的矿典卡,只是对没有矿典的物品也有效
+item.stockingexport.name.tooltip.1.0=不能指定类型 仅接受至多16个(超级)加速卡(基础1,每个x4/x2) 
+item.stockingexport.name.tooltip.0.1=尝试输出存储内的一切流体
+item.stockingexport.name.tooltip.1.1=不能指定类型 仅接受至多16个(超级)加速卡(基础1000mb,每个x4/x2) 
+item.proghatches.part.ma.p2p.name=P2P通道 - 分子装配
+item.proghatches.part.ma.p2p.tooltips.0=将合成请求代理到远端
+item.proghatches.part.ma.p2p.tooltips.1=输入端连接口 输出端连分子装配室
+item.proghatches.part.ma.p2p.tooltips.2=无法调谐
+enderio.proghatch.ma.conduit.name=分子装配导管

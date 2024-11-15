@@ -56,6 +56,7 @@ public class ProgHatchCreativeTab extends CreativeTabs {
 		p_78018_1_.add(new ItemStack(MyMod.upgrades, 1, 2));
 		//p_78018_1_.add(new ItemStack(MyMod.alert, 1));
 		p_78018_1_.add(new ItemStack(MyMod.lazer_p2p_part));
+		p_78018_1_.add(new ItemStack(MyMod.ma_p2p_part));
 		p_78018_1_.add(new ItemStack(ConfigItems.itemGolemCore,1,120));
 		p_78018_1_.add(new ItemStack(MyMod.amountmaintainer));
 		p_78018_1_.add(new ItemStack(MyMod.submitter));
@@ -68,8 +69,38 @@ public class ProgHatchCreativeTab extends CreativeTabs {
 		p_78018_1_.add(new ItemStack(MyMod.storageproxy,1,1));
 		p_78018_1_.add(new ItemStack(MyMod.storageproxy,1,2));
 		p_78018_1_.add(new ItemStack(MyMod.exciter,1,0));
+		
+		p_78018_1_.add(new ItemStack(MyMod.stockingexport,1,0));
+		p_78018_1_.add(new ItemStack(MyMod.stockingexport,1,1));
 		//p_78018_1_.add(new ItemStack(MyMod.storageproxy));
 		// p_78018_1_.add(new ItemStack(MyMod.euupgrade, 1));
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		p_78018_1_.addAll(Registration.items_eucrafting);
+		//for(int i=0;i<=30;i++)
+		//	p_78018_1_.add(new ItemStack(MyMod.eu_source_part,1,i));
+		//p_78018_1_.add(new ItemStack(MyMod.eu_source_part,1,0));
+		//p_78018_1_.add(new ItemStack(MyMod.block_euinterface));
+		
+		//p_78018_1_.add(new ItemStack(MyMod.euinterface_p2p));
+		p_78018_1_.add(new ItemStack(MyMod.cover, 1, 3));
+
+		p_78018_1_.add(new ItemStack(MyMod.cover, 1, 32));
+		p_78018_1_.add(new ItemStack(MyMod.cover, 1, 33));
+		//p_78018_1_.add(new ItemStack(MyMod.cover, 1, 34));
+		//p_78018_1_.add(new ItemStack(MyMod.cover, 1, 35));
+		//p_78018_1_.add(new ItemStack(MyMod.cover, 1, 36));
+		p_78018_1_.add(new ItemStack(MyMod.cover, 1, 37));
+		p_78018_1_.add(new ItemStack(MyMod.ma_conduit));
 	}
 
 	@Override

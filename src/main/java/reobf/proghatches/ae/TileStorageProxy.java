@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
@@ -28,6 +29,7 @@ import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
 import appeng.api.config.FuzzyMode;
+import appeng.api.config.Settings;
 import appeng.api.implementations.tiles.ITileStorageMonitorable;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
@@ -43,6 +45,8 @@ import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
+import appeng.api.util.IConfigManager;
+import appeng.api.util.IConfigurableObject;
 import appeng.helpers.ICustomNameObject;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
@@ -70,7 +74,7 @@ import reobf.proghatches.main.MyMod;
 
 public class TileStorageProxy extends TileEntity implements 
  IGridProxyable, IActionHost, IStorageMonitorable, ITileStorageMonitorable,ITileWithModularUI
- 
+ //,IConfigurableObject
  {
 	boolean fluid;
 	public  AENetworkProxy gridProxy;
@@ -962,6 +966,117 @@ private boolean checkFluid(IAEFluidStack s) {
 		return builder.build();
 	}
 
-	
+	// @Override
+		public IConfigManager getConfigManager() {
+			return new IConfigManager(){
+
+				@Override
+				public Set<Settings> getSettings() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public void registerSetting(Settings settingName, Enum<?> defaultValue) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public Enum<?> getSetting(Settings settingName) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public Enum<?> putSetting(Settings settingName, Enum<?> newValue) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public void writeToNBT(NBTTagCompound compound) {
+					
+					compound.setString("dict", dict);
+					compound.setInteger("fuzzmode", fuzzmode);
+					
+					
+				
+					NBTTagList nbttaglist = new NBTTagList();
+
+			        for (int i = 0; i < is.length; ++i)
+			        {
+			            if (is[i] != null)
+			            {
+			                NBTTagCompound nbttagcompound1 = new NBTTagCompound();
+			                nbttagcompound1.setByte("Slot", (byte)i);
+			                is[i].writeToNBT(nbttagcompound1);
+			                nbttaglist.appendTag(nbttagcompound1);
+			            }
+			        }
+
+			        compound.setTag("Items", nbttaglist);
+			         nbttaglist = new NBTTagList();
+
+			        for (int i = 0; i < fs.length; ++i)
+			        {
+			            if (fs[i] != null)
+			            {
+			                NBTTagCompound nbttagcompound1 = new NBTTagCompound();
+			                nbttagcompound1.setByte("Slot", (byte)i);
+			                fs[i].writeToNBT(nbttagcompound1);
+			                nbttaglist.appendTag(nbttagcompound1);
+			            }
+			        }
+
+			        compound.setTag("Fluids", nbttaglist);
+					
+					
+				}
+
+				@Override
+				public void readFromNBT(NBTTagCompound compound) {
+					if(!isProxyExternal)getProxy().readFromNBT(compound);
+					dict=	compound.getString("dict" );
+					fuzzmode=compound.getInteger("fuzzmode");
+					fluid=compound.getBoolean("fluid");
+					noAdvConfig=compound.getBoolean("noAdvConfig");
+					isProxyExternal=compound.getBoolean("isProxyExternal");
+					NBTTagList nbttaglist = compound.getTagList("Items", 10);
+				        Arrays.fill(is,null);
+
+				       
+
+				        for (int i = 0; i < nbttaglist.tagCount(); ++i)
+				        {
+				            NBTTagCompound nbttagcompound1 = nbttaglist.getCompoundTagAt(i);
+				            int j = nbttagcompound1.getByte("Slot") & 255;
+
+				            if (j >= 0 && j < is.length)
+				            {
+				               is[j] = ItemStack.loadItemStackFromNBT(nbttagcompound1);
+				            }
+				        }
+				        
+				        NBTTagList nbttaglist0 = compound.getTagList("Fluids", 10);
+				        Arrays.fill(fs,null);
+
+				       
+
+				        for (int i = 0; i < nbttaglist0.tagCount(); ++i)
+				        {
+				            NBTTagCompound nbttagcompound1 = nbttaglist0.getCompoundTagAt(i);
+				            int j = nbttagcompound1.getByte("Slot") & 255;
+
+				            if (j >= 0 && j < fs.length)
+				            {
+				                fs[j] = FluidStack.loadFluidStackFromNBT(nbttagcompound1);
+				            }
+				        }   
+				        
+				        
+					
+					
+				}};}
 
 }

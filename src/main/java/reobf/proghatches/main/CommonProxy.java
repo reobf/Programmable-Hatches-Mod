@@ -26,6 +26,8 @@ import reobf.proghatches.ae.BlockCraftingCondenser;
 import reobf.proghatches.ae.BlockCyclicPatternSubmitter;
 import reobf.proghatches.ae.BlockStorageProxy;
 import reobf.proghatches.ae.ItemPartAmountMaintainer;
+import reobf.proghatches.ae.ItemPartMAP2P;
+import reobf.proghatches.ae.ItemPartStockingExportBus;
 import reobf.proghatches.ae.ItemPartStorageProxy;
 import reobf.proghatches.ae.ItemPartSubnetExciter;
 import reobf.proghatches.ae.TileCraftingCondenser;
@@ -41,6 +43,7 @@ import reobf.proghatches.block.ItemBlockTooltip;
 import reobf.proghatches.block.TileAnchorAlert;
 import reobf.proghatches.block.TileIOHub;
 import reobf.proghatches.block.TileReactorSyncer;
+import reobf.proghatches.eio.ItemMAConduit;
 import reobf.proghatches.eucrafting.BlockEUInterface;
 import reobf.proghatches.eucrafting.EUUtil;
 import reobf.proghatches.eucrafting.ItemBlockEUInterface;
@@ -176,6 +179,8 @@ public class CommonProxy {
 				.setUnlocalizedName("proghatches.part.eu.source").setTextureName("?"), "proghatches.part.eu.source");
 		GameRegistry.registerItem(MyMod.lazer_p2p_part = new ItemPartLazerP2P()
 				.setUnlocalizedName("proghatches.part.lazer.p2p").setTextureName("?"), "proghatches.part.lazer.p2p");
+		GameRegistry.registerItem(MyMod.ma_p2p_part = new ItemPartMAP2P()
+				.setUnlocalizedName("proghatches.part.ma.p2p").setTextureName("?"), "proghatches.part.ma.p2p");
 
 		GameRegistry
 				.registerItem(
@@ -197,11 +202,15 @@ public class CommonProxy {
 				MyMod.exciter = new ItemPartSubnetExciter()
 						.setUnlocalizedName("proghatches.exciter").setTextureName("?"),
 				"proghatches.exciter");
-		
+		GameRegistry
+		.registerItem(
+				MyMod.stockingexport = new ItemPartStockingExportBus()
+						.setUnlocalizedName("proghatches.stockingexport").setTextureName("?"),
+				"stockingexport");
 		
 		a();
 		
-		
+		MyMod.ma_conduit =ItemMAConduit.create();
 		GameRegistry.registerTileEntity(TileCraftingCondenser.class, "proghatches.craftingdumper");
 		
 	}

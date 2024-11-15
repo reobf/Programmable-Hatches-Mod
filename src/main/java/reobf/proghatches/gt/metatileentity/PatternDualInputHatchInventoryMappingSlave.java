@@ -1,6 +1,7 @@
 package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_PIPE_IN;
+import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -62,6 +63,7 @@ import gregtech.api.render.TextureFactory;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -1127,4 +1129,34 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 		master=null;
 	  return true;
 	  }
+
+		@Override
+		public void onBlockDestroyed() {
+			
+			super.onBlockDestroyed();
+			
+			IGregTechTileEntity te = this.getBaseMetaTileEntity();
+			World aWorld = te.getWorld();
+			int aX = te.getXCoord();
+			short aY = te.getYCoord();
+			int aZ = te.getZCoord();
+		
+				for (int i = 0; i < pattern.length; i++) {
+					final ItemStack tItem = pattern[i];
+					if ((tItem != null) && (tItem.stackSize > 0)) {
+						final EntityItem tItemEntity = new EntityItem(aWorld, aX + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
+								aY + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F, aZ + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
+								new ItemStack(tItem.getItem(), tItem.stackSize, tItem.getItemDamage()));
+						if (tItem.hasTagCompound()) {
+							tItemEntity.getEntityItem().setTagCompound((NBTTagCompound) tItem.getTagCompound().copy());
+						}
+						tItemEntity.motionX = (XSTR_INSTANCE.nextGaussian() * 0.05D);
+						tItemEntity.motionY = (XSTR_INSTANCE.nextGaussian() * 0.25D);
+						tItemEntity.motionZ = (XSTR_INSTANCE.nextGaussian() * 0.05D);
+						aWorld.spawnEntityInWorld(tItemEntity);
+						tItem.stackSize = 0;
+						pattern[i] = null;
+					}
+				}
+		}
 }

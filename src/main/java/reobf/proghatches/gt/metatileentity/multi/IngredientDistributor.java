@@ -768,12 +768,16 @@ private boolean moveToOutpusME(IDualInputInventory opt) {
 	}
 	
 	
+	
+	
 	for(int index=0;index<i.length;++index){
 				try {
 					IAEItemStack notadded = ((GT_MetaTileEntity_Hatch_OutputBus_ME)mOutputBusses.get(index))
 					.getProxy().getStorage().getItemInventory().injectItems(AEApi.instance()
 					.storage()
 					.createItemStack(i[index]), Actionable.MODULATE, getActionSourceFor(mOutputBusses.get(index)));
+					
+					
 					i[index].stackSize=Optional.ofNullable(notadded).map(s->s.getStackSize()).orElse(0l).intValue();
 				} catch (GridAccessException e) {}
 				
@@ -787,6 +791,7 @@ private boolean moveToOutpusME(IDualInputInventory opt) {
 			.getProxy().getStorage().getFluidInventory().injectItems(AEApi.instance()
 			.storage()
 			.createFluidStack(f[index]), Actionable.MODULATE, getActionSourceFor(mOutputHatches.get(index)));
+			
 			f[index].amount=Optional.ofNullable(notadded).map(s->s.getStackSize()).orElse(0l).intValue();
 		} catch (GridAccessException e) {}
 		}

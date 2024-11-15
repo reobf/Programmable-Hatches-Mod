@@ -149,7 +149,7 @@ public int getInventoryFluidLimit() {
 
 	public int itemLimit() {
 
-		return (int) (64 * Math.pow(2, Math.max(mTier - 3, 0)));
+		return (int) (64 * Math.pow(4, Math.max(mTier - 3, 0)));
 	}
 
 	private static int fluidLimit(int mTier,boolean mMultiFluid) {
@@ -159,7 +159,7 @@ public int getInventoryFluidLimit() {
 
 	private static int itemLimit(int mTier) {
 
-		return (int) (64 * Math.pow(2, Math.max(mTier - 3, 0)));
+		return (int) (64 * Math.pow(4, Math.max(mTier - 3, 0)));
 	}
 	public BufferedDualInputHatch(int id, String name, String nameRegional, int tier, boolean mMultiFluid,
 			int bufferNum, String... optional) {
@@ -1246,6 +1246,7 @@ static int EX_CONFIG=985211;
 			final int ii = i;
 			inv0.get(i).fromTag((NBTTagCompound) aNBT.getTag("BUFFER_" + ii));
 		}
+		CMMode=aNBT.getBoolean("CMMode");
 		merge = aNBT.getBoolean("merge");
 		justHadNewItems = aNBT.getBoolean("justHadNewItems");
 		updateEveryTick = aNBT.getBoolean("updateEveryTick");
@@ -1259,7 +1260,7 @@ static int EX_CONFIG=985211;
 		for (int i = 0; i < bufferNum; i++)
 
 			aNBT.setTag("BUFFER_" + i, inv0.get(i).toTag());
-		
+		aNBT.setBoolean("CMMode", CMMode);
 		aNBT.setBoolean("merge", merge);
 		aNBT.setBoolean("justHadNewItems", justHadNewItems);
 		aNBT.setBoolean("updateEveryTick", updateEveryTick);

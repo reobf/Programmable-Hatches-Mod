@@ -160,20 +160,20 @@ public class MAConduit extends AbstractConduit implements ICraftingMachineCondui
 
 	int tick;
 
-
+	ForgeDirection candidateDir;
 	private WeakReference<ICraftingMachine> candidate=new WeakReference<>(null);;
 	@Override
 	public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table,
 			ForgeDirection ejectionDirection) {
-		
+		if(this.net==null)return false;
 		try{
 			
-			if(PartMAP2P.chain.contains(this)){return false;}
-			PartMAP2P.chain.add(this);
+			if(PartMAP2P.chain.contains(this.net)){return false;}
+			PartMAP2P.chain.add(this.net);
 		
 			if(tick==MinecraftServer.getServer().getTickCounter()){
 				ICraftingMachine val;
-				if((val=candidate.get())!=null&&val.pushPattern(patternDetails,table,ejectionDirection)){return true;}
+				if((val=candidate.get())!=null&&val.pushPattern(patternDetails,table,candidateDir)){return true;}
 			}
 		
 				if(( getExternalConnections().contains(StateHolder.state))&&
@@ -192,7 +192,7 @@ public class MAConduit extends AbstractConduit implements ICraftingMachineCondui
 								if(te instanceof ICraftingMachine){
 									ForgeDirection old=StateHolder.state;
 									StateHolder.state=ent.getValue().getOpposite();
-									if(((ICraftingMachine) te).pushPattern(patternDetails, table, ejectionDirection)){
+									if(((ICraftingMachine) te).pushPattern(patternDetails, table, ent.getValue().getOpposite())){
 										StateHolder.state=old;
 										return true;
 									}
@@ -222,7 +222,7 @@ public class MAConduit extends AbstractConduit implements ICraftingMachineCondui
 			
 		}finally{
 				
-				PartMAP2P.chain.remove(this);
+				PartMAP2P.chain.remove(this.net);
 			}
 	}
 	private TileEntity getTarget(TileEntity thiz,ForgeDirection side) {
@@ -241,13 +241,16 @@ public class MAConduit extends AbstractConduit implements ICraftingMachineCondui
  
 	@Override
 	public boolean acceptsPlans() {
-	
+		if(this.net==null)return false;
 	//System.out.println(StateHolder.state);
 	//System.out.println(getConnectionMode(StateHolder.state).acceptsInput());
 	try{
 		
-		if(PartMAP2P.chain.contains(this)){return false;}
-		PartMAP2P.chain.add(this);
+		if(PartMAP2P.chain.contains(this.net)){
+			
+			return false;
+			}
+		PartMAP2P.chain.add(this.net);
 	
 	
 	
@@ -272,7 +275,7 @@ public class MAConduit extends AbstractConduit implements ICraftingMachineCondui
 									
 										tick=MinecraftServer.getServer().getTickCounter();
 										candidate=new WeakReference<ICraftingMachine>((ICraftingMachine) te);
-										
+										candidateDir=ent.getValue().getOpposite();
 									
 									
 									return true;
@@ -303,7 +306,7 @@ public class MAConduit extends AbstractConduit implements ICraftingMachineCondui
 		
 	}finally{
 			
-			PartMAP2P.chain.remove(this);
+			PartMAP2P.chain.remove(this.net);
 		}
 	}
 
@@ -340,10 +343,20 @@ public class MAConduit extends AbstractConduit implements ICraftingMachineCondui
 	public void externalConnectionAdded(ForgeDirection fromDirection) {
 		super.externalConnectionAdded(fromDirection);
 		ConnectionMode mode=ConnectionMode.DISABLED;
+
+       
 		 TileEntity te = getLocation().getLocation(fromDirection).getTileEntity(getTE().getWorldObj());
-	       int bit=0;
+	       if(clz.isInstance(te)){
+	    	   setConnectionMode(fromDirection, ConnectionMode.DISABLED);
+        	return ;}
+		 
+		 int bit=0;
 		 if (te instanceof ICraftingMachine) {
+			 StateHolder.state=fromDirection.getOpposite();
+			 if(((ICraftingMachine)te).acceptsPlans())
 			 bit=bit|1;
+			 
+			 
 	        }
 	        if (te instanceof IInterfaceHost) {
 	        	 bit=bit|2;
@@ -352,6 +365,21 @@ public class MAConduit extends AbstractConduit implements ICraftingMachineCondui
 		          
 	        	if (((IPartHost)te).getPart(fromDirection.getOpposite()) instanceof IInterfaceHost)
 	        	 bit=bit|2;
+	        	
+	        	if (((IPartHost)te).getPart(fromDirection.getOpposite()) instanceof PartMAP2P)
+	        	{ 
+	        		PartMAP2P p2p=(PartMAP2P) ((IPartHost)te).getPart(fromDirection.getOpposite());
+	        		if(p2p.output){
+	        			
+	        			bit=bit|2;
+	        		}else{
+	        			 bit=bit|1;
+	        			
+	        		}
+	        		
+	        	}
+	        	
+	        	
 	        }
 		
 	        if(bit==1)mode=ConnectionMode.OUTPUT;
@@ -361,10 +389,22 @@ public class MAConduit extends AbstractConduit implements ICraftingMachineCondui
 		setConnectionMode(fromDirection, mode);
 		
 	}
+	
+	static Class clz;
+	static{try {
+		clz=Class.forName("crazypants.enderio.conduit.IConduitBundle");
+	} catch (ClassNotFoundException e) {e.printStackTrace();
+	
+	}}
 	 @Override
 	    public boolean canConnectToExternal(ForgeDirection direction, boolean ignoreConnectionMode) {
 	        TileEntity te = getLocation().getLocation(direction).getTileEntity(getTE().getWorldObj());
 	       
+	        if(clz.isInstance(te)){
+	        	
+	        	return false;}
+	        
+	        
 	        ignoreConnectionMode=true;
 	        a:if (te instanceof ICraftingMachine) {
 	        	if(ignoreConnectionMode==false&&!getConnectionMode(direction).acceptsOutput()){break a;}

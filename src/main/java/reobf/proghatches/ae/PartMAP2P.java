@@ -9,9 +9,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 
 import appeng.api.implementations.tiles.ICraftingMachine;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
@@ -56,36 +58,94 @@ public class PartMAP2P extends PartP2PTunnelStatic<PartMAP2P> implements ICrafti
 		if(tick==MinecraftServer.getServer().getTickCounter()){
 			//same tick... try the one found in acceptsPlans!
 			ICraftingMachine val;
-			if((val=candidate.get())!=null&&val.pushPattern(patternDetails,table,ejectionDirection)){return true;}
+			if((val=candidate.get())!=null&&val.pushPattern(patternDetails,table,candidateDir)){return true;}
 		}
 		//direct call to pushPattern? or acceptsPlans but push failed?
 		//just iterate again to find another valid!
-		for(ICraftingMachine ep:getOuputEndpoints(null)){
-			if(ep.pushPattern(patternDetails,table,ejectionDirection)){return true;}
+		try {
+		
+			for(PartMAP2P out:getOutputs()){
+				
+				TileEntity te = out.getTarget();
+				if(te==null){continue ;}
+				if(te instanceof ICraftingMachine){
+					
+					
+					ICraftingMachine ep=(ICraftingMachine) te;
+					ForgeDirection old=StateHolder.state;
+					StateHolder.state=out.getSide().getOpposite();
+					if(ep.acceptsPlans()){
+						if(ep.pushPattern(patternDetails,table,out.getSide().getOpposite())){return true;}
+						StateHolder.state=old;
+						continue ;}
+						StateHolder.state=old;
+				}
+				
+				
+			};
+		} catch (GridAccessException e) {
+			
 		}
+		
+		
+	
 		return false;
 	}
-	
+	ForgeDirection candidateDir;
 	WeakReference<ICraftingMachine> candidate=new WeakReference<>(null);
 	int tick;
 	@Override
 	public boolean acceptsPlans(ForgeDirection ejectionDirection) {
 		try{
 			
-			if(chain.contains(this)){return false;}
-			chain.add(this);if (isOutput()) {
+			if(chain.contains(this)){
+				
+				return false;
+				}
+			chain.add(this);
+			
+			if (isOutput()) {
 			return false;
 		}
 		if (getFrequency() == 0) {
 			return false;
 		}
 
-		for(ICraftingMachine ep:getOuputEndpoints(null)){
-			if(ep.acceptsPlans()){
-				tick=MinecraftServer.getServer().getTickCounter();
-				candidate=new WeakReference<ICraftingMachine>(ep);
-				return true;}
+		try {
+			for(PartMAP2P out:getOutputs()){
+				
+				TileEntity te = out.getTarget();
+				if(te==null){continue;}
+				/*if(te instanceof IPartHost){
+					//shortcut fot recursive p2p
+					IPart p=((IPartHost) te).getPart(side.getOpposite());
+					if( p instanceof PartMAP2P){
+						
+						((PartMAP2P)p).getOuputEndpoints(fret);
+						return;
+					}
+				}*/
+				if(te instanceof ICraftingMachine){
+					
+					
+					ICraftingMachine ep=(ICraftingMachine) te;
+					ForgeDirection old=StateHolder.state;
+					StateHolder.state=out.getSide().getOpposite();
+					if(ep.acceptsPlans()){
+						tick=MinecraftServer.getServer().getTickCounter();
+						candidate=new WeakReference<ICraftingMachine>(ep);
+						candidateDir=out.getSide().getOpposite();
+						StateHolder.state=old;
+						return true ;}
+						StateHolder.state=old;
+				}
+				
+				
+			};
+		} catch (GridAccessException e) {
+			
 		}
+		
 		
 		
 		return false;}finally{
@@ -110,14 +170,14 @@ public class PartMAP2P extends PartP2PTunnelStatic<PartMAP2P> implements ICrafti
 	 
 	 
 	 public static HashSet<Object> chain=new HashSet();
-	public Collection<ICraftingMachine> getOuputEndpoints(Collection<ICraftingMachine> ret) {
+	/*public Multimap<ICraftingMachine,ForgeDirection> getOuputEndpoints(Multimap<ICraftingMachine,ForgeDirection> ret) {
 		try{
 			if(ret==null)
-		    ret=new LinkedList<>();
+		    ret=HashMultimap.create();
 			if(chain.contains(this)){return ret;}
 			chain.add(this);
 		
-		final Collection<ICraftingMachine> fret=ret;
+		final Multimap<ICraftingMachine,ForgeDirection> fret=ret;
 		
 		try {
 			getOutputs().forEach((out)->{
@@ -135,10 +195,10 @@ public class PartMAP2P extends PartP2PTunnelStatic<PartMAP2P> implements ICrafti
 				}
 				if(te instanceof ICraftingMachine){
 					
-					ForgeDirection old=StateHolder.state;
-					StateHolder.state=out.getSide().getOpposite();
-					fret.add((ICraftingMachine) te);
-					StateHolder.state=old;
+					//ForgeDirection old=StateHolder.state;
+					//StateHolder.state=out.getSide().getOpposite();
+					fret.put((ICraftingMachine) te,out.getSide().getOpposite());
+					//StateHolder.state=old;
 				}
 				
 				
@@ -154,7 +214,7 @@ public class PartMAP2P extends PartP2PTunnelStatic<PartMAP2P> implements ICrafti
 		return ret;}finally{
 			chain.remove(this);
 		}
-	}
+	}*/
 
 	@Override
 	@SideOnly(Side.CLIENT)

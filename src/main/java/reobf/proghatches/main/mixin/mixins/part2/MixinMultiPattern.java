@@ -208,7 +208,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 				if(medium.isBusy()){break;}
 				
 				if (detail.isCraftable()) {
-					continue;// that's impossible to be done in same tick
+					break stop;// that's impossible to be done in same tick
 				}
 				InventoryCrafting ic = detail.isCraftable() ? new InventoryCrafting(new ContainerNull(), 3, 3)
 						: new InventoryCrafting(new ContainerNull(), detail.getInputs().length, 1);

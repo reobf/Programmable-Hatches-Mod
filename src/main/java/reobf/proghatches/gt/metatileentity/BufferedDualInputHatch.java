@@ -424,7 +424,7 @@ public int getInventoryFluidLimit() {
 				if(!recipeLocked){return true;}
 				
 				if(Config.delayUnlock){
-					if(unlockDelay==0){unlockDelay=20;preventSleep=Math.max(preventSleep,25);return false;}
+					if(unlockDelay==0){unlockDelay=10;preventSleep=Math.max(preventSleep,25);return false;}
 					if(unlockDelay>0){
 						unlockDelay--;
 						if(unlockDelay!=0)return false;

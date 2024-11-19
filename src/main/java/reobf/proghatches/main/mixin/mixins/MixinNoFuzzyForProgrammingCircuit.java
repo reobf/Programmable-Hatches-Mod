@@ -21,7 +21,7 @@ import reobf.proghatches.main.MyMod;
 public abstract class MixinNoFuzzyForProgrammingCircuit implements IItemList<IAEItemStack> {
 
 	@Inject(cancellable = true, method = "findFuzzy", at = {
-			@At(value = "INVOKE", target = "Lappeng/util/item/AEItemStack;isOre()Z", shift = Shift.BEFORE) })
+			@At(value = "INVOKE", target = "Lappeng/util/item/AEItemStack;isOre()Z", shift = Shift.BEFORE) }, require = 1)
 	public void prevent(final IAEItemStack filter, final FuzzyMode fuzzy,
 			CallbackInfoReturnable<Collection<IAEItemStack>> xx) {
 		if ((filter.getItem() == MyMod.progcircuit)) {

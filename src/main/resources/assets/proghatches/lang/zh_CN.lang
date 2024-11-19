@@ -663,3 +663,7 @@ item.proghatches.part.ma.p2p.tooltips.0=将合成请求代理到远端
 item.proghatches.part.ma.p2p.tooltips.1=输入端连接口 输出端连分子装配室
 item.proghatches.part.ma.p2p.tooltips.2=无法调谐
 enderio.proghatch.ma.conduit.name=分子装配导管
+proghatches.gt.void.fx.true=FX:ON
+proghatches.gt.void.fx.false=FX:OFF
+tile.proghatch.ma_iface.name=分子装配接口
+tile.proghatches.circuit_interceptor.name=CPU提取请求拦截器(编程器电路)

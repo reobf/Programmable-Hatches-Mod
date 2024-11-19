@@ -213,6 +213,9 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		retLate.add("part2.MixinEIOGui");
 		retLate.add("part2.MixinEIOInit");
 		retLate.add("part2.MixinEIOBundle");
+		retLate.add("part2.MixinContextNoCircuitCache");
+		retLate.add("part2.MixinExtractIntercept");
+		
 		if (FMLLaunchHandler.side().isClient()) {
 			if (!"true".equals(pp.get("noAEItemSortMixins")))
 				if(ff)retLate.add("MixinAEItemStackCompare");

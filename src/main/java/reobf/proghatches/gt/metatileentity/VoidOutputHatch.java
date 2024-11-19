@@ -28,6 +28,7 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Output;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_OutputBus;
+import gregtech.api.util.GT_Utility;
 import gregtech.common.GT_Client;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
@@ -36,6 +37,7 @@ import net.minecraft.client.particle.EntityBreakingFX;
 import net.minecraft.client.particle.EntityDropParticleFX;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -45,6 +47,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
@@ -161,6 +164,8 @@ public class VoidOutputHatch  extends GT_MetaTileEntity_Hatch_Output {
 	        
 	        NBTTagList nbttaglist0 = compound.getTagList("Fluids", 10);
 	        rebuildFilter();
+	        if(compound.hasKey("fx"))
+	 	       fx=compound.getBoolean("fx");
 	}
 	
 	@Override
@@ -181,7 +186,7 @@ public class VoidOutputHatch  extends GT_MetaTileEntity_Hatch_Output {
 
         compound.setTag("Items", nbttaglist);
          nbttaglist = new NBTTagList();
-
+         compound.setBoolean("fx", fx);
    
 	}
 
@@ -189,7 +194,7 @@ public class VoidOutputHatch  extends GT_MetaTileEntity_Hatch_Output {
 		boolean b= filterPredicate.test(aStack);
 		
 		
-		if(b)MyMod.net.sendToDimension(new VoidFXMessage(
+		if(b&&fx)MyMod.net.sendToDimension(new VoidFXMessage(
 			this.getBaseMetaTileEntity(), aStack
 				),this.getBaseMetaTileEntity().getWorld().provider.dimensionId);
 		
@@ -483,6 +488,20 @@ public class EntityDropParticleFX extends EntityFX
 }
 
 
+boolean fx=true;
+@Override
+public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
+		ItemStack aTool) {
+	
+	if (!getBaseMetaTileEntity().getCoverInfoAtSide(side)
+            .isGUIClickable()) return;
+	fx=!fx;
+	GT_Utility.sendChatToPlayer(
+               aPlayer,
+               StatCollector.translateToLocal("proghatches.gt.void.fx."+fx)
+			   );
+	
+}
 
 
 

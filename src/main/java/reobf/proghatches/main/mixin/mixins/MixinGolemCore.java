@@ -29,7 +29,7 @@ public class MixinGolemCore extends Item{
 	
 	
 	
-	@Inject(method = "registerIcons", at = @At("HEAD"),remap=true)
+	@Inject(method = "registerIcons", at = @At("HEAD"),remap=true, require = 1)
 	@SideOnly(Side.CLIENT)
 	   public void registerIcons(IIconRegister ir,CallbackInfo c) {
 	    
@@ -37,14 +37,14 @@ public class MixinGolemCore extends Item{
 	      
 	   }
 
-	@Inject(method = "addInformation", at = @At("TAIL"),remap=true)
+	@Inject(method = "addInformation", at = @At("TAIL"),remap=true, require = 1)
 	public void addInformation(ItemStack stack, EntityPlayer par2EntityPlayer, List list, boolean par4,CallbackInfo c) {
 		  if(stack.getItemDamage()==damage) {
 			  list.add(StatCollector.translateToLocal("proghatches.golemcore.120.hint.0"));
 			  list.add(StatCollector.translateToLocal("proghatches.golemcore.120.hint.1"));
 			  list.add(StatCollector.translateToLocal("programmable_hatches.addedby"));
 		  }}
-	@Inject(method = "getSubItems", at = @At("HEAD"),remap=true)
+	@Inject(method = "getSubItems", at = @At("HEAD"),remap=true, require = 1)
 
 	   @SideOnly(Side.CLIENT)
 	   public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List,CallbackInfo c) {
@@ -52,7 +52,7 @@ public class MixinGolemCore extends Item{
 		 par3List.add(new ItemStack(this, 1, damage));
 	   }
 	
-	@Inject(method = "getIconFromDamage", at = @At("HEAD"),remap=true,cancellable=true)
+	@Inject(method = "getIconFromDamage", at = @At("HEAD"),remap=true,cancellable=true, require = 1)
 	@SideOnly(Side.CLIENT)
 	   public void getIconFromDamage(int d,CallbackInfoReturnable c) {
 	     if(d==damage)c.setReturnValue((Object)iconEx);

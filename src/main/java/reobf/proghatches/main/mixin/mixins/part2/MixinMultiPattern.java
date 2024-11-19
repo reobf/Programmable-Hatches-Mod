@@ -143,8 +143,10 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 			for (int x = 0; x < input.length; x++) {
 				IAEItemStack tmp = input[x].copy().setStackSize(Integer.MAX_VALUE);
 				final IAEItemStack ais = this.inventory.extractItems(tmp, Actionable.MODULATE, this.machineSrc);
-				if (ais != null)
+				if (ais != null){
 					nums[x] = (int) ais.getStackSize();
+					this.postChange(ais, this.machineSrc);
+				}
 			}
 			try {
 
@@ -204,7 +206,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 			//int now = temp1.getOrDefault(detail, 0);
 			final long max = getMaxSkips();
 			stop:for (int i = 0; i < max; i=(i<Integer.MAX_VALUE-10)?(i+1):i) {
-				
+				if(MixinCallback.getter.apply(e.getValue())<=1){break;}
 				if(medium.isBusy()){break;}
 				
 				if (detail.isCraftable()) {

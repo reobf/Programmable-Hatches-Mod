@@ -20,7 +20,7 @@ public class MixinFixPipeCoverBug{
 	ForgeDirection realSide;
 	
 	@Inject(remap=false,method="onRightclick",at=@At(value="INVOKE",target = 
-				"onPlayerAttach"))
+				"onPlayerAttach"), require = 1)
 		public void onRightclick0(EntityPlayer aPlayer, ForgeDirection side, float aX, float aY, float aZ,CallbackInfoReturnable<Boolean> cc) {
 			realSide=side;
 			if(((CoverableTileEntity)(Object)this).getCoverIDAtSide(side) == 0)

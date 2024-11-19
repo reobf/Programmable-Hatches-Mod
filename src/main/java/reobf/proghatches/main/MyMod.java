@@ -137,6 +137,7 @@ import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_HeatExchang
 import gregtech.crossmod.waila.GregtechWailaDataProvider;
 import li.cil.oc.api.Driver;
 import reobf.proghatches.Tags;
+import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
 import reobf.proghatches.block.ChunkTrackingGridCahce;
 import reobf.proghatches.block.TileIOHub;
 import reobf.proghatches.eio.ItemMAConduit;
@@ -193,7 +194,12 @@ public class MyMod {
 		NBTTagCompound t=new NBTTagCompound();
 		AEFluidStack.create(new FluidStack(FluidRegistry.WATER,123).writeToNBT(t));
 		*/
-		
+		try {
+			Class.forName("com.glodblock.github.client.gui.GuiInterfaceWireless$InterfaceWirelessEntry");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		}
 		
 		
@@ -705,6 +711,8 @@ public class MyMod {
 	public static Item stockingexport;
 	public static Item ma_p2p_part;
 	public static ItemMAConduit ma_conduit;
+	public static Block circuit_interceptor;
+	public static BlockMolecularAssemblerInterface ma_iface;
 
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void pretick(final TickEvent.ServerTickEvent event) {

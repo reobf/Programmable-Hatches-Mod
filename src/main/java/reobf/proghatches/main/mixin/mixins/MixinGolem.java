@@ -28,7 +28,7 @@ public abstract class MixinGolem extends EntityGolem{
 		super(p_i1686_1_);
 		
 	}
-	@Inject(method = "setupGolem", at = @At("RETURN"),remap=false)
+	@Inject(method = "setupGolem", at = @At("RETURN"),remap=false, require = 1)
  public void setupGolem(CallbackInfoReturnable c) {
 	    
 	if(getCore()==120){

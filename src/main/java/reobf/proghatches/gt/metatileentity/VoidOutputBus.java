@@ -27,6 +27,7 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_OutputBus;
+import gregtech.api.util.GT_Utility;
 import gregtech.common.GT_Client;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
@@ -38,11 +39,13 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
@@ -152,6 +155,8 @@ public class VoidOutputBus  extends GT_MetaTileEntity_Hatch_OutputBus {
 	        
 	        NBTTagList nbttaglist0 = compound.getTagList("Fluids", 10);
 	       rebuildFilter();
+	       if(compound.hasKey("fx"))
+	       fx=compound.getBoolean("fx");
 	}
 	
 	@Override
@@ -173,12 +178,12 @@ public class VoidOutputBus  extends GT_MetaTileEntity_Hatch_OutputBus {
         compound.setTag("Items", nbttaglist);
          nbttaglist = new NBTTagList();
 
-   
+         compound.setBoolean("fx", fx);
 	}
 
 	public boolean dump(ItemStack aStack) {
 			boolean b= filterPredicate.test(aStack);
-		if(b)MyMod.net.sendToDimension(new VoidFXMessage(
+		if(b&&fx)MyMod.net.sendToDimension(new VoidFXMessage(
 				this.getBaseMetaTileEntity(), aStack
 					),this.getBaseMetaTileEntity().getWorld().provider.dimensionId);
 		return b;
@@ -455,7 +460,20 @@ is=f;
 	    
 	
 	}
-
+boolean fx=true;
+@Override
+public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
+		ItemStack aTool) {
+	
+	if (!getBaseMetaTileEntity().getCoverInfoAtSide(side)
+            .isGUIClickable()) return;
+	fx=!fx;
+	GT_Utility.sendChatToPlayer(
+               aPlayer,
+               StatCollector.translateToLocal("proghatches.gt.void.fx."+fx)
+			   );
+	
+}
 
 }
 

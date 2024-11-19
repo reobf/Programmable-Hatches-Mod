@@ -10,6 +10,7 @@ import java.util.List;
 
 import appeng.api.AEApi;
 import appeng.block.AEBaseItemBlock;
+import appeng.block.crafting.BlockMolecularAssembler;
 import appeng.core.AEConfig;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLInterModComms;
@@ -24,6 +25,8 @@ import mcp.mobius.waila.api.IWailaRegistrar;
 import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockCraftingCondenser;
 import reobf.proghatches.ae.BlockCyclicPatternSubmitter;
+import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
+import reobf.proghatches.ae.BlockStockingCircuitRequestInterceptor;
 import reobf.proghatches.ae.BlockStorageProxy;
 import reobf.proghatches.ae.ItemPartAmountMaintainer;
 import reobf.proghatches.ae.ItemPartMAP2P;
@@ -32,6 +35,8 @@ import reobf.proghatches.ae.ItemPartStorageProxy;
 import reobf.proghatches.ae.ItemPartSubnetExciter;
 import reobf.proghatches.ae.TileCraftingCondenser;
 import reobf.proghatches.ae.TileCyclicPatternSubmitter;
+import reobf.proghatches.ae.TileMolecularAssemblerInterface;
+import reobf.proghatches.ae.TileStockingCircuitRequestInterceptor;
 import reobf.proghatches.ae.TileStorageProxy;
 import reobf.proghatches.block.BlockAnchorAlert;
 import reobf.proghatches.block.BlockIOHub;
@@ -93,7 +98,8 @@ public class CommonProxy {
 		GameRegistry.registerTileEntity(TileCardReader.class, "proghatches.card_reader");
 		GameRegistry.registerTileEntity(TileReactorSyncer.class, "proghatches.reactor_syncer");
 		GameRegistry.registerTileEntity(TileStorageProxy.class, "proghatches.proxy");
-		
+		GameRegistry.registerTileEntity(TileMolecularAssemblerInterface.class, "proghatches.ma_inface");
+		GameRegistry.registerTileEntity(TileStockingCircuitRequestInterceptor.class, "proghatches.circuit_interceptor");
 		ItemMEPlunger a=new ItemMEPlunger(100000);
 		
 	
@@ -211,7 +217,16 @@ public class CommonProxy {
 		a();
 		
 		MyMod.ma_conduit =ItemMAConduit.create();
+		GameRegistry
+		.registerBlock(
+				MyMod.circuit_interceptor = new BlockStockingCircuitRequestInterceptor()
+						/*.setUnlocalizedName("proghatches.circuit_interceptor").setTextureName("?")*/,
+				"circuit_interceptor");
+		
+		
+		
 		GameRegistry.registerTileEntity(TileCraftingCondenser.class, "proghatches.craftingdumper");
+		GameRegistry.registerBlock(MyMod.ma_iface = new BlockMolecularAssemblerInterface(), "proghatches.ma_iface");
 		
 	}
  static public class ToolTipAEBaseItemBlock extends AEBaseItemBlock{

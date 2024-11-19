@@ -4,6 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Surrogate;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -42,9 +43,9 @@ public class MixinWirelessRename {
 				c.setReturnValue(true);
 		 }
 	 }
-	
+	@Surrogate
 	@Inject(method = "<init>", at = @At(value = "RETURN"), require = 1)
-	public void  ctor(GuiInterfaceWireless parent,long idx, String name, int rows, int rowSize, boolean online,CallbackInfo x) {
+	public void  ctor(/*GuiInterfaceWireless parent,long idx, String name, int rows, int rowSize, boolean online,*/CallbackInfo x) {
 		
 		 if((id&Long.MIN_VALUE)!=0){
 			isCover=true;

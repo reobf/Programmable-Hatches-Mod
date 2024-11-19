@@ -44,7 +44,7 @@ public class MixinWirelessRename {
 		 }
 	 }
 	@Surrogate
-	@Inject(method = "<init>", at = @At(value = "RETURN"), require = 1)
+	@Inject(method = "<init>", at = @At(value = "RETURN"))
 	public void  ctor(/*GuiInterfaceWireless parent,long idx, String name, int rows, int rowSize, boolean online,*/CallbackInfo x) {
 		
 		 if((id&Long.MIN_VALUE)!=0){

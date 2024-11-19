@@ -194,14 +194,8 @@ public class MyMod {
 		NBTTagCompound t=new NBTTagCompound();
 		AEFluidStack.create(new FluidStack(FluidRegistry.WATER,123).writeToNBT(t));
 		*/
-		try {
-			Class.forName("com.glodblock.github.client.gui.GuiInterfaceWireless$InterfaceWirelessEntry");
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	
 		}
-		}
-		
 		
 		
 		instance = this;

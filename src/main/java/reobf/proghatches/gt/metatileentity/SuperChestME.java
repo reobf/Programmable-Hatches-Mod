@@ -128,15 +128,23 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 				), new ITexture[0]);
 		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
 	}
+	int capOverride;
 	@Override
 	public int getInventoryStackLimit() {
 	
 		return cap();
 	}
 	public int cap(){
-		
+		if(capOverride>=64){
+			
+			return 
+					
+					Math.max(64,
+					Math.min(capOverride,commonSizeCompute(mTier)));
+		}
 		return commonSizeCompute(mTier);
 	}
+	
 	 protected static int commonSizeCompute(int tier) {
 	        switch (tier) {
 	            case 1 : return 4000000;
@@ -477,7 +485,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	public boolean allowPutStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
 			ItemStack aStack) {
 		
-		return true
+		return  aIndex!=0
 				;
 	}
 	protected void fillStacksIntoFirstSlots() {
@@ -517,6 +525,8 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 	int rep;
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
+		
+		
 		boolean active=this.getProxy().isActive();
 		if(!aBaseMetaTileEntity.getWorld().isRemote){
 			if(rep>0){rep--;update=true;}
@@ -534,13 +544,13 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 			 voidOverflow = false;
              mInventory[0]=null;
          }
-		if(mInventory[0]!=null){
+		if(mInventory[0]!=null&&voidOverflow){
 			
 			if(mInventory[0]!=null)
 				mInventory[0].stackSize=Math.min
-				(commonSizeCompute(mTier),mInventory[0].stackSize);
+				(cap(),mInventory[0].stackSize);
 		}
-		}
+		
 		if(!aBaseMetaTileEntity.getWorld().isRemote&&(aTick&16)!=0){
 			this.getBaseMetaTileEntity().setActive(
 			this.getProxy().isPowered()&&active
@@ -564,8 +574,11 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 		
 		
 		
-		
+		}
 		super.onPostTick(aBaseMetaTileEntity, aTick);
+		
+		if(aBaseMetaTileEntity.getWorld().isRemote){return;}
+		
 		boolean needToSort=false;
 		for(int i=1;i<mInventory.length;i++){
 			ItemStack is = mInventory[i];
@@ -716,7 +729,18 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 			.setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
 			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.piority"))
 			.setPos(3+2,18*3+3+1).setSize(16*8,16))
- 
+ 	.widget(new TextFieldWidget()	
+		 .setPattern(BaseTextFieldWidget.WHOLE_NUMS)
+		.setGetter(()->capOverride+"")
+		.setSetter(s->
+		{try{capOverride=Integer.parseInt(s);}catch(Exception e){capOverride=0;};if(capOverride<64)capOverride=0;post();})
+		 .setSynced(true,true)
+		
+		.setTextColor(Color.WHITE.dark(1))
+
+			.setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
+			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.capOverride.64"))
+			.setPos(3+18*5+1, 3+1).setSize(16*4,16))
  .widget(new CycleButtonWidget().setToggle(() -> voidFull, val -> {
 	 voidFull = val;
   
@@ -785,6 +809,7 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	voidFull=aNBT.getBoolean("voidFull" );
 	voidOverflow= aNBT.getBoolean("voidOverflow" );
 	last=AEItemStack.create(mInventory[0]);
+	capOverride=aNBT.getInteger("capOverride" );
 }
  
 @Override
@@ -811,7 +836,7 @@ public void saveNBTData(NBTTagCompound aNBT) {
 	}
 	aNBT.setBoolean("voidFull", voidFull);
 	 aNBT.setBoolean("voidOverflow", voidOverflow);
-	
+	    if(capOverride!=0)aNBT.setInteger("capOverride", capOverride);
 }@Override
 public void onFacingChange() {
 	updateValidGridProxySides();
@@ -835,6 +860,7 @@ public void setItemNBT(NBTTagCompound aNBT) {
     if(sticky)aNBT.setBoolean("sticky", sticky);
     if(voidFull)aNBT.setBoolean("voidFull", voidFull);
     if(voidOverflow)aNBT.setBoolean("voidOverflow", voidOverflow);
+    if(capOverride!=0)aNBT.setInteger("capOverride", capOverride);
 }
 @Override
 public boolean shouldDropItemAt(int index) {

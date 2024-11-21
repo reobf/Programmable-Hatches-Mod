@@ -82,6 +82,7 @@ import thaumcraft.client.renderers.block.BlockCandleRenderer;
 
 public class CommonProxy {
 
+	@SuppressWarnings("deprecation")
 	public void preInit(FMLPreInitializationEvent event) {
 		Config.synchronizeConfiguration(event.getSuggestedConfigurationFile());
 
@@ -219,14 +220,17 @@ public class CommonProxy {
 		MyMod.ma_conduit =ItemMAConduit.create();
 		GameRegistry
 		.registerBlock(
-				MyMod.circuit_interceptor = new BlockStockingCircuitRequestInterceptor()
-						/*.setUnlocalizedName("proghatches.circuit_interceptor").setTextureName("?")*/,
-				"circuit_interceptor");
+				MyMod.circuit_interceptor = new BlockStockingCircuitRequestInterceptor(),ItemBlockTooltip.class,
+						/*.setUnlocalizedName("proghatches.circuit_interceptor").setTextureName("?")*/
+				"circuit_interceptor",new Object[]{""});
 		
 		
 		
 		GameRegistry.registerTileEntity(TileCraftingCondenser.class, "proghatches.craftingdumper");
-		GameRegistry.registerBlock(MyMod.ma_iface = new BlockMolecularAssemblerInterface(), "proghatches.ma_iface");
+		GameRegistry.registerBlock(MyMod.ma_iface = new BlockMolecularAssemblerInterface()
+				,ItemBlockTooltip.class
+				
+				, "proghatches.ma_iface",new Object[]{""});
 		
 	}
  static public class ToolTipAEBaseItemBlock extends AEBaseItemBlock{

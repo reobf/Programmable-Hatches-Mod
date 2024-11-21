@@ -44,7 +44,10 @@ amount=f.amount;
 
 		@Override
 		public VoidFXMessage onMessage(VoidFXMessage message, MessageContext ctx) {
-		if(message.id!=-1)
+		
+			try{
+			
+			if(message.id!=-1)
 			try{
 			((VoidOutputHatch)
 			((IGregTechTileEntity)Minecraft.getMinecraft().theWorld.getTileEntity(message.x, message.y, message.z)
@@ -67,7 +70,7 @@ amount=f.amount;
 			
 			
 			
-			
+			}catch(Exception e){e.printStackTrace();}
 			
 			return null;
 		}

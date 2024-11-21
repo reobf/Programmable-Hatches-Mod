@@ -46,7 +46,8 @@ public boolean getHasSubtypes() {
 @Override
 public String getUnlocalizedName(ItemStack stack) {
 	if(field_150939_a instanceof INameAndTooltips){
-		return ((INameAndTooltips) field_150939_a).getName(stack);
+		String s= ((INameAndTooltips) field_150939_a).getName(stack);
+		if(s!=null)return s;
 	}
 	return super.getUnlocalizedName();
 }

@@ -551,6 +551,18 @@ IMEMonitor handler0x= new MEMonitorHandler(handler
 	boolean suppressSticky;
 	boolean wasActive;
 	int rep;
+	
+	int cap(){
+		if(capOverride>0){
+			
+			return 
+					
+					Math.max(0,
+					Math.min(capOverride,commonSizeCompute(mTier)));
+		}
+	
+		return commonSizeCompute(mTier);
+	}
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		
@@ -571,11 +583,11 @@ IMEMonitor handler0x= new MEMonitorHandler(handler
 			 voidOverflow = false;
 			 content.setFluid(null);
          }
-		if(content.getFluidAmount()>0){
+		if(content.getFluidAmount()>0&&voidOverflow){
 			
 			if(content.getFluidAmount()>0)
 				content.getFluid().amount=Math.min
-				(commonSizeCompute(mTier),content.getFluid().amount);
+				(cap(),content.getFluid().amount);
 		}
 		}
 		
@@ -679,6 +691,7 @@ ItemStackHandler uihandler=new ItemStackHandler(mInventory){
 	};
 	
 };
+private int capOverride;
 @Override
 public ItemStackHandler getInventoryHandler() {
 	
@@ -775,6 +788,21 @@ builder.widget(new FluidSlotWidget(content)
 			.setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
 			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.piority"))
 			.setPos(3+2,18*3+3+1).setSize(16*8,16))
+	.widget(new TextFieldWidget()	
+			 .setPattern(BaseTextFieldWidget.WHOLE_NUMS)
+			.setGetter(()->capOverride+"")
+			.setSetter(s->
+			{try{capOverride=Integer.parseInt(s);}catch(Exception e){capOverride=0;};if(capOverride<0)capOverride=0;
+			content.setCapacity(cap());
+			
+			post();})
+			 .setSynced(true,true)
+			
+			.setTextColor(Color.WHITE.dark(1))
+
+				.setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.capOverride"))
+				.setPos(3+18*5+1, 3+1).setSize(16*4,16))
  .widget(new CycleButtonWidget().setToggle(() -> voidFull, val -> {
 	 voidFull = val;
   
@@ -848,6 +876,7 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	voidFull=aNBT.getBoolean("voidFull" );
 	voidOverflow= aNBT.getBoolean("voidOverflow" );
 	last=AEFluidStack.create(content.getFluid());
+	capOverride=aNBT.getInteger("capOverride");
 }
  protected static int commonSizeCompute(int tier) {
      switch (tier) {
@@ -883,7 +912,7 @@ public void saveNBTData(NBTTagCompound aNBT) {
 	aNBT.setBoolean("voidFull", voidFull);
 	 aNBT.setBoolean("voidOverflow", voidOverflow);
 	
-	
+	 if(capOverride!=0)aNBT.setInteger("capOverride", capOverride);
 }
 @Override
 public void setItemNBT(NBTTagCompound aNBT) {
@@ -892,6 +921,7 @@ public void setItemNBT(NBTTagCompound aNBT) {
     if(sticky)aNBT.setBoolean("sticky", sticky);
     if(voidFull)aNBT.setBoolean("voidFull", voidFull);
     if(voidOverflow)aNBT.setBoolean("voidOverflow", voidOverflow);
+    if(capOverride!=0)aNBT.setInteger("capOverride", capOverride);
 }
 @Override
 public boolean shouldDropItemAt(int index) {

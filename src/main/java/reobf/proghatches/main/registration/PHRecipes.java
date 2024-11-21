@@ -311,6 +311,9 @@ public class PHRecipes implements Runnable {
 	Hatch_Input_Multi_2x2_Humongous };
 
 
+	/**
+	 * 
+	 */
 	@Override
 	    public void run() {
 	
@@ -1184,7 +1187,32 @@ public class PHRecipes implements Runnable {
 		  .duration(10 * SECONDS)
 		 .eut((int) (30*Math.pow(4, i-1)))
 		 .addTo(RecipeMaps.formingPressRecipes);
+		
 		 
+		 CraftingManager.getInstance().addRecipe( new ItemStack(
+		         GregTech_API.sBlockMachines,
+		         1,
+		         Config.metaTileEntityOffset+Registration.MEChest + i-1)	, new Object[]{"c",'c',
+		        		 
+		        		 new ItemStack(
+		        		         GregTech_API.sBlockMachines,
+		        		         1,
+		        		         Config.metaTileEntityOffset+Registration.MEChest + i-1)	
+		        		 
+		         });
+		 CraftingManager.getInstance().addRecipe( new ItemStack(
+		         GregTech_API.sBlockMachines,
+		         1,
+		         Config.metaTileEntityOffset+Registration.METank + i-1)	, new Object[]{"c",'c',
+		        		 
+		        		 new ItemStack(
+		        		         GregTech_API.sBlockMachines,
+		        		         1,
+		        		         Config.metaTileEntityOffset+Registration.METank + i-1)	
+		        		 
+		         });
+			 
+			
 	 }
 	 
 	 
@@ -1751,8 +1779,40 @@ public class PHRecipes implements Runnable {
 		.eut(480)
 		.addTo(RecipeMaps.assemblerRecipes);
 	 
+	 GT_Values.RA.stdBuilder()
+		.itemInputs(
+	
+		Optional.of(
+				Api.INSTANCE.definitions().blocks().molecularAssembler().maybeStack(1).get()
+		).map(s->{s.stackSize=0;return s;}).get(),
+		Api.INSTANCE.definitions().blocks().craftingUnit().maybeStack(1).get(),
+		Api.INSTANCE.definitions().materials().formationCore().maybeStack(2).get(),
+		Api.INSTANCE.definitions().materials().annihilationCore().maybeStack(2).get()	
+				)
+		.itemOutputs(
+				new ItemStack(MyMod.ma_iface, 1,0)
+						 )
+		.duration(1000 * SECONDS)
+		.eut(480)
+		.addTo(RecipeMaps.assemblerRecipes);
 	 
-	 
+	 GT_Values.RA.stdBuilder()
+		.itemInputs(
+	
+	
+		Api.INSTANCE.definitions().blocks().craftingUnit().maybeStack(1).get(),
+		 new ItemStack(
+		         GregTech_API.sBlockMachines,
+		         1,
+		         Config.metaTileEntityOffset+Registration.CircuitProviderOffsetT0)	,
+		Api.INSTANCE.definitions().materials().cardInverter().maybeStack(1).get()	
+				)
+		.itemOutputs(
+				new ItemStack(MyMod.circuit_interceptor, 1,0)
+						 )
+		.duration(1000 * SECONDS)
+		.eut(480)
+		.addTo(RecipeMaps.assemblerRecipes);
 	 
 	 
 	

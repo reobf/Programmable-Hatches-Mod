@@ -8,6 +8,7 @@ import com.glodblock.github.common.item.ItemFluidPacket;
 
 import appeng.api.implementations.tiles.ICraftingMachine;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
+import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.inventory.InventoryCrafting;
@@ -15,11 +16,16 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import reobf.proghatches.fmp.LayerCraftingMachine.StateHolder;
+import reobf.proghatches.main.MyMod;
+import reobf.proghatches.net.MAFXMessage;
 
 public class TileMolecularAssemblerInterface extends TileEntity implements ICraftingMachine {
-
+public float xfx;//=0.1f;
+public float yfx;//=0.1f;
+public float zfx;//=0.1f;
 	@Override
 	public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table,
 			ForgeDirection ejectionDirection) {
@@ -49,16 +55,42 @@ public class TileMolecularAssemblerInterface extends TileEntity implements ICraf
 
 		}
 		
-		if(itemCheck(te, item, false)>=0)return false;
-		if(fluidCheck(te, fluid, false)>=0)return false;
+		if(itemCheck(te, item, false,ejectionDirection.ordinal())>=0)return false;
+		if(fluidCheck(te, fluid, false,ejectionDirection)>=0)return false;
 		
-		itemCheck(te, item,true);
-		fluidCheck(te, fluid,true);
-		
-		
+		itemCheck(te, item,true,ejectionDirection.ordinal());
+		fluidCheck(te, fluid,true,ejectionDirection);
+		if(ejectionDirection.offsetX!=0){
+			xfx=1;
+		}
+		if(ejectionDirection.offsetY!=0){
+			yfx=1;
+		}
+		if(ejectionDirection.offsetZ!=0){
+			zfx=1;
+		}
 		return true;
 	}
+@Override
+	public void updateEntity() {
+	if(this.getWorldObj().isRemote)return;
+		if(xfx>0){xfx=-1;
+		MyMod.net.sendToAllAround(new MAFXMessage(this, 0), new TargetPoint(this.getWorldObj().provider.dimensionId, xCoord, yCoord, zCoord, 100));
+		
+		}
+if(yfx>0){yfx=-1;
+MyMod.net.sendToAllAround(new MAFXMessage(this, 1), new TargetPoint(this.getWorldObj().provider.dimensionId, xCoord, yCoord, zCoord, 100));
 
+		
+		}
+if(zfx>0){zfx=-1;
+MyMod.net.sendToAllAround(new MAFXMessage(this, 2), new TargetPoint(this.getWorldObj().provider.dimensionId, xCoord, yCoord, zCoord, 100));
+
+
+}
+	
+	
+	}
 	@Override
 	public boolean acceptsPlans() {
 		/*ForgeDirection dir = StateHolder.state;
@@ -126,16 +158,17 @@ public class TileMolecularAssemblerInterface extends TileEntity implements ICraf
 
 	//-1 pass 
 	//>=0 first index in inputs that won't fit
-	public int itemCheck( TileEntity t, ArrayList<ItemStack> item,boolean doInject) {
+	public int itemCheck( TileEntity t, ArrayList<ItemStack> item,boolean doInject,int side) {
 		if(t instanceof IInventory==false){return Integer.MAX_VALUE;}
 		IInventory te=(IInventory) t;
 		
 		ForgeDirection dir=getSide();
 		ISideCheck checker=ISideCheck.ofInv(te);
+			int[] slots=checker.getAccessibleSlotsFromSide(side);
+			Arrays.sort(slots);
 		int cnt=0;
 		next:for(int i=0;i<item.size();i++){
-			int[] slots=checker.getAccessibleSlotsFromSide(i);
-			Arrays.sort(slots);
+		
 			while(true){
 			
 				if(checker.canInsertItem(slots[cnt], item.get(i), dir.ordinal())
@@ -144,7 +177,15 @@ public class TileMolecularAssemblerInterface extends TileEntity implements ICraf
 						&&
 						te.getInventoryStackLimit()>=item.get(i).stackSize
 						&&item.get(i).stackSize<=item.get(i).getMaxStackSize()
+						
+						
 						){
+				if	(te.getStackInSlot(slots[cnt])!=null
+						&&te.getStackInSlot(slots[cnt]).stackSize>0
+						){return slots[cnt];}
+					
+					
+					
 					if(doInject){
 						te.setInventorySlotContents(slots[cnt], item.get(i));
 					}
@@ -166,10 +207,18 @@ public class TileMolecularAssemblerInterface extends TileEntity implements ICraf
 		return -1;
 	}
 
-	public int fluidCheck( TileEntity t, ArrayList<FluidStack> fluid,boolean doInject) {
+	public int fluidCheck( TileEntity t, ArrayList<FluidStack> fluid,boolean doInject,ForgeDirection side) {
 		if(t instanceof IFluidHandler==false){return Integer.MAX_VALUE;}
 		IFluidHandler f=(IFluidHandler) t;
+		FluidTankInfo[] info = f.getTankInfo(side);
+		if(info!=null){
+			//f.drain(side, 1000, false);
+			for(FluidTankInfo i:info){
+				if(i.fluid!=null&&i.fluid.amount>0)return 0;
+			}
+		}
 		//SPECIAL CHECKS HERE
+		
 		if(fluid.size()>1){return 0;}
 		for(int i=0;i<fluid.size();i++){
 			if(f.fill(getSide(), fluid.get(i), false)==fluid.get(i).amount)return i;

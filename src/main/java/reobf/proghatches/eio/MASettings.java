@@ -36,6 +36,9 @@ import reobf.proghatches.net.ConnectionModeMessage;
 public class MASettings  extends BaseSettingsPanel {
 	
 	static public IWidgetIcon icon;
+	public static class Holder{
+		
+		
 	
 	static public IWidgetIcon getMAIcon(){
 	if(icon==null)
@@ -103,11 +106,11 @@ public class MASettings  extends BaseSettingsPanel {
 	return icon;
 	}
 	
-	
+	}
 	
 	
     public MASettings(GuiExternalConnection gui, IConduit con) {
-        super(getMAIcon()
+        super(Holder.getMAIcon()
         		, EnderIO.lang.localize("itemMEConduit.name"), gui, con);
     }
     protected boolean hasInOutModes() {

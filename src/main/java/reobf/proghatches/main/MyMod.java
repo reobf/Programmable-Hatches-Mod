@@ -443,7 +443,7 @@ public class MyMod {
 		// ItemStack(Blocks.bed))), FuzzyMode.IGNORE_ALL);
 		ConduitDisplayMode.registerDisplayMode(new ConduitDisplayMode(
 				
-				ICraftingMachineConduit.class, MASettings.getMAIcon(), MASettings.getMAIcon()));
+				ICraftingMachineConduit.class, MASettings.Holder.getMAIcon(), MASettings.Holder.getMAIcon()));
 		Map<OffsetKey, Offset> OFFSETS =null;
 		{try {
 			Field f=Offsets.class

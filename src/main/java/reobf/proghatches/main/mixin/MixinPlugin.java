@@ -210,13 +210,14 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		retLate.add("part2.MixinCraftingV2");
 		
 		retLate.add("part2.MixinDirectionCapture");
-		retLate.add("part2.MixinEIOGui");
+		
 		retLate.add("part2.MixinEIOInit");
 		retLate.add("part2.MixinEIOBundle");
 		retLate.add("part2.MixinContextNoCircuitCache");
 		retLate.add("part2.MixinExtractIntercept");
 		
 		if (FMLLaunchHandler.side().isClient()) {
+			retLate.add("part2.MixinEIOGui");
 			if (!"true".equals(pp.get("noAEItemSortMixins")))
 				if(ff)retLate.add("MixinAEItemStackCompare");
 			if (!"true".equals(pp.get("noFixTossBug")))

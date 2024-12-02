@@ -69,6 +69,12 @@ public static TreeSet<Integer> list;
 		icons[mark(36)] = register.registerIcon("proghatches:cover36");
 		icons[mark(37)] = register.registerIcon("proghatches:cover37");
 		icons[mark(100)] = register.registerIcon("proghatches:cover37");
+		
+		icons[mark(90)] = register.registerIcon("proghatches:circuitholder");
+		icons[mark(91)] = register.registerIcon("proghatches:circuitholder1");
+		icons[mark(92)] = register.registerIcon("proghatches:circuitholder2");
+		icons[mark(93)] = register.registerIcon("proghatches:circuitholder3");
+		icons[mark(94)] = register.registerIcon("proghatches:circuitholder4");
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

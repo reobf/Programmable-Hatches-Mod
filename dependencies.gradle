@@ -84,4 +84,7 @@ api("com.github.GTNewHorizons:NotEnoughEnergistics:1.5.1:dev")
 	
 	 api('com.github.GTNewHorizons:Navigator:1.0.12:dev')
      runtimeOnlyNonPublishable(rfg.deobf('maven.modrinth:journeymap:5.2.6'))
+	 
+	  api("com.github.GTNewHorizons:Baubles:1.0.4:dev")
+	  api("com.github.GTNewHorizons:ironchest:6.0.85:dev")
 }

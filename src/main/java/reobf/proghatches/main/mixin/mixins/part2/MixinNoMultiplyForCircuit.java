@@ -20,7 +20,7 @@ public class MixinNoMultiplyForCircuit {
 	
 	
 	
-	@Inject(method="applyModification",remap=false, at = { @At("RETURN") })
+	@Inject( require = 1,method="applyModification",remap=false, at = { @At("RETURN") })
 	private static void applyModification(ItemStack stack, int bitMultiplier,CallbackInfo c) {
 		 
 	

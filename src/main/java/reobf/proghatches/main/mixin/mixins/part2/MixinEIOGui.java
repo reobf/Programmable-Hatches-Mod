@@ -17,7 +17,7 @@ import reobf.proghatches.eio.MASettings;
 
 @Mixin(value=TabFactory.class,remap=false)
 public class MixinEIOGui {
-	@Inject(method="createPanelForConduit",at = { @At("RETURN") },cancellable=true)
+	@Inject( require = 1,method="createPanelForConduit",at = { @At("RETURN") },cancellable=true)
 	  public void createPanelForConduit(GuiExternalConnection gui, IConduit con
 			 ,CallbackInfoReturnable<ITabPanel>  a
 			  ) {

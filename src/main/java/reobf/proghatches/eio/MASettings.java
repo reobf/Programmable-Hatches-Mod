@@ -34,74 +34,80 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.net.ConnectionModeMessage;
 
 public class MASettings  extends BaseSettingsPanel {
+	
+	static public IWidgetIcon icon;
+	
+	static public IWidgetIcon getMAIcon(){
+	if(icon==null)
+		icon =new IWidgetIcon(){
 
+	@Override
+	public int getX() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getY() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getWidth() {
+		
+		return 	 16;
+	}
+
+	@Override
+	public int getHeight() {
+		
+		return 	 16;
+	}
+
+	@Override
+	public IWidgetIcon getOverlay() {
+		return null;
+	}
+
+	@Override
+	public IWidgetMap getMap() {
+		  
+		return new IWidgetMap.WidgetMapImpl(16, 
+				
+				new ResourceLocation("minecraft", "textures/blocks/crafting_table_top.png"))
+				
+		
+		{		
+		
+			@Override
+	        public void render(IWidgetIcon widget, double x, double y, double width, double height, double zLevel,
+	                boolean doDraw, boolean flipY) {
+			//一个个画能有多大性能损失？ 既然非要共用单个纹理 还假惺惺弄个ResourceLocation参数干啥 真的会谢
+			Tessellator tessellator = Tessellator.instance;
+		
+			if(!doDraw)tessellator.draw();//如果是连续绘制 先把之前的画了
+			int old= GL11.glGetInteger(GL11.GL_TEXTURE_2D);
+			 RenderUtil.bindTexture(this.getTexture());
+			super.render(widget, x, y, width, height, zLevel, true,flipY);
+		    GL11.glBindTexture(GL11.GL_TEXTURE_2D, old);
+		    if(!doDraw)tessellator.startDrawingQuads();//再重新开始画
+		   
+		}
+			
+			
+			
+				}	
+				
+				;}};
+	return icon;
+	}
+	
+	
+	
+	
     public MASettings(GuiExternalConnection gui, IConduit con) {
-        super(
-        		new IWidgetIcon(){
-
-					@Override
-					public int getX() {
-						// TODO Auto-generated method stub
-						return 0;
-					}
-
-					@Override
-					public int getY() {
-						// TODO Auto-generated method stub
-						return 0;
-					}
-
-					@Override
-					public int getWidth() {
-						
-						return 	 16;
-					}
-
-					@Override
-					public int getHeight() {
-						
-						return 	 16;
-					}
-
-					@Override
-					public IWidgetIcon getOverlay() {
-						return null;
-					}
-
-					@Override
-					public IWidgetMap getMap() {
-						  
-						return new IWidgetMap.WidgetMapImpl(16, 
-								
-								new ResourceLocation("minecraft", "textures/blocks/crafting_table_top.png"))
-								
-						
-						{		
-						
-							@Override
-					        public void render(IWidgetIcon widget, double x, double y, double width, double height, double zLevel,
-					                boolean doDraw, boolean flipY) {
-							//一个个画能有多大性能损失？ 既然非要共用单个纹理 还假惺惺弄个ResourceLocation参数干啥 真的会谢
-							Tessellator tessellator = Tessellator.instance;
-						
-							if(!doDraw)tessellator.draw();//如果是连续绘制 先把之前的画了
-							int old= GL11.glGetInteger(GL11.GL_TEXTURE_2D);
-							 RenderUtil.bindTexture(this.getTexture());
-							super.render(widget, x, y, width, height, zLevel, true,flipY);
-						    GL11.glBindTexture(GL11.GL_TEXTURE_2D, old);
-						    if(!doDraw)tessellator.startDrawingQuads();//再重新开始画
-						   
-						}
-							
-							
-							
-								}	
-								
-								;
-					}
-					}
-        		
-        		
+        super(getMAIcon()
         		, EnderIO.lang.localize("itemMEConduit.name"), gui, con);
     }
     protected boolean hasInOutModes() {

@@ -19,7 +19,7 @@ public class MixinDirectionCapture {
 
 	
 	
-	@ModifyVariable(method="pushPattern",at =  @At(
+	@ModifyVariable( require = 1,method="pushPattern",at =  @At(
 			value="INVOKE",target="Lappeng/api/implementations/tiles/ICraftingMachine;acceptsPlans()Z"
 		,shift=Shift.BEFORE	) )
 	public ForgeDirection cap(ForgeDirection i){

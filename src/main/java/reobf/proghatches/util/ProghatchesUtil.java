@@ -228,8 +228,24 @@ public class ProghatchesUtil {
 		tag.setLong(name + "_UUID_L", id.getLeastSignificantBits());
 		return tag;
 	} 
-	
-	
+	public static NBTTagCompound ser(NBTTagCompound tag, ItemStack[] is, String name) {
+		for(int i=0;i<is.length;i++){
+			
+			tag.setTag(name+i, is[i].writeToNBT(new NBTTagCompound()));
+			
+		}tag.setInteger(name+"len", is.length);
+		return tag;
+		
+	}
+	public static ItemStack[] deseri(NBTTagCompound tag, String name) {
+		ItemStack[] is=new ItemStack[tag.getInteger(name+"len")];
+		
+		for(int i=0;i<is.length;i++){
+			is[i]=ItemStack.loadItemStackFromNBT(tag.getCompoundTag(name+i));
+		}
+		return is;
+		
+	}
 	
 	private static Method m;
 	

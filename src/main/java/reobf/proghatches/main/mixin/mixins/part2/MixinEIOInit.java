@@ -19,7 +19,7 @@ import reobf.proghatches.eio.MASettings;
 @Mixin(value=AbstractConduit.class,remap=false)
 public class MixinEIOInit {
 	
-	@Inject(method="createNetworkForType",at = { @At("RETURN") },cancellable=true)
+	@Inject( require = 1,method="createNetworkForType",at = { @At("RETURN") },cancellable=true)
 	  public void createPanelForConduit(CallbackInfoReturnable<AbstractConduitNetwork>  a
 			  ) {
 		 Class type = this.getClass();

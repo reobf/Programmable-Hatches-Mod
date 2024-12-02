@@ -58,7 +58,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 	@Unique
 	T medium;
 
-	@ModifyVariable(method = "executeCrafting", at = @At(value = "INVOKE", target = "pushPattern(Lappeng/api/networking/crafting/ICraftingPatternDetails;Lnet/minecraft/inventory/InventoryCrafting;)Z"))
+	@ModifyVariable( require = 1,method = "executeCrafting", at = @At(value = "INVOKE", target = "pushPattern(Lappeng/api/networking/crafting/ICraftingPatternDetails;Lnet/minecraft/inventory/InventoryCrafting;)Z"))
 	public ICraftingMedium b(ICraftingMedium a) {
 		isMulti = a instanceof IMultiplePatternPushable;
 
@@ -69,7 +69,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 	@Unique
 	InventoryCrafting inv;
 
-	@ModifyArg(method = "executeCrafting", at = @At(value = "INVOKE", target = "Lappeng/api/networking/crafting/ICraftingMedium;pushPattern(Lappeng/api/networking/crafting/ICraftingPatternDetails;Lnet/minecraft/inventory/InventoryCrafting;)Z"))
+	@ModifyArg( require = 1,method = "executeCrafting", at = @At(value = "INVOKE", target = "Lappeng/api/networking/crafting/ICraftingMedium;pushPattern(Lappeng/api/networking/crafting/ICraftingPatternDetails;Lnet/minecraft/inventory/InventoryCrafting;)Z"))
 	public InventoryCrafting a(InventoryCrafting a) {
 		
 			inv = a;
@@ -79,7 +79,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 	@Unique
 	ICraftingPatternDetails detail;
 
-	@ModifyArg(method = "executeCrafting", at = @At(value = "INVOKE", target = "Lappeng/api/networking/crafting/ICraftingMedium;pushPattern(Lappeng/api/networking/crafting/ICraftingPatternDetails;Lnet/minecraft/inventory/InventoryCrafting;)Z"))
+	@ModifyArg( require = 1,method = "executeCrafting", at = @At(value = "INVOKE", target = "Lappeng/api/networking/crafting/ICraftingMedium;pushPattern(Lappeng/api/networking/crafting/ICraftingPatternDetails;Lnet/minecraft/inventory/InventoryCrafting;)Z"))
 	public ICraftingPatternDetails b(ICraftingPatternDetails a) {
 		
 			detail = a;
@@ -89,7 +89,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 	@Unique
 	java.util.Map.Entry e;
 
-	@ModifyVariable(method = "executeCrafting", at = @At(value = "INVOKE", target = "Lappeng/api/networking/crafting/ICraftingMedium;pushPattern(Lappeng/api/networking/crafting/ICraftingPatternDetails;Lnet/minecraft/inventory/InventoryCrafting;)Z"))
+	@ModifyVariable( require = 1,method = "executeCrafting", at = @At(value = "INVOKE", target = "Lappeng/api/networking/crafting/ICraftingMedium;pushPattern(Lappeng/api/networking/crafting/ICraftingPatternDetails;Lnet/minecraft/inventory/InventoryCrafting;)Z"))
 	public java.util.Map.Entry b(java.util.Map.Entry a) {
 		
 			e = a;
@@ -113,7 +113,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 	private MECraftingInventory inventory;
 	private static final IAEItemStack[] EMPTY = new IAEItemStack[0];
 
-	@Inject(at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "markDirty"), method = "executeCrafting")
+	@Inject( require = 1,at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "markDirty"), method = "executeCrafting")
 	public void b(IEnergyGrid eg, CraftingGridCache cc, CallbackInfo ci) {
 
 		if (isMulti) {
@@ -291,7 +291,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 	@Shadow
 	int remainingOperations;
 
-	@Inject(at = @At(value = "RETURN"), method = "executeCrafting")
+	@Inject( require = 1,at = @At(value = "RETURN"), method = "executeCrafting")
 	public void ret(IEnergyGrid eg, CraftingGridCache cc, CallbackInfo ci) {
 		detail = null;
 		e = null;
@@ -351,7 +351,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 		return maxSkips;
 	}
 
-	@Inject(at = @At(value = "RETURN"), method = "addTile")
+	@Inject( require = 1,at = @At(value = "RETURN"), method = "addTile")
 	public void addTile(TileCraftingTile te, CallbackInfo it) {
 		if (te instanceof ICondenser) {
 			ICondenser con = (ICondenser) te;

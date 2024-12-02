@@ -1,5 +1,8 @@
 package reobf.proghatches.main;
 
+import static crazypants.enderio.gui.IconEIO.WRENCH_OVERLAY_ITEM;
+import static crazypants.enderio.gui.IconEIO.WRENCH_OVERLAY_ITEM_OFF;
+
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -119,6 +122,12 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
+import crazypants.enderio.conduit.ConduitDisplayMode;
+import crazypants.enderio.conduit.geom.Offset;
+import crazypants.enderio.conduit.geom.Offsets;
+import crazypants.enderio.conduit.geom.Offsets.Axis;
+import crazypants.enderio.conduit.geom.Offsets.OffsetKey;
+import crazypants.enderio.conduit.item.IItemConduit;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.interfaces.tileentity.ICoverable;
@@ -140,7 +149,9 @@ import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
 import reobf.proghatches.block.ChunkTrackingGridCahce;
 import reobf.proghatches.block.TileIOHub;
+import reobf.proghatches.eio.ICraftingMachineConduit;
 import reobf.proghatches.eio.ItemMAConduit;
+import reobf.proghatches.eio.MASettings;
 import reobf.proghatches.eucrafting.BlockEUInterface;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.AECover.IMemoryCardSensitive;
@@ -369,14 +380,15 @@ public class MyMod {
 				return;
 			}
 			p.get = true;
-			EntityItem entityitem = e.player.dropPlayerItemWithRandomChoice(
+			/*EntityItem entityitem = e.player.dropPlayerItemWithRandomChoice(
 					Optional.of(tutorial("programmable_hatches.eucreafting.tutorial")).map(s -> {
 						s.stackTagCompound.setString("proghatchesSpecialTag", "true");
 						return s;
 					}).get(), false);
 			entityitem.delayBeforeCanPickup = 0;
 			entityitem.func_145797_a(e.player.getCommandSenderName());
-			entityitem = e.player.dropPlayerItemWithRandomChoice(Optional.of(tutorial()).map(s -> {
+			*/
+			EntityItem entityitem = e.player.dropPlayerItemWithRandomChoice(Optional.of(tutorial()).map(s -> {
 				s.stackTagCompound.setString("proghatchesSpecialTag", "true");
 				return s;
 			}).get(), false);
@@ -429,7 +441,26 @@ public class MyMod {
 		// ItemStack(Blocks.cactus))));
 		// list.findFuzzy(AEItemStack.create(ItemProgrammingCircuit.wrap(new
 		// ItemStack(Blocks.bed))), FuzzyMode.IGNORE_ALL);
-
+		ConduitDisplayMode.registerDisplayMode(new ConduitDisplayMode(
+				
+				ICraftingMachineConduit.class, MASettings.getMAIcon(), MASettings.getMAIcon()));
+		Map<OffsetKey, Offset> OFFSETS =null;
+		{try {
+			Field f=Offsets.class
+			.getDeclaredField("OFFSETS");
+			f.setAccessible(true);
+			OFFSETS=(Map<OffsetKey, Offset>) f.get(null);
+		} catch (Exception e) {e.printStackTrace();
+		}
+		
+		
+		}
+		 OFFSETS.put(Offsets.key(ICraftingMachineConduit.class, Axis.NONE), Offset.SOUTH_DOWN);
+         OFFSETS.put(Offsets.key(ICraftingMachineConduit.class, Axis.X), Offset.SOUTH_DOWN);
+         OFFSETS.put(Offsets.key(ICraftingMachineConduit.class, Axis.Y), Offset.SOUTH_EAST);
+         OFFSETS.put(Offsets.key(ICraftingMachineConduit.class, Axis.Z), Offset.EAST_DOWN);
+		
+		
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)

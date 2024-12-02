@@ -290,6 +290,7 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 
 		protected ArmUIFactory(GT_CoverUIBuildContext buildContext) {
 			super(buildContext);
+		
 		}
 
 		
@@ -299,14 +300,14 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 			// CoverDataControllerWidget<Data> o = new
 			// CoverDataControllerWidget<>(this::getCoverData,
 			// this::setCoverData, SmartRobotArmCover.this);
-
+		
 			if (getUIBuildContext().isAnotherWindow() == false) {
 				getUIBuildContext().addSyncedWindow(77, (s) -> createWindow(s));
 
 				builder.widget(new ButtonWidget().setOnClick((clickData, widget) -> {
 					if (clickData.mouseButton == 0) {
 						if (!widget.isClient())
-
+						//	getUIBuildContext().getTile();
 							widget.getContext().openSyncedWindow(77);
 					}
 				}).setPlayClickSound(true).setBackground(GT_UITextures.BUTTON_STANDARD, PROBE)

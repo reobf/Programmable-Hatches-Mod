@@ -25,24 +25,24 @@ public class MixinIsWailaCall {
 		
 	}
 	
-	@Inject(at = { @At("HEAD") },method="getNBTData",remap=false)
+	@Inject( require = 1,at = { @At("HEAD") },method="getNBTData",remap=false)
 	    public void getNBTData(final EntityPlayerMP player, final TileEntity tile, final NBTTagCompound tag,
 	        final World world, int x, int y, int z,CallbackInfoReturnable r) {
 		AECover.getNBTData=true;
 	    }
 	
-	@Inject(at = { @At("RETURN") },method="getNBTData",remap=false)
+	@Inject( require = 1,at = { @At("RETURN") },method="getNBTData",remap=false)
     public void getNBTData1(final EntityPlayerMP player, final TileEntity tile, final NBTTagCompound tag,
         final World world, int x, int y, int z,CallbackInfoReturnable r) {
 		AECover.getNBTData=false;
     }
 	
-	@Inject(at = { @At("HEAD") },method="getWailaBody",remap=false)
+	@Inject( require = 1,at = { @At("HEAD") },method="getWailaBody",remap=false)
 	 public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
 		        IWailaConfigHandler config,CallbackInfoReturnable r) {
 		AECover.getWailaBody=true;
 	 }
-	@Inject(at = { @At("RETURN") },method="getWailaBody",remap=false)
+	@Inject( require = 1,at = { @At("RETURN") },method="getWailaBody",remap=false)
 	 public void getWailaBody1(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
 		        IWailaConfigHandler config,CallbackInfoReturnable r) {
 		AECover.getWailaBody=false;

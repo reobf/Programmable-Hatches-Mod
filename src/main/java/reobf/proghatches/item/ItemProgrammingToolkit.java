@@ -7,10 +7,13 @@ import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -27,11 +30,13 @@ import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 
+import baubles.api.BaubleType;
+import baubles.api.IBauble;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.gui.modularui.GT_UIInfos;
 
-public class ItemProgrammingToolkit extends Item implements IItemWithModularUI {
+public class ItemProgrammingToolkit extends Item implements IItemWithModularUI , IBauble {
 
 	/*
 	 * @Override public ModularWindow createWindow(UIBuildContext buildContext,
@@ -84,7 +89,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI {
 				lastholdingtick = Minecraft.getMinecraft().thePlayer.ticksExisted;
 		mode = stack.getItemDamage();
 
-		super.onUpdate(stack, worldIn, entityIn, p_77663_4_, p_77663_5_);
+		
 	}
 
 	@SuppressWarnings("unchecked")
@@ -263,7 +268,7 @@ class TakeOnlyItemStackHandler extends ItemStackHandler{
 					StatCollector.translateToLocal("item.prog_toolkit.legacywarning.3")
 					));;
 			
-			builder.widget(sw2.setPos(getGUIWidth()- 18-3, 3));
+			//builder.widget(sw2.setPos(getGUIWidth()- 18-3, 3));remove
 		}
 
 		public UIBuildContext getUIBuildContext() {
@@ -309,5 +314,42 @@ class TakeOnlyItemStackHandler extends ItemStackHandler{
 		protected final Supplier<Integer> COLOR_TEXT_GRAY = () -> getTextColorOrDefault("text_gray", 0x555555);
 		protected final Supplier<Integer> COLOR_TEXT_WARN = () -> getTextColorOrDefault("text_warn", 0xff0000);
 	}
+
+	@Override
+	public BaubleType getBaubleType(ItemStack itemstack) {
+		
+		return BaubleType.AMULET;
+	}
+
+	
+	@Override
+	public void onEquipped(ItemStack itemstack, EntityLivingBase player) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onUnequipped(ItemStack itemstack, EntityLivingBase player) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean canEquip(ItemStack itemstack, EntityLivingBase player) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public boolean canUnequip(ItemStack itemstack, EntityLivingBase player) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+	   @Override
+	    public void onWornTick(ItemStack itemstack, EntityLivingBase player) {
+		   Object i =(Object)this;
+		   
+		  ((Item)i).onUpdate(itemstack, null, player, 0, false);
+	    }
 
 }

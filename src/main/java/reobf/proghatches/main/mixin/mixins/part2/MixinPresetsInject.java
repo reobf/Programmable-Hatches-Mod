@@ -23,7 +23,7 @@ import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
-@Mixin(
+@Mixin( //require = 1,
 		targets="codechicken.nei.CollapsibleItems"
 		,remap=false
 		)

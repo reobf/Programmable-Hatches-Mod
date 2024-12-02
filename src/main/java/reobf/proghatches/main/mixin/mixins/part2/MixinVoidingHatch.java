@@ -29,7 +29,7 @@ public class MixinVoidingHatch {
 	  public ArrayList<GT_MetaTileEntity_Hatch_OutputBus> mOutputBusses;
 
 	long lastNoVoidBusTick=-1;
-	@Inject(method="addOutput(Lnet/minecraft/item/ItemStack;)Z",at = { @At("HEAD") },cancellable=true)
+	@Inject( require = 1,method="addOutput(Lnet/minecraft/item/ItemStack;)Z",at = { @At("HEAD") },cancellable=true)
 	public void addOutput(ItemStack aStack,CallbackInfoReturnable<Boolean> a)
 	{	
 		GT_MetaTileEntity_MultiBlockBase y=(GT_MetaTileEntity_MultiBlockBase)((Object)this);
@@ -53,7 +53,7 @@ public class MixinVoidingHatch {
 		
 	}
 	long lastNoVoidHatchTick=-1;
-	@Inject(method="addOutput(Lnet/minecraftforge/fluids/FluidStack;)Z",at = { @At("HEAD") },cancellable=true)
+	@Inject( require = 1,method="addOutput(Lnet/minecraftforge/fluids/FluidStack;)Z",at = { @At("HEAD") },cancellable=true)
 	public void addOutput(FluidStack aStack,CallbackInfoReturnable<Boolean> a)
 	{
 		GT_MetaTileEntity_MultiBlockBase y=(GT_MetaTileEntity_MultiBlockBase)((Object)this);

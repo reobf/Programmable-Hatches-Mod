@@ -16,7 +16,7 @@ import net.minecraft.item.ItemStack;
 
 @Mixin(value=DualityInterface.class)
 public class MixinBlockModeAltBehaviour {
-	@Redirect(remap=false,method="gtMachineHasOnlyCircuit", at = @At(value="INVOKE",target=
+	@Redirect(remap=false,method="gtMachineHasOnlyCircuit", require = 1, at = @At(value="INVOKE",target=
 			
 			"Lappeng/helpers/BlockingModeIgnoreList;isIgnored(Lnet/minecraft/item/ItemStack;)Z"))
 public boolean isIgnored(ItemStack is){

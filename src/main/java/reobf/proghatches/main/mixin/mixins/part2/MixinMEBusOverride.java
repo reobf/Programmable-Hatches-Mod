@@ -40,7 +40,7 @@ public class MixinMEBusOverride {
 		
 	}
 	
-	@Inject(method={"refreshItemList"
+	@Inject( require = 1,method={"refreshItemList"
 			,"refreshFluidList"
 	},cancellable=true,at = { @At("HEAD") })
 	 private void refreshItemList(CallbackInfo ci) {
@@ -59,7 +59,7 @@ public class MixinMEBusOverride {
 		
 	}
 	
-	@Redirect(method="endRecipeProcessing"
+	@Redirect( require = 1,method="endRecipeProcessing"
 			,
 			
 			at = @At(value="INVOKE",

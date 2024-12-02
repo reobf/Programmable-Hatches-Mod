@@ -26,7 +26,7 @@ public abstract class MixinExtractIntercept extends CraftingTask{
 		
 	}
 
-	@Inject(method="extractExact", at = { @At("HEAD") },cancellable=true)
+	@Inject( require = 1,method="extractExact", at = { @At("HEAD") },cancellable=true)
 	
 	public void extract(CraftingContext context, MECraftingInventory source, List<IAEItemStack> removedList,CallbackInfo c){
 		if(

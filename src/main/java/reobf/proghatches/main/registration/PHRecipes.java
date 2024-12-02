@@ -37,6 +37,7 @@ import com.glodblock.github.loader.ItemAndBlockHolder;
 
 import appeng.core.Api;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.ironchest.IronChest;
 import crazypants.enderio.EnderIOTab;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
@@ -1814,9 +1815,25 @@ public class PHRecipes implements Runnable {
 		.eut(480)
 		.addTo(RecipeMaps.assemblerRecipes);
 	 
+	 for(int i=0;i<=4;i++)
+	 GT_Values.RA.stdBuilder()
+		.itemInputs(
+	new ItemStack(
+	IronChest.ironChestBlock,1,new int[]{3,0,4,1,2}[i])
+	,new ItemStack(MyMod.toolkit,0,OreDictionary.WILDCARD_VALUE)
+	,new ItemStack(MyMod.cover,1,0)
+				)
+		.itemOutputs(
+				new ItemStack(MyMod.cover, 1,90+i)
+						 )
+		.duration(1000 * SECONDS)
+		.eut(480)
+		.addTo(RecipeMaps.assemblerRecipes);
+	 
 	 
 	
 	}
+	
 	
 	
 	

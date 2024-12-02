@@ -9,6 +9,7 @@ import com.glodblock.github.loader.ItemAndBlockHolder;
 import appeng.api.AEApi;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -24,6 +25,7 @@ import reobf.proghatches.eucrafting.InterfaceData;
 import reobf.proghatches.eucrafting.InterfaceP2PData;
 import reobf.proghatches.eucrafting.InterfaceP2PEUData;
 import reobf.proghatches.eucrafting.InterfaceP2PNoFluidData;
+import reobf.proghatches.gt.cover.CircuitHolderCover;
 import reobf.proghatches.gt.cover.LastWorktimeCover;
 import reobf.proghatches.gt.cover.LevelControlCover;
 import reobf.proghatches.gt.cover.LinkedBusSlaveCover;
@@ -285,8 +287,19 @@ public class Registration implements Runnable {
         				
         				,
         
+        				
+        				
+      			
         new AECover(BridgingData.class));
         
+          for(int i=0;i<=4;i++){	
+        	  GregTech_API.registerCover(
+        		new ItemStack(MyMod.cover,1,90+i),
+        TextureFactory.of(
+            MACHINE_CASINGS[1][0],
+            TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
+         new CircuitHolderCover());
+        	  };
         
         new DualInputHatchSlave<>(
             Config.metaTileEntityOffset + SlaveOffset,

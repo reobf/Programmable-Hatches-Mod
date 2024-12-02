@@ -35,9 +35,9 @@ import reobf.proghatches.net.ConnectionModeMessage;
 
 public class MASettings  extends BaseSettingsPanel {
 	
-	static public IWidgetIcon icon;
+	
 	public static class Holder{
-		
+		static public IWidgetIcon icon;
 		
 	
 	static public IWidgetIcon getMAIcon(){

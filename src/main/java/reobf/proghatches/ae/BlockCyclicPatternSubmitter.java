@@ -5,6 +5,7 @@ package reobf.proghatches.ae;
 import static net.minecraftforge.common.util.ForgeDirection.DOWN;
 import static net.minecraftforge.common.util.ForgeDirection.UP;
 
+import java.util.List;
 import java.util.Map;
 
 import com.gtnewhorizons.modularui.api.UIInfos;
@@ -25,14 +26,16 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import net.minecraftforge.event.ForgeEventFactory;
+import reobf.proghatches.block.INameAndTooltips;
 
-public class BlockCyclicPatternSubmitter extends BlockContainer{
+public class BlockCyclicPatternSubmitter extends BlockContainer  implements INameAndTooltips{
 
 	public BlockCyclicPatternSubmitter(Material p_i45386_1_) {
 		super(p_i45386_1_);
@@ -188,5 +191,15 @@ public int getComparatorInputOverride(World worldIn, int x, int y, int z, int si
 	
 	
 	return (ts.index*16)/ts.inv.length;
+}
+@Override
+public void addInformation(ItemStack p_77624_1_, List l) {
+	l.add(StatCollector.translateToLocal("proghatch.submitter.tooltip.0"));
+	
+}
+@Override
+public String getName(ItemStack p_77624_1_) {
+	// TODO Auto-generated method stub
+	return null;
 }
 }

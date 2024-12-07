@@ -699,3 +699,6 @@ item.proghatch.cover.dedicated.tooltips.93=1
 item.proghatch.cover.dedicated.tooltips.93.0=Record 32 types of item to write circuit slot within machine GUI
 item.proghatch.cover.dedicated.tooltips.94=1
 item.proghatch.cover.dedicated.tooltips.94.0=Record 64 types of item to write circuit slot within machine GUI
+programmable_hatches.gt.merge.0=Merge buffers locking same recipe and multiblock will see one single buffer.
+programmable_hatches.gt.merge.1=Might cause some problems if sum of some material hits 2.1G?
+proghatch.submitter.tooltip.0=Use Redstone Comparator to get the index of currently submitted pattern.

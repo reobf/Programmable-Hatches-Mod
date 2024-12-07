@@ -1972,7 +1972,16 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.6"))
 		);
 		
-		
+		builder.widget(new CycleButtonWidget().setToggle(() ->merge , (s) -> {
+			merge = s;
+			
+		}).setStaticTexture(GT_UITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+				.setPos(3 + 18 * 2, 3 + 18 * 0).setSize(18, 18)
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.merge.0"))
+						.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.merge.1"))
+						
+		);
 		
 		return builder.build();
 		

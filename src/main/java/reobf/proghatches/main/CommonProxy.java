@@ -159,7 +159,7 @@ public class CommonProxy {
 		
 		MyMod.iohub = GameRegistry.registerBlock(new BlockIOHub(), ItemBlockIOHub.class, "proghatches.iohub");
 		MyMod.alert = GameRegistry.registerBlock(new BlockAnchorAlert(Material.rock),ItemBlockAnchorAlert.class, "proghatches.chunk_loading_alert");
-		MyMod.submitter = GameRegistry.registerBlock(new BlockCyclicPatternSubmitter(Material.rock), "proghatches.submitter");
+		MyMod.submitter = GameRegistry.registerBlock(new BlockCyclicPatternSubmitter(Material.rock), ItemBlockTooltip.class,"proghatches.submitter",new Object[]{"tile.proghatches.submitter.tooltip"});
 		
 		MyMod.pstation = GameRegistry.registerBlock(new TileWirelessPeripheralStation.Block(),
 				TileWirelessPeripheralStation.ItemBlock.class, "proghatches.peripheral_station");

@@ -60,6 +60,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_TieredMachineBlock;
 import gregtech.api.render.TextureFactory;
+import gregtech.api.util.GT_Utility;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -563,26 +564,33 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
 		return patternMapper;
 	}
-
 	@Override
 	public String getName() {
-		if (hasCustomName()) {
-			return getCustomName();
-		}
-		StringBuilder name = new StringBuilder();
-		if (getCrafterIcon() != null) {
-			name.append(getCrafterIcon().getDisplayName());
-		} else {
-			name.append(getInventoryName());
-		}
 
-		/*
-		 * if (mInventory[SLOT_CIRCUIT] != null) { name.append(" - ");
-		 * name.append(mInventory[SLOT_CIRCUIT].getItemDamage()); } if
-		 * (mInventory[SLOT_MANUAL_START] != null) { name.append(" - ");
-		 * name.append(mInventory[SLOT_MANUAL_START].getDisplayName()); }
-		 */// TODO
-		return name.toString();
+		if (hasCustomName()) {
+            return getCustomName();
+        }
+        StringBuilder name = new StringBuilder();
+        if (getCrafterIcon() != null) {
+            name.append(getCrafterIcon().getDisplayName());
+        } else {
+            name.append(getLocalName());//getinventoryname()
+        }
+        T m = getMaster();
+        if(m!=null){
+        if (m.mInventory[m.getCircuitSlot()] != null) {
+            name.append(" - ");
+            ItemStack is = m.mInventory[m.getCircuitSlot()];
+            if(is.getItem()!=GT_Utility.getIntegratedCircuit(0).getItem()){
+                name.append(is.getDisplayName());
+                if(is.getItemDamage()>0){name.append("@"+is.getItemDamage());}
+                }else{
+                	 name.append(is.getItemDamage());
+                }
+        }}
+       
+        
+        return name.toString();
 	}
 
 	@Override

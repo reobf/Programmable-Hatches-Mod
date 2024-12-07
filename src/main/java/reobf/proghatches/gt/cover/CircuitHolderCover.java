@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
@@ -20,6 +21,7 @@ import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
@@ -518,6 +520,21 @@ public boolean useModularUI() {
 		
 		return new Data(new NBTTagCompound());
 	}
+	@Override
+	public boolean allowsCopyPasteTool() {
+		// TODO Auto-generated method stub
+		return super.allowsCopyPasteTool();
+	}
+@Override
+protected boolean onCoverRightClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
+		ICoverable aTileEntity, EntityPlayer aPlayer, float aX, float aY, float aZ) {
 	
-
+	return super.onCoverRightClickImpl(side, aCoverID, aCoverVariable, aTileEntity, aPlayer, aX, aY, aZ);
+}
+@Override
+protected boolean onCoverShiftRightClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
+		ICoverable aTileEntity, EntityPlayer aPlayer) {
+	// TODO Auto-generated method stub
+	return super.onCoverShiftRightClickImpl(side, aCoverID, aCoverVariable, aTileEntity, aPlayer);
+}
 }

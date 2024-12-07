@@ -697,4 +697,6 @@ item.proghatch.cover.dedicated.tooltips.93=1
 item.proghatch.cover.dedicated.tooltips.93.0=记录32种物品 以便在机器GUI中覆写电路槽
 item.proghatch.cover.dedicated.tooltips.94=1
 item.proghatch.cover.dedicated.tooltips.94.0=记录64种物品 以便在机器GUI中覆写电路槽
-
+programmable_hatches.gt.merge.0=合并锁定同一配方的缓存,向多方块显示为单个缓存
+programmable_hatches.gt.merge.1=单种材料超过2.1G可能会有问题?
+proghatch.submitter.tooltip.0=使用红石比较器获取当前提交的样板序号

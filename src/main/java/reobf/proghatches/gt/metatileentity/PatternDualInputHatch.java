@@ -24,6 +24,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
@@ -83,6 +84,8 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.render.TextureFactory;
+import gregtech.api.util.GT_Util;
+import gregtech.api.util.GT_Utility;
 import gregtech.common.tileentities.casings.upgrade.Inventory;
 import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_CraftingInput_ME;
 import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
@@ -679,23 +682,42 @@ if(supportsFluids())
 
 	@Override
 	public String getName() {
-		if (hasCustomName()) {
-			return getCustomName();
-		}
-		StringBuilder name = new StringBuilder();
-		if (getCrafterIcon() != null) {
-			name.append(getCrafterIcon().getDisplayName());
-		} else {
-			name.append(getInventoryName());
-		}
 
-		/*
-		 * if (mInventory[SLOT_CIRCUIT] != null) { name.append(" - ");
-		 * name.append(mInventory[SLOT_CIRCUIT].getItemDamage()); } if
-		 * (mInventory[SLOT_MANUAL_START] != null) { name.append(" - ");
-		 * name.append(mInventory[SLOT_MANUAL_START].getDisplayName()); }
-		 */// TODO
-		return name.toString();
+		if (hasCustomName()) {
+            return getCustomName();
+        }
+        StringBuilder name = new StringBuilder();
+        if (getCrafterIcon() != null) {
+            name.append(getCrafterIcon().getDisplayName());
+        } else {
+            name.append(getLocalName());//getinventoryname()
+        }
+
+        /*if (mInventory[SLOT_CIRCUIT] != null) {
+            name.append(" - ");
+            name.append(mInventory[SLOT_CIRCUIT].getItemDamage());
+        }*/
+        
+        for (ItemStack is:this.shared.getDisplayItems()) {
+            name.append(" - ");
+           
+            if(is.getItem()!=GT_Utility.getIntegratedCircuit(0).getItem()){
+            name.append(is.getDisplayName());
+            if(is.getItemDamage()>0){name.append("@"+is.getItemDamage());}
+            }else{
+            	 name.append(is.getItemDamage());
+            }
+            
+            //if(is.stackSize>0){name.append("*"+is.stackSize);}
+        }
+        
+        for (FluidStack is:this.shared.getDisplayFluid()) {
+            name.append(" - ");
+            name.append(is.getLocalizedName());
+            //if(is.amount>0){name.append("*"+is.amount);}
+        }
+        
+        return name.toString();
 	}
 
 	@Override

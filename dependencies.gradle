@@ -48,7 +48,7 @@ api("com.github.GTNewHorizons:NotEnoughEnergistics:1.5.1:dev")
 	
 	
     api("com.github.GTNewHorizons:Avaritia:1.49:dev")
-
+    api("com.github.GTNewHorizons:Avaritiaddons:1.7.1-GTNH:dev") 
     api('com.github.GTNewHorizons:Angelica:1.0.0-alpha42:api') { transitive = false }
     api("com.github.GTNewHorizons:AppleCore:3.3.0:dev") { transitive = false }
     api("com.github.GTNewHorizons:BuildCraft:7.1.39:dev") { transitive = false }

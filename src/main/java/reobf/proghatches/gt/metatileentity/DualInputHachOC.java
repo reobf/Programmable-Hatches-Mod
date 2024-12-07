@@ -72,7 +72,10 @@ import li.cil.oc.api.network.Visibility;
 import li.cil.oc.server.component.UpgradeDatabase;
 import li.cil.oc.server.component.traits.WorldInventoryAnalytics$class;
 import li.cil.oc.util.DatabaseAccess;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -80,6 +83,7 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -104,6 +108,46 @@ public class DualInputHachOC extends DualInputHatch implements   Environment,Sid
 		super(aName, aTier, aSlots, aDescription, aTextures, mMultiFluid);
 	
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+			IWailaConfigHandler config) {
+		
+		if(accessor.getNBTData().hasKey("tasks")){
+			ByteArrayInputStream bi=new ByteArrayInputStream(accessor.getNBTData().getByteArray("tasks"));
+			try {int i=0;
+				List<Task> tasks=(List<Task>) new ObjectInputStream(bi).readObject();
+				for(Task task:tasks){
+					currenttip.add((i++)+":"+task.toString());
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
+		
+		
+		super.getWailaBody(itemStack, currenttip, accessor, config);
+	}
+	@Override
+	public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
+			int z) {
+		ByteArrayOutputStream bo=new ByteArrayOutputStream();
+		try {
+			synchronized (tasks) {
+			new ObjectOutputStream(bo).writeObject(tasks);
+			}
+			tag.setByteArray("tasks",bo.toByteArray());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		super.getWailaNBTData(player, tile, tag, world, x, y, z);
+	}
+	
+	
 public gregtech.api.metatileentity.MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
 	
 	return new DualInputHachOC(mName, mTier,17 , mDescriptionArray, mTextures, mMultiFluid);
@@ -298,15 +342,15 @@ public void saveNBTData(NBTTagCompound aNBT) {
 			NBTTagCompound tag =new NBTTagCompound();
 			stack.writeToNBT(tag);
 			byte[] b=CompressedStreamTools.compress(tag);
-			out.write(b.length);
+			out.writeInt(b.length);
 			out.write(b);
-			out.write(stack instanceof AEItemStack?1:0);
+			out.writeInt(stack instanceof AEItemStack?1:0);
 		}
 
 		@Override
 		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 			byte b[]=new byte[in.readInt()];
-			if(in.available()!=b.length){throw new IOException();}
+			//if(in.available()!=b.length){throw new IOException();}
 			in.readFully(b);
 			NBTTagCompound tag = CompressedStreamTools.func_152457_a(b, new NBTSizeTracker(Long.MAX_VALUE));
 			IAEStack ch=
@@ -336,6 +380,24 @@ public void saveNBTData(NBTTagCompound aNBT) {
 		boolean itemtype;//false->item true->fluid
 		int amount;
 		AEStackHolder item;
+		
+		@Override
+		public String toString() {
+		StringBuilder sb=new StringBuilder();
+		if(item!=null){
+			
+			if(item.stack instanceof AEFluidStack){
+			sb.append(((AEFluidStack)item.stack).getFluid().getName()+"*"+item.stack.getStackSize());
+			}else if(item.stack instanceof AEItemStack){
+				sb.append(((AEItemStack)item.stack).getDisplayName()+"*"+item.stack.getStackSize());
+			}
+		
+		
+		}else{
+			sb.append("?");
+		}
+			return sb.toString();
+		}
 		
 		public void validate(Node n,Task task){
 			if(task.state==0)
@@ -384,8 +446,10 @@ public void saveNBTData(NBTTagCompound aNBT) {
 		
 		private static final long serialVersionUID = 4868145313081267898L;
 		int id;
-		
-		TargetStack item;
+		public String toString() {
+			return "id:"+id+" "+item.toString()+" "+state();
+		};
+		final TargetStack item;
 		//0->submitted
 		//1->validated
 		//2->data base missing
@@ -497,7 +561,8 @@ public void saveNBTData(NBTTagCompound aNBT) {
 	
 			,direct=true)
 	public Object[] addTask(final Context context, final Arguments args) {
-		try{
+		try{	synchronized (tasks){ 
+			if(tasks.size()>=127){throw new IllegalArgumentException ("Too many unsubmitted tasks(127)");}
 		Task task=new Task(args.checkString(0), args.checkInteger(1), args.checkInteger(2), args.optBoolean(3,false), idcounter.addAndGet(1));
 		tasks.add(task);
 		
@@ -505,7 +570,7 @@ public void saveNBTData(NBTTagCompound aNBT) {
 		map.put("id", task.id);
 		map.put("state","added");
 		
-		return new Object[]{map};
+		return new Object[]{map};}
 	}catch(Exception e){e.printStackTrace();return new Object[0];}
 	}
 	
@@ -604,8 +669,8 @@ public void saveNBTData(NBTTagCompound aNBT) {
 	
 	
 AtomicInteger idcounter=new AtomicInteger(0);
-@SuppressWarnings("unchecked")
-List<Task> tasks=(List<Task>) Collections.synchronizedList(new ArrayList());
+
+List<Task> tasks=(List<Task>) Collections.synchronizedList(new ArrayList<Task>());
 private BaseActionSource source=new MachineSource(this);
 	
 @Override

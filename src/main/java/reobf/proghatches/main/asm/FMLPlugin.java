@@ -20,6 +20,7 @@ System.out.println("xxxxxxxxxxxxxxxx");
 				AEItemTransformer.class.getName() ,
 				MUITransformer.class.getName(),
 				DataCopyableTransformer.class.getName()
+				
 		};
 	}
 

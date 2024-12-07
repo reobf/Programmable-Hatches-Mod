@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -1121,7 +1122,7 @@ public void reinitTierBasedField() {
 	public interface VargsFunction<T, R> {
 			R apply(T... t);
 	}
-	VargsFunction<Object[], FluidStack[]> asFluidStack = (s) -> Arrays.stream(s).flatMap( Arrays::stream).map(f->{
+	static VargsFunction<Object[], FluidStack[]> asFluidStack = (s) -> Arrays.stream(s).flatMap( Arrays::stream).map(f->{
 		if(f instanceof FluidTank){return ((FluidTank) f).getFluid();}
 		else if(f instanceof FluidStack){return (FluidStack)f;}
 		else if(f==null){/*ignore*/return null;}
@@ -1129,7 +1130,7 @@ public void reinitTierBasedField() {
 		{throw new RuntimeException("only FluidStack or FluidTank are accepted");}
 	})
 			.filter(a -> a != null && a.amount > 0).toArray(FluidStack[]::new);
-	VargsFunction<ItemStack[], ItemStack[]> filterStack = (s) -> Arrays.stream(s).flatMap( Arrays::stream).filter(a -> a != null)
+	static VargsFunction<ItemStack[], ItemStack[]> filterStack = (s) -> Arrays.stream(s).flatMap( Arrays::stream).filter(a -> a != null)
 			.toArray(ItemStack[]::new);
 
 	@Override
@@ -2295,15 +2296,31 @@ public class OptioanlSharedContents{
 	}
 	boolean broken;
 	
-	
+	public ItemStack[] getDisplayItems(){
+		ArrayList<ItemStack> all=new ArrayList<>();
+		all.addAll(circuitInv);
+		all.add(mInventory[getCircuitSlot()]);
+		all.addAll(markedItems);
+		all.removeIf(Objects::isNull);
+		return all.toArray(new ItemStack[0]);
+		}
+	public FluidStack[] getDisplayFluid(){
+			
+			ArrayList<FluidStack> all=new ArrayList<>();
+			all.addAll(markedFluid);
+			all.removeIf(Objects::isNull);
+			return all.toArray(new FluidStack[0]);}
 	public ItemStack[] getItems(){
 		ArrayList<ItemStack> all=new ArrayList<>();
 		all.addAll(circuitInv);
 		all.add(mInventory[getCircuitSlot()]);
-		if(recipe==false){broken=true;
+		if(recipe==false){
+			broken=true;
+		all.removeIf(Objects::isNull);
 			return all.toArray(new ItemStack[0]);
 		}
 		all.addAll(cachedItems);
+		all.removeIf(Objects::isNull);
 		return all.toArray(new ItemStack[0]);
 		}
 	
@@ -2314,6 +2331,7 @@ public class OptioanlSharedContents{
 		}
 		ArrayList<FluidStack> all=new ArrayList<>();
 		all.addAll(cachedFluid);
+		all.removeIf(Objects::isNull);
 		return all.toArray(new FluidStack[0]);}
 	public boolean isDummy(){return circuitUpgrades+itemMEUpgrades+fluidMEUpgrades==0;}
 	

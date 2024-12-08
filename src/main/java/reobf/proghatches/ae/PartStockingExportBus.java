@@ -245,12 +245,13 @@ public void readFromNBT(NBTTagCompound data) {
 		  if (!this.getProxy().isActive() || !this.canDoBusWork()) {
 	            return TickRateModulation.IDLE;
 	        }  
-		    try { 
+		  end:  try { 
 		    	final InventoryAdaptor destination = this.getHandler();
-		  final IMEMonitor<IAEItemStack> inv = this.getProxy().getStorage().getItemInventory();
+		
+		    	final IMEMonitor<IAEItemStack> inv = this.getProxy().getStorage().getItemInventory();
             final IEnergyGrid energy = this.getProxy().getEnergy();
 		 didSomething=false;
-	     
+	      if(destination==null)break end;
 		
 			 
 			 IMEMonitor<IAEItemStack> iinv = getProxy().getStorage().getItemInventory();
@@ -268,9 +269,9 @@ public void readFromNBT(NBTTagCompound data) {
 			 
 			 }
 			
-			
-		  } catch (GridAccessException e) {
-			//bruh
+		  } catch (GridAccessException e) {}
+		   catch (Exception e) {e.printStackTrace();
+		
 		  }
 		  
 		  

@@ -1,9 +1,11 @@
 package reobf.proghatches.main.mixin.mixins.part2;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -56,9 +58,18 @@ public class MixinPresetsInject {
 			
 	};
 	
-	
-	
-@Inject(method="/^(?!$)reload/",at = { @At(value="HEAD") }) private  void a(CallbackInfo C)
+	private static List<Object> temp=new ArrayList<>();
+	@Inject(method="load",at = { @At(value="RETURN") }) private  static void b(CallbackInfo C)
+	{	
+		try{
+		Class<?> c=Class.forName("codechicken.nei.PresetsList");
+		Collection m=(Collection) c.getDeclaredField("presets").get(null);
+		m.removeAll(temp);
+		temp.clear();
+		
+		}catch(Exception e){}
+	}
+@Inject(method="load",at = { @At(value="HEAD") }) private  static void a(CallbackInfo C)
 {
 	
 	try {
@@ -74,6 +85,7 @@ public class MixinPresetsInject {
 			o.getClass().getDeclaredField("mode").set(o,
 					Class.forName("codechicken.nei.PresetsList$PresetMode").getDeclaredField("GROUP").get(null)
 					);
+			temp.add(o);
 			m.add(o);
 			} catch (Exception e) {
 			e.printStackTrace();

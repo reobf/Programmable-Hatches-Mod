@@ -36,7 +36,6 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
-import reobf.proghatches.Tags;
 import reobf.proghatches.main.MyMod;
 
 import com.google.common.collect.ImmutableMap;

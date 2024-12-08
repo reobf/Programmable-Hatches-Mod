@@ -19,7 +19,8 @@ System.out.println("xxxxxxxxxxxxxxxx");
 				EUInterfaceTransformer.class.getName() ,
 				AEItemTransformer.class.getName() ,
 				MUITransformer.class.getName(),
-				DataCopyableTransformer.class.getName()
+				DataCopyableTransformer.class.getName(),
+				MFUTransformer.class.getName()
 				
 		};
 	}

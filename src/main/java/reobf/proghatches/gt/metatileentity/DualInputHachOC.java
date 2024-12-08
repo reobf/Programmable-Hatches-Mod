@@ -91,7 +91,7 @@ import net.minecraftforge.fluids.FluidTank;
 import reobf.proghatches.block.TileIOHub.APIType;
 import reobf.proghatches.main.Config;
 
-public class DualInputHachOC extends DualInputHatch implements   Environment,SidedEnvironment,IGridProxyable, IActionHost{
+public class DualInputHachOC extends DualInputHatch implements  reobf.proghatches.oc.IActualEnvironment,  Environment,SidedEnvironment,IGridProxyable, IActionHost{
 	
 
 	public DualInputHachOC(int id, String name, String nameRegional, int tier, boolean mMultiFluid

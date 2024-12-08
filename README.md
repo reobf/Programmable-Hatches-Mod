@@ -14,7 +14,11 @@ Programmable Hatches Mod
 
 注意，该MOD并非GTNH Mod Pack内的官方MOD，讨论此MOD时请注意场合。
 
-如果在游玩本MOD的过程中遇到BUG或其他问题，请提交issue，必要时请附带复现方式与相关报错log。
+如果在安装本MOD游玩的过程中遇到BUG或其他问题，请优先向本代码仓库提交issue而不是GTNH官方提交！
+
+或者自行备份后移除本mod后确认问题不是来自本mod，再向官方提交。
+
+提交issue必要时请附带复现方式与相关报错log。
 
 ## MOD安装须知
 
@@ -175,9 +179,6 @@ Programmable Hatches Mod
 
 解决装配线自动化难题的好办法，具体使用方式游戏内查看tooltips。
 
-* 警告锚
-
-连入AE网络后，AE线缆所在的区块被卸载时将在聊天框内发出警告。
 
 * OC扩展部件
 

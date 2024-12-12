@@ -1830,7 +1830,39 @@ public class PHRecipes implements Runnable {
 		.eut(480)
 		.addTo(RecipeMaps.assemblerRecipes);
 	 
-	 
+	 int i=0;
+	 ItemStack[] b=new ItemStack[]{
+		Api.INSTANCE.blocks().blockCraftingAccelerator.stack(1),
+		Api.INSTANCE.blocks().blockCraftingAccelerator4x.stack(1),
+		Api.INSTANCE.blocks().blockCraftingAccelerator16x.stack(1),
+		Api.INSTANCE.blocks().blockCraftingAccelerator64x.stack(1),
+		Api.INSTANCE.blocks().blockCraftingAccelerator256x.stack(1),
+		Api.INSTANCE.blocks().blockCraftingAccelerator4096x.stack(1),
+		
+	 };
+	 int eu=8000;
+	 for(ItemStack bb:b){
+		 ItemStack bbb=new ItemStack(MyMod.condensers[i]);
+		
+		 
+		 GT_Values.RA.stdBuilder()
+			.itemInputs(
+					bb,new ItemStack(MyMod.smartarm, 4,i+5)
+					
+			)
+			.itemOutputs(bbb
+							 )
+			.duration(35 * SECONDS)
+			.eut(eu)
+			.addTo(RecipeMaps.assemblerRecipes);
+		 
+		 
+		 eu=eu*4;
+		i++;
+	}
+	
+	
+	
 	
 	}
 	

@@ -188,7 +188,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 		 
 		 try {
 			 
-			this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
+			//this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
 			//this.getProxy().getGrid().postEvent(new MENetworkStorageEvent(handler0, StorageChannel.ITEMS));
 			try {
                 
@@ -208,7 +208,7 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
                 
                 
             } catch (final GridAccessException ignore) {}
-		} catch (GridAccessException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
 		}
@@ -538,7 +538,12 @@ public class SuperChestME extends GT_MetaTileEntity_Hatch implements ICellContai
 			if(update){update=false;updateStatus();}
 			if(wasActive!=active){
 				wasActive=active;
-				post();
+				
+				try {
+					this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
+				} catch (GridAccessException e) {
+					
+				}post();
 			}
 			if (voidFull ) {
 			 voidOverflow = false;

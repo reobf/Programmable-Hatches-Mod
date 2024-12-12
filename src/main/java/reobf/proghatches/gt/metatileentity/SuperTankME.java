@@ -155,12 +155,18 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
     public void channel(final MENetworkChannelsChanged c) {
 		post();
 		
-    }*/	 private AEFluidStack last;
+    }*/	
+	
+	 
+	   
+	
+	
+	private AEFluidStack last;
 	private void post(){
 		 
 		 try {
 			 
-				this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
+				//this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
 				//this.getProxy().getGrid().postEvent(new MENetworkStorageEvent(handler, StorageChannel.FLUIDS));
 				try {
 	                
@@ -184,7 +190,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 				
 				
 				
-		} catch (GridAccessException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
 		}
@@ -575,6 +581,11 @@ IMEMonitor handler0x= new MEMonitorHandler(handler
 			if(update){update=false;updateStatus();}
 			if(wasActive!=this.getProxy().isActive()){
 				wasActive=this.getProxy().isActive();
+			try {
+				this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
+			} catch (GridAccessException e) {
+				
+			}
 				post();
 			}
 			

@@ -1,6 +1,6 @@
 package reobf.proghatches.gt.metatileentity;
 
-import static gregtech.api.util.GT_Utility.moveMultipleItemStacks;
+import static gregtech.api.util.GTUtility.moveMultipleItemStacks;
 
 import java.util.Optional;
 import com.google.common.collect.ImmutableMap;
@@ -8,16 +8,16 @@ import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_OutputBus;
-import gregtech.common.GT_Client;
+import gregtech.api.metatileentity.implementations.MTEHatchOutputBus;
+import gregtech.common.GTClient;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class FilterOutputBus extends GT_MetaTileEntity_Hatch_OutputBus {
+public class FilterOutputBus extends MTEHatchOutputBus {
 
 	public FilterOutputBus(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
 			boolean keepone) {
@@ -40,7 +40,7 @@ public class FilterOutputBus extends GT_MetaTileEntity_Hatch_OutputBus {
 
 		);
 		this.keepone = keepone;
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 	}
 
 	private boolean keepone;
@@ -69,7 +69,7 @@ public class FilterOutputBus extends GT_MetaTileEntity_Hatch_OutputBus {
 
 	@Override
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-		if (aBaseMetaTileEntity.isClientSide() && GT_Client.changeDetected == 4) {
+		if (aBaseMetaTileEntity.isClientSide() && GTClient.changeDetected == 4) {
 			aBaseMetaTileEntity.issueTextureUpdate();
 		}
 		if (aBaseMetaTileEntity.isServerSide() && aBaseMetaTileEntity.isAllowedToWork() && (aTick & 0x7) == 0) {

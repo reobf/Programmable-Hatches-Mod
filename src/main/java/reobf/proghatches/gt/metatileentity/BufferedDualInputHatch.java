@@ -91,23 +91,24 @@ import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import appeng.api.networking.crafting.ICraftingPatternDetails;
-import appeng.me.storage.DriveWatcher;
+
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.ToolDictNames;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.metatileentity.CoverableTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
-import gregtech.api.util.GT_TooltipDataCache.TooltipData;
-import gregtech.api.util.GT_ModHandler;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTTooltipDataCache.TooltipData;
+import gregtech.api.util.GTModHandler;
+import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -248,8 +249,8 @@ public int getInventoryFluidLimit() {
 		public int i;
 		public int f;
 		
-		public int ip=-1;
-		public int fp=-1;
+		//public int ip=-1;
+		//public int fp=-1;
 		
 		public boolean lock;
 	
@@ -508,7 +509,7 @@ public int getInventoryFluidLimit() {
 				mStoredItemInternal[i] = null;
 				// inv0.mStoredItemInternal[inv0.mStoredItemInternal.length-1]=
 
-				isa.add(GT_Utility.copyAmount(0, ItemProgrammingCircuit.getCircuit(is).orElse(null)));
+				isa.add(GTUtility.copyAmount(0, ItemProgrammingCircuit.getCircuit(is).orElse(null)));
 			}
 
 			int nums = Math.min(v, isa.size());
@@ -625,7 +626,7 @@ public int getInventoryFluidLimit() {
 			ItemStack[] condensed = filterStack.apply(mStoredItemInternal,shared.getItems());
 			
 			
-			if(!trunOffEnsure){condensed=ensureIntMax(condensed);}
+			//if(!trunOffEnsure){condensed=ensureIntMax(condensed);}
 			
 			
 			
@@ -638,7 +639,7 @@ public int getInventoryFluidLimit() {
 		@Override
 		public FluidStack[] getFluidInputs() {
 			FluidStack[] condensed = asFluidStack.apply(mStoredFluidInternal,shared.getFluid());
-			if(!trunOffEnsure){condensed=ensureIntMax(condensed);}
+			//if(!trunOffEnsure){condensed=ensureIntMax(condensed);}
 			
 			return condensed;
 		}
@@ -835,18 +836,67 @@ public int getInventoryFluidLimit() {
 			inv0.clearRecipeIfNeeded();
 		}
 		// prevdirty=dirty;
+	
+	
+		if(autoAppend&&allFull&&!isInputEmpty()){
+			DualInvBuffer append;
+			inv0.add(append=new DualInvBuffer());
+			append.init(this.mInventory.length - 1, this.mStoredFluid.length);
+			allFull=false;
+		}else{
+			if(inv0.size()>bufferNum){
+				boolean exfull=true;
+				for(int i=bufferNum;i<inv0.size();i++){
+					if(inv0.get(i).isEmpty()){inv0.remove(i);exfull=false;break;}
+					
+				}
+				if(exfull/*&&inv0.size()>bufferNum*/)
+				for(int i=0;i<bufferNum;i++){
+					if(inv0.get(i).isEmpty()&& (!inv0.get(i).recipeLocked)){
+						DualInvBuffer from = inv0.get(bufferNum);
+						DualInvBuffer to = inv0.get(i);
+						//to.fromTag(from.toTag());//TODO shallow copy instead
+						moveTo(from.mStoredFluidInternal,to.mStoredFluidInternal);
+						moveTo(from.mStoredFluidInternalSingle,to.mStoredFluidInternalSingle);
+						moveTo(from.mStoredItemInternal,to.mStoredItemInternal);
+						moveTo(from.mStoredItemInternalSingle,to.mStoredItemInternalSingle);
+					to.f=from.f;
+					to.i=from.i;
+					//to.fp=from.fp;
+					//to.ip=from.ip;
+					to.lock=from.lock;
+					to.v=from.v;
+					to.recipeLocked=from.recipeLocked;
+					to.tickFirstClassify=from.tickFirstClassify;
+					to.unlockDelay=from.unlockDelay;
+						inv0.remove(bufferNum);
+						break;
+					}
+				}
+				
+			}
+			
+			
+		}
+	
+	
+	
+	
 		dirty = false;
 	}
-
+	private void moveTo(Object[] a,Object[] b){
+		System.arraycopy(a, 0, b, 0, a.length);
+	}
+boolean autoAppend=false;
 	@Override
 	public ItemStack getStackInSlot(int aIndex) {
 		// if(aIndex>=mInventory.length)return
 		// inv0.mStoredItemInternal[aIndex-mInventory.length];
 		return super.getStackInSlot(aIndex);
 	}
-
+    boolean allFull; 
 	/**
-	 * non-empty one fist, then use empty one
+	 * non-empty one fist, then append an empty one at last
 	 */
 	public ArrayList<DualInvBuffer> sortByEmpty() {
 		ArrayList<DualInvBuffer> non_empty = new ArrayList<>();
@@ -857,6 +907,8 @@ public int getInventoryFluidLimit() {
 		});
 
 		empty.opt().ifPresent(non_empty::add);
+		if(!empty.opt().isPresent()){
+		allFull=true;}
 		// only one empty is needed, because only one buffer at maximum will be
 		// filled one time
 
@@ -958,7 +1010,7 @@ final int offset=0;
 				if (!widget.isClient())
 					widget.getContext().openSyncedWindow(BUFFER_0 + id);
 			}
-		}).setPlayClickSound(true).setBackground(GT_UITextures.BUTTON_STANDARD, GT_UITextures.OVERLAY_BUTTON_PLUS_LARGE)
+		}).setPlayClickSound(true).setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
 				.addTooltips(ImmutableList
 						.of(LangManager.translateToLocalFormatted("programmable_hatches.gt.buffer", "" + id)))
 				.setSize(16, 16).setPos(xoffset + 16 * (id % 3), yoffset + 16 * (id / 3));
@@ -967,8 +1019,8 @@ final int offset=0;
 		 * return new ButtonWidget().setOnClick((clickData, widget) -> { if
 		 * (clickData.mouseButton == 0) { widget.getContext()
 		 * .openSyncedWindow(BUFFER_0); } }) .setPlayClickSound(true)
-		 * .setBackground(GT_UITextures.BUTTON_STANDARD,
-		 * GT_UITextures.OVERLAY_BUTTON_PLUS_LARGE)
+		 * .setBackground(GTUITextures.BUTTON_STANDARD,
+		 * GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
 		 * .addTooltips(ImmutableList.of("Place manual items")) .setSize(18, 18)
 		 * .setPos(7 + offset*18, 62-18*2);
 		 */
@@ -976,7 +1028,7 @@ final int offset=0;
 		/*
 		 * return new CycleButtonWidget().setToggle(getter, setter)
 		 * .setStaticTexture(picture)
-		 * .setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE)
+		 * .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
 		 * .setTooltipShowUpDelay(TOOLTIP_DELAY) .setPos(7 + offset*18, 62-18*2)
 		 * .setSize(18, 18) .setGTTooltip(tooltipDataSupplier);
 		 */
@@ -991,7 +1043,7 @@ final int offset=0;
 		final int PARENT_WIDTH = getGUIWidth();
 		final int PARENT_HEIGHT = getGUIHeight();
 		ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-		builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+		builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
 		builder.setGuiTint(getGUIColorization());
 		builder.setDraggable(true);
 		// make sure the manual window is within the parent window
@@ -1084,8 +1136,8 @@ final int offset=0;
 		builder.widget(new CycleButtonWidget().setToggle(() -> !inv0.lock, (s) -> {
 			inv0.lock = !s;
 			inv0.clearRecipeIfNeeded();
-		}).setStaticTexture(GT_UITextures.OVERLAY_BUTTON_RECIPE_LOCKED_DISABLED)
-				.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_RECIPE_LOCKED_DISABLED)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
 				.setPos(3 + 18 * 5, 3 + 18 * 3).setSize(18, 18)
 				.setGTTooltip(() -> mTooltipCache.getData("programmable_hatches.gt.lockbuffer"))
 
@@ -1162,18 +1214,20 @@ static int EX_CONFIG=985211;
 		}).setPlayClickSoundResource(() -> thiz.isAllowedToWork() ? SoundResource.GUI_BUTTON_UP.resourceLocation
 				: SoundResource.GUI_BUTTON_DOWN.resourceLocation).setBackground(() -> {
 					if (thiz.isAllowedToWork()) {
-						return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
-								GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_ON };
+						return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
+								GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_ON };
 					} else {
-						return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
-								GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
+						return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
+								GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
 					}
 				}).attachSyncer(new FakeSyncWidget.BooleanSyncer(thiz::isAllowedToWork, val -> {
 					if (val)
 						thiz.enableWorking();
 					else
 						thiz.disableWorking();
-				}), builder).addTooltip(LangManager.translateToLocal("GT5U.gui.button.power_switch"))
+				}), builder)
+				.addTooltip(LangManager.translateToLocal("GT5U.gui.button.power_switch"))
+				.addTooltip(LangManager.translateToLocal("proghatch.gui.button.power_switch.ex"))
 				.setTooltipShowUpDelay(TOOLTIP_DELAY).setPos(new Pos2d(getGUIWidth() - 18 - 3, 5)).setSize(16, 16);
 		return (ButtonWidget) button;
 	}
@@ -1241,10 +1295,19 @@ static int EX_CONFIG=985211;
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
 		if(aNBT.hasKey("x")==false)return;
-		dirty = aNBT.getBoolean("dirty");
-		for (int i = 0; i < bufferNum; i++) {
+		dirty = aNBT.getBoolean("dirty");	
+		int iex=aNBT.getInteger("exinvlen");
+		for (int i = 0; i < bufferNum+iex; i++) {
 			final int ii = i;
+			if(i<bufferNum)
 			inv0.get(i).fromTag((NBTTagCompound) aNBT.getTag("BUFFER_" + ii));
+			else
+			{
+				DualInvBuffer append;
+				inv0.add(append=new DualInvBuffer());
+				append.init(this.mInventory.length - 1, this.mStoredFluid.length);
+				inv0.get(i).fromTag((NBTTagCompound) aNBT.getTag("BUFFER_" + ii));
+			}
 		}
 		CMMode=aNBT.getBoolean("CMMode");
 		merge = aNBT.getBoolean("merge");
@@ -1257,9 +1320,10 @@ static int EX_CONFIG=985211;
 	@Override
 	public void saveNBTData(NBTTagCompound aNBT) {
 		aNBT.setBoolean("dirty", dirty);
-		for (int i = 0; i < bufferNum; i++)
+		for (int i = 0; i < inv0.size(); i++)
 
 			aNBT.setTag("BUFFER_" + i, inv0.get(i).toTag());
+		aNBT.setInteger("exinvlen",inv0.size()-bufferNum );
 		aNBT.setBoolean("CMMode", CMMode);
 		aNBT.setBoolean("merge", merge);
 		aNBT.setBoolean("justHadNewItems", justHadNewItems);
@@ -1279,7 +1343,7 @@ static int EX_CONFIG=985211;
 		 * if(is.getItem()!=MyMod.progcircuit)continue;
 		 * inv0.mStoredItemInternal[i]=null;
 		 * inv0.mStoredItemInternal[inv0.mStoredItemInternal.length-1]=
-		 * GT_Utility .copyAmount(0,ItemProgrammingCircuit.getCircuit(is)
+		 * GTUtility .copyAmount(0,ItemProgrammingCircuit.getCircuit(is)
 		 * .orElse(null)) ; }
 		 */
 
@@ -1415,11 +1479,11 @@ boolean merge;
 	public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
 			int z) {
 
-		
+		tag.setInteger("exinvlen",inv0.size()-bufferNum );
 		tag.setBoolean("sleep", sleep);
 		tag.setInteger("sleepTime", sleepTime);
-		tag.setInteger("inv_size", inv0.size());
-		IntStream.range(0, inv0.size()).forEach(s -> {
+		tag.setInteger("inv_size", bufferNum);
+		IntStream.range(0, bufferNum).forEach(s -> {
 			DualInvBuffer inv = inv0.get(s);
 			NBTTagCompound sub = new NBTTagCompound();
 			tag.setTag("No" + s, sub);
@@ -1631,7 +1695,8 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 		;
 		if(idle[0]>5)
 		currenttip.add(LangManager.translateToLocalFormatted("programmable_hatches.buffer.waila.hidden",(idle[0]-5)+""));
-
+		if(tag.getInteger("exinvlen")>0)
+		currenttip.add("Extra buffer:"+tag.getInteger("exinvlen"));
 	}
 
 	private Boolean isRemote;
@@ -1672,14 +1737,14 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 						;
 					}
 					if (suc) {
-						GT_ModHandler.damageOrDechargeItem(tCurrentItem, 1, 1000, aPlayer);
-						GT_Utility.sendSoundToPlayers(tile.getWorld(), SoundResource.IC2_TOOLS_WRENCH, 1.0F, -1,
+						GTModHandler.damageOrDechargeItem(tCurrentItem, 1, 1000, aPlayer);
+						GTUtility.sendSoundToPlayers(tile.getWorld(), SoundResource.IC2_TOOLS_WRENCH, 1.0F, -1,
 								tile.getXCoord(), tile.getYCoord(), tile.getZCoord());
 						updateEveryTick = !updateEveryTick;
 
-						GT_Utility.sendChatToPlayer(aPlayer, "updateEveryTick:" + updateEveryTick);
+						GTUtility.sendChatToPlayer(aPlayer, "updateEveryTick:" + updateEveryTick);
 						/*
-						 * GT_Utility .sendChatToPlayer(aPlayer,
+						 * GTUtility .sendChatToPlayer(aPlayer,
 						 * LangManager.translateToLocal(
 						 * "programmable_hatches.gt.updateEveryTick") );
 						 */
@@ -1700,12 +1765,12 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 						;
 					}
 					if (suc) {
-						GT_ModHandler.damageOrDechargeItem(tCurrentItem, 1, 1000, aPlayer);
-						GT_Utility.sendSoundToPlayers(tile.getWorld(), SoundResource.IC2_TOOLS_CHAINSAW_CHAINSAW_USE_TWO, 1.0F, -1,
+						GTModHandler.damageOrDechargeItem(tCurrentItem, 1, 1000, aPlayer);
+						GTUtility.sendSoundToPlayers(tile.getWorld(), SoundResource.IC2_TOOLS_CHAINSAW_CHAINSAW_USE_TWO, 1.0F, -1,
 								tile.getXCoord(), tile.getYCoord(), tile.getZCoord());
 						/*merge = !merge;
 
-						GT_Utility.sendChatToPlayer(aPlayer, "merge:" + merge);
+						GTUtility.sendChatToPlayer(aPlayer, "merge:" + merge);
 						
 						aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.gt.merge"));
 */
@@ -1724,7 +1789,7 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 
 	
 	@Override
-	public CheckRecipeResult endRecipeProcessingImpl(GT_MetaTileEntity_MultiBlockBase controller) {
+	public CheckRecipeResult endRecipeProcessingImpl(MTEMultiBlockBase controller) {
 		dirty = true;
 		return super.endRecipeProcessingImpl(controller);
 	}
@@ -1786,9 +1851,35 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 			 public Wrapper(DualInvBuffer s) {
 			d=s;
 			}
-
+           boolean fast=true;;
+           private int sft(int i,int t){
+        	  /* i=(i*17)%32;
+        	   return (i<<t)|(i>>>(32-t));*/return i^t;
+           }
 			@Override
 			public int hashCode() {
+				if(fast){
+					int c=0;
+					int hash=0;
+					 for(int i=0;i<d.mStoredFluidInternalSingle.length;i++){
+							FluidStack f=d.mStoredFluidInternalSingle[i].getFluid();
+							if(f!=null)
+							{hash=hash^sft(f.getFluidID(),c);}c++;
+						 }
+					 for(int i=0;i<d.mStoredItemInternalSingle.length;i++){
+						 ItemStack f=d.mStoredItemInternalSingle[i];
+							if(f!=null){
+							{hash=hash^sft(
+									Item.getIdFromItem(f.getItem())|f.getItemDamage()
+									
+									,c);}c++;
+							}
+					}
+					return hash;
+				}
+				
+				
+				
 				int hash=0;
 				 for(int i=0;i<d.mStoredFluidInternalSingle.length;i++){
 					FluidStack f=d.mStoredFluidInternalSingle[i].getFluid();
@@ -1868,9 +1959,9 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 						FluidStack[][] fdata=new FluidStack[s.size()][];
 						for(int i=0;i<s.size();i++){
 							DualInvBuffer e = itr.next();
-							idata[i]=e.getItemInputs();
+							idata[i]=filterStack.apply(e.mStoredItemInternal);
 							icount+=idata[i].length;
-							fdata[i]=e.getFluidInputs();
+							fdata[i]=asFluidStack.apply(e.mStoredFluidInternal);
 							fcount+=fdata[i].length;
 						}
 						i=new ItemStack[icount];
@@ -1889,7 +1980,9 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 								ic++;
 							}
 						}
-						
+						i=filterStack.apply(i,shared.getItems());
+						if(!shared.isDummy())//dummy->no extra fluid
+						f=asFluidStack.apply(f,shared.getFluid());
 					}
 					ItemStack[] i;
 					FluidStack[] f;
@@ -1908,6 +2001,8 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 				}
 				).iterator();
 	}	
+	
+	
 	
 	static public  boolean fluidEquals(FluidTank a, FluidTank b) {
 		// if(a==b)return false;
@@ -1928,7 +2023,7 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 		final int PARENT_WIDTH = getGUIWidth();
 		final int PARENT_HEIGHT = getGUIHeight();
 		ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-		builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+		builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
 		builder.setGuiTint(getGUIColorization());
 		builder.setDraggable(true);
 	
@@ -1939,8 +2034,8 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 		builder.widget(new CycleButtonWidget().setToggle(() -> updateEveryTick, (s) -> {
 			updateEveryTick = s;
 			
-		}).setStaticTexture(GT_UITextures.OVERLAY_BUTTON_CHECKMARK)
-				.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
 				.setPos(3 + 18 * 0, 3 + 18 * 0).setSize(18, 18)
 				.setGTTooltip(() -> mTooltipCache.getData("programmable_hatches.gt.forcecheck"))
 
@@ -1948,8 +2043,8 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 		/*builder.widget(new CycleButtonWidget().setToggle(() ->!trunOffEnsure , (s) -> {
 			trunOffEnsure =! s;
 			
-		}).setStaticTexture(GT_UITextures.OVERLAY_BUTTON_CHECKMARK)
-				.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
 				.setPos(3 + 18 * 1, 3 + 18 * 0).setSize(18, 18)
 				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.ensureintmax.0"))
 				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.ensureintmax.1"))
@@ -1960,8 +2055,8 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 		builder.widget(new CycleButtonWidget().setToggle(() ->CMMode , (s) -> {
 			CMMode = s;
 			
-		}).setStaticTexture(GT_UITextures.OVERLAY_BUTTON_CHECKMARK)
-				.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
 				.setPos(3 + 18 * 1, 3 + 18 * 0).setSize(18, 18)
 				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.0"))
 				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.1"))
@@ -1975,16 +2070,36 @@ return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
 		builder.widget(new CycleButtonWidget().setToggle(() ->merge , (s) -> {
 			merge = s;
 			
-		}).setStaticTexture(GT_UITextures.OVERLAY_BUTTON_CHECKMARK)
-				.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
 				.setPos(3 + 18 * 2, 3 + 18 * 0).setSize(18, 18)
 				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.merge.0"))
 						.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.merge.1"))
 						
 		);
+		if(isInfBuffer()||shared.infbufUpgrades>0)
+		builder.widget(new CycleButtonWidget().setToggle(() ->autoAppend , (s) -> {
+			autoAppend = s;
+			
+		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+				.setPos(3 + 18 * 3, 3 + 18 * 0).setSize(18, 18)
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.0"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.1"))	
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.2"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.3"))	
+						
+					
+						
+		);
+		
+		
+		
 		
 		return builder.build();
 		
+	}public boolean isInfBuffer(){
+		return false;
 	}
 	public boolean isInputEmpty(BufferedDualInputHatch master) {
 

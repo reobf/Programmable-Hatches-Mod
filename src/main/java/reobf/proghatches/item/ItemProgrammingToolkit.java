@@ -34,7 +34,7 @@ import baubles.api.BaubleType;
 import baubles.api.IBauble;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.gui.modularui.GT_UIInfos;
+import gregtech.api.gui.modularui.GTUIInfos;
 
 public class ItemProgrammingToolkit extends Item implements IItemWithModularUI , IBauble {
 
@@ -143,7 +143,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI ,
 
 		} else {
 
-			GT_UIInfos.openPlayerHeldItemUI(player);
+			GTUIInfos.openPlayerHeldItemUI(player);
 		}
 
 		return super.onItemRightClick(itemStackIn, worldIn, player);
@@ -184,7 +184,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI ,
 			/*
 			 * final CoverInfo coverInfo = uiBuildContext.getTile()
 			 * .getCoverInfoAtSide(uiBuildContext.getCoverSide()); final
-			 * GT_CoverBehaviorBase<?> behavior = coverInfo.getCoverBehavior();
+			 * CoverBehaviorBase<?> behavior = coverInfo.getCoverBehavior();
 			 * if (coverInfo.getMinimumTickRate() > 0 &&
 			 * behavior.allowsTickRateAddition()) { builder.widget( new
 			 * GT_CoverTickRateButton(coverInfo, builder).setPos(getGUIWidth() -
@@ -279,13 +279,13 @@ class TakeOnlyItemStackHandler extends ItemStackHandler{
 		 * public boolean isCoverValid() { return !getUIBuildContext().getTile()
 		 * .isDead() && getUIBuildContext().getTile()
 		 * .getCoverBehaviorAtSideNew(getUIBuildContext().getCoverSide()) !=
-		 * GregTech_API.sNoBehavior; }
+		 * GregTechAPI.sNoBehavior; }
 		 */
 
 		protected void addTitleToUI(ModularWindow.Builder builder) {
 			/*
 			 * ItemStack coverItem =
-			 * GT_Utility.intToStack(getUIBuildContext().getCoverID()); if
+			 * GTUtility.intToStack(getUIBuildContext().getCoverID()); if
 			 * (coverItem != null) { builder.widget( new
 			 * ItemDrawable(coverItem).asWidget() .setPos(5, 5) .setSize(16,
 			 * 16)) .widget( new

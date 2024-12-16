@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.concurrent.Immutable;
 
-import com.github.technus.tectech.thing.metaTileEntity.pipe.GT_MetaTileEntity_Pipe_Energy;
+
 import com.glodblock.github.client.textures.FCPartsTexture;
 import com.google.common.collect.ImmutableList;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
@@ -59,13 +59,13 @@ import appeng.parts.p2p.IPartGT5Power;
 import appeng.util.item.AEItemStack;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.GregTech_API;
-import gregtech.api.enums.GT_Values;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.GregTechAPI;
+import gregtech.api.enums.GTValues;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -486,8 +486,8 @@ public class PartEUSource extends AEBasePart
 		builder.widget(((CycleButtonWidget) new CoverCycleButtonWidget().setSynced(false, true))
 				.setGetter(() -> recycle ? 1 : 0).setSetter(s -> recycle = s == 1).setLength(2).setTextureGetter(i -> {
 					if (i == 1)
-						return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
-					return GT_UITextures.OVERLAY_BUTTON_CROSS;
+						return GTUITextures.OVERLAY_BUTTON_CHECKMARK;
+					return GTUITextures.OVERLAY_BUTTON_CROSS;
 				})
 
 				.addTooltip(0, LangManager.translateToLocal("proghatches.part.recycle.false"))
@@ -500,8 +500,8 @@ public class PartEUSource extends AEBasePart
 					postEvent();
 				}).setLength(2).setTextureGetter(i -> {
 					if (i == 1)
-						return GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_ON;
-					return GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF;
+						return GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_ON;
+					return GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF;
 				})
 
 				.addTooltip(0, LangManager.translateToLocal("proghatches.part.onoff.false"))
@@ -542,7 +542,7 @@ public class PartEUSource extends AEBasePart
 			}).setPattern(BaseTextFieldWidget.NATURAL_NUMS).setMaxLength(50).setScrollBar().setFocusOnGuiOpen(false)
 					.setTextColor(Color.WHITE.dark(1))
 
-					.setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2)).setPos(16, 16)
+					.setBackground(GTUITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2)).setPos(16, 16)
 					.setSize(16 * 8, 16);
 
 			return o;
@@ -550,13 +550,13 @@ public class PartEUSource extends AEBasePart
 		builder.widget(gen.apply(() -> this.voltage, a -> {
 			this.voltage = a;
 		}).setPos(16, 16).dynamicTooltip(() -> {
-			String a = GT_Values.VN[0], b;
+			String a = GTValues.VN[0], b;
 			long v = 8;
-			for (int i = 0; i < GT_Values.V.length - 1; i++) {
+			for (int i = 0; i < GTValues.V.length - 1; i++) {
 
-				if (voltage > GT_Values.V[i]) {
-					a = GT_Values.VN[i + 1];
-					v = GT_Values.V[i + 1];
+				if (voltage > GTValues.V[i]) {
+					a = GTValues.VN[i + 1];
+					v = GTValues.V[i + 1];
 				}
 			}
 			b = Math.floor((100 * (float) voltage / v)) + "%";
@@ -600,10 +600,10 @@ public class PartEUSource extends AEBasePart
 public long maxWorkingVoltage(){
 	int damage=this.getIS().getItemDamage();
 	if(damage>=1&&damage<=15){
-	return GT_Values.V[damage-1];
+	return GTValues.V[damage-1];
 	}	
 	if(damage>=16&&damage<=30){
-	return GT_Values.V[damage-16];
+	return GTValues.V[damage-16];
 	}	
 	return Long.MAX_VALUE;
 }
@@ -646,7 +646,7 @@ public double taxPercentage(){
 				if(aVoltage>maxWorkingVoltage()){
 				TileEntity t = this.host.getTile();
 				t.getWorldObj().createExplosion(null, t.xCoord+0.5,t.yCoord+0.5,t.zCoord+0.5, 2, true);
-				GT_Utility.sendSoundToPlayers(t.getWorldObj(), GregTech_API.sSoundList.get(209), 1.0F, -1.0F, t.xCoord,t.yCoord,t.zCoord);
+				GTUtility.sendSoundToPlayers(t.getWorldObj(), GregTechAPI.sSoundList.get(209), 1.0F, -1.0F, t.xCoord,t.yCoord,t.zCoord);
 				this.host.removePart(side, false);
 				}
 				

@@ -124,16 +124,16 @@ import appeng.util.inv.IInventoryDestination;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import cofh.api.energy.IEnergyReceiver;
-import gregtech.api.GregTech_API;
-import gregtech.api.enums.GT_Values;
-import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.GregTechAPI;
+import gregtech.api.enums.GTValues;
+import gregtech.api.gui.modularui.CoverUIBuildContext;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IEnergyConnected;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
-import gregtech.api.util.GT_ModHandler;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
+import gregtech.api.util.GTModHandler;
+import gregtech.api.util.GTUtility;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import ic2.api.energy.tile.IEnergySink;
@@ -412,8 +412,8 @@ public class PartEUP2PInterface extends PartP2PTunnelStatic<PartEUP2PInterface> 
 		*/
 			if (
 					player.getHeldItem()!=null&&
-				 (GT_Utility.isStackInList(player.getHeldItem(), GregTech_API.sScrewdriverList)) 
-			       && (GT_ModHandler.damageOrDechargeItem(player.getHeldItem(), 1, 200, player)) 			
+				 (GTUtility.isStackInList(player.getHeldItem(), GregTechAPI.sScrewdriverList)) 
+			       && (GTModHandler.damageOrDechargeItem(player.getHeldItem(), 1, 200, player)) 			
 				)	
 			
 		
@@ -1316,7 +1316,7 @@ int succs;
 				.setSetter(s -> duty = i2d(s))
 				.setLength(4)
 				.setTextureGetter(i -> {
-					return GT_UITextures.OVERLAY_BUTTON_CROSS;
+					return GTUITextures.OVERLAY_BUTTON_CROSS;
 				})
 
 				.addTooltip(0, LangManager.translateToLocal("proghatches.eucreafting.duty.all"))
@@ -1336,9 +1336,9 @@ int succs;
 				.setTextureGetter(i -> {
 					return  (buttonIcon[inx]);
 					/*if (i == 0)
-						return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
+						return GTUITextures.OVERLAY_BUTTON_CHECKMARK;
 
-					return GT_UITextures.OVERLAY_BUTTON_CROSS;*/
+					return GTUITextures.OVERLAY_BUTTON_CROSS;*/
 				})
 				
 				.addTooltip(0, LangManager.translateToLocal("proghatches.eucreafting.duty.0."+inx))
@@ -1348,10 +1348,10 @@ int succs;
 				.setBackground(() -> {
 					
 	                if (c.getState()==0) {
-	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
+	                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
 	                       };
 	                } else {
-	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+	                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
 	                       };
 	                }
 	            })
@@ -1431,9 +1431,9 @@ int succs;
 				.setTextureGetter(i -> {
 					return  (buttonIcon[inx]);
 					/*if (i == 0)
-						return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
+						return GTUITextures.OVERLAY_BUTTON_CHECKMARK;
 
-					return GT_UITextures.OVERLAY_BUTTON_CROSS;*/
+					return GTUITextures.OVERLAY_BUTTON_CROSS;*/
 				})
 				
 				.addTooltip(0, LangManager.translateToLocal("proghatches.eucreafting.duty.0."+inx))
@@ -1443,10 +1443,10 @@ int succs;
 				.setBackground(() -> {
 					
 	                if (c.getState()==0) {
-	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
+	                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
 	                       };
 	                } else {
-	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+	                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
 	                       };
 	                }
 	            })
@@ -1459,7 +1459,7 @@ int succs;
 				.setSetter(s -> duty = i2d(s))
 				.setLength(4)
 				.setTextureGetter(i -> {
-					return GT_UITextures.OVERLAY_BUTTON_CROSS;
+					return GTUITextures.OVERLAY_BUTTON_CROSS;
 				})
 
 				.addTooltip(0, LangManager.translateToLocal("proghatches.eucreafting.duty.all"))
@@ -1484,7 +1484,7 @@ int succs;
 				DimensionalCoord wc=(DimensionalCoord) new DimensionalCoord(getTile()).add(this.getSide(), 1);
 				bl=wc.getWorld().getBlock(wc.x, wc.y, wc.z);
 				ItemStack ist = bl.getPickBlock(new MovingObjectPosition (buildContext.getPlayer()), buildContext.getPlayer().worldObj,wc.x, wc.y, wc.z, buildContext.getPlayer());
-				s.setBackground(GT_UITextures.BUTTON_STANDARD, new ItemDrawable(ist));
+				s.setBackground(GTUITextures.BUTTON_STANDARD, new ItemDrawable(ist));
 			})
 			.setSize(16,16)
 			.setPos(8+20, 60)
@@ -1497,9 +1497,9 @@ int succs;
 				.setGetter(() -> (redstoneticks > 0) ? 1 : 0).setSetter(s -> redstoneticks = s).setLength(2)
 				.setTextureGetter(i -> {
 					if (i == 1)
-						return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
+						return GTUITextures.OVERLAY_BUTTON_CHECKMARK;
 
-					return GT_UITextures.OVERLAY_BUTTON_CROSS;
+					return GTUITextures.OVERLAY_BUTTON_CROSS;
 				})
 
 				.addTooltip(0, LangManager.translateToLocal("proghatches.eucreafting.finish.false"))
@@ -1513,8 +1513,8 @@ int succs;
 		 * CoverCycleButtonWidget().setSynced(false, true)) .setGetter(() ->
 		 * recycle ? 1 : 0) .setSetter(s -> recycle = s == 1) .setLength(2)
 		 * .setTextureGetter(i -> { if (i == 1) return
-		 * GT_UITextures.OVERLAY_BUTTON_CHECKMARK; return
-		 * GT_UITextures.OVERLAY_BUTTON_CROSS; })
+		 * GTUITextures.OVERLAY_BUTTON_CHECKMARK; return
+		 * GTUITextures.OVERLAY_BUTTON_CROSS; })
 		 * 
 		 * .addTooltip(0,
 		 * LangManager.translateToLocal("proghatches.part.recycle.false"))
@@ -1526,8 +1526,8 @@ int succs;
 		 * CoverCycleButtonWidget().setSynced(false, true)) .setGetter(() ->
 		 * onoff ? 1 : 0) .setSetter(s -> {onoff = s == 1;postEvent();})
 		 * .setLength(2) .setTextureGetter(i -> { if (i == 1) return
-		 * GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_ON; return
-		 * GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF; })
+		 * GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_ON; return
+		 * GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF; })
 		 * 
 		 * .addTooltip(0,
 		 * LangManager.translateToLocal("proghatches.part.onoff.false"))
@@ -1578,7 +1578,7 @@ int succs;
 			}).setPattern(BaseTextFieldWidget.NATURAL_NUMS).setMaxLength(50).setScrollBar().setFocusOnGuiOpen(false)
 					.setTextColor(Color.WHITE.dark(1))
 
-					.setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2)).setPos(16, 16 + yshift)
+					.setBackground(GTUITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2)).setPos(16, 16 + yshift)
 					.setSize(16 * 8, 16);
 
 			return o;
@@ -1586,13 +1586,13 @@ int succs;
 		builder.widget(gen.apply(() -> this.voltage, a -> {
 			this.voltage = a;
 		}).setPos(16, 16 + yshift).dynamicTooltip(() -> {
-			String a = GT_Values.VN[0], b;
+			String a = GTValues.VN[0], b;
 			long v = 8;
-			for (int i = 0; i < GT_Values.V.length - 1; i++) {
+			for (int i = 0; i < GTValues.V.length - 1; i++) {
 
-				if (voltage > GT_Values.V[i]) {
-					a = GT_Values.VN[i + 1];
-					v = GT_Values.V[i + 1];
+				if (voltage > GTValues.V[i]) {
+					a = GTValues.VN[i + 1];
+					v = GTValues.V[i + 1];
 				}
 			}
 			b = Math.floor((100 * (float) voltage / v)) + "%";
@@ -1735,36 +1735,36 @@ int succs;
 
 							return rUsedAmperes;
 						}
-					} else if (GregTech_API.mOutputRF && te instanceof IEnergyReceiver) {
-						int rfOut = (int) (aVoltage * (long) GregTech_API.mEUtoRF / 100L);
+					} else if (GregTechAPI.mOutputRF && te instanceof IEnergyReceiver) {
+						int rfOut = (int) (aVoltage * (long) GregTechAPI.mEUtoRF / 100L);
 						if (((IEnergyReceiver) te).receiveEnergy(oppositeSide, rfOut, true) == rfOut) {
 							((IEnergyReceiver) te).receiveEnergy(oppositeSide, rfOut, false);
 							return 1L;
 						}
 
-						if (GregTech_API.mRFExplosions && GregTech_API.sMachineExplosions
+						if (GregTechAPI.mRFExplosions && GregTechAPI.sMachineExplosions
 								&& ((IEnergyReceiver) te).getMaxEnergyStored(oppositeSide) < rfOut * 600
-								&& rfOut > 32 * GregTech_API.mEUtoRF / 100) {
-							float tStrength = (long) rfOut < GT_Values.V[0] ? 1.0F
-									: ((long) rfOut < GT_Values.V[1] ? 2.0F
-											: ((long) rfOut < GT_Values.V[2] ? 3.0F
-													: ((long) rfOut < GT_Values.V[3] ? 4.0F
-															: ((long) rfOut < GT_Values.V[4] ? 5.0F
-																	: ((long) rfOut < GT_Values.V[4] * 2L ? 6.0F
-																			: ((long) rfOut < GT_Values.V[5] ? 7.0F
-																					: ((long) rfOut < GT_Values.V[6]
+								&& rfOut > 32 * GregTechAPI.mEUtoRF / 100) {
+							float tStrength = (long) rfOut < GTValues.V[0] ? 1.0F
+									: ((long) rfOut < GTValues.V[1] ? 2.0F
+											: ((long) rfOut < GTValues.V[2] ? 3.0F
+													: ((long) rfOut < GTValues.V[3] ? 4.0F
+															: ((long) rfOut < GTValues.V[4] ? 5.0F
+																	: ((long) rfOut < GTValues.V[4] * 2L ? 6.0F
+																			: ((long) rfOut < GTValues.V[5] ? 7.0F
+																					: ((long) rfOut < GTValues.V[6]
 																							? 8.0F
-																							: ((long) rfOut < GT_Values.V[7]
+																							: ((long) rfOut < GTValues.V[7]
 																									? 9.0F
 																									: 10.0F))))))));
 							int tX = te.xCoord;
 							int tY = te.yCoord;
 							int tZ = te.zCoord;
 							World tWorld = te.getWorldObj();
-							GT_Utility.sendSoundToPlayers(tWorld, GregTech_API.sSoundList.get(209), 1.0F, -1.0F, tX, tY,
+							GTUtility.sendSoundToPlayers(tWorld, GregTechAPI.sSoundList.get(209), 1.0F, -1.0F, tX, tY,
 									tZ);
 							tWorld.setBlock(tX, tY, tZ, Blocks.air);
-							if (GregTech_API.sMachineExplosions) {
+							if (GregTechAPI.sMachineExplosions) {
 								tWorld.createExplosion(null, (double) tX + 0.5D, (double) tY + 0.5D, (double) tZ + 0.5D,
 										tStrength, true);
 							}

@@ -6,10 +6,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import reobf.proghatches.main.mixin.MixinCallback;
 
-@Mixin(value = GT_MetaTileEntity_MultiBlockBase.class, remap = false)
+@Mixin(value = MTEMultiBlockBase.class, remap = false)
 public abstract class MixinGTRecipeFilter {
 
 	@Inject(method = "addInputBusToMachineList", at = @At("RETURN"), require = 1)

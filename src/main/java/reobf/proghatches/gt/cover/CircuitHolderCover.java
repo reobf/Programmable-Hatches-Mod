@@ -50,23 +50,23 @@ import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.Scrollable;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
-import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.CoverUIBuildContext;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.IConfigurationCircuitSupport;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.metatileentity.CoverableTileEntity;
-import gregtech.api.util.GT_CoverBehavior;
-import gregtech.api.util.GT_CoverBehaviorBase;
-import gregtech.api.util.GT_Utility;
+
+import gregtech.api.util.CoverBehaviorBase;
+import gregtech.api.util.GTUtility;
 import gregtech.api.util.ISerializableObject;
 
 import gregtech.common.gui.modularui.widget.CoverDataControllerWidget;
-import gregtech.common.gui.modularui.widget.CoverDataFollower_CycleButtonWidget;
+
 import io.netty.buffer.ByteBuf;
 
-public class CircuitHolderCover extends GT_CoverBehaviorBase<CircuitHolderCover.Data>{
+public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Data>{
 	public CircuitHolderCover() {
 		super(CircuitHolderCover.Data.class);
 		
@@ -125,13 +125,13 @@ public class CircuitHolderCover extends GT_CoverBehaviorBase<CircuitHolderCover.
 		}}
 	
 	
-   @Override
+   //@Override
 public boolean useModularUI() {
 	// TODO Auto-generated method stub
 	return true;
 }
    @Override
-	public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
+	public ModularWindow createWindow(CoverUIBuildContext buildContext) {
 		
 		return new CircuitHolderUIFactory(buildContext).createWindow();
 	}
@@ -141,7 +141,7 @@ public boolean useModularUI() {
 
        @Override
     protected void addTitleToUI(Builder builder) {
-    	   ItemStack coverItem = GT_Utility.intToStack(getUIBuildContext().getCoverID());
+    	   ItemStack coverItem = GTUtility.intToStack(getUIBuildContext().getCoverID());
            if (coverItem != null) {
                builder.widget(
                    new ItemDrawable(coverItem).asWidget()
@@ -156,7 +156,7 @@ public boolean useModularUI() {
 		protected int getGUIWidth() {
 		return 176/2;
 		}
-        public CircuitHolderUIFactory(GT_CoverUIBuildContext buildContext) {
+        public CircuitHolderUIFactory(CoverUIBuildContext buildContext) {
             super(buildContext);
         
         }
@@ -215,7 +215,7 @@ public boolean useModularUI() {
     			
     			
     			
-    		}).setPlayClickSound(true).setBackground(GT_UITextures.BUTTON_STANDARD, GT_UITextures.OVERLAY_BUTTON_PLUS_LARGE)
+    		}).setPlayClickSound(true).setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
     				.addTooltips(ImmutableList
     						.of(LangManager.translateToLocalFormatted("programmable_hatches.gt.holder.max", "" +damageToLimit(coveris.getItemDamage()) )))
     				.setSize(16, 16).setPos(3+32+16,3));
@@ -270,7 +270,7 @@ public boolean useModularUI() {
         			}
         			}
         		});
-        		w.setBackground(GT_UITextures.BUTTON_STANDARD,new ItemDrawable().setItem(is[fi]));
+        		w.setBackground(GTUITextures.BUTTON_STANDARD,new ItemDrawable().setItem(is[fi]));
         		w.setPos(16*(i%perrow), 16*(i/perrow));
         		sc.widget(w);
         		

@@ -9,8 +9,8 @@ import com.mojang.authlib.GameProfile;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Maintenance;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEHatchMaintenance;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.multitileentity.base.MultiTileEntity;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.tileentity.TileEntity;
@@ -78,13 +78,13 @@ public class AIFix extends EntityAIBase{
 	 int hostx,hosty,hostz;
 	 
 	 
-	 private GT_MetaTileEntity_Hatch_Maintenance getHatchOf(int hostx,int hosty,int hostz){
+	 private MTEHatchMaintenance getHatchOf(int hostx,int hosty,int hostz){
 		 TileEntity te= theWorld.getTileEntity(hostx,hosty,hostz);
 		 if(te instanceof BaseMetaTileEntity){
 			 IMetaTileEntity  mte= ((BaseMetaTileEntity) te).getMetaTileEntity();
-			 if(mte instanceof GT_MetaTileEntity_MultiBlockBase){
-				 GT_MetaTileEntity_MultiBlockBase mb=(GT_MetaTileEntity_MultiBlockBase) mte;
-				Iterator<GT_MetaTileEntity_Hatch_Maintenance> itr = mb.mMaintenanceHatches.iterator();
+			 if(mte instanceof MTEMultiBlockBase){
+				 MTEMultiBlockBase mb=(MTEMultiBlockBase) mte;
+				Iterator<MTEHatchMaintenance> itr = mb.mMaintenanceHatches.iterator();
 			if(itr.hasNext()){
 				
 				return itr.next();
@@ -94,12 +94,12 @@ public class AIFix extends EntityAIBase{
 		 return null;
 		 
 	 }	 
-	 private GT_MetaTileEntity_Hatch_Maintenance getHatch(int xx,int yy,int zz){
+	 private MTEHatchMaintenance getHatch(int xx,int yy,int zz){
 		 TileEntity te= theWorld.getTileEntity(xx,yy,zz);
 		 if(te instanceof BaseMetaTileEntity){
 			 IMetaTileEntity  mte= ((BaseMetaTileEntity) te).getMetaTileEntity();
-			 if(mte instanceof GT_MetaTileEntity_Hatch_Maintenance){
-				return (GT_MetaTileEntity_Hatch_Maintenance) mte;
+			 if(mte instanceof MTEHatchMaintenance){
+				return (MTEHatchMaintenance) mte;
 		 }}
 		 return null;
 		 
@@ -108,8 +108,8 @@ public class AIFix extends EntityAIBase{
 		 TileEntity te= theWorld.getTileEntity(hostx,hosty,hostz);
 		 if(te instanceof BaseMetaTileEntity){
 			 IMetaTileEntity  mte= ((BaseMetaTileEntity) te).getMetaTileEntity();
-			 if(mte instanceof GT_MetaTileEntity_MultiBlockBase){
-				 GT_MetaTileEntity_MultiBlockBase mb=(GT_MetaTileEntity_MultiBlockBase) mte;
+			 if(mte instanceof MTEMultiBlockBase){
+				 MTEMultiBlockBase mb=(MTEMultiBlockBase) mte;
 				 if
 				 (
 				 mb.mMachine&&
@@ -142,7 +142,7 @@ public class AIFix extends EntityAIBase{
 	        		 ){continue;}
 	         
 	         if(needFix(x,y,z)) {
-	           GT_MetaTileEntity_Hatch_Maintenance hatch = getHatchOf(x,y,z);
+	           MTEHatchMaintenance hatch = getHatchOf(x,y,z);
 	        	 if(hatch==null){return false;}
 	        	 IGregTechTileEntity bs = hatch.getBaseMetaTileEntity();
 	        	 xx=bs.getXCoord();
@@ -164,7 +164,7 @@ public class AIFix extends EntityAIBase{
 	      double dist = this.theGolem.getDistanceSq((double)this.xx + 0.5D, (double)this.yy + 0.5D, (double)this.zz + 0.5D);
 	      this.theGolem.getLookHelper().setLookPosition((double)this.xx + 0.5D, (double)this.yy + 0.5D, (double)this.zz + 0.5D, 30.0F, 30.0F);
 	      if(dist <= 4.0D) {
-	    	  GT_MetaTileEntity_Hatch_Maintenance hatch = getHatch(xx,yy,zz);
+	    	  MTEHatchMaintenance hatch = getHatch(xx,yy,zz);
 	    	  if(hatch==null){
 	    		  System.out.println(xx+" "+yy+" "+zz);
 	    		  working=false;return;

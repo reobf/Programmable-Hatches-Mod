@@ -7,25 +7,26 @@ import java.util.ArrayList;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 
 import appeng.helpers.IPriorityHost;
-import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.CoverUIBuildContext;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IMachineProgress;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
-import gregtech.api.util.GT_CoverBehavior;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
+import gregtech.api.util.CoverBehavior;
 import gregtech.api.util.ISerializableObject;
 import gregtech.common.gui.modularui.widget.CoverDataControllerWidget;
-import gregtech.common.gui.modularui.widget.CoverDataFollower_CycleButtonWidget;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_CraftingInput_ME;
+import gregtech.common.gui.modularui.widget.CoverDataFollowerCycleButtonWidget;
+
+import gregtech.common.tileentities.machines.MTEHatchCraftingInputME;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 
-public class LastWorktimeCover extends GT_CoverBehavior {
+public class LastWorktimeCover extends CoverBehavior {
 
   
     public LastWorktimeCover() {
@@ -72,8 +73,8 @@ public class LastWorktimeCover extends GT_CoverBehavior {
        if ((aTileEntity instanceof IGregTechTileEntity)) {
         	IGregTechTileEntity mt=(IGregTechTileEntity) aTileEntity;
         	IMetaTileEntity meta = mt.getMetaTileEntity();
-        	if(meta!=null&&meta instanceof GT_MetaTileEntity_MultiBlockBase){
-        		GT_MetaTileEntity_MultiBlockBase multi=(GT_MetaTileEntity_MultiBlockBase) meta;
+        	if(meta!=null&&meta instanceof MTEMultiBlockBase){
+        		MTEMultiBlockBase multi=(MTEMultiBlockBase) meta;
         		
         		if(multi.getStoredFluids().isEmpty()){
         		ArrayList<ItemStack> in = multi.getStoredInputs();
@@ -109,13 +110,13 @@ public class LastWorktimeCover extends GT_CoverBehavior {
             aCoverVariable = 3;
         }
         switch (aCoverVariable) {
-            case 0 -> GT_Utility.sendChatToPlayer(aPlayer, GT_Utility.trans("018", "Normal"));
+            case 0 -> GTUtility.sendChatToPlayer(aPlayer, GTUtility.trans("018", "Normal"));
             // Progress scaled
-            case 1 -> GT_Utility.sendChatToPlayer(aPlayer, GT_Utility.trans("019", "Inverted"));
+            case 1 -> GTUtility.sendChatToPlayer(aPlayer, GTUtility.trans("019", "Inverted"));
             // ^ inverted
-            case 2 -> GT_Utility.sendChatToPlayer(aPlayer, GT_Utility.trans("020", "Ready to work"));
+            case 2 -> GTUtility.sendChatToPlayer(aPlayer, GTUtility.trans("020", "Ready to work"));
             // Not Running
-            case 3 -> GT_Utility.sendChatToPlayer(aPlayer, GT_Utility.trans("021", "Not ready to work"));
+            case 3 -> GTUtility.sendChatToPlayer(aPlayer, GTUtility.trans("021", "Not ready to work"));
             // Running
         }
         return aCoverVariable;
@@ -173,13 +174,13 @@ public class LastWorktimeCover extends GT_CoverBehavior {
         return true;
     }
 
-    @Override
+   // @Override
     public boolean useModularUI() {
         return true;
     }
 
     @Override
-    public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
+    public ModularWindow createWindow(CoverUIBuildContext buildContext) {
         return new DoesWorkUIFactory(buildContext).createWindow();
     }
 
@@ -190,7 +191,7 @@ public class LastWorktimeCover extends GT_CoverBehavior {
         private static final int spaceX = 18;
         private static final int spaceY = 18;
 
-        public DoesWorkUIFactory(GT_CoverUIBuildContext buildContext) {
+        public DoesWorkUIFactory(CoverUIBuildContext buildContext) {
             super(buildContext);
         }
 
@@ -207,23 +208,23 @@ public class LastWorktimeCover extends GT_CoverBehavior {
                             getNewCoverVariable(id, convert(coverData))))
                                 .addCycleButton(
                                     0,
-                                   new  CoverDataFollower_CycleButtonWidget<>()
+                                   new  CoverDataFollowerCycleButtonWidget<>()
                                  
                                    ,
                                     widget -> widget.setLength(2)
                                     .addTooltip(0, StatCollector.translateToLocal("item.proghatch.cover.dedicated.3.tooltips.5sec.false"))
                                     .addTooltip(1, StatCollector.translateToLocal("item.proghatch.cover.dedicated.3.tooltips.5sec.true"))
-                                    .setStaticTexture(GT_UITextures.OVERLAY_BUTTON_PROGRESS)
+                                    .setStaticTexture(GTUITextures.OVERLAY_BUTTON_PROGRESS)
                                         .setPos(spaceX * 0, spaceY * 0)
                                         
                                 		)
                                 	.addCycleButton(
                                     1,
-                                    new  CoverDataFollower_CycleButtonWidget<>(),
+                                    new  CoverDataFollowerCycleButtonWidget<>(),
                                     widget -> widget.setLength(2)
                                     .addTooltip(0, StatCollector.translateToLocal("item.proghatch.cover.dedicated.3.tooltips.inputdetect.false"))
                                     .addTooltip(1, StatCollector.translateToLocal("item.proghatch.cover.dedicated.3.tooltips.inputdetect.true"))
-                                    .setStaticTexture(GT_UITextures.OVERLAY_BUTTON_CHECKMARK)
+                                    .setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
                                         .setPos(spaceX * 1, spaceY * 0))
                                /* .addToggleButton(
                                     2,

@@ -26,18 +26,18 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_CraftingInput_ME;
+import gregtech.common.tileentities.machines.MTEHatchCraftingInputME;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import mcp.mobius.waila.api.IWailaConfigHandler;
@@ -46,7 +46,7 @@ import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.main.registration.Registration;
 
-public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch&IMetaTileEntity> extends GT_MetaTileEntity_Hatch_InputBus
+public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch&IMetaTileEntity> extends MTEHatchInputBus
 		implements IDualInputHatch , IRecipeProcessingAwareDualHatch,IDataCopyablePlaceHolder {
 
 	private T master; // use getMaster() to access
@@ -58,7 +58,7 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch&IMet
 		super(aID, aName, aNameRegional, 6, 0, reobf.proghatches.main.Config.get("DHS", ImmutableMap.of())
 		
 		);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 		disableSort = true;
 	}
 
@@ -308,7 +308,7 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch&IMet
 	}
 
 	@Override
-	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+	public CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) {
 		if(getMaster() != null) 
 			if(getMaster() instanceof IRecipeProcessingAwareDualHatch)
 			return ((IRecipeProcessingAwareDualHatch)getMaster()).endRecipeProcessing(controller);

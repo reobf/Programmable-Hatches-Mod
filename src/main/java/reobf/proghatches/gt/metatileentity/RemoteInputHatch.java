@@ -53,20 +53,20 @@ import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import appeng.api.util.DimensionalCoord;
-import gregtech.GT_Mod;
-import gregtech.api.GregTech_API;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.GTMod;
+import gregtech.api.GregTechAPI;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.IConfigurationCircuitSupport;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_MultiInput;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEHatchMultiInput;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
@@ -75,7 +75,7 @@ import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
-public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput implements IRecipeProcessingAwareHatch,IDataCopyablePlaceHolder {
+public class RemoteInputHatch extends MTEHatchMultiInput implements IRecipeProcessingAwareHatch,IDataCopyablePlaceHolder {
 
 	static public ArrayList<String> blacklist = new ArrayList<>();
 	static {
@@ -87,14 +87,14 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
 
 	@Override
 	public ITexture[] getTexturesActive(ITexture aBaseTexture) {
-		return GT_Mod.gregtechproxy.mRenderIndicatorsOnHatch
+		return GTMod.gregtechproxy.mRenderIndicatorsOnHatch
 				? new ITexture[] { aBaseTexture, TextureFactory.of(FLUID_IN_SIGN) }
 				: new ITexture[] { aBaseTexture, TextureFactory.of(FLUID_IN_SIGN) };
 	}
 
 	@Override
 	public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
-		return GT_Mod.gregtechproxy.mRenderIndicatorsOnHatch
+		return GTMod.gregtechproxy.mRenderIndicatorsOnHatch
 				? new ITexture[] { aBaseTexture, TextureFactory.of(FLUID_IN_SIGN) }
 				: new ITexture[] { aBaseTexture, TextureFactory.of(FLUID_IN_SIGN) };
 	}
@@ -200,7 +200,7 @@ public class RemoteInputHatch extends GT_MetaTileEntity_Hatch_MultiInput impleme
 		
 
 		);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, id));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, id));
 
 	}
 
@@ -619,7 +619,7 @@ public FluidStack getFillableStack() { if(blocked){return null;}
 	}
 
 	@Override
-	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+	public CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) {
 		if(!blocked){
 			using.remove(new DimensionalCoord((TileEntity)this.getBaseMetaTileEntity()));
 		}
@@ -695,7 +695,7 @@ public FluidStack getFillableStack() { if(blocked){return null;}
 	        
 	        
 	        if (stored == null) return null;
-	        FluidStack drained = GT_Utility.copyAmount(Math.min(stored.amount, aFluid.amount), stored);
+	        FluidStack drained = GTUtility.copyAmount(Math.min(stored.amount, aFluid.amount), stored);
 	        if (doDrain) {
 	            stored.amount -= drained.amount;
 	        }

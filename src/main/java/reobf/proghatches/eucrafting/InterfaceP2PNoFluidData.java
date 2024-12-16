@@ -50,7 +50,7 @@ import appeng.parts.p2p.PartP2PTunnel;
 import appeng.util.Platform;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
-import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
+import gregtech.api.gui.modularui.CoverUIBuildContext;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -694,14 +694,14 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
 		// TODO Auto-generated method stub
 		return side;
 	}@Override
-	public void addUIWidgets(Builder builder, GT_CoverUIBuildContext gt_CoverUIBuildContext) {
+	public void addUIWidgets(Builder builder, CoverUIBuildContext CoverUIBuildContext) {
 	if(
-		 (hasAEGUI() && !gt_CoverUIBuildContext.getPlayer().getEntityWorld().isRemote)
+		 (hasAEGUI() && !CoverUIBuildContext.getPlayer().getEntityWorld().isRemote)
 		 
 		 ) {
-			gt_CoverUIBuildContext.getPlayer()
+			CoverUIBuildContext.getPlayer()
 		.openGui(MyMod.instance, side.ordinal(), 	
-				gt_CoverUIBuildContext.getPlayer().getEntityWorld(), this.getPos().x,
+				CoverUIBuildContext.getPlayer().getEntityWorld(), this.getPos().x,
 				 this.getPos().y, this.getPos().z);}
 	}
 }

@@ -1,6 +1,6 @@
 package reobf.proghatches.eucrafting;
 
-import static gregtech.api.enums.GT_Values.NW;
+import static gregtech.api.enums.GTValues.NW;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -41,8 +41,8 @@ import appeng.tile.inventory.IAEAppEngInventory;
 import appeng.util.Platform;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
-import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
-import gregtech.api.net.GT_Packet_SendCoverData;
+import gregtech.api.gui.modularui.CoverUIBuildContext;
+
 import gregtech.api.util.ISerializableObject;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -482,11 +482,11 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
 		return faketile;
 	}
 @Override
-public void addUIWidgets(Builder builder, GT_CoverUIBuildContext gt_CoverUIBuildContext) {
-	if (hasAEGUI() && !gt_CoverUIBuildContext.getPlayer().getEntityWorld().isRemote) {
-		gt_CoverUIBuildContext.getPlayer()
+public void addUIWidgets(Builder builder, CoverUIBuildContext CoverUIBuildContext) {
+	if (hasAEGUI() && !CoverUIBuildContext.getPlayer().getEntityWorld().isRemote) {
+		CoverUIBuildContext.getPlayer()
 	.openGui(MyMod.instance, side.ordinal(), 	
-			gt_CoverUIBuildContext.getPlayer().getEntityWorld(), this.getPos().x,
+			CoverUIBuildContext.getPlayer().getEntityWorld(), this.getPos().x,
 			 this.getPos().y, this.getPos().z);}
 }
 

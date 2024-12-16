@@ -47,14 +47,14 @@ import appeng.util.SortedArrayList;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.MeaningfulFluidIterator;
 import appeng.util.item.MeaningfulItemIterator;
-import gregtech.api.GregTech_API;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.GregTechAPI;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.util.GT_Utility;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_Input_ME;
+import gregtech.api.util.GTUtility;
+import gregtech.common.tileentities.machines.MTEHatchInputBusME;
+import gregtech.common.tileentities.machines.MTEHatchInputME;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -67,11 +67,11 @@ import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolderSuper;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.main.registration.Registration;
 
-public class DecoyInputHatchME  extends GT_MetaTileEntity_Hatch_Input_ME implements IMEHatchOverrided,IDataCopyablePlaceHolderSuper{
+public class DecoyInputHatchME  extends MTEHatchInputME implements IMEHatchOverrided,IDataCopyablePlaceHolderSuper{
 
 	public DecoyInputHatchME(int aID, /*boolean autoPullAvailable,*/ String aName, String aNameRegional) {
 		super(aID, /*autoPullAvailable*/true, aName, aNameRegional);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 		desc=reobf.proghatches.main.Config.get("DIHME", ImmutableMap.of());
 	} 
 	String[] desc;
@@ -325,7 +325,7 @@ public class DecoyInputHatchME  extends GT_MetaTileEntity_Hatch_Input_ME impleme
 				IAEFluidStack currItem = iterator.next();
 				// if(all.findPrecise(currItem)!=null){continue;}
 				if (currItem.getStackSize() >= minPull) {
-					FluidStack itemstack = GT_Utility.copyAmount(1, currItem.getFluidStack());
+					FluidStack itemstack = GTUtility.copyAmount(1, currItem.getFluidStack());
 					this.storedFluids[index] = itemstack;
 					index++;
 				}
@@ -359,7 +359,7 @@ public class DecoyInputHatchME  extends GT_MetaTileEntity_Hatch_Input_ME impleme
 			 while (it.hasNext() && index < 16) {
 				 IAEFluidStack currItem = it.next();
 	                if (currItem.getStackSize() >= minPull) {
-	                    FluidStack itemstack = GT_Utility.copyAmount(1, currItem.getFluidStack());
+	                    FluidStack itemstack = GTUtility.copyAmount(1, currItem.getFluidStack());
 	                    this.storedFluids[index] = itemstack;
 	                    index++;
 	                }
@@ -379,7 +379,7 @@ public class DecoyInputHatchME  extends GT_MetaTileEntity_Hatch_Input_ME impleme
 	            	IAEFluidStack currItem = iterator.next();
 	                if(all.findPrecise(currItem)!=null){continue;}
 	                if (currItem.getStackSize() >= minPull) {
-	                	FluidStack itemstack = GT_Utility.copyAmount(1, currItem.getFluidStack());
+	                	FluidStack itemstack = GTUtility.copyAmount(1, currItem.getFluidStack());
 	                    this.storedFluids[index] = itemstack;
 	                    index++;
 	                }
@@ -410,7 +410,7 @@ public class DecoyInputHatchME  extends GT_MetaTileEntity_Hatch_Input_ME impleme
 	            .setBackground(() -> {
 	               {
 	                    return new IDrawable[] {
-	                    		GT_UITextures.BUTTON_STANDARD
+	                    		GTUITextures.BUTTON_STANDARD
 	                      };
 	                }
 	            })

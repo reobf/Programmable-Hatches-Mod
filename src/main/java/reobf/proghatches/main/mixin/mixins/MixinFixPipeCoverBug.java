@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import gregtech.api.metatileentity.BaseMetaPipeEntity;
 import gregtech.api.metatileentity.CoverableTileEntity;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -24,7 +24,7 @@ public class MixinFixPipeCoverBug{
 		public void onRightclick0(EntityPlayer aPlayer, ForgeDirection side, float aX, float aY, float aZ,CallbackInfoReturnable<Boolean> cc) {
 			realSide=side;
 			if(((CoverableTileEntity)(Object)this).getCoverIDAtSide(side) == 0)
-			realSide=GT_Utility.determineWrenchingSide(side, aX, aY, aZ);
+			realSide=GTUtility.determineWrenchingSide(side, aX, aY, aZ);
 			
 			}
 		   

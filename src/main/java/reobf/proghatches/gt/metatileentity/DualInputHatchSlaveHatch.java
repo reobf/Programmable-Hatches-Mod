@@ -29,20 +29,20 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Input;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_MultiInput;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEHatchInput;
+import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
+import gregtech.api.metatileentity.implementations.MTEHatchMultiInput;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_CraftingInput_ME;
+import gregtech.common.tileentities.machines.MTEHatchCraftingInputME;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
@@ -52,7 +52,7 @@ import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.main.registration.Registration;
 
-public class DualInputHatchSlaveHatch<T extends MetaTileEntity & IDualInputHatch&IMetaTileEntity> extends GT_MetaTileEntity_Hatch_MultiInput
+public class DualInputHatchSlaveHatch<T extends MetaTileEntity & IDualInputHatch&IMetaTileEntity> extends MTEHatchMultiInput
 		implements   IRecipeProcessingAwareHatch ,IDataCopyablePlaceHolder{
 
 	private T master; // use getMaster() to access
@@ -65,7 +65,7 @@ public class DualInputHatchSlaveHatch<T extends MetaTileEntity & IDualInputHatch
 		super(aID, 1, aName, aNameRegional, 6, reobf.proghatches.main.Config.get("DHSH", ImmutableMap.of())
 		
 		);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 		
 	}
 
@@ -377,7 +377,7 @@ public class DualInputHatchSlaveHatch<T extends MetaTileEntity & IDualInputHatch
 	
 	
 	@Override
-	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+	public CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) {
 		recipe=false;tmpinv=null;tmpf=null;
 		if(getMaster() != null) 
 			if(getMaster() instanceof IRecipeProcessingAwareDualHatch)

@@ -10,36 +10,36 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import gregtech.api.metatileentity.CoverableTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Output;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_OutputBus;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.metatileentity.implementations.MTEHatchOutput;
+import gregtech.api.metatileentity.implementations.MTEHatchOutputBus;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
+import gregtech.api.util.GTUtility;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.gt.metatileentity.VoidOutputBus;
 import reobf.proghatches.gt.metatileentity.VoidOutputHatch;
 
-@Mixin(value = GT_MetaTileEntity_MultiBlockBase.class,remap=false)
+@Mixin(value = MTEMultiBlockBase.class,remap=false)
 public class MixinVoidingHatch {
 	  @Shadow
-	  public ArrayList<GT_MetaTileEntity_Hatch_Output> mOutputHatches;
+	  public ArrayList<MTEHatchOutput> mOutputHatches;
 	  
 	
 	  @Shadow
-	  public ArrayList<GT_MetaTileEntity_Hatch_OutputBus> mOutputBusses;
+	  public ArrayList<MTEHatchOutputBus> mOutputBusses;
 
 	long lastNoVoidBusTick=-1;
 	@Inject( require = 1,method="addOutput(Lnet/minecraft/item/ItemStack;)Z",at = { @At("HEAD") },cancellable=true)
 	public void addOutput(ItemStack aStack,CallbackInfoReturnable<Boolean> a)
 	{	
-		GT_MetaTileEntity_MultiBlockBase y=(GT_MetaTileEntity_MultiBlockBase)((Object)this);
+		MTEMultiBlockBase y=(MTEMultiBlockBase)((Object)this);
 		
 		long thisTick=((CoverableTileEntity)y.getBaseMetaTileEntity()).mTickTimer;
 		if(thisTick==lastNoVoidBusTick){
 			return;//we have checked perviously that no void bus is present, just skip it
 		}
 		lastNoVoidBusTick=thisTick;
-		for(GT_MetaTileEntity_Hatch_OutputBus xx:GT_Utility.filterValidMTEs(mOutputBusses)){
+		for(MTEHatchOutputBus xx:GTUtility.filterValidMTEs(mOutputBusses)){
 			lastNoVoidBusTick=-1;
 			if(xx instanceof VoidOutputBus){
 				if(((VoidOutputBus)xx).dump(aStack)){
@@ -56,13 +56,13 @@ public class MixinVoidingHatch {
 	@Inject( require = 1,method="addOutput(Lnet/minecraftforge/fluids/FluidStack;)Z",at = { @At("HEAD") },cancellable=true)
 	public void addOutput(FluidStack aStack,CallbackInfoReturnable<Boolean> a)
 	{
-		GT_MetaTileEntity_MultiBlockBase y=(GT_MetaTileEntity_MultiBlockBase)((Object)this);
+		MTEMultiBlockBase y=(MTEMultiBlockBase)((Object)this);
 		long thisTick=((CoverableTileEntity)y.getBaseMetaTileEntity()).mTickTimer;
 		if(thisTick==lastNoVoidHatchTick){
 			return;
 		}
 		lastNoVoidHatchTick=thisTick;
-		for(GT_MetaTileEntity_Hatch_Output xx:GT_Utility.filterValidMTEs(mOutputHatches)){
+		for(MTEHatchOutput xx:GTUtility.filterValidMTEs(mOutputHatches)){
 			if(xx instanceof VoidOutputHatch){
 				lastNoVoidHatchTick=-1;
 				if(((VoidOutputHatch)xx).dump(aStack)){

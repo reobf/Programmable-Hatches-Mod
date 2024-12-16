@@ -102,15 +102,14 @@ public class TESRMAInterface extends TileEntitySpecialRenderer{
 		        tessellator.draw();
 		        
 		        
-		        
-		       
-		    	GL11.glDisable(GL11.GL_TEXTURE_2D);
-		       
-		    	if(ifc.yfx>0.01){
-		       	ifc.yfx=ifc.yfx*0.99f;
-		       	
+		        GL11.glPushAttrib(GL11.GL_LIGHTING_BIT);
+		        GL11.glDisable(GL11.GL_TEXTURE_2D);
+		       	GL11.glDisable(GL11.GL_LIGHTING);
+		    	
+		       	if(ifc.yfx>0.01){
+		       	ifc.yfx=ifc.yfx*0.99f; 	
 		       	GL11.glDisable(GL11.GL_CULL_FACE);
-		        GL11.glBegin(GL11.GL_QUADS);
+		        GL11.glBegin(GL11.GL_QUADS); 
 		      
 		       
 		        GL11.glColor3d(b1/2,b2/2, b3/2);
@@ -163,8 +162,8 @@ public class TESRMAInterface extends TileEntitySpecialRenderer{
 		        
 		        
 		        
-		      
-		        
+		    	GL11.glPopAttrib();
+		    	//GL11.glEnable(GL11.GL_LIGHTING);
 		    	GL11.glEnable(GL11.GL_TEXTURE_2D);
 		    	
 		    	

@@ -23,7 +23,7 @@ import appeng.tile.crafting.TileCraftingTile;
 import appeng.util.item.AEItemStack;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
@@ -62,7 +62,7 @@ public class MixinCallback {
 	//spotless:on
 
 	public static void handleAddedToMachineList(IGregTechTileEntity aTileEntity, Object o) {
-		GT_MetaTileEntity_MultiBlockBase thiz = (GT_MetaTileEntity_MultiBlockBase) o;
+		MTEMultiBlockBase thiz = (MTEMultiBlockBase) o;
 		try {
 			if (aTileEntity == null)
 				return;

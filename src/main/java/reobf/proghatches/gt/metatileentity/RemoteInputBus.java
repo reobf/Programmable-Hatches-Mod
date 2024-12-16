@@ -42,20 +42,20 @@ import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import appeng.api.util.DimensionalCoord;
-import gregtech.GT_Mod;
-import gregtech.api.GregTech_API;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.GTMod;
+import gregtech.api.GregTechAPI;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.IConfigurationCircuitSupport;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.RecursiveLinkExcpetion;
@@ -63,7 +63,7 @@ import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
-public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements IRecipeProcessingAwareHatch , IDataCopyablePlaceHolder {
+public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessingAwareHatch , IDataCopyablePlaceHolder {
 
 	static public ArrayList<String> blacklist = new ArrayList<>();
 	static {
@@ -75,14 +75,14 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 
 	@Override
 	public ITexture[] getTexturesActive(ITexture aBaseTexture) {
-		return GT_Mod.gregtechproxy.mRenderIndicatorsOnHatch
+		return GTMod.gregtechproxy.mRenderIndicatorsOnHatch
 				? new ITexture[] { aBaseTexture, TextureFactory.of(ITEM_IN_SIGN) }
 				: new ITexture[] { aBaseTexture, TextureFactory.of(ITEM_IN_SIGN) };
 	}
 
 	@Override
 	public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
-		return GT_Mod.gregtechproxy.mRenderIndicatorsOnHatch
+		return GTMod.gregtechproxy.mRenderIndicatorsOnHatch
 				? new ITexture[] { aBaseTexture, TextureFactory.of(ITEM_IN_SIGN) }
 				: new ITexture[] { aBaseTexture, TextureFactory.of(ITEM_IN_SIGN) };
 	}
@@ -188,7 +188,7 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 	public RemoteInputBus(int id, String name, String nameRegional, int tier) {
 		super(id, name, nameRegional, tier, 0, reobf.proghatches.main.Config.get("RIB", ImmutableMap.of())
 		);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, id));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, id));
 
 	}
 
@@ -240,7 +240,7 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 		
 		
 	
-		circuitslot[0].setBackground( getGUITextureSet().getItemSlot(),GT_UITextures.OVERLAY_SLOT_INT_CIRCUIT);
+		circuitslot[0].setBackground( getGUITextureSet().getItemSlot(),GTUITextures.OVERLAY_SLOT_INT_CIRCUIT);
 		
 		
 		builder.widget(new SyncedWidget() {
@@ -482,7 +482,7 @@ public class RemoteInputBus extends GT_MetaTileEntity_Hatch_InputBus implements 
 		if(blocked)return;
 		markDirty();
 		if (aIndex == getCircuitSlot()) {
-			mInventory[0] = GT_Utility.copyAmount(0, aStack);
+			mInventory[0] = GTUtility.copyAmount(0, aStack);
 			return;
 		}
 		/*List<ItemStack> arr = getTile().map(this::filterTakable).orElseGet(ArrayList::new);
@@ -606,7 +606,7 @@ boolean blocked;
 	protected boolean processingRecipe = false;
 
 	@Override
-	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+	public CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) {
 		if(!blocked){
 			using.remove(new DimensionalCoord((TileEntity)this.getBaseMetaTileEntity()));
 		}
@@ -624,7 +624,7 @@ public ItemStackHandler getInventoryHandler() {
 		    @Override
 		    public void setStackInSlot(int slot, ItemStack stack) {
 		        this.validateSlotIndex(slot);
-		        mInventory[0]=GT_Utility.copyAmount(0,stack);
+		        mInventory[0]=GTUtility.copyAmount(0,stack);
 		    }
 
 		    @Override

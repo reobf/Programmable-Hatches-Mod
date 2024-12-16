@@ -74,5 +74,6 @@ public class ItemUpgrades extends Item{
 		icons[mark(0)] = register.registerIcon("proghatches:upgrade0");
 		icons[mark(1)] = register.registerIcon("proghatches:upgrade1");
 		icons[mark(2)] = register.registerIcon("proghatches:upgrade2");
+		icons[mark(3)] = register.registerIcon("proghatches:upgrade3");
 	}
 }

@@ -61,16 +61,16 @@ import appeng.util.item.AEItemStack;
 import appeng.util.item.ItemList;
 import appeng.util.item.MeaningfulItemIterator;
 import appeng.util.item.OreReference;
-import gregtech.api.GregTech_API;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.GregTechAPI;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
-import gregtech.api.util.GT_Config;
-import gregtech.api.util.GT_Utility;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
+import gregtech.api.util.GTConfig;
+import gregtech.api.util.GTUtility;
+import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -84,11 +84,11 @@ import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolderSuper;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.main.registration.Registration;
 
-public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME implements IMEHatchOverrided,IDataCopyablePlaceHolderSuper {
+public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverrided,IDataCopyablePlaceHolderSuper {
 
 	public DecoyInputBusME(int aID, /* boolean autoPullAvailable, */ String aName, String aNameRegional) {
 		super(aID, /* autoPullAvailable */true, aName, aNameRegional);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 		desc = reobf.proghatches.main.Config.get("DIBME", ImmutableMap.of());
 	}
 
@@ -349,7 +349,7 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 				IAEItemStack currItem = iterator.next();
 				// if(all.findPrecise(currItem)!=null){continue;}
 				if (currItem.getStackSize() >= minPull) {
-					ItemStack itemstack = GT_Utility.copyAmount(1, currItem.getItemStack());
+					ItemStack itemstack = GTUtility.copyAmount(1, currItem.getItemStack());
 					this.mInventory[index] = itemstack;
 					index++;
 				}
@@ -376,7 +376,7 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 		 * 
 		 * while (it.hasNext() && index < 16) { IAEItemStack currItem =
 		 * it.next(); if (currItem.getStackSize() >= minPull) { ItemStack
-		 * itemstack = GT_Utility.copyAmount(1, currItem.getItemStack());
+		 * itemstack = GTUtility.copyAmount(1, currItem.getItemStack());
 		 * this.mInventory[index] = itemstack; index++; } } if(index==16)return;
 		 * if(reserveFirst&&index==0){ mInventory[0] = null; index++;
 		 * 
@@ -387,7 +387,7 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 		 * while (iterator.hasNext() && index < 16) { IAEItemStack currItem =
 		 * iterator.next(); if(all.findPrecise(currItem)!=null){continue;} if
 		 * (currItem.getStackSize() >= minPull) { ItemStack itemstack =
-		 * GT_Utility.copyAmount(1, currItem.getItemStack());
+		 * GTUtility.copyAmount(1, currItem.getItemStack());
 		 * this.mInventory[index] = itemstack; index++; } } for (int i = index;
 		 * i < 16; i++) { mInventory[i] = null; }
 		 * 
@@ -410,7 +410,7 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 			}
 		}).setBackground(() -> {
 			{
-				return new IDrawable[] { GT_UITextures.BUTTON_STANDARD };
+				return new IDrawable[] { GTUITextures.BUTTON_STANDARD };
 			}
 		}).addTooltips(Arrays.asList(StatCollector.translateToLocal("proghatches.restricted.refresh.0"),
 				StatCollector.translateToLocal("proghatches.restricted.refresh.1"))).setSize(16, 16)
@@ -439,7 +439,7 @@ public class DecoyInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME impleme
 	}
 
 	@Override
-	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+	public CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) {
 		// TODO Auto-generated method stub
 		return super.endRecipeProcessing(controller);
 	}

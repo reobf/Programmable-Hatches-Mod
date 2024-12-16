@@ -1,6 +1,6 @@
 package reobf.proghatches.gt.metatileentity;
 
-import static gregtech.api.util.GT_Utility.moveMultipleItemStacks;
+import static gregtech.api.util.GTUtility.moveMultipleItemStacks;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -21,15 +21,15 @@ import com.gtnewhorizons.modularui.common.widget.SlotGroup;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ParticleFX;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Output;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_OutputBus;
-import gregtech.api.util.GT_Utility;
-import gregtech.common.GT_Client;
+import gregtech.api.metatileentity.implementations.MTEHatchOutput;
+import gregtech.api.metatileentity.implementations.MTEHatchOutputBus;
+import gregtech.api.util.GTUtility;
+
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -62,7 +62,7 @@ import reobf.proghatches.net.VoidFXMessage;
 import reobf.proghatches.net.WayPointMessage;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class VoidOutputHatch  extends GT_MetaTileEntity_Hatch_Output {
+public class VoidOutputHatch  extends MTEHatchOutput {
 
 	public VoidOutputHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures
 			) {
@@ -132,7 +132,7 @@ public class VoidOutputHatch  extends GT_MetaTileEntity_Hatch_Output {
 
 		);
 		
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 	}
 
 
@@ -496,7 +496,7 @@ public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, f
 	if (!getBaseMetaTileEntity().getCoverInfoAtSide(side)
             .isGUIClickable()) return;
 	fx=!fx;
-	GT_Utility.sendChatToPlayer(
+	GTUtility.sendChatToPlayer(
                aPlayer,
                StatCollector.translateToLocal("proghatches.gt.void.fx."+fx)
 			   );

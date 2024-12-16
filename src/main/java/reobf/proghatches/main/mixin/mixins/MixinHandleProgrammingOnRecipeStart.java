@@ -10,22 +10,22 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import reobf.proghatches.gt.cover.IProgrammer;
 import reobf.proghatches.gt.cover.ProgrammingCover;
 
-@Mixin(value = GT_MetaTileEntity_MultiBlockBase.class, remap = false)
+@Mixin(value = MTEMultiBlockBase.class, remap = false)
 public abstract class MixinHandleProgrammingOnRecipeStart {
 
 	//spotless:off
     @ModifyVariable(
     method = "startRecipeProcessing",ordinal=0/*set it to 0 to enable explicit mode or mixin will raise warnings*/,
     at = @At(opcode = Opcodes.ASTORE, value = "STORE"/*"reobf.proghatches.main.mixin.StoreInjectionPoint"*/), require = 1)
-    public GT_MetaTileEntity_Hatch_InputBus startRecipeProcessing(GT_MetaTileEntity_Hatch_InputBus a) {
+    public MTEHatchInputBus startRecipeProcessing(MTEHatchInputBus a) {
     	//spotless:on
 		try {
-			GT_MetaTileEntity_Hatch_InputBus bus = (GT_MetaTileEntity_Hatch_InputBus) a;
+			MTEHatchInputBus bus = (MTEHatchInputBus) a;
 			Arrays.stream(ForgeDirection.VALID_DIRECTIONS)
 					.map(s -> bus.getBaseMetaTileEntity().getCoverBehaviorAtSideNew(s)).filter(Objects::nonNull)
 					.filter(s -> s instanceof IProgrammer)
@@ -43,8 +43,8 @@ public abstract class MixinHandleProgrammingOnRecipeStart {
  /*
       
       opcode = Opcodes.ASTORE seems to be useless?
-    [14:57:37] [Client thread/WARN] [mixin]: @At("STORE" implicit GT_MetaTileEntity_Hatch_InputBus) has invalid IMPLICIT discriminator for opcode 8 in gregtech/api/metatileentity/implementations/GT_MetaTileEntity_MultiBlockBase::startRecipeProcessing()V: Found 0 candidate variables but exactly 1 is required.
-    [14:57:37] [Client thread/WARN] [mixin]: @At("STORE" implicit GT_MetaTileEntity_Hatch_InputBus) has invalid IMPLICIT discriminator for opcode 51 in gregtech/api/metatileentity/implementations/GT_MetaTileEntity_MultiBlockBase::startRecipeProcessing()V: Found 0 candidate variables but exactly 1 is required.
-    [14:57:37] [Client thread/WARN] [mixin]: @At("STORE" implicit GT_MetaTileEntity_Hatch_InputBus) has invalid IMPLICIT discriminator for opcode 59 in gregtech/api/metatileentity/implementations/GT_MetaTileEntity_MultiBlockBase::startRecipeProcessing()V: Found 0 candidate variables but exactly 1 is required.
+    [14:57:37] [Client thread/WARN] [mixin]: @At("STORE" implicit MTEHatchInputBus) has invalid IMPLICIT discriminator for opcode 8 in gregtech/api/metatileentity/implementations/MTEMultiBlockBase::startRecipeProcessing()V: Found 0 candidate variables but exactly 1 is required.
+    [14:57:37] [Client thread/WARN] [mixin]: @At("STORE" implicit MTEHatchInputBus) has invalid IMPLICIT discriminator for opcode 51 in gregtech/api/metatileentity/implementations/MTEMultiBlockBase::startRecipeProcessing()V: Found 0 candidate variables but exactly 1 is required.
+    [14:57:37] [Client thread/WARN] [mixin]: @At("STORE" implicit MTEHatchInputBus) has invalid IMPLICIT discriminator for opcode 59 in gregtech/api/metatileentity/implementations/MTEMultiBlockBase::startRecipeProcessing()V: Found 0 candidate variables but exactly 1 is required.
 */
 }

@@ -3,7 +3,7 @@ package reobf.proghatches.gt.metatileentity;
 import static gregtech.api.metatileentity.BaseTileEntity.FLUID_TRANSFER_TOOLTIP;
 import static gregtech.api.metatileentity.BaseTileEntity.ITEM_TRANSFER_TOOLTIP;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
-import static gregtech.api.util.GT_Utility.moveMultipleItemStacks;
+import static gregtech.api.util.GTUtility.moveMultipleItemStacks;
 import java.util.Arrays;
 
 import com.glodblock.github.loader.ItemAndBlockHolder;
@@ -16,19 +16,19 @@ import com.gtnewhorizons.modularui.common.fluid.FluidStackTank;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.Scrollable;
 import com.gtnewhorizons.modularui.common.widget.SlotGroup;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Textures;
 import gregtech.api.enums.Textures.BlockIcons;
-import gregtech.api.gui.modularui.GT_UIInfos;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GTUIInfos;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.gui.modularui.GUITextureSet;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.modularui.IAddUIWidgets;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_TieredMachineBlock;
+import gregtech.api.metatileentity.implementations.MTETieredMachineBlock;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -41,7 +41,7 @@ import net.minecraftforge.fluids.IFluidHandler;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.main.registration.Registration;
 
-public class IngredientBuffer extends GT_MetaTileEntity_TieredMachineBlock implements IAddUIWidgets {
+public class IngredientBuffer extends MTETieredMachineBlock implements IAddUIWidgets {
 
 	public static int T0 = 3;
 	public static int T1 = 5;
@@ -71,7 +71,7 @@ public class IngredientBuffer extends GT_MetaTileEntity_TieredMachineBlock imple
 		this.mStoredFluid = new FluidStack[aSlot];
 		fluidTanks = new FluidStackTank[aSlot];
 		mCapacityPer = getCapacityPerTank(aTier, aSlot);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 	}
 
 	public IngredientBuffer(String aName, int aSlot, int aTier, int aInvSlotCount, String[] aDescription,
@@ -468,7 +468,7 @@ public class IngredientBuffer extends GT_MetaTileEntity_TieredMachineBlock imple
 		return super.isValidSlot(aIndex);
 	}
 
-	@Override
+	//@Override
 	public boolean useModularUI() {
 		return true;
 	}
@@ -532,7 +532,7 @@ public class IngredientBuffer extends GT_MetaTileEntity_TieredMachineBlock imple
 		final IDrawable[] background = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot() };
 		// final IDrawable[] special = new IDrawable[] {
 		// GUITextureSet.DEFAULT.getItemSlot(),
-		// GT_UITextures.OVERLAY_SLOT_ARROW_ME };
+		// GTUITextures.OVERLAY_SLOT_ARROW_ME };
 		sc.widget(SlotGroup.ofItemHandler(inventoryHandler, 5)
 
 				.startFromSlot(0).endAtSlot(this.getSizeInventory() - 1).background(background).build()
@@ -544,7 +544,7 @@ public class IngredientBuffer extends GT_MetaTileEntity_TieredMachineBlock imple
 		final IDrawable[] background0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot() };
 		// final IDrawable[] special0 = new IDrawable[] {
 		// GUITextureSet.DEFAULT.getFluidSlot(),
-		// GT_UITextures.OVERLAY_SLOT_ARROW_ME };
+		// GTUITextures.OVERLAY_SLOT_ARROW_ME };
 
 		sc.widget(SlotGroup.ofFluidTanks(Arrays.asList(fluidTanks), 2)
 
@@ -569,7 +569,7 @@ public class IngredientBuffer extends GT_MetaTileEntity_TieredMachineBlock imple
 	@Override
 	public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
 
-		GT_UIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
+		GTUIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
 		return true;
 	}
 
@@ -630,16 +630,16 @@ public class IngredientBuffer extends GT_MetaTileEntity_TieredMachineBlock imple
 
 	protected CycleButtonWidget createItemAutoOutputButton() {
 		return (CycleButtonWidget) new CycleButtonWidget().setToggle(() -> mItemTransfer, val -> mItemTransfer = val)
-				.setStaticTexture(GT_UITextures.OVERLAY_BUTTON_AUTOOUTPUT_ITEM)
-				.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE)
+				.setStaticTexture(GTUITextures.OVERLAY_BUTTON_AUTOOUTPUT_ITEM)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
 				.setGTTooltip(() -> mTooltipCache.getData(ITEM_TRANSFER_TOOLTIP)).setTooltipShowUpDelay(TOOLTIP_DELAY)
 				.setPos(25, 62).setSize(18, 18);
 	}
 
 	protected CycleButtonWidget createFluidAutoOutputButton() {
 		return (CycleButtonWidget) new CycleButtonWidget().setToggle(() -> mFluidTransfer, val -> mFluidTransfer = val)
-				.setStaticTexture(GT_UITextures.OVERLAY_BUTTON_AUTOOUTPUT_FLUID)
-				.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE)
+				.setStaticTexture(GTUITextures.OVERLAY_BUTTON_AUTOOUTPUT_FLUID)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
 				.setGTTooltip(() -> mTooltipCache.getData(FLUID_TRANSFER_TOOLTIP)).setTooltipShowUpDelay(TOOLTIP_DELAY)
 				.setPos(7, 62).setSize(18, 18);
 	}
@@ -650,14 +650,14 @@ public class IngredientBuffer extends GT_MetaTileEntity_TieredMachineBlock imple
 			if (aPlayer.isSneaking()) {
 				/*
 				 * mDisableFilter = !mDisableFilter;
-				 * GT_Utility.sendChatToPlayer( aPlayer,
+				 * GTUtility.sendChatToPlayer( aPlayer,
 				 * StatCollector.translateToLocal("GT5U.hatch.disableFilter." +
 				 * mDisableFilter));
 				 */} else {
 				inputFromFront = !inputFromFront;
-				GT_Utility.sendChatToPlayer(aPlayer,
-						inputFromFront ? GT_Utility.trans("095", "Input from Output Side allowed")
-								: GT_Utility.trans("096", "Input from Output Side forbidden"));
+				GTUtility.sendChatToPlayer(aPlayer,
+						inputFromFront ? GTUtility.trans("095", "Input from Output Side allowed")
+								: GTUtility.trans("096", "Input from Output Side forbidden"));
 			}
 		}
 	}

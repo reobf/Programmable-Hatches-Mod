@@ -17,13 +17,13 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Table;
 
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
+import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GT_OreDictUnificator;
+import gregtech.api.util.GTOreDictUnificator;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -33,7 +33,7 @@ import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
-public class ProgrammingCircuitProviderPrefabricated extends GT_MetaTileEntity_Hatch implements ICircuitProvider{
+public class ProgrammingCircuitProviderPrefabricated extends MTEHatch implements ICircuitProvider{
 	public ProgrammingCircuitProviderPrefabricated(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount,int i) {
 		super(aID, aName, aNameRegional, aTier, aInvSlotCount,
 				reobf.proghatches.main.Config.get("PCPP", ImmutableMap.of(
@@ -44,7 +44,7 @@ public class ProgrammingCircuitProviderPrefabricated extends GT_MetaTileEntity_H
 						))
 
 		);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 		this.index=i;
 	}
 
@@ -114,7 +114,7 @@ static void init(){
 	if(init==true)return;
 	init=true;
 	System.out.println("init!!!!");
-	reg(0,GregTech_API.getConfigurationCircuitList(100));
+	reg(0,GregTechAPI.getConfigurationCircuitList(100));
 	   ItemList[][] all = new ItemList[][]{{
 	    Shape_Mold_Bottle,
 	    Shape_Mold_Plate,
@@ -220,7 +220,7 @@ static void init(){
 	 for(Materials mat:  Materials.values()){
 		
 		 
-		ItemStack opt= GT_OreDictUnificator.get(OrePrefixes.lens.get(mat),null, 1,false,false);
+		ItemStack opt= GTOreDictUnificator.get(OrePrefixes.lens.get(mat),null, 1,false,false);
 	if(opt!=null)is.add(opt);
 	//System.out.println(is);
 	reg(5,is);

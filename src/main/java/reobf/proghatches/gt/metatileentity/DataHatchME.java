@@ -8,8 +8,6 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import com.github.technus.tectech.thing.casing.GT_Block_CasingsTT;
-import com.github.technus.tectech.util.CommonValues;
 import com.google.common.collect.ImmutableMap;
 
 import appeng.api.config.FuzzyMode;
@@ -24,16 +22,16 @@ import appeng.api.util.DimensionalCoord;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.item.AEItemStack;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Textures;
 import gregtech.api.enums.Textures.BlockIcons;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_DataAccess;
+import gregtech.api.metatileentity.implementations.MTEHatchDataAccess;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -45,12 +43,13 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.gt.metatileentity.util.IMEStorageChangeAwareness;
 import reobf.proghatches.main.registration.Registration;
+import tectech.thing.casing.BlockGTCasingsTT;
 
 
-public class DataHatchME extends GT_MetaTileEntity_Hatch_DataAccess implements IPowerChannelState,IGridProxyable,IMEStorageChangeAwareness{
+public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelState,IGridProxyable,IMEStorageChangeAwareness{
 	public DataHatchME(int aID, String aName, String aNameRegional) {
 		super(aID, aName, aNameRegional, 8);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 	}
 	public DataHatchME(String aName, String[] aDescription, ITexture[][][] aTextures) {
 		super(aName, 8, aDescription, aTextures);
@@ -100,7 +99,7 @@ public AENetworkProxy getProxy() {
             gridProxy = new AENetworkProxy(
                 (IGridProxyable) getBaseMetaTileEntity(),
                 "proxy",
-                new ItemStack(GregTech_API.sBlockMachines,1, getBaseMetaTileEntity().getMetaTileID()),
+                new ItemStack(GregTechAPI.sBlockMachines,1, getBaseMetaTileEntity().getMetaTileID()),
                 true);
             gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
             updateValidGridProxySides();
@@ -171,7 +170,7 @@ private void updateCache() {
 	}
 	
 }
-@Override
+//@Override
 public boolean useModularUI() {
 	
 	return false;
@@ -203,7 +202,7 @@ public void loadNBTData(NBTTagCompound aNBT) {
         inv=new ItemStack[aNBT.getInteger("dataStickCacheLen")];
         for (int i = 0; i < c; i++) {
             NBTTagCompound nbtTagCompound = nbtTagList.getCompoundTagAt(i);
-            ItemStack fluidStack = GT_Utility.loadItem(nbtTagCompound);
+            ItemStack fluidStack = GTUtility.loadItem(nbtTagCompound);
             inv[i] = fluidStack;
         }
     }
@@ -256,7 +255,7 @@ public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirec
         if (side != aFacing) {
             if (textureIndex > 0)
                 return new ITexture[] { Textures.BlockIcons.casingTexturePages[mTexturePage][texturePointer] };
-            else return new ITexture[] {Textures.BlockIcons.casingTexturePages[GT_Block_CasingsTT.texturePage][1] };
+            else return new ITexture[] {Textures.BlockIcons.casingTexturePages[BlockGTCasingsTT.texturePage][1] };
         } else {
             if (textureIndex > 0) {
                 if (aActive)
@@ -264,8 +263,8 @@ public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirec
                 else return getTexturesInactive(
                     Textures.BlockIcons.casingTexturePages[mTexturePage][texturePointer]);
             } else {
-                if (aActive) return getTexturesActive(Textures.BlockIcons.casingTexturePages[GT_Block_CasingsTT.texturePage][1]);
-                else return getTexturesInactive(Textures.BlockIcons.casingTexturePages[GT_Block_CasingsTT.texturePage][1]);
+                if (aActive) return getTexturesActive(Textures.BlockIcons.casingTexturePages[BlockGTCasingsTT.texturePage][1]);
+                else return getTexturesInactive(Textures.BlockIcons.casingTexturePages[BlockGTCasingsTT.texturePage][1]);
             }
         }
     } catch (NullPointerException npe) {

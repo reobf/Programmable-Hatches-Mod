@@ -34,13 +34,13 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
-import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.CoverUIBuildContext;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.util.GT_CoverBehaviorBase;
+import gregtech.api.util.CoverBehaviorBase;
 import gregtech.api.util.ISerializableObject;
-import gregtech.common.covers.redstone.GT_Cover_AdvancedRedstoneReceiverBase.GateMode;
+import gregtech.common.covers.redstone.CoverAdvancedRedstoneReceiverBase.GateMode;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import io.netty.buffer.ByteBuf;
 import reobf.proghatches.gt.cover.parser.SimpleParser;
@@ -50,7 +50,7 @@ import reobf.proghatches.gt.cover.parser.SimpleParser.Rational;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
+public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
 
 	public SmartArmCover(int tier) {
 		super(Data.class);
@@ -241,7 +241,7 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 			final int HEIGHT = 16 * 2;
 
 			ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-			builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+			builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
 			builder.setGuiTint(this.getUIBuildContext().getGuiColorization());
 			builder.setDraggable(true);
 			builder.widget((new com.gtnewhorizons.modularui.common.widget.ButtonWidget()).setOnClick((s, b) -> {
@@ -260,10 +260,10 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 					getCoverData().probe = getCoverData().probe + len;
 				}
 
-			}).setBackground(GT_UITextures.BUTTON_STANDARD,
+			}).setBackground(GTUITextures.BUTTON_STANDARD,
 					UITexture.fullImage(GregTech.ID, "blocks/iconsets/OVERLAY_PIPELINE_ITEM_SIDE_UP_DOWN")
 			// BlockIcons.OVERLAY_PIPELINE_ITEM_SIDE_UP_DOWN,
-			// GT_UITextures.OVERLAY_BUTTON_ARROW_GREEN_UP
+			// GTUITextures.OVERLAY_BUTTON_ARROW_GREEN_UP
 			).setSize(16, 16)
 
 					.addTooltip(LangManager.translateToLocal("programmable_hatches.cover.smart.probe.move"))
@@ -288,7 +288,7 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 
 		//private int maxSlot;
 
-		protected ArmUIFactory(GT_CoverUIBuildContext buildContext) {
+		protected ArmUIFactory(CoverUIBuildContext buildContext) {
 			super(buildContext);
 		
 		}
@@ -310,7 +310,7 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 						//	getUIBuildContext().getTile();
 							widget.getContext().openSyncedWindow(77);
 					}
-				}).setPlayClickSound(true).setBackground(GT_UITextures.BUTTON_STANDARD, PROBE)
+				}).setPlayClickSound(true).setBackground(GTUITextures.BUTTON_STANDARD, PROBE)
 						.addTooltips(ImmutableList
 								.of(LangManager.translateToLocalFormatted("programmable_hatches.cover.smart.probe")))
 						.setSize(16, 16).setPos(startX + spaceX * 6, startY + spaceY * 2));
@@ -337,8 +337,8 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 					.setGetter(() -> getCoverData().io ? 1 : 0).setSetter(s -> getCoverData().io = s == 1).setLength(2)
 					.setTextureGetter(i -> {
 						if (i == 1)
-							return GT_UITextures.OVERLAY_BUTTON_EXPORT;
-						return GT_UITextures.OVERLAY_BUTTON_IMPORT;
+							return GTUITextures.OVERLAY_BUTTON_EXPORT;
+						return GTUITextures.OVERLAY_BUTTON_IMPORT;
 					})
 
 					.addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.smart.io.false"))
@@ -348,7 +348,7 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 			);
 			builder.widget((new com.gtnewhorizons.modularui.common.widget.ButtonWidget()).setOnClick((s, b) -> {
 				getCoverData().formulaprev = "\0\0\0\0";
-			}).setBackground(GT_UITextures.BUTTON_STANDARD, GT_UITextures.OVERLAY_SLOT_RECYCLE)
+			}).setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_SLOT_RECYCLE)
 
 					.addTooltip(LangManager.translateToLocal("programmable_hatches.cover.smart.reset"))
 					.setPos(startX + spaceX * 6, startY)
@@ -361,8 +361,8 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 						getCoverData().formulaprev = "\0\0\0\0";
 					}).setLength(2).setTextureGetter(i -> {
 						if (i == 1)
-							return GT_UITextures.OVERLAY_BUTTON_EXPORT;
-						return GT_UITextures.OVERLAY_BUTTON_IMPORT;
+							return GTUITextures.OVERLAY_BUTTON_EXPORT;
+						return GTUITextures.OVERLAY_BUTTON_IMPORT;
 					}
 
 					).addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.smart.mode.0")).addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.smart.mode.1")).setPos(startX, startY + spaceY));
@@ -375,8 +375,8 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 						getCoverData().formulaprev = "~~~~~";
 					}).setLength(2).setTextureGetter(i -> {
 						if (i == 1)
-							return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
-						return GT_UITextures.OVERLAY_BUTTON_CROSS;
+							return GTUITextures.OVERLAY_BUTTON_CHECKMARK;
+						return GTUITextures.OVERLAY_BUTTON_CROSS;
 					}
 
 					).dynamicTooltip(() -> c.getState() == 0 ? Arrays.asList(LangManager.translateToLocal("programmable_hatches.cover.smart.dyn.0"), StatCollector.translateToLocal("programmable_hatches.cover.smart.dyn.shift.for.detail")) : Arrays.asList(LangManager.translateToLocal("programmable_hatches.cover.smart.dyn.1"), StatCollector.translateToLocal("programmable_hatches.cover.smart.dyn.shift.for.detail"))
@@ -411,7 +411,7 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 
 					.setFocusOnGuiOpen(true).setTextColor(Color.WHITE.dark(1))
 
-					.setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
+					.setBackground(GTUITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
 					.setPos(startX + spaceX, startY + spaceY * 2).setSize(spaceX * 3, 12)
 
 			)
@@ -422,8 +422,8 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 			 * o.addFollower( new CoverDataFollower_CycleButtonWidget<Data>(),
 			 * (s)->{return (s.io)?1:0;}, (b,s)->{ b.io=s==1; return b;}, widget
 			 * ->{ widget .setLength(2) .setTextureGetter( i->{ if(i==1) return
-			 * GT_UITextures.OVERLAY__EXPORT; return
-			 * GT_UITextures.OVERLAY_BUTTON_IMPORT; } ).addTooltip(0,
+			 * GTUITextures.OVERLAY__EXPORT; return
+			 * GTUITextures.OVERLAY_BUTTON_IMPORT; } ).addTooltip(0,
 			 * LangManager.translateToLocal(
 			 * "programmable_hatches.cover.smart.io.false"))
 			 * .addTooltip(1,LangManager.translateToLocal(
@@ -432,8 +432,8 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 			 * CoverDataFollower_CycleButtonWidget<Data>(), (s)->{return
 			 * s.mode;}, (b,s)->{ b.mode=s; return b;}, widget ->{ widget
 			 * .setLength(2) .setTextureGetter( i->{ if(i==1) return
-			 * GT_UITextures.OVERLAY_BUTTON_EXPORT; return
-			 * GT_UITextures.OVERLAY_BUTTON_IMPORT; }
+			 * GTUITextures.OVERLAY_BUTTON_EXPORT; return
+			 * GTUITextures.OVERLAY_BUTTON_IMPORT; }
 			 * ).addTooltip(0,LangManager.translateToLocal(
 			 * "programmable_hatches.cover.smart.mode.0"))
 			 * .addTooltip(1,LangManager.translateToLocal(
@@ -495,13 +495,13 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 		return true;
 	}
 
-	@Override
+	//@Override
 	public boolean useModularUI() {
 		return true;
 	}
 
 	@Override
-	public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
+	public ModularWindow createWindow(CoverUIBuildContext buildContext) {
 		return new ArmUIFactory(buildContext).createWindow();
 	}
 
@@ -515,10 +515,10 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 		// not used
 		/*
 		if (d.dyn) {
-			GT_Utility.sendChatToPlayer(aPlayer, info("print.dyn"));
+			GTUtility.sendChatToPlayer(aPlayer, info("print.dyn"));
 			return true;
 		}
-		GT_Utility.sendChatToPlayer(aPlayer, info("mode." + d.mode));
+		GTUtility.sendChatToPlayer(aPlayer, info("mode." + d.mode));
 
 		int maxslot = Integer.MAX_VALUE;
 		TileEntity te = aTileEntity.getTileEntityAtSide(side);
@@ -532,22 +532,22 @@ public class SmartArmCover extends GT_CoverBehaviorBase<SmartArmCover.Data> {
 		for (int i = 0; i < d.key.length; i++) {
 
 			if (d.key[i] == Integer.MIN_VALUE) {
-				GT_Utility.sendChatToPlayer(aPlayer, info("nyc"));
+				GTUtility.sendChatToPlayer(aPlayer, info("nyc"));
 			} else if (d.value[i] == Integer.MIN_VALUE) {
-				GT_Utility.sendChatToPlayer(aPlayer, d.key[i] + dir + "" + info("ftc"));
+				GTUtility.sendChatToPlayer(aPlayer, d.key[i] + dir + "" + info("ftc"));
 
 			} else
 
 			// TileEntity te = aTileEntity.getTileEntityAtSide(side);
 
 			if (d.value[i] >= maxslot || d.value[i] < 0) {
-				GT_Utility.sendChatToPlayer(aPlayer, d.key[i] + dir + "" + d.value[i] + info("oob"));
+				GTUtility.sendChatToPlayer(aPlayer, d.key[i] + dir + "" + d.value[i] + info("oob"));
 
 			}
 
 			else {
 
-				GT_Utility.sendChatToPlayer(aPlayer, d.key[i] + dir + d.value[i]);
+				GTUtility.sendChatToPlayer(aPlayer, d.key[i] + dir + d.value[i]);
 			}
 		}
 

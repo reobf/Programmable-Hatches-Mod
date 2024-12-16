@@ -3,10 +3,10 @@ package reobf.proghatches.gt.metatileentity.multi;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofChain;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
-import static gregtech.api.enums.GT_HatchElement.Energy;
-import static gregtech.api.enums.GT_HatchElement.Maintenance;
+import static gregtech.api.enums.HatchElement.Energy;
+import static gregtech.api.enums.HatchElement.Maintenance;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
-import static gregtech.api.util.GT_StructureUtility.buildHatchAdder;
+import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -86,29 +86,28 @@ import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.item.AEItemStack;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.Textures.BlockIcons;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.IHatchElement;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_EnhancedMultiBlockBase;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEEnhancedMultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEHatch;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
-import gregtech.api.util.GT_Utility;
-import gregtech.api.util.IGT_HatchAdder;
+import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.api.util.GTUtility;
+import gregtech.api.util.IGTHatchAdder;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.api.util.shutdown.SimpleShutDownReason;
-import gregtech.common.items.GT_MetaGenerated_Tool_01;
-import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_LargeTurbine;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -136,7 +135,7 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
 public class LargeProgrammingCircuitProvider
-		extends GT_MetaTileEntity_EnhancedMultiBlockBase<LargeProgrammingCircuitProvider>
+		extends MTEEnhancedMultiBlockBase<LargeProgrammingCircuitProvider>
 		implements ISurvivalConstructable, IGridProxyable, ICraftingProvider, IInstantCompletable, ICircuitProvider,
 		IInterfaceViewable,
 		IPowerChannelState, IActionHost
@@ -149,7 +148,7 @@ public class LargeProgrammingCircuitProvider
 
 	public LargeProgrammingCircuitProvider(int aID, String aName, String aNameRegional) {
 		super(aID, aName, aNameRegional);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 
 	}
 
@@ -184,14 +183,14 @@ public class LargeProgrammingCircuitProvider
 	protected static final String STRUCTURE_PIECE_LAYER_HINT = "layerHint";
 	protected static final String STRUCTURE_PIECE_TOP_HINT = "topHint";
 	static {
-		Function<IGT_HatchAdder<? super LargeProgrammingCircuitProvider>, IHatchElement<LargeProgrammingCircuitProvider>> provider = s -> new IHatchElement<LargeProgrammingCircuitProvider>() {
+		Function<IGTHatchAdder<? super LargeProgrammingCircuitProvider>, IHatchElement<LargeProgrammingCircuitProvider>> provider = s -> new IHatchElement<LargeProgrammingCircuitProvider>() {
 			@Override
 			public List<? extends Class<? extends IMetaTileEntity>> mteClasses() {
 				return ImmutableList.of(ProgrammingCircuitProvider.class, ProviderChainer.class,ProgrammingCircuitProviderPrefabricated.class);
 			}
 
 			@Override
-			public IGT_HatchAdder<? super LargeProgrammingCircuitProvider> adder() {
+			public IGTHatchAdder<? super LargeProgrammingCircuitProvider> adder() {
 
 				return s;
 			}
@@ -237,22 +236,22 @@ public class LargeProgrammingCircuitProvider
 						.atLeast(Energy, Maintenance).casingIndex(CASING_INDEX).dot(1)
 
 						.build(),
-						// ofBlock(GregTech_API.sBlockCasings4, 1),
+						// ofBlock(GregTechAPI.sBlockCasings4, 1),
 						onElementPass(LargeProgrammingCircuitProvider::onCasingFound,
-								ofBlock(GregTech_API.sBlockCasings4, 1)
+								ofBlock(GregTechAPI.sBlockCasings4, 1)
 								
 								
 								
 								))
 
 				)
-				.addElement('l', ofBlock(GregTech_API.sBlockCasings4, 1))
+				.addElement('l', ofBlock(GregTechAPI.sBlockCasings4, 1))
 				.addElement('x', (IStructureElementChain<LargeProgrammingCircuitProvider>) () -> {
 					return buildHatchAdder(LargeProgrammingCircuitProvider.class).atLeast(providerTop)
 							.casingIndex(CASING_INDEX).dot(2)
 							.buildAndChain(acc,ofBlock(Api.INSTANCE.definitions().blocks().fluix().maybeBlock().get(), 0),
 									StructureUtility.ofBlockAdder(LargeProgrammingCircuitProvider::onTopCenterFound,
-											GregTech_API.sBlockCasings4, 1))
+											GregTechAPI.sBlockCasings4, 1))
 							.fallbacks();
 
 				}
@@ -263,7 +262,7 @@ public class LargeProgrammingCircuitProvider
 								.casingIndex(CASING_INDEX).dot(2)
 								// .disallowOnly(ForgeDirection.UP,
 								// ForgeDirection.DOWN)
-								.buildAndChain(GregTech_API.sBlockCasings4, 1)
+								.buildAndChain(GregTechAPI.sBlockCasings4, 1)
 
 				)
 
@@ -310,8 +309,8 @@ public class LargeProgrammingCircuitProvider
 	}
 
 	@Override
-	protected GT_Multiblock_Tooltip_Builder createTooltip() {
-		final GT_Multiblock_Tooltip_Builder tt = new GT_Multiblock_Tooltip_Builder();
+	protected MultiblockTooltipBuilder createTooltip() {
+		final MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
 		/*
 		 * tt.addMachineType("Programming Circuit Provider") .addInfo(
 		 * "Controller block for the Large Programming Circuit Provider")
@@ -419,7 +418,7 @@ totalAcc=0;
 	}
 
 	static boolean onTopCenterFound(LargeProgrammingCircuitProvider t, Block block, int meta) {
-		if (block == GregTech_API.sBlockCasings4 && meta == 1) {
+		if (block == GregTechAPI.sBlockCasings4 && meta == 1) {
 			t.mTopLayerFound = true;
 			return true;
 		}
@@ -435,7 +434,7 @@ totalAcc=0;
 		return addProviderWithUpdater(t, aTileEntity, text, tt -> {  tt.mTopLayerFound = true; return !tt.providerFoundThisLayer;});
 	}
 
-	static private <T extends GT_MetaTileEntity_Hatch & ICircuitProvider> boolean addProviderWithUpdater(
+	static private <T extends MTEHatch & ICircuitProvider> boolean addProviderWithUpdater(
 			LargeProgrammingCircuitProvider t, IGregTechTileEntity aTileEntity, Short text,
 			Predicate<LargeProgrammingCircuitProvider> cb) {
 
@@ -652,7 +651,7 @@ totalAcc=0;
     private appeng.util.item.ItemList ret = new appeng.util.item.ItemList();
     
 	@SuppressWarnings({ "deprecation", "unchecked" })
-	public static void shut(GT_MetaTileEntity_MultiBlockBase thiz,String reason){
+	public static void shut(MTEMultiBlockBase thiz,String reason){
 		if(shut==null){
 	
 		try {
@@ -661,7 +660,7 @@ totalAcc=0;
 			MyMod.LOG.info("Use ShutDownReason");
 			//lazy-load class
 			Class<?> c=Class.forName("reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider$NewShutRunnable");
-			shut=(BiConsumer<GT_MetaTileEntity_MultiBlockBase, String>) c.getConstructors()[0].newInstance();
+			shut=(BiConsumer<MTEMultiBlockBase, String>) c.getConstructors()[0].newInstance();
 		} catch (Exception e) {
 			//2.5.1
 			MyMod.LOG.info("ShutDownReason.class not found, use 0-arg stopMachine.");
@@ -686,11 +685,11 @@ totalAcc=0;
 		shut.accept(thiz,reason);
 	}
 	
-	static public class NewShutRunnable implements BiConsumer<GT_MetaTileEntity_MultiBlockBase,String>{
+	static public class NewShutRunnable implements BiConsumer<MTEMultiBlockBase,String>{
 		public NewShutRunnable(){}
-		//GT_MetaTileEntity_MultiBlockBase thiz;
+		//MTEMultiBlockBase thiz;
 		@Override
-		public void accept(GT_MetaTileEntity_MultiBlockBase a,String reason) {
+		public void accept(MTEMultiBlockBase a,String reason) {
 			if(reason==null){
 				a.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
 				return;
@@ -702,7 +701,7 @@ totalAcc=0;
 			
 	}
 	
-	static public BiConsumer<GT_MetaTileEntity_MultiBlockBase,String> shut;
+	static public BiConsumer<MTEMultiBlockBase,String> shut;
 	public int multiply=1;
 	
 	@Override
@@ -998,8 +997,8 @@ ButtonWidget createParallelButton(IWidgetBuilder<?> builder,UIBuildContext build
         
          .setBackground(() -> {
         
-                 return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
-                     GT_UITextures.PICTURE_INFORMATION };
+                 return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
+                     GTUITextures.PICTURE_INFORMATION };
              
          })
          
@@ -1029,11 +1028,11 @@ ButtonWidget createRemoveCircuitButton(IWidgetBuilder<?> builder,UIBuildContext 
 		                    : SoundResource.GUI_BUTTON_DOWN.resourceLocation)
 		            .setBackground(() -> {
 		                if (removeStorageCircuit) {
-		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
-		                        GT_UITextures.OVERLAY_BUTTON_CROSS };
+		                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
+		                        GTUITextures.OVERLAY_BUTTON_CROSS };
 		                } else {
-		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
-		                        GT_UITextures.OVERLAY_BUTTON_CROSS };
+		                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
+		                        GTUITextures.OVERLAY_BUTTON_CROSS };
 		                }
 		            })
         
@@ -1055,13 +1054,13 @@ ButtonWidget createRemoveCircuitButton(IWidgetBuilder<?> builder,UIBuildContext 
     public void addUIWidgets(com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder builder,
     		UIBuildContext buildContext) {
     	  builder.widget(
-    	            new DrawableWidget().setDrawable(GT_UITextures.PICTURE_SCREEN_BLACK)
+    	            new DrawableWidget().setDrawable(GTUITextures.PICTURE_SCREEN_BLACK)
     	                .setPos(4, 4)
     	                .setSize(190, 85));
     	        final SlotWidget inventorySlot = new SlotWidget(inventoryHandler, 1);
     	        builder.widget(
     	            inventorySlot.setPos(173, 167)
-    	                .setBackground(GT_UITextures.SLOT_DARK_GRAY));
+    	                .setBackground(GTUITextures.SLOT_DARK_GRAY));
 
     	        final DynamicPositionedColumn screenElements = new DynamicPositionedColumn();
     	        drawTexts(screenElements, inventorySlot);
@@ -1089,7 +1088,7 @@ ButtonWidget createRemoveCircuitButton(IWidgetBuilder<?> builder,UIBuildContext 
 		final int PARENT_WIDTH = getGUIWidth();
 		final int PARENT_HEIGHT = getGUIHeight();
 		ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-		builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+		builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
 		builder.setGuiTint(getGUIColorization());
 		builder.setDraggable(true);
 	
@@ -1112,7 +1111,7 @@ ButtonWidget createRemoveCircuitButton(IWidgetBuilder<?> builder,UIBuildContext 
                 .setTextColor(Color.WHITE.normal)
                 .setSize(18*6, 18)
                 .setPos(3, 3)
-                .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD));
+                .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
 		
 		/*builder.widget(new IntegerSyncer(()->{
 		w.setBounds(1,Math.max( totalAcc+1,1));

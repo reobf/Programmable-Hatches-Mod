@@ -7,9 +7,10 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.util.LightingHelper;
-import gregtech.common.render.GT_TextureBase;
+import gregtech.common.render.GTTextureBase;
 
-public class IIconTexture extends GT_TextureBase implements ITexture {
+
+public class IIconTexture extends GTTextureBase implements ITexture {
 
 	private final IIcon mBlock;
 	// private final byte mSide, mMeta;

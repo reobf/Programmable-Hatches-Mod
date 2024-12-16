@@ -54,9 +54,9 @@ import appeng.me.helpers.IGridProxyable;
 import appeng.me.storage.MEMonitorPassThrough;
 import appeng.me.storage.NullInventory;
 import appeng.util.prioitylist.OreFilteredList;
-import gregtech.api.gui.modularui.GT_UITextures;
-import gregtech.api.util.GT_Utility;
-import gregtech.api.util.GT_Utility.ItemId;
+import gregtech.api.gui.modularui.GTUITextures;
+import gregtech.api.util.GTUtility;
+import gregtech.api.util.GTUtility.ItemId;
 import li.cil.oc.api.network.SidedEnvironment;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
@@ -929,17 +929,17 @@ private boolean checkFluid(IAEFluidStack s) {
 		.setSetter(s->{this.fuzzmode=s;gridChanged();})
 		.setGetter(()->this.fuzzmode)
 		.setTextureGetter(s->{
-			if(s==0)return GT_UITextures.OVERLAY_BUTTON_CROSS;
+			if(s==0)return GTUITextures.OVERLAY_BUTTON_CROSS;
 			
 			
-			return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
+			return GTUITextures.OVERLAY_BUTTON_CHECKMARK;
 		})
 		.addTooltip(0, StatCollector.translateToLocal("proghatch.proxy.disable"))
 		.addTooltip(1, StatCollector.translateToLocal("proghatch.proxy.Strict"))
 		.addTooltip(4, StatCollector.translateToLocal("proghatch.proxy.ignoreNBT"))
 		.addTooltip(3, StatCollector.translateToLocal("proghatch.proxy.oredict"))
 		.addTooltip(2, StatCollector.translateToLocal("proghatch.proxy.passthrough"))
-		.setBackground(GT_UITextures.BUTTON_STANDARD)
+		.setBackground(GTUITextures.BUTTON_STANDARD)
 			.setTooltipShowUpDelay(TOOLTIP_DELAY)
 		     .setPos(3,3+18*4)
 		     .setSize(18, 18)
@@ -955,7 +955,7 @@ private boolean checkFluid(IAEFluidStack s) {
 				
 				 .setFocusOnGuiOpen(true).setTextColor(Color.WHITE.dark(1))
 
-					.setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
+					.setBackground(GTUITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
 					.setPos(3+20,3+18*4+1).setSize(16*8,16));
 		
 		

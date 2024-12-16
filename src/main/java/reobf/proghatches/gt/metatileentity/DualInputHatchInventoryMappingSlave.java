@@ -9,15 +9,15 @@ import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 
 import appeng.api.networking.crafting.ICraftingMedium;
 import appeng.helpers.ICustomNameObject;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_TieredMachineBlock;
+import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
+import gregtech.api.metatileentity.implementations.MTETieredMachineBlock;
 import gregtech.api.render.TextureFactory;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import mcp.mobius.waila.api.IWailaConfigHandler;
@@ -44,7 +44,7 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
 public class DualInputHatchInventoryMappingSlave<T extends MetaTileEntity & IDualInputHatch&IMetaTileEntity> 
-extends GT_MetaTileEntity_TieredMachineBlock implements ISkipStackSizeCheck,IDataCopyablePlaceHolder{
+extends MTETieredMachineBlock implements ISkipStackSizeCheck,IDataCopyablePlaceHolder{
 	private T master; // use getMaster() to access
 	private int masterX, masterY, masterZ;
 	private boolean masterSet = false; // indicate if values of masterX,
@@ -56,7 +56,7 @@ extends GT_MetaTileEntity_TieredMachineBlock implements ISkipStackSizeCheck,IDat
 				
 				
 				Config.get("DIHIMS", ImmutableMap.of()));
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 	}
 	public DualInputHatchInventoryMappingSlave(String aName, int aTier, int aInvSlotCount, String[] aDescription,
 			ITexture[][][] aTextures) {

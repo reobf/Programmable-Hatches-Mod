@@ -1,6 +1,6 @@
 package reobf.proghatches.main.mixin.mixins;
 
-import static gregtech.api.util.GT_Utility.filterValidMTEs;
+import static gregtech.api.util.GTUtility.filterValidMTEs;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -25,11 +25,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Input;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEHatchInput;
+import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
 import reobf.proghatches.gt.cover.ProgrammingCover;
@@ -39,7 +39,7 @@ import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 @Pseudo
 @Mixin(
 		
-		value = GT_MetaTileEntity_MultiBlockBase.class,
+		value = MTEMultiBlockBase.class,
 		targets={
 		
 		"com.Nxer.TwistSpaceTechnology.common.modularizedMachine.ModularizedMachineLogic.MultiExecutionCoreMachineBase"
@@ -64,9 +64,9 @@ public abstract class MixinAwarenessForDualHatch {
 		
 		try {
 			MH_mDualInputHatches=MethodHandles.lookup().findGetter(	
-					GT_MetaTileEntity_MultiBlockBase.class,
+					MTEMultiBlockBase.class,
 					"mDualInputHatches", ArrayList.class);
-			MH_setResultIfFailure=MethodHandles.lookup().findVirtual(GT_MetaTileEntity_MultiBlockBase.class,
+			MH_setResultIfFailure=MethodHandles.lookup().findVirtual(MTEMultiBlockBase.class,
 					"setResultIfFailure", MethodType.methodType(void.class,CheckRecipeResult.class));			
 			
 			
@@ -79,7 +79,7 @@ public abstract class MixinAwarenessForDualHatch {
 	}@Unique
 	public void setResultIfFailure0(CheckRecipeResult endRecipeProcessing) {
 		try {
-			 MH_setResultIfFailure.invoke((GT_MetaTileEntity_MultiBlockBase)(Object)this,endRecipeProcessing);
+			 MH_setResultIfFailure.invoke((MTEMultiBlockBase)(Object)this,endRecipeProcessing);
 		} catch (Throwable e) {
 			e.printStackTrace();
 			throw new AssertionError(e);
@@ -88,7 +88,7 @@ public abstract class MixinAwarenessForDualHatch {
 	}@Unique
 	public ArrayList<IDualInputHatch> mDualInputHatches0(){
 		try {
-			return (ArrayList<IDualInputHatch>) MH_mDualInputHatches.invoke((GT_MetaTileEntity_MultiBlockBase)(Object)this);
+			return (ArrayList<IDualInputHatch>) MH_mDualInputHatches.invoke((MTEMultiBlockBase)(Object)this);
 		} catch (Throwable e) {
 			e.printStackTrace();
 			throw new AssertionError(e);
@@ -121,7 +121,7 @@ public abstract class MixinAwarenessForDualHatch {
 				continue;
 			if (hatch instanceof IRecipeProcessingAwareDualHatch) {
 				setResultIfFailure0(((IRecipeProcessingAwareDualHatch) hatch)
-						.endRecipeProcessing((GT_MetaTileEntity_MultiBlockBase) (Object) this));
+						.endRecipeProcessing((MTEMultiBlockBase) (Object) this));
 			}
 		}
 	}

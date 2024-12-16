@@ -76,19 +76,19 @@ import appeng.tile.misc.TileInterface;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.GT_Mod;
-import gregtech.api.GregTech_API;
+import gregtech.GTMod;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Textures.BlockIcons;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GT_Util;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtil;
+import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.casings.upgrade.Inventory;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_CraftingInput_ME;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
+import gregtech.common.tileentities.machines.MTEHatchCraftingInputME;
+import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import it.unimi.dsi.fastutil.Pair;
 import li.cil.oc.api.network.Environment;
 import li.cil.oc.api.network.Message;
@@ -293,7 +293,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 
 				// e.printStackTrace();
 			}
-		}).setPlayClickSound(true).setBackground(GT_UITextures.BUTTON_STANDARD, GT_UITextures.OVERLAY_BUTTON_EXPORT)
+		}).setPlayClickSound(true).setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_EXPORT)
 
 				.addTooltips(ImmutableList.of("Return all internally stored items back to AE"))
 
@@ -380,7 +380,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 		builder.widget(new ButtonWidget().setOnClick((clickData, widget) -> {
 			if (widget.getContext().isClient() == false)
 				widget.getContext().openSyncedWindow(88);
-		}).setPlayClickSound(true).setBackground(GT_UITextures.BUTTON_STANDARD, GT_UITextures.OVERLAY_BUTTON_PLUS_LARGE)
+		}).setPlayClickSound(true).setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
 				.addTooltips(ImmutableList.of(LangManager.translateToLocalFormatted("programmable_hatches.gt.pattern")))
 				.setSize(16, 16)
 				// .setPos(10 + 16 * 9, 3 + 16 * 2)
@@ -396,7 +396,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 		final int PARENT_HEIGHT = getGUIHeight();
 
 		ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-		builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+		builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
 		builder.setGuiTint(getGUIColorization());
 		builder.setDraggable(true);
 		builder.setPos((a, b) -> new Pos2d(PARENT_WIDTH + b.getPos().getX(), PARENT_HEIGHT * 0 + b.getPos().getY()));
@@ -426,7 +426,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch
 			.setFilter(itemStack -> itemStack.getItem() instanceof ICraftingPatternItem).setChangeListener(() -> {
 				onPatternChange();
 			}).setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3).setBackground(getGUITextureSet().getItemSlot(),
-					GT_UITextures.OVERLAY_SLOT_PATTERN_ME));
+					GTUITextures.OVERLAY_SLOT_PATTERN_ME));
 			
 
 		}
@@ -662,7 +662,7 @@ if(supportsFluids())
 	public AENetworkProxy getProxy() {
 		if (gridProxy == null) {
 			gridProxy = new AENetworkProxy(this, "proxy",
-					new ItemStack(GregTech_API.sBlockMachines, 1, this.getBaseMetaTileEntity().getMetaTileID()), true);
+					new ItemStack(GregTechAPI.sBlockMachines, 1, this.getBaseMetaTileEntity().getMetaTileID()), true);
 			gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
 			updateValidGridProxySides();
 			if (getBaseMetaTileEntity().getWorld() != null)
@@ -701,7 +701,7 @@ if(supportsFluids())
         for (ItemStack is:this.shared.getDisplayItems()) {
             name.append(" - ");
            
-            if(is.getItem()!=GT_Utility.getIntegratedCircuit(0).getItem()){
+            if(is.getItem()!=GTUtility.getIntegratedCircuit(0).getItem()){
             name.append(is.getDisplayName());
             if(is.getItemDamage()>0){name.append("@"+is.getItemDamage());}
             }else{
@@ -809,7 +809,7 @@ if(supportsFluids())
 			} catch (Exception e) {
 			}
 			if (details == null) {
-				GT_Mod.GT_FML_LOGGER.warn("Found an invalid pattern at " + getBaseMetaTileEntity().getCoords()
+				GTMod.GT_FML_LOGGER.warn("Found an invalid pattern at " + getBaseMetaTileEntity().getCoords()
 						+ " in dim " + getBaseMetaTileEntity().getWorld().provider.dimensionId);
 				continue;
 			}
@@ -854,7 +854,7 @@ if(supportsFluids())
 	@Override
 	public ItemStack getCrafterIcon() {
 		ItemStack is = this.getMachineCraftingIcon();
-		return is == null ? new ItemStack(GregTech_API.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID()) : is;
+		return is == null ? new ItemStack(GregTechAPI.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID()) : is;
 	}
 
 	@Override
@@ -1059,6 +1059,10 @@ if(supportsFluids())
 		tag.setLong("saved", saved);
 	}
 		
-		
+		@Override
+		public boolean isInfBuffer() {
+			
+			return true;
+		}
 	
 }

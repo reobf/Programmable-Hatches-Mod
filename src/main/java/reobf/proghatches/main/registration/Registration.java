@@ -13,12 +13,12 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.common.util.ForgeDirection;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Dyes;
-import gregtech.api.enums.GT_Values;
+import gregtech.api.enums.GTValues;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.LightingHelper;
-import gregtech.common.render.GT_CopiedBlockTexture;
+import gregtech.common.render.GTCopiedBlockTextureRender;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.BridgingData;
 import reobf.proghatches.eucrafting.InterfaceData;
@@ -121,45 +121,45 @@ public class Registration implements Runnable {
     public void run() {
     	  
           
-        for (int i = 0; i < GT_Values.VN.length - 1; i++) {
+        for (int i = 0; i < GTValues.VN.length - 1; i++) {
 
             new DualInputHatch(
                 Config.metaTileEntityOffset + DualInputHatchOffset + i,
                 "hatch.input.dual.tier." + i,
-                String.format(LangManager.translateToLocal("hatch.input.dual.tier.name"), GT_Values.VN[i]),
+                String.format(LangManager.translateToLocal("hatch.input.dual.tier.name"), GTValues.VN[i]),
                 i,
                 false);
 
         }
 
-        for (int i = 0; i < GT_Values.VN.length - 1; i++) {
+        for (int i = 0; i < GTValues.VN.length - 1; i++) {
 
             new DualInputHatch(
                 Config.metaTileEntityOffset + QuadDualInputHatchOffset + i,
                 "hatch.input.dual.quad.tier." + i,
-                String.format(LangManager.translateToLocal("hatch.input.dual.quad.tier.name"), GT_Values.VN[i]),
+                String.format(LangManager.translateToLocal("hatch.input.dual.quad.tier.name"), GTValues.VN[i]),
                 i,
                 true);
 
         }
 
-        for (int i = 0; i < GT_Values.VN.length - 1; i++) {
+        for (int i = 0; i < GTValues.VN.length - 1; i++) {
 
             new BufferedDualInputHatch(
                 Config.metaTileEntityOffset + BufferedDualInputHatchOffset + i,
                 "hatch.input.buffered.dual.tier." + i,
-                String.format(LangManager.translateToLocal("hatch.input.buffered.dual.tier.name"), GT_Values.VN[i]),
+                String.format(LangManager.translateToLocal("hatch.input.buffered.dual.tier.name"), GTValues.VN[i]),
                 i,
                 false,
                 1);
 
         }
-        for (int i = 0; i < GT_Values.VN.length - 1; i++) {
+        for (int i = 0; i < GTValues.VN.length - 1; i++) {
 
             new BufferedDualInputHatch(
                 Config.metaTileEntityOffset + BufferedQuadDualInputHatchOffset + i,
                 "hatch.input.buffered.dual.quad.tier." + i,
-                String.format(LangManager.translateToLocal("hatch.input.buffered.dual.quad.tier.name"), GT_Values.VN[i]),
+                String.format(LangManager.translateToLocal("hatch.input.buffered.dual.quad.tier.name"), GTValues.VN[i]),
                 
                 i,
                 true,
@@ -167,12 +167,12 @@ public class Registration implements Runnable {
 
         }
 
-        for (int i = 0; i < GT_Values.VN.length - 1; i++) {
+        for (int i = 0; i < GTValues.VN.length - 1; i++) {
 
             new BufferedDualInputHatch(
                 Config.metaTileEntityOffset + BufferedQuadDualInputHatchMKIIOffset + i,
                 "hatch.input.buffered.dual.quad.tier.mkii." + i,
-                String.format(LangManager.translateToLocal("hatch.input.buffered.dual.quad.tier.mkii.name"), GT_Values.VN[i]),
+                String.format(LangManager.translateToLocal("hatch.input.buffered.dual.quad.tier.mkii.name"), GTValues.VN[i]),
                 i,
                 true,
                 6+Math.max(i-4, 0)*2);
@@ -192,45 +192,45 @@ public class Registration implements Runnable {
              5,
             4, 1);
        
-        GregTech_API.registerCover(
+        GregTechAPI.registerCover(
                 new ItemStack(MyMod.cover, 1, 100),
                 TextureFactory.of(
                     MACHINE_CASINGS[1][0],
                     TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
                 new LevelControlCover());
-        GregTech_API.registerCover(
+        GregTechAPI.registerCover(
             new ItemStack(MyMod.cover, 1, 0),
             TextureFactory.of(
                 MACHINE_CASINGS[1][0],
                 TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
             new ProgrammingCover());
-        GregTech_API.registerCover(
+        GregTechAPI.registerCover(
             new ItemStack(MyMod.cover, 1, 1),
             TextureFactory.of(
                 MACHINE_CASINGS[1][0],
                 TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
             new WirelessControlCover());
-        GregTech_API.registerCover(
+        GregTechAPI.registerCover(
                 new ItemStack(MyMod.cover, 1, 4),
                 TextureFactory.of(
                     MACHINE_CASINGS[1][0],
                     TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
                 new LinkedBusSlaveCover());
         //WIP
-        /*GregTech_API.registerCover(
+        /*GregTechAPI.registerCover(
                 new ItemStack(MyMod.cover, 1, 15),
                 TextureFactory.of(
                     MACHINE_CASINGS[1][0],
                     TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
                 new RecipeOutputAwarenessCover());*/
-       /* GregTech_API.registerCover(
+       /* GregTechAPI.registerCover(
         		new ItemStack(MyMod.cover, 1, 2),
         TextureFactory.of(
             MACHINE_CASINGS[1][0],
             TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
         
         new RecipeCheckResultCover());*/
-        GregTech_API.registerCover(
+        GregTechAPI.registerCover(
         		new ItemStack(MyMod.cover, 1, 3),
         TextureFactory.of(
             MACHINE_CASINGS[1][0],
@@ -240,14 +240,14 @@ public class Registration implements Runnable {
         
         for (int i = 0; i < 15; i++) {
             ;
-            GregTech_API.registerCover(
+            GregTechAPI.registerCover(
                 new ItemStack(MyMod.smartarm, 1, i),
                 TextureFactory
                     .of(MACHINE_CASINGS[i][0], TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_ARM)),
                 new SmartArmCover(i));
         }
         
-        GregTech_API.registerCover(
+        GregTechAPI.registerCover(
         		new ItemStack(MyMod.cover,1,32),
         		TextureFactory.of(
                 		AEApi.instance().blocks().blockInterface.block())
@@ -256,30 +256,30 @@ public class Registration implements Runnable {
         new AECover(InterfaceData.class));
         
         
-        GregTech_API.registerCover(
+        GregTechAPI.registerCover(
         		new ItemStack(MyMod.cover,1,33),
         		TextureFactory.of(
                 		ItemAndBlockHolder.INTERFACE),
         
         new AECover(InterfaceData.FluidInterfaceData_TileFluidInterface.class));
-        GregTech_API.registerCover(
+        GregTechAPI.registerCover(
         		new ItemStack(MyMod.cover,1,34),
         		TextureFactory.of(
         				AEApi.instance().blocks().blockInterface.block()),
         
         new AECover(InterfaceP2PNoFluidData.class));
-        GregTech_API.registerCover(
+        GregTechAPI.registerCover(
         		new ItemStack(MyMod.cover,1,35),
         		TextureFactory.of(
                 		ItemAndBlockHolder.INTERFACE),
         
         new AECover(InterfaceP2PData.class));
-        GregTech_API.registerCover(
+        GregTechAPI.registerCover(
         		new ItemStack(MyMod.cover,1,36),
         		new DeferredGetterTexture(()->MyMod.block_euinterface,ForgeDirection.UP, 0, Dyes._NULL.mRGBa, false),
         
         new AECover(InterfaceP2PEUData.class));
-        GregTech_API.registerCover(
+        GregTechAPI.registerCover(
         		new ItemStack(MyMod.cover,1,37),
         	
         		TextureFactory.of(
@@ -293,7 +293,7 @@ public class Registration implements Runnable {
         new AECover(BridgingData.class));
         
           for(int i=0;i<=4;i++){	
-        	  GregTech_API.registerCover(
+        	  GregTechAPI.registerCover(
         		new ItemStack(MyMod.cover,1,90+i),
         TextureFactory.of(
             MACHINE_CASINGS[1][0],
@@ -359,14 +359,14 @@ public class Registration implements Runnable {
         for (int i = 0; i < 4; i++) new FilterOutputBus(
             Config.metaTileEntityOffset + TenaciousOffset + i,
             "hatch.output.tenacious." + i,
-            LangManager.translateToLocalFormatted("hatch.output.tenacious.name", GT_Values.VN[i]),
+            LangManager.translateToLocalFormatted("hatch.output.tenacious.name", GTValues.VN[i]),
             i,
             true);
 
         for (int i = 0; i < 4; i++) new FilterOutputBus(
             Config.metaTileEntityOffset + FilterOffset + i,
             "hatch.output.filter." + i,
-            LangManager.translateToLocalFormatted("hatch.output.filter.name", GT_Values.VN[i]),
+            LangManager.translateToLocalFormatted("hatch.output.filter.name", GTValues.VN[i]),
             i,
             false);
         
@@ -420,7 +420,7 @@ public class Registration implements Runnable {
         for (int i = 0; i < 4; i++) new MultiCircuitInputBus(
                 Config.metaTileEntityOffset + MultiCircuitBusOffset + i,
                 "bus.input.multicircuit." + i,
-                LangManager.translateToLocalFormatted("bus.input.multicircuit.name",GT_Values.VN[i]),
+                LangManager.translateToLocalFormatted("bus.input.multicircuit.name",GTValues.VN[i]),
                 i+4
                 );
        
@@ -518,7 +518,7 @@ public class Registration implements Runnable {
             new DualInputHatch(
                 Config.metaTileEntityOffset + MultiCircuitDualInputHatchOffset + i,
                 "hatch.input.multicircuit.dual.tier." + (i+4),
-                String.format(LangManager.translateToLocal("hatch.input.multicircuit.dual.tier.name"), GT_Values.VN[i+4]),
+                String.format(LangManager.translateToLocal("hatch.input.multicircuit.dual.tier.name"), GTValues.VN[i+4]),
                 i+4,
                 false,true);
 
@@ -529,13 +529,13 @@ public class Registration implements Runnable {
             new DualInputHatch(
                 Config.metaTileEntityOffset + MultiCircuitQuadDualInputHatchOffset + i,
                 "hatch.input.multicircuit.dual.quad.tier." + (i+4),
-                String.format(LangManager.translateToLocal("hatch.input.multicircuit.dual.quad.tier.name"), GT_Values.VN[i+4]),
+                String.format(LangManager.translateToLocal("hatch.input.multicircuit.dual.quad.tier.name"), GTValues.VN[i+4]),
                 i,
                 true,true);
 
         }*/
     }
-public class DeferredGetterTexture extends GT_CopiedBlockTexture{
+public class DeferredGetterTexture extends GTCopiedBlockTextureRender{
 			  private IIcon getIcon(int ordinalSide) {
 			       
 			        return getBlock().getIcon(ordinalSide, 0);

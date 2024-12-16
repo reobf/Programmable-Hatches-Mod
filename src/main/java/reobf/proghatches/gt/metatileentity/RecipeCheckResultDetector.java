@@ -8,14 +8,14 @@ import java.util.Arrays;
 
 import com.google.common.collect.ImmutableMap;
 
-import gregtech.GT_Mod;
-import gregtech.api.GregTech_API;
+import gregtech.GTMod;
+import gregtech.api.GregTechAPI;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
@@ -26,7 +26,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import reobf.proghatches.main.registration.Registration;
 //spotless:off
 @Deprecated
-public class RecipeCheckResultDetector extends GT_MetaTileEntity_Hatch_InputBus
+public class RecipeCheckResultDetector extends MTEHatchInputBus
 implements IRecipeProcessingAwareHatch
 {
 @Override
@@ -40,7 +40,7 @@ public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlaye
 		super(id, name, nameRegional, tier, 1, 
 				
 				reobf.proghatches.main.Config.get("RCRD", ImmutableMap.of()));
-		Registration.items_eucrafting.add(new ItemStack(GregTech_API.sBlockMachines, 1, id));
+		Registration.items_eucrafting.add(new ItemStack(GregTechAPI.sBlockMachines, 1, id));
 	
 	}   public RecipeCheckResultDetector(String aName, int aTier, String[] aDescription,
 	        ITexture[][][] aTextures) {
@@ -88,7 +88,7 @@ public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlaye
 	}
 	
 	static {
-		f= Arrays.stream(GT_MetaTileEntity_MultiBlockBase.class.getDeclaredFields())
+		f= Arrays.stream(MTEMultiBlockBase.class.getDeclaredFields())
 		.filter(s->s.getType()==CheckRecipeResult.class)
 		.findAny()
 		.get();
@@ -126,20 +126,20 @@ public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlaye
 	}
 	   @Override
 	    public ITexture[] getTexturesActive(ITexture aBaseTexture) {
-	        return GT_Mod.gregtechproxy.mRenderIndicatorsOnHatch
+	        return GTMod.gregtechproxy.mRenderIndicatorsOnHatch
 	            ? new ITexture[] { aBaseTexture, TextureFactory.of(OVERLAY_PIPE_IN), TextureFactory.of(ITEM_IN_SIGN) }
 	            : new ITexture[] { aBaseTexture, TextureFactory.of(OVERLAY_PIPE_IN) };
 	    }
 
 	    @Override
 	    public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
-	        return GT_Mod.gregtechproxy.mRenderIndicatorsOnHatch
+	        return GTMod.gregtechproxy.mRenderIndicatorsOnHatch
 	            ? new ITexture[] { aBaseTexture, TextureFactory.of(OVERLAY_PIPE_IN), TextureFactory.of(ITEM_IN_SIGN) }
 	            : new ITexture[] { aBaseTexture, TextureFactory.of(OVERLAY_PIPE_IN) };
 	    }
 	//TODO: call this via mixin @Return, because other ProcessingAwareHatch might fail the recipecheck
 	@Override
-	public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+	public CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) {
 		try {
 			CheckRecipeResult res=(CheckRecipeResult) f.get(controller);
 			int newSuccess=check(res);

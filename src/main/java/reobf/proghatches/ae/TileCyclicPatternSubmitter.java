@@ -57,7 +57,7 @@ import appeng.me.GridAccessException;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.gui.modularui.GUITextureSet;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -546,7 +546,7 @@ protected class UIFactory {
 		/*
 		 * final CoverInfo coverInfo = uiBuildContext.getTile()
 		 * .getCoverInfoAtSide(uiBuildContext.getCoverSide()); final
-		 * GT_CoverBehaviorBase<?> behavior = coverInfo.getCoverBehavior();
+		 * CoverBehaviorBase<?> behavior = coverInfo.getCoverBehavior();
 		 * if (coverInfo.getMinimumTickRate() > 0 &&
 		 * behavior.allowsTickRateAddition()) { builder.widget( new
 		 * GT_CoverTickRateButton(coverInfo, builder).setPos(getGUIWidth() -
@@ -578,10 +578,10 @@ protected class UIFactory {
 		builder.widget(new FakeSyncWidget.IntegerSyncer(() -> index, s ->{ index = s;updateComparator();}));
 		builder.widget(new FakeSyncWidget.BooleanSyncer(() -> on, s -> on = s));
 		//builder.widget(new FakeSyncWidget.IntegerSyncer(() -> tankselected, s -> tankselected = s));
-		final IDrawable[] background = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot(), GT_UITextures.OVERLAY_SLOT_PATTERN_ME};
-		final IDrawable[] special = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot(), GT_UITextures.OVERLAY_SLOT_PATTERN_ME,
+		final IDrawable[] background = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot(), GTUITextures.OVERLAY_SLOT_PATTERN_ME};
+		final IDrawable[] special = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot(), GTUITextures.OVERLAY_SLOT_PATTERN_ME,
 				new ItemDrawable(new ItemStack(MyMod.progcircuit))
-				//GT_UITextures.OVERLAY_BUTTON_CROSS
+				//GTUITextures.OVERLAY_BUTTON_CROSS
 				
 		};
 	
@@ -639,15 +639,15 @@ protected class UIFactory {
 		
 		builder.widget(new CycleButtonWidget().setToggle(()->abortingMode, s->abortingMode=s)
            .setTextureGetter(s->{
-        	   if(s==0)return GT_UITextures.OVERLAY_BUTTON_CROSS;
+        	   if(s==0)return GTUITextures.OVERLAY_BUTTON_CROSS;
         	
-        			   return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
+        			   return GTUITextures.OVERLAY_BUTTON_CHECKMARK;
            })
            .addTooltip(0, StatCollector.translateToLocal("proghatches.submitter.mode.0"))
            .addTooltip(1, StatCollector.translateToLocal("proghatches.submitter.mode.1"))
 				.setBackground(() -> {
                {
-                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
                        };
                 }
             })
@@ -678,11 +678,11 @@ protected class UIFactory {
 		        			)		
 		        .setBackground(() -> {
 					if (on) {
-						return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
-								GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_ON };
+						return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
+								GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_ON };
 					} else {
-						return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
-								GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
+						return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
+								GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
 					}
 		            })
 		            
@@ -712,10 +712,10 @@ protected class UIFactory {
            .setTextureGetter(s->{
         	   if(s==0)return new ItemDrawable(new ItemStack(Items.redstone));
         	   if(s==1)return new ItemDrawable(new ItemStack(Items.gunpowder));
-        	   if(s==2)return GT_UITextures.OVERLAY_BUTTON_REDSTONE_ON;
-        	   if(s==3)return GT_UITextures.OVERLAY_BUTTON_REDSTONE_OFF;
-        	   if(s==4)return GT_UITextures.OVERLAY_BUTTON_ARROW_GREEN_UP;
-        	   return GT_UITextures.OVERLAY_BUTTON_ARROW_GREEN_DOWN;
+        	   if(s==2)return GTUITextures.OVERLAY_BUTTON_REDSTONE_ON;
+        	   if(s==3)return GTUITextures.OVERLAY_BUTTON_REDSTONE_OFF;
+        	   if(s==4)return GTUITextures.OVERLAY_BUTTON_ARROW_GREEN_UP;
+        	   return GTUITextures.OVERLAY_BUTTON_ARROW_GREEN_DOWN;
            })
            .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.0"))
            .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.1"))
@@ -728,7 +728,7 @@ protected class UIFactory {
            
 				.setBackground(() -> {
                {
-                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
                        };
                 }
             })
@@ -740,7 +740,7 @@ protected class UIFactory {
 
 		final IDrawable[] background0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot() };
 		final IDrawable[] special0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot(),
-				GT_UITextures.OVERLAY_SLOT_ARROW_ME };
+				GTUITextures.OVERLAY_SLOT_ARROW_ME };
 
 		
 
@@ -748,15 +748,15 @@ protected class UIFactory {
 		*/
 		builder.widget(new CycleButtonWidget().setToggle(()->asManyAsPossible, s->asManyAsPossible=s)
 		           .setTextureGetter(s->{
-		        	   if(s==0)return GT_UITextures.OVERLAY_BUTTON_CROSS;
+		        	   if(s==0)return GTUITextures.OVERLAY_BUTTON_CROSS;
 		        	
-		        			   return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
+		        			   return GTUITextures.OVERLAY_BUTTON_CHECKMARK;
 		           })
 		           .addTooltip(0, StatCollector.translateToLocal("proghatches.submitter.number.mode.0"))
 		           .addTooltip(1, StatCollector.translateToLocal("proghatches.submitter.number.mode.1"))
 						.setBackground(() -> {
 		               {
-		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+		                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
 		                       };
 		                }
 		            })
@@ -765,15 +765,15 @@ protected class UIFactory {
 		            .setPos(120+20, 3+20+20));
 		builder.widget(new CycleButtonWidget().setToggle(()->skipIfFail, s->skipIfFail=s)
 		           .setTextureGetter(s->{
-		        	   if(s==0)return GT_UITextures.OVERLAY_BUTTON_CROSS;
+		        	   if(s==0)return GTUITextures.OVERLAY_BUTTON_CROSS;
 		        	
-		        			   return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
+		        			   return GTUITextures.OVERLAY_BUTTON_CHECKMARK;
 		           })
 		           .addTooltip(0, StatCollector.translateToLocal("proghatches.submitter.skip.mode.0"))
 		           .addTooltip(1, StatCollector.translateToLocal("proghatches.submitter.skip.mode.1"))
 						.setBackground(() -> {
 		               {
-		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+		                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
 		                       };
 		                }
 		            })
@@ -790,13 +790,13 @@ protected class UIFactory {
 	 * public boolean isCoverValid() { return !getUIBuildContext().getTile()
 	 * .isDead() && getUIBuildContext().getTile()
 	 * .getCoverBehaviorAtSideNew(getUIBuildContext().getCoverSide()) !=
-	 * GregTech_API.sNoBehavior; }
+	 * GregTechAPI.sNoBehavior; }
 	 */
 
 	protected void addTitleToUI(ModularWindow.Builder builder) {
 		/*
 		 * ItemStack coverItem =
-		 * GT_Utility.intToStack(getUIBuildContext().getCoverID()); if
+		 * GTUtility.intToStack(getUIBuildContext().getCoverID()); if
 		 * (coverItem != null) { builder.widget( new
 		 * ItemDrawable(coverItem).asWidget() .setPos(5, 5) .setSize(16,
 		 * 16)) .widget( new

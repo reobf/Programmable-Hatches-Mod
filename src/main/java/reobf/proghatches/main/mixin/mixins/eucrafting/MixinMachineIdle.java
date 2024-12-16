@@ -9,13 +9,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import reobf.proghatches.eucrafting.IIdleStateProvider;
 
 
-@Mixin(value=GT_MetaTileEntity_MultiBlockBase.class,remap=false)
+@Mixin(value=MTEMultiBlockBase.class,remap=false)
 public class MixinMachineIdle implements IIdleStateProvider{
 private boolean hasJob;
 @Shadow int mMaxProgresstime;

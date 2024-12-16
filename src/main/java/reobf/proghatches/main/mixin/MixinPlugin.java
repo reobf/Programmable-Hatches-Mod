@@ -129,7 +129,7 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		// load all jars that mixin involves
 		HashMap<String,String> map=	new HashMap<>(6);
 		/*map.put( "com/github/vfyjxf/nee/NotEnoughEnergistics.class",  "NotEnoughEnergistics");
-		map.put( "gregtech/GT_Mod.class", "GT5U");
+		map.put( "gregtech/GTMod.class", "GT5U");
 		map.put( "appeng/api/IAppEngApi.class", "ae2");
 		map.put( "com/gtnewhorizons/modularui/ModularUI.class", "ModularUI");
 		map.put( "com/glodblock/github/FluidCraft.class", "ae2fc");

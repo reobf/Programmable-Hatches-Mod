@@ -9,7 +9,7 @@ import java.util.function.DoubleUnaryOperator;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.SoundResource;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
@@ -155,7 +155,7 @@ public class TileWirelessPeripheralStation extends TileEntity implements li.cil.
 			TileWirelessPeripheralStation tile = (TileWirelessPeripheralStation) worldIn.getTileEntity(x, y, z);
 			if (Wrench.holdsApplicableWrench(player, new BlockPosition(x, y, z, Some.apply(worldIn)))) {
 				if (!worldIn.isRemote && tile.oneComputer == false) {
-					GT_Utility.sendSoundToPlayers(worldIn, SoundResource.RANDOM_ANVIL_BREAK, 1.0F, -1.0F, x, y, z);
+					GTUtility.sendSoundToPlayers(worldIn, SoundResource.RANDOM_ANVIL_BREAK, 1.0F, -1.0F, x, y, z);
 					Wrench.wrenchUsed(player, new BlockPosition(x, y, z, Some.apply(worldIn)));
 					tile.oneComputer = true;
 				}
@@ -169,7 +169,7 @@ public class TileWirelessPeripheralStation extends TileEntity implements li.cil.
 
 				if (is.getTagCompound() == null)
 					is.setTagCompound(new NBTTagCompound());
-				GT_Utility.doSoundAtClient(SoundResource.IC2_TOOLS_OD_SCANNER, 1, 1.0F, x + 0.5, y + 0.5, z + 0.5);
+				GTUtility.doSoundAtClient(SoundResource.IC2_TOOLS_OD_SCANNER, 1, 1.0F, x + 0.5, y + 0.5, z + 0.5);
 				
 				is.getTagCompound().setString("remoteUUID", tile.thisUUID.toString());
 

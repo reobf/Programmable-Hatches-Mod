@@ -7,10 +7,9 @@ import java.util.Deque;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.github.technus.tectech.mechanics.pipe.IConnectsToEnergyTunnel;
-import com.github.technus.tectech.thing.metaTileEntity.hatch.GT_MetaTileEntity_Hatch_DynamoTunnel;
-import com.github.technus.tectech.thing.metaTileEntity.hatch.GT_MetaTileEntity_Hatch_EnergyTunnel;
-import com.github.technus.tectech.thing.metaTileEntity.pipe.GT_MetaTileEntity_Pipe_Energy;
+import tectech.mechanics.pipe.IConnectsToEnergyTunnel;
+import tectech.thing.metaTileEntity.pipe.MTEPipeEnergy;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
@@ -27,11 +26,11 @@ import appeng.me.GridAccessException;
 import appeng.parts.p2p.PartP2PTunnelStatic;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.enums.GT_Values;
+import gregtech.api.enums.GTValues;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_TieredMachineBlock;
+import gregtech.api.metatileentity.implementations.MTETieredMachineBlock;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.init.Blocks;
@@ -194,11 +193,11 @@ extends PartP2PTunnelStatic<PartLazerP2P> implements ILazer,IGridTickable{
                     		 ){
                     	 
                          return (S) (aMetaTileEntity);
-                     } else if (aMetaTileEntity instanceof GT_MetaTileEntity_Pipe_Energy) {
-                         if (((GT_MetaTileEntity_Pipe_Energy) aMetaTileEntity).connectionCount < 2) {
+                     } else if (aMetaTileEntity instanceof MTEPipeEnergy) {
+                         if (((MTEPipeEnergy) aMetaTileEntity).connectionCount < 2) {
                          	   return null;
                          } else {
-                             ((GT_MetaTileEntity_Pipe_Energy) aMetaTileEntity).markUsed();
+                             ((MTEPipeEnergy) aMetaTileEntity).markUsed();
                          }
                          continue;
                      } 
@@ -246,11 +245,11 @@ extends PartP2PTunnelStatic<PartLazerP2P> implements ILazer,IGridTickable{
 	                              //  && opposite.getOpposite() == tGTTileEntity.getFrontFacing()
 	                                ) {
 	                            return ( aMetaTileEntity);
-	                        } else if (aMetaTileEntity instanceof GT_MetaTileEntity_Pipe_Energy) {
-	                            if (((GT_MetaTileEntity_Pipe_Energy) aMetaTileEntity).connectionCount < 2) {
+	                        } else if (aMetaTileEntity instanceof MTEPipeEnergy) {
+	                            if (((MTEPipeEnergy) aMetaTileEntity).connectionCount < 2) {
 	                            	   return null;
 	                            } else {
-	                                ((GT_MetaTileEntity_Pipe_Energy) aMetaTileEntity).markUsed();
+	                                ((MTEPipeEnergy) aMetaTileEntity).markUsed();
 	                            }
 	                            continue;
 	                        } 
@@ -311,8 +310,8 @@ extends PartP2PTunnelStatic<PartLazerP2P> implements ILazer,IGridTickable{
 		D dd=(D) dd0.target;
 		dd0.callback.forEach(st->{
 			
-			if(s instanceof GT_MetaTileEntity_TieredMachineBlock)
-			st.accept(GT_Values.V[((GT_MetaTileEntity_TieredMachineBlock) s).mTier]);
+			if(s instanceof MTETieredMachineBlock)
+			st.accept(GTValues.V[((MTETieredMachineBlock) s).mTier]);
 			
 		
 		});

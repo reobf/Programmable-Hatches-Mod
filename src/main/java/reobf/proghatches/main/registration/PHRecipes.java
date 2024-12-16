@@ -3,10 +3,10 @@ package reobf.proghatches.main.registration;
 import static gregtech.api.enums.ItemList.*;
 import static gregtech.api.enums.Materials.*;
 import static gregtech.api.enums.Mods.GTPlusPlus;
-import static gregtech.api.util.GT_RecipeBuilder.HOURS;
-import static gregtech.api.util.GT_RecipeBuilder.SECONDS;
-import static gregtech.api.util.GT_RecipeConstants.RESEARCH_ITEM;
-import static gregtech.api.util.GT_RecipeConstants.RESEARCH_TIME;
+import static gregtech.api.util.GTRecipeBuilder.HOURS;
+import static gregtech.api.util.GTRecipeBuilder.SECONDS;
+import static gregtech.api.util.GTRecipeConstants.RESEARCH_ITEM;
+import static gregtech.api.util.GTRecipeConstants.RESEARCH_TIME;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,31 +31,31 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
-import com.github.technus.tectech.recipe.TT_recipeAdder;
-import com.github.technus.tectech.thing.CustomItemList;
+
 import com.glodblock.github.loader.ItemAndBlockHolder;
 
 import appeng.core.Api;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.ironchest.IronChest;
 import crazypants.enderio.EnderIOTab;
-import gregtech.api.GregTech_API;
-import gregtech.api.enums.GT_Values;
+import gregtech.api.GregTechAPI;
+import gregtech.api.enums.GTValues;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.enums.TierEU;
 import gregtech.api.recipe.RecipeMaps;
-import gregtech.api.util.GT_OreDictUnificator;
-import gregtech.api.util.GT_Recipe;
-import gregtech.api.util.GT_RecipeBuilder;
-import gregtech.api.util.GT_RecipeConstants;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTOreDictUnificator;
+import gregtech.api.util.GTRecipe;
+import gregtech.api.util.GTRecipeBuilder;
+import gregtech.api.util.GTRecipeConstants;
+import gregtech.api.util.GTUtility;
 import mods.railcraft.common.core.Railcraft;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import tconstruct.smeltery.TinkerSmeltery;
+import tectech.recipe.TTRecipeAdder;
 import thaumcraft.api.ThaumcraftApi;
 import thaumcraft.common.config.ConfigItems;
 //spotless:off
@@ -80,8 +80,8 @@ public class PHRecipes implements Runnable {
         		{ Bio },
         		{ Optical/*,Nano,*/ },
         		{ Piko/*,Exotic,*/  },//dreamcraft circuit
-        		{ Quantum/*,Cosmic,*/  }, 
-        		{ Quantum /*Transcendent*/ } };
+        		{ Piko /*Quantum,Cosmic,*/  }, 
+        		{ Piko /*Quantum Transcendent*/ } };
      
       Materials[][] matNewVersion = { 
       		{ Primitive }, 
@@ -103,18 +103,18 @@ public class PHRecipes implements Runnable {
    
  ///////////////////////////////////
  public void prefab(){
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 new ItemStack(
-			         GregTech_API.sBlockMachines,
+			         GregTechAPI.sBlockMachines,
 			         1,
 			         Config.metaTileEntityOffset+Registration.CircuitProviderOffset)	
-			 ,    GT_Utility.getIntegratedCircuit(1)
+			 ,    GTUtility.getIntegratedCircuit(1)
 			 
 	)
 	 
 	 .itemOutputs( new ItemStack(
-	         GregTech_API.sBlockMachines,
+	         GregTechAPI.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset+Registration.PrefabOffset)			 )
 
@@ -124,18 +124,18 @@ public class PHRecipes implements Runnable {
 	 
 	 
 	for(int i=1;i<=3;i++)
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 new ItemStack(
-			         GregTech_API.sBlockMachines,
+			         GregTechAPI.sBlockMachines,
 			         1,
 			         Config.metaTileEntityOffset+Registration.CircuitProviderOffset)	
-			 ,    GT_Utility.getIntegratedCircuit(i+1)
+			 ,    GTUtility.getIntegratedCircuit(i+1)
 			 
 	)
 	 
 	 .itemOutputs( new ItemStack(
-	         GregTech_API.sBlockMachines,
+	         GregTechAPI.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset+Registration.PrefabOffset+i)			 )
 
@@ -144,18 +144,18 @@ public class PHRecipes implements Runnable {
 	 .addTo(RecipeMaps.laserEngraverRecipes);
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 new ItemStack(
-			         GregTech_API.sBlockMachines,
+			         GregTechAPI.sBlockMachines,
 			         1,
 			         Config.metaTileEntityOffset+Registration.CircuitProviderOffset)	
-			 ,    GT_Utility.getIntegratedCircuit(24)
+			 ,    GTUtility.getIntegratedCircuit(24)
 			 
 	)
 	 
 	 .itemOutputs( new ItemStack(
-	         GregTech_API.sBlockMachines,
+	         GregTechAPI.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset+Registration.PrefabOffset+5)			 )
 
@@ -174,7 +174,7 @@ public class PHRecipes implements Runnable {
  
     boolean flag=true;
     public void smartArm(){  
-    	for (int i = 0; i < GT_Values.VP.length - 1; i++) {
+    	for (int i = 0; i < GTValues.VP.length - 1; i++) {
             int ii = i;
    	    
             
@@ -195,55 +195,55 @@ public class PHRecipes implements Runnable {
         
         /*
           ItemStack[] t0 = Arrays.stream(mat[i])
-                .map(s -> GT_OreDictUnificator.getOres(OrePrefixes.circuit, s))
+                .map(s -> GTOreDictUnificator.getOres(OrePrefixes.circuit, s))
                 .flatMap(ArrayList::stream)
-                .map(s -> GT_Utility.copyAmount(4, s))
+                .map(s -> GTUtility.copyAmount(4, s))
                 .toArray(ItemStack[]::new);
         ItemStack[] t1 = Arrays.stream(mat[Math.min(i + 1, mat.length - 1)])
-                .map(s -> GT_OreDictUnificator.getOres(OrePrefixes.circuit, s))
+                .map(s -> GTOreDictUnificator.getOres(OrePrefixes.circuit, s))
                 .flatMap(ArrayList::stream)
-                .map(s -> GT_Utility.copyAmount(2, s))
+                .map(s -> GTUtility.copyAmount(2, s))
                 .toArray(ItemStack[]::new);
        
         ItemStack[] tm1=null,tm2=null;
        if(ii>6){ tm1 = Arrays.stream(mat[i-1])
-                .map(s -> GT_OreDictUnificator.getOres(OrePrefixes.circuit, s))
+                .map(s -> GTOreDictUnificator.getOres(OrePrefixes.circuit, s))
                 .flatMap(ArrayList::stream)
-                .map(s -> GT_Utility.copyAmount(8, s))
+                .map(s -> GTUtility.copyAmount(8, s))
                 .toArray(ItemStack[]::new);
          tm2 = Arrays.stream(mat[i-2])
-                .map(s -> GT_OreDictUnificator.getOres(OrePrefixes.circuit, s))
+                .map(s -> GTOreDictUnificator.getOres(OrePrefixes.circuit, s))
                 .flatMap(ArrayList::stream)
-                .map(s -> GT_Utility.copyAmount(16, s))
+                .map(s -> GTUtility.copyAmount(16, s))
                 .toArray(ItemStack[]::new);
         }*/
         
         int amountAmp=(int) Math.pow(2,ii-6);
         
-       // GT_RecipeConstants.AssemblyLine.doAdd(builder)
+       // GTRecipeConstants.AssemblyLine.doAdd(builder)
        if(ii>6){
     	   
     	   if(
-    	  null!= (GT_OreDictUnificator.get(circuitM2,1))&&
-    	  null!=(GT_OreDictUnificator.get(circuitM1,1))&&
-    	  null!=(GT_OreDictUnificator.get(circuit,1))&&
-    	  null!= (GT_OreDictUnificator.get(circuitP,1))
+    	  null!= (GTOreDictUnificator.get(circuitM2,1))&&
+    	  null!=(GTOreDictUnificator.get(circuitM1,1))&&
+    	  null!=(GTOreDictUnificator.get(circuit,1))&&
+    	  null!= (GTOreDictUnificator.get(circuitP,1))
     	   ){
     		   
     		   
     	   }else{
     		   MyMod.LOG.fatal("OreDict Item not found! Are you in Dev?");
     		   MyMod.LOG.fatal(circuitM2+" "+circuitM1 +" "+circuit+" "+circuitP);
-    		   MyMod.LOG.fatal( (GT_OreDictUnificator.get(circuitM2,1))+" "+
-    	    	  (GT_OreDictUnificator.get(circuitM1,1))+" "+
-    	    	  (GT_OreDictUnificator.get(circuit,1))+" "+
-    	    	  (GT_OreDictUnificator.get(circuitP,1)));
+    		   MyMod.LOG.fatal( (GTOreDictUnificator.get(circuitM2,1))+" "+
+    	    	  (GTOreDictUnificator.get(circuitM1,1))+" "+
+    	    	  (GTOreDictUnificator.get(circuit,1))+" "+
+    	    	  (GTOreDictUnificator.get(circuitP,1)));
     		   continue;
     	   }
     	   
     	   
     	   
-        GT_RecipeBuilder.builder()
+        GTRecipeBuilder.builder()
         .metadata(RESEARCH_ITEM, new ItemStack(MyMod.smartarm, 1, ii-1))
         .metadata(RESEARCH_TIME, 1 * HOURS)
         .itemInputs(
@@ -265,16 +265,16 @@ public class PHRecipes implements Runnable {
         .itemOutputs( new ItemStack(MyMod.smartarm, 1, ii))
         .eut(TierEU.RECIPE_IV)
         .duration(600)
-        .addTo( GT_RecipeConstants.AssemblyLine);
+        .addTo( GTRecipeConstants.AssemblyLine);
        }
        else
         
         RecipeMaps.assemblerRecipes.add(
-            new GT_Recipe/*.GT_Recipe_WithAlt*/(
+            new GTRecipe/*.GTRecipe_WithAlt*/(
                 false,
                 new ItemStack[] {
-                	GT_OreDictUnificator.get(circuit, 4),
-                    GT_OreDictUnificator.get(circuitP, 2), 
+                	GTOreDictUnificator.get(circuit, 4),
+                    GTOreDictUnificator.get(circuitP, 2), 
                     Circuit_Chip_Stemcell.get(32)
 
                     , arms[i]
@@ -293,7 +293,7 @@ public class PHRecipes implements Runnable {
                 null// FO
                 ,
                 20 * SECONDS,
-                (int) GT_Values.VP[i],
+                (int) GTValues.VP[i],
                 0/*,
                 new ItemStack[][] { t0,t1} // ALT*/
             )
@@ -315,6 +315,7 @@ public class PHRecipes implements Runnable {
 	/**
 	 * 
 	 */
+	@SuppressWarnings("deprecation")
 	@Override
 	    public void run() {
 	
@@ -399,14 +400,14 @@ public class PHRecipes implements Runnable {
 	
 	        pc.forEach((s, i) -> {
 	        	
-	            GT_Values.RA.stdBuilder()
+	            GTValues.RA.stdBuilder()
 	                .itemInputs(s, Materials.Titanium.getPlates(1))
 	                .fluidInputs(Materials.TungstenSteel.getMolten(144*20L))
 	                .itemOutputs(new ItemStack(MyMod.cover, 4 * i, 0))
 	                .duration(1 * SECONDS)
 	                .eut(480)
 	                .addTo(RecipeMaps.mixerRecipes);
-	            GT_Values.RA.stdBuilder()
+	            GTValues.RA.stdBuilder()
 	            .itemInputs(s, Materials.Titanium.getPlates(1))
 	            .fluidInputs(Materials.StainlessSteel.getMolten(144*20L))
 	            .itemOutputs(new ItemStack(MyMod.cover, 2 * i, 0))
@@ -416,11 +417,11 @@ public class PHRecipes implements Runnable {
 	            
 	        });
 	        pc0.forEach(s -> {
-	            GregTech_API.getConfigurationCircuitList(100)
+	            GregTechAPI.getConfigurationCircuitList(100)
 	                .stream()
 	                .forEach(ss -> {
-	                    GT_Values.RA.stdBuilder()
-	                        .itemInputs(s, GT_Utility.copyAmount(0, ss))
+	                    GTValues.RA.stdBuilder()
+	                        .itemInputs(s, GTUtility.copyAmount(0, ss))
 	
 	                        .itemOutputs(ItemProgrammingCircuit.wrap(ss))
 	                        .duration(1 * SECONDS)
@@ -435,90 +436,90 @@ public class PHRecipes implements Runnable {
 	            .map(s -> s.get(1))
 	            .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 	        for (int i = 12097; i <= 12102; i++) {
-	            is.add(new ItemStack(GregTech_API.sBlockMachines, 1, i));
+	            is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, i));
 	        } // stuff from gtnhcoremod
 	        ItemStack[] single_fluid = is.toArray(new ItemStack[0]);
 	        is = Arrays.stream(HATCHES_INPUT_BUS)
 	            .map(s -> s.get(1))
 	            .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 	
-	        is.add(new ItemStack(GregTech_API.sBlockMachines, 1, 30030));// gt++ superbus
-	        is.add(new ItemStack(GregTech_API.sBlockMachines, 1, 30030));
-	        is.add(new ItemStack(GregTech_API.sBlockMachines, 1, 30030));
-	        is.add(new ItemStack(GregTech_API.sBlockMachines, 1, 30030));
-	        is.add(new ItemStack(GregTech_API.sBlockMachines, 1, 30030));
+	        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 30030));// gt++ superbus
+	        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 30030));
+	        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 30030));
+	        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 30030));
+	        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 30030));
 	        ItemStack[] single_item = is.toArray(new ItemStack[0]);
 	
-	        for (int i = 4; i < GT_Values.VN.length - 1; i++) {
+	        for (int i = 4; i < GTValues.VN.length - 1; i++) {
 	
-	            GT_Values.RA.stdBuilder()
+	            GTValues.RA.stdBuilder()
 	                .itemInputs(multi[i].get(1), single_item[i], new ItemStack(MyMod.cover, 1, 0))
 	                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
 	                .itemOutputs(
 	                    new ItemStack(
-	                        GregTech_API.sBlockMachines,
+	                        GregTechAPI.sBlockMachines,
 	                        1,
 	                        Config.metaTileEntityOffset + Registration.QuadDualInputHatchOffset + i))
 	                .duration(20 * SECONDS)
-	                .eut(GT_Values.VP[i])
+	                .eut(GTValues.VP[i])
 	                .addTo(RecipeMaps.mixerRecipes);
 	        }
 	
-	        for (int i = 0; i < GT_Values.VN.length - 1; i++) {
+	        for (int i = 0; i < GTValues.VN.length - 1; i++) {
 	
-	            GT_Values.RA.stdBuilder()
+	            GTValues.RA.stdBuilder()
 	                .itemInputs(single_fluid[i], single_item[i], new ItemStack(MyMod.cover, 1, 0))
 	                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
 	                .itemOutputs(
 	                    new ItemStack(
-	                        GregTech_API.sBlockMachines,
+	                        GregTechAPI.sBlockMachines,
 	                        1,
 	                        Config.metaTileEntityOffset + Registration.DualInputHatchOffset + i))
 	                .duration(20 * SECONDS)
-	                .eut(GT_Values.VP[i])
+	                .eut(GTValues.VP[i])
 	                .addTo(RecipeMaps.mixerRecipes);
 	        }
 	
-	        for (int i = 0; i < GT_Values.VN.length - 1; i++) {
+	        for (int i = 0; i < GTValues.VN.length - 1; i++) {
 	            Object circuit = OrePrefixes.circuit.get(mat[i][0]);
 	            Object circuitP = OrePrefixes.circuit.get(mat[Math.min(i + 1, mat.length - 2)][0]);
-	            if (circuit == null || GT_OreDictUnificator.get(circuit, 1) == null) {
-	                MyMod.LOG.fatal("Circuit not found for " + GT_Values.VN[i] + "!");
+	            if (circuit == null || GTOreDictUnificator.get(circuit, 1) == null) {
+	                MyMod.LOG.fatal("Circuit not found for " + GTValues.VN[i] + "!");
 	                continue;
 	            }
 	
 	            /*
 	             * //GT OreDict handling is too magic for me to understand
-	             * GT_Values.RA.stdBuilder()
+	             * GTValues.RA.stdBuilder()
 	             * .itemInputs(
 	             * new
-	             * ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset+Registration.DualInputHatchOffset+i)
+	             * ItemStack(GregTechAPI.sBlockMachines,1,Config.metaTileEntityOffset+Registration.DualInputHatchOffset+i)
 	             * , new Object[] {circuit,2}
 	             * ,new ItemStack(MyMod.smartarm,1,i)
 	             * )
 	             * .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
 	             * .itemOutputs(
-	             * new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset+Registration.
+	             * new ItemStack(GregTechAPI.sBlockMachines,1,Config.metaTileEntityOffset+Registration.
 	             * BufferedDualInputHatchOffset+i)
 	             * )
 	             * .duration(20 * SECONDS)
-	             * .eut(GT_Values.VP[i])
+	             * .eut(GTValues.VP[i])
 	             * .addTo(RecipeMaps.assemblerRecipes);
 	             */
 	
 	            RecipeMaps.assemblerRecipes.add(
-	                new GT_Recipe/*.GT_Recipe_WithAlt*/(
+	                new GTRecipe/*.GTRecipe_WithAlt*/(
 	                    false,
-	                    new ItemStack[] { GT_OreDictUnificator.get((circuit), 2), single_item[i],
+	                    new ItemStack[] { GTOreDictUnificator.get((circuit), 2), single_item[i],
 	                        new ItemStack(
-	                            GregTech_API.sBlockMachines,
+	                            GregTechAPI.sBlockMachines,
 	                            1,
 	                            Config.metaTileEntityOffset + Registration.DualInputHatchOffset + i)
 	
 	                        , new ItemStack(MyMod.smartarm, 1, i) }// II
 	                    ,
 	                    new ItemStack[] { new ItemStack(
-	                        GregTech_API.sBlockMachines,
+	                        GregTechAPI.sBlockMachines,
 	                        1,
 	                        Config.metaTileEntityOffset + Registration.BufferedDualInputHatchOffset + i) }
 	                    // IO
@@ -532,29 +533,29 @@ public class PHRecipes implements Runnable {
 	                    null// FO
 	                    ,
 	                    20 * SECONDS,
-	                    (int) GT_Values.VP[i],
+	                    (int) GTValues.VP[i],
 	                    0/*,
 	                    new ItemStack[][] {
 	
 	                        Arrays.stream(mat[i])
-	                            .map(s -> GT_OreDictUnificator.getOres(OrePrefixes.circuit, s))
+	                            .map(s -> GTOreDictUnificator.getOres(OrePrefixes.circuit, s))
 	                            .flatMap(ArrayList::stream)
-	                            .map(s -> GT_Utility.copyAmount(2, s))
+	                            .map(s -> GTUtility.copyAmount(2, s))
 	                            .toArray(ItemStack[]::new) } */// ALT
 	                ));
 	            RecipeMaps.assemblerRecipes.add(
-	                new GT_Recipe(
+	                new GTRecipe(
 	                    false,
-	                    new ItemStack[] { GT_OreDictUnificator.get((circuit), 2), single_item[i],
+	                    new ItemStack[] { GTOreDictUnificator.get((circuit), 2), single_item[i],
 	                        new ItemStack(
-	                            GregTech_API.sBlockMachines,
+	                            GregTechAPI.sBlockMachines,
 	                            1,
 	                            Config.metaTileEntityOffset + Registration.QuadDualInputHatchOffset + i)
 	
 	                        , new ItemStack(MyMod.smartarm, 1, i) }// II
 	                    ,
 	                    new ItemStack[] { new ItemStack(
-	                        GregTech_API.sBlockMachines,
+	                        GregTechAPI.sBlockMachines,
 	                        1,
 	                        Config.metaTileEntityOffset + Registration.BufferedQuadDualInputHatchOffset + i) }
 	                    // IO
@@ -568,29 +569,29 @@ public class PHRecipes implements Runnable {
 	                    null// FO
 	                    ,
 	                    20 * SECONDS,
-	                    (int) GT_Values.VP[i],
+	                    (int) GTValues.VP[i],
 	                    0/*,
 	                    new ItemStack[][] {
 	
 	                        Arrays.stream(mat[i])
-	                            .map(s -> GT_OreDictUnificator.getOres(OrePrefixes.circuit, s))
+	                            .map(s -> GTOreDictUnificator.getOres(OrePrefixes.circuit, s))
 	                            .flatMap(ArrayList::stream)
-	                            .map(s -> GT_Utility.copyAmount(2, s))
+	                            .map(s -> GTUtility.copyAmount(2, s))
 	                            .toArray(ItemStack[]::new) } */// ALT
 	                ));
 	            RecipeMaps.assemblerRecipes.add(
-	                new GT_Recipe(
+	                new GTRecipe(
 	                    false,
-	                    new ItemStack[] { GT_OreDictUnificator.get(circuitP, 2),
-	                        GT_Utility.copyAmount(5, single_item[i]),
+	                    new ItemStack[] { GTOreDictUnificator.get(circuitP, 2),
+	                        GTUtility.copyAmount(5, single_item[i]),
 	                        new ItemStack(
-	                            GregTech_API.sBlockMachines,
+	                            GregTechAPI.sBlockMachines,
 	                            1,
 	                            Config.metaTileEntityOffset + Registration.BufferedQuadDualInputHatchOffset + i),
 	                        new ItemStack(MyMod.smartarm, 5, i) }// II
 	                    ,
 	                    new ItemStack[] { new ItemStack(
-	                        GregTech_API.sBlockMachines,
+	                        GregTechAPI.sBlockMachines,
 	                        1,
 	                        Config.metaTileEntityOffset + Registration.BufferedQuadDualInputHatchMKIIOffset + i) }
 	                    // IO
@@ -604,20 +605,20 @@ public class PHRecipes implements Runnable {
 	                    null// FO
 	                    ,
 	                    20 * SECONDS,
-	                    (int) GT_Values.VP[i],
+	                    (int) GTValues.VP[i],
 	                    0/*,
 	                    new ItemStack[][] {
 	
 	                        Arrays.stream(mat[Math.min(i + 1, mat.length - 1)])
-	                            .map(s -> GT_OreDictUnificator.getOres(OrePrefixes.circuit, s))
+	                            .map(s -> GTOreDictUnificator.getOres(OrePrefixes.circuit, s))
 	                            .flatMap(ArrayList::stream)
-	                            .map(s -> GT_Utility.copyAmount(2, s))
+	                            .map(s -> GTUtility.copyAmount(2, s))
 	                            .toArray(ItemStack[]::new) } */// ALT
 	                ));
 	        }
 	
 	        pc.forEach((s, i) -> {
-	            GT_Values.RA.stdBuilder()
+	            GTValues.RA.stdBuilder()
 	                .itemInputs(
 	                    s,
 	                    new ItemStack(ItemAndBlockHolder.INTERFACE),
@@ -646,14 +647,14 @@ public class PHRecipes implements Runnable {
 	                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
 	                .itemOutputs(
 	                    new ItemStack(
-	                        GregTech_API.sBlockMachines,
+	                        GregTechAPI.sBlockMachines,
 	                        1,
 	                        Config.metaTileEntityOffset + Registration.CircuitProviderOffset))
 	                .duration(20 * SECONDS)
-	                .eut(GT_Values.VP[5])
+	                .eut(GTValues.VP[5])
 	                .addTo(RecipeMaps.assemblerRecipes);
 	//T0
-	            GT_Values.RA.stdBuilder()
+	            GTValues.RA.stdBuilder()
 	            .itemInputs(
 	                s,
 	              Api.INSTANCE.definitions().blocks().iface().maybeStack(1).get(),
@@ -678,34 +679,34 @@ public class PHRecipes implements Runnable {
 	            .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
 	            .itemOutputs(
 	                new ItemStack(
-	                    GregTech_API.sBlockMachines,
+	                    GregTechAPI.sBlockMachines,
 	                    1,
 	                    Config.metaTileEntityOffset + Registration.CircuitProviderOffsetT0))
 	            .duration(20 * SECONDS)
-	            .eut(GT_Values.VP[3])
+	            .eut(GTValues.VP[3])
 	            .addTo(RecipeMaps.assemblerRecipes);
 	        });
 	
 	        pc0.forEach((s) -> {
-	            GT_Values.RA.stdBuilder()
+	            GTValues.RA.stdBuilder()
 	                .itemInputs(
 	                    s,
 	                    Hatch_CraftingInput_Bus_Slave.get(1),
 	
-	                    GT_Utility.getIntegratedCircuit(13))
+	                    GTUtility.getIntegratedCircuit(13))
 	                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
 	                .itemOutputs(
 	                    new ItemStack(
-	                        GregTech_API.sBlockMachines,
+	                        GregTechAPI.sBlockMachines,
 	                        1,
 	                        Config.metaTileEntityOffset + Registration.SlaveOffset))
 	                .duration(20 * SECONDS)
-	                .eut(GT_Values.VP[7])
+	                .eut(GTValues.VP[7])
 	                .addTo(RecipeMaps.assemblerRecipes);
 	
 	        });
 	
-	        GT_Values.RA.stdBuilder()
+	        GTValues.RA.stdBuilder()
 	            .itemInputs(
 	                new ItemStack(GameRegistry.findItem("RIO", "tile.remote_interface")),
 	                new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 0),
@@ -713,13 +714,13 @@ public class PHRecipes implements Runnable {
 	            .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
 	            .itemOutputs(
 	                new ItemStack(
-	                    GregTech_API.sBlockMachines,
+	                    GregTechAPI.sBlockMachines,
 	                    1,
 	                    Config.metaTileEntityOffset + Registration.RemoteInputBusOffset))
 	            .duration(20 * SECONDS)
-	            .eut(GT_Values.VP[5])
+	            .eut(GTValues.VP[5])
 	            .addTo(RecipeMaps.assemblerRecipes);
-	        GT_Values.RA.stdBuilder()
+	        GTValues.RA.stdBuilder()
 	            .itemInputs(
 	                new ItemStack(GameRegistry.findItem("RIO", "tile.remote_interface")),
 	                new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 1),
@@ -729,18 +730,18 @@ public class PHRecipes implements Runnable {
 	            .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
 	            .itemOutputs(
 	                new ItemStack(
-	                    GregTech_API.sBlockMachines,
+	                    GregTechAPI.sBlockMachines,
 	                    1,
 	                    Config.metaTileEntityOffset + Registration.RemoteInputHatchOffset))
 	            .duration(20 * SECONDS)
-	            .eut(GT_Values.VP[5])
+	            .eut(GTValues.VP[5])
 	            .addTo(RecipeMaps.assemblerRecipes);
 	
-	        GT_Values.RA.stdBuilder()
+	        GTValues.RA.stdBuilder()
 	            .itemInputs(
 	
 	                new ItemStack(
-	                    GregTech_API.sBlockMachines,
+	                    GregTechAPI.sBlockMachines,
 	                    1,
 	                    Config.metaTileEntityOffset + Registration.BufferedQuadDualInputHatchOffset + 8),
 	                Quantum_Tank_LV.get(24),
@@ -749,60 +750,60 @@ public class PHRecipes implements Runnable {
 	            .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
 	            .itemOutputs(
 	                new ItemStack(
-	                    GregTech_API.sBlockMachines,
+	                    GregTechAPI.sBlockMachines,
 	                    1,
 	                    Config.metaTileEntityOffset + Registration.SuperFluidHatch))
 	            .duration(20 * SECONDS)
-	            .eut(GT_Values.VP[8])
+	            .eut(GTValues.VP[8])
 	            .addTo(RecipeMaps.assemblerRecipes);
 	
-	        GT_Values.RA.stdBuilder()
+	        GTValues.RA.stdBuilder()
 	            .itemInputs(
 	                Hatch_CraftingInput_Bus_ME.get(1),
 	                new ItemStack(
-	                    GregTech_API.sBlockMachines,
+	                    GregTechAPI.sBlockMachines,
 	                    1,
 	                    Config.metaTileEntityOffset + Registration.BufferedQuadDualInputHatchMKIIOffset + 8))
 	            .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
 	            .itemOutputs(
-	                new ItemStack(GregTech_API.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.PatternOffset))
+	                new ItemStack(GregTechAPI.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.PatternOffset))
 	            .duration(20 * SECONDS)
-	            .eut(GT_Values.VP[9])
+	            .eut(GTValues.VP[9])
 	            .addTo(RecipeMaps.assemblerRecipes);
 	        
-	        GT_Values.RA.stdBuilder()
+	        GTValues.RA.stdBuilder()
 	        .itemInputs(
 	        		Hatch_CraftingInput_Bus_ME_ItemOnly.get(1),
 	            new ItemStack(
 	                MyMod.smartarm,4,6))
 	        .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
 	        .itemOutputs(
-	            new ItemStack(GregTech_API.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.PatternOffsetBus))
+	            new ItemStack(GregTechAPI.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.PatternOffsetBus))
 	        .duration(20 * SECONDS)
-	        .eut(GT_Values.VP[6])
+	        .eut(GTValues.VP[6])
 	        .addTo(RecipeMaps.assemblerRecipes);
 	        
 	        
 	        for (int i = 0; i < 4; i++) {
-	            GT_Values.RA.stdBuilder()
+	            GTValues.RA.stdBuilder()
 	                .itemInputs(single_item[i], new ItemStack(GameRegistry.findItem("Automagy", "blockTenaciousChest"))
 	
 	                )
 	                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
 	                .itemOutputs(
 	                    new ItemStack(
-	                        GregTech_API.sBlockMachines,
+	                        GregTechAPI.sBlockMachines,
 	                        1,
 	                        Config.metaTileEntityOffset + Registration.TenaciousOffset + i))
 	                .duration(20 * SECONDS)
-	                .eut(GT_Values.VP[i])
+	                .eut(GTValues.VP[i])
 	                .addTo(RecipeMaps.assemblerRecipes);
 	
-	            GT_Values.RA.stdBuilder()
+	            GTValues.RA.stdBuilder()
 	                .itemInputs(
 	                    new ItemStack(GameRegistry.findItem("Automagy", "glyph"), 1, 3),
 	                    new ItemStack(
-	                        GregTech_API.sBlockMachines,
+	                        GregTechAPI.sBlockMachines,
 	                        1,
 	                        Config.metaTileEntityOffset + Registration.TenaciousOffset + i)
 	
@@ -810,18 +811,18 @@ public class PHRecipes implements Runnable {
 	                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
 	                .itemOutputs(
 	                    new ItemStack(
-	                        GregTech_API.sBlockMachines,
+	                        GregTechAPI.sBlockMachines,
 	                        1,
 	                        Config.metaTileEntityOffset + Registration.FilterOffset + i)
 	
 	                )
 	                .duration(20 * SECONDS)
-	                .eut(GT_Values.VP[i])
+	                .eut(GTValues.VP[i])
 	                .addTo(RecipeMaps.assemblerRecipes);
 	
 	        }
 	
-	        GT_Values.RA.stdBuilder()
+	        GTValues.RA.stdBuilder()
 	            .itemInputs(Cover_Controller.get(1), Cover_AdvancedRedstoneReceiverInternal.get(1)
 	
 	            )
@@ -830,13 +831,13 @@ public class PHRecipes implements Runnable {
 	
 	            )
 	            .duration(20 * SECONDS)
-	            .eut(GT_Values.VP[2])
+	            .eut(GTValues.VP[2])
 	            .addTo(RecipeMaps.mixerRecipes);
 	
-	        GT_Values.RA.stdBuilder()
+	        GTValues.RA.stdBuilder()
 	            .itemInputs(
 	                new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1, 33),
-	                GT_Utility.getIntegratedCircuit(14),
+	                GTUtility.getIntegratedCircuit(14),
 	                Machine_HV_Scanner.get(1),
 	                new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 2, 25),
 	                new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 2, 78))
@@ -845,12 +846,12 @@ public class PHRecipes implements Runnable {
 	
 	            )
 	            .duration(20 * SECONDS)
-	            .eut(GT_Values.VP[2])
+	            .eut(GTValues.VP[2])
 	            .addTo(RecipeMaps.circuitAssemblerRecipes);
-	        GT_Values.RA.stdBuilder()
+	        GTValues.RA.stdBuilder()
 	            .itemInputs(
 	                new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1, 33),
-	                GT_Utility.getIntegratedCircuit(15),
+	                GTUtility.getIntegratedCircuit(15),
 	                Cover_AdvancedRedstoneReceiverInternal.get(1),
 	                Cover_AdvancedRedstoneTransmitterInternal.get(1))
 	            .fluidInputs(Materials.SolderingAlloy.getMolten(144*20))
@@ -858,10 +859,10 @@ public class PHRecipes implements Runnable {
 	
 	            )
 	            .duration(20 * SECONDS)
-	            .eut(GT_Values.VP[2])
+	            .eut(GTValues.VP[2])
 	            .addTo(RecipeMaps.circuitAssemblerRecipes);
 	        pc.forEach((s, i) -> {
-	            GT_Values.RA.stdBuilder()
+	            GTValues.RA.stdBuilder()
 	                .itemInputs(
 	                    s,
 	                    ItemList.Tool_Scanner.get(1),
@@ -876,39 +877,39 @@ public class PHRecipes implements Runnable {
 	
 	                )
 	                .duration(20 * SECONDS)
-	                .eut(GT_Values.VP[3])
+	                .eut(GTValues.VP[3])
 	                .addTo(RecipeMaps.assemblerRecipes);
 	        });
 	
 	        pc0.forEach((s) -> {
-	            GT_Values.RA.stdBuilder()
+	            GTValues.RA.stdBuilder()
 	                .itemInputs(new ItemStack(Items.book), s)
 	                .fluidInputs(Materials.SolderingAlloy.getMolten(144))
 	                .itemOutputs(MyMod.tutorial()
 	
 	                )
 	                .duration(20 * SECONDS)
-	                .eut(GT_Values.VP[2])
+	                .eut(GTValues.VP[2])
 	                .addTo(RecipeMaps.assemblerRecipes);
 	        });
 	      
-	            GT_Values.RA.stdBuilder()
+	            GTValues.RA.stdBuilder()
 	                .itemInputs(new ItemStack(Items.book), new ItemStack(GameRegistry.findItem("IC2","itemBatREDischarged"),0,OreDictionary.WILDCARD_VALUE))
 	                .fluidInputs(Materials.BatteryAlloy.getMolten(144))
 	                .itemOutputs(MyMod.tutorial("programmable_hatches.eucreafting.tutorial")
 	
 	                )
 	                .duration(20 * SECONDS)
-	                .eut(GT_Values.VP[2])
+	                .eut(GTValues.VP[2])
 	                .addTo(RecipeMaps.assemblerRecipes);
-	            GT_Values.RA.stdBuilder()
+	            GTValues.RA.stdBuilder()
 	            .itemInputs(new ItemStack(Items.book), new ItemStack(GameRegistry.findItem("IC2","itemBatRE"),0,OreDictionary.WILDCARD_VALUE))
 	            .fluidInputs(Materials.BatteryAlloy.getMolten(144))
 	            .itemOutputs(MyMod.tutorial("programmable_hatches.eucreafting.tutorial")
 	
 	            )
 	            .duration(20 * SECONDS)
-	            .eut(GT_Values.VP[2])
+	            .eut(GTValues.VP[2])
 	            .addTo(RecipeMaps.assemblerRecipes);
 	      //////////////
 	      
@@ -918,7 +919,7 @@ public class PHRecipes implements Runnable {
 	            smartArm();
 	 Item oc=GameRegistry.findItem("OpenComputers", "item");
 	 Item ocae=GameRegistry.findItem("OpenComputers", "item.ae");      
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	            .itemInputs(
 	            		new ItemStack(oc,2,53),//inv
 	            		new ItemStack(oc,1,61),//inv upgrade
@@ -937,13 +938,13 @@ public class PHRecipes implements Runnable {
 	            .eut(480)
 	            .addTo(RecipeMaps.mixerRecipes);
 	            
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 	     new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1, 33),
 	     new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1, 51),
 	     new ItemStack(GameRegistry.findItem("OpenComputers", "cable"), 4, 0),
 	     Emitter_EV.get(1),
-	     GT_Utility.getIntegratedCircuit(16)
+	     GTUtility.getIntegratedCircuit(16)
 	     
 	)
 	 .fluidInputs(Materials.Enderium.getMolten(144*16))
@@ -953,14 +954,14 @@ public class PHRecipes implements Runnable {
 	 .eut(480)
 	 .addTo(RecipeMaps.assemblerRecipes);;
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 Casing_EV.get(1),
 			 Sensor_EV.get(1),
 			 new ItemStack(GameRegistry.findItem("OpenComputers", "cable"), 32, 0),
 			 new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1, 51),
 		new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1, 33),
-	     GT_Utility.getIntegratedCircuit(17)
+	     GTUtility.getIntegratedCircuit(17)
 	     
 	)
 	 .fluidInputs(Materials.Enderium.getMolten(144*16))
@@ -982,11 +983,11 @@ public class PHRecipes implements Runnable {
 			
 		 
 	 })
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 io[0] ,
 			 new ItemStack(MyMod.cover, 1,37),
-	     GT_Utility.getIntegratedCircuit(18)
+	     GTUtility.getIntegratedCircuit(18)
 	     
 	)
 	 
@@ -997,9 +998,9 @@ public class PHRecipes implements Runnable {
 	 .addTo(RecipeMaps.formingPressRecipes);;
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
-	 GT_Utility.getIntegratedCircuit(19),
+	 GTUtility.getIntegratedCircuit(19),
 	 Api.INSTANCE.definitions().blocks().fluix().maybeStack(1).get()
 	)
 	 
@@ -1009,9 +1010,9 @@ public class PHRecipes implements Runnable {
 	 .eut(480)
 	 .addTo(RecipeMaps.cutterRecipes);;
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
-	 GT_Utility.getIntegratedCircuit(19),
+	 GTUtility.getIntegratedCircuit(19),
 	 Materials.Iron.getPlates(1),
 	 new ItemStack(Items.comparator),
 	 Emitter_MV.get(1)
@@ -1024,7 +1025,7 @@ public class PHRecipes implements Runnable {
 	 .addTo(RecipeMaps.assemblerRecipes);;
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 	new ItemStack(ItemAndBlockHolder.BUFFER),
 	 Conveyor_Module_HV.get(1),
@@ -1033,7 +1034,7 @@ public class PHRecipes implements Runnable {
 	)
 	 
 	 .itemOutputs( new ItemStack(
-	         GregTech_API.sBlockMachines,
+	         GregTechAPI.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset + Registration.IngBufferOffset))
 	
@@ -1041,7 +1042,7 @@ public class PHRecipes implements Runnable {
 	 .eut(480)
 	 .addTo(RecipeMaps.assemblerRecipes);
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 	new ItemStack(ItemAndBlockHolder.LARGE_BUFFER),
 	 Conveyor_Module_IV.get(1),
@@ -1050,7 +1051,7 @@ public class PHRecipes implements Runnable {
 	)
 	 
 	 .itemOutputs( new ItemStack(
-	         GregTech_API.sBlockMachines,
+	         GregTechAPI.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset + Registration.IngBufferOffset+1))
 	
@@ -1060,20 +1061,20 @@ public class PHRecipes implements Runnable {
 	 
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 	new ItemStack(ItemAndBlockHolder.LEVEL_MAINTAINER),
 	//Casing_EV.get(1),
 	Casing_CleanStainlessSteel.get(1),
 	new ItemStack(
-	        GregTech_API.sBlockMachines,
+	        GregTechAPI.sBlockMachines,
 	        1,
 	        Config.metaTileEntityOffset + Registration.CircuitProviderOffset)
 	
 	)
 	 
 	 .itemOutputs( new ItemStack(
-	         GregTech_API.sBlockMachines,
+	         GregTechAPI.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset + Registration.LargeProviderOffset))
 	
@@ -1081,7 +1082,7 @@ public class PHRecipes implements Runnable {
 	 .eut(480*4*4)
 	 .addTo(RecipeMaps.assemblerRecipes);
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 	new ItemStack(ItemAndBlockHolder.LEVEL_MAINTAINER),
 	Casing_EV.get(1),
@@ -1098,7 +1099,7 @@ public class PHRecipes implements Runnable {
 	)
 	 
 	 .itemOutputs( new ItemStack(
-	         GregTech_API.sBlockMachines,
+	         GregTechAPI.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset + Registration.ChainerOffset))
 	
@@ -1107,9 +1108,9 @@ public class PHRecipes implements Runnable {
 	 .addTo(RecipeMaps.assemblerRecipes);
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
-			 GT_OreDictUnificator.get(OrePrefixes.frameGt, Materials.Terbium, 4)
+			 GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Terbium, 4)
 			 ,new ItemStack(MyMod.smartarm,32,4)
 			 ,  Materials.TungstenSteel.getPlates(16)
 			 
@@ -1117,7 +1118,7 @@ public class PHRecipes implements Runnable {
 	)
 	 
 	 .itemOutputs( new ItemStack(
-	         GregTech_API.sBlockMachines,
+	         GregTechAPI.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset + Registration.IngredientDistributorOffset))
 	
@@ -1157,7 +1158,7 @@ public class PHRecipes implements Runnable {
 		 };
 		 
 		 
-		 GT_Values.RA.stdBuilder()
+		 GTValues.RA.stdBuilder()
 		 .itemInputs(
 				 list[1][i-1].get(1),
 				 Api.INSTANCE.definitions().parts().storageBus().maybeStack(1).get()
@@ -1165,7 +1166,7 @@ public class PHRecipes implements Runnable {
 		)
 		 
 		 .itemOutputs( new ItemStack(
-		         GregTech_API.sBlockMachines,
+		         GregTechAPI.sBlockMachines,
 		         1,
 		         Config.metaTileEntityOffset+Registration.MEChest + i-1)			 )
 	
@@ -1173,7 +1174,7 @@ public class PHRecipes implements Runnable {
 		 .eut((int) (30*Math.pow(4, i-1)))
 		 .addTo(RecipeMaps.formingPressRecipes);
 		
-		 GT_Values.RA.stdBuilder()
+		 GTValues.RA.stdBuilder()
 		 .itemInputs(
 				 list[0][i-1].get(1),
 				 ItemAndBlockHolder.FLUID_STORAGE_BUS.stack(1)
@@ -1181,7 +1182,7 @@ public class PHRecipes implements Runnable {
 		)
 		 
 		 .itemOutputs( new ItemStack(
-		         GregTech_API.sBlockMachines,
+		         GregTechAPI.sBlockMachines,
 		         1,
 		         Config.metaTileEntityOffset+Registration.METank + i-1)			 )
 	
@@ -1191,23 +1192,23 @@ public class PHRecipes implements Runnable {
 		
 		 
 		 CraftingManager.getInstance().addRecipe( new ItemStack(
-		         GregTech_API.sBlockMachines,
+		         GregTechAPI.sBlockMachines,
 		         1,
 		         Config.metaTileEntityOffset+Registration.MEChest + i-1)	, new Object[]{"c",'c',
 		        		 
 		        		 new ItemStack(
-		        		         GregTech_API.sBlockMachines,
+		        		         GregTechAPI.sBlockMachines,
 		        		         1,
 		        		         Config.metaTileEntityOffset+Registration.MEChest + i-1)	
 		        		 
 		         });
 		 CraftingManager.getInstance().addRecipe( new ItemStack(
-		         GregTech_API.sBlockMachines,
+		         GregTechAPI.sBlockMachines,
 		         1,
 		         Config.metaTileEntityOffset+Registration.METank + i-1)	, new Object[]{"c",'c',
 		        		 
 		        		 new ItemStack(
-		        		         GregTech_API.sBlockMachines,
+		        		         GregTechAPI.sBlockMachines,
 		        		         1,
 		        		         Config.metaTileEntityOffset+Registration.METank + i-1)	
 		        		 
@@ -1220,37 +1221,37 @@ public class PHRecipes implements Runnable {
 	
 	 prefab();
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs( new ItemStack(MyMod.cover, 1, 0))
 	 .fluidInputs(Materials.Enderium.getMolten(144*10))
 	 .itemOutputs(
 			 new ItemStack(MyMod.cover, 1, 4))
 	 .duration(20 * SECONDS)
-	 .eut(GT_Values.VP[3])
+	 .eut(GTValues.VP[3])
 	 .addTo(RecipeMaps.assemblerRecipes);
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 Hatch_Input_Bus_ME_Advanced.get(1),
 			 Hatch_DataAccess_UV.get(1),
-			 com.github.technus.tectech.thing. CustomItemList.Machine_Multi_DataBank.get(1),
-			 com.github.technus.tectech.thing. CustomItemList.dataInAss_Hatch.get(1),
-			 com.github.technus.tectech.thing. CustomItemList.dataOutAss_Hatch.get(1),
-			 com.github.technus.tectech.thing. CustomItemList.LASERpipe.get(4)
+			tectech.thing. CustomItemList.Machine_Multi_DataBank.get(1),
+			 tectech.thing. CustomItemList.dataInAss_Hatch.get(1),
+			 tectech.thing. CustomItemList.dataOutAss_Hatch.get(1),
+			 tectech.thing. CustomItemList.LASERpipe.get(4)
 			 )
 	 //.fluidInputs(Materials.Enderium.getMolten(144*10))
 	 .itemOutputs(
 			 new ItemStack(
-			         GregTech_API.sBlockMachines,
+			         GregTechAPI.sBlockMachines,
 			         1,
 			         Config.metaTileEntityOffset+Registration.DataHatchMEOffset))
 	 .duration(20 * SECONDS)
-	 .eut(GT_Values.VP[8])
+	 .eut(GTValues.VP[8])
 	 .addTo(RecipeMaps.assemblerRecipes);
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 new ItemStack(
 					 ConfigItems.itemGolemCore,1,8),
@@ -1261,11 +1262,11 @@ public class PHRecipes implements Runnable {
 			 new ItemStack(
 					 ConfigItems.itemGolemCore,1,120))
 	 .duration(20 * SECONDS)
-	 .eut(GT_Values.VP[3])
+	 .eut(GTValues.VP[3])
 	 .addTo(RecipeMaps.assemblerRecipes);
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 		new ItemStack(GameRegistry.findItem("IC2","blockReactorChamber")),
 		Sensor_LuV.get(1),
@@ -1276,20 +1277,20 @@ public class PHRecipes implements Runnable {
 			 new ItemStack(
 					MyMod.reactorsyncer))
 	 .duration(20 * SECONDS)
-	 .eut(GT_Values.VP[3])
+	 .eut(GTValues.VP[3])
 	 .addTo(RecipeMaps.assemblerRecipes);
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 		new ItemStack(GameRegistry.findItem("IC2NuclearControl","blockNuclearControlMain"),1,9),
 		Sensor_LuV.get(1),
 		new ItemStack(GameRegistry.findItem("OpenComputers","adapter"))
 			 )
 	 .itemOutputs(new ItemStack(MyMod.reader))
-	 .duration(20 * SECONDS).eut(GT_Values.VP[3]).addTo(RecipeMaps.assemblerRecipes);
+	 .duration(20 * SECONDS).eut(GTValues.VP[3]).addTo(RecipeMaps.assemblerRecipes);
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			  Api.INSTANCE.definitions().parts().storageBus().maybeStack(1).get(),
 			  new ItemStack(ItemAndBlockHolder.FLUID_STORAGE_BUS),
@@ -1297,38 +1298,38 @@ public class PHRecipes implements Runnable {
 		     new ItemStack(ItemAndBlockHolder.LEVEL_MAINTAINER)
 			 )
 	 .itemOutputs(new ItemStack(MyMod.amountmaintainer))
-	 .duration(20 * SECONDS).eut(GT_Values.VP[6]).addTo(RecipeMaps.assemblerRecipes);
+	 .duration(20 * SECONDS).eut(GTValues.VP[6]).addTo(RecipeMaps.assemblerRecipes);
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 new ItemStack(ItemAndBlockHolder.LEVEL_MAINTAINER),
 			 Api.INSTANCE.definitions().blocks().craftingStorage1k().maybeStack(32).get()
 			 )
 	 .itemOutputs(new ItemStack(MyMod.submitter))
-	 .duration(20 * SECONDS).eut(GT_Values.VP[8]).addTo(RecipeMaps.assemblerRecipes);
+	 .duration(20 * SECONDS).eut(GTValues.VP[8]).addTo(RecipeMaps.assemblerRecipes);
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
-			 new ItemStack(GregTech_API.sBlockMachines,0,Config.metaTileEntityOffset+Registration.SlaveOffset),
+			 new ItemStack(GregTechAPI.sBlockMachines,0,Config.metaTileEntityOffset+Registration.SlaveOffset),
 			 new ItemStack(GameRegistry.findItem("RIO", "tile.remote_interface")),
 			 new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 0),
 			 new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 1)
 			
 			 )
 	 .fluidInputs(new FluidStack(TinkerSmeltery.moltenEnderFluid,1000))
-	 .itemOutputs(new ItemStack( GregTech_API.sBlockMachines,
+	 .itemOutputs(new ItemStack( GregTechAPI.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset+Registration.MappingSlaveOffset))
-	 .duration(20 * SECONDS).eut(GT_Values.VP[3]).addTo(RecipeMaps.assemblerRecipes);
+	 .duration(20 * SECONDS).eut(GTValues.VP[3]).addTo(RecipeMaps.assemblerRecipes);
 	 
 	 
 	
-	 GT_Values.RA.stdBuilder()  
-	 .metadata(RESEARCH_ITEM,  new ItemStack( GregTech_API.sBlockMachines,
+	 GTValues.RA.stdBuilder()  
+	 .metadata(RESEARCH_ITEM,  new ItemStack( GregTechAPI.sBlockMachines,
 	         1,Config.metaTileEntityOffset+Registration.MappingSlaveOffset))
 	 .metadata(RESEARCH_TIME, 1 * HOURS)
 	 .itemInputs(
-			 new ItemStack( GregTech_API.sBlockMachines,
+			 new ItemStack( GregTechAPI.sBlockMachines,
 			         1,
 			 Config.metaTileEntityOffset+Registration.MappingSlaveOffset),	
 			 new ItemStack( ItemAndBlockHolder.INTERFACE),
@@ -1344,12 +1345,12 @@ public class PHRecipes implements Runnable {
 			 HeeEndium.getMolten(1000),
 			 FluidRegistry.getFluid("endergoo")==null?Water.getFluid(1): new FluidStack(FluidRegistry.getFluid("endergoo"),1000)
 			 )
-	 .itemOutputs(new ItemStack( GregTech_API.sBlockMachines,
+	 .itemOutputs(new ItemStack( GregTechAPI.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset+Registration.PatternMappingSlaveOffset))
-	 .duration(20000 * SECONDS).eut(GT_Values.VP[1]).addTo(GT_RecipeConstants.AssemblyLine);
+	 .duration(20000 * SECONDS).eut(GTValues.VP[1]).addTo(GTRecipeConstants.AssemblyLine);
 	 
-	 /*GT_Values.RA.stdBuilder()  
+	 /*GTValues.RA.stdBuilder()  
 	 .metadata(RESEARCH_ITEM, new ItemStack(Items.apple))
 	 .metadata(RESEARCH_TIME, 100 )
 	 .itemInputs(
@@ -1369,32 +1370,32 @@ public class PHRecipes implements Runnable {
 			 new ItemStack(Items.bed)
 			 
 			 )
-	 .duration(100 * SECONDS).eut(GT_Values.VP[1]).addTo(GT_RecipeConstants.AssemblyLine);
+	 .duration(100 * SECONDS).eut(GTValues.VP[1]).addTo(GTRecipeConstants.AssemblyLine);
 	 */
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 	
-			 new ItemStack( GregTech_API.sBlockMachines,
+			 new ItemStack( GregTechAPI.sBlockMachines,
 			         1,
 			         Config.metaTileEntityOffset+Registration.QuadDualInputHatchOffset+10),
 			 new ItemStack(MyMod.iohub)
 			 )
-	 .itemOutputs(new ItemStack( GregTech_API.sBlockMachines,
+	 .itemOutputs(new ItemStack( GregTechAPI.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset+Registration.DualInputHatchOCOffset))
-	 .duration(20 * SECONDS).eut(GT_Values.VP[10]).addTo(RecipeMaps.assemblerRecipes);
+	 .duration(20 * SECONDS).eut(GTValues.VP[10]).addTo(RecipeMaps.assemblerRecipes);
 	 
 	 
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 new ItemStack(
 			        MyMod.toolkit,0,OreDictionary.WILDCARD_VALUE)	,
 			 new ItemStack(Items.diamond)
-			 ,    GT_Utility.getIntegratedCircuit(7)
+			 ,    GTUtility.getIntegratedCircuit(7)
 			 
 	)
 	 
@@ -1409,7 +1410,7 @@ public class PHRecipes implements Runnable {
 	 
 	 
 	 if(flag){
-		 /*GT_Values.RA.stdBuilder()
+		 /*GTValues.RA.stdBuilder()
 		 .itemInputs(
 				 new ItemStack(
 				       GameRegistry.findItem("computronics","computronics.chatBox")),
@@ -1424,7 +1425,7 @@ public class PHRecipes implements Runnable {
 		 .addTo(RecipeMaps.assemblerRecipes);*/
 		 
 		 
-		 GT_Values.RA.stdBuilder()
+		 GTValues.RA.stdBuilder()
 		 .itemInputs(Hatch_Input_Bus_ME.get(1),
 				 Materials.Steel.getPlates(1)
 				 )
@@ -1433,7 +1434,7 @@ public class PHRecipes implements Runnable {
 		 .eut(480*4*4)
 		 .addTo(RecipeMaps.formingPressRecipes);
 		 
-		 GT_Values.RA.stdBuilder()
+		 GTValues.RA.stdBuilder()
 		 .itemInputs(Hatch_Input_ME.get(1),
 				 Materials.Steel.getPlates(1)
 				 )
@@ -1442,7 +1443,7 @@ public class PHRecipes implements Runnable {
 		 .eut(480*4*4)
 		 .addTo(RecipeMaps.formingPressRecipes);
 		 
-		 GT_Values.RA.stdBuilder()
+		 GTValues.RA.stdBuilder()
 		 .itemInputs(Hatch_Input_Bus_ULV.get(16),
 				 Materials.Steel.getPlates(1)
 				 )
@@ -1454,24 +1455,24 @@ public class PHRecipes implements Runnable {
 		
 		 
 		 for(int i=0;i<4;i++)
-		 GT_Values.RA.stdBuilder()
+		 GTValues.RA.stdBuilder()
 		 .itemInputs(
 				 new ItemStack(  MyMod.upgrades,3,0),
 				 HATCHES_INPUT_BUS[i].get(1)
 				 
 		)
 		.itemOutputs( new ItemStack(
-	            GregTech_API.sBlockMachines,
+	            GregTechAPI.sBlockMachines,
 	            1,
 	            Config.metaTileEntityOffset + Registration.MultiCircuitBusOffset + i))		 
 	
 		  .duration(15 * SECONDS)
-		 .eut(GT_Values.VP[i])
+		 .eut(GTValues.VP[i])
 		 .addTo(RecipeMaps.assemblerRecipes);
 		
 	 }
 	 /*
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			
 			 gregtech.api.enums.ItemList.Shape_Mold_Block.get(0)
@@ -1481,11 +1482,11 @@ public class PHRecipes implements Runnable {
 	       MyMod.submitter))		 
 	
 	  .duration(150 * SECONDS)
-	 .eut(GT_Values.VP[8])
+	 .eut(GTValues.VP[8])
 	 .addTo(RecipeMaps.fluidSolidifierRecipes);
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			
 			 gregtech.api.enums.ItemList.Shape_Mold_Plate.get(0)
@@ -1495,18 +1496,18 @@ public class PHRecipes implements Runnable {
 	       MyMod.amountmaintainer))		 
 	
 	  .duration(150 * SECONDS)
-	 .eut(GT_Values.VP[7])
+	 .eut(GTValues.VP[7])
 	 .addTo(RecipeMaps.fluidSolidifierRecipes);
 	 */
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 Hatch_Input_Bus_ME
 			 .get(1) , new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1,29)
 	)
 	
 	 .itemOutputs(new ItemStack(
-	         GregTech_API.sBlockMachines,
+	         GregTechAPI.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset + Registration.RestrictedBusME)		 )
 	
@@ -1514,14 +1515,14 @@ public class PHRecipes implements Runnable {
 	 .eut(480)
 	 .addTo(RecipeMaps.assemblerRecipes);
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 Hatch_Input_ME
 			 .get(1) , new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1,29)
 	)
 	
 	 .itemOutputs(new ItemStack(
-	         GregTech_API.sBlockMachines,
+	         GregTechAPI.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset + Registration.RestrictedHatchME)		 )
 	
@@ -1533,13 +1534,13 @@ public class PHRecipes implements Runnable {
 	 
 	 
 	 for(ItemList i:new ItemList[]{ItemList.ItemFilter_Export,ItemList.ItemFilter_Import})
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
-			 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.SlaveOffset) ,CertusQuartz.getPlates(4),i.get(1)
+			 new ItemStack(GregTechAPI.sBlockMachines,1,Config.metaTileEntityOffset + Registration.SlaveOffset) ,CertusQuartz.getPlates(4),i.get(1)
 	)
 	
 	 .itemOutputs(new ItemStack(
-	         GregTech_API.sBlockMachines,
+	         GregTechAPI.sBlockMachines,
 	         1,
 	         Config.metaTileEntityOffset + Registration.SlaveBusOffset)		 )
 	
@@ -1551,46 +1552,46 @@ public class PHRecipes implements Runnable {
 	 
 	
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
-			 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.SlaveOffset)
+			 new ItemStack(GregTechAPI.sBlockMachines,1,Config.metaTileEntityOffset + Registration.SlaveOffset)
 			 , Lapis.getPlates(4),ItemList.FluidFilter.get(1)
 	)
 	
-	.itemOutputs(new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.SlaveHatchOffset)		 )
+	.itemOutputs(new ItemStack(GregTechAPI.sBlockMachines,1,Config.metaTileEntityOffset + Registration.SlaveHatchOffset)		 )
 	.duration(100 * SECONDS)
 	.eut(480)
 	.addTo(RecipeMaps.assemblerRecipes);
 	 
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 ItemList.Hatch_Input_Bus_ME_Advanced.get(1)
 			 , ItemList.Machine_Multi_Assemblyline.get(0)
 			 , new ItemStack(Items.fishing_rod)
 	)
 	
-	.itemOutputs(new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.DecoyBusME)		 )
+	.itemOutputs(new ItemStack(GregTechAPI.sBlockMachines,1,Config.metaTileEntityOffset + Registration.DecoyBusME)		 )
 	.duration(100 * SECONDS)
 	.eut(480)
 	.addTo(RecipeMaps.assemblerRecipes);
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 ItemList.Hatch_Input_ME_Advanced.get(1)
 			 , ItemList.Machine_Multi_Assemblyline.get(0)
 			 , new ItemStack(Items.fishing_rod)
 	)
 	
-	.itemOutputs(new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.DecoyHatchME)		 )
+	.itemOutputs(new ItemStack(GregTechAPI.sBlockMachines,1,Config.metaTileEntityOffset + Registration.DecoyHatchME)		 )
 	.duration(100 * SECONDS)
 	.eut(480)
 	.addTo(RecipeMaps.assemblerRecipes);
 	 
 	 
-	 TT_recipeAdder.addResearchableAssemblylineRecipe(
-			 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.RestrictedBusME)
+	 TTRecipeAdder.addResearchableAssemblylineRecipe(
+			 new ItemStack(GregTechAPI.sBlockMachines,1,Config.metaTileEntityOffset + Registration.RestrictedBusME)
 			 , 10_000, 1, 2000, 1, 
 			 new ItemStack[]{
 					 ItemList.Hatch_Input_Bus_ME_Advanced.get(1), new ItemStack(Items.comparator),
@@ -1605,12 +1606,12 @@ public class PHRecipes implements Runnable {
 					 Materials.RedstoneAlloy.getMolten(144*6)
 			 }		 
 			 , 
-			 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.PFilterBusME)
-			 , SECONDS*120, (int) GT_Values.VP[8]);
+			 new ItemStack(GregTechAPI.sBlockMachines,1,Config.metaTileEntityOffset + Registration.PFilterBusME)
+			 , SECONDS*120, (int) GTValues.VP[8]);
 	  
 	
-	 TT_recipeAdder.addResearchableAssemblylineRecipe(
-			 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.RestrictedHatchME)
+	 TTRecipeAdder.addResearchableAssemblylineRecipe(
+			 new ItemStack(GregTechAPI.sBlockMachines,1,Config.metaTileEntityOffset + Registration.RestrictedHatchME)
 			 , 10_000, 1, 2000, 1, 
 			 new ItemStack[]{
 					 ItemList.Hatch_Input_ME_Advanced.get(1), new ItemStack(Items.comparator),
@@ -1625,11 +1626,11 @@ public class PHRecipes implements Runnable {
 					 Materials.RedstoneAlloy.getMolten(144*6)
 			 }		 
 			 , 
-			 new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.PFilterHatchME)
-			 , SECONDS*120, (int) GT_Values.VP[9]);
+			 new ItemStack(GregTechAPI.sBlockMachines,1,Config.metaTileEntityOffset + Registration.PFilterHatchME)
+			 , SECONDS*120, (int) GTValues.VP[9]);
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 	 .itemInputs(
 			 new ItemStack(ItemAndBlockHolder.INTERFACE),
 			 ItemList.FluidFilter.get(8)
@@ -1641,7 +1642,7 @@ public class PHRecipes implements Runnable {
 	 
 	
 	 for(ItemList item: new ItemList[]{ItemList.ItemFilter_Import,ItemList.ItemFilter_Export}){
-	GT_Values.RA.stdBuilder()
+	GTValues.RA.stdBuilder()
 	.itemInputs(
 			  Api.INSTANCE.definitions().blocks().iface().maybeStack(1).get(),
 			  item.get(8),
@@ -1652,11 +1653,11 @@ public class PHRecipes implements Runnable {
 	.duration(100 * SECONDS)
 	.eut(480*4*4*4)
 	.addTo(RecipeMaps.assemblerRecipes);
-	GT_Values.RA.stdBuilder()
+	GTValues.RA.stdBuilder()
 	.itemInputs(
 			  Api.INSTANCE.definitions().blocks().iface().maybeStack(1).get(),
 			  item.get(8),
-			  GT_Utility.getIntegratedCircuit(9)
+			  GTUtility.getIntegratedCircuit(9)
 	)
 	.itemOutputs(new ItemStack(MyMod.storageproxy,1,2)		 )
 	.duration(100 * SECONDS)
@@ -1679,35 +1680,35 @@ public class PHRecipes implements Runnable {
 	
 	}
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 		.itemInputs(
 				new ItemStack(GameRegistry.findItem("ExtraUtilities", "trashcan"),1,0),
 				Hatch_Output_Bus_IV.get(1),
-				GT_Utility.getIntegratedCircuit(3)
+				GTUtility.getIntegratedCircuit(3)
 				
 		)
 		.itemOutputs(
-				new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.VBus)
+				new ItemStack(GregTechAPI.sBlockMachines,1,Config.metaTileEntityOffset + Registration.VBus)
 						 )
 		.duration(100 * SECONDS)
 		.eut(480*4)
 		.addTo(RecipeMaps.assemblerRecipes);
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 		.itemInputs(
 				new ItemStack(GameRegistry.findItem("ExtraUtilities", "trashcan"),1,1),
 				Hatch_Output_IV.get(1),
-				GT_Utility.getIntegratedCircuit(4)
+				GTUtility.getIntegratedCircuit(4)
 				
 		)
 		.itemOutputs(
-				new ItemStack(GregTech_API.sBlockMachines,1,Config.metaTileEntityOffset + Registration.VHatch)
+				new ItemStack(GregTechAPI.sBlockMachines,1,Config.metaTileEntityOffset + Registration.VHatch)
 						 )
 		.duration(100 * SECONDS)
 		.eut(480*4)
 		.addTo(RecipeMaps.assemblerRecipes);
 	  
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 		.itemInputs(
 				Cover_Controller.get(1),
 				new ItemStack(MyMod.cover, 1,37)
@@ -1721,7 +1722,7 @@ public class PHRecipes implements Runnable {
 		.addTo(RecipeMaps.assemblerRecipes);
 	 
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 		.itemInputs(
 				
 				Api.INSTANCE.parts().partExportBus.stack(1),
@@ -1738,7 +1739,7 @@ public class PHRecipes implements Runnable {
 		.duration(100 * SECONDS)
 		.eut(480)
 		.addTo(RecipeMaps.assemblerRecipes);
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 		.itemInputs(
 				
 			new ItemStack( ItemAndBlockHolder.FLUID_EXPORT_BUS),
@@ -1755,7 +1756,7 @@ public class PHRecipes implements Runnable {
 		.duration(100 * SECONDS)
 		.eut(480)
 		.addTo(RecipeMaps.assemblerRecipes);
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 		.itemInputs(
 		Api.INSTANCE.definitions().parts().p2PTunnelME().maybeStack(1).get(),
 		Api.INSTANCE.definitions().blocks().molecularAssembler().maybeStack(1).get()
@@ -1767,7 +1768,7 @@ public class PHRecipes implements Runnable {
 		.duration(1000 * SECONDS)
 		.eut(480)
 		.addTo(RecipeMaps.assemblerRecipes);
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 		.itemInputs(
 		new ItemStack( GameRegistry.findItem("EnderIO","itemMaterial"),6,1),//Conduit Binder
 		Api.INSTANCE.definitions().blocks().molecularAssembler().maybeStack(1).get()
@@ -1780,7 +1781,7 @@ public class PHRecipes implements Runnable {
 		.eut(480)
 		.addTo(RecipeMaps.assemblerRecipes);
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 		.itemInputs(
 	
 		Optional.of(
@@ -1797,13 +1798,13 @@ public class PHRecipes implements Runnable {
 		.eut(480)
 		.addTo(RecipeMaps.assemblerRecipes);
 	 
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 		.itemInputs(
 	
 	
 		Api.INSTANCE.definitions().blocks().craftingUnit().maybeStack(1).get(),
 		 new ItemStack(
-		         GregTech_API.sBlockMachines,
+		         GregTechAPI.sBlockMachines,
 		         1,
 		         Config.metaTileEntityOffset+Registration.CircuitProviderOffsetT0)	,
 		Api.INSTANCE.definitions().materials().cardInverter().maybeStack(1).get()	
@@ -1816,7 +1817,7 @@ public class PHRecipes implements Runnable {
 		.addTo(RecipeMaps.assemblerRecipes);
 	 
 	 for(int i=0;i<=4;i++)
-	 GT_Values.RA.stdBuilder()
+	 GTValues.RA.stdBuilder()
 		.itemInputs(
 	new ItemStack(
 	IronChest.ironChestBlock,1,new int[]{3,0,4,1,2}[i])
@@ -1845,7 +1846,7 @@ public class PHRecipes implements Runnable {
 		 ItemStack bbb=new ItemStack(MyMod.condensers[i]);
 		
 		 
-		 GT_Values.RA.stdBuilder()
+		 GTValues.RA.stdBuilder()
 			.itemInputs(
 					bb,new ItemStack(MyMod.smartarm, 4,i+5)
 					

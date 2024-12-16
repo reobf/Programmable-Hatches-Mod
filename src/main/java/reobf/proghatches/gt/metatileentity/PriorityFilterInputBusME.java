@@ -49,13 +49,13 @@ import appeng.me.storage.MEInventoryHandler;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 import appeng.util.item.MeaningfulItemIterator;
-import gregtech.api.GregTech_API;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.GregTechAPI;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.util.GT_Utility;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
+import gregtech.api.util.GTUtility;
+import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -68,12 +68,12 @@ import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class PriorityFilterInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME implements IMEHatchOverrided,IDataCopyablePlaceHolderSuper,
+public class PriorityFilterInputBusME extends MTEHatchInputBusME implements IMEHatchOverrided,IDataCopyablePlaceHolderSuper,
 IPriorityHost,IActionHost{
 
 	public PriorityFilterInputBusME(int aID, /*boolean autoPullAvailable,*/ String aName, String aNameRegional) {
 		super(aID, /*autoPullAvailable*/true, aName, aNameRegional);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 		desc=reobf.proghatches.main.Config.get("PFIBME", ImmutableMap.of());
 	} 
 	private static Field f;
@@ -141,7 +141,7 @@ int filter;
 				IAEItemStack currItem = (IAEItemStack) iterator.next();
 				// if(all.findPrecise(currItem)!=null){continue;}
 				if (currItem.getStackSize() >= minPull) {
-					ItemStack itemstack = GT_Utility.copyAmount(1, currItem.getItemStack());
+					ItemStack itemstack = GTUtility.copyAmount(1, currItem.getItemStack());
 					this.mInventory[index] = itemstack;
 					index++;
 				}
@@ -245,7 +245,7 @@ int filter;
         final int PARENT_WIDTH = getGUIWidth();
         final int PARENT_HEIGHT = getGUIHeight();
         ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-        builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+        builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
         builder.setGuiTint(getGUIColorization());
         builder.setDraggable(true);
         
@@ -271,7 +271,7 @@ int filter;
                     .setTextColor(Color.WHITE.normal)
                     .setSize(70, 18)
                     .setPos(3, parent.getSize().height+18)
-                    .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD));
+                    .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
   
         
        // builder.widget(createMultiplesModeButton(builder,HEIGHT));
@@ -297,8 +297,8 @@ int filter;
 	        }})
 	            .setBackground(() -> {
 	               {
-	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
-	                        GT_UITextures.OVERLAY_BUTTON_AUTOPULL_ME_DISABLED };
+	                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
+	                        GTUITextures.OVERLAY_BUTTON_AUTOPULL_ME_DISABLED };
 	                }
 	            })
 	            .addTooltips(
@@ -320,7 +320,7 @@ int filter;
 	            .setBackground(() -> {
 	               {
 	                    return new IDrawable[] {
-	                    		GT_UITextures.BUTTON_STANDARD
+	                    		GTUITextures.BUTTON_STANDARD
 	                      };
 	                }
 	            })

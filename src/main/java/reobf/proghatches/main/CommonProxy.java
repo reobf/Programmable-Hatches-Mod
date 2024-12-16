@@ -20,7 +20,7 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.util.GT_ModHandler;
+import gregtech.api.util.GTModHandler;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockCraftingCondenser;
@@ -175,7 +175,7 @@ public class CommonProxy {
 		li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.pitem);
 		li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.cpu);
 		
-		GT_ModHandler.addToRecyclerBlackList(new ItemStack(MyMod.progcircuit));
+		GTModHandler.addToRecyclerBlackList(new ItemStack(MyMod.progcircuit));
 		FMLInterModComms.sendMessage("Waila", "register", "reobf.proghatches.main.CommonProxy.callbackRegister");
 		//System.out.println(AEConfig.instance);
 		//System.out.println("xxxxxxxxxxxxxxxx");

@@ -8,7 +8,7 @@ import java.util.UUID;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.SoundResource;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import li.cil.oc.api.network.EnvironmentHost;
 import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.network.Message;
@@ -169,7 +169,7 @@ public class ItemWirelessPeripheralCard extends Item implements li.cil.oc.api.dr
 	public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player) {
 
 		if (player.isSneaking()) {
-			GT_Utility.doSoundAtClient(SoundResource.IC2_TOOLS_OD_SCANNER, 1, 1.0F, player.posX, player.posY,
+			GTUtility.doSoundAtClient(SoundResource.IC2_TOOLS_OD_SCANNER, 1, 1.0F, player.posX, player.posY,
 					player.posZ);
 
 			itemStackIn.setTagCompound(null);

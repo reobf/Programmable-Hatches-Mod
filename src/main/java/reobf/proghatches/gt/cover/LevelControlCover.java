@@ -26,15 +26,15 @@ import appeng.me.helpers.IGridProxyable;
 import appeng.parts.p2p.PartP2PTunnel;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
-import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.CoverUIBuildContext;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.covers.IControlsWorkCover;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IMachineProgress;
-import gregtech.api.util.GT_CoverBehaviorBase;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.CoverBehaviorBase;
+import gregtech.api.util.GTUtility;
 import gregtech.api.util.ISerializableObject;
 
 import io.netty.buffer.ByteBuf;
@@ -48,12 +48,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.AECover.Data;
 import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 
-public class LevelControlCover  extends GT_CoverBehaviorBase<LevelControlCover.Data>{
+public class LevelControlCover  extends CoverBehaviorBase<LevelControlCover.Data>{
 	public LevelControlCover() {
 		super(Data.class);
 		
@@ -63,7 +64,7 @@ public class LevelControlCover  extends GT_CoverBehaviorBase<LevelControlCover.D
 		// TODO Auto-generated method stub
 		return true;
 	}
-	@Override
+	//@Override
 	public boolean useModularUI() {
 		// TODO Auto-generated method stub
 		return true;
@@ -81,14 +82,14 @@ public class LevelControlCover  extends GT_CoverBehaviorBase<LevelControlCover.D
 		return super.onCoverRightClickImpl(side, aCoverID, aCoverVariable, aTileEntity, aPlayer, aX, aY, aZ);
 	}
 @Override
-public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
+public ModularWindow createWindow(CoverUIBuildContext buildContext) {
 	
 	return new UIFactory(buildContext){
 		private ItemStack tryConvertToFluid(ItemStack is){
 			
-			FluidStack fs = GT_Utility.getFluidForFilledItem(is, true);
+			FluidStack fs = GTUtility.getFluidForFilledItem(is, true);
 			if(fs!=null){
-			return GT_Utility.getFluidDisplayStack(fs, false);
+			return GTUtility.getFluidDisplayStack(fs, false);
 			}
 			
 			return null;
@@ -136,15 +137,15 @@ public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
 				builder.widget(new CycleButtonWidget().setGetter(()->getCoverData().invert?1:0)
 						.setSetter(s->getCoverData().invert=s==1).setLength(2)
 		           .setTextureGetter(s->{
-		        	   if(s==0)return GT_UITextures.OVERLAY_BUTTON_CROSS;
-		        	   if(s==1)return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
-		        			   return GT_UITextures.OVERLAY_BUTTON_VOID_EXCESS_ALL;
+		        	   if(s==0)return GTUITextures.OVERLAY_BUTTON_CROSS;
+		        	   if(s==1)return GTUITextures.OVERLAY_BUTTON_CHECKMARK;
+		        			   return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ALL;
 		           })
 		           .addTooltip(0, StatCollector.translateToLocal("proghatches.levelcontrolcover.invert.0"))
 		           .addTooltip(1, StatCollector.translateToLocal("proghatches.levelcontrolcover.invert.1"))
 						.setBackground(() -> {
 		               {
-		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+		                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
 		                       };
 		                }
 		            })
@@ -154,15 +155,15 @@ public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
 				builder.widget(new CycleButtonWidget().setGetter(()->getCoverData().mode)
 						.setSetter(s->getCoverData().mode=s).setLength(2)
 		           .setTextureGetter(s->{
-		        	   if(s==0)return GT_UITextures.OVERLAY_BUTTON_VOID_EXCESS_ITEM;
-		        	   if(s==1)return GT_UITextures.OVERLAY_BUTTON_VOID_EXCESS_FLUID;
-		        			   return GT_UITextures.OVERLAY_BUTTON_VOID_EXCESS_ALL;
+		        	   if(s==0)return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ITEM;
+		        	   if(s==1)return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_FLUID;
+		        			   return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ALL;
 		           })
 		           .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.0"))
 		           .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.1"))
 						.setBackground(() -> {
 		               {
-		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+		                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
 		                       };
 		                }
 		            })
@@ -178,7 +179,7 @@ public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
 	                    .setTextColor(Color.WHITE.normal)
 	                    .setSize(60, 18)
 	                    .setPos(60+18, 3+20)
-	                    .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD)
+	                    .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD)
 	                    .addTooltips(Arrays.asList(
 	                    	
 	                    		
@@ -196,7 +197,7 @@ public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
 	public static class Data implements ISerializableObject {
 		public AEFluidStack maybeFluid(){
 			if(filter[0]==null)return null;
-			FluidStack fs = GT_Utility.getFluidFromDisplayStack(filter[0]);
+			FluidStack fs = GTUtility.getFluidFromDisplayStack(filter[0]);
 			if(fs!=null){
 				AEFluidStack is=AEFluidStack.create(fs);
 				is.setStackSize(Long.MAX_VALUE);
@@ -207,7 +208,7 @@ public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
 		public AEItemStack maybeItem(){
 			if(filter[0]==null)return null;
 			
-			FluidStack fs = GT_Utility.getFluidFromDisplayStack(filter[0]);
+			FluidStack fs = GTUtility.getFluidFromDisplayStack(filter[0]);
 			if(fs==null){
 				AEItemStack is=AEItemStack.create(filter[0]);
 				is.setStackSize(Long.MAX_VALUE);
@@ -234,8 +235,15 @@ public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
 		public NBTBase saveDataToNBT() {
 			NBTTagCompound tag=new NBTTagCompound();
 			if(filter[0]!=null){
+				
+				
+				
 				filter[0].writeToNBT(tag);
-				}
+				FluidStack fs = GTUtility.getFluidFromDisplayStack(filter[0]);
+				 if(fs!=null){String name=FluidRegistry.getFluidName(fs);
+			   tag.setString("fluid_ID_string", name);}
+			   
+			}
 			tag.setLong("a", amount);
 			tag.setInteger("m", mode);
 			tag.setBoolean("i", invert);
@@ -268,7 +276,16 @@ public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
 			filter[0]=null;
 		    filter[0]=ItemStack.loadItemStackFromNBT(tag);
 		  mode  =tag.getInteger("m" );
-			
+		  exit:{
+				FluidStack fs = GTUtility.getFluidFromDisplayStack(filter[0]);
+				if(fs==null){break exit;}
+				String name=   tag.getString("fluid_ID_string");
+				if(name.isEmpty()){break exit;}
+				Fluid f=FluidRegistry.getFluid(name);
+				if(f==null){break exit;}
+				if(f==fs.getFluid()){break exit;}
+				fs=new FluidStack(f, fs.amount);
+				}
 			
 			
 		}

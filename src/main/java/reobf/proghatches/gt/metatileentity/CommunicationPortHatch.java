@@ -1,13 +1,14 @@
 package reobf.proghatches.gt.metatileentity;
 
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
+import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.render.TextureFactory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -15,11 +16,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.main.registration.Registration;
 
-public class CommunicationPortHatch extends GT_MetaTileEntity_Hatch{
+public class CommunicationPortHatch extends MTEHatch{
 	public CommunicationPortHatch(int aID, String aName, String aNameRegional, int aTier
 			) {
 		super(aID, aName, aNameRegional, aTier, 0, new String[0] );
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 	}
 	public CommunicationPortHatch(String aName, int aTier, String[] aDescription,
 			ITexture[][][] aTextures) {
@@ -27,7 +28,7 @@ public class CommunicationPortHatch extends GT_MetaTileEntity_Hatch{
 		
 	}
 	@Override
-	public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
+	public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
 	
 		return new CommunicationPortHatch(mName, mTier,  mDescriptionArray, mTextures);
 	}

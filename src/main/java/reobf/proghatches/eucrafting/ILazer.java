@@ -3,7 +3,7 @@ package reobf.proghatches.eucrafting;
 import java.util.Collection;
 import java.util.List;
 
-import com.github.technus.tectech.mechanics.pipe.IConnectsToEnergyTunnel;
+import tectech.mechanics.pipe.IConnectsToEnergyTunnel;
 
 import gregtech.api.interfaces.tileentity.IColoredTileEntity;
 import net.minecraft.tileentity.TileEntity;

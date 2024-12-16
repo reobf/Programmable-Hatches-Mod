@@ -31,12 +31,12 @@ import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.item.AEItemStack;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
+import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.render.TextureFactory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -52,7 +52,7 @@ import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
-public class ProviderChainer extends GT_MetaTileEntity_Hatch
+public class ProviderChainer extends MTEHatch
 		implements IPowerChannelState, IGridProxyable, ICircuitProvider {
 
 	public ProviderChainer(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount) {
@@ -60,7 +60,7 @@ public class ProviderChainer extends GT_MetaTileEntity_Hatch
 				reobf.proghatches.main.Config.get("PC", ImmutableMap.of())
 
 		);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 	}
 	@Override
 	public boolean isValidSlot(int aIndex) {
@@ -165,7 +165,7 @@ public class ProviderChainer extends GT_MetaTileEntity_Hatch
 		return this.gridProxy;
 	}
 	private ItemStack visualStack() {
-		return new ItemStack(GregTech_API.sBlockMachines,1, getBaseMetaTileEntity().getMetaTileID());
+		return new ItemStack(GregTechAPI.sBlockMachines,1, getBaseMetaTileEntity().getMetaTileID());
 	}
 
 	@Override
@@ -238,7 +238,7 @@ public class ProviderChainer extends GT_MetaTileEntity_Hatch
 		return new ITexture[] { aBaseTexture, TextureFactory.of(MyMod.iohub, BlockIOHub.magicNO_provider_in_overlay) };
 	}
 
-	@Override
+	//@Override
 	public boolean useModularUI() {
 
 		return false;
@@ -246,7 +246,7 @@ public class ProviderChainer extends GT_MetaTileEntity_Hatch
 
 	@Override
 	public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
-		// GT_UIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
+		// GTUIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
 		return true;
 	}
 

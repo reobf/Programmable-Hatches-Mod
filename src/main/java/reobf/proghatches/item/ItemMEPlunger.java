@@ -36,10 +36,9 @@ import gregtech.api.enums.SoundResource;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntityItemPipe;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.items.GT_MetaBase_Item;
-import gregtech.api.items.GT_MetaGenerated_Tool;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_BasicTank;
-import gregtech.api.util.GT_Utility;
+
+import gregtech.api.metatileentity.implementations.MTEBasicTank;
+import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import net.minecraft.entity.Entity;
@@ -221,7 +220,7 @@ public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int 
 						is.amount=Optional.fromNullable(left).transform(s->s.getStackSize()).or(0l).intValue();
 					}
 					
-					GT_Utility.sendSoundToPlayers(aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE, 1.0F, -1.0F, aX, aY,
+					GTUtility.sendSoundToPlayers(aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE, 1.0F, -1.0F, aX, aY,
 							aZ);
 				}
 				
@@ -270,7 +269,7 @@ public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int 
 											new PlayerSource(aPlayer, (IActionHost) getWirelessGridHost(aStack)));
 						
 
-						GT_Utility.sendSoundToPlayers(aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE, 1.0F, -1.0F,
+						GTUtility.sendSoundToPlayers(aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE, 1.0F, -1.0F,
 								aX, aY, aZ);
 						return true;
 					}
@@ -280,8 +279,8 @@ public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int 
 		if (aTileEntity instanceof IGregTechTileEntity) {
 			IGregTechTileEntity tTileEntity = (IGregTechTileEntity) aTileEntity;
 			IMetaTileEntity mTileEntity = tTileEntity.getMetaTileEntity();
-			if (mTileEntity instanceof GT_MetaTileEntity_BasicTank) {
-				GT_MetaTileEntity_BasicTank machine = (GT_MetaTileEntity_BasicTank) mTileEntity;
+			if (mTileEntity instanceof MTEBasicTank) {
+				MTEBasicTank machine = (MTEBasicTank) mTileEntity;
 				if (machine.mFluid != null && machine.mFluid.amount > 0){}else return false;
 					// machine.mFluid.amount = machine.mFluid.amount -
 					// Math.min(machine.mFluid.amount, 1000);
@@ -300,7 +299,7 @@ public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int 
 						machine.mFluid.amount =0;
 					}
 				
-				GT_Utility.sendSoundToPlayers(aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE, 1.0F, -1.0F, aX, aY,
+				GTUtility.sendSoundToPlayers(aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE, 1.0F, -1.0F, aX, aY,
 						aZ);
 				return true;
 			}
@@ -318,7 +317,7 @@ public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int 
 			IGregTechTileEntity gtTE = (IGregTechTileEntity) aTileEntity;
 			IMetaTileEntity tMetaTileEntity = gtTE.getMetaTileEntity();
 			if ((tMetaTileEntity instanceof IMetaTileEntityItemPipe)) {
-				for (IMetaTileEntityItemPipe tTileEntity : GT_Utility
+				for (IMetaTileEntityItemPipe tTileEntity : GTUtility
 						.sortMapByValuesAcending(IMetaTileEntityItemPipe.Util
 								.scanPipes((IMetaTileEntityItemPipe) tMetaTileEntity, new HashMap<>(), 0L, false, true))
 						.keySet()) {
@@ -342,7 +341,7 @@ public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int 
 											new PlayerSource(aPlayer, (IActionHost) getWirelessGridHost(aStack)));
 									// discard ret value
 
-									GT_Utility.sendSoundToPlayers(aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE,
+									GTUtility.sendSoundToPlayers(aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE,
 											1.0F, -1.0F, aX, aY, aZ);
 								}
 

@@ -22,9 +22,9 @@ import appeng.tile.misc.TileInterface;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.GregTech_API;
-import gregtech.api.util.GT_ModHandler;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.GregTechAPI;
+import gregtech.api.util.GTModHandler;
+import gregtech.api.util.GTUtility;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderBlocks;
@@ -109,8 +109,8 @@ public class BlockEUInterface
 			final int facing, final float hitX, final float hitY, final float hitZ) {
 		if (
 				player.getHeldItem()!=null&&
-			 (GT_Utility.isStackInList(player.getHeldItem(), GregTech_API.sScrewdriverList)) 
-		       && (GT_ModHandler.damageOrDechargeItem(player.getHeldItem(), 1, 200, player)) 			
+			 (GTUtility.isStackInList(player.getHeldItem(), GregTechAPI.sScrewdriverList)) 
+		       && (GTModHandler.damageOrDechargeItem(player.getHeldItem(), 1, 200, player)) 			
 			)	
 		{
 

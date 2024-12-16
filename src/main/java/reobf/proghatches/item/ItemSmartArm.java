@@ -13,7 +13,7 @@ import net.minecraft.world.World;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.enums.GT_Values;
+import gregtech.api.enums.GTValues;
 import reobf.proghatches.gt.cover.SmartArmCover;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
@@ -71,7 +71,7 @@ public class ItemSmartArm extends Item {
 	public String getItemStackDisplayName(ItemStack p_77653_1_) {
 
 		return LangManager.translateToLocal("item.proghatch.smartarm.name") + " ("
-				+ GT_Values.VN[p_77653_1_.getItemDamage()] + ")";
+				+ GTValues.VN[p_77653_1_.getItemDamage()] + ")";
 
 	}
 

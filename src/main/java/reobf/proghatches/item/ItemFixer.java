@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.spongepowered.libraries.com.google.common.base.Optional;
 
-import com.github.technus.tectech.mechanics.pipe.IConnectsToEnergyTunnel;
+import tectech.mechanics.pipe.IConnectsToEnergyTunnel;
 import com.glodblock.github.common.item.ItemFluidEncodedPattern;
 
 import appeng.api.implementations.ICraftingPatternItem;

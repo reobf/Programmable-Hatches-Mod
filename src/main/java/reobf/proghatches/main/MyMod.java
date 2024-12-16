@@ -128,21 +128,21 @@ import crazypants.enderio.conduit.geom.Offsets;
 import crazypants.enderio.conduit.geom.Offsets.Axis;
 import crazypants.enderio.conduit.geom.Offsets.OffsetKey;
 import crazypants.enderio.conduit.item.IItemConduit;
-import gregtech.api.GregTech_API;
-import gregtech.api.enums.GT_Values;
+import gregtech.api.GregTechAPI;
+import gregtech.api.enums.GTValues;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.BaseMetaPipeEntity;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
-import gregtech.api.net.GT_Packet_SendCoverData;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
+import gregtech.api.net.GTPacketSendCoverData;
 import gregtech.api.util.shutdown.ShutDownReason;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.api.util.shutdown.SimpleShutDownReason;
-import gregtech.common.blocks.GT_Block_Machines;
+import gregtech.common.blocks.BlockMachines;
 import gregtech.common.covers.CoverInfo;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
-import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_HeatExchanger;
+import gregtech.common.tileentities.machines.MTEHatchInputBusME;
+
 import gregtech.crossmod.waila.GregtechWailaDataProvider;
 import li.cil.oc.api.Driver;
 import reobf.proghatches.Tags;
@@ -320,7 +320,7 @@ public class MyMod {
 		OCApi.put(iohub, TileIOHub.OCApi.class);
 		OCApi.put(oc_api, ItemAPICard.APIEnv.class);
 		OCApi.put(oc_redstone, ItemGTRedstoneCard.RedstoneEnv.class);
-		OCApi.put(new ItemStack( GregTech_API.sBlockMachines,
+		OCApi.put(new ItemStack( GregTechAPI.sBlockMachines,
 		         1,
 		         Config.metaTileEntityOffset+Registration.DualInputHatchOCOffset), DualInputHachOC.class);
 		OCApi.forEach((k, v) -> Driver.add(new li.cil.oc.api.driver.EnvironmentProvider() {
@@ -480,8 +480,8 @@ public class MyMod {
 
 			for (ForgeDirection side : ForgeDirection.VALID_DIRECTIONS) {
 				if (tileEntity.getCoverBehaviorAtSideNew(side) instanceof AECover)
-					GT_Values.NW.sendToPlayer(
-							new GT_Packet_SendCoverData(side, tileEntity.getCoverIDAtSide(side),
+					GTValues.NW.sendToPlayer(
+							new GTPacketSendCoverData(side, tileEntity.getCoverIDAtSide(side),
 									tileEntity.getComplexCoverDataAtSide(side), tileEntity),
 							(EntityPlayerMP) event.entityPlayer);
 
@@ -582,7 +582,7 @@ public class MyMod {
 	public void breakBlock(BlockEvent.BreakEvent b) {
 		// System.out.println(b.block);
 
-		if (b.block instanceof GT_Block_Machines) {
+		if (b.block instanceof BlockMachines) {
 			TileEntity te = b.world.getTileEntity(b.x, b.y, b.z);
 			if (te instanceof ICoverable) {
 				ICoverable c = (ICoverable) te;

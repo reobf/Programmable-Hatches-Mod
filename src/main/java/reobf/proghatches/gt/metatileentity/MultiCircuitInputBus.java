@@ -22,15 +22,15 @@ import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 
-import gregtech.api.GregTech_API;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.GregTechAPI;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
-import gregtech.api.util.GT_TooltipDataCache;
-import gregtech.api.util.GT_Utility;
-import gregtech.api.util.GT_TooltipDataCache.TooltipData;
+import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
+import gregtech.api.util.GTTooltipDataCache;
+import gregtech.api.util.GTUtility;
+import gregtech.api.util.GTTooltipDataCache.TooltipData;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.gt.metatileentity.util.IMultiCircuitSupport;
@@ -38,7 +38,7 @@ import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class MultiCircuitInputBus extends GT_MetaTileEntity_Hatch_InputBus implements IMultiCircuitSupport{
+public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCircuitSupport{
 @Override
 	public ItemStackHandler getInventoryHandler() {
 		// TODO Auto-generated method stub
@@ -47,10 +47,10 @@ public class MultiCircuitInputBus extends GT_MetaTileEntity_Hatch_InputBus imple
 
 int uiButtonCount;
 private Widget createToggleButton(Supplier<Boolean> getter, Consumer<Boolean> setter, UITexture picture,
-        Supplier<GT_TooltipDataCache.TooltipData> tooltipDataSupplier) {
+        Supplier<GTTooltipDataCache.TooltipData> tooltipDataSupplier) {
         return new CycleButtonWidget().setToggle(getter, setter)
             .setStaticTexture(picture)
-            .setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE)
+            .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
             .setTooltipShowUpDelay(TOOLTIP_DELAY)
             .setPos(7 + (uiButtonCount++ * BUTTON_SIZE), 62)
             .setSize(BUTTON_SIZE, BUTTON_SIZE)
@@ -61,7 +61,7 @@ private void addSortStacksButton(ModularWindow.Builder builder) {
         createToggleButton(
             () -> !disableSort,
             val -> disableSort = !val,
-            GT_UITextures.OVERLAY_BUTTON_SORTING_MODE,
+            GTUITextures.OVERLAY_BUTTON_SORTING_MODE,
             () -> mTooltipCache.getData(SORTING_MODE_TOOLTIP)));
 }
 
@@ -69,7 +69,7 @@ private void addOneStackLimitButton(ModularWindow.Builder builder) {
     builder.widget(createToggleButton(() -> !disableLimited, val -> {
         disableLimited = !val;
         updateSlots();
-    }, GT_UITextures.OVERLAY_BUTTON_ONE_STACK_LIMIT, () -> mTooltipCache.getData(ONE_STACK_LIMIT_TOOLTIP)));
+    }, GTUITextures.OVERLAY_BUTTON_ONE_STACK_LIMIT, () -> mTooltipCache.getData(ONE_STACK_LIMIT_TOOLTIP)));
 }
 private static final String SORTING_MODE_TOOLTIP = "GT5U.machines.sorting_mode.tooltip";
 private static final String ONE_STACK_LIMIT_TOOLTIP = "GT5U.machines.one_stack_limit.tooltip";
@@ -133,7 +133,7 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 
 		);
 		
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, id));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, id));
 	
 	}
 	  public MultiCircuitInputBus(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures) {
@@ -183,23 +183,23 @@ public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 
 protected void fillStacksIntoFirstSlots() {
     final int L = mInventory.length - 4;
-    HashMap<GT_Utility.ItemId, Integer> slots = new HashMap<>(L);
-    HashMap<GT_Utility.ItemId, ItemStack> stacks = new HashMap<>(L);
-    List<GT_Utility.ItemId> order = new ArrayList<>(L);
+    HashMap<GTUtility.ItemId, Integer> slots = new HashMap<>(L);
+    HashMap<GTUtility.ItemId, ItemStack> stacks = new HashMap<>(L);
+    List<GTUtility.ItemId> order = new ArrayList<>(L);
     List<Integer> validSlots = new ArrayList<>(L);
     for (int i = 0; i < L; i++) {
         if (!isValidSlot(i)) continue;
         validSlots.add(i);
         ItemStack s = mInventory[i];
         if (s == null) continue;
-        GT_Utility.ItemId sID = GT_Utility.ItemId.createNoCopy(s);
+        GTUtility.ItemId sID = GTUtility.ItemId.createNoCopy(s);
         slots.merge(sID, s.stackSize, Integer::sum);
         if (!stacks.containsKey(sID)) stacks.put(sID, s);
         order.add(sID);
         mInventory[i] = null;
     }
     int slotindex = 0;
-    for (GT_Utility.ItemId sID : order) {
+    for (GTUtility.ItemId sID : order) {
         int toSet = slots.get(sID);
         if (toSet == 0) continue;
         int slot = validSlots.get(slotindex);

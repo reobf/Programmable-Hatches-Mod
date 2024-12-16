@@ -89,9 +89,9 @@ import appeng.util.item.AEItemStack;
 import appeng.util.prioitylist.PrecisePriorityList;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.gui.modularui.GT_UITextures;
-import gregtech.api.util.GT_Util;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.gui.modularui.GTUITextures;
+import gregtech.api.util.GTUtil;
+import gregtech.api.util.GTUtility;
 import mrtjp.projectred.core.ItemPart;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.entity.player.EntityPlayer;
@@ -101,11 +101,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.eucrafting.EUUtil;
 import reobf.proghatches.eucrafting.IGuiProvidingPart;
 import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
+import reobf.proghatches.util.ProghatchesUtil;
 
 public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidingPart,IGridTickable,IPowerChannelState, ICraftingRequester{
 
@@ -581,7 +583,7 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 	                    .setTextColor(Color.WHITE.normal)
 	                    .setSize(60, 18)
 	                    .setPos(60+18, 3)
-	                    .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD)
+	                    .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD)
 	                    .addTooltips(Arrays.asList(
 	                    		StatCollector.translateToLocal("proghatches.amountmaintainer.amount.0"),
 	                    		StatCollector.translateToLocal("proghatches.amountmaintainer.amount.1"),
@@ -594,15 +596,15 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 			builder.widget(new CycleButtonWidget().setGetter(()->mode)
 					.setSetter(s->mode=s).setLength(2)
 	           .setTextureGetter(s->{
-	        	   if(s==0)return GT_UITextures.OVERLAY_BUTTON_VOID_EXCESS_ITEM;
-	        	   if(s==1)return GT_UITextures.OVERLAY_BUTTON_VOID_EXCESS_FLUID;
-	        			   return GT_UITextures.OVERLAY_BUTTON_VOID_EXCESS_ALL;
+	        	   if(s==0)return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ITEM;
+	        	   if(s==1)return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_FLUID;
+	        			   return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ALL;
 	           })
 	           .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.0"))
 	           .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.1"))
 					.setBackground(() -> {
 	               {
-	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+	                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
 	                       };
 	                }
 	            })
@@ -615,7 +617,7 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 					.setSetter(s->redstone=s).setLength(4)
 	           .setTextureGetter(s->{
 	        	
-	        			   return GT_UITextures.OVERLAY_BUTTON_REDSTONE_ON;
+	        			   return GTUITextures.OVERLAY_BUTTON_REDSTONE_ON;
 	           })
 	           .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.mode.0"))
 	           .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.mode.1"))
@@ -624,7 +626,7 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 	           
 					.setBackground(() -> {
 	               {
-	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+	                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
 	                       };
 	                }
 	            })
@@ -633,11 +635,11 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 	            .setPos(3+4, 3+18));
 			
 			
-			builder.widget(new DrawableWidget().setDrawable(GT_UITextures.OVERLAY_BUTTON_REDSTONE_ON).setPos(3+4+20, 3+18).setSize(18,18).setEnabled(s->{return on;})
+			builder.widget(new DrawableWidget().setDrawable(GTUITextures.OVERLAY_BUTTON_REDSTONE_ON).setPos(3+4+20, 3+18).setSize(18,18).setEnabled(s->{return on;})
 					.addTooltip(StatCollector.translateToLocalFormatted("proghatches.amountmaintainer.redstone.state.on",amount))
 					)
 			;
-			builder.widget(new DrawableWidget().setDrawable(GT_UITextures.OVERLAY_BUTTON_REDSTONE_OFF).setPos(3+4+20, 3+18).setSize(18,18).setEnabled(s->!on)
+			builder.widget(new DrawableWidget().setDrawable(GTUITextures.OVERLAY_BUTTON_REDSTONE_OFF).setPos(3+4+20, 3+18).setSize(18,18).setEnabled(s->!on)
 					.addTooltip(StatCollector.translateToLocalFormatted("proghatches.amountmaintainer.redstone.state.off"))
 					)
 			;
@@ -668,10 +670,10 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 	           .setTextureGetter(s->{
 	        	   if(s==0)return new ItemDrawable(new ItemStack(Items.redstone));
 	        	   if(s==1)return new ItemDrawable(new ItemStack(Items.gunpowder));
-	        	   if(s==2)return GT_UITextures.OVERLAY_BUTTON_REDSTONE_ON;
-	        	   if(s==3)return GT_UITextures.OVERLAY_BUTTON_REDSTONE_OFF;
-	        	   if(s==4)return GT_UITextures.OVERLAY_BUTTON_ARROW_GREEN_UP;
-	        	   return GT_UITextures.OVERLAY_BUTTON_ARROW_GREEN_DOWN;
+	        	   if(s==2)return GTUITextures.OVERLAY_BUTTON_REDSTONE_ON;
+	        	   if(s==3)return GTUITextures.OVERLAY_BUTTON_REDSTONE_OFF;
+	        	   if(s==4)return GTUITextures.OVERLAY_BUTTON_ARROW_GREEN_UP;
+	        	   return GTUITextures.OVERLAY_BUTTON_ARROW_GREEN_DOWN;
 	           })
 	           .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.0"))
 	           .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.1"))
@@ -684,7 +686,7 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 	           
 					.setBackground(() -> {
 	               {
-	                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
+	                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
 	                       };
 	                }
 	            })
@@ -761,6 +763,18 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 			amount=data.getLong("amount");
 			lastredstone=data.getBoolean("lastredstone" );
 			mark[0]=ItemStack.loadItemStackFromNBT(data.getCompoundTag("mark"));
+			
+			exit:{
+			FluidStack fs = GTUtility.getFluidFromDisplayStack(mark[0]);
+			if(fs==null){break exit;}
+			String name=   data.getString("fluid_ID_string");
+			if(name.isEmpty()){break exit;}
+			Fluid f=FluidRegistry.getFluid(name);
+			if(f==null){break exit;}
+			if(f==fs.getFluid()){break exit;}
+			fs=new FluidStack(f, fs.amount);
+			}
+			
 			upgrade[0]=ItemStack.loadItemStackFromNBT(data.getCompoundTag("upgrade"));
 			upgrade[1]=ItemStack.loadItemStackFromNBT(data.getCompoundTag("upgrade1"));
 			super.readFromNBT(data);
@@ -780,7 +794,14 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 			data.setInteger("redstone", redstone);
 			data.setLong("amount", amount);
 			data.setBoolean("lastredstone", lastredstone);
-			if(mark[0]!=null)data.setTag("mark", mark[0].writeToNBT(new NBTTagCompound()));
+			if(mark[0]!=null){
+				
+				data.setTag("mark", mark[0].writeToNBT(new NBTTagCompound()));
+				FluidStack fs = GTUtility.getFluidFromDisplayStack(mark[0]);
+			   if(fs!=null){String name=FluidRegistry.getFluidName(fs);
+			   data.setString("fluid_ID_string", name);}
+			   
+			}
 			if(upgrade[0]!=null)data.setTag("upgrade", upgrade[0].writeToNBT(new NBTTagCompound()));
 			if(upgrade[1]!=null)data.setTag("upgrade1", upgrade[1].writeToNBT(new NBTTagCompound()));
 			super.writeToNBT(data);
@@ -827,10 +848,12 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 		if(c==StorageChannel.ITEMS)return maybeItem();
 		return maybeFluid();
 	}
+
+	
 	public AEItemStack maybeItem(){
 		if(mark[0]==null)return null;
 		
-		FluidStack fs = GT_Utility.getFluidFromDisplayStack(mark[0]);
+		FluidStack fs = GTUtility.getFluidFromDisplayStack(mark[0]);
 		if(fs==null){
 			AEItemStack is=AEItemStack.create(mark[0]);
 			is.setStackSize(requestedAmount());
@@ -852,7 +875,7 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 	
 	public AEFluidStack maybeFluid(){
 		if(mark[0]==null)return null;
-		FluidStack fs = GT_Utility.getFluidFromDisplayStack(mark[0]);
+		FluidStack fs = GTUtility.getFluidFromDisplayStack(mark[0]);
 		if(fs!=null){
 			AEFluidStack is=AEFluidStack.create(fs);
 			is.setStackSize(requestedAmount());
@@ -862,9 +885,9 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 	}
 	private ItemStack tryConvertToFluid(ItemStack is){
 		
-		FluidStack fs = GT_Utility.getFluidForFilledItem(is, true);
+		FluidStack fs = GTUtility.getFluidForFilledItem(is, true);
 		if(fs!=null){
-		return GT_Utility.getFluidDisplayStack(fs, false);
+		return GTUtility.getFluidDisplayStack(fs, false);
 		}
 		
 		return null;

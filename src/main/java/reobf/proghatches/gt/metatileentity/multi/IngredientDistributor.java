@@ -3,7 +3,7 @@ package reobf.proghatches.gt.metatileentity.multi;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static gregtech.api.enums.Textures.BlockIcons.*;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
-import static gregtech.api.util.GT_StructureUtility.buildHatchAdder;
+import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -51,33 +51,33 @@ import appeng.api.storage.data.IItemList;
 import appeng.me.GridAccessException;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
-import gregtech.api.GregTech_API;
-import gregtech.api.enums.GT_HatchElement;
+import gregtech.api.GregTechAPI;
+import gregtech.api.enums.HatchElement;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.Textures.BlockIcons;
 import gregtech.api.enums.VoidingMode;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.IHatchElement;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.fluid.IFluidStore;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_EnhancedMultiBlockBase;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Input;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Output;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_OutputBus;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEEnhancedMultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEHatchInput;
+import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
+import gregtech.api.metatileentity.implementations.MTEHatchOutput;
+import gregtech.api.metatileentity.implementations.MTEHatchOutputBus;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
-import gregtech.api.util.GT_StructureUtility;
-import gregtech.api.util.GT_Utility;
-import gregtech.api.util.IGT_HatchAdder;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_OutputBus_ME;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_Output_ME;
+import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.api.util.GTStructureUtility;
+import gregtech.api.util.GTUtility;
+import gregtech.api.util.IGTHatchAdder;
+import gregtech.common.tileentities.machines.MTEHatchOutputBusME;
+import gregtech.common.tileentities.machines.MTEHatchOutputME;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
@@ -101,14 +101,14 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
 
-public class IngredientDistributor extends GT_MetaTileEntity_EnhancedMultiBlockBase<IngredientDistributor>
+public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientDistributor>
 implements ISurvivalConstructable {
 	public IngredientDistributor(String aName) {
 		super(aName);
 	
 	}
 	 public static <T> IStructureElement<T> ofFrameAdder(Materials aFrameMaterial,Consumer<T> onadded) {
-		IStructureElement<Object> frame = GT_StructureUtility.ofFrame(aFrameMaterial); 
+		IStructureElement<Object> frame = GTStructureUtility.ofFrame(aFrameMaterial); 
 		 
 		 return new IStructureElement<T>() {
 
@@ -184,7 +184,7 @@ implements ISurvivalConstructable {
 	boolean ok= super.addOutputBusToMachineList(aTileEntity, aBaseCasingIndex);
 	if(ok&&!hasBusThisLayer){hasBusThisLayer=true;}else{return false;}
 	if(ok&&
-	!(aTileEntity.getMetaTileEntity() instanceof GT_MetaTileEntity_Hatch_OutputBus_ME)){
+	!(aTileEntity.getMetaTileEntity() instanceof MTEHatchOutputBusME)){
 		allMEHatch=false;
 	}
 	return ok;	
@@ -194,7 +194,7 @@ implements ISurvivalConstructable {
 	boolean ok= super.addOutputHatchToMachineList(aTileEntity, aBaseCasingIndex);
 	if(ok&&!hasHatchThisLayer){hasHatchThisLayer=true;}else{return false;}
 	if(ok&&
-	!(aTileEntity.getMetaTileEntity() instanceof GT_MetaTileEntity_Hatch_Output_ME)){
+	!(aTileEntity.getMetaTileEntity() instanceof MTEHatchOutputME)){
 		allMEHatch=false;
 	}
 	
@@ -219,14 +219,14 @@ implements ISurvivalConstructable {
 				
 				
 				
-						ofBlock(GregTech_API.sBlockCasings4, 12)
+						ofBlock(GregTechAPI.sBlockCasings4, 12)
 						
 				
 				
 				
 				)
 		.addElement('f',StructureUtility.ofChain(
-				GT_StructureUtility.ofFrame(Materials.Terbium),
+				GTStructureUtility.ofFrame(Materials.Terbium),
 				ofFrameAdder(Materials.Yttrium,s->((IngredientDistributor) s).onCheapFrameFound())
 			
 				
@@ -235,31 +235,31 @@ implements ISurvivalConstructable {
 				))
 		.addElement('h',
 				buildHatchAdder(IngredientDistributor.class)
-				.atLeast(GT_HatchElement.OutputBus.withAdder(IngredientDistributor::addBus)
+				.atLeast(HatchElement.OutputBus.withAdder(IngredientDistributor::addBus)
 						.withCount(s->s.hasBusThisLayer?1:0)
-						,GT_HatchElement.OutputHatch.withAdder(IngredientDistributor::addHatch)
+						,HatchElement.OutputHatch.withAdder(IngredientDistributor::addHatch)
 						.withCount(s->s.hasHatchThisLayer?1:0)
 						)
 				//.shouldSkip((a,b)->a.hasBusThisLayer)
 				.casingIndex(CASING_INDEX).dot(1)
-				.buildAndChain(GregTech_API.sBlockCasings4, 0)
+				.buildAndChain(GregTechAPI.sBlockCasings4, 0)
 				)
 		.addElement('※',
 				buildHatchAdder(IngredientDistributor.class)
-				.atLeast(GT_HatchElement.OutputBus.withAdder(IngredientDistributor::addBus)
+				.atLeast(HatchElement.OutputBus.withAdder(IngredientDistributor::addBus)
 						.withCount(s->s.hasBusThisLayer?1:0)
-						,GT_HatchElement.OutputHatch.withAdder(IngredientDistributor::addHatch)
+						,HatchElement.OutputHatch.withAdder(IngredientDistributor::addHatch)
 						.withCount(s->s.hasHatchThisLayer?1:0)
 						).allowOnly(ForgeDirection.DOWN)
 				//.shouldSkip((a,b)->a.hasBusThisLayer)
 				.casingIndex(CASING_INDEX).dot(1)
-				.buildAndChain(GregTech_API.sBlockCasings4, 0)
+				.buildAndChain(GregTechAPI.sBlockCasings4, 0)
 				)
 		
 		
 		
 		.addElement('m', buildHatchAdder(IngredientDistributor.class)
-				.atLeast(GT_HatchElement.Maintenance,GT_HatchElement.Energy)
+				.atLeast(HatchElement.Maintenance,HatchElement.Energy)
 				.casingIndex(CASING_INDEX).dot(3)
 				.buildAndChain(
 						buildHatchAdder(IngredientDistributor.class)
@@ -273,7 +273,7 @@ implements ISurvivalConstructable {
 							}
 
 							@Override
-							public IGT_HatchAdder<? super IngredientDistributor> adder() {
+							public IGTHatchAdder<? super IngredientDistributor> adder() {
 							
 								return (s,w,u)->{
 									if(s==null)return false;
@@ -309,7 +309,7 @@ implements ISurvivalConstructable {
 						
 						.casingIndex(CASING_INDEX).dot(3).build(),
 						
-						ofBlock(GregTech_API.sBlockCasings4, 12)
+						ofBlock(GregTechAPI.sBlockCasings4, 12)
 						)
 				)
 		
@@ -326,7 +326,7 @@ implements ISurvivalConstructable {
 			}
 
 			@Override
-			public IGT_HatchAdder<? super IngredientDistributor> adder() {
+			public IGTHatchAdder<? super IngredientDistributor> adder() {
 				return IngredientDistributor::addDual;
 			}
 
@@ -342,8 +342,8 @@ implements ISurvivalConstructable {
 			}}
 
 			
-						,GT_HatchElement.InputBus
-						,GT_HatchElement.InputHatch
+						,HatchElement.InputBus
+						,HatchElement.InputHatch
 		
 				).casingIndex(CASING_INDEX).dot(2).build()
 						
@@ -353,7 +353,7 @@ implements ISurvivalConstructable {
 	
 	public IngredientDistributor(int aID, String aName, String aNameRegional) {
 		super(aID, aName, aNameRegional);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 
 	}
 
@@ -410,8 +410,8 @@ implements ISurvivalConstructable {
 	}
 
 	@Override
-	protected GT_Multiblock_Tooltip_Builder createTooltip() {
-		final GT_Multiblock_Tooltip_Builder tt = new GT_Multiblock_Tooltip_Builder();
+	protected MultiblockTooltipBuilder createTooltip() {
+		final MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
 		Config.get(tt, "M_ID");
 		return tt;
 	}
@@ -607,7 +607,7 @@ private Optional<IRecipeProcessingAwareHatch> getInput(){
 					((IRecipeProcessingAwareDualHatch)s).startRecipeProcessing();
 						
 					}
-					public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+					public CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) {
 						return ((IRecipeProcessingAwareDualHatch)s).endRecipeProcessing(controller);
 					}})
 				;
@@ -632,7 +632,7 @@ public boolean isInputEmpty(){
 	return	!mDualInputHatches.get(0).getFirstNonEmptyInventory().isPresent();
 	}
 	if(mInputBusses.size()==1){
-	GT_MetaTileEntity_Hatch_InputBus bus = mInputBusses.get(0);
+	MTEHatchInputBus bus = mInputBusses.get(0);
 		for(int i=0;i<bus.getSizeInventory();i++){
 			if(bus.getStackInSlot(i)!=null||bus.getStackInSlot(i).stackSize>0){return false;}
 		}
@@ -750,8 +750,8 @@ private boolean moveToOutpusME(IDualInputInventory opt) {
 	if(f.length>mOutputHatches.size())return false;
 
 	for(int index=0;index<mOutputBusses.size();++index){
-		if(!(mOutputBusses.get(index) instanceof GT_MetaTileEntity_Hatch_OutputBus_ME)){return false;}
-		TransferCheckResult result=checkMEBus(((GT_MetaTileEntity_Hatch_OutputBus_ME)mOutputBusses.get(index)),
+		if(!(mOutputBusses.get(index) instanceof MTEHatchOutputBusME)){return false;}
+		TransferCheckResult result=checkMEBus(((MTEHatchOutputBusME)mOutputBusses.get(index)),
 				index<i.length?i[index]:null,index);
 		if(!result.isSuccess){
 			lastfail=result;
@@ -759,8 +759,8 @@ private boolean moveToOutpusME(IDualInputInventory opt) {
 	}
 	
 	for(int index=0;index<mOutputHatches.size();++index){
-		if(!(mOutputHatches.get(index) instanceof GT_MetaTileEntity_Hatch_Output_ME)){return false;}
-		TransferCheckResult result=checkMEHatch(((GT_MetaTileEntity_Hatch_Output_ME)mOutputHatches.get(index)),
+		if(!(mOutputHatches.get(index) instanceof MTEHatchOutputME)){return false;}
+		TransferCheckResult result=checkMEHatch(((MTEHatchOutputME)mOutputHatches.get(index)),
 				index<f.length?f[index]:null,index
 						);
 		if(!result.isSuccess){
@@ -772,7 +772,7 @@ private boolean moveToOutpusME(IDualInputInventory opt) {
 	
 	for(int index=0;index<i.length;++index){
 				try {
-					IAEItemStack notadded = ((GT_MetaTileEntity_Hatch_OutputBus_ME)mOutputBusses.get(index))
+					IAEItemStack notadded = ((MTEHatchOutputBusME)mOutputBusses.get(index))
 					.getProxy().getStorage().getItemInventory().injectItems(AEApi.instance()
 					.storage()
 					.createItemStack(i[index]), Actionable.MODULATE, getActionSourceFor(mOutputBusses.get(index)));
@@ -787,7 +787,7 @@ private boolean moveToOutpusME(IDualInputInventory opt) {
 	
 	for(int index=0;index<f.length;++index){
 		try {
-			IAEFluidStack notadded = ((GT_MetaTileEntity_Hatch_Output_ME)mOutputHatches.get(index))
+			IAEFluidStack notadded = ((MTEHatchOutputME)mOutputHatches.get(index))
 			.getProxy().getStorage().getFluidInventory().injectItems(AEApi.instance()
 			.storage()
 			.createFluidStack(f[index]), Actionable.MODULATE, getActionSourceFor(mOutputHatches.get(index)));
@@ -948,8 +948,8 @@ private IAEItemStack cp(IAEItemStack c){
 }
 private boolean isAllMEOutputEmpty(){
 	
-	for(GT_MetaTileEntity_Hatch_OutputBus o:mOutputBusses){
-		if(o instanceof GT_MetaTileEntity_Hatch_OutputBus_ME){
+	for(MTEHatchOutputBus o:mOutputBusses){
+		if(o instanceof MTEHatchOutputBusME){
 		
 			IItemList<IAEItemStack> itemCache;
 			try {
@@ -963,8 +963,8 @@ private boolean isAllMEOutputEmpty(){
 		}else return false;
 	}
 
-	for(GT_MetaTileEntity_Hatch_Output o:mOutputHatches){
-		if(o instanceof GT_MetaTileEntity_Hatch_Output_ME){
+	for(MTEHatchOutput o:mOutputHatches){
+		if(o instanceof MTEHatchOutputME){
 		
 			IItemList<IAEFluidStack> itemCache;
 			try {
@@ -983,20 +983,20 @@ static Field f,f2;
 static{
 if(f==null)
 	try {
-		f=GT_MetaTileEntity_Hatch_OutputBus_ME.class.getDeclaredField("itemCache");
+		f=MTEHatchOutputBusME.class.getDeclaredField("itemCache");
      f.setAccessible(true);
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
 if(f2==null)
 	try {
-		f2=GT_MetaTileEntity_Hatch_Output_ME.class.getDeclaredField("fluidCache");
+		f2=MTEHatchOutputME.class.getDeclaredField("fluidCache");
      f2.setAccessible(true);
 	} catch (Exception e) {
 		e.printStackTrace();
 	}}
 @SuppressWarnings({ "unchecked", "unused" })
-private TransferCheckResult checkMEBus(GT_MetaTileEntity_Hatch_OutputBus_ME bus,ItemStack check,int index){
+private TransferCheckResult checkMEBus(MTEHatchOutputBusME bus,ItemStack check,int index){
 	
 	try {
 		IItemList<IAEItemStack> itemCache =(IItemList<IAEItemStack>) f.get(bus);
@@ -1037,7 +1037,7 @@ private TransferCheckResult checkMEBus(GT_MetaTileEntity_Hatch_OutputBus_ME bus,
 	return TransferCheckResult.ofSuccess();
 }
 @SuppressWarnings({ "unchecked", "unused" })
-private TransferCheckResult checkMEHatch(GT_MetaTileEntity_Hatch_Output_ME bus,FluidStack check,int index){
+private TransferCheckResult checkMEHatch(MTEHatchOutputME bus,FluidStack check,int index){
 	
 	try {
 		IItemList<IAEFluidStack> itemCache =(IItemList<IAEFluidStack>) f2.get(bus);
@@ -1092,8 +1092,8 @@ static Method[] cache;
 static BaseActionSource getActionSourceFor(Object o){
 	if(cache==null)try {
 		cache=new Method[2];
-		cache[0]=GT_MetaTileEntity_Hatch_OutputBus_ME.class.getDeclaredMethod("getRequest");
-		cache[1]=GT_MetaTileEntity_Hatch_Output_ME.class.getDeclaredMethod("getRequest");
+		cache[0]=MTEHatchOutputBusME.class.getDeclaredMethod("getRequest");
+		cache[1]=MTEHatchOutputME.class.getDeclaredMethod("getRequest");
 		cache[0].setAccessible(true);
 		cache[1].setAccessible(true);
 	} catch (NoSuchMethodException e) {
@@ -1103,9 +1103,9 @@ static BaseActionSource getActionSourceFor(Object o){
 	if(cache.length==0)return fakeSource;
 	
 		try {
-			if(o instanceof GT_MetaTileEntity_Hatch_OutputBus_ME)
+			if(o instanceof MTEHatchOutputBusME)
 			return (BaseActionSource) cache[0].invoke(o);
-			if(o instanceof GT_MetaTileEntity_Hatch_Output_ME)
+			if(o instanceof MTEHatchOutputME)
 			return (BaseActionSource) cache[1].invoke(o);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1141,9 +1141,9 @@ private boolean moveToOutpus(IDualInputInventory opt,boolean checkSpace) {
 	
 	if(checkSpace){
 	for(int index=0;index<i.length;++index){
-		if(mOutputBusses.get(index) instanceof GT_MetaTileEntity_Hatch_OutputBus_ME){
+		if(mOutputBusses.get(index) instanceof MTEHatchOutputBusME){
 			if(i[index]!=null){
-				GT_MetaTileEntity_Hatch_OutputBus_ME bus=(GT_MetaTileEntity_Hatch_OutputBus_ME) mOutputBusses.get(index);
+				MTEHatchOutputBusME bus=(MTEHatchOutputBusME) mOutputBusses.get(index);
 				try {
 					IAEItemStack notadded=null;
 					notadded = (bus).getProxy().getStorage().getItemInventory().injectItems(
@@ -1166,7 +1166,7 @@ private boolean moveToOutpus(IDualInputInventory opt,boolean checkSpace) {
 				}
 			
 			continue;}
-		GT_MetaTileEntity_Hatch_OutputBus bus = mOutputBusses.get(index);
+		MTEHatchOutputBus bus = mOutputBusses.get(index);
 		int acc=0;
 		for(int x=0;x<bus.getSizeInventory();x++){
 			if(bus.isValidSlot(x))
@@ -1179,9 +1179,9 @@ private boolean moveToOutpus(IDualInputInventory opt,boolean checkSpace) {
 		
 	}
 	for(int index=0;index<f.length;++index){
-		if(mOutputHatches.get(index) instanceof GT_MetaTileEntity_Hatch_Output_ME){
+		if(mOutputHatches.get(index) instanceof MTEHatchOutputME){
 			if(f[index]!=null){
-				GT_MetaTileEntity_Hatch_Output_ME bus=(GT_MetaTileEntity_Hatch_Output_ME) mOutputHatches.get(index);
+				MTEHatchOutputME bus=(MTEHatchOutputME) mOutputHatches.get(index);
 				try {
 					IAEFluidStack notadded=null;
 					notadded = (bus).getProxy().getStorage().getFluidInventory().injectItems(
@@ -1202,7 +1202,7 @@ private boolean moveToOutpus(IDualInputInventory opt,boolean checkSpace) {
 				}
 				}
 			continue;}
-		GT_MetaTileEntity_Hatch_Output hatch = mOutputHatches.get(index);
+		MTEHatchOutput hatch = mOutputHatches.get(index);
 		int acc=0;
 		acc+=space(f[index],hatch);
 		if(acc<f[index].amount){
@@ -1215,11 +1215,11 @@ private boolean moveToOutpus(IDualInputInventory opt,boolean checkSpace) {
 	
 	
 	for(int index=0;index<i.length;++index){
-		if(mOutputBusses.get(index) instanceof GT_MetaTileEntity_Hatch_OutputBus_ME){
+		if(mOutputBusses.get(index) instanceof MTEHatchOutputBusME){
 			int before=i[index].stackSize;
 		
 			try {
-				IAEItemStack notadd = ((GT_MetaTileEntity_Hatch_OutputBus_ME)mOutputBusses.get(index)).getProxy().getStorage().getItemInventory()
+				IAEItemStack notadd = ((MTEHatchOutputBusME)mOutputBusses.get(index)).getProxy().getStorage().getItemInventory()
 				.injectItems(AEApi.instance()
 						.storage()
 						.createItemStack(i[index]), Actionable.MODULATE, getActionSourceFor(mOutputBusses.get(index)));
@@ -1232,24 +1232,24 @@ private boolean moveToOutpus(IDualInputInventory opt,boolean checkSpace) {
 				e.printStackTrace();
 			}
 			
-			//i[index].stackSize=((GT_MetaTileEntity_Hatch_OutputBus_ME)mOutputBusses.get(index)).store(i[index]);
+			//i[index].stackSize=((MTEHatchOutputBusME)mOutputBusses.get(index)).store(i[index]);
 	    	
 			if(i[index].stackSize!=before)anyDiff=true;	
 			
 			continue;
 		}
-		GT_MetaTileEntity_Hatch_OutputBus bus = mOutputBusses.get(index);
+		MTEHatchOutputBus bus = mOutputBusses.get(index);
 		int diff=storeAll(bus,i[index].copy());
 		if(diff>0)anyDiff=true;
 		i[index].stackSize-=diff;
 	}
 	
 	for(int index=0;index<f.length;++index){
-		if(mOutputHatches.get(index) instanceof GT_MetaTileEntity_Hatch_Output_ME){
+		if(mOutputHatches.get(index) instanceof MTEHatchOutputME){
 			int before=f[index].amount;
-			//f[index].amount-=((GT_MetaTileEntity_Hatch_Output_ME)mOutputHatches.get(index)).tryFillAE(f[index]);
+			//f[index].amount-=((MTEHatchOutputME)mOutputHatches.get(index)).tryFillAE(f[index]);
 			try {
-				IAEFluidStack notadd = ((GT_MetaTileEntity_Hatch_Output_ME)mOutputHatches.get(index)).getProxy().getStorage().getFluidInventory()
+				IAEFluidStack notadd = ((MTEHatchOutputME)mOutputHatches.get(index)).getProxy().getStorage().getFluidInventory()
 				.injectItems(AEApi.instance()
 						.storage()
 						.createFluidStack(f[index]), Actionable.MODULATE, getActionSourceFor(mOutputHatches.get(index)));
@@ -1268,7 +1268,7 @@ private boolean moveToOutpus(IDualInputInventory opt,boolean checkSpace) {
 			
 			continue;
 		}
-		GT_MetaTileEntity_Hatch_Output hatch = mOutputHatches.get(index);
+		MTEHatchOutput hatch = mOutputHatches.get(index);
 		int diff=hatch.fill(f[index], true);
 		if(diff>0)anyDiff=true;	
 		f[index].amount-=diff;
@@ -1280,12 +1280,12 @@ private boolean moveToOutpus(IDualInputInventory opt,boolean checkSpace) {
 	
 	return anyDiff;
 }
-private static int storeAll(GT_MetaTileEntity_Hatch_OutputBus bus,ItemStack aStack) {
+private static int storeAll(MTEHatchOutputBus bus,ItemStack aStack) {
 	bus.markDirty();
 	int consumed=0;
     for (int i = 0, mInventoryLength = bus.mInventory.length; i < mInventoryLength && aStack.stackSize > 0; i++) {
         ItemStack tSlot = bus.mInventory[i];
-        if (GT_Utility.isStackInvalid(tSlot)) {
+        if (GTUtility.isStackInvalid(tSlot)) {
             int tRealStackLimit = Math.min(bus.getInventoryStackLimit(), aStack.getMaxStackSize());
             if (aStack.stackSize <= tRealStackLimit) {
             	bus.mInventory[i] = aStack;
@@ -1415,13 +1415,13 @@ public void addUIWidgets(com.gtnewhorizons.modularui.api.screen.ModularWindow.Bu
 		UIBuildContext buildContext) {
 	builder.widget(new TransferCheckResultSyncer(()->this.lastfail, s->this.lastfail=s));
 	  builder.widget(
-	            new DrawableWidget().setDrawable(GT_UITextures.PICTURE_SCREEN_BLACK)
+	            new DrawableWidget().setDrawable(GTUITextures.PICTURE_SCREEN_BLACK)
 	                .setPos(4, 4)
 	                .setSize(190, 85));
 	        final SlotWidget inventorySlot = new SlotWidget(inventoryHandler, 1);
 	        builder.widget(
 	            inventorySlot.setPos(173, 167)
-	                .setBackground(GT_UITextures.SLOT_DARK_GRAY));
+	                .setBackground(GTUITextures.SLOT_DARK_GRAY));
 
 	        final DynamicPositionedColumn screenElements = new DynamicPositionedColumn();
 	        drawTexts(screenElements, inventorySlot);
@@ -1485,11 +1485,11 @@ ButtonWidget createBlockingModeButton(IWidgetBuilder<?> builder) {
                  : SoundResource.GUI_BUTTON_DOWN.resourceLocation)
          .setBackground(() -> {
              if (blocking) {
-                 return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
-                     GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_ON };
+                 return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
+                     GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_ON };
              } else {
-                 return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
-                     GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
+                 return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
+                     GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
              }
          })
          

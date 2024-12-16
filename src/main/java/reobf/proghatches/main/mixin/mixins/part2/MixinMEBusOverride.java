@@ -14,12 +14,12 @@ import appeng.api.networking.security.BaseActionSource;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_Input_ME;
+import gregtech.common.tileentities.machines.MTEHatchInputBusME;
+import gregtech.common.tileentities.machines.MTEHatchInputME;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 
-@Mixin(remap=false,value={GT_MetaTileEntity_Hatch_InputBus_ME.class,
-	GT_MetaTileEntity_Hatch_Input_ME.class,
+@Mixin(remap=false,value={MTEHatchInputBusME.class,
+	MTEHatchInputME.class,
 
 })
 public class MixinMEBusOverride {
@@ -28,8 +28,8 @@ public class MixinMEBusOverride {
 	static {
 		
 			try {
-				minAutoPullStackSize=	GT_MetaTileEntity_Hatch_InputBus_ME.class.getDeclaredField("minAutoPullStackSize");
-				minAutoPullAmount=	GT_MetaTileEntity_Hatch_Input_ME.class.getDeclaredField("minAutoPullAmount");
+				minAutoPullStackSize=	MTEHatchInputBusME.class.getDeclaredField("minAutoPullStackSize");
+				minAutoPullAmount=	MTEHatchInputME.class.getDeclaredField("minAutoPullAmount");
 			
 				minAutoPullAmount.setAccessible(true);
 				minAutoPullStackSize.setAccessible(true);
@@ -47,7 +47,7 @@ public class MixinMEBusOverride {
 		if(this instanceof IMEHatchOverrided){
 			try {
 				((IMEHatchOverrided)this).overridedBehoviour(
-					(	(Object)this instanceof GT_MetaTileEntity_Hatch_InputBus_ME?
+					(	(Object)this instanceof MTEHatchInputBusME?
 						minAutoPullStackSize:minAutoPullAmount)
 						
 						.getInt(this));

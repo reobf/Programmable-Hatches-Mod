@@ -85,17 +85,17 @@ import appeng.util.item.FluidList;
 import appeng.util.item.ItemList;
 import appeng.util.prioitylist.IPartitionList;
 import appeng.util.prioitylist.PrecisePriorityList;
-import gregtech.api.GregTech_API;
-import gregtech.api.gui.modularui.GT_UIInfos;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.GregTechAPI;
+import gregtech.api.gui.modularui.GTUIInfos;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.metatileentity.implementations.MTEHatch;
+import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
+import gregtech.api.util.GTUtility;
 import li.cil.oc.server.machine.Machine;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -128,7 +128,7 @@ import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.IIconTexture;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContainer, IGridProxyable
+public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxyable
 ,IPriorityHost,IStoageCellUpdate
 {
 
@@ -147,7 +147,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 				), new ITexture[0]);
 		
 		content.setCapacity(commonSizeCompute(aTier));
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 	}
 	
 	
@@ -231,7 +231,7 @@ public class SuperTankME extends GT_MetaTileEntity_Hatch implements ICellContain
 		return piority;
 	}
 	private ItemStack visualStack() {
-		return new ItemStack(GregTech_API.sBlockMachines,1, getBaseMetaTileEntity().getMetaTileID());
+		return new ItemStack(GregTechAPI.sBlockMachines,1, getBaseMetaTileEntity().getMetaTileID());
 	}
 	AENetworkProxy gridProxy;
 	private void updateValidGridProxySides() {
@@ -436,7 +436,7 @@ IMEMonitor handler0x= new MEMonitorHandler(handler
 				
 				(aStack.getItem() instanceof ItemFluidPacket)||
 				
-				GT_Utility.getFluidForFilledItem(aStack, true)!=null
+				GTUtility.getFluidForFilledItem(aStack, true)!=null
 				;
 				
 				
@@ -638,8 +638,8 @@ IMEMonitor handler0x= new MEMonitorHandler(handler
 			
 			if(
 			FluidContainerRegistry.isFilledContainer(mInventory[i])){
-				FluidStack f = GT_Utility.getFluidForFilledItem(mInventory[i], true);
-				ItemStack it = GT_Utility.getContainerForFilledItem(mInventory[i], true);
+				FluidStack f = GTUtility.getFluidForFilledItem(mInventory[i], true);
+				ItemStack it = GTUtility.getContainerForFilledItem(mInventory[i], true);
 				f.amount*=mInventory[i].stackSize;
 				if(f!=null&&content.fill(f, false)==f.amount){
 				content.fill(f, true);
@@ -683,10 +683,10 @@ IMEMonitor handler0x= new MEMonitorHandler(handler
 		   if(ProghatchesUtil.handleUse(aPlayer,  (MetaTileEntity) aBaseMetaTileEntity.getMetaTileEntity())){
 		    	 return true;
 		     }
-		   GT_UIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
+		   GTUIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
 	        return true;
 	    }
-@Override
+//@Override
 public boolean useModularUI() {
 	return true;
 }
@@ -766,7 +766,7 @@ builder.widget(new FluidSlotWidget(content)
 				cachedFilter=null;
 				updateFilter(cachedFilter);post();
 		//updateSlots();
-	}, GT_UITextures.OVERLAY_BUTTON_RECIPE_UNLOCKED,
+	}, GTUITextures.OVERLAY_BUTTON_RECIPE_UNLOCKED,
 			
 			//new ItemDrawable(new ItemStack(Items.slime_ball)), 
 	ImmutableList.of(
@@ -796,7 +796,7 @@ builder.widget(new FluidSlotWidget(content)
 		
 		 .setFocusOnGuiOpen(true).setTextColor(Color.WHITE.dark(1))
 
-			.setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
+			.setBackground(GTUITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
 			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.piority"))
 			.setPos(3+2,18*3+3+1).setSize(16*8,16))
 	.widget(new TextFieldWidget()	
@@ -811,24 +811,24 @@ builder.widget(new FluidSlotWidget(content)
 			
 			.setTextColor(Color.WHITE.dark(1))
 
-				.setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
+				.setBackground(GTUITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
 				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.capOverride"))
 				.setPos(3+18*5+1, 3+1).setSize(16*4,16))
  .widget(new CycleButtonWidget().setToggle(() -> voidFull, val -> {
 	 voidFull = val;
   
      if (!voidFull) {
-         GT_Utility.sendChatToPlayer(
+         GTUtility.sendChatToPlayer(
              buildContext.getPlayer(),
-             GT_Utility.trans("269", "Void Full Mode Disabled"));
+             GTUtility.trans("269", "Void Full Mode Disabled"));
      } else {
-         GT_Utility.sendChatToPlayer(
+         GTUtility.sendChatToPlayer(
              buildContext.getPlayer(),
-             GT_Utility.trans("270", "Void Full Mode Enabled"));
+             GTUtility.trans("270", "Void Full Mode Enabled"));
      }
  })
-     .setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE)
-     .setStaticTexture(GT_UITextures.OVERLAY_BUTTON_TANK_VOID_ALL)
+     .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
+     .setStaticTexture(GTUITextures.OVERLAY_BUTTON_TANK_VOID_ALL)
      .setGTTooltip(() -> mTooltipCache.getData("GT5U.machines.digitaltank.voidfull.tooltip"))
      .setTooltipShowUpDelay(TOOLTIP_DELAY)
      .setPos(3+18*3,3+18*2)
@@ -838,17 +838,17 @@ builder.widget(new FluidSlotWidget(content)
 	 voidOverflow = val;
 	
      if (!voidOverflow) {
-         GT_Utility.sendChatToPlayer(
+         GTUtility.sendChatToPlayer(
              buildContext.getPlayer(),
-             GT_Utility.trans("267", "Overflow Voiding Mode Disabled"));
+             GTUtility.trans("267", "Overflow Voiding Mode Disabled"));
      } else {
-         GT_Utility.sendChatToPlayer(
+         GTUtility.sendChatToPlayer(
              buildContext.getPlayer(),
-             GT_Utility.trans("268", "Overflow Voiding Mode Enabled"));
+             GTUtility.trans("268", "Overflow Voiding Mode Enabled"));
      }
  })
-     .setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE)
-     .setStaticTexture(GT_UITextures.OVERLAY_BUTTON_TANK_VOID_EXCESS)
+     .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
+     .setStaticTexture(GTUITextures.OVERLAY_BUTTON_TANK_VOID_EXCESS)
      .setGTTooltip(() -> mTooltipCache.getData("GT5U.machines.digitaltank.voidoverflow.tooltip"))
      .setTooltipShowUpDelay(TOOLTIP_DELAY)
      .setPos(3+18*4,3+18*2)
@@ -866,7 +866,7 @@ public void onFacingChange() {
  private Widget createButton(Supplier<Boolean> getter, Consumer<Boolean> setter, IDrawable picture,
 		List<String> tooltip, int offset) {
 	return new CycleButtonWidget().setToggle(getter, setter).setTextureGetter(__->picture)
-			.setVariableBackground(GT_UITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+			.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
 			.setPos(7 + offset * 18, 62).setSize(18, 18).addTooltips(tooltip);
 }
  @Override
@@ -964,23 +964,23 @@ getGridNode(null).updateState();
 
 protected void fillStacksIntoFirstSlots() {
     final int L = mInventory.length;
-    HashMap<GT_Utility.ItemId, Integer> slots = new HashMap<>(L);
-    HashMap<GT_Utility.ItemId, ItemStack> stacks = new HashMap<>(L);
-    List<GT_Utility.ItemId> order = new ArrayList<>(L);
+    HashMap<GTUtility.ItemId, Integer> slots = new HashMap<>(L);
+    HashMap<GTUtility.ItemId, ItemStack> stacks = new HashMap<>(L);
+    List<GTUtility.ItemId> order = new ArrayList<>(L);
     List<Integer> validSlots = new ArrayList<>(L);
     for (int i = 0; i < L; i++) {
         if (!isValidSlot(i)) continue;
         validSlots.add(i);
         ItemStack s = mInventory[i];
         if (s == null) continue;
-        GT_Utility.ItemId sID = GT_Utility.ItemId.createNoCopy(s);
+        GTUtility.ItemId sID = GTUtility.ItemId.createNoCopy(s);
         slots.merge(sID, s.stackSize, Integer::sum);
         if (!stacks.containsKey(sID)) stacks.put(sID, s);
         order.add(sID);
         mInventory[i] = null;
     }
     int slotindex = 0;
-    for (GT_Utility.ItemId sID : order) {
+    for (GTUtility.ItemId sID : order) {
         int toSet = slots.get(sID);
         if (toSet == 0) continue;
         int slot = validSlots.get(slotindex);

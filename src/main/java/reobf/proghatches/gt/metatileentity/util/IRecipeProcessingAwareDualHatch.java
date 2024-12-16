@@ -1,6 +1,6 @@
 package reobf.proghatches.gt.metatileentity.util;
 
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 //spotless:off
@@ -10,7 +10,7 @@ public interface IRecipeProcessingAwareDualHatch extends
 IDualInputHatch{
 	void startRecipeProcessing() ;
 
-	CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) ;
+	CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) ;
 	
 	
 }

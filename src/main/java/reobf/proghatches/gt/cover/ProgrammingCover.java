@@ -1,6 +1,6 @@
 package reobf.proghatches.gt.cover;
 
-import net.glease.ggfab.mte.MTE_LinkedInputBus;
+
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
@@ -19,22 +19,23 @@ import java.util.WeakHashMap;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
+import ggfab.mte.MTELinkedInputBus;
 import gregtech.api.interfaces.IConfigurationCircuitSupport;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IMachineProgress;
 import gregtech.api.metatileentity.BaseTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
-import gregtech.api.util.GT_CoverBehavior;
-import gregtech.api.util.GT_CoverBehaviorBase;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
+import gregtech.api.util.CoverBehavior;
+import gregtech.api.util.CoverBehaviorBase;
+import gregtech.api.util.GTUtility;
 import reobf.proghatches.gt.metatileentity.util.IMultiCircuitSupport;
 import reobf.proghatches.gt.metatileentity.util.IProgrammingCoverBlacklisted;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 
-public class ProgrammingCover extends GT_CoverBehavior implements IProgrammer {
+public class ProgrammingCover extends CoverBehavior implements IProgrammer {
 
 	@Override
 	public int getTickRate(ForgeDirection side, int aCoverID, int aCoverVariable, ICoverable aTileEntity) {
@@ -80,7 +81,7 @@ public class ProgrammingCover extends GT_CoverBehavior implements IProgrammer {
 			if (((ISidedInventory) tile).decrStackSize(slot, 64).stackSize == 0) {
 				continue;
 			}
-			isa.add(GT_Utility.copyAmount(0, ItemProgrammingCircuit.getCircuit(is).orElse(null)));
+			isa.add(GTUtility.copyAmount(0, ItemProgrammingCircuit.getCircuit(is).orElse(null)));
 			
 			
 		}
@@ -124,7 +125,7 @@ public class ProgrammingCover extends GT_CoverBehavior implements IProgrammer {
 			return false;
 
 	for(ForgeDirection d:	ForgeDirection.VALID_DIRECTIONS){
-		GT_CoverBehaviorBase<?> beh = aTileEntity.getCoverBehaviorAtSideNew(d);
+		CoverBehaviorBase<?> beh = aTileEntity.getCoverBehaviorAtSideNew(d);
 		if(beh!=null&&beh.getClass()==LinkedBusSlaveCover.class){return false;}
 	}
 		
@@ -137,8 +138,8 @@ public class ProgrammingCover extends GT_CoverBehavior implements IProgrammer {
 		impl(aTileEntity);
 		if(aTileEntity instanceof IGregTechTileEntity){
 			IMetaTileEntity x = ((IGregTechTileEntity) aTileEntity).getMetaTileEntity();
-			if(x instanceof MTE_LinkedInputBus){
-				markOrUpdate((MTE_LinkedInputBus) x);
+			if(x instanceof MTELinkedInputBus){
+				markOrUpdate((MTELinkedInputBus) x);
 			}
 			
 		}
@@ -151,10 +152,10 @@ public class ProgrammingCover extends GT_CoverBehavior implements IProgrammer {
 			str=s;circuit=i;
 			}
 	}
-    public static WeakHashMap<MTE_LinkedInputBus,Data> ggfabLinkedBus=new WeakHashMap<>();
+    public static WeakHashMap<MTELinkedInputBus,Data> ggfabLinkedBus=new WeakHashMap<>();
     
     public static void markOrUpdate(
-    		MTE_LinkedInputBus host
+    		MTELinkedInputBus host
     		){
     	
     	Data bus = ggfabLinkedBus.get(host);
@@ -174,7 +175,7 @@ public class ProgrammingCover extends GT_CoverBehavior implements IProgrammer {
     private static RuntimeException RESUABLE_EXCEPTION=new RuntimeException("",null,false,false){
     	private static final long serialVersionUID = 1L;};
     	
-    public static ItemStack sync(MTE_LinkedInputBus host){
+    public static ItemStack sync(MTELinkedInputBus host){
     	String chan=ggfabGetRealChannel(host);
     	Data data = ggfabLinkedBus.values().stream().filter(s->Objects.equals(s.str,chan)).findAny().orElse(null);
     	if(data==null)throw RESUABLE_EXCEPTION;
@@ -182,7 +183,7 @@ public class ProgrammingCover extends GT_CoverBehavior implements IProgrammer {
     }
 
 
-    private static String ggfabGetRealChannel(MTE_LinkedInputBus thiz) {
+    private static String ggfabGetRealChannel(MTELinkedInputBus thiz) {
         if (thiz.getChannel() == null) return null;
         if (thiz.isPrivate()) return thiz.getBaseMetaTileEntity().getOwnerUuid() + thiz.getChannel();
         return new UUID(0, 0) + thiz.getChannel();

@@ -20,25 +20,25 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
-import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.CoverUIBuildContext;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.covers.IControlsWorkCover;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IMachineProgress;
-import gregtech.api.util.GT_CoverBehaviorBase;
+import gregtech.api.util.CoverBehaviorBase;
 import gregtech.api.util.ISerializableObject;
-import gregtech.common.covers.redstone.GT_Cover_AdvancedRedstoneReceiverBase.GateMode;
+import gregtech.common.covers.redstone.CoverAdvancedRedstoneReceiverBase.GateMode;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import io.netty.buffer.ByteBuf;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCover.Data>
+public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover.Data>
 		implements IControlsWorkCover {
 
 	@Override
-	public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
+	public ModularWindow createWindow(CoverUIBuildContext buildContext) {
 		return new WirelessCCUIFactory(buildContext).createWindow();
 	}
 
@@ -47,7 +47,7 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
 
 	}
 
-	@Override
+	//@Override
 	public boolean useModularUI() {
 
 		return true;
@@ -93,7 +93,7 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
 					 * if (!mPlayerNotified) { EntityPlayer player = lastPlayer
 					 * == null ? null : lastPlayer.get(); if (player != null) {
 					 * lastPlayer = null; mPlayerNotified = true;
-					 * GT_Utility.sendChatToPlayer( player,
+					 * GTUtility.sendChatToPlayer( player,
 					 * aTileEntity.getInventoryName() + "at " + String.format(
 					 * "(%d,%d,%d)", aTileEntity.getXCoord(),
 					 * aTileEntity.getYCoord(), aTileEntity.getZCoord()) +
@@ -118,6 +118,7 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
 				.getSignalAt(d.privateFreq ? (d.useMachineOwnerUUID ? (aTileEntity instanceof IGregTechTileEntity
 						? ((IGregTechTileEntity) aTileEntity).getOwnerUuid() : null) : d.user) : null
 
+						
 						, (int) d.freq, GateMode.values()[d.gateMode]);
 
 	}
@@ -293,7 +294,7 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
 
 		
 
-		protected WirelessCCUIFactory(GT_CoverUIBuildContext buildContext) {
+		protected WirelessCCUIFactory(CoverUIBuildContext buildContext) {
 			super(buildContext);
 		}
 
@@ -305,8 +306,8 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
 					.setGetter(() -> getCoverData().invert ? 1 : 0).setSetter(s -> getCoverData().invert = s == 1)
 					.setLength(2).setTextureGetter(i -> {
 						if (i == 1)
-							return GT_UITextures.OVERLAY_BUTTON_REDSTONE_OFF;
-						return GT_UITextures.OVERLAY_BUTTON_REDSTONE_ON;
+							return GTUITextures.OVERLAY_BUTTON_REDSTONE_OFF;
+						return GTUITextures.OVERLAY_BUTTON_REDSTONE_ON;
 					})
 
 					.addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.wireless.invert.false"))
@@ -318,8 +319,8 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
 					.setGetter(() -> getCoverData().safe ? 1 : 0).setSetter(s -> getCoverData().safe = s == 1)
 					.setLength(2).setTextureGetter(i -> {
 						if (i == 0)
-							return GT_UITextures.OVERLAY_BUTTON_CROSS;
-						return GT_UITextures.OVERLAY_BUTTON_CHECKMARK;
+							return GTUITextures.OVERLAY_BUTTON_CROSS;
+						return GTUITextures.OVERLAY_BUTTON_CHECKMARK;
 					})
 
 					.addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.wireless.safe.false"))
@@ -357,8 +358,8 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
 					.setGetter(() -> getCoverData().privateFreq ? 1 : 0)
 					.setSetter(s -> getCoverData().privateFreq = s == 1).setLength(2).setTextureGetter(i -> {
 						if (i == 1)
-							return GT_UITextures.OVERLAY_BUTTON_RECIPE_LOCKED;
-						return GT_UITextures.OVERLAY_BUTTON_RECIPE_UNLOCKED;
+							return GTUITextures.OVERLAY_BUTTON_RECIPE_LOCKED;
+						return GTUITextures.OVERLAY_BUTTON_RECIPE_UNLOCKED;
 					})
 
 					.addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.wireless.private.false"))
@@ -371,17 +372,17 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
 					.setLength(GateMode.values().length - 1).setTextureGetter(i -> {
 						switch (i) {
 						case 0:
-							return GT_UITextures.OVERLAY_BUTTON_GATE_AND;
+							return GTUITextures.OVERLAY_BUTTON_GATE_AND;
 						case 1:
-							return GT_UITextures.OVERLAY_BUTTON_GATE_NAND;
+							return GTUITextures.OVERLAY_BUTTON_GATE_NAND;
 						case 2:
-							return GT_UITextures.OVERLAY_BUTTON_GATE_OR;
+							return GTUITextures.OVERLAY_BUTTON_GATE_OR;
 						case 3:
-							return GT_UITextures.OVERLAY_BUTTON_GATE_NOR;
+							return GTUITextures.OVERLAY_BUTTON_GATE_NOR;
 						case 4:
-							return GT_UITextures.OVERLAY_BUTTON_ANALOG;// NO
+							return GTUITextures.OVERLAY_BUTTON_ANALOG;// NO
 						default:
-							return GT_UITextures.OVERLAY_BUTTON_GATE_AND;
+							return GTUITextures.OVERLAY_BUTTON_GATE_AND;
 						}
 					})
 
@@ -435,7 +436,7 @@ public class WirelessControlCover extends GT_CoverBehaviorBase<WirelessControlCo
 			}).setPattern(BaseTextFieldWidget.NATURAL_NUMS).setMaxLength(50).setScrollBar().setFocusOnGuiOpen(true)
 					.setTextColor(Color.WHITE.dark(1))
 
-					.setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
+					.setBackground(GTUITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2))
 					.setPos(startX, startY + spaceY * 2).setSize(spaceX * 2 + 5, 12)
 
 			)

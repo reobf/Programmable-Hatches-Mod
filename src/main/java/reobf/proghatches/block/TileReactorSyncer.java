@@ -25,7 +25,7 @@ import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.gui.modularui.GUITextureSet;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import ic2.core.block.reactor.tileentity.TileEntityNuclearReactorElectric;
@@ -190,8 +190,8 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI{
 					.setGetter(() -> skipCycleZero ? 1 : 0).setSetter(s ->skipCycleZero = s == 1).setLength(2)
 					.setTextureGetter(i -> {
 						if (i == 1)
-							return GT_UITextures.OVERLAY_BUTTON_EXPORT;
-						return GT_UITextures.OVERLAY_BUTTON_IMPORT;
+							return GTUITextures.OVERLAY_BUTTON_EXPORT;
+						return GTUITextures.OVERLAY_BUTTON_IMPORT;
 					})
 
 					.addTooltip(1, LangManager.translateToLocal("tile.reactor_syncer.skip.true"))
@@ -220,22 +220,22 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI{
 					.setSynced(true,true)
 					.setPos(20*fi, 0)
 					.setSize(20,20)
-					.setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2)
+					.setBackground(GTUITextures.BACKGROUND_TEXT_FIELD.withOffset(-1, -1, 2, 2)
 					));
 			
 			builder.widget(new ButtonWidget()
 					.setOnClick((a,b)->{values[fi]=15;markDirty();})
-					.setBackground(GT_UITextures.BUTTON_STANDARD,GT_UITextures.OVERLAY_BUTTON_ARROW_GREEN_UP)
+					.setBackground(GTUITextures.BUTTON_STANDARD,GTUITextures.OVERLAY_BUTTON_ARROW_GREEN_UP)
 					.setPos(20*fi, 40)
 					.setSize(20,20)
 					);
 			builder.widget(new ButtonWidget()
 					.setOnClick((a,b)->{values[fi]=0;markDirty();})
-					.setBackground(GT_UITextures.BUTTON_STANDARD,GT_UITextures.OVERLAY_BUTTON_ARROW_GREEN_DOWN)
+					.setBackground(GTUITextures.BUTTON_STANDARD,GTUITextures.OVERLAY_BUTTON_ARROW_GREEN_DOWN)
 					.setPos(20*fi, 60)
 					.setSize(20,20)
 					);
-			builder.widget(new DrawableWidget().setDrawable(GT_UITextures.PICTURE_RADIATION_WARNING)
+			builder.widget(new DrawableWidget().setDrawable(GTUITextures.PICTURE_RADIATION_WARNING)
 					.setPos(0, 20)
 					.setSize(20,20)
 					);
@@ -267,13 +267,13 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI{
 		 * public boolean isCoverValid() { return !getUIBuildContext().getTile()
 		 * .isDead() && getUIBuildContext().getTile()
 		 * .getCoverBehaviorAtSideNew(getUIBuildContext().getCoverSide()) !=
-		 * GregTech_API.sNoBehavior; }
+		 * GregTechAPI.sNoBehavior; }
 		 */
 
 		protected void addTitleToUI(ModularWindow.Builder builder) {
 			/*
 			 * ItemStack coverItem =
-			 * GT_Utility.intToStack(getUIBuildContext().getCoverID()); if
+			 * GTUtility.intToStack(getUIBuildContext().getCoverID()); if
 			 * (coverItem != null) { builder.widget( new
 			 * ItemDrawable(coverItem).asWidget() .setPos(5, 5) .setSize(16,
 			 * 16)) .widget( new

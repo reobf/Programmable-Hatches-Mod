@@ -1,7 +1,7 @@
 package reobf.proghatches.gt.metatileentity;
 
-import static gregtech.api.enums.GT_Values.TIER_COLORS;
-import static gregtech.api.enums.GT_Values.VN;
+import static gregtech.api.enums.GTValues.TIER_COLORS;
+import static gregtech.api.enums.GTValues.VN;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_INPUT_FLUID_HATCH;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_INPUT_FLUID_HATCH_ACTIVE;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
@@ -75,33 +75,33 @@ import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.item.AEFluidStack;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.modularui.IAddGregtechLogo;
 import gregtech.api.interfaces.modularui.IAddUIWidgets;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Input;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEHatchInput;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_Input_ME;
+import gregtech.common.tileentities.machines.MTEHatchInputME;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 
-public class RestrictedInputHatchME extends GT_MetaTileEntity_Hatch_Input_ME implements IDataCopyablePlaceHolderSuper
+public class RestrictedInputHatchME extends MTEHatchInputME implements IDataCopyablePlaceHolderSuper
 {
 	
 	public RestrictedInputHatchME(int aID, boolean autoPullAvailable, String aName, String aNameRegional) {
 		super(aID, autoPullAvailable, aName, aNameRegional);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 		desc=reobf.proghatches.main.Config.get("RIHME", ImmutableMap.of());
 	}
 	public RestrictedInputHatchME(String aName, boolean autoPullAvailable, int aTier, String[] aDescription,
@@ -163,7 +163,7 @@ public class RestrictedInputHatchME extends GT_MetaTileEntity_Hatch_Input_ME imp
         } catch (final GridAccessException ignored) {}
     }
 @Override
-public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+public CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) {
 	try{
 	return super.endRecipeProcessing(controller);}finally{
 		for (int index = 0; index < SLOT_COUNT; index++) {
@@ -196,11 +196,11 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
             .setPlayClickSound(true)
             .setBackground(() -> {
                 if (autoPullFluidList) {
-                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
-                        GT_UITextures.OVERLAY_BUTTON_AUTOPULL_ME };
+                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
+                        GTUITextures.OVERLAY_BUTTON_AUTOPULL_ME };
                 } else {
-                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
-                        GT_UITextures.OVERLAY_BUTTON_AUTOPULL_ME_DISABLED };
+                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
+                        GTUITextures.OVERLAY_BUTTON_AUTOPULL_ME_DISABLED };
                 }
             })
             .addTooltips(
@@ -222,7 +222,7 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
             .setBackground(() -> {
                {
                     return new IDrawable[] {
-                    		GT_UITextures.BUTTON_STANDARD
+                    		GTUITextures.BUTTON_STANDARD
                       };
                 }
             })
@@ -253,18 +253,18 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
 				
 			.setBackground(() -> {
 		                if (multiples==1) {
-		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
+		                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
 		                        mode0 };
 		                } 
 		                
 		                else if (multiples==2) {
-		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
+		                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
 		                        mode1 };
 		                } 
 		                
 		                else {
-		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
-		                        GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
+		                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
+		                        GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
 		                }
 		            })
 				
@@ -281,7 +281,7 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
         final int PARENT_WIDTH = getGUIWidth();
         final int PARENT_HEIGHT = getGUIHeight();
         ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-        builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+        builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
         builder.setGuiTint(getGUIColorization());
         builder.setDraggable(true);
         builder.setPos(
@@ -302,7 +302,7 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
                     .setTextColor(Color.WHITE.normal)
                     .setSize(70, 18)
                     .setPos(3, 18+18)
-                    .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD));
+                    .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
         builder.widget(
             TextWidget.localised("proghatches.restricted.bound.up")
                 .setPos(3, 42+18)
@@ -316,7 +316,7 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
                     .setTextColor(Color.WHITE.normal)
                     .setSize(70, 18)
                     .setPos(3, 58+18)
-                    .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD));   
+                    .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));   
         builder.widget(createMultiplesModeButton(builder,HEIGHT));
         return builder.build();
     }

@@ -1,6 +1,6 @@
 package reobf.proghatches.util;
 
-import static gregtech.api.util.GT_Utility.*;
+import static gregtech.api.util.GTUtility.*;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -40,21 +40,24 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.gt.metatileentity.SuperChestME;
 import reobf.proghatches.main.MyMod;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.util.GT_Log;
-import gregtech.api.util.GT_Utility;
-import gregtech.common.covers.redstone.GT_Cover_AdvancedRedstoneReceiverBase;
+
+import gregtech.api.util.GTUtility;
+import gregtech.common.covers.redstone.CoverAdvancedRedstoneReceiverBase;
+
 
 /*
- * copied from GT_Cover_AdvancedRedstoneTransmitterBase and GT_Cover_AdvancedRedstoneReceiverBase
+ * copied from GT_Cover_AdvancedRedstoneTransmitterBase and CoverAdvancedRedstoneReceiverBase
  */
 public class ProghatchesUtil {
 
 	public static void removeAllSignalAt(UUID uuid, long hash) {
-		Map<Integer, Map<Long, Byte>> frequencies = GregTech_API.sAdvancedWirelessRedstone.get(String.valueOf(uuid));
+		Map<Integer, Map<Long, Byte>> frequencies = GregTechAPI.sAdvancedWirelessRedstone.get(String.valueOf(uuid));
 		if (frequencies == null)
 			return;
 		frequencies.keySet().forEach(frequency ->
@@ -67,7 +70,7 @@ public class ProghatchesUtil {
 	}
 
 	public static void removeSignalAt(UUID uuid, int frequency, long hash) {
-		Map<Integer, Map<Long, Byte>> frequencies = GregTech_API.sAdvancedWirelessRedstone.get(String.valueOf(uuid));
+		Map<Integer, Map<Long, Byte>> frequencies = GregTechAPI.sAdvancedWirelessRedstone.get(String.valueOf(uuid));
 		if (frequencies == null)
 			return;
 		frequencies.computeIfPresent(frequency, (freq, longByteMap) -> {
@@ -77,19 +80,19 @@ public class ProghatchesUtil {
 	}
 
 	public static void setSignalAt(UUID uuid, int frequency, long hash, byte value) {
-		Map<Integer, Map<Long, Byte>> frequencies = GregTech_API.sAdvancedWirelessRedstone
+		Map<Integer, Map<Long, Byte>> frequencies = GregTechAPI.sAdvancedWirelessRedstone
 				.computeIfAbsent(String.valueOf(uuid), k -> new ConcurrentHashMap<>());
 		Map<Long, Byte> signals = frequencies.computeIfAbsent(frequency, k -> new ConcurrentHashMap<>());
 		signals.put(hash, value);
 	}
 
-	public static Byte getSignalAt(UUID uuid, int frequency, GT_Cover_AdvancedRedstoneReceiverBase.GateMode mode) {
+	public static Byte getSignalAt(UUID uuid, int frequency, CoverAdvancedRedstoneReceiverBase.GateMode mode) {
 		return getSignalAt(uuid, frequency, mode, true);
 	}
 
-	public static Byte getSignalAt(UUID uuid, int frequency, GT_Cover_AdvancedRedstoneReceiverBase.GateMode mode,
+	public static Byte getSignalAt(UUID uuid, int frequency, CoverAdvancedRedstoneReceiverBase.GateMode mode,
 			boolean missingAsFalse) {
-		Map<Integer, Map<Long, Byte>> frequencies = GregTech_API.sAdvancedWirelessRedstone.get(String.valueOf(uuid));
+		Map<Integer, Map<Long, Byte>> frequencies = GregTechAPI.sAdvancedWirelessRedstone.get(String.valueOf(uuid));
 		Map<Long, Byte> signals;
 		if (frequencies == null) {
 			if (missingAsFalse)
@@ -140,7 +143,7 @@ public class ProghatchesUtil {
 			return 0;
 		}
 
-		return GT_Utility.moveFromSlotToSlot(fromInv, toInv, aGrabFrom, aPutTo, aFilter, aInvertFilter,
+		return GTUtility.moveFromSlotToSlot(fromInv, toInv, aGrabFrom, aPutTo, aFilter, aInvertFilter,
 				aMaxTargetStackSize, aMinTargetStackSize, aMaxMoveAtOnce, aMinMoveAtOnce);
 
 	}
@@ -148,7 +151,7 @@ public class ProghatchesUtil {
 	public static ItemStack getWrittenBook(Item it, String aMapping, String aTitle, String aAuthor, String... aPages) {
 		if (isStringInvalid(aMapping))
 			return null;
-		ItemStack rStack = null;// GregTech_API.sBookList.get(aMapping);
+		ItemStack rStack = null;// GregTechAPI.sBookList.get(aMapping);
 		if (rStack != null)
 			return copyAmount(1, rStack);
 		if (isStringInvalid(aTitle) || isStringInvalid(aAuthor) || aPages.length == 0)
@@ -295,4 +298,6 @@ public class ProghatchesUtil {
 		}
     	
     }
+
+
 }

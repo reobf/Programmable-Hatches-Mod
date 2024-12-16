@@ -54,14 +54,14 @@ import appeng.parts.p2p.PartP2PTunnel;
 import appeng.util.Platform;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
-import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
-import gregtech.api.gui.modularui.GT_UIInfos;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.CoverUIBuildContext;
+import gregtech.api.gui.modularui.GTUIInfos;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IMachineProgress;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.util.ISerializableObject;
 
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
@@ -537,8 +537,8 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
 				if ((aTileEntity instanceof IGregTechTileEntity)) {
 					IGregTechTileEntity mt = (IGregTechTileEntity) aTileEntity;
 					IMetaTileEntity meta = mt.getMetaTileEntity();
-					if (meta != null && meta instanceof GT_MetaTileEntity_MultiBlockBase) {
-						GT_MetaTileEntity_MultiBlockBase multi = (GT_MetaTileEntity_MultiBlockBase) meta;
+					if (meta != null && meta instanceof MTEMultiBlockBase) {
+						MTEMultiBlockBase multi = (MTEMultiBlockBase) meta;
 
 						if (multi.getStoredFluids().isEmpty()) {
 							ArrayList<ItemStack> in = multi.getStoredInputs();
@@ -777,7 +777,7 @@ public void setCustomName(String name) {
 
 
 	@Override
-	public void addUIWidgets(Builder builder, GT_CoverUIBuildContext ss) {
+	public void addUIWidgets(Builder builder, CoverUIBuildContext ss) {
 
 		
 		
@@ -808,7 +808,7 @@ public void setCustomName(String name) {
 
 						widget.getContext().openSyncedWindow(777);
 				}
-			}).setPlayClickSound(true).setBackground(GT_UITextures.BUTTON_STANDARD, ICON)
+			}).setPlayClickSound(true).setBackground(GTUITextures.BUTTON_STANDARD, ICON)
 					.addTooltips(ImmutableList
 							.of(LangManager.translateToLocalFormatted("programmable_hatches.cover.ae.configure")))
 					.setSize(16, 16).setPos(startX + spaceX * 6, startY + spaceY * 3));
@@ -832,8 +832,8 @@ public void setCustomName(String name) {
 					worksensitive = s == 1;
 				}).setLength(2).setTextureGetter(i -> {
 					if (i == 1)
-						return GT_UITextures.OVERLAY_BUTTON_EXPORT;
-					return GT_UITextures.OVERLAY_BUTTON_IMPORT;
+						return GTUITextures.OVERLAY_BUTTON_EXPORT;
+					return GTUITextures.OVERLAY_BUTTON_IMPORT;
 				})
 
 				.addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.ae.worksensitive.false"))
@@ -845,8 +845,8 @@ public void setCustomName(String name) {
 					delay = s == 1;
 				}).setLength(2).setTextureGetter(i -> {
 					if (i == 1)
-						return GT_UITextures.OVERLAY_BUTTON_EXPORT;
-					return GT_UITextures.OVERLAY_BUTTON_IMPORT;
+						return GTUITextures.OVERLAY_BUTTON_EXPORT;
+					return GTUITextures.OVERLAY_BUTTON_IMPORT;
 				})
 
 				.addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.ae.delay.false"))
@@ -858,8 +858,8 @@ public void setCustomName(String name) {
 					inputdetect = s == 1;
 				}).setLength(2).setTextureGetter(i -> {
 					if (i == 1)
-						return GT_UITextures.OVERLAY_BUTTON_EXPORT;
-					return GT_UITextures.OVERLAY_BUTTON_IMPORT;
+						return GTUITextures.OVERLAY_BUTTON_EXPORT;
+					return GTUITextures.OVERLAY_BUTTON_IMPORT;
 				})
 
 				.addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.ae.inputdetect.false"))
@@ -878,8 +878,8 @@ public void setCustomName(String name) {
 					worksensitive = s == 1;
 				}).setLength(2).setTextureGetter(i -> {
 					if (i == 1)
-						return GT_UITextures.OVERLAY_BUTTON_EXPORT;
-					return GT_UITextures.OVERLAY_BUTTON_IMPORT;
+						return GTUITextures.OVERLAY_BUTTON_EXPORT;
+					return GTUITextures.OVERLAY_BUTTON_IMPORT;
 				})
 
 				.addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.ae.worksensitive.false"))
@@ -891,8 +891,8 @@ public void setCustomName(String name) {
 					delay = s == 1;
 				}).setLength(2).setTextureGetter(i -> {
 					if (i == 1)
-						return GT_UITextures.OVERLAY_BUTTON_EXPORT;
-					return GT_UITextures.OVERLAY_BUTTON_IMPORT;
+						return GTUITextures.OVERLAY_BUTTON_EXPORT;
+					return GTUITextures.OVERLAY_BUTTON_IMPORT;
 				})
 
 				.addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.ae.delay.false"))
@@ -904,8 +904,8 @@ public void setCustomName(String name) {
 					inputdetect = s == 1;
 				}).setLength(2).setTextureGetter(i -> {
 					if (i == 1)
-						return GT_UITextures.OVERLAY_BUTTON_EXPORT;
-					return GT_UITextures.OVERLAY_BUTTON_IMPORT;
+						return GTUITextures.OVERLAY_BUTTON_EXPORT;
+					return GTUITextures.OVERLAY_BUTTON_IMPORT;
 				})
 
 				.addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.ae.inputdetect.false"))

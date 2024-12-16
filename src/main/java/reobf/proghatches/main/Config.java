@@ -20,7 +20,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import reobf.proghatches.lang.LangManager;
 
-import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
+import gregtech.api.util.MultiblockTooltipBuilder;
 
 public class Config {
 	public static boolean appendAddedBy = true;
@@ -72,7 +72,7 @@ public class Config {
 
 	public static String lang = System.getProperty("user.language").equalsIgnoreCase("zh") ? "zh_CN" : "en_US";
 
-	public static void get(GT_Multiblock_Tooltip_Builder obj, String key, boolean defaulted) {
+	public static void get(MultiblockTooltipBuilder obj, String key, boolean defaulted) {
 		try (InputStream in = (defaulted ? getInputEN : getInput).apply(key)) {
 			if (in == null) {
 				if (defaulted) {
@@ -106,10 +106,10 @@ public class Config {
 				MethodType tp = MethodType.fromMethodDescriptorString(
 
 						type + (/*func.equals("toolTipFinisher") ? "V"
-								:*/ "L"+GT_Multiblock_Tooltip_Builder.class.getName().replace(".", "/")+";")
+								:*/ "L"+MultiblockTooltipBuilder.class.getName().replace(".", "/")+";")
 
 						, Config.class.getClassLoader());
-				call(obj, args, MethodHandles.lookup().findVirtual(GT_Multiblock_Tooltip_Builder.class, func, tp), tp);
+				call(obj, args, MethodHandles.lookup().findVirtual(MultiblockTooltipBuilder.class, func, tp), tp);
 				
 				
 				
@@ -179,7 +179,7 @@ public class Config {
 
 	}
 
-	public static void get(GT_Multiblock_Tooltip_Builder obj, String key) {
+	public static void get(MultiblockTooltipBuilder obj, String key) {
 		get(obj, key, false);
 	}
 

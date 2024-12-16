@@ -86,7 +86,7 @@ import appeng.helpers.ICustomNameObject;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.gui.modularui.GUITextureSet;
 import li.cil.oc.api.internal.MultiTank;
 import li.cil.oc.api.network.Component;
@@ -397,7 +397,11 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		public Object[] getCustomName(final Context context, final Arguments args) {
 			return new Object[] { TileIOHub.this.getInventoryName() };
 		}
-
+@Override
+public Object[] getItemsInNetworkById(Context arg0, Arguments arg1) {
+	// TODO Auto-generated method stub
+	return NetworkControl$class.getItemsInNetworkById(this, arg0, arg1);
+}
 		@Callback(doc = "function(address:string):boolean -- Swap the inventory between this IO Hub and another IO Hub. Return whether operation successes.")
 		public Object[] swap(final Context context, final Arguments args) {
 			markDirty();
@@ -1545,7 +1549,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 			/*
 			 * final CoverInfo coverInfo = uiBuildContext.getTile()
 			 * .getCoverInfoAtSide(uiBuildContext.getCoverSide()); final
-			 * GT_CoverBehaviorBase<?> behavior = coverInfo.getCoverBehavior();
+			 * CoverBehaviorBase<?> behavior = coverInfo.getCoverBehavior();
 			 * if (coverInfo.getMinimumTickRate() > 0 &&
 			 * behavior.allowsTickRateAddition()) { builder.widget( new
 			 * GT_CoverTickRateButton(coverInfo, builder).setPos(getGUIWidth() -
@@ -1567,7 +1571,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 			builder.widget(new FakeSyncWidget.IntegerSyncer(() -> tankselected, s -> tankselected = s));
 			final IDrawable[] background = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot() };
 			final IDrawable[] special = new IDrawable[] { GUITextureSet.DEFAULT.getItemSlot(),
-					GT_UITextures.OVERLAY_SLOT_ARROW_ME };
+					GTUITextures.OVERLAY_SLOT_ARROW_ME };
 			sc.widget(SlotGroup.ofItemHandler(inventoryHandler, 4)
 
 					.startFromSlot(0).endAtSlot(31).background(background)
@@ -1591,7 +1595,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 
 			final IDrawable[] background0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot() };
 			final IDrawable[] special0 = new IDrawable[] { GUITextureSet.DEFAULT.getFluidSlot(),
-					GT_UITextures.OVERLAY_SLOT_ARROW_ME };
+					GTUITextures.OVERLAY_SLOT_ARROW_ME };
 
 			sc.widget(SlotGroup.ofFluidTanks(Arrays.asList(ft), 1)
 
@@ -1629,13 +1633,13 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		 * public boolean isCoverValid() { return !getUIBuildContext().getTile()
 		 * .isDead() && getUIBuildContext().getTile()
 		 * .getCoverBehaviorAtSideNew(getUIBuildContext().getCoverSide()) !=
-		 * GregTech_API.sNoBehavior; }
+		 * GregTechAPI.sNoBehavior; }
 		 */
 
 		protected void addTitleToUI(ModularWindow.Builder builder) {
 			/*
 			 * ItemStack coverItem =
-			 * GT_Utility.intToStack(getUIBuildContext().getCoverID()); if
+			 * GTUtility.intToStack(getUIBuildContext().getCoverID()); if
 			 * (coverItem != null) { builder.widget( new
 			 * ItemDrawable(coverItem).asWidget() .setPos(5, 5) .setSize(16,
 			 * 16)) .widget( new

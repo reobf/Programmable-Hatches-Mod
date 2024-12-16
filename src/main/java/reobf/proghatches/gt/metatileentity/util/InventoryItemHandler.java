@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack;
 import com.gtnewhorizons.modularui.api.forge.ItemHandlerHelper;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 
 //spotless:off
 /**

@@ -1,7 +1,7 @@
 package reobf.proghatches.gt.metatileentity;
 
-import static gregtech.api.enums.GT_Values.TIER_COLORS;
-import static gregtech.api.enums.GT_Values.VN;
+import static gregtech.api.enums.GTValues.TIER_COLORS;
+import static gregtech.api.enums.GTValues.VN;
 import static gregtech.api.enums.Mods.GregTech;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_INPUT_FLUID_HATCH;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_INPUT_FLUID_HATCH_ACTIVE;
@@ -86,10 +86,10 @@ import appeng.me.helpers.IGridProxyable;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import cpw.mods.fml.common.Optional.Interface;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.SoundResource;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.modularui.IAddGregtechLogo;
 import gregtech.api.interfaces.modularui.IAddUIWidgets;
@@ -97,16 +97,16 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.metatileentity.CommonMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Input;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEHatchInput;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_InputBus_ME;
-import gregtech.common.tileentities.machines.GT_MetaTileEntity_Hatch_Input_ME;
+import gregtech.common.tileentities.machines.MTEHatchInputBusME;
+import gregtech.common.tileentities.machines.MTEHatchInputME;
 import gregtech.common.tileentities.machines.IRecipeProcessingAwareHatch;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
@@ -114,11 +114,11 @@ import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 
-public class RestrictedInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME implements IDataCopyablePlaceHolderSuper{
+public class RestrictedInputBusME extends MTEHatchInputBusME implements IDataCopyablePlaceHolderSuper{
 	
 	public RestrictedInputBusME(int aID, boolean autoPullAvailable, String aName, String aNameRegional) {
 		super(aID, autoPullAvailable, aName, aNameRegional);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 		desc=reobf.proghatches.main.Config.get("RIBME", ImmutableMap.of());
 	}
 	public RestrictedInputBusME(String aName, boolean autoPullAvailable, int aTier, String[] aDescription,
@@ -146,9 +146,9 @@ public class RestrictedInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME im
 	  
 	  static{
 		  try {
-			f1=GT_MetaTileEntity_Hatch_InputBus_ME.class.getDeclaredField("shadowInventory");  
-			f2=GT_MetaTileEntity_Hatch_InputBus_ME.class.getDeclaredField("savedStackSizes");
-			f3=GT_MetaTileEntity_Hatch_InputBus_ME.class.getDeclaredField("processingRecipe");
+			f1=MTEHatchInputBusME.class.getDeclaredField("shadowInventory");  
+			f2=MTEHatchInputBusME.class.getDeclaredField("savedStackSizes");
+			f3=MTEHatchInputBusME.class.getDeclaredField("processingRecipe");
 			f1.
 	setAccessible(true);
 	f2.
@@ -285,7 +285,7 @@ public class RestrictedInputBusME extends GT_MetaTileEntity_Hatch_InputBus_ME im
 	  
 	  
 @Override
-public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase controller) {
+public CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) {
 	try{
 	return super.endRecipeProcessing(controller);}finally{
 		for (int index = 0; index < SLOT_COUNT; index++) {
@@ -320,8 +320,8 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
         }})
             .setBackground(() -> {
                {
-                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
-                        GT_UITextures.OVERLAY_BUTTON_AUTOPULL_ME_DISABLED };
+                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
+                        GTUITextures.OVERLAY_BUTTON_AUTOPULL_ME_DISABLED };
                 }
             })
             .addTooltips(
@@ -343,7 +343,7 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
             .setBackground(() -> {
                {
                     return new IDrawable[] {
-                    		GT_UITextures.BUTTON_STANDARD
+                    		GTUITextures.BUTTON_STANDARD
                       };
                 }
             })
@@ -367,7 +367,7 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
         final int PARENT_WIDTH = getGUIWidth();
         final int PARENT_HEIGHT = getGUIHeight();
         ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-        builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+        builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
         builder.setGuiTint(getGUIColorization());
         builder.setDraggable(true);
         builder.setPos(
@@ -388,7 +388,7 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
                     .setTextColor(Color.WHITE.normal)
                     .setSize(70, 18)
                     .setPos(3, 18+18)
-                    .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD));
+                    .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
         builder.widget(
             TextWidget.localised("proghatches.restricted.bound.up")
                 .setPos(3, 42+18)
@@ -402,7 +402,7 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
                     .setTextColor(Color.WHITE.normal)
                     .setSize(70, 18)
                     .setPos(3, 58+18)
-                    .setBackground(GT_UITextures.BACKGROUND_TEXT_FIELD));
+                    .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
         
         builder.widget(createMultiplesModeButton(builder,HEIGHT));
         
@@ -432,18 +432,18 @@ public CheckRecipeResult endRecipeProcessing(GT_MetaTileEntity_MultiBlockBase co
 				
 			.setBackground(() -> {
 		                if (multiples==1) {
-		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
+		                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
 		                        mode0 };
 		                } 
 		                
 		                else if (multiples==2) {
-		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD_PRESSED,
+		                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
 		                        mode1 };
 		                } 
 		                
 		                else {
-		                    return new IDrawable[] { GT_UITextures.BUTTON_STANDARD,
-		                        GT_UITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
+		                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
+		                        GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
 		                }
 		            })
 				

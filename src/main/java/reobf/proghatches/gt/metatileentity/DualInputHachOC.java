@@ -51,14 +51,14 @@ import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import appeng.util.item.AEStack;
 import cpw.mods.fml.common.registry.GameRegistry;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Textures;
 import gregtech.api.enums.Textures.BlockIcons;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GT_Util;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtil;
+import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import li.cil.oc.OpenComputers;
 import li.cil.oc.api.machine.Arguments;
@@ -271,7 +271,7 @@ public void saveNBTData(NBTTagCompound aNBT) {
 		
 		if (gridProxy == null) {
 			gridProxy = new AENetworkProxy(this, "proxy",
-					new ItemStack(GregTech_API.sBlockMachines, 1, this.getBaseMetaTileEntity().getMetaTileID()), true);
+					new ItemStack(GregTechAPI.sBlockMachines, 1, this.getBaseMetaTileEntity().getMetaTileID()), true);
 			gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
 			updateValidGridProxySides();
 			if (getBaseMetaTileEntity().getWorld() != null)
@@ -417,7 +417,7 @@ public void saveNBTData(NBTTagCompound aNBT) {
 					
 					if(itemtype){
 						
-					FluidStack fs = GT_Utility.getFluidForFilledItem(is, true);
+					FluidStack fs = GTUtility.getFluidForFilledItem(is, true);
 						if(fs==null){
 							task.state=4;return;
 						}

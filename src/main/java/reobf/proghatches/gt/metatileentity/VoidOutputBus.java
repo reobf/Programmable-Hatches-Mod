@@ -1,6 +1,6 @@
 package reobf.proghatches.gt.metatileentity;
 
-import static gregtech.api.util.GT_Utility.moveMultipleItemStacks;
+import static gregtech.api.util.GTUtility.moveMultipleItemStacks;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -22,13 +22,13 @@ import com.gtnewhorizons.modularui.common.widget.SlotGroup;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_OutputBus;
-import gregtech.api.util.GT_Utility;
-import gregtech.common.GT_Client;
+import gregtech.api.metatileentity.implementations.MTEHatchOutputBus;
+import gregtech.api.util.GTUtility;
+
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -56,7 +56,7 @@ import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.net.VoidFXMessage;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class VoidOutputBus  extends GT_MetaTileEntity_Hatch_OutputBus {
+public class VoidOutputBus  extends MTEHatchOutputBus {
 
 	public VoidOutputBus(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures
 			) {
@@ -123,7 +123,7 @@ public class VoidOutputBus  extends GT_MetaTileEntity_Hatch_OutputBus {
 
 		);
 		
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 	}
 
 
@@ -468,7 +468,7 @@ public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, f
 	if (!getBaseMetaTileEntity().getCoverInfoAtSide(side)
             .isGUIClickable()) return;
 	fx=!fx;
-	GT_Utility.sendChatToPlayer(
+	GTUtility.sendChatToPlayer(
                aPlayer,
                StatCollector.translateToLocal("proghatches.gt.void.fx."+fx)
 			   );

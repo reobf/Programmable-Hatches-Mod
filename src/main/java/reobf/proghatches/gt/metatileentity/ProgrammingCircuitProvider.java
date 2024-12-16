@@ -58,16 +58,16 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.tile.AEBaseTile;
 import appeng.util.item.AEItemStack;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
-import gregtech.api.gui.modularui.GT_UIInfos;
+import gregtech.api.gui.modularui.GTUIInfos;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.modularui.IAddUIWidgets;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
+import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.block.BlockIOHub;
@@ -81,7 +81,7 @@ import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
-public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implements IAddUIWidgets, IPowerChannelState,
+public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidgets, IPowerChannelState,
 		ICraftingProvider, IGridProxyable, ICircuitProvider, IInstantCompletable,ICustomNameObject
 		,IInterfaceViewable
 		{
@@ -91,7 +91,7 @@ public class ProgrammingCircuitProvider extends GT_MetaTileEntity_Hatch implemen
 				reobf.proghatches.main.Config.get("PCP", ImmutableMap.of())
 
 		);
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 		this.tech=tech;
 	}
 
@@ -205,7 +205,7 @@ boolean legacy;
 		patternDirty=true;
 		if(legacy==true)legacy=!legacy;
 		postEvent();
-		GT_Utility.sendChatToPlayer(aPlayer, "Legacy Mode:" + legacy);
+		GTUtility.sendChatToPlayer(aPlayer, "Legacy Mode:" + legacy);
 	}
 	@Override
 	public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {
@@ -269,7 +269,7 @@ boolean legacy;
 	}
 
 	private ItemStack visualStack() {
-		return new ItemStack(GregTech_API.sBlockMachines,1, getBaseMetaTileEntity().getMetaTileID());
+		return new ItemStack(GregTechAPI.sBlockMachines,1, getBaseMetaTileEntity().getMetaTileID());
 	}
 
 	@Override
@@ -516,7 +516,7 @@ for(ItemStack is:mInventory)
 		return new ITexture[] { aBaseTexture, TextureFactory.of(MyMod.iohub, BlockIOHub.magicNO_provider_overlay) };
 	}
 
-	@Override
+	//@Override
 	public boolean useModularUI() {
 
 		return true;
@@ -524,7 +524,7 @@ for(ItemStack is:mInventory)
 
 	@Override
 	public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
-		GT_UIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
+		GTUIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
 		return true;
 	}
 
@@ -607,7 +607,7 @@ for(ItemStack is:mInventory)
 	@Override
 	public ItemStack getCrafterIcon() {
 
-		return new ItemStack(GregTech_API.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID());
+		return new ItemStack(GregTechAPI.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID());
 	}
 
 	@Override

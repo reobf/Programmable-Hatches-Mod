@@ -8,8 +8,8 @@ import net.minecraft.item.ItemStack;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.GregTech_API;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.GregTechAPI;
+import gregtech.api.util.GTUtility;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 import thaumcraft.common.config.ConfigItems;
@@ -23,7 +23,7 @@ public class ProgHatchCreativeTab extends CreativeTabs {
 
 	@SideOnly(Side.CLIENT)
 	public ItemStack getIconItemStack() {
-		return ItemProgrammingCircuit.wrap(GT_Utility.getIntegratedCircuit(0));
+		return ItemProgrammingCircuit.wrap(GTUtility.getIntegratedCircuit(0));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -32,7 +32,7 @@ public class ProgHatchCreativeTab extends CreativeTabs {
 		p_78018_1_.addAll(Registration.items);
 
 		p_78018_1_.add(ItemProgrammingCircuit.wrap(null));
-		GregTech_API.getConfigurationCircuitList(100).stream().map(ItemProgrammingCircuit::wrap)
+		GregTechAPI.getConfigurationCircuitList(100).stream().map(ItemProgrammingCircuit::wrap)
 				.forEach(p_78018_1_::add);
 		p_78018_1_.add(new ItemStack(MyMod.fixer));
 		p_78018_1_.add(new ItemStack(MyMod.toolkit));

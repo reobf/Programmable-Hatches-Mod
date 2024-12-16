@@ -44,12 +44,12 @@ import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
-import gregtech.GT_Mod;
-import gregtech.api.GregTech_API;
+import gregtech.GTMod;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Textures;
-import gregtech.api.gui.modularui.GT_UIInfos;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GTUIInfos;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.IConfigurationCircuitSupport;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
@@ -57,10 +57,10 @@ import gregtech.api.interfaces.modularui.IAddUIWidgets;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IHasWorldObjectAndCoords;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_InputBus;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_TieredMachineBlock;
+import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
+import gregtech.api.metatileentity.implementations.MTETieredMachineBlock;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -99,7 +99,7 @@ import reobf.proghatches.net.MasterSetMessage;
 import reobf.proghatches.net.UpgradesMessage;
 
 public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch & IDualInputHatch & IMetaTileEntity>
-		extends GT_MetaTileEntity_TieredMachineBlock implements IAddUIWidgets, ICraftingMedium, ICustomNameObject,
+		extends MTETieredMachineBlock implements IAddUIWidgets, ICraftingMedium, ICustomNameObject,
 		IGridProxyable, IInterfaceViewable, IPowerChannelState, IActionHost, ICraftingProvider
 		,IMultiplePatternPushable,IDataCopyablePlaceHolder
 		{
@@ -112,7 +112,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 		super(aID, aName, aNameRegional, aTier, 0,
 
 				Config.get("PDIHIMS", ImmutableMap.of()));
-		Registration.items.add(new ItemStack(GregTech_API.sBlockMachines, 1, aID));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 	}
 
 	public PatternDualInputHatchInventoryMappingSlave(String aName, int aTier, int aInvSlotCount, String[] aDescription,
@@ -319,11 +319,11 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 						aBaseMetaTileEntity.getZCoord(), this), (EntityPlayerMP) aPlayer);
 
 			}
-			GT_UIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
+			GTUIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
 			return true;
 		} else {
 
-			GT_UIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
+			GTUIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
 		}
 		return false;
 
@@ -455,7 +455,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 				if (widget.getContext().isClient() == false)
 					widget.getContext().openSyncedWindow(989898);
 			}).setPlayClickSound(true)
-					.setBackground(GT_UITextures.BUTTON_STANDARD, GT_UITextures.OVERLAY_BUTTON_PLUS_LARGE)
+					.setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
 					.addTooltips(ImmutableList
 							.of(LangManager.translateToLocalFormatted("programmable_hatches.gt.pattern.mapping")))
 					.setSize(16, 16)
@@ -472,7 +472,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 				if (widget.getContext().isClient() == false)
 					widget.getContext().openSyncedWindow(989898);
 			}).setPlayClickSound(true)
-					.setBackground(GT_UITextures.BUTTON_STANDARD, GT_UITextures.OVERLAY_BUTTON_PLUS_LARGE)
+					.setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
 					.addTooltips(ImmutableList
 							.of(LangManager.translateToLocalFormatted("programmable_hatches.gt.pattern.mapping")))
 					.setSize(16, 16)
@@ -482,7 +482,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
 	}
 
-	@Override
+	//@Override
 	public boolean useModularUI() {
 
 		return true;
@@ -494,7 +494,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 	public AENetworkProxy getProxy() {
 		if (gridProxy == null) {
 			gridProxy = new AENetworkProxy(this, "proxy",
-					new ItemStack(GregTech_API.sBlockMachines, 1, this.getBaseMetaTileEntity().getMetaTileID()), true);
+					new ItemStack(GregTechAPI.sBlockMachines, 1, this.getBaseMetaTileEntity().getMetaTileID()), true);
 			gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
 			updateValidGridProxySides();
 			if (getBaseMetaTileEntity().getWorld() != null)
@@ -581,7 +581,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         if (m.mInventory[m.getCircuitSlot()] != null) {
             name.append(" - ");
             ItemStack is = m.mInventory[m.getCircuitSlot()];
-            if(is.getItem()!=GT_Utility.getIntegratedCircuit(0).getItem()){
+            if(is.getItem()!=GTUtility.getIntegratedCircuit(0).getItem()){
                 name.append(is.getDisplayName());
                 if(is.getItemDamage()>0){name.append("@"+is.getItemDamage());}
                 }else{
@@ -901,7 +901,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 			} catch (Exception e) {
 			}
 			if (details == null) {
-				GT_Mod.GT_FML_LOGGER.warn("Found an invalid pattern at " + getBaseMetaTileEntity().getCoords()
+				GTMod.GT_FML_LOGGER.warn("Found an invalid pattern at " + getBaseMetaTileEntity().getCoords()
 						+ " in dim " + getBaseMetaTileEntity().getWorld().provider.dimensionId);
 				continue;
 			}
@@ -919,7 +919,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 		final int PARENT_HEIGHT = getGUIHeight();
 
 		ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-		builder.setBackground(GT_UITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+		builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
 		builder.setGuiTint(getGUIColorization());
 		builder.setDraggable(true);
 		builder.setPos((a, b) -> new Pos2d(PARENT_WIDTH + b.getPos().getX(), PARENT_HEIGHT * 0 + b.getPos().getY()));
@@ -950,7 +950,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 					.setChangeListener(() -> {
 						onPatternChange();
 					}).setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
-					.setBackground(getGUITextureSet().getItemSlot(), GT_UITextures.OVERLAY_SLOT_PATTERN_ME));
+					.setBackground(getGUITextureSet().getItemSlot(), GTUITextures.OVERLAY_SLOT_PATTERN_ME));
 
 		}
 
@@ -976,7 +976,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 	@Override
 	public ItemStack getCrafterIcon() {
 		ItemStack is = this.getMachineCraftingIcon();
-		return is == null ? new ItemStack(GregTech_API.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID()) : is;
+		return is == null ? new ItemStack(GregTechAPI.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID()) : is;
 	}
 
 	@Override

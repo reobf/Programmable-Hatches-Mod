@@ -4,7 +4,7 @@ import net.minecraft.item.ItemStack;
 
 import com.gtnewhorizons.modularui.api.forge.ItemHandlerHelper;
 
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 
 public class MappingItemHandler implements com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable
 ,IInterhandlerGroup
@@ -120,7 +120,7 @@ public class MappingItemHandler implements com.gtnewhorizons.modularui.api.forge
 	public void setStackInSlot(int var1, ItemStack var2) {
 		try{
 		if (phantom) {
-			is[var1 - index] = GT_Utility.copyAmount(0, var2);
+			is[var1 - index] = GTUtility.copyAmount(0, var2);
 
 		} else
 			is[var1 - index] = var2;

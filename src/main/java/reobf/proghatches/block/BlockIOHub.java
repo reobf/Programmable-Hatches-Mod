@@ -9,7 +9,7 @@ import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.multitileentity.multiblock.base.MultiBlockPart;
-import gregtech.common.blocks.GT_Material_Machines;
+import gregtech.common.blocks.MaterialMachines;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -24,7 +24,7 @@ import net.minecraftforge.event.ForgeEventFactory;
 public class BlockIOHub extends BlockContainer {
 	private IIcon inv_me_slave;
 	public BlockIOHub() {
-		super(new GT_Material_Machines());
+		super(new MaterialMachines());
 		
 		setHardness(1);
 		setHarvestLevel("pickaxe", 1);

@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.google.common.collect.Sets;
 
 import codechicken.nei.recipe.StackInfo;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import net.minecraft.item.ItemStack;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
@@ -94,7 +94,7 @@ public class MixinPresetsInject {
 		for(int r[]:range)
 		add.accept("",
 		IntStream.range(r[0], r[1])
-		.mapToObj(s->StackInfo.getItemStackGUID(new ItemStack(GregTech_API.sBlockMachines,1,s)))
+		.mapToObj(s->StackInfo.getItemStackGUID(new ItemStack(GregTechAPI.sBlockMachines,1,s)))
 		.collect(Collectors.toSet())
 				
 		)

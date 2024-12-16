@@ -10,14 +10,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_BasicMachine;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEBasicMachine;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import reobf.proghatches.eucrafting.IIdleStateProvider;
 
 
-@Mixin(value=GT_MetaTileEntity_BasicMachine.class,remap=false)
+@Mixin(value=MTEBasicMachine.class,remap=false)
 public abstract class MixinMachineIdle2 implements IIdleStateProvider{
 
 @Shadow int mMaxProgresstime;

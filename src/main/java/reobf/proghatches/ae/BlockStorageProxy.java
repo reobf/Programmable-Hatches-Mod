@@ -10,7 +10,7 @@ import appeng.core.sync.GuiBridge;
 import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.common.blocks.GT_Material_Machines;
+import gregtech.common.blocks.MaterialMachines;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -35,7 +35,7 @@ public class BlockStorageProxy  extends BlockContainer implements INameAndToolti
 	private IIcon blockIconAlt2;
 	public BlockStorageProxy() {
 		
-		super(new GT_Material_Machines());
+		super(new MaterialMachines());
 		
 		setHardness(1);
 		setHarvestLevel("pickaxe", 1);

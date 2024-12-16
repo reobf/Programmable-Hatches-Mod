@@ -1,6 +1,6 @@
 package reobf.proghatches.eucrafting;
 
-import static gregtech.api.enums.GT_Values.NW;
+import static gregtech.api.enums.GTValues.NW;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -34,15 +34,15 @@ import appeng.me.helpers.IGridProxyable;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.gui.modularui.GT_CoverUIBuildContext;
-import gregtech.api.gui.modularui.GT_UIInfos;
+import gregtech.api.gui.modularui.CoverUIBuildContext;
+import gregtech.api.gui.modularui.GTUIInfos;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.CoverableTileEntity;
-import gregtech.api.net.GT_Packet_SendCoverData;
-import gregtech.api.util.GT_CoverBehaviorBase;
+
+import gregtech.api.util.CoverBehaviorBase;
 import gregtech.api.util.ISerializableObject;
-import gregtech.common.tileentities.machines.multi.GT_MetaTileEntity_AssemblyLine;
+
 import gregtech.crossmod.waila.GregtechWailaDataProvider;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -65,7 +65,7 @@ import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.StackTraceUtil;
 
-public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
+public class AECover extends CoverBehaviorBase<AECover.Data> {
 	
 	
 	public static boolean mixinReady;//mixin will set this to true
@@ -537,7 +537,7 @@ public class AECover extends GT_CoverBehaviorBase<AECover.Data> {
 		public default void update(ICoverable aTileEntity) {
 		}
 
-		public default void addUIWidgets(Builder builder, GT_CoverUIBuildContext gt_CoverUIBuildContext) {
+		public default void addUIWidgets(Builder builder, CoverUIBuildContext CoverUIBuildContext) {
 		}
 
 		default boolean hasAEGUI() {
@@ -648,7 +648,7 @@ public void onPlayerAttach(EntityPlayer player, ItemStack aCover, ICoverable aTi
 @Override
 protected Data onCoverScrewdriverClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
 		ICoverable aTileEntity, EntityPlayer aPlayer, float aX, float aY, float aZ) {
-	if (aCoverVariable.hasModularGUI())GT_UIInfos.openCoverUI(aTileEntity, aPlayer, side);
+	if (aCoverVariable.hasModularGUI())GTUIInfos.openCoverUI(aTileEntity, aPlayer, side);
 	return super.onCoverScrewdriverClickImpl(side, aCoverID, aCoverVariable, aTileEntity, aPlayer, aX, aY, aZ);
 }
 	
@@ -660,7 +660,7 @@ protected Data onCoverScrewdriverClickImpl(ForgeDirection side, int aCoverID, Da
 		if (aCoverVariable.hasModularGUI()&&Optional.ofNullable(aPlayer.getHeldItem()).map(ItemStack::getItem)
 				.orElse(null)==MyMod.eu_tool
 				) {
-			GT_UIInfos.openCoverUI(aTileEntity, aPlayer, side);
+			GTUIInfos.openCoverUI(aTileEntity, aPlayer, side);
 			
 			return true;
 			
@@ -692,7 +692,7 @@ protected Data onCoverScrewdriverClickImpl(ForgeDirection side, int aCoverID, Da
 		
 		
 		/*NW.sendPacketToAllPlayersInRange(aPlayer.getEntityWorld(),
-					new GT_Packet_SendCoverData(side, aCoverID, aCoverVariable, aTileEntity), aTileEntity.getXCoord(),
+					new GTPacketSendCoverData(side, aCoverID, aCoverVariable, aTileEntity), aTileEntity.getXCoord(),
 					aTileEntity.getZCoord());
 */
 		
@@ -897,21 +897,21 @@ protected Data onCoverScrewdriverClickImpl(ForgeDirection side, int aCoverID, Da
 		return true;
 	}
 
-	@Override
+	//@Override
 	public boolean useModularUI() {
 		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
-	public ModularWindow createWindow(GT_CoverUIBuildContext buildContext) {
+	public ModularWindow createWindow(CoverUIBuildContext buildContext) {
 		return new AECoverUIFactory(buildContext,
 				((Data) buildContext.getTile().getComplexCoverDataAtSide(buildContext.getCoverSide()))).createWindow();
 	}
 
 	private class AECoverUIFactory extends UIFactory {
 
-		public AECoverUIFactory(GT_CoverUIBuildContext buildContext, Data d) {
+		public AECoverUIFactory(CoverUIBuildContext buildContext, Data d) {
 			super(buildContext);
 			this.data = d;
 		}

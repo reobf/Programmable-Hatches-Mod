@@ -8,7 +8,7 @@ import appeng.api.AEApi;
 import appeng.api.parts.IPartItem;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.enums.GT_Values;
+import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Textures;
 import gregtech.api.enums.Textures.BlockIcons.CustomIcon;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -40,10 +40,10 @@ public class ItemPartEUSource extends Item implements IPartItem {
 	public String getItemStackDisplayName(ItemStack stack) {
 		int damage=stack.getItemDamage();
 		if(damage>=1&&damage<=15){
-			return StatCollector.translateToLocalFormatted("item.proghatches.part.eu.source.superconduct.name",GT_Values.VN[damage-1]);
+			return StatCollector.translateToLocalFormatted("item.proghatches.part.eu.source.superconduct.name",GTValues.VN[damage-1]);
 		}	
 		if(damage>=16&&damage<=30){
-			return StatCollector.translateToLocalFormatted("item.proghatches.part.eu.source.normal.name",GT_Values.VN[damage-16]);
+			return StatCollector.translateToLocalFormatted("item.proghatches.part.eu.source.normal.name",GTValues.VN[damage-16]);
 		}	
 		return super.getItemStackDisplayName(stack);
 	}

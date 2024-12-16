@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.SoftOverride;
 
 import gregtech.api.metatileentity.BaseTileEntity;
 import gregtech.api.metatileentity.CoverableTileEntity;
-import gregtech.api.util.GT_CoverBehaviorBase;
+import gregtech.api.util.CoverBehaviorBase;
 import gregtech.common.covers.CoverInfo;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.eucrafting.AECover;
@@ -35,7 +35,7 @@ public abstract class MixinEUSourceCoverChunkUnloadNotification extends BaseTile
 			final CoverInfo coverInfo = getCoverInfoAtSide(side);
 			if (coverInfo.isValid()) {
 
-				GT_CoverBehaviorBase be = coverInfo.getCoverBehavior();
+				CoverBehaviorBase be = coverInfo.getCoverBehavior();
 				
 				
 				if (be != null && be instanceof AECover) {

@@ -13,9 +13,11 @@ import reobf.proghatches.main.asm.repack.objectwebasm.tree.MethodNode;
 import reobf.proghatches.main.mixin.LateMixinPlugin;
 
 public class DataCopyableTransformer implements IClassTransformer{
-boolean done;
+boolean done=true;//not needed any more!
 	@Override
 	public byte[] transform(String name, String transformedName, byte[] basicClass) {
+		
+		
 		exit:if ((!done) && name.equals("reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder")) {
 			done=true;
 			Boolean dataOrbSupport=null;

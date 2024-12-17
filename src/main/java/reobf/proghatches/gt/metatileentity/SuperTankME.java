@@ -27,9 +27,12 @@ import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.math.Color;
+import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.api.widget.IWidgetBuilder;
 import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
+import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
@@ -119,7 +122,7 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
-
+import reobf.proghatches.gt.metatileentity.SuperChestME.SilentCloseable;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.gt.metatileentity.util.MappingFluidTank;
@@ -217,6 +220,7 @@ public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxya
 	}
 	@Override
 	public List<IMEInventoryHandler> getCellArray(StorageChannel channel) {
+		if(freezeFlag){return ImmutableList.of();}
 		if(channel==StorageChannel.FLUIDS)
 		return ImmutableList.of(handler);
 		else
@@ -678,6 +682,47 @@ IMEMonitor handler0x= new MEMonitorHandler(handler
 		}
 		if(needToSort)fillStacksIntoFirstSlots();
 	}
+	boolean freezeFlag;
+	//use in try-finally
+		public SilentCloseable freeze(){
+			freezeFlag=true;
+			post();
+			try {
+			this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
+			} catch (GridAccessException e) {}
+			return new SilentCloseable() {
+				@Override
+				public void close()  {
+					freezeFlag=false;
+					try {
+						getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
+						} catch (GridAccessException e) {}
+				}
+			};
+			
+		}ButtonWidget createRefundButton(IWidgetBuilder<?> builder) {
+
+			Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
+
+				
+				refund();
+			}).setPlayClickSound(true).setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_EXPORT)
+
+					.addTooltips(ImmutableList.of("Return all internally stored items back to AE"))
+
+					.setPos(new Pos2d(getGUIWidth() - 18 - 3, 5 + 16 + 2)).setSize(16, 16);
+			return (ButtonWidget) button;
+		}
+		public void refund(){
+			 try(SilentCloseable __=freeze()){
+			    	if(content.getFluidAmount()>0){
+			    	 IAEFluidStack left = getProxy().getStorage().getFluidInventory()
+			    	 .injectItems(AEFluidStack.create(content.getFluid()), Actionable.MODULATE, new MachineSource(this));
+			    	 content.setFluid(left==null?null:left.getFluidStack());}
+			     } catch (GridAccessException e) {
+				 } finally{}markDirty();
+		}
+		
 	   @Override
 	    public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
 		   if(ProghatchesUtil.handleUse(aPlayer,  (MetaTileEntity) aBaseMetaTileEntity.getMetaTileEntity())){
@@ -723,7 +768,7 @@ builder.widget(new FluidSlotWidget(content)
 	 builder.widget(new SlotWidget(new BaseSlotPatched(this.getInventoryHandler(), 1))
 			 .setPos(3+18*3, 3)
 			 );
-	 
+	 builder.widget(createRefundButton(builder));
 	 Widget w;
      builder.widget(w=new DrawableWidget().setDrawable(ModularUITextures.ICON_INFO)
 			 

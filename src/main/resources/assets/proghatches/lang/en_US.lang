@@ -676,7 +676,7 @@ proghatches.gt.void.fx.false=FX:OFF
 tile.proghatch.ma_iface.name=Molecular Assembly Interface(WIP)
 tile.proghatches.circuit_interceptor.name=CPU Extract Request Inteceptor(Programming Circuit)
 proghatch.ma_iface.tooltip.0=Accept Molecular Assembly request from one side
-proghatch.ma_iface.tooltip.1=then pass to the container on the opposide side.
+proghatch.ma_iface.tooltip.1=then pass to the container on the opposite side.
 proghatch.ma_iface.tooltip.2=Can handle patterns with at most 1 fluid.
 programmable_hatches.gt.capOverride.64=Set to value>=64 to override max capacity.
 programmable_hatches.gt.capOverride=Set to a non-zero value to override max capacity.

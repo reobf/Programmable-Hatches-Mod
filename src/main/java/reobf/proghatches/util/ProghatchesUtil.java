@@ -29,6 +29,7 @@ import appeng.core.AELog;
 import appeng.core.localization.PlayerMessages;
 import appeng.core.sync.GuiBridge;
 import appeng.helpers.IPriorityHost;
+import appeng.items.tools.ToolPriorityCard;
 import appeng.util.Platform;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -258,7 +259,7 @@ public class ProghatchesUtil {
 	}
 	public static boolean handleUse(EntityPlayer player,  /*SuperChestME*/MetaTileEntity te) {
 		if(player.getHeldItem()==null){return false;}
-		if(!player.getHeldItem().getItem().getClass().getName().equals("appeng.items.tools.ToolPriorityCard")){return false;}
+		if(player.getHeldItem().getItem()instanceof ToolPriorityCard){return false;}
 		
 		handleUse(
 				player,
@@ -272,7 +273,10 @@ public class ProghatchesUtil {
 	}
 	public static void handleUse(EntityPlayer player, TileEntity tile, IPriorityHost priorityHost,
             IActionHost actionHost, ItemStack stack, ForgeDirection side) {
-    	if(m==null)
+    
+		
+		
+		if(m==null)
 		try {
 			Class<?> z=Class.forName("appeng.items.tools.ToolPriorityCard");
 		    m = z.getDeclaredMethod("handleUse",EntityPlayer.class, TileEntity.class, IPriorityHost.class, IActionHost.class, ItemStack.class, ForgeDirection.class);

@@ -1,5 +1,7 @@
 package reobf.proghatches.gt.metatileentity.util;
 
-public interface IFakeSuperInterface {
+import gregtech.api.interfaces.IDataCopyable;
+
+public interface IFakeSuperInterface extends IDataCopyable{
 
 }

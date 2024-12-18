@@ -166,6 +166,7 @@ import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricat
 import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
 import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemProgrammingCircuit;
+import reobf.proghatches.keybinding.KeyBindings;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.mixin.mixins.MixinFixPipeCoverBug;
 import reobf.proghatches.main.registration.Registration;
@@ -175,6 +176,7 @@ import reobf.proghatches.net.MasterSetMessage;
 import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
 import reobf.proghatches.net.RenameMessage;
+import reobf.proghatches.net.SwitchModeMessage;
 import reobf.proghatches.net.UpgradesMessage;
 import reobf.proghatches.net.VoidFXMessage;
 import reobf.proghatches.net.WayPointMessage;
@@ -294,7 +296,7 @@ public class MyMod {
 		net.registerMessage(new VoidFXMessage.Handler(), VoidFXMessage.class, 6, Side.CLIENT);
 		net.registerMessage(new ConnectionModeMessage.Handler(), ConnectionModeMessage.class, 7, Side.SERVER);
 		net.registerMessage(new MAFXMessage.Handler(), MAFXMessage.class, 8, Side.CLIENT);
-		
+		net.registerMessage(new SwitchModeMessage.Handler(), SwitchModeMessage.class, 9, Side.SERVER);
 		proxy.preInit(event);
 	}
 
@@ -308,7 +310,7 @@ public class MyMod {
 	public void init(FMLInitializationEvent event) {
 		proxy.init(event);
 		
-		
+		new KeyBindings();
 		
 		AEApi.instance().partHelper().registerNewLayer("reobf.proghatches.fmp.LazerLayer",
 				"reobf.proghatches.eucrafting.ILazer");
@@ -407,8 +409,14 @@ public class MyMod {
 
 	public void postInit(FMLPostInitializationEvent event) {
 		proxy.postInit(event);
+		//KeyBindings
 		
 		
+		
+		
+		
+		
+		//MinecraftForge.EVENT_BUS.register(this);
 		// Api.INSTANCE.registries().p2pTunnel().addNewAttunement(null, null);
 		// ShutDownReasonRegistry.register(ACCESS_LOOP);
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());

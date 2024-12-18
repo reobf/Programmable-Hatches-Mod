@@ -711,3 +711,7 @@ item.proghatch.upgrades.tooltips.3.1=为非ME仓解锁无尽缓冲模式
 item.proghatch.upgrades.tooltips.3.2=拆卸输入仓回收已安装的升级
 item.proghatch.upgrades.3=无尽缓冲升级
 proghatch.gui.button.power_switch.ex=§cShift点击打开实验性功能选项窗口
+proghatch.keybinding.kit.switch.mode.0=模式 1: 禁用
+proghatch.keybinding.kit.switch.mode.1=模式 2: 常规
+proghatch.keybinding.kit.switch.mode.2=模式 3: 常规+重置电路
+proghatch.keybinding.kit.switch.desc=切换编程工具箱模式(装备在Baubles饰品栏)

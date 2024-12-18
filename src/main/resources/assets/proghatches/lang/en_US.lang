@@ -713,3 +713,7 @@ item.proghatch.upgrades.tooltips.3.1=Unlock Infinity Buffer Mode, for non-ME hat
 item.proghatch.upgrades.tooltips.3.2=Harvest the Hatch to retrieve installed Upgrades.
 item.proghatch.upgrades.3=Infinity Buffer Upgrade
 proghatch.gui.button.power_switch.ex=§cShift-Click to open experimental option panel.
+proghatch.keybinding.kit.switch.mode.0=Mode 1: Disabled
+proghatch.keybinding.kit.switch.mode.1=Mode 2: Normal
+proghatch.keybinding.kit.switch.mode.2=Mode 3: Normal + Reset Circuit
+proghatch.keybinding.kit.switch.desc=Switch Toolkit Mode (equipped in Baubles slot)

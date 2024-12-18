@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
@@ -17,8 +18,12 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
+import tconstruct.armor.player.TPlayerStats;
+import tconstruct.library.accessory.IAccessory;
 
 import com.google.common.collect.ImmutableList;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
@@ -32,11 +37,19 @@ import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 
 import baubles.api.BaubleType;
 import baubles.api.IBauble;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.PlayerTickEvent;
+//import baubles.api.expanded.IBaubleExpanded;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.gui.modularui.GTUIInfos;
 
-public class ItemProgrammingToolkit extends Item implements IItemWithModularUI , IBauble {
+public class ItemProgrammingToolkit extends Item implements IItemWithModularUI , IBauble
+//,IAccessory
+
+//,IBaubleExpanded 
+{
 
 	/*
 	 * @Override public ModularWindow createWindow(UIBuildContext buildContext,
@@ -70,7 +83,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI ,
 
 	@SideOnly(Side.CLIENT)
 	public static boolean holding() {
-		return lastholdingtick == Minecraft.getMinecraft().thePlayer.ticksExisted;
+		return Math.abs(lastholdingtick - Minecraft.getMinecraft().thePlayer.ticksExisted)<=2;
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -133,7 +146,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI ,
 
 	}
 
-	int maxModes = 3;
+	public static int maxModes = 3;
 
 	@Override
 	public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player) {
@@ -318,7 +331,7 @@ class TakeOnlyItemStackHandler extends ItemStackHandler{
 	@Override
 	public BaubleType getBaubleType(ItemStack itemstack) {
 		
-		return BaubleType.AMULET;
+		return BaubleType.UNIVERSAL;
 	}
 
 	
@@ -351,5 +364,40 @@ class TakeOnlyItemStackHandler extends ItemStackHandler{
 		   
 		  ((Item)i).onUpdate(itemstack, null, player, 0, false);
 	    }
+
+	   
+	   @SideOnly(Side.CLIENT)
+	   @SubscribeEvent
+	   public void event(LivingUpdateEvent e){
+		  if( e.entityLiving!=Minecraft.getMinecraft().thePlayer){return;}
+		   
+		   IInventory inventory = TPlayerStats.get((EntityPlayer) e.entityLiving).armor;
+		   
+		   for(int i=0;i<inventory.getSizeInventory();i++){
+			   
+			   ItemStack is = inventory.getStackInSlot(i);
+			   if(is!=null&&is.getItem() instanceof ItemProgrammingToolkit){
+			   ((Item)is.getItem()).onUpdate(is, null, e.entityLiving, 0, false);
+			   }
+		   }
+		   
+			
+	   }
+	   
+	 //  {MinecraftForge.EVENT_BUS.register(this);}
+	   
+	//@Override
+	public boolean canEquipAccessory(ItemStack item, int slot) {
+	
+		return true;
+	}
+
+/*	@Override
+	public String[] getBaubleTypes(ItemStack itemstack) {
+		// TODO Auto-generated method stub
+		return new String[]{
+				"universal"
+		};
+	}*/
 
 }

@@ -34,7 +34,7 @@
  * For more details, see https://docs.gradle.org/8.0.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
  */
 dependencies {
-  api('com.github.GTNewHorizons:GT5-Unofficial:5.09.51.06:dev')
+  api('com.github.GTNewHorizons:GT5-Unofficial:5.09.51.06:dev'){ transitive = false }
   
   api("com.github.GTNewHorizons:StructureLib:1.4.0:dev")
     api("net.industrial-craft:industrialcraft-2:2.2.828-experimental:dev")
@@ -54,8 +54,9 @@ dependencies {
     compileOnlyApi("com.github.GTNewHorizons:Mobs-Info:0.4.7-GTNH:dev")
     compileOnlyApi("com.github.GTNewHorizons:Navigator:1.0.15:dev")
     api('com.github.GTNewHorizons:Baubles:1.0.4:dev') {transitive=false}
+	//api('com.github.GTNewHorizons:Baubles-Expanded:2.0.3:dev') {transitive=false}
     // Required to prevent an older bauble api from Extra Utilities from loading first in the javac classpath
-    compileOnly('com.github.GTNewHorizons:Baubles:1.0.4:dev') {transitive=false}
+   // compileOnly('com.github.GTNewHorizons:Baubles:1.0.4:dev') {transitive=false}
 
     devOnlyNonPublishable("com.github.GTNewHorizons:Infernal-Mobs:1.10.0-GTNH:dev")
 

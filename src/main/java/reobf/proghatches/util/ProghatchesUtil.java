@@ -259,7 +259,7 @@ public class ProghatchesUtil {
 	}
 	public static boolean handleUse(EntityPlayer player,  /*SuperChestME*/MetaTileEntity te) {
 		if(player.getHeldItem()==null){return false;}
-		if(player.getHeldItem().getItem()instanceof ToolPriorityCard){return false;}
+		if(!(player.getHeldItem().getItem() instanceof ToolPriorityCard)){return false;}
 		
 		handleUse(
 				player,

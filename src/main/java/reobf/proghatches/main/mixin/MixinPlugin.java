@@ -233,7 +233,7 @@ static public ArrayList<String> retLate = new ArrayList<>();
 																		// nee
 																		// pattern
 																		// encoder
-				// no version for wireless version, WIP
+				
 			}
 
 		}

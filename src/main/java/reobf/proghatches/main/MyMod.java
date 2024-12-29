@@ -202,6 +202,10 @@ public class MyMod {
 	
 	public static MyMod instance;
 	{
+	
+		
+		
+		
 		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment") ){
 		DualityInterface.class.getDeclaredFields();
 		/*CraftingCPUCluster.class.getDeclaredFields();
@@ -280,11 +284,13 @@ public class MyMod {
 	public static Block submitter;
 	public static Item cpu;
 	public static Block reader;
-
+	{
+	FMLCommonHandler.instance().bus().register(this);
+	MinecraftForge.EVENT_BUS.register(this);
+	
+	}
 	@Mod.EventHandler
-	// preInit "Run before anything else. Read your config, create blocks,
-	// items, etc, and register them with the
-	// GameRegistry." (Remove if not needed)
+
 	public void preInit(FMLPreInitializationEvent event) {
 		FluidConvertingInventoryAdaptor.class.getFields();
 		net.registerMessage(new OpenPartGuiMessage.Handler(), OpenPartGuiMessage.class, 0, Side.CLIENT);
@@ -316,8 +322,7 @@ public class MyMod {
 				"reobf.proghatches.eucrafting.ILazer");
 		AEApi.instance().partHelper().registerNewLayer("reobf.proghatches.fmp.LayerCraftingMachine",
 				"appeng.api.implementations.tiles.ICraftingMachine");
-		FMLCommonHandler.instance().bus().register(this);
-		MinecraftForge.EVENT_BUS.register(this);
+		
 
 		OCApi.put(iohub, TileIOHub.OCApi.class);
 		OCApi.put(oc_api, ItemAPICard.APIEnv.class);
@@ -382,6 +387,7 @@ public class MyMod {
 				return;
 			}
 			p.get = true;
+			
 			/*EntityItem entityitem = e.player.dropPlayerItemWithRandomChoice(
 					Optional.of(tutorial("programmable_hatches.eucreafting.tutorial")).map(s -> {
 						s.stackTagCompound.setString("proghatchesSpecialTag", "true");
@@ -719,14 +725,16 @@ public class MyMod {
 		public int alert_mask;
 
 		@Override
-		public void saveNBTData(NBTTagCompound compound) {
-
+		public void saveNBTData(NBTTagCompound compound0) {
+			NBTTagCompound compound = new NBTTagCompound();
 			compound.setInteger("alert_mask", alert_mask);
 			compound.setBoolean(GET_PROGHATCHBOOK + "_get", get);
+			compound0.setTag(GET_PROGHATCHBOOK, compound);
 		}
 
 		@Override
-		public void loadNBTData(NBTTagCompound compound) {
+		public void loadNBTData(NBTTagCompound compound0) {
+			NBTTagCompound compound = compound0.getCompoundTag(GET_PROGHATCHBOOK);
 			get = compound.getBoolean(GET_PROGHATCHBOOK + "_get");
 			alert_mask = compound.getInteger("alert_mask");
 		}

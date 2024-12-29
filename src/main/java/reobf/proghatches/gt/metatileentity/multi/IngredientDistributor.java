@@ -45,8 +45,10 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.networking.security.BaseActionSource;
+import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.me.GridAccessException;
 import appeng.util.item.AEFluidStack;
@@ -995,6 +997,15 @@ if(f2==null)
 	} catch (Exception e) {
 		e.printStackTrace();
 	}}
+
+private static <T extends IAEStack<?>> T verifyForRealExistance(T tocheck,IMEMonitor<T> tocheckfrom){
+	
+	if(tocheck==null)return tocheck;
+	
+	return tocheckfrom.extractItems(tocheck, Actionable.SIMULATE, fakeSource);
+	
+	}
+
 @SuppressWarnings({ "unchecked", "unused" })
 private TransferCheckResult checkMEBus(MTEHatchOutputBusME bus,ItemStack check,int index){
 	
@@ -1009,10 +1020,11 @@ private TransferCheckResult checkMEBus(MTEHatchOutputBusME bus,ItemStack check,i
 				return TransferCheckResult.ofFail("cache.diff.bus",index,cp(next),cp(check));
 			}
 		}
-		itr = bus.getProxy().getStorage().getItemInventory().getStorageList().iterator();
+		IMEMonitor<IAEItemStack> itemInventory = bus.getProxy().getStorage().getItemInventory();
+		itr = itemInventory.getStorageList().iterator();
 		//if(check!=null)
 		while(itr.hasNext()){IAEItemStack next;
-			if((next=itr.next()).isSameType(check)==false&&next.getStackSize()>0){
+			if((next=verifyForRealExistance(itr.next(),itemInventory)).isSameType(check)==false&&next.getStackSize()>0){
 				if(check==null)
 					return TransferCheckResult.ofFail("net.diff.bus.null",index,cp(next));
 				return TransferCheckResult.ofFail("net.diff.bus",index,cp(next),cp(check));
@@ -1050,11 +1062,11 @@ private TransferCheckResult checkMEHatch(MTEHatchOutputME bus,FluidStack check,i
 				return TransferCheckResult.ofFail("cache.diff.hatch",index,cp(next),cp(check));
 			}
 		}
-			
-		itr = bus.getProxy().getStorage().getFluidInventory().getStorageList().iterator();
+		IMEMonitor<IAEFluidStack> itemInventory = bus.getProxy().getStorage().getFluidInventory();
+		itr = itemInventory.getStorageList().iterator();
 		//if(check!=null)
 		while(itr.hasNext()){IAEFluidStack next;
-			if(!sameType(next=itr.next(),(check))&&next.getStackSize()>0){
+			if(!sameType(next=verifyForRealExistance(itr.next(),itemInventory),(check))&&next.getStackSize()>0){
 				if(check==null)
 					return TransferCheckResult.ofFail("net.diff.hatch.null",index,cp(next));
 				return TransferCheckResult.ofFail("net.diff.hatch",index,cp(next),cp(check));
@@ -1130,6 +1142,7 @@ private static boolean sameType(IAEFluidStack  a,FluidStack b){
 
 private boolean moveToOutpus(IDualInputInventory opt,boolean checkSpace) {
 	ItemStack[] i = opt.getItemInputs();
+	i=Arrays.stream(i).filter(s->s.stackSize>0).toArray(ItemStack[]::new);
 	FluidStack[] f = opt.getFluidInputs();
 	boolean anyDiff=false;
 	if(i.length>mOutputBusses.size()){

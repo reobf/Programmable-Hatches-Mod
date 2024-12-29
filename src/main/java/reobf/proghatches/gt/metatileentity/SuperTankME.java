@@ -384,6 +384,8 @@ IMEMonitor handler0x= new MEMonitorHandler(handler
 
 		@Override
 		public IAEFluidStack injectItems(IAEFluidStack input, Actionable type, BaseActionSource src) {
+			post();
+			try{
 			int acc=content.fill(input.getFluidStack(), type==Actionable.MODULATE);
 			IAEFluidStack  ret = input.copy();
 			ret.decStackSize(acc);
@@ -391,15 +393,24 @@ IMEMonitor handler0x= new MEMonitorHandler(handler
 					){return null;}
 			if(ret.getStackSize()==0)return null;
 			return ret;
+			}finally{
+				   last=AEFluidStack.create(content.getFluid());
+			}
+			
 		}
 
 		@Override
 		public IAEFluidStack extractItems(IAEFluidStack input, Actionable type, BaseActionSource src) {
-		if(content.getFluid()!=null&&content.getFluid().getFluid()!=input.getFluid()
+			post();
+			try{
+			if(content.getFluid()!=null&&content.getFluid().getFluid()!=input.getFluid()
 				){return null;}
 			FluidStack suck=	content.drain((int) Math.min(Integer.MAX_VALUE,input.getStackSize()),  type==Actionable.MODULATE);
 			if(suck!=null&&suck.amount==0)return null;
 			return AEFluidStack.create(suck);
+			}finally{
+				   last=AEFluidStack.create(content.getFluid());
+			}
 		}
 
 		@Override
@@ -577,7 +588,10 @@ IMEMonitor handler0x= new MEMonitorHandler(handler
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		
 		if(!aBaseMetaTileEntity.getWorld().isRemote)
-		{	if(rep>0){rep--;update=true;}
+		{	
+			if(aTick%40==1){post();}
+		
+		if(rep>0){rep--;update=true;}
 		if(this.getBaseMetaTileEntity().hasInventoryBeenModified()){
 			update=true;
 			rep=1;
@@ -973,11 +987,27 @@ public void saveNBTData(NBTTagCompound aNBT) {
 @Override
 public void setItemNBT(NBTTagCompound aNBT) {
 	content.writeToNBT(aNBT);
-    if(piority!=0)aNBT.setInteger("piority", piority);
+   /* if(piority!=0)aNBT.setInteger("piority", piority);
     if(sticky)aNBT.setBoolean("sticky", sticky);
     if(voidFull)aNBT.setBoolean("voidFull", voidFull);
     if(voidOverflow)aNBT.setBoolean("voidOverflow", voidOverflow);
     if(capOverride!=0)aNBT.setInteger("capOverride", capOverride);
+    if(autoUnlock)aNBT.setBoolean("autoUnlock",autoUnlock);
+    if(suppressSticky)aNBT.setBoolean("suppressSticky",suppressSticky);*/
+    aNBT.setInteger("piority", piority);
+	aNBT.setBoolean("sticky", sticky);
+	aNBT.setBoolean("autoUnlock",autoUnlock);
+	aNBT.setBoolean("suppressSticky",suppressSticky);
+	if(cachedFilter!=null){
+		NBTTagCompound tag=new NBTTagCompound();
+		cachedFilter.writeToNBT(tag);
+		aNBT.setTag("cahcedFilter", tag);
+	}
+	
+	aNBT.setBoolean("voidFull", voidFull);
+	 aNBT.setBoolean("voidOverflow", voidOverflow);
+	
+	 if(capOverride!=0)aNBT.setInteger("capOverride", capOverride);
 }
 @Override
 public boolean shouldDropItemAt(int index) {

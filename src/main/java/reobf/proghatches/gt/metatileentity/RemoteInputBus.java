@@ -577,6 +577,7 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
 			for (int i = 0; i < size; i++) {
 				
 				if(a.getStackInSlot(i)!=null
+						&&a.getStackInSlot(i).stackSize>0
 						&&i!=index
 						)//
 				a.decrStackSize(i, 0);// remove 0-sized phantom item

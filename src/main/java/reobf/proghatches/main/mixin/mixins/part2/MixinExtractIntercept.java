@@ -30,9 +30,7 @@ public abstract class MixinExtractIntercept extends CraftingTask{
 	
 	public void extract(CraftingContext context, MECraftingInventory source, List<IAEItemStack> removedList,CallbackInfo c){
 		if(
-				!((IIsExtractFromInvAllowed)(Object)context).isAllowed()&&
-				this.request.stack.isItem()&&
-				((AEItemStack)this.request.stack).getItem()==MyMod.progcircuit
+				!((IIsExtractFromInvAllowed)(Object)context).isAllowed(this.request.stack)
 		){
 			
 			

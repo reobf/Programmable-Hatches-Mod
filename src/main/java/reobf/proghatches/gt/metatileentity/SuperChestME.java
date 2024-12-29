@@ -383,6 +383,7 @@ public class SuperChestME extends MTEHatch implements ICellContainer, IGridProxy
 
 		@Override
 		public IAEItemStack injectItems(IAEItemStack input, Actionable type, BaseActionSource src) {
+			post();
 			try{
 			long l=input.getStackSize();
 			long compl=0;
@@ -413,7 +414,7 @@ public class SuperChestME extends MTEHatch implements ICellContainer, IGridProxy
 			
 			
 			return null;}finally{
-				
+				 last=AEItemStack.create(mInventory[0]);
 				if(voidOverflow&&(mInventory[0]!=null&&
 						ItemStack.areItemStackTagsEqual(mInventory[0],input.getItemStack())&&
 						mInventory[0].getItem()==input.getItem()&&
@@ -425,7 +426,7 @@ public class SuperChestME extends MTEHatch implements ICellContainer, IGridProxy
 
 		@Override
 		public IAEItemStack extractItems(IAEItemStack input, Actionable type, BaseActionSource src) {
-		
+		try{post();
 			ItemStack in=input.getItemStack();
 			ItemStack thiz=mInventory[0];
 			if(thiz!=null&&!Platform.isSameItem(in, thiz))return null;
@@ -446,7 +447,10 @@ public class SuperChestME extends MTEHatch implements ICellContainer, IGridProxy
 			}
 			
 			
-			return null;
+			return null;}finally{
+				
+				 last=AEItemStack.create(mInventory[0]);
+			}
 		}
 		@Override
 		public IItemList<IAEItemStack> getAvailableItems(IItemList<IAEItemStack> out) {
@@ -543,6 +547,8 @@ public class SuperChestME extends MTEHatch implements ICellContainer, IGridProxy
 		
 		boolean active=this.getProxy().isActive();
 		if(!aBaseMetaTileEntity.getWorld().isRemote){
+			if(aTick%40==1){post();}
+			
 			if(rep>0){rep--;update=true;}
 			if(this.getBaseMetaTileEntity().hasInventoryBeenModified()){
 				update=true;
@@ -917,13 +923,31 @@ public void setItemNBT(NBTTagCompound aNBT) {
             tTag.setInteger("Count", tStack.stackSize);
             tItemList.appendTag(tTag);
         }
-    }
-    aNBT.setTag("Inventory", tItemList);
+    }  aNBT.setTag("Inventory", tItemList);
+    
+    aNBT.setInteger("piority", piority);
+	aNBT.setBoolean("sticky", sticky);
+	aNBT.setBoolean("autoUnlock",autoUnlock);
+	aNBT.setBoolean("suppressSticky",suppressSticky);
+	if(cachedFilter[0]!=null){
+		NBTTagCompound tag=new NBTTagCompound();
+		cachedFilter[0].writeToNBT(tag);
+		aNBT.setTag("cahcedFilter", tag);
+	}
+	aNBT.setBoolean("voidFull", voidFull);
+	 aNBT.setBoolean("voidOverflow", voidOverflow);
+	    if(capOverride!=0)aNBT.setInteger("capOverride", capOverride);
+   /* if(cachedFilter[0]!=null){
+		NBTTagCompound tag=new NBTTagCompound();
+		cachedFilter[0].writeToNBT(tag);
+		aNBT.setTag("cahcedFilter", tag);
+	}
+  
     if(piority!=0)aNBT.setInteger("piority", piority);
     if(sticky)aNBT.setBoolean("sticky", sticky);
     if(voidFull)aNBT.setBoolean("voidFull", voidFull);
     if(voidOverflow)aNBT.setBoolean("voidOverflow", voidOverflow);
-    if(capOverride!=0)aNBT.setInteger("capOverride", capOverride);
+    if(capOverride!=0)aNBT.setInteger("capOverride", capOverride);*/
 }
 @Override
 public boolean shouldDropItemAt(int index) {

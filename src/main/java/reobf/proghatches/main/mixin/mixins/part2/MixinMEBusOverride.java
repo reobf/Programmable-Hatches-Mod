@@ -59,7 +59,7 @@ public class MixinMEBusOverride {
 		
 	}
 	
-	@Redirect( require = 1,method="endRecipeProcessing"
+	@Redirect( require = 1,method="/^\\w/"//"endRecipeProcessing"
 			,
 			
 			at = @At(value="INVOKE",

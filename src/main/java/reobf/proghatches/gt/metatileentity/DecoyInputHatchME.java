@@ -171,7 +171,7 @@ public class DecoyInputHatchME  extends MTEHatchInputME implements IMEHatchOverr
 
 					final IAEFluidStack st = this.records.get(option);
 
-					if (st != null) {
+					if (st != null) {if(st.getStackSize()==0){added.add(option.copy());}
 						st.add(option);
 						return;
 					}
@@ -209,6 +209,7 @@ public class DecoyInputHatchME  extends MTEHatchInputME implements IMEHatchOverr
 					final IAEFluidStack st = this.records.get(option);
 
 					if (st != null) {
+						if(st.getStackSize()==0){added.add(option.copy());}
 						st.incStackSize(option.getStackSize());
 						return;
 					}
@@ -442,6 +443,8 @@ public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, f
 	super.onScrewdriverRightClick(side, aPlayer, aX, aY, aZ);
 }@Override
 public IAEStack overridedExtract(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src) {
+	if(mode==Actionable.SIMULATE)
+		return thiz.extractItems(request, mode, src);
 	
 	long requested = request.getStackSize();
 	long num = request.getStackSize();

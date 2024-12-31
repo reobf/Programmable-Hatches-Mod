@@ -156,9 +156,18 @@ int filter;
 	
 
 	}
+	boolean onlyFromSameP;
 	@SuppressWarnings("unchecked")
 	@Override
 	public IAEStack overridedExtract(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src) {
+		lab:if(mode==Actionable.SIMULATE){
+			if(onlyFromSameP){
+			
+			break lab;
+		}
+			return thiz.extractItems(request, mode, src);
+		}
+		
 		AENetworkProxy proxy = getProxy();
 		long size=request.getStackSize();
 		request=request.copy();

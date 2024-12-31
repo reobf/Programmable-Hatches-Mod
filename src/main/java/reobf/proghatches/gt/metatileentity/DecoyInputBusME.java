@@ -14,8 +14,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import javax.naming.OperationNotSupportedException;
@@ -82,6 +84,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolderSuper;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
+import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
 public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverrided,IDataCopyablePlaceHolderSuper {
@@ -135,7 +138,7 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
 	@Override
 	public void overridedBehoviour(int minPull) {
 		AENetworkProxy proxy = getProxy();
@@ -174,7 +177,9 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 			if(reserveFirst&&orderMap.isEmpty()==false)
 			{
 				if(orderMap.get(orderMap.keySet().first()).stream()
-						.filter(s->s.getAvailableItems(StorageChannel.ITEMS.createList()).getFirstItem()!=null)
+						.filter(s->s.getAvailableItems(StorageChannel.ITEMS.createList(),
+								appeng.util.IterationCounter.fetchNewId()
+								).getFirstItem()!=null)
 						.findAny().isPresent()==false
 						){
 					keepFirstEmpty=true;
@@ -196,6 +201,7 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 					final IAEItemStack st = this.records.get(option);
 
 					if (st != null) {
+						if(st.getStackSize()==0){added.add(option.copy());}
 						st.add(option);
 						return;
 					}
@@ -232,7 +238,8 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 					if(option.getItem()instanceof ItemFluidDrop){return;}
 					final IAEItemStack st = this.records.get(option);
 
-					if (st != null) {
+					if (st != null) {	
+						if(st.getStackSize()==0){added.add(option.copy());}
 						st.incStackSize(option.getStackSize());
 						return;
 					}
@@ -250,7 +257,7 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 
 				@Override
 				public void addCrafting(final IAEItemStack option) {
-					if (option == null) {
+					return;/*if (option == null) {
 						return;
 					}
 
@@ -265,12 +272,12 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 					opt.setStackSize(0);
 					opt.setCraftable(true);
 
-					this.putItemRecord(opt);
+					this.putItemRecord(opt);*/
 				}
 
 				@Override
 				public void addRequestable(final IAEItemStack option) {
-					if (option == null) {
+					return;/*if (option == null) {
 						return;
 					}
 
@@ -289,7 +296,7 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 					opt.setCountRequestable(option.getCountRequestable());
 					opt.setCountRequestableCrafts(option.getCountRequestableCrafts());
 
-					this.putItemRecord(opt);
+					this.putItemRecord(opt);*/
 				}
 
 				@Override
@@ -333,7 +340,7 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 			};
 
 			for (Entry<Integer, IMEInventoryHandler<IAEItemStack>> ent : orderMap.entries()) {
-				ent.getValue().getAvailableItems(all);
+				ent.getValue().getAvailableItems(all,appeng.util.IterationCounter.fetchNewId());
 				if (added.size() > 16) {
 					break;
 				}
@@ -452,7 +459,7 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 					((IStorageGrid) this.getProxy().getNode().getGrid().getCache(IStorageGrid.class)).getItemInventory(),
 					
 					AEItemStack.create(new ItemStack(net.minecraft.init.Items.apple,10)),Actionable.MODULATE,
-					requestSource
+					new MachineSource((IActionHost)this.getBaseMetaTileEntity())
 					));
 		} catch (Exception e) {
 			
@@ -463,9 +470,20 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 	}
 	
 	
+	/**
+	 * @param thiz
+	 * @param request
+	 * @param mode
+	 * @param src
+	 * @return
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public IAEStack overridedExtract(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src) {
+		
+		if(mode==Actionable.SIMULATE)
+			return thiz.extractItems(request, mode, src);
+		
 		long requested = request.getStackSize();
 		long num = request.getStackSize();
 		try {
@@ -505,7 +523,11 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 					}
 				}
 				if (most_ == -1)
-					break done;
+					{
+					
+			
+					
+					break done;}
 				
 				
 				most.sort((a,b)->a.getPriority()-b.getPriority());
@@ -544,9 +566,55 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 
 			}
 
+		if(num!=0)try{
+			MyMod.LOG.fatal("[Decoy Bus]:Fail to extract!");
+			MyMod.LOG.fatal("Expected:"+request.toString());
+			MyMod.LOG.fatal("Left:"+num);
+			MyMod.LOG.fatal("Auto-pull");
+			for(ItemStack item:mInventory){
+				MyMod.LOG.fatal(Objects.toString(item));
+			}
+			MyMod.LOG.fatal("shadowInventory");
+			try {
+				Field f=MTEHatchInputBusME.class.getDeclaredField("shadowInventory");
+				f.setAccessible(true);
+				ItemStack[] get=(ItemStack[]) f.get(this);
+				for(ItemStack item:get){
+					MyMod.LOG.fatal(Objects.toString(item));
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			MyMod.LOG.fatal("savedStackSizes");
+			try {
+				Field f=MTEHatchInputBusME.class.getDeclaredField("savedStackSizes");
+				f.setAccessible(true);
+				int[] get=(int[]) f.get(this);
+				for(int item:get){
+					MyMod.LOG.fatal(Objects.toString(item));
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			
+			MyMod.LOG.fatal("But not found from:");
+			for(IMEInventoryHandler xo:ordered){
+				MyMod.LOG.fatal(xo+":");
+				xo.getAvailableItems(StorageChannel.ITEMS.createList(),
+						appeng.util.IterationCounter.fetchNewId()).forEach((s)->{
+							MyMod.LOG.fatal(s);
+						});
+			}
+		}catch(Exception e){e.printStackTrace();}
+		
+		
 		} catch (GridAccessException e) {
+			MyMod.LOG.fatal("[Decoy Bus]:GridAccessException");
+			e.printStackTrace();
 
 		}
+		
 		if(requested==num)return null;
 		return request.copy().setStackSize(requested-num);
 	}

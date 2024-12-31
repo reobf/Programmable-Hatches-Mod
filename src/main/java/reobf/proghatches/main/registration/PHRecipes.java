@@ -35,6 +35,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import com.glodblock.github.loader.ItemAndBlockHolder;
 
 import appeng.core.Api;
+import appeng.integration.modules.Chisel;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.ironchest.IronChest;
 import crazypants.enderio.EnderIOTab;
@@ -55,6 +56,7 @@ import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import tconstruct.smeltery.TinkerSmeltery;
+import team.chisel.init.ChiselBlocks;
 import tectech.recipe.TTRecipeAdder;
 import thaumcraft.api.ThaumcraftApi;
 import thaumcraft.common.config.ConfigItems;
@@ -1863,7 +1865,24 @@ public class PHRecipes implements Runnable {
 	}
 	
 	
-	
+     /*GTRecipeBuilder.builder()
+     .metadata(RESEARCH_ITEM, new ItemStack(ChiselBlocks.present,1,16))
+     .metadata(RESEARCH_TIME, 1 )
+     .itemInputs(
+    		 new ItemStack(ChiselBlocks.present,1,0),
+    		 new ItemStack(ChiselBlocks.present,1,1),
+    		 new ItemStack(ChiselBlocks.present,1,2),
+    		 new ItemStack(ChiselBlocks.present,1,0)
+          
+             		 
+       )
+     .fluidInputs(new FluidStack(FluidRegistry.WATER,1)
+     		
+     		)
+     .itemOutputs(  new ItemStack(ChiselBlocks.present,1,15))
+     .eut(TierEU.RECIPE_LV)
+     .duration(10)
+     .addTo( GTRecipeConstants.AssemblyLine);*/
 	
 	}
 	

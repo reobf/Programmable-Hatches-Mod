@@ -10,6 +10,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.llamalad7.mixinextras.sugar.Local;
+
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.crafting.v2.CraftingContext;
@@ -22,7 +24,8 @@ import reobf.proghatches.eucrafting.IInputMightBeEmptyPattern;
 
 @Mixin(value=CraftFromPatternTask.class,remap=true)
 public class MixinCraftFromPatternTaskPatch {
-
+    //this is always true for 2.7.x
+	/*
 	private static Boolean shouldPatch=null;
 	private boolean shouldPatch(){
 		if(shouldPatch!=null)return shouldPatch;
@@ -36,13 +39,19 @@ public class MixinCraftFromPatternTaskPatch {
 			shouldPatch=false;
 		}
 		return shouldPatch();
-	}
+	}*/
 	@Shadow (remap=false)
 	  protected  IAEItemStack[] patternInputs;
+	
+	
 	@Inject(method="<init>",at = { @At("RETURN") },remap=false, require = 1)
-	public void calculateOneStep(CraftingRequest<IAEItemStack> request, ICraftingPatternDetails pattern,
-            int priority, boolean allowSimulation, boolean isComplex,CallbackInfo xx){
-		if(shouldPatch())
+	//public void calculateOneStep(CraftingRequest<IAEItemStack> request, ICraftingPatternDetails pattern,
+    //        int priority, boolean allowSimulation, boolean isComplex,CallbackInfo xx){
+	public void calculateOneStep(CallbackInfo xx,@Local(argsOnly=true) ICraftingPatternDetails  pattern){
+		
+		
+		
+		//if(shouldPatch())
 		if(pattern instanceof IInputMightBeEmptyPattern){
 			
 			patternInputs=Arrays.stream(patternInputs).filter(s->s.getStackSize()>0).toArray(IAEItemStack[]::new);

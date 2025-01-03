@@ -261,7 +261,7 @@ public class CommonProxy {
 
 	public void init(FMLInitializationEvent event) {
 		tab = new ProgHatchCreativeTab("proghatches");
-		new EUCraftingCreativeTab("proghatches.eucrafting");
+		//new EUCraftingCreativeTab("proghatches.eucrafting");
 		// AEApi.instance().registries().gridCache().registerGridCache(null,
 		// null);;
 		// AEApi.instance().registries().interfaceTerminal().register(TileFluidInterface.class);

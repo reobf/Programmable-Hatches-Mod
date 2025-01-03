@@ -23,6 +23,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.common.item.ItemFluidPacket;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
@@ -53,20 +57,20 @@ import reobf.proghatches.main.mixin.MixinCallback;
 
 @Mixin(value = CraftingCPUCluster.class, remap = false)
 public abstract class MixinMultiPattern<T extends ICraftingMedium> {
-	@Unique
-	boolean isMulti;
-	@Unique
+	/*@Unique
+	boolean isMulti;*/
+/*	@Unique
 	T medium;
-
+*//*
 	@ModifyVariable( require = 1,method = "executeCrafting", at = @At(value = "INVOKE", target = "pushPattern(Lappeng/api/networking/crafting/ICraftingPatternDetails;Lnet/minecraft/inventory/InventoryCrafting;)Z"))
-	public ICraftingMedium b(ICraftingMedium a) {
-		isMulti = a instanceof IMultiplePatternPushable;
+	public ICraftingMedium b(ICraftingMedium a,@Share("isMulti") LocalBooleanRef isMulti) {
+		isMulti .set(a instanceof IMultiplePatternPushable);
 
-		medium = (T) a;
+		//medium = (T) a;
 		return a;
-	}
+	}*/
 
-	@Unique
+	/*@Unique
 	InventoryCrafting inv;
 
 	@ModifyArg( require = 1,method = "executeCrafting", at = @At(value = "INVOKE", target = "Lappeng/api/networking/crafting/ICraftingMedium;pushPattern(Lappeng/api/networking/crafting/ICraftingPatternDetails;Lnet/minecraft/inventory/InventoryCrafting;)Z"))
@@ -74,9 +78,9 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 		
 			inv = a;
 		return a;
-	}
+	}*/
 
-	@Unique
+	/*@Unique
 	ICraftingPatternDetails detail;
 
 	@ModifyArg( require = 1,method = "executeCrafting", at = @At(value = "INVOKE", target = "Lappeng/api/networking/crafting/ICraftingMedium;pushPattern(Lappeng/api/networking/crafting/ICraftingPatternDetails;Lnet/minecraft/inventory/InventoryCrafting;)Z"))
@@ -85,8 +89,8 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 			detail = a;
 		return a;
 	}
-
-	@Unique
+*/
+	/*@Unique
 	java.util.Map.Entry e;
 
 	@ModifyVariable( require = 1,method = "executeCrafting", at = @At(value = "INVOKE", target = "Lappeng/api/networking/crafting/ICraftingMedium;pushPattern(Lappeng/api/networking/crafting/ICraftingPatternDetails;Lnet/minecraft/inventory/InventoryCrafting;)Z"))
@@ -95,7 +99,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 			e = a;
 		return a;
 	}
-
+*/
 	@Shadow
 	private MachineSource machineSrc;
 	@Shadow
@@ -114,9 +118,15 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 	private static final IAEItemStack[] EMPTY = new IAEItemStack[0];
 
 	@Inject( require = 1,at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "markDirty"), method = "executeCrafting")
-	public void b(IEnergyGrid eg, CraftingGridCache cc, CallbackInfo ci) {
+	public void MixinMultiPattern_executeCrafting(IEnergyGrid eg, CraftingGridCache cc, CallbackInfo ci,
+			@Local ICraftingMedium medium,
+			@Local ICraftingPatternDetails detail,
+			@Local java.util.Map.Entry e,
+			@Local InventoryCrafting inv/*,
+			@Share("isMulti") LocalBooleanRef isMulti*/) {
 
-		if (isMulti) {
+		//if (isMulti.get()) {
+		if(medium instanceof IMultiplePatternPushable){
 			int used = 0;
 
 			LinkedList<Object> is = new LinkedList<>();
@@ -291,25 +301,25 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 	@Shadow
 	int remainingOperations;
 
-	@Inject( require = 1,at = @At(value = "RETURN"), method = "executeCrafting")
+/*	@Inject( require = 1,at = @At(value = "RETURN"), method = "executeCrafting")
 	public void ret(IEnergyGrid eg, CraftingGridCache cc, CallbackInfo ci) {
-		detail = null;
-		e = null;
-		inv = null;
-		medium = null;
+		//detail = null;
+		//e = null;
+		//inv = null;
+		//medium = null;
 		if (getMaxSkips() <= 0)
 			return;
-		temp1.clear();
-	}
+		//temp1.clear();
+	}*/
 
 	////////// xxxxxxxxxx
 	// @Shadow
 	// private int remainingOperations;
 	// @Unique
 	// boolean skip;
-	@Unique
+	/*@Unique
 	Reference2IntOpenHashMap<ICraftingPatternDetails> temp1 = new Reference2IntOpenHashMap<ICraftingPatternDetails>();
-
+*/
 	private long maxSkips;
 	/*
 	 * @Inject(at = @At(value = "RETURN"), method = "updateCraftingLogic")

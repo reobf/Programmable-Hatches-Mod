@@ -32,14 +32,14 @@ public class MixinContextNoCircuitCache implements IIsExtractFromInvAllowed {
 			
 			if(false==((TileStockingCircuitRequestInterceptor)te.getMachine())
 			.isAllowed(stack)){
-				System.out.println("cachef");
+				//System.out.println("cachef");
 				mapcache.put(stack.copy(), false);
 				return false;}
 			
 			
 			
 		}
-		System.out.println("cachet");
+	//	System.out.println("cachet");
 	mapcache.put(stack.copy(), true);
 	return true;
 	}

@@ -33,7 +33,7 @@ public boolean onBlockActivated(World worldIn, int x, int y, int z, EntityPlayer
 		te.mark[0]=player.getCurrentEquippedItem();
 		if(te.mark[0]!=null)te.mark[0]=te.mark[0].copy();
 		}else{
-			if(player.getCurrentEquippedItem()==null)
+			if(player.getCurrentEquippedItem()!=null)
 			player.addChatMessage(new ChatComponentTranslation("tile.proghatches.circuit_interceptor.change", 
 					player.getCurrentEquippedItem().getDisplayName()
 					));	
@@ -47,7 +47,7 @@ public boolean onBlockActivated(World worldIn, int x, int y, int z, EntityPlayer
 			
 		}
 		
-		
+		return true;
 	}
 	
 	return super.onBlockActivated(worldIn, x, y, z, player, side, subX, subY, subZ);
@@ -66,13 +66,22 @@ public int damageDropped(int meta) {
 
 	@Override
 	public void addInformation(ItemStack p_77624_1_, List l) {
+		
+		if(p_77624_1_.getItemDamage()==1){
+			l.add(StatCollector.translateToLocal("proghatch.circuit_interceptor.tooltip.1.0"));
+			l.add(StatCollector.translateToLocal("proghatch.circuit_interceptor.tooltip.1.1"));
+			
+		}else{
 		l.add(StatCollector.translateToLocal("proghatch.circuit_interceptor.tooltip.0"));
 		l.add(StatCollector.translateToLocal("proghatch.circuit_interceptor.tooltip.1"));
+		}
+		
 	}
 
 	@Override
 	public String getName(ItemStack p_77624_1_) {
-		// TODO Auto-generated method stub
+	if(p_77624_1_
+			.getItemDamage()==1){return "tile.proghatches.circuit_interceptor.1";}
 		return null;
 	}
 

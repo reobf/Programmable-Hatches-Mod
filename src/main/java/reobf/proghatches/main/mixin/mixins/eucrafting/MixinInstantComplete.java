@@ -11,6 +11,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import com.llamalad7.mixinextras.sugar.Local;
+
 import appeng.api.networking.crafting.ICraftingMedium;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.energy.IEnergyGrid;
@@ -22,27 +24,14 @@ import reobf.proghatches.eucrafting.IInstantCompletable;
 @Mixin(value = CraftingCPUCluster.class, remap = false, priority = 1)
 public class MixinInstantComplete {
 
-	private ICraftingMedium temp;
-	
-	
-	@ModifyVariable(at = @At(value = "INVOKE_ASSIGN",  target = "pushPattern") , 
-			method = "executeCrafting"
-	)
-	
-	public ICraftingMedium a(/*IEnergyGrid eg, CraftingGridCache cc, CallbackInfo ci,		*/ICraftingMedium m) {
-		return temp=m;
-		/*if (m instanceof IInstantCompletable) {
-			((IInstantCompletable) m).complete();
 
-		}*/
-
-	}
-	
 	@Inject(at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "markDirty") , 
 			method = "executeCrafting"
 	)
 	
-	public void b(IEnergyGrid eg, CraftingGridCache cc, CallbackInfo ci) {
+	public void MixinInstantComplete_executeCrafting(IEnergyGrid eg, CraftingGridCache cc, CallbackInfo ci,
+			
+		@Local	ICraftingMedium temp) {
 		
 		if (temp instanceof IInstantCompletable) {
 			((IInstantCompletable) temp).complete();

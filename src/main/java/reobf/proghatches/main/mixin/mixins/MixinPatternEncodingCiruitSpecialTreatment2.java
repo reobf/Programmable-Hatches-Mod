@@ -25,7 +25,7 @@ import reobf.proghatches.main.mixin.MixinCallback;
 public class MixinPatternEncodingCiruitSpecialTreatment2 {
 
 	@ModifyVariable(require = 1, method = "getRecipeInput", at = @At(value = "INVOKE", target = "removeIf(Ljava/util/function/Predicate;)Z"))
-	private List g(List<PositionedStack> c) {
+	private List getRecipeInput(List<PositionedStack> c) {
 		AtomicBoolean circuit = new AtomicBoolean(false);
 		if (ItemProgrammingToolkit.holding() == false) {
 			return c;

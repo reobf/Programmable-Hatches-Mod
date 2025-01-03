@@ -96,7 +96,7 @@ public abstract class MixinAwarenessForDualHatch {
 	} 
 	
 	@Inject(method = "startRecipeProcessing", at = { @At(value = "RETURN") }/*,require=1*/)
-	public void a(CallbackInfo c) {
+	public void startRecipeProcessing(CallbackInfo c) {
 		
 		
 		for (IDualInputHatch hatch : (mDualInputHatches0())) {
@@ -109,7 +109,7 @@ public abstract class MixinAwarenessForDualHatch {
 	}
 
 	@Inject(method = "endRecipeProcessing", at = { @At(value = "RETURN") }/*,require=1*/)
-	public void b(CallbackInfo c) {
+	public void endRecipeProcessing(CallbackInfo c) {
 		/*Consumer<CheckRecipeResult> setResultIfFailure = result -> {
 			if (!result.wasSuccessful()) {
 				this.checkRecipeResult = result;

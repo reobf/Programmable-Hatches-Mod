@@ -30,7 +30,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
-
+import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import com.glodblock.github.loader.ItemAndBlockHolder;
 
@@ -85,7 +85,8 @@ public class PHRecipes implements Runnable {
         		{ Piko /*Quantum,Cosmic,*/  }, 
         		{ Piko /*Quantum Transcendent*/ } };
      
-      Materials[][] matNewVersion = { 
+      @SuppressWarnings("deprecation")
+	Materials[][] matNewVersion = { 
       		{ Primitive }, 
       		{ Basic }, 
       		{ Good }, 
@@ -1818,6 +1819,10 @@ public class PHRecipes implements Runnable {
 		.eut(480)
 		.addTo(RecipeMaps.assemblerRecipes);
 	 
+	 
+	 
+	 
+	 
 	 for(int i=0;i<=4;i++)
 	 GTValues.RA.stdBuilder()
 		.itemInputs(
@@ -1863,7 +1868,16 @@ public class PHRecipes implements Runnable {
 		 eu=eu*4;
 		i++;
 	}
-	
+		 rec = new ShapelessOreRecipe(new ItemStack(MyMod.circuit_interceptor,1,1),
+				 "craftingToolScrewdriver"
+				,new ItemStack(MyMod.circuit_interceptor,1,0)
+		);
+		CraftingManager.getInstance().getRecipeList().add(rec);
+		 rec = new ShapelessOreRecipe(new ItemStack(MyMod.circuit_interceptor,1,0),
+					
+					"craftingToolScrewdriver",new ItemStack(MyMod.circuit_interceptor,1,1)
+			);
+			CraftingManager.getInstance().getRecipeList().add(rec);
 	
      /*GTRecipeBuilder.builder()
      .metadata(RESEARCH_ITEM, new ItemStack(ChiselBlocks.present,1,16))

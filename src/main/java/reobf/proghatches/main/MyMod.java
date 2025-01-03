@@ -208,6 +208,7 @@ public class MyMod {
 		
 		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment") ){
 		DualityInterface.class.getDeclaredFields();
+		CraftFromPatternTask.class.getDeclaredFields();
 		/*CraftingCPUCluster.class.getDeclaredFields();
 		NBTTagCompound t=new NBTTagCompound();
 		AEFluidStack.create(new FluidStack(FluidRegistry.WATER,123).writeToNBT(t));

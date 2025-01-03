@@ -11,10 +11,7 @@ import appeng.me.GridNode;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.block.ChunkTrackingGridCahce;
 import reobf.proghatches.block.IChunkTrackingGridCahce;
-/**
- * AE GridCache opSplit is not working as expected(?)
- * so check it manually
- * */
+
 @Mixin(value=GridConnection.class,remap=false)
 public class MixinSplitDetect {
 	@Shadow

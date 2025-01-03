@@ -66,7 +66,7 @@ public class MixinAEAdaptorSkipStackSizeCheck {
 			skipStackSizeCheck=skipStackSizeCheck||check(s);
 	}
 	
-	public boolean check(Object s){	
+	private static boolean check(Object s){	
 		if(s!=null&&s instanceof IGregTechTileEntity){
 		return	Optional.ofNullable(((IGregTechTileEntity)s).getMetaTileEntity())
 		.map(ss->ss instanceof ISkipStackSizeCheck?(ISkipStackSizeCheck)ss:null)

@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import com.glodblock.github.inventory.FluidConvertingInventoryAdaptor;
 import com.glodblock.github.util.BlockPos;
 import com.glodblock.github.util.Util;
+import com.llamalad7.mixinextras.sugar.Local;
 
 import appeng.util.InventoryAdaptor;
 import gregtech.api.interfaces.tileentity.ICoverable;
@@ -39,7 +40,7 @@ public class MixinAE2FCCompat {
 			
 			require=1)
 	private static void wrap(TileEntity capProvider, ForgeDirection face,
-			CallbackInfoReturnable<InventoryAdaptor> ret, TileEntity inter) {
+			CallbackInfoReturnable<InventoryAdaptor> ret,  @Local(ordinal = 1) TileEntity inter) {
 		
 		
 		//System.out.println(face);
@@ -51,7 +52,7 @@ public class MixinAE2FCCompat {
 		
 		
 		boolean ispart = false;
-		ispart = Util.getPart(inter, face.getOpposite()) instanceof PartEUP2PInterface;
+		/*ispart = Util.getPart(inter, face.getOpposite()) instanceof PartEUP2PInterface;
 		
 
 		if ( ispart) {
@@ -62,7 +63,7 @@ public class MixinAE2FCCompat {
 			IFluidHandler fluid = capProvider instanceof IFluidHandler ? (IFluidHandler) capProvider : null;
 			boolean onmi = false;
 			ret.setReturnValue(new FluidConvertingInventoryAdaptor(capProvider, item, fluid, face, pos, onmi));
-		}
+		}*/
 		boolean iscover = check(capProvider, face);
 		if(iscover){
 			InventoryAdaptor item = InventoryAdaptor.getAdaptor(capProvider, face);

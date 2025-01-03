@@ -2,6 +2,7 @@ package reobf.proghatches.main.mixin.mixins;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
 import appeng.api.networking.events.MENetworkChannelsChanged;
 import appeng.api.networking.events.MENetworkEventSubscribe;
@@ -32,7 +33,7 @@ public abstract class MixinStorageChangeEvent {
     
     
     private Boolean isMETank;
-    @MENetworkEventSubscribe
+    @MENetworkEventSubscribe @Unique
     public void powerRender(final MENetworkPowerStatusChange w) {
        
     	if(isMETank==null){
@@ -43,7 +44,7 @@ public abstract class MixinStorageChangeEvent {
 			if(te!=null)((IStoageCellUpdate)te).cellUpdate();
 		}
     }  
-    @MENetworkEventSubscribe
+    @MENetworkEventSubscribe @Unique
     public void updateChannels(final MENetworkChannelsChanged w) {
     	if(isMETank==null){
     		isMETank=getMetaTileEntity() instanceof IStoageCellUpdate;

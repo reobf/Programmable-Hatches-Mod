@@ -715,3 +715,7 @@ proghatch.keybinding.kit.switch.mode.0=模式 1: 禁用
 proghatch.keybinding.kit.switch.mode.1=模式 2: 常规
 proghatch.keybinding.kit.switch.mode.2=模式 3: 常规+重置电路
 proghatch.keybinding.kit.switch.desc=切换编程工具箱模式(装备在Baubles饰品栏)
+tile.proghatches.circuit_interceptor.change=Item to intercept: %s
+tile.proghatches.circuit_interceptor.1.name=CPU提取请求拦截器
+proghatch.circuit_interceptor.tooltip.1.0=阻止合成CPU使用库存的物品合成
+proghatch.circuit_interceptor.tooltip.1.1=右键以指定物品

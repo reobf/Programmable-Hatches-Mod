@@ -354,7 +354,7 @@ public void reinitTierBasedField() {
 	public void loadNBTData(NBTTagCompound aNBT) {
 		if(aNBT.hasKey("x")==false)return;
 		super.loadNBTData(aNBT);
-		if(aNBT.hasKey("trunOffEnsure"))
+		//if(aNBT.hasKey("trunOffEnsure"))
 		//trunOffEnsure=aNBT.getBoolean("trunOffEnsure");
 		shared.deser(aNBT.getCompoundTag("shared"));
 		fluidLimit= aNBT.getInteger("fluidLimit");

@@ -70,15 +70,13 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 		return a;
 	}*/
 
-	/*@Unique
-	InventoryCrafting inv;
 
-	@ModifyArg( require = 1,method = "executeCrafting", at = @At(value = "INVOKE", target = "Lappeng/api/networking/crafting/ICraftingMedium;pushPattern(Lappeng/api/networking/crafting/ICraftingPatternDetails;Lnet/minecraft/inventory/InventoryCrafting;)Z"))
-	public InventoryCrafting a(InventoryCrafting a) {
+
+	@Inject( require = 1,method = "executeCrafting", at = @At(value = "INVOKE", target = "Lappeng/api/networking/crafting/ICraftingMedium;pushPattern(Lappeng/api/networking/crafting/ICraftingPatternDetails;Lnet/minecraft/inventory/InventoryCrafting;)Z"))
+	public void a(CallbackInfo x,@Local InventoryCrafting local,@Share("inv") LocalRef<InventoryCrafting> inv) {
 		
-			inv = a;
-		return a;
-	}*/
+			inv.set(local);
+	}
 
 	/*@Unique
 	ICraftingPatternDetails detail;
@@ -118,13 +116,13 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 	private static final IAEItemStack[] EMPTY = new IAEItemStack[0];
 
 	@Inject( require = 1,at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "markDirty"), method = "executeCrafting")
-	public void MixinMultiPattern_executeCrafting(IEnergyGrid eg, CraftingGridCache cc, CallbackInfo ci,
+	public void MixinMultiPattern_executeCrafting(IEnergyGrid eg, CraftingGridCache cc, CallbackInfo ci2,
 			@Local ICraftingMedium medium,
 			@Local ICraftingPatternDetails detail,
 			@Local java.util.Map.Entry e,
-			@Local InventoryCrafting inv/*,
+			@Share("inv") LocalRef<InventoryCrafting> inv0/*,
 			@Share("isMulti") LocalBooleanRef isMulti*/) {
-
+InventoryCrafting inv = inv0.get();
 		//if (isMulti.get()) {
 		if(medium instanceof IMultiplePatternPushable){
 			int used = 0;

@@ -102,6 +102,11 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI ,
 				lastholdingtick = Minecraft.getMinecraft().thePlayer.ticksExisted;
 		mode = stack.getItemDamage();
 
+		if(entityIn instanceof EntityPlayer){
+			if( entityIn.ticksExisted%80==12){
+			EntityPlayer p=(EntityPlayer) entityIn;
+			p.triggerAchievement(MyMod.achievement);}
+		}
 		
 	}
 

@@ -23,6 +23,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.util.GTModHandler;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import reobf.proghatches.Tags;
+import reobf.proghatches.ae.BlockAutoFillerMKII;
 import reobf.proghatches.ae.BlockCraftingCondenser;
 import reobf.proghatches.ae.BlockCyclicPatternSubmitter;
 import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
@@ -33,6 +34,7 @@ import reobf.proghatches.ae.ItemPartMAP2P;
 import reobf.proghatches.ae.ItemPartStockingExportBus;
 import reobf.proghatches.ae.ItemPartStorageProxy;
 import reobf.proghatches.ae.ItemPartSubnetExciter;
+import reobf.proghatches.ae.TileAutoFillerMKII;
 import reobf.proghatches.ae.TileCraftingCondenser;
 import reobf.proghatches.ae.TileCyclicPatternSubmitter;
 import reobf.proghatches.ae.TileMolecularAssemblerInterface;
@@ -101,6 +103,8 @@ public class CommonProxy {
 		GameRegistry.registerTileEntity(TileStorageProxy.class, "proghatches.proxy");
 		GameRegistry.registerTileEntity(TileMolecularAssemblerInterface.class, "proghatches.ma_inface");
 		GameRegistry.registerTileEntity(TileStockingCircuitRequestInterceptor.class, "proghatches.circuit_interceptor");
+		GameRegistry.registerTileEntity(TileAutoFillerMKII.class, "proghatches.autofillerMKII");
+		
 		ItemMEPlunger a=new ItemMEPlunger(100000);
 		
 	
@@ -223,7 +227,10 @@ public class CommonProxy {
 				MyMod.circuit_interceptor = new BlockStockingCircuitRequestInterceptor(),ItemBlockTooltip.class,
 						/*.setUnlocalizedName("proghatches.circuit_interceptor").setTextureName("?")*/
 				"circuit_interceptor",new Object[]{""});
-		
+		GameRegistry
+		.registerBlock(
+				MyMod.autofiller = new BlockAutoFillerMKII(),ItemBlockTooltip.class,
+				"autofillerMKII",new Object[]{""});
 		
 		
 		GameRegistry.registerTileEntity(TileCraftingCondenser.class, "proghatches.craftingdumper");

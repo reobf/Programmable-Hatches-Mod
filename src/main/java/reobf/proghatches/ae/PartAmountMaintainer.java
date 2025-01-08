@@ -228,14 +228,15 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 	int reqcooldown;
 	public void requestForMissing(IAEStack primitive){
 		if(upgrade[1]==null)return;
-		if(reqcooldown>0)reqcooldown--;
+		
 	IAEItemStack iaeStack=(primitive instanceof IAEItemStack)?(IAEItemStack) primitive:
 		ItemFluidDrop.newAeStack((AEFluidStack) primitive);
 		
 		try {
 		if(link==null){
 			if(job==null){
-			reqcooldown=40;
+			if(reqcooldown>0){reqcooldown--;return;}
+			reqcooldown=80;
 			job=getProxy().getCrafting().beginCraftingJob(this.getTile().getWorldObj(), getProxy().getGrid(), source, iaeStack, null);
 			}
 			else{

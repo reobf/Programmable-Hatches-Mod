@@ -42,10 +42,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.stats.Achievement;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.AchievementPage;
 import net.minecraftforge.common.IExtendedEntityProperties;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -71,6 +73,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.gtnewhorizon.structurelib.alignment.constructable.IMultiblockInfoContainer;
 
+import WayofTime.alchemicalWizardry.common.achievements.AchievementTrigger;
+import WayofTime.alchemicalWizardry.common.achievements.AchievementsRegistry;
 import appeng.api.AEApi;
 import appeng.api.config.FuzzyMode;
 import appeng.api.config.Upgrades;
@@ -116,6 +120,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -146,6 +151,7 @@ import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import gregtech.crossmod.waila.GregtechWailaDataProvider;
 import li.cil.oc.api.Driver;
 import reobf.proghatches.Tags;
+import reobf.proghatches.ae.BlockAutoFillerMKII;
 import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
 import reobf.proghatches.block.ChunkTrackingGridCahce;
 import reobf.proghatches.block.TileIOHub;
@@ -408,7 +414,7 @@ public class MyMod {
 		;
 
 	}
-
+	public static Achievement achievement;
 	/**
 	 * @param event
 	 */
@@ -418,8 +424,26 @@ public class MyMod {
 		proxy.postInit(event);
 		//KeyBindings
 		
-		
-		
+	
+		{
+			AchievementPage page = new AchievementPage(MODID, achievement=new Achievement("proghatch.toolkit", "proghatch.toolkit", 0, 0, new ItemStack(toolkit), null ).registerStat());
+			AchievementPage.registerAchievementPage(page);
+		    /*FMLCommonHandler.instance().bus().register(new Object(){
+		    	   @SubscribeEvent
+		    	    public void onItemPickedUp(PlayerEvent.ItemPickupEvent event) {
+		    		   ItemStack stack = event.pickedUp.getEntityItem();
+
+		               if (stack != null && stack.getItem() == toolkit) {
+		                   Achievement achievement = tmp;
+
+		                   if (achievement != null) {
+		                       event.player.addStat(achievement, 1);
+		                   }
+		               }
+		    	   }
+		    	
+		    });*/
+		}
 		
 		
 		
@@ -758,6 +782,7 @@ public class MyMod {
 	public static ItemMAConduit ma_conduit;
 	public static Block circuit_interceptor;
 	public static BlockMolecularAssemblerInterface ma_iface;
+	public static BlockAutoFillerMKII autofiller;
 
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void pretick(final TickEvent.ServerTickEvent event) {
@@ -765,4 +790,6 @@ public class MyMod {
 			callbacks.forEach((a, b) -> b.run());
 		}
 	}
+	
+	
 }

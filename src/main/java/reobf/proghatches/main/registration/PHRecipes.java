@@ -5,8 +5,11 @@ import static gregtech.api.enums.Materials.*;
 import static gregtech.api.enums.Mods.GTPlusPlus;
 import static gregtech.api.util.GTRecipeBuilder.HOURS;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
+import static gregtech.api.util.GTRecipeConstants.FUEL_VALUE;
 import static gregtech.api.util.GTRecipeConstants.RESEARCH_ITEM;
 import static gregtech.api.util.GTRecipeConstants.RESEARCH_TIME;
+import static gregtech.api.util.GTRecipeConstants.RTG_DURATION_IN_DAYS;
+import static gtPlusPlus.api.recipe.GTPPRecipeMaps.rtgFuels;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +54,8 @@ import gregtech.api.util.GTRecipe;
 import gregtech.api.util.GTRecipeBuilder;
 import gregtech.api.util.GTRecipeConstants;
 import gregtech.api.util.GTUtility;
+import gtPlusPlus.core.util.math.MathUtils;
+import gtPlusPlus.xmod.gregtech.api.enums.GregtechItemList;
 import mods.railcraft.common.core.Railcraft;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.Config;
@@ -1879,6 +1884,30 @@ public class PHRecipes implements Runnable {
 			);
 			CraftingManager.getInstance().getRecipeList().add(rec);
 	
+			
+		
+			 GTValues.RA.stdBuilder()
+	            .itemInputs(new ItemStack(MyMod.book,1,OreDictionary.WILDCARD_VALUE))
+	            .itemOutputs()
+	            .duration(0)
+	            .eut(0)
+	            .metadata(FUEL_VALUE, 4)
+	            .addTo(RecipeMaps.magicFuels);
+			 
+			 
+			 GTValues.RA.stdBuilder()
+				.itemInputs(
+						  Api.INSTANCE.definitions().materials().cardPatternCapacity().maybeStack(4).get(),
+						new ItemStack(  ItemAndBlockHolder.FLUID_AUTO_FILLER),
+						
+						GTUtility.getIntegratedCircuit(23)
+				)
+				.itemOutputs(	
+						new ItemStack(MyMod.autofiller, 1)
+								 )
+				.duration(10 * SECONDS)
+				.eut(30)
+				.addTo(RecipeMaps.assemblerRecipes);
      /*GTRecipeBuilder.builder()
      .metadata(RESEARCH_ITEM, new ItemStack(ChiselBlocks.present,1,16))
      .metadata(RESEARCH_TIME, 1 )

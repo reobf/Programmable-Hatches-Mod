@@ -7,7 +7,7 @@ import static gregtech.api.util.GTRecipeBuilder.HOURS;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
 import static gregtech.api.util.GTRecipeConstants.FUEL_VALUE;
 import static gregtech.api.util.GTRecipeConstants.RESEARCH_ITEM;
-import static gregtech.api.util.GTRecipeConstants.RESEARCH_TIME;
+//import static gregtech.api.util.GTRecipeConstants.RESEARCH_TIME;
 import static gregtech.api.util.GTRecipeConstants.RTG_DURATION_IN_DAYS;
 import static gtPlusPlus.api.recipe.GTPPRecipeMaps.rtgFuels;
 
@@ -49,6 +49,7 @@ import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.enums.TierEU;
 import gregtech.api.recipe.RecipeMaps;
+import gregtech.api.recipe.RecipeMetadataKey;
 import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTRecipe;
 import gregtech.api.util.GTRecipeBuilder;
@@ -67,6 +68,29 @@ import thaumcraft.api.ThaumcraftApi;
 import thaumcraft.common.config.ConfigItems;
 //spotless:off
 public class PHRecipes implements Runnable {
+	
+	
+	public static <T extends GTRecipeBuilder > T  setScan(T a,int time){
+		try {
+			RecipeMetadataKey x=(RecipeMetadataKey) GTRecipeConstants.class.getField("RESEARCH_TIME").get(null);
+			a.metadata(x, time);
+		} catch (Exception e) {
+		}
+		try {
+			RecipeMetadataKey x=(RecipeMetadataKey) GTRecipeConstants.class.getField("SCANNING").get(null);
+			Object scanning=Class.forName("gregtech.api.util.recipe.Scanning").getConstructor(int.class,long.class)
+			.newInstance(time,32);
+			
+			a.metadata(x, scanning);
+		} catch (Exception e) {
+		}
+		
+		
+		
+		return a;}
+	
+	
+	
     ItemStack[] arms = { Robot_Arm_LV.get(1), // GT++ deprecated ulv tier arm
             Robot_Arm_LV.get(1), Robot_Arm_MV.get(1), Robot_Arm_HV.get(1), Robot_Arm_EV.get(1), Robot_Arm_IV.get(1),
             Robot_Arm_LuV.get(1), Robot_Arm_ZPM.get(1), Robot_Arm_UV.get(1), Robot_Arm_UHV.get(1), Robot_Arm_UEV.get(1),
@@ -250,10 +274,12 @@ public class PHRecipes implements Runnable {
     	   }
     	   
     	   
-    	   
+    	   setScan(
         GTRecipeBuilder.builder()
+        ,1 * HOURS
+    			   )
         .metadata(RESEARCH_ITEM, new ItemStack(MyMod.smartarm, 1, ii-1))
-        .metadata(RESEARCH_TIME, 1 * HOURS)
+       // .metadata(RESEARCH_TIME, 1 * HOURS)
         .itemInputs(
         		new Object[]{circuitM2,12},
         		new Object[]{circuitM1, 6}, 
@@ -1331,11 +1357,11 @@ public class PHRecipes implements Runnable {
 	 .duration(20 * SECONDS).eut(GTValues.VP[3]).addTo(RecipeMaps.assemblerRecipes);
 	 
 	 
-	
-	 GTValues.RA.stdBuilder()  
+	 setScan(
+	 GTValues.RA.stdBuilder() , 1 * HOURS )
 	 .metadata(RESEARCH_ITEM,  new ItemStack( GregTechAPI.sBlockMachines,
 	         1,Config.metaTileEntityOffset+Registration.MappingSlaveOffset))
-	 .metadata(RESEARCH_TIME, 1 * HOURS)
+	// .metadata(RESEARCH_TIME)
 	 .itemInputs(
 			 new ItemStack( GregTechAPI.sBlockMachines,
 			         1,

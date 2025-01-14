@@ -188,6 +188,7 @@ import reobf.proghatches.net.VoidFXMessage;
 import reobf.proghatches.net.WayPointMessage;
 import reobf.proghatches.oc.ItemAPICard;
 import reobf.proghatches.oc.ItemGTRedstoneCard;
+import reobf.proghatches.oc.TileCardReader;
 import reobf.proghatches.oc.WirelessPeripheralManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
@@ -334,6 +335,7 @@ public class MyMod {
 		OCApi.put(iohub, TileIOHub.OCApi.class);
 		OCApi.put(oc_api, ItemAPICard.APIEnv.class);
 		OCApi.put(oc_redstone, ItemGTRedstoneCard.RedstoneEnv.class);
+		OCApi.put(reader, TileCardReader.class);
 		OCApi.put(new ItemStack( GregTechAPI.sBlockMachines,
 		         1,
 		         Config.metaTileEntityOffset+Registration.DualInputHatchOCOffset), DualInputHachOC.class);
@@ -783,6 +785,7 @@ public class MyMod {
 	public static Block circuit_interceptor;
 	public static BlockMolecularAssemblerInterface ma_iface;
 	public static BlockAutoFillerMKII autofiller;
+	//public static Block occonfigurator;
 
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void pretick(final TickEvent.ServerTickEvent event) {

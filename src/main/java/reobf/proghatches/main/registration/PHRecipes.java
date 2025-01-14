@@ -1934,6 +1934,34 @@ public class PHRecipes implements Runnable {
 				.duration(10 * SECONDS)
 				.eut(30)
 				.addTo(RecipeMaps.assemblerRecipes);
+			 
+			 GTValues.RA.stdBuilder()
+				.itemInputs(
+						 Api.INSTANCE.definitions().blocks().drive().maybeStack(1).get(),
+						 Hatch_Output_Bus_ME.get(1)
+				)
+				.itemOutputs(	
+						new ItemStack( GregTechAPI.sBlockMachines,
+						         1,
+						         Config.metaTileEntityOffset+Registration.StorageOutputBus)
+								 )
+				.duration(10 * SECONDS)
+				.eut(30)
+				.addTo(RecipeMaps.assemblerRecipes);
+			 GTValues.RA.stdBuilder()
+				.itemInputs(
+						 Api.INSTANCE.definitions().blocks().drive().maybeStack(1).get(),
+						 Hatch_Output_ME.get(1)
+				)
+				.itemOutputs(	
+						new ItemStack( GregTechAPI.sBlockMachines,
+						         1,
+						         Config.metaTileEntityOffset+Registration.StorageOutputHatch)
+								 )
+				.duration(10 * SECONDS)
+				.eut(30)
+				.addTo(RecipeMaps.assemblerRecipes);
+			 
      /*GTRecipeBuilder.builder()
      .metadata(RESEARCH_ITEM, new ItemStack(ChiselBlocks.present,1,16))
      .metadata(RESEARCH_TIME, 1 )

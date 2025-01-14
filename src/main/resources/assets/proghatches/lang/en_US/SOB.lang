@@ -1,0 +1,6 @@
+Item Output for Multiblocks
+Stores directly into internal cache
+Provides a read-only item storage to ME Network
+Can cache 1600 items by default
+Change cache size by inserting a storage cell
+Change ME connection behavior by right-clicking with wire cutter

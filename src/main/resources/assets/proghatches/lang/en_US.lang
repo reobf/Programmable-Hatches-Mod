@@ -726,3 +726,5 @@ tile.proghatches.autofillerMKII.tooltip.0=Besides normal Auto Filler behaviour, 
 tile.proghatches.autofillerMKII.tooltip.1=Infinite parallels.
 achievement.proghatch.toolkit=Try equipping this on Baubles Slot!
 achievement.proghatch.toolkit.desc=Then bind a key in settings to switch mode!
+output.bus.storage.name=Storage Output Bus(ME)
+output.hacth.storage.name=Storage Output Hatch(ME)

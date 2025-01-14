@@ -58,6 +58,8 @@ import reobf.proghatches.gt.metatileentity.RemoteInputBus;
 import reobf.proghatches.gt.metatileentity.RemoteInputHatch;
 import reobf.proghatches.gt.metatileentity.RestrictedInputBusME;
 import reobf.proghatches.gt.metatileentity.RestrictedInputHatchME;
+import reobf.proghatches.gt.metatileentity.StorageOutputBus;
+import reobf.proghatches.gt.metatileentity.StorageOutputHatch;
 import reobf.proghatches.gt.metatileentity.SuperChestME;
 import reobf.proghatches.gt.metatileentity.SuperTankME;
 import reobf.proghatches.gt.metatileentity.SuperfluidHatch;
@@ -116,6 +118,8 @@ public class Registration implements Runnable {
 	public static final int PFilterHatchME= 174;
 	public static final int VHatch=175;
 	public static final int VBus=176;
+	public static final int StorageOutputBus=177;
+	public static final int StorageOutputHatch=178;
     @SuppressWarnings("deprecation")
 	@Override
     public void run() {
@@ -510,9 +514,23 @@ public class Registration implements Runnable {
         new  VoidOutputBus(  
         		Config.metaTileEntityOffset + VBus,
                 "ph.bus.void",
-                LangManager.translateToLocalFormatted("ph.bus.void.name"), 5
+                LangManager.translateToLocalFormatted("ph.bus.void.name"), 5);
+               
                 
-        		);
+                new StorageOutputBus(
+                        Config.metaTileEntityOffset +StorageOutputBus,
+                        
+                        "output.bus.storage",  LangManager.translateToLocalFormatted("output.bus.storage.name")
+                      
+                      );
+                
+                new StorageOutputHatch(
+                        Config.metaTileEntityOffset +StorageOutputHatch,
+                        
+                        "output.hacth.storage",  LangManager.translateToLocalFormatted("output.hacth.storage.name")
+                      
+                      );
+        		
         /*for (int i = 0; i < 4; i++) {
 
             new DualInputHatch(

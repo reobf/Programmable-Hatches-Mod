@@ -724,3 +724,5 @@ tile.proghatches.autofillerMKII.tooltip.0=除了自动装填机的功能,还能�
 tile.proghatches.autofillerMKII.tooltip.1=无穷并行
 achievement.proghatch.toolkit=尝试把工具箱装备在在饰品栏!
 achievement.proghatch.toolkit.desc=在设置中绑定按键就能切换模式!
+output.bus.storage.name=存储输出总线(ME)
+output.hacth.storage.name=存储输出仓(ME)

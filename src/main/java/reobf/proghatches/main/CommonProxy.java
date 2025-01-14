@@ -73,12 +73,14 @@ import reobf.proghatches.main.registration.PHRecipes;
 import reobf.proghatches.main.registration.ProgHatchCreativeTab;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.oc.BlockCardReader;
+import reobf.proghatches.oc.BlockGTHatchConfigurator;
 import reobf.proghatches.oc.ItemAPICard;
 import reobf.proghatches.oc.ItemCPU;
 import reobf.proghatches.oc.ItemGTRedstoneCard;
 import reobf.proghatches.oc.ItemWirelessPeripheralCard;
 import reobf.proghatches.oc.TileCardReader;
 import reobf.proghatches.oc.TileCoprocessor;
+import reobf.proghatches.oc.TileGTHatchConfigurator;
 import reobf.proghatches.oc.TileWirelessPeripheralStation;
 import thaumcraft.client.renderers.block.BlockCandleRenderer;
 
@@ -104,6 +106,7 @@ public class CommonProxy {
 		GameRegistry.registerTileEntity(TileMolecularAssemblerInterface.class, "proghatches.ma_inface");
 		GameRegistry.registerTileEntity(TileStockingCircuitRequestInterceptor.class, "proghatches.circuit_interceptor");
 		GameRegistry.registerTileEntity(TileAutoFillerMKII.class, "proghatches.autofillerMKII");
+		GameRegistry.registerTileEntity(TileGTHatchConfigurator.class, "proghatches.configurator");
 		
 		ItemMEPlunger a=new ItemMEPlunger(100000);
 		
@@ -170,6 +173,10 @@ public class CommonProxy {
 		
 		MyMod.reader = GameRegistry.registerBlock(new BlockCardReader(Material.rock),
 				 "proghatches.card_reader");
+	/*	MyMod.occonfigurator = GameRegistry.registerBlock(new BlockGTHatchConfigurator(Material.rock),
+				 "proghatches.configurator");
+		*/
+		
 		MyMod.reactorsyncer = GameRegistry.registerBlock(new BlockReactorSyncer(Material.rock),
 				ItemBlockReactorSyncer.class
 				,

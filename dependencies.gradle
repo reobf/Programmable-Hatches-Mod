@@ -14,7 +14,7 @@
  *       but not published as Maven dependencies - useful for RFG-deobfuscated dependencies or local testing
  *  - runtimeOnly("g:n:v:c"): if you don't need this at compile time, but want it to be present at runtime
  *       Available at runtime for mods depending on this mod
- *  - annotationProcessor("g:n:v:c"): mostly for java compiler plugins, if you know you need this, use it, otherwise don't worry
+ *  - annotationProcessor("g:n:v:c"): mostly for java compilfer plugins, if you know you need this, use it, otherwise don't worry
  *  - testCONFIG("g:n:v:c") - replace CONFIG by one of the above (except api), same as above but for the test sources instead of main
  *
  *  - shadowImplementation("g:n:v:c"): effectively the same as API, but the dependency is included in your jar under a renamed package name
@@ -65,7 +65,7 @@ dependencies {
     api('com.github.GTNewHorizons:Angelica:1.0.0-beta26:api') { transitive = false }
     api("com.github.GTNewHorizons:AppleCore:3.3.4:dev") { transitive = false }
     api("com.github.GTNewHorizons:BuildCraft:7.1.39:dev") { transitive = false }
-    api("com.github.GTNewHorizons:EnderIO:2.8.22:dev") { transitive = false }
+    api("com.github.GTNewHorizons:EnderIO:2.8.22:dev") { transitive = true }
     api("com.github.GTNewHorizons:ForestryMC:4.9.19:dev") { transitive = false }
     api("com.github.GTNewHorizons:ProjectRed:4.10.5-GTNH:dev") { transitive = false }
     api("com.github.GTNewHorizons:Railcraft:9.15.15:dev") { transitive = false }
@@ -90,6 +90,7 @@ dependencies {
     api rfg.deobf("curse.maven:extra-utilities-225561:2264384")
     compileOnly rfg.deobf('curse.maven:minefactory-reloaded-66672:2366150')
     api("com.github.GTNewHorizons:OpenComputers:1.10.27-GTNH:dev") {transitive = false}
+     api("com.github.GTNewHorizons:Computronics:1.9.0-GTNH:dev") 
     // https://www.curseforge.com/minecraft/mc-mods/advancedsolarpanels
     api rfg.deobf('curse.maven:advsolar-362768:2885953')
     api('com.github.GTNewHorizons:ThaumicEnergistics:1.6.27-GTNH:dev') {transitive =  false}

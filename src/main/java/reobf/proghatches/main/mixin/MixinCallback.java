@@ -1,13 +1,21 @@
 package reobf.proghatches.main.mixin;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import com.glodblock.github.nei.object.OrderStack;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.FuzzyMode;
@@ -24,6 +32,7 @@ import appeng.util.item.AEItemStack;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
+import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
@@ -35,6 +44,8 @@ import reobf.proghatches.eucrafting.IEUManager.EUManager;
 import reobf.proghatches.eucrafting.IEUManager.IDrain;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.SISOPatternDetail;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
+import reobf.proghatches.item.ItemProgrammingCircuit;
+import reobf.proghatches.item.ItemProgrammingToolkit;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
@@ -220,7 +231,51 @@ public static void cb(final IEnergyGrid eg, final CraftingGridCache cc, Callback
 }
 
 
+public static  List<OrderStack<?>>  encodeCallback(List<OrderStack<?>> inputs) {
+	
+	AtomicBoolean circuit = new AtomicBoolean(false);
+	if (ItemProgrammingToolkit.holding() == false) {
+		return inputs;
+	}
+	if (MixinCallback.encodingSpecialBehaviour == false)
+		return inputs;
 
+	AtomicInteger i = new AtomicInteger(0);
+	List<OrderStack<?>> spec = new ArrayList<>();
+	List<OrderStack<?>> ret = inputs.stream().filter(Objects::nonNull)
+			.sorted((a,b)->a.getIndex()-b.getIndex())
+			.filter(orderStack -> {
+				boolean regular = !(orderStack.getStack() != null && orderStack.getStack() instanceof ItemStack
+						&& ((ItemStack) orderStack.getStack()).stackSize == 0);
+				if (regular == false) {
+					circuit.set(true);
+					spec.add(new OrderStack<>(ItemProgrammingCircuit.wrap(((ItemStack) orderStack.getStack())),
+							orderStack.getIndex()));
+					return false;
+				}
+
+				return true;
+			}).collect(Collectors.toList());
+
+	if (circuit.get() == false && ItemProgrammingToolkit.addEmptyProgCiruit()) {
+		spec.add(0, new OrderStack<>(ItemProgrammingCircuit.wrap(null), 0));
+	}
+
+	spec.addAll(ret);
+	List<OrderStack<?>> spec2=spec.stream().map((orderStack -> 
+orderStack.getItems()==null?
+	new OrderStack<>(orderStack.getStack(), i.getAndIncrement())
+			:
+	new OrderStack<>(orderStack.getStack(), i.getAndIncrement(),orderStack.getItems())		
+	//orderStack.setIndex(i.getAndIncrement())
+	
+			
+			)).collect(Collectors.toList());
+
+	inputs = spec2;
+return inputs;
+	// c.setReturnValue(ret);
+}
 
 }
 

@@ -63,12 +63,15 @@ import net.minecraftforge.fluids.FluidStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.github.vfyjxf.nee.nei.NEECraftingHandler;
+import com.github.vfyjxf.nee.processor.GregTech5RecipeProcessor;
 import com.glodblock.github.client.gui.GuiDualInterface;
 import com.glodblock.github.client.gui.container.ContainerDualInterface;
 import com.glodblock.github.common.parts.PartFluidP2PInterface;
 import com.glodblock.github.crossmod.opencomputers.DriverLevelMaintainer;
 import com.glodblock.github.inventory.FluidConvertingInventoryAdaptor;
 import com.glodblock.github.loader.ItemAndBlockHolder;
+import com.glodblock.github.nei.FluidPatternTerminalRecipeTransferHandler;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.gtnewhorizon.structurelib.alignment.constructable.IMultiblockInfoContainer;
@@ -216,6 +219,9 @@ public class MyMod {
 		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment") ){
 		DualityInterface.class.getDeclaredFields();
 		CraftFromPatternTask.class.getDeclaredFields();
+		NEECraftingHandler.class.getDeclaredFields();
+		GregTech5RecipeProcessor.class.getDeclaredFields();
+		FluidPatternTerminalRecipeTransferHandler.class.getDeclaredFields();
 		/*CraftingCPUCluster.class.getDeclaredFields();
 		NBTTagCompound t=new NBTTagCompound();
 		AEFluidStack.create(new FluidStack(FluidRegistry.WATER,123).writeToNBT(t));

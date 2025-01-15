@@ -2,25 +2,39 @@ package reobf.proghatches.ae;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.glodblock.github.FluidCraft;
+import com.glodblock.github.common.item.ItemFluidPacket;
 import com.glodblock.github.common.tile.TileFluidAutoFiller;
+import com.glodblock.github.inventory.AeItemStackHandler;
+import com.glodblock.github.inventory.AeStackInventory;
 import com.glodblock.github.inventory.InventoryHandler;
 import com.glodblock.github.inventory.gui.GuiType;
+import com.glodblock.github.inventory.slot.ISlotFluid;
 import com.glodblock.github.util.BlockPos;
 import com.glodblock.github.util.NameConst;
 import com.glodblock.github.util.Util;
 
 import appeng.api.config.SecurityPermissions;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.container.slot.AppEngSlot;
+import appeng.container.slot.SlotFake;
 import appeng.util.Platform;
+import appeng.util.item.AEItemStack;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.IFluidContainerItem;
 import reobf.proghatches.block.INameAndTooltips;
 
 public class BlockAutoFillerMKII extends BlockContainer implements INameAndTooltips{
@@ -76,4 +90,6 @@ public String getName(ItemStack p_77624_1_) {
 	// TODO Auto-generated method stub
 	return null;
 }
+
+
 }

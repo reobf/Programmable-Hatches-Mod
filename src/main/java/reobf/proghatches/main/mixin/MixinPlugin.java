@@ -225,7 +225,7 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		
 			
 			if (!"true".equals(pp.get("noPatternEncodingMixin"))) {
-				if(ff)retLate.add("MixinPatternEncodingCiruitSpecialTreatment");// For
+				//if(ff)retLate.add("MixinPatternEncodingCiruitSpecialTreatment");// For
 																		// ae2fc
 																		// pattern
 																		// encoder
@@ -233,7 +233,7 @@ static public ArrayList<String> retLate = new ArrayList<>();
 																		// nee
 																		// pattern
 																		// encoder
-				
+				if(ff)retLate.add("MixinPatternEncodingCiruitSpecialTreatmentNeo");
 			}
 
 		}

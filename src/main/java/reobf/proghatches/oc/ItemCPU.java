@@ -1,13 +1,30 @@
 package reobf.proghatches.oc;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+
+import li.cil.oc.api.Network;
 import li.cil.oc.api.driver.item.Slot;
+import li.cil.oc.api.internal.Database;
 import li.cil.oc.api.machine.Architecture;
+import li.cil.oc.api.machine.Arguments;
+import li.cil.oc.api.machine.Callback;
+import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.network.EnvironmentHost;
 import li.cil.oc.api.network.ManagedEnvironment;
+import li.cil.oc.api.network.Message;
+import li.cil.oc.api.network.Node;
+import li.cil.oc.api.network.Visibility;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class ItemCPU extends Item implements   li.cil.oc.api.driver.item.HostAware,
 li.cil.oc.api.driver.item.Processor{
@@ -21,7 +38,80 @@ li.cil.oc.api.driver.item.Processor{
 	@Override
 	public ManagedEnvironment createEnvironment(ItemStack stack, EnvironmentHost host) {
 		
-		return null;
+		return new APIEnv(stack);
+	}
+	public class APIEnv implements ManagedEnvironment {
+
+		@Override
+		public void update() {
+			node().network().nodes().forEach(s->{
+				
+				
+				
+				
+				System.out.println(s.host());
+			});
+
+		}
+	
+		// public RedstoneEnv(EnvironmentHost
+		// env){this.env=env;};EnvironmentHost env;
+		private Node _node = Network.newNode(this, Visibility.Network)
+
+				.create();
+
+		public APIEnv(ItemStack stack) {
+			this.stack = stack;
+		}
+
+		ItemStack stack;
+
+		@Override
+		public Node node() {
+			return _node;
+
+		}
+
+		
+		@Override
+		public void onConnect(Node node) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onDisconnect(Node node) {
+
+		}
+
+		@Override
+		public void onMessage(Message message) {
+
+		}
+
+		@Override
+		public void load(NBTTagCompound nbt) {
+			Optional.ofNullable(nbt.getTag("node")).ifPresent(s -> {
+				if (node() != null)
+					node().load((NBTTagCompound) s);
+			});
+
+		}
+
+		@Override
+		public void save(NBTTagCompound nbt) {
+			NBTTagCompound t = new NBTTagCompound();
+			Optional.ofNullable(node()).ifPresent(s -> s.save(t));
+			nbt.setTag("node", t);
+		}
+
+		@Override
+		public boolean canUpdate() {
+
+			return true;
+		}
+
+		
 	}
 
 	@Override

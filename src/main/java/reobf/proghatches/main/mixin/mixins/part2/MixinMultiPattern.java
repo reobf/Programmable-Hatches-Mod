@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.common.item.ItemFluidPacket;
+import com.glodblock.github.inventory.FluidConvertingInventoryCrafting;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
@@ -221,7 +222,7 @@ InventoryCrafting inv = inv0.get();
 					break stop;// that's impossible to be done in same tick
 				}
 				InventoryCrafting ic = detail.isCraftable() ? new InventoryCrafting(new ContainerNull(), 3, 3)
-						: new InventoryCrafting(new ContainerNull(), detail.getInputs().length, 1);
+						: new FluidConvertingInventoryCrafting(new ContainerNull(), detail.getInputs().length, 1);
 				final IAEItemStack[] input = detail.getInputs();
 				boolean found = false;
 				for (int x = 0; x < input.length; x++) {
@@ -252,8 +253,15 @@ InventoryCrafting inv = inv0.get();
 				if (!found) {
 					// put stuff back..
 					for (int x = 0; x < ic.getSizeInventory(); x++) {
-						final ItemStack is = ic.getStackInSlot(x);
+						 ItemStack is = ic.getStackInSlot(x);
 						if (is != null) {
+							if(is.getItem() instanceof ItemFluidDrop){
+								
+								is=ItemFluidDrop.newStack(ItemFluidPacket.getFluidStack(is));
+								
+							}
+							
+							
 							this.inventory.injectItems(AEItemStack.create(is), Actionable.MODULATE, this.machineSrc);
 						}
 					}
@@ -272,8 +280,14 @@ InventoryCrafting inv = inv0.get();
 					if (ic != null) {
 		                // put stuff back..
 		                for (int x = 0; x < ic.getSizeInventory(); x++) {
-		                    final ItemStack is = ic.getStackInSlot(x);
+		                     ItemStack is = ic.getStackInSlot(x);
+		                    
 		                    if (is != null) {
+		                    	if(is.getItem() instanceof ItemFluidDrop){
+									
+									is=ItemFluidDrop.newStack(ItemFluidPacket.getFluidStack(is));
+									
+								}
 		                        this.inventory.injectItems(AEItemStack.create(is), Actionable.MODULATE, this.machineSrc);
 		                    }
 		                }

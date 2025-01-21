@@ -240,10 +240,10 @@ public class PartAmountMaintainer  extends PartBasicState implements IGuiProvidi
 			job=getProxy().getCrafting().beginCraftingJob(this.getTile().getWorldObj(), getProxy().getGrid(), source, iaeStack, null);
 			}
 			else{
-				if(job.isDone()){
+				if(job.isDone()&&!job.isCancelled()){
 				link = getProxy().getCrafting().submitJob(job.get(), this, null, false, source);
 				job=null;}
-				if(job.isCancelled()){job=null;}
+				else if(job.isCancelled()){job=null;}
 			}
 		}else{
 			if(link.isCanceled()||link.isDone()){link=null;}

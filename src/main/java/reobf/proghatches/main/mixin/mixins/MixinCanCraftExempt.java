@@ -22,6 +22,7 @@ import appeng.me.cache.CraftingGridCache;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import codechicken.nei.InventoryCraftingDummy;
 import net.minecraft.inventory.InventoryCrafting;
+import reobf.proghatches.eucrafting.IInputMightBeEmptyPattern;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 
 @SuppressWarnings("unused")
@@ -33,7 +34,7 @@ public class MixinCanCraftExempt {
 	@ModifyVariable(method = "executeCrafting", at = @At(value = "INVOKE", target = "getMediums(Lappeng/api/networking/crafting/ICraftingPatternDetails;)Ljava/util/List;"), require = 1)
 	private ICraftingPatternDetails executeCrafting(ICraftingPatternDetails details,
 			@Share("arg") LocalBooleanRef shouldExempt) {
-		shouldExempt.set((details instanceof ProgrammingCircuitProvider.CircuitProviderPatternDetial));
+		shouldExempt.set((details instanceof IInputMightBeEmptyPattern));
 		return details;
 
 	}
@@ -48,7 +49,7 @@ public class MixinCanCraftExempt {
 	@Inject(method = "canCraft", at = @At("RETURN"), cancellable = true, require = 1)
 	private void canCraft(final ICraftingPatternDetails details, final IAEItemStack[] condensedInputs,
 			CallbackInfoReturnable<Boolean> ci) {
-		if ((details instanceof ProgrammingCircuitProvider.CircuitProviderPatternDetial)) {
+		if ((details instanceof IInputMightBeEmptyPattern)) {
 			ci.setReturnValue(true);
 		}
 	}

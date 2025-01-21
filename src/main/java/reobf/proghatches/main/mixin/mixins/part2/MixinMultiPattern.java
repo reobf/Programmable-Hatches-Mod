@@ -123,6 +123,15 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 			@Local java.util.Map.Entry e,
 			@Share("inv") LocalRef<InventoryCrafting> inv0/*,
 			@Share("isMulti") LocalBooleanRef isMulti*/) {
+		
+		
+		
+		
+		
+		
+		
+		
+		
 InventoryCrafting inv = inv0.get();
 		//if (isMulti.get()) {
 		if(medium instanceof IMultiplePatternPushable){
@@ -224,17 +233,22 @@ InventoryCrafting inv = inv0.get();
 				InventoryCrafting ic = detail.isCraftable() ? new InventoryCrafting(new ContainerNull(), 3, 3)
 						: new FluidConvertingInventoryCrafting(new ContainerNull(), detail.getInputs().length, 1);
 				final IAEItemStack[] input = detail.getInputs();
-				boolean found = false;
+				boolean found = true;
 				for (int x = 0; x < input.length; x++) {
-					if (input[x] != null) {
+					//System.out.println(input[x]);
+					if (input[x] != null&&input[x].getStackSize()>0) {
 						found = false;
 						for (IAEItemStack ias : getExtractItems(input[x], detail)) {
-
+							//System.out.println(ias);
 							final IAEItemStack ais = this.inventory.extractItems(ias, Actionable.MODULATE,
 									this.machineSrc);
 							final ItemStack is = ais == null ? null : ais.getItemStack();
-							if (is == null)
+							//System.out.println(ais);
+							if (ias.getStackSize()!=((is == null)?0:is.stackSize))
 								continue;
+							
+							
+							
 							found = true;
 							ic.setInventorySlotContents(x, is);
 							if (!detail.canBeSubstitute() && is.stackSize == input[x].getStackSize()) {
@@ -249,7 +263,7 @@ InventoryCrafting inv = inv0.get();
 						}
 					}
 				}
-
+				//System.out.println(found);
 				if (!found) {
 					// put stuff back..
 					for (int x = 0; x < ic.getSizeInventory(); x++) {

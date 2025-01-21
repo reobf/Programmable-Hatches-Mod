@@ -156,6 +156,7 @@ import li.cil.oc.api.Driver;
 import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockAutoFillerMKII;
 import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
+import reobf.proghatches.ae.BlockRequestTunnel;
 import reobf.proghatches.block.ChunkTrackingGridCahce;
 import reobf.proghatches.block.TileIOHub;
 import reobf.proghatches.eio.ICraftingMachineConduit;
@@ -792,6 +793,8 @@ public class MyMod {
 	public static BlockMolecularAssemblerInterface ma_iface;
 	public static BlockAutoFillerMKII autofiller;
 	//public static Block occonfigurator;
+	public static BlockRequestTunnel request_tunnel;
+	public static Item emitterpattern;
 
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void pretick(final TickEvent.ServerTickEvent event) {

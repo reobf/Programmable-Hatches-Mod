@@ -38,6 +38,7 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 import com.glodblock.github.loader.ItemAndBlockHolder;
 
 import appeng.core.Api;
+import appeng.core.api.definitions.ApiItems;
 import appeng.integration.modules.Chisel;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.ironchest.IronChest;
@@ -1962,6 +1963,55 @@ public class PHRecipes implements Runnable {
 				.eut(30)
 				.addTo(RecipeMaps.assemblerRecipes);
 			 
+			 //////
+			 GTValues.RA.stdBuilder()
+				.itemInputs(
+						 new ItemStack( MyMod.toolkit,0,OreDictionary.WILDCARD_VALUE), 
+						 
+						 Api.INSTANCE.definitions()
+	                     .materials().blankPattern().maybeStack(1).get()
+				)
+				.itemOutputs(	
+						new ItemStack( MyMod.emitterpattern)
+								 )
+				.duration(1 * SECONDS)
+				.eut(30)
+				.addTo(RecipeMaps.assemblerRecipes);
+			 
+			 rec = new ShapelessOreRecipe(new ItemStack( MyMod.emitterpattern),
+						
+					 new ItemStack( MyMod.toolkit,1,OreDictionary.WILDCARD_VALUE), 
+					 
+					 Api.INSTANCE.definitions()
+                     .materials().blankPattern().maybeStack(1).get()
+                     );
+				CraftingManager.getInstance().getRecipeList().add(rec);
+			 
+				 rec = new ShapelessOreRecipe( Api.INSTANCE.definitions()
+	                     .materials().blankPattern().maybeStack(1).get(),
+	                     new ItemStack( MyMod.emitterpattern)
+						 );
+					CraftingManager.getInstance().getRecipeList().add(rec);
+			 
+			 
+					 GTValues.RA.stdBuilder()
+						.itemInputs(
+								 Api.INSTANCE.definitions()
+			                     .blocks().iface().maybeStack(1).get(),
+			                     Api.INSTANCE.definitions()
+			                     .materials().cardCrafting().maybeStack(8).get(),
+			                     Api.INSTANCE.definitions()
+			                     .blocks().molecularAssembler().maybeStack(8).get()
+			                     
+						)
+						.itemOutputs(	
+								new ItemStack( MyMod.request_tunnel)
+										 )
+						.duration(1 * SECONDS)
+						.eut(30)
+						.addTo(RecipeMaps.assemblerRecipes);
+					 
+					 
      /*GTRecipeBuilder.builder()
      .metadata(RESEARCH_ITEM, new ItemStack(ChiselBlocks.present,1,16))
      .metadata(RESEARCH_TIME, 1 )

@@ -20,6 +20,7 @@ import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
+import li.cil.oc.server.machine.Callbacks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -48,8 +49,11 @@ li.cil.oc.api.driver.item.Processor{
 				
 				
 				
+				;
+				System.out.println(Callbacks.apply(s.host()));
+				System.out.println(Callbacks.fromClass(s.host().getClass()));
 				
-				System.out.println(s.host());
+				
 			});
 
 		}

@@ -404,5 +404,19 @@ class TakeOnlyItemStackHandler extends ItemStackHandler{
 				"universal"
 		};
 	}*/
-
+	@Override
+	public boolean doesContainerItemLeaveCraftingGrid(ItemStack p_77630_1_) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+@Override
+public boolean hasContainerItem(ItemStack stack) {
+	
+	return true;
+}
+@Override
+public ItemStack getContainerItem(ItemStack itemStack) {
+	
+	return itemStack;
+}
 }

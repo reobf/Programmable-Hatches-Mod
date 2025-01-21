@@ -40,7 +40,7 @@ public class Arch  implements Architecture{
 
 	@Override
 	public void runSynchronized() {
-
+		
 			machine.node().network().nodes().forEach(s->{
 				
 				if(s.host() instanceof li.cil.oc.common.component.Screen){

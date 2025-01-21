@@ -27,8 +27,10 @@ import reobf.proghatches.ae.BlockAutoFillerMKII;
 import reobf.proghatches.ae.BlockCraftingCondenser;
 import reobf.proghatches.ae.BlockCyclicPatternSubmitter;
 import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
+import reobf.proghatches.ae.BlockRequestTunnel;
 import reobf.proghatches.ae.BlockStockingCircuitRequestInterceptor;
 import reobf.proghatches.ae.BlockStorageProxy;
+import reobf.proghatches.ae.ItemEmitterPattern;
 import reobf.proghatches.ae.ItemPartAmountMaintainer;
 import reobf.proghatches.ae.ItemPartMAP2P;
 import reobf.proghatches.ae.ItemPartStockingExportBus;
@@ -38,6 +40,7 @@ import reobf.proghatches.ae.TileAutoFillerMKII;
 import reobf.proghatches.ae.TileCraftingCondenser;
 import reobf.proghatches.ae.TileCyclicPatternSubmitter;
 import reobf.proghatches.ae.TileMolecularAssemblerInterface;
+import reobf.proghatches.ae.TileRequestTunnel;
 import reobf.proghatches.ae.TileStockingCircuitRequestInterceptor;
 import reobf.proghatches.ae.TileStorageProxy;
 import reobf.proghatches.block.BlockAnchorAlert;
@@ -107,7 +110,7 @@ public class CommonProxy {
 		GameRegistry.registerTileEntity(TileStockingCircuitRequestInterceptor.class, "proghatches.circuit_interceptor");
 		GameRegistry.registerTileEntity(TileAutoFillerMKII.class, "proghatches.autofillerMKII");
 		GameRegistry.registerTileEntity(TileGTHatchConfigurator.class, "proghatches.configurator");
-		
+		GameRegistry.registerTileEntity(TileRequestTunnel.class, "proghatches.request_tunnel");
 		ItemMEPlunger a=new ItemMEPlunger(100000);
 		
 	
@@ -246,6 +249,14 @@ public class CommonProxy {
 				
 				, "proghatches.ma_iface",new Object[]{""});
 		
+		GameRegistry.registerItem(MyMod.emitterpattern = new ItemEmitterPattern()
+				.setUnlocalizedName("proghatches.emitterpattern").setTextureName("proghatches:emitterpattern"), "proghatches.emitterpattern");
+		GameRegistry
+		.registerBlock(
+				MyMod.request_tunnel = new BlockRequestTunnel(),ItemBlockTooltip.class
+				
+				,"request_tunnel",new Object[]{""});
+		
 	}
  static public class ToolTipAEBaseItemBlock extends AEBaseItemBlock{
 				 public ToolTipAEBaseItemBlock(Block id) {
@@ -302,6 +313,8 @@ public class CommonProxy {
 		registrar.registerBodyProvider(TileCyclicPatternSubmitter.provider, BlockCyclicPatternSubmitter.class);
 		registrar.registerNBTProvider(TileCyclicPatternSubmitter.provider, BlockCyclicPatternSubmitter.class);
 		
+		registrar.registerBodyProvider(TileRequestTunnel.provider, BlockRequestTunnel.class);
+		registrar.registerNBTProvider(TileRequestTunnel.provider, BlockRequestTunnel.class);
 		
 		
 	}

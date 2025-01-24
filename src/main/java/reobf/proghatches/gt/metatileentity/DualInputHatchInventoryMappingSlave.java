@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 
 import appeng.api.networking.crafting.ICraftingMedium;
+import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.helpers.ICustomNameObject;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
@@ -24,6 +25,8 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -37,6 +40,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
+import reobf.proghatches.gt.metatileentity.util.ICraftingV2;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.ISkipStackSizeCheck;
 import reobf.proghatches.main.Config;
@@ -44,7 +48,7 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
 public class DualInputHatchInventoryMappingSlave<T extends MetaTileEntity & IDualInputHatch&IMetaTileEntity> 
-extends MTETieredMachineBlock implements ISkipStackSizeCheck,IDataCopyablePlaceHolder{
+extends MTETieredMachineBlock implements ISkipStackSizeCheck,IDataCopyablePlaceHolder,ICraftingV2{
 	private T master; // use getMaster() to access
 	private int masterX, masterY, masterZ;
 	private boolean masterSet = false; // indicate if values of masterX,
@@ -468,4 +472,31 @@ extends MTETieredMachineBlock implements ISkipStackSizeCheck,IDataCopyablePlaceH
 	  	master=null;
 	  return true;
 	  }
+	
+	@Override
+	public boolean pushPatternCM(ICraftingPatternDetails patternDetails, InventoryCrafting table,
+			ForgeDirection ejectionDirection) {
+	
+		if((master=getMaster())!=null){
+			if(master instanceof ICraftingV2)
+			return ((ICraftingV2)master).pushPatternCM(patternDetails, table, getMasterFront());
+		};
+		return false;
+	}
+	@Override
+	public boolean acceptsPlansCM() {
+		if((master=getMaster())!=null){
+			if(master instanceof ICraftingV2)
+			return ((ICraftingV2)master).acceptsPlansCM();
+		};
+		return false;
+	}
+	@Override
+	public boolean enableCM() {
+		if((master=getMaster())!=null){
+			if(master instanceof ICraftingV2)
+			return ((ICraftingV2)master).enableCM();
+		};
+		return false;
+	}
 }

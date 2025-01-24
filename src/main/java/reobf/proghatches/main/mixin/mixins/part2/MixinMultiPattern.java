@@ -269,7 +269,7 @@ InventoryCrafting inv = inv0.get();
 					for (int x = 0; x < ic.getSizeInventory(); x++) {
 						 ItemStack is = ic.getStackInSlot(x);
 						if (is != null) {
-							if(is.getItem() instanceof ItemFluidDrop){
+							if(is.getItem() instanceof ItemFluidPacket){
 								
 								is=ItemFluidDrop.newStack(ItemFluidPacket.getFluidStack(is));
 								
@@ -297,7 +297,7 @@ InventoryCrafting inv = inv0.get();
 		                     ItemStack is = ic.getStackInSlot(x);
 		                    
 		                    if (is != null) {
-		                    	if(is.getItem() instanceof ItemFluidDrop){
+		                    	if(is.getItem() instanceof ItemFluidPacket){
 									
 									is=ItemFluidDrop.newStack(ItemFluidPacket.getFluidStack(is));
 									

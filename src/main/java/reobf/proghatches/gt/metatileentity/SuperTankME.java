@@ -174,6 +174,21 @@ public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxya
 				try {
 	                
 					if(last!=null){
+						if(content.getFluid()!=null){
+							if(last.equals(content.getFluid())){
+								if(last.getStackSize()==content.getFluid().amount)
+								{return;}else{
+									
+									this.getProxy().getStorage()
+			                        .postAlterationOfStoredItems(StorageChannel.FLUIDS, 
+			                        		ImmutableList.of(last.copy().setStackSize(content.getFluid().amount-last.getStackSize()))
+			                        		,new MachineSource(this));
+									   last=AEFluidStack.create(content.getFluid());
+									return;
+								}
+								}
+								
+							};
 					this.getProxy().getStorage()
 	                        .postAlterationOfStoredItems(StorageChannel.FLUIDS, 
 	                        		ImmutableList.of(last.copy().setStackSize(-last.getStackSize()))
@@ -195,7 +210,7 @@ public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxya
 				
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 	   
 	}/*
@@ -401,7 +416,7 @@ IMEMonitor handler0x= new MEMonitorHandler(handler
 
 		@Override
 		public IAEFluidStack extractItems(IAEFluidStack input, Actionable type, BaseActionSource src) {
-			post();
+			if(type!=Actionable.SIMULATE)post();
 			try{
 			if(content.getFluid()!=null&&content.getFluid().getFluid()!=input.getFluid()
 				){return null;}

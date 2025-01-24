@@ -195,8 +195,25 @@ public class SuperChestME extends MTEHatch implements ICellContainer, IGridProxy
 			//this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
 			//this.getProxy().getGrid().postEvent(new MENetworkStorageEvent(handler0, StorageChannel.ITEMS));
 			try {
-                
+               
 				if(last!=null){
+					if(mInventory[0]!=null){
+						if(last.equals(mInventory[0])){
+							if(last.getStackSize()==mInventory[0].stackSize)
+							{return;}else{
+								
+								this.getProxy().getStorage()
+		                        .postAlterationOfStoredItems(StorageChannel.ITEMS, 
+		                        		ImmutableList.of(last.copy().setStackSize(mInventory[0].stackSize-last.getStackSize()))
+		                        		,new MachineSource(this));
+								last=AEItemStack.create(mInventory[0]);
+								return;
+							}
+							}
+							
+						};
+					
+					
 				this.getProxy().getStorage()
                         .postAlterationOfStoredItems(StorageChannel.ITEMS, 
                         		ImmutableList.of(last.copy().setStackSize(-last.getStackSize()))
@@ -214,7 +231,7 @@ public class SuperChestME extends MTEHatch implements ICellContainer, IGridProxy
             } catch (final GridAccessException ignore) {}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 	   
 	}/*
@@ -426,7 +443,10 @@ public class SuperChestME extends MTEHatch implements ICellContainer, IGridProxy
 
 		@Override
 		public IAEItemStack extractItems(IAEItemStack input, Actionable type, BaseActionSource src) {
-		try{post();
+		try{
+			
+			if(type!=Actionable.SIMULATE)post();
+			
 			ItemStack in=input.getItemStack();
 			ItemStack thiz=mInventory[0];
 			if(thiz!=null&&!Platform.isSameItem(in, thiz))return null;

@@ -392,13 +392,43 @@ public void readFromNBT_AENetworkX(NBTTagCompound data) {
 			
 			
 		}*/
+	AEItemStack left=null;
+	
+	Long get = waiting.get((items));
+	if(get!=null){
+		long tmp;
+		waiting.put((AEItemStack) items,tmp=Math.max(0,get-items.getStackSize()));
+		if(tmp<=0)waiting.remove(items);
+		 
+		if((this.mode&1)!=0){
+			if(get<items.getStackSize()){//inject more than waiting for?
+			items=items.copy().setStackSize(get);//that's the part we need
+			left=(AEItemStack) items.copy();
+			left.decStackSize(get);//that's the rest
+			}
+		}
+		
+		
+	}else{
+		if((this.mode&1)!=0){
+			
+			return items;//not waiting, just return items as unwanted
+		}
+		
+	}
+	
+	
+	
+	
 	if(items.getItem() instanceof ItemFluidDrop){
 		cacheFR.add(ItemFluidDrop.getAeFluidStack(items).getFluidStack());
 	}else{
 		cacheR.add(items.getItemStack());
 		
 	}
-		return null;
+	
+	
+		return left;
 	}
 	
 	HashMap<StorageChannel,IMEInventory> inv=new HashMap();
@@ -507,7 +537,7 @@ public IMEInventory getInv(StorageChannel ch){
 			 
 			
 			 
-			 
+			 if((mode&2)==0||last==null)
 			 useExisting();
 		 }
 		  if(this.tick%40==2){
@@ -626,11 +656,13 @@ public IMEInventory getInv(StorageChannel ch){
 	        }
 	        
 	    }
+	 
+	 int mode;
 	private void useExisting() {
 		for(Iterator<Entry<AEItemStack, Long>> itr = waiting.entrySet().iterator();itr.hasNext();){
 			
 			Entry<AEItemStack, Long> e=itr.next();
-			
+			if(e.getValue()<=0){itr.remove();continue;}
 			
 			IAEItemStack val = e.getKey().copy().setStackSize(e.getValue());
 			

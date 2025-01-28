@@ -48,6 +48,7 @@ import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.DynamicPositionedColumn;
 import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
+import com.gtnewhorizons.modularui.common.widget.Scrollable;
 import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget.IntegerSyncer;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
@@ -1064,8 +1065,12 @@ ButtonWidget createRemoveCircuitButton(IWidgetBuilder<?> builder,UIBuildContext 
 
     	        final DynamicPositionedColumn screenElements = new DynamicPositionedColumn();
     	        drawTexts(screenElements, inventorySlot);
-    	        builder.widget(screenElements);
-
+    	        //builder.widget(screenElements);
+    	        builder.widget(
+    	                new Scrollable().setVerticalScroll()
+    	                    .widget(screenElements)
+    	                    .setPos(10, 7)
+    	                    .setSize(182, 79));
     	        builder.widget(createPowerSwitchButton(builder))
     	            .widget(createParallelButton(builder,buildContext))
     	            .widget(createRemoveCircuitButton(builder,buildContext))

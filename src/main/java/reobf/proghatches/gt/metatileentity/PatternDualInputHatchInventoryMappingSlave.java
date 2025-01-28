@@ -86,6 +86,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
+import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.Recipe;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
@@ -97,6 +98,7 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.net.MasterSetMessage;
 import reobf.proghatches.net.UpgradesMessage;
+import reobf.proghatches.util.ProghatchesUtil;
 
 public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch & IDualInputHatch & IMetaTileEntity>
 		extends MTETieredMachineBlock implements IAddUIWidgets, ICraftingMedium, ICustomNameObject,
@@ -426,6 +428,10 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
 	@Override
 	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
+		/*ProghatchesUtil.removeMultiCache(builder, ()->{
+			T o = getMaster();
+			if(o!=null)o.resetMulti();
+		});*/
 		if (masterSet)
 			trySetMasterFromCoord(masterX, masterY, masterZ);
 		if (getMaster() instanceof IAddUIWidgets) {
@@ -836,7 +842,12 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
 			}
 			if(master instanceof BufferedDualInputHatch){
-				((BufferedDualInputHatch) master).classifyForce();
+				BufferedDualInputHatch m=(BufferedDualInputHatch) master;
+				
+				
+				DualInvBuffer theBuffer = ((BufferedDualInputHatch) master).classifyForce();
+				((BufferedDualInputHatch) master).recordRecipe(theBuffer);
+				//((BufferedDualInputHatch) master).classifyForce();
 			}
 			return true;// hoo ray
 		}
@@ -1063,7 +1074,18 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 			suc++;maxTodo--;
 			
 			if(master instanceof BufferedDualInputHatch){
-			DualInvBuffer theBuffer=((BufferedDualInputHatch) master).classifyForce();
+				
+				BufferedDualInputHatch m=(BufferedDualInputHatch) master;
+				/*Integer check = m.detailmap.get(patternDetails);
+				if(check==null){
+					m.currentID++;
+					m.detailmap.put(patternDetails,m.currentID );
+					check=m.currentID;
+				}*/
+				
+				DualInvBuffer theBuffer = ((BufferedDualInputHatch) master).classifyForce();
+				m.recordRecipe(theBuffer);
+			//DualInvBuffer theBuffer=((BufferedDualInputHatch) master).classifyForce();
 			
 			if(theBuffer!=null){
 				int todo=Math.min(theBuffer.space(),maxTodo);

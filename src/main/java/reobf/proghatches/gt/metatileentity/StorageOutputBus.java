@@ -94,7 +94,7 @@ boolean wasActive;
 
 	boolean additionalConnection;
 
-	private void updateValidGridProxySides() {
+	public void updateValidGridProxySides() {
 
 		if (additionalConnection) {
 			getProxy().setValidSides(EnumSet.complementOf(EnumSet.of(ForgeDirection.UNKNOWN)));
@@ -121,7 +121,7 @@ boolean wasActive;
 		}
 		return this.gridProxy;
 	}
-    private long getCachedAmount() {
+    public long getCachedAmount() {
         long itemAmount = 0;
         for (IAEItemStack item : itemCache) {
             itemAmount += item.getStackSize();
@@ -129,7 +129,7 @@ boolean wasActive;
         return itemAmount;
     }
     private static final long DEFAULT_CAPACITY = 1_600;
-    private long getCacheCapacity() {
+    public long getCacheCapacity() {
         ItemStack upgradeItemStack = mInventory[0];
         if (upgradeItemStack != null && upgradeItemStack.getItem() instanceof ItemBasicStorageCell) {
             return ((ItemBasicStorageCell) upgradeItemStack.getItem()).getBytesLong(upgradeItemStack) * 8;

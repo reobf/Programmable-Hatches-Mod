@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Table;
 
+import bartworks.system.material.Werkstoff;
+import bartworks.system.material.WerkstoffLoader;
 import gregtech.api.GregTechAPI;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
@@ -108,8 +110,8 @@ this.index=i;
 	}
 
 int index;
-static public Map<Integer,Collection<ItemStack>> prefab=new HashMap<>();
-static boolean   init;
+public static  Map<Integer,Collection<ItemStack>> prefab=new HashMap<>();
+public static boolean   init;
 static void init(){
 	if(init==true)return;
 	init=true;
@@ -218,14 +220,20 @@ static void init(){
 	    
 	    ArrayList<ItemStack> is= new ArrayList<>();
 	 for(Materials mat:  Materials.values()){
-		
-		 
 		ItemStack opt= GTOreDictUnificator.get(OrePrefixes.lens.get(mat),null, 1,false,false);
 	if(opt!=null)is.add(opt);
-	//System.out.println(is);
-	reg(5,is);
+	//
+	
 	 }
-	    
+	 for(Werkstoff mat:Werkstoff.werkstoffHashSet){
+		 ItemStack opt=  WerkstoffLoader.getCorrespondingItemStackUnsafe(OrePrefixes.lens, mat, i);
+		 if(opt!=null)is.add(opt);
+	 }
+	 System.out.println(is);System.out.println("TTTTTTTTTTTTT");
+	 reg(5,is);
+	 
+	 
+	 
 	    prefab.values().forEach(s->s.removeIf(isy->{
 	    	if(isy==null)System.out.println("Null:"+s);
 	    	return isy==null;}));

@@ -31,6 +31,7 @@ import gregtech.api.enums.ItemList;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
@@ -340,4 +341,16 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch&IMet
 		master=null;
 	  return true;
 	  }
+
+
+
+	  @Override
+	    public ItemStack[] getSharedItems() {
+	        return getMaster() != null ? getMaster().getSharedItems() : new ItemStack[0];
+	    }
+
+	  @Override
+	    public void setProcessingLogic(ProcessingLogic pl) {
+	        if (getMaster() != null) getMaster().setProcessingLogic(pl);
+	    }
 }

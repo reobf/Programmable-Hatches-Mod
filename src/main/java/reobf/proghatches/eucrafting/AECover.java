@@ -448,7 +448,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
 		}
 
 		default public void destroy() {
-			MyMod.LOG.info("Node destroy@" + getPos());
+			//MyMod.LOG.info("Node destroy@" + getPos());
 
 			try {if(this.getProxy().getNode()==null)return;
 				IReadOnlyCollection<IGridConnection> col = this.getProxy().getNode().getConnections();
@@ -787,7 +787,7 @@ protected Data onCoverScrewdriverClickImpl(ForgeDirection side, int aCoverID, Da
 
 			}
 				if(!found){
-					MyMod.LOG.info("Node internal connect@" + data.getPos());
+					//MyMod.LOG.info("Node internal connect@" + data.getPos());
 					new GridConnection(thiz, host.getNode(), ForgeDirection.UNKNOWN);}
 			} catch (FailedConnection e) {
 				
@@ -827,7 +827,7 @@ protected Data onCoverScrewdriverClickImpl(ForgeDirection side, int aCoverID, Da
 					IGridNode thiz = data.getProxy().getNode();
 					new GridConnection(thiz, thenode, side);
 
-					MyMod.LOG.info("Node connect@" + data.getPos());
+					//MyMod.LOG.info("Node connect@" + data.getPos());
 				} catch (FailedConnection e) {
 
 					//System.out.println(item.a());

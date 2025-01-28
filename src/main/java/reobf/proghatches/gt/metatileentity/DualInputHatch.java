@@ -126,6 +126,7 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.modularui.IAddGregtechLogo;
 import gregtech.api.interfaces.modularui.IAddUIWidgets;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
@@ -140,6 +141,7 @@ import gregtech.api.util.GTTooltipDataCache.TooltipData;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
+import gregtech.common.tileentities.machines.MTEHatchCraftingInputME.PatternSlot;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.IMultiCircuitSupport;
@@ -149,11 +151,13 @@ import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.gt.metatileentity.util.ISkipStackSizeCheck;
 import reobf.proghatches.gt.metatileentity.util.InventoryItemHandler;
 import reobf.proghatches.gt.metatileentity.util.ListeningFluidTank;
+import reobf.proghatches.gt.metatileentity.util.polyfill.INeoDualInputInventory;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.net.UpgradesMessage;
+import reobf.proghatches.util.ProghatchesUtil;
 
 /**
  * @author zyf
@@ -292,7 +296,7 @@ public void reinitTierBasedField() {
 		initTierBasedField();shared.reinit();
 
 	}
-	public NBTTagCompound writeToNBT(ItemStack is, NBTTagCompound tag) {
+	public static NBTTagCompound writeToNBT(ItemStack is, NBTTagCompound tag) {
 		is.writeToNBT(tag);
 		tag.setInteger("ICount", is.stackSize);
 		
@@ -300,7 +304,7 @@ public void reinitTierBasedField() {
 	}
 
 	
-	public ItemStack loadItemStackFromNBT(NBTTagCompound tag) {
+	public static ItemStack loadItemStackFromNBT(NBTTagCompound tag) {
 
 		ItemStack is = ItemStack.loadItemStackFromNBT(tag);
 		is.stackSize = tag.getInteger("ICount");
@@ -512,6 +516,7 @@ public void reinitTierBasedField() {
  
     @Override
 	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
+    	//ProghatchesUtil.removeMultiCache(builder, this);
 		builder.widget(new MarkerWidget(this));
 		buildContext.addSyncedWindow(INSERTION , (s) -> createInsertionWindow(buildContext));
 		buildContext.addSyncedWindow(SHARED_ITEM , (s) -> createSharedItemWindow(buildContext));
@@ -916,7 +921,10 @@ public void reinitTierBasedField() {
 			return emptyItr;
 		return Arrays.asList(theInv).iterator();
 	}
-
+	public List<IDualInputInventory> inventoriesReal() {
+		
+		return Arrays.asList(theInv);
+	}
 	@Override
 	public Optional<IDualInputInventory> getFirstNonEmptyInventory() {
 		boolean empty = true;
@@ -951,9 +959,9 @@ public void reinitTierBasedField() {
 		return asFluidStack.apply(mStoredFluid,shared.getFluid());
 	}
 
-	public DualInv theInv = new DualInv();
+	final public DualInv theInv = new DualInv();
 
-	public class DualInv implements IDualInputInventory {
+	public class DualInv implements INeoDualInputInventory {
 
 		public boolean isEmpty() {
 
@@ -2315,6 +2323,8 @@ public class OptioanlSharedContents{
 		all.addAll(circuitInv);
 		all.add(mInventory[getCircuitSlot()]);
 		if(recipe==false){
+			MyMod.LOG.fatal("broken");
+			Thread.dumpStack();
 			broken=true;
 		all.removeIf(Objects::isNull);
 			return all.toArray(new ItemStack[0]);
@@ -2326,6 +2336,8 @@ public class OptioanlSharedContents{
 	
 	public FluidStack[] getFluid(){
 		if(recipe==false){
+			MyMod.LOG.fatal("broken");
+			Thread.dumpStack();
 			broken=true;
 			return new FluidStack[0];
 		}
@@ -2564,4 +2576,38 @@ public boolean canDrain(ForgeDirection side, Fluid aFluid) {
 
 	return true;
 }
+@Override
+public ItemStack[] getSharedItems() {
+	
+	return new ItemStack[0];
+}
+
+public boolean hasBuffer(){
+	return false;
+}
+@Override
+public void setProcessingLogic(ProcessingLogic pl) {
+	if(!hasBuffer())return;
+	 if (!processingLogics.contains(pl)) {
+         processingLogics.add(Objects.requireNonNull(pl));
+     }
+	
+}/*
+public void resetMulti() {
+  for ( IDualInputInventory o : inventoriesReal()) {
+	  resetMulti(o);
+    }
+}
+
+private void resetMulti(IDualInputInventory dual) {
+    for (ProcessingLogic pl : processingLogics) {
+    	pl.clearCraftingPatternRecipeCache(dual);
+       
+    }
+}*/
+
+
+
+
+public List<ProcessingLogic> processingLogics = new ArrayList<>();
 }

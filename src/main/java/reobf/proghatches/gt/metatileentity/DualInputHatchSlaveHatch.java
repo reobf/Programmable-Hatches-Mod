@@ -50,6 +50,7 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
+import reobf.proghatches.gt.metatileentity.util.polyfill.INeoDualInputInventory;
 import reobf.proghatches.main.registration.Registration;
 
 public class DualInputHatchSlaveHatch<T extends MetaTileEntity & IDualInputHatch&IMetaTileEntity> extends MTEHatchMultiInput
@@ -321,8 +322,12 @@ public class DualInputHatchSlaveHatch<T extends MetaTileEntity & IDualInputHatch
 		Optional<IDualInputInventory> opt = getMaster().getFirstNonEmptyInventory();
 			if(opt.isPresent())tmpinv=opt.get();
 		}
-		if(tmpinv==null){tmpinv=new IDualInputInventory() {
-			
+		if(tmpinv==null){tmpinv=new INeoDualInputInventory() {
+			@Override
+			public boolean isEmpty() {
+				// TODO Auto-generated method stub
+				return false;
+			}
 			@Override
 			public ItemStack[] getItemInputs() {
 			

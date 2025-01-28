@@ -294,7 +294,7 @@ public CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) {
 	}
 	
 }BaseActionSource  requestSource;
-    private BaseActionSource getRequestSource() {
+    public BaseActionSource getRequestSource() {
         if (requestSource == null) requestSource = new MachineSource((IActionHost) getBaseMetaTileEntity());
         return requestSource;
     }

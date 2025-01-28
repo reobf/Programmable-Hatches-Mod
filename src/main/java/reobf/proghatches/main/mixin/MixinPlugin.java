@@ -25,6 +25,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.config.Configuration;
 
 import org.apache.logging.log4j.LogManager;
@@ -33,6 +34,7 @@ import org.spongepowered.asm.lib.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
@@ -43,7 +45,10 @@ import com.google.common.collect.Maps;
 import com.gtnewhorizon.gtnhmixins.MinecraftURLClassPath;
 
 public class MixinPlugin implements IMixinConfigPlugin {
-
+	public MixinPlugin(){
+		System.out.println("xx");
+		
+	}
 	@Override
 	public void onLoad(String mixinPackage) {
 		// TODO Auto-generated method stub
@@ -58,7 +63,17 @@ public class MixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-		// TODO Auto-generated method stub
+	
+	/*if(mixinClassName.equals("reobf.proghatches.main.mixin.mixins.part2.MixinProcessLogicDoNotCache")){
+			
+			System.out.println(Loader.instance().getIndexedModList());
+			System.out.println("xx");
+		}
+		
+		
+	*/
+		
+		
 		return true;
 	}
 
@@ -214,6 +229,14 @@ static public ArrayList<String> retLate = new ArrayList<>();
 		retLate.add("part2.MixinEIOBundle");
 		retLate.add("part2.MixinContextNoCircuitCache");
 		retLate.add("part2.MixinExtractIntercept");
+		//System.out.println("zzzzzzzzzzz");
+	//System.out.println(cpw.mods.fml.common.Loader.instance().getIndexedModList());
+	
+	
+	
+	
+	//FMLCommonHandler.instance().exitJava(0, true);
+		
 		
 		if (FMLLaunchHandler.side().isClient()) {
 			retLate.add("part2.MixinEIOGui");

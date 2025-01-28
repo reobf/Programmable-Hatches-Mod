@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -28,6 +29,7 @@ import gregtech.api.enums.Textures;
 import gregtech.api.enums.Textures.BlockIcons;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatchDataAccess;
 import gregtech.api.render.TextureFactory;
@@ -286,4 +288,15 @@ public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlaye
 	return false;//no gui
 }
 
+
+private long lastupdate=-99999;
+@Override
+public List<ItemStack> getInventoryItems(Predicate<ItemStack> filter) {
+	long thistick=((BaseMetaTileEntity)this.getBaseMetaTileEntity()).mTickTimer;
+	if(Math.abs(lastupdate-thistick)>100){
+		updateCache();
+		lastupdate=thistick;
+	}
+	return super.getInventoryItems(filter);
+}
 }

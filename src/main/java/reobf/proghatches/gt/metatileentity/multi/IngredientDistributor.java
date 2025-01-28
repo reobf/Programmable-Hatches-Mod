@@ -39,6 +39,7 @@ import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.DynamicPositionedColumn;
 import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
+import com.gtnewhorizons.modularui.common.widget.Scrollable;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
@@ -97,6 +98,7 @@ import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.gt.metatileentity.CommunicationPortHatch;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
+import reobf.proghatches.gt.metatileentity.util.polyfill.INeoDualInputInventory;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
@@ -667,7 +669,7 @@ private boolean distribute() {
 			fluid.removeIf(s->s==null||s.amount<=0);
 			if(fluid.size()>0){
 				possibleSource=ImmutableList.of(
-						new IDualInputInventory(){
+						new INeoDualInputInventory(){
 							@Override
 							public ItemStack[] getItemInputs() {
 							return new ItemStack[0];
@@ -690,7 +692,7 @@ private boolean distribute() {
 			items.removeIf(s->s==null||s.stackSize<=0);
 			if(items.size()>0){
 				possibleSource=ImmutableList.of(
-						new IDualInputInventory(){
+						new INeoDualInputInventory(){
 							@Override
 							public ItemStack[] getItemInputs() {
 								if(obj!=null)return obj;
@@ -1438,7 +1440,11 @@ public void addUIWidgets(com.gtnewhorizons.modularui.api.screen.ModularWindow.Bu
 
 	        final DynamicPositionedColumn screenElements = new DynamicPositionedColumn();
 	        drawTexts(screenElements, inventorySlot);
-	        builder.widget(screenElements);
+	        builder.widget(
+	                new Scrollable().setVerticalScroll()
+	                    .widget(screenElements)
+	                    .setPos(10, 7)
+	                    .setSize(182, 79));
 
 	        builder.widget(createPowerSwitchButton(builder))
 	            .widget(createBlockingModeButton(builder))

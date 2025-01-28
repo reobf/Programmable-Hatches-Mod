@@ -736,3 +736,10 @@ proghatch.request_tunnel.tooltip.0=§7这是一个§cMA§7设备,类似于分子
 proghatch.request_tunnel.tooltip.1=接受样板后输入材料存入当前网络,并记录样板的输出材料从存储提取或者下单合成这些输出材料
 proghatch.request_tunnel.tooltip.2=这些输出材料会缓存在内部,使用物流管道将其送回下单网络,或者使用扳手指定输出方向
 proghatch.request_tunnel.tooltip.3=请用普通ME接口(即使样板含有流体),ME二合一接口可能会进入常规模式而非MA模式从而卡单
+programmable_hatches.gt.newcrib.0=开启兼容GT新版样板配方缓存
+programmable_hatches.gt.newcrib.1=开启时GT会记录每个缓冲区可能的配方 所以搜索配方会变快,关掉也不会有什么问题
+programmable_hatches.gt.newcrib.2=和库存升级的协作有点问题
+programmable_hatches.gt.newcrib.3=多方块机器缓存配方后不会再变动,所以如果在没有库存不足时可能少配方
+programmable_hatches.gt.newcrib.4=关闭此模式时,会清理所有缓存(改库存升级配置时可能会需要关+开一次)
+programmable_hatches.gt.newcrib.5=开启合并模式(左边那个)时,这个模式会被忽略
+

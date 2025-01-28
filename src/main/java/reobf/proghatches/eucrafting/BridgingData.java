@@ -126,7 +126,7 @@ public class BridgingData implements Data {
 				try {
 					new GridConnection(thiz, thenode, ForgeDirection.UNKNOWN);
 
-					MyMod.LOG.info(info + " Bridging Node connect@" + this.getPos() + " " + this.side + "->" + dir);
+					//MyMod.LOG.info(info + " Bridging Node connect@" + this.getPos() + " " + this.side + "->" + dir);
 				} catch (FailedConnection e) {
 					System.out.println(this.getProxy().getNode());
 					System.out.println(thenode);

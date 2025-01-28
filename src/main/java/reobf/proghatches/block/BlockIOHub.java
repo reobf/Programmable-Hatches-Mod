@@ -8,7 +8,7 @@ import appeng.core.sync.GuiBridge;
 import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.multitileentity.multiblock.base.MultiBlockPart;
+
 import gregtech.common.blocks.MaterialMachines;
 
 import net.minecraft.block.BlockContainer;

@@ -140,10 +140,12 @@ import gregtech.api.GregTechAPI;
 import gregtech.api.enums.GTValues;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.metatileentity.BaseMetaPipeEntity;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.net.GTPacketSendCoverData;
+import gregtech.api.objects.GTDualInputs;
 import gregtech.api.util.shutdown.ShutDownReason;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.api.util.shutdown.SimpleShutDownReason;
@@ -214,11 +216,13 @@ public class MyMod {
 	public static MyMod instance;
 	{
 	
-		
-		
+		System.out.println("cccccccccccccccc");
+		System.out.println(new GTDualInputs());
 		
 		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment") ){
-		/*DualityInterface.class.getDeclaredFields();
+		
+			ProcessingLogic.class.getDeclaredFields();
+			/*DualityInterface.class.getDeclaredFields();
 		CraftFromPatternTask.class.getDeclaredFields();
 		NEECraftingHandler.class.getDeclaredFields();
 		GregTech5RecipeProcessor.class.getDeclaredFields();
@@ -235,6 +239,10 @@ public class MyMod {
 	}
 
 	static {
+		
+		//
+		
+		
 		class test extends Item {
 			@Override
 			public int getItemStackLimit() {
@@ -567,6 +575,9 @@ public class MyMod {
 		WirelessPeripheralManager.stations.clear();
 		WirelessPeripheralManager.cards.clear();
 		ChunkTrackingGridCahce.cacheinst.clear();
+		
+		ProgrammingCircuitProviderPrefabricated.init=false;
+		ProgrammingCircuitProviderPrefabricated.prefab.clear();
 		// Just in case weak references are not GCed in time
 		// only useful for intergreted server?
 		//event.registerServerCommand(new CommandAnchor());

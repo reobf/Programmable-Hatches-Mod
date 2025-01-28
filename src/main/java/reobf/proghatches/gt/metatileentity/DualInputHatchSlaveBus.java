@@ -34,6 +34,7 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
+import gregtech.api.objects.GTDualInputs;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
@@ -45,6 +46,7 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
+import reobf.proghatches.gt.metatileentity.util.polyfill.INeoDualInputInventory;
 import reobf.proghatches.main.registration.Registration;
 
 public class DualInputHatchSlaveBus<T extends MetaTileEntity & IDualInputHatch&IMetaTileEntity> extends MTEHatchInputBus
@@ -316,8 +318,14 @@ public class DualInputHatchSlaveBus<T extends MetaTileEntity & IDualInputHatch&I
 		Optional<IDualInputInventory> opt = getMaster().getFirstNonEmptyInventory();
 			if(opt.isPresent())tmpinv=opt.get();
 		}
-		if(tmpinv==null){tmpinv=new IDualInputInventory() {
+		if(tmpinv==null){tmpinv=new INeoDualInputInventory() {
+			@Override
+			public boolean isEmpty() {
 			
+				return true;
+			}
+			
+		
 			@Override
 			public ItemStack[] getItemInputs() {
 			

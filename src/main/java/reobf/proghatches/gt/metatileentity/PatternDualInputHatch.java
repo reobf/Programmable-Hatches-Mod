@@ -27,6 +27,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
+import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.Recipe;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
@@ -86,7 +87,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTUtil;
 import gregtech.api.util.GTUtility;
-import gregtech.common.tileentities.casings.upgrade.Inventory;
+
 import gregtech.common.tileentities.machines.MTEHatchCraftingInputME;
 import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import it.unimi.dsi.fastutil.Pair;
@@ -623,11 +624,25 @@ if(supportsFluids())
 		dirty = true;
 		//inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)
 		//classify();
-		for (DualInvBuffer inv0 : this.sortByEmpty()) {
+		
+		/*for (DualInvBuffer inv0 : this.sortByEmpty()) {
 			if (inv0.full() == false)
 				if(inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)||
 						inv0.classify(this.mStoredFluid, mInventory,true))break;
 		}
+		*/
+		
+		/*Integer check = detailmap.get(patternDetails);
+		if(check==null){
+			currentID++;
+			detailmap.put(patternDetails,currentID );
+			check=currentID;
+		}*/
+		
+		DualInvBuffer theBuffer = /*((BufferedDualInputHatch) master).*/classifyForce();
+		recordRecipe(theBuffer);
+		
+		
 		justHadNewItems = true;
 		return true;
 	}
@@ -983,7 +998,20 @@ if(supportsFluids())
 			dirty = true;
 			//classify();
 			int suc=0;
-			DualInvBuffer theBuffer=classifyForce();
+			
+			//DualInvBuffer theBuffer=classifyForce();
+			
+			/*Integer check = detailmap.get(patternDetails);
+			if(check==null){
+				currentID++;
+				detailmap.put(patternDetails,currentID );
+				check=currentID;
+			}*/
+			
+			DualInvBuffer theBuffer = /*((BufferedDualInputHatch) master).*/classifyForce();
+			recordRecipe(theBuffer);
+			
+			
 			//if(theBuffer!=null){
 				suc++;maxTodo--;
 			//}

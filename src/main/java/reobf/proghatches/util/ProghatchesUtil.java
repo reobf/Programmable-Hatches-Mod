@@ -43,6 +43,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import reobf.proghatches.gt.metatileentity.DualInputHatch;
 import reobf.proghatches.gt.metatileentity.SuperChestME;
 import reobf.proghatches.main.MyMod;
 import gregtech.api.GregTechAPI;
@@ -183,7 +184,31 @@ public class ProghatchesUtil {
 
 		return copyOrNull(rStack);
 	}
+	
+	/*public static void removeMultiCache(Builder builder, DualInputHatch buildContext) {
+		
+		removeMultiCache(builder, buildContext::resetMulti);
+		
+	}
+	public static void removeMultiCache(Builder builder, Runnable buildContext) {
+		
+		builder.widget(new SyncedWidget() {
+			public void detectAndSendChanges(boolean init) {
+				buildContext.run();
+			}
+			@Override
+			public void readOnClient(int id, PacketBuffer buf) throws IOException {
+				// TODO Auto-generated method stub
+				
+			}
 
+			@Override
+			public void readOnServer(int id, PacketBuffer buf) throws IOException {
+				// TODO Auto-generated method stub
+				
+			}});
+		
+	}*/
 	/*
 	 * prevent negative stacksize dupe bug
 	 */

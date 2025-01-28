@@ -571,33 +571,36 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 		return patternMapper;
 	}
 	@Override
-	public String getName() {
-
-		if (hasCustomName()) {
+    public String getName() {
+        if (hasCustomName()) {
             return getCustomName();
         }
-        StringBuilder name = new StringBuilder();
-        if (getCrafterIcon() != null) {
-            name.append(getCrafterIcon().getDisplayName());
-        } else {
-            name.append(getLocalName());//getinventoryname()
-        }
+
+
         T m = getMaster();
-        if(m!=null){
+        if (m == null) {
+            return getLocalName();
+        }
+        StringBuilder name = new StringBuilder();
+
+
+        name.append(m.getMachineCraftingIcon().getDisplayName());
         if (m.mInventory[m.getCircuitSlot()] != null) {
             name.append(" - ");
             ItemStack is = m.mInventory[m.getCircuitSlot()];
-            if(is.getItem()!=GTUtility.getIntegratedCircuit(0).getItem()){
+            if (is.getItem() != GTUtility.getIntegratedCircuit(0).getItem()) {
                 name.append(is.getDisplayName());
-                if(is.getItemDamage()>0){name.append("@"+is.getItemDamage());}
-                }else{
-                	 name.append(is.getItemDamage());
+                if (is.getItemDamage() > 0) {
+                    name.append("@").append(is.getItemDamage());
                 }
-        }}
-       
-        
+            } else {
+                name.append(is.getItemDamage());
+            }
+        }
+
+
         return name.toString();
-	}
+    }
 
 	@Override
 	public TileEntity getTileEntity() {

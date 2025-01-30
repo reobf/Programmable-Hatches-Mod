@@ -24,7 +24,7 @@ public class SwitchModeMessage implements IMessage {
 		public SwitchModeMessage onMessage(SwitchModeMessage message, MessageContext ctx) {
 		
 		IInventory[] invs = 
-			{TPlayerStats.get(((NetHandlerPlayServer)ctx.netHandler).playerEntity).armor,
+			{//TPlayerStats.get(((NetHandlerPlayServer)ctx.netHandler).playerEntity).armor,
 				BaublesApi.getBaubles(((NetHandlerPlayServer)ctx.netHandler).playerEntity)
 			};
 	

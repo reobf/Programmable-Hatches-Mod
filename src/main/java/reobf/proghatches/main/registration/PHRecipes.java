@@ -35,6 +35,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
+
 import com.glodblock.github.loader.ItemAndBlockHolder;
 
 import appeng.core.Api;
@@ -2010,7 +2011,41 @@ public class PHRecipes implements Runnable {
 						.duration(1 * SECONDS)
 						.eut(30)
 						.addTo(RecipeMaps.assemblerRecipes);
-					 
+					
+					 GTValues.RA.stdBuilder()
+						.itemInputs(
+								 new ItemStack( MyMod.plunger,1,0),
+								 
+								GameRegistry.findItemStack("ae2wct", "infinityBoosterCard", 0)
+						)
+						.itemOutputs(	
+								 new ItemStack( MyMod.plunger,1,1)
+										 )
+						.duration(1 * SECONDS)
+						.eut(30)
+						.addTo(RecipeMaps.assemblerRecipes);
+					/* rec = new ShapelessOreRecipe(    new ItemStack( MyMod.plunger,1,1),
+							 ItemEnum.BOOSTER_CARD.getStack(0),
+		                     new ItemStack( MyMod.plunger)
+							 ){
+						 
+						 public ItemStack getCraftingResult(net.minecraft.inventory.InventoryCrafting var1) {
+							ItemStack ist = super.getCraftingResult(var1);
+							for(int i=0;i<var1.getSizeInventory();i++){
+								if(var1.getStackInSlot(i)!=null){
+									if(var1.getStackInSlot(i).getItem()==MyMod.plunger){
+										ist.setTagCompound(var1.getStackInSlot(i).getTagCompound());
+									}
+								}
+								
+								
+							}
+						 
+						 return ist;
+						 };
+					 };
+						CraftingManager.getInstance().getRecipeList().add(rec);*/
+				 
 					 
      /*GTRecipeBuilder.builder()
      .metadata(RESEARCH_ITEM, new ItemStack(ChiselBlocks.present,1,16))

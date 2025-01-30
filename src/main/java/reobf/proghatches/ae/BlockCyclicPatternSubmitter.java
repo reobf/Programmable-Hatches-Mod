@@ -7,6 +7,7 @@ import static net.minecraftforge.common.util.ForgeDirection.UP;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.gtnewhorizons.modularui.api.UIInfos;
 import com.gtnewhorizons.modularui.common.internal.network.NetworkUtils;
@@ -16,12 +17,15 @@ import appeng.core.sync.GuiBridge;
 import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IIcon;
@@ -34,6 +38,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import net.minecraftforge.event.ForgeEventFactory;
 import reobf.proghatches.block.INameAndTooltips;
+import reobf.proghatches.oc.TileCardReader;
 
 public class BlockCyclicPatternSubmitter extends BlockContainer  implements INameAndTooltips{
 
@@ -201,5 +206,51 @@ public void addInformation(ItemStack p_77624_1_, List l) {
 public String getName(ItemStack p_77624_1_) {
 	// TODO Auto-generated method stub
 	return null;
+}
+Random field_149955_b=new Random();
+public void breakBlock(World worldIn, int x, int y, int z, Block blockBroken, int meta)
+{
+	TileCyclicPatternSubmitter tileentitychest = (TileCyclicPatternSubmitter)worldIn.getTileEntity(x, y, z);
+
+    if (tileentitychest != null)
+    {
+        for (int i1 = 0; i1 < tileentitychest.upgrade.length; ++i1)
+        {
+            ItemStack itemstack = tileentitychest.upgrade[i1];
+
+            if (itemstack != null)
+            {
+                float f = this.field_149955_b.nextFloat() * 0.8F + 0.1F;
+                float f1 = this.field_149955_b.nextFloat() * 0.8F + 0.1F;
+                EntityItem entityitem;
+
+                for (float f2 = this.field_149955_b.nextFloat() * 0.8F + 0.1F; itemstack.stackSize > 0; worldIn.spawnEntityInWorld(entityitem))
+                {
+                    int j1 = this.field_149955_b.nextInt(21) + 10;
+
+                    if (j1 > itemstack.stackSize)
+                    {
+                        j1 = itemstack.stackSize;
+                    }
+
+                    itemstack.stackSize -= j1;
+                    entityitem = new EntityItem(worldIn, (double)((float)x + f), (double)((float)y + f1), (double)((float)z + f2), new ItemStack(itemstack.getItem(), j1, itemstack.getItemDamage()));
+                    float f3 = 0.05F;
+                    entityitem.motionX = (double)((float)this.field_149955_b.nextGaussian() * f3);
+                    entityitem.motionY = (double)((float)this.field_149955_b.nextGaussian() * f3 + 0.2F);
+                    entityitem.motionZ = (double)((float)this.field_149955_b.nextGaussian() * f3);
+
+                    if (itemstack.hasTagCompound())
+                    {
+                        entityitem.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
+                    }
+                }
+            }
+        }
+
+        worldIn.func_147453_f(x, y, z, blockBroken);
+    }
+
+    super.breakBlock(worldIn, x, y, z, blockBroken, meta);
 }
 }

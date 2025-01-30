@@ -11,6 +11,7 @@ import com.gtnewhorizon.gtnhmixins.LateMixin;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
+import reobf.proghatches.main.MyMod;
 
 @LateMixin
 public class LateMixinPlugin implements ILateMixinLoader{
@@ -38,10 +39,11 @@ public class LateMixinPlugin implements ILateMixinLoader{
 				System.out.println(v2);
 				if(Integer.valueOf(v1)>=51){
 					if(v2.contains("-")){
-						v2=v2.substring(1+v2.lastIndexOf("-"));
+						v2=v2.substring(0,v2.lastIndexOf("-"));
 					}
-					if(Integer.valueOf(v2)>99){
+					if(Integer.valueOf(v2)>=69){
 						 MixinPlugin.retLate.add("part2.MixinProcessLogicDoNotCache");
+						 MyMod.newGTCache=true;
 					}
 				}
 				

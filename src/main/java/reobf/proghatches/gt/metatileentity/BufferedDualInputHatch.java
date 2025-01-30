@@ -1429,7 +1429,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		merge = aNBT.getBoolean("merge");
 		justHadNewItems = aNBT.getBoolean("justHadNewItems");
 		updateEveryTick = aNBT.getBoolean("updateEveryTick");
-		if(aNBT.hasKey("useNewGTPatternCachel"))useNewGTPatternCachel=aNBT.getBoolean("useNewGTPatternCachel");
+		if(aNBT.hasKey("useNewGTPatternCache"))useNewGTPatternCache=aNBT.getBoolean("useNewGTPatternCache");
 		preventSleep = aNBT.getInteger("preventSleep");
 		currentID=aNBT.getInteger("currentID" );
 		
@@ -1465,7 +1465,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		aNBT.setBoolean("merge", merge);
 		aNBT.setBoolean("justHadNewItems", justHadNewItems);
 		aNBT.setBoolean("updateEveryTick", updateEveryTick);
-		aNBT.setBoolean("useNewGTPatternCachel", useNewGTPatternCachel);
+		aNBT.setBoolean("useNewGTPatternCache", useNewGTPatternCache);
 		
 		
 		aNBT.setInteger("preventSleep", preventSleep);
@@ -1632,11 +1632,11 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 	}
 	
-	boolean useNewGTPatternCachel=true;
+	boolean useNewGTPatternCache=false;
 	
 	
 	private IDualInputInventory wrap(DualInvBuffer to){
-	if(to.PID>0&&useNewGTPatternCachel){
+	if(to.PID>0&&useNewGTPatternCache){
 		
 		return new PatternDualInv(to);
 	}
@@ -2005,7 +2005,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 				}
 			}
 			String prefix="";	
-			if(sub.getInteger("patternID")>0){prefix=""+sub.getInteger("patternID");}
+			if(sub.getInteger("patternID")>0){prefix="<"+sub.getInteger("patternID")+">";}
 			if(sub.getInteger("patternID")==0&&!sub.getBoolean("empty")){prefix="△";}
 		
 			
@@ -2486,16 +2486,20 @@ public class BufferedDualInputHatch extends DualInputHatch
 			);
 		
 		
-		
-			builder.widget(new CycleButtonWidget().setToggle(() -> useNewGTPatternCachel, (s) -> {
-				{useNewGTPatternCachel = s;
-				
-				if(useNewGTPatternCachel==false){
-				resetMulti();
-				detailmap.clear();
-				inv0.forEach(sX->sX.PID=0);
-				
+			
+			builder.widget(new CycleButtonWidget().setToggle(() -> useNewGTPatternCache, (s) -> {
+				{
+				if(MyMod.newGTCache){
+					useNewGTPatternCache = s;
+					if(useNewGTPatternCache==false){
+					resetMulti();
+					detailmap.clear();
+					inv0.forEach(sX->sX.PID=0);
+					
 				}
+				}
+				
+				
 				}
 
 			}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
@@ -2504,9 +2508,12 @@ public class BufferedDualInputHatch extends DualInputHatch
 					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.0"))
 					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.1"))
 					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.2"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.3")	)	
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.3"))	
 					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.4"))	
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.5")	))	
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.5"))
+					.addTooltip((MyMod.newGTCache)?"":StatCollector.translateToLocal("programmable_hatches.gt.newcrib.nosupport"))
+					
+					)	
 							
 							
 					
@@ -2682,6 +2689,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 	
 	public  void recordRecipe(DualInvBuffer thiz){
 		if(thiz.PID>0)return;
+		if(useNewGTPatternCache==false){return;}
 		Integer check = detailmap.getOrDefault(Recipe.fromBuffer(thiz, false),null);
 		if(check==null){
 			currentID++;

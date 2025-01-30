@@ -41,9 +41,11 @@ import gregtech.api.metatileentity.implementations.MTEBasicTank;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -128,24 +130,46 @@ public class ItemMEPlunger extends DummySuper implements INetworkEncodable {
 	}
 
 	public boolean damage(ItemStack aStack) {
-		
+		if(aStack.getItemDamage()==1){return true;}
 		return asPowerStorage().extractAEPower(aStack, 1000)>999;
 	
 	}
-public boolean check(Entity player,IGrid grid){
+public boolean check(ItemStack stack, Entity player,IGrid grid){
 	if(grid==null)return false;
 	for (IGridNode node : grid.getMachines(TileWireless.class)) {
         IWirelessAccessPoint accessPoint = (IWirelessAccessPoint) node.getMachine();
-        if (accessPoint.isActive() && accessPoint.getLocation().getDimension() == player.dimension) {
-            WorldCoord distance = accessPoint.getLocation()
-                    .subtract((int) player.posX, (int) player.posY, (int) player.posZ);
-            int squaredDistance = distance.x * distance.x + distance.y * distance.y + distance.z * distance.z;
-            if (squaredDistance <= accessPoint.getRange() * accessPoint.getRange()) {
-               return true;
-               
-            }
-        }
+        
+        
+        
+        if(stack.getItemDamage()==0)
+	        if (accessPoint.isActive() && accessPoint.getLocation().getDimension() == player.dimension) {
+	            WorldCoord distance = accessPoint.getLocation()
+	                    .subtract((int) player.posX, (int) player.posY, (int) player.posZ);
+	            int squaredDistance = distance.x * distance.x + distance.y * distance.y + distance.z * distance.z;
+	            if (squaredDistance <= accessPoint.getRange() * accessPoint.getRange()) {
+	               return true;
+	               
+	            }
+	        }
+	        else{
+	        	 if (accessPoint.isActive()){return true;}
+	        	
+	        	
+	        }
+        
+        
     }return false;
+}
+@Override
+public int getMaxDamage(ItemStack stack) {
+	return 1;
+}
+
+protected void getCheckedSubItems(final Item p_150895_1_, final CreativeTabs p_150895_2_,
+        final List<ItemStack> p_150895_3_) {
+
+	  p_150895_3_.add(new ItemStack(p_150895_1_, 1, 0));
+	  p_150895_3_.add(new ItemStack(p_150895_1_, 1, 1));
 }
 
 @Override
@@ -162,7 +186,7 @@ public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int 
 			if(!world.isRemote)
 				player.addChatComponentMessage(new ChatComponentTranslation("item.proghatch_me_plunger.unbound"));
 			return true;}
-		if(!check(player, getWirelessGrid(stack).getGrid())){
+		if(!check(stack,player, getWirelessGrid(stack).getGrid())){
 			if(!world.isRemote)
 				player.addChatComponentMessage(new ChatComponentTranslation("item.proghatch_me_plunger.range"));
 			return true;}
@@ -354,6 +378,22 @@ public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int 
 		}
 		return false;
 	}
+	@Override
+	public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int p_77663_4_, boolean p_77663_5_) {
+		if(stack.getItemDamage()==1)asPowerStorage().injectAEPower(stack, 10000);
+		super.onUpdate(stack, worldIn, entityIn, p_77663_4_, p_77663_5_);
+	}
+	 @SideOnly(Side.CLIENT)
+	    public boolean hasEffect(ItemStack p_77636_1_)
+	    {
+	        return p_77636_1_.getItemDamage() > 0;
+	    }
+	 
+	 @Override
+	public EnumRarity getRarity(ItemStack p_77613_1_) {
+	
+		 return p_77613_1_.getItemDamage() == 0 ? super.getRarity(p_77613_1_) : EnumRarity.epic;
+	}
 	@SideOnly(Side.CLIENT)
     public void addCheckedInformation(final ItemStack p_77624_1_, final EntityPlayer p_77624_2_, final List<String> p_77624_3_,
             final boolean p_77624_4_) {
@@ -365,7 +405,7 @@ public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int 
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
 */
-		
+		//if(p_77624_1_.getItemDamage()==1)p_77624_3_.add("");
 		IntStream
 				.range(0,
 						Integer.valueOf(StatCollector.translateToLocal(

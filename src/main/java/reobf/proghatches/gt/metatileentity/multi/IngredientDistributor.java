@@ -1543,7 +1543,10 @@ boolean clientport;
 protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inventorySlot) {
 	
 	super.drawTexts(screenElements, inventorySlot);
-
+	screenElements.setSpace(0);
+	screenElements.setPos(0, 0);	
+	//make it look same on 2.7.2-
+	//2.7.2- set it to a non zero value
     screenElements.widget(
     		new TextWidget().setStringSupplier(()->
     		 lastfail==null?"":

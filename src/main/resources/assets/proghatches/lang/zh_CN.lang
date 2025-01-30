@@ -742,4 +742,4 @@ programmable_hatches.gt.newcrib.2=和库存升级的协作有点问题
 programmable_hatches.gt.newcrib.3=多方块机器缓存配方后不会再变动,所以如果在没有库存不足时可能少配方
 programmable_hatches.gt.newcrib.4=关闭此模式时,会清理所有缓存(改库存升级配置时可能会需要关+开一次)
 programmable_hatches.gt.newcrib.5=开启合并模式(左边那个)时,这个模式会被忽略
-
+programmable_hatches.gt.newcrib.nosupport=§c不支持当前版本GT5u

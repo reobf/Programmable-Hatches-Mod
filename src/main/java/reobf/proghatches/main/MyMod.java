@@ -216,9 +216,14 @@ public class MyMod {
 	public static MyMod instance;
 	{
 	
-		System.out.println("cccccccccccccccc");
-		System.out.println(new GTDualInputs());
+		//System.out.println("cccccccccccccccc");
 		
+		try{new GTDualInputs();
+		}catch(Throwable t){
+			t.printStackTrace();
+			LOG.fatal("Add polyfill jar to mods.");
+			FMLCommonHandler.instance().exitJava(1, false);
+		}
 		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment") ){
 		
 			ProcessingLogic.class.getDeclaredFields();
@@ -806,6 +811,7 @@ public class MyMod {
 	//public static Block occonfigurator;
 	public static BlockRequestTunnel request_tunnel;
 	public static Item emitterpattern;
+	public static boolean newGTCache;
 
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void pretick(final TickEvent.ServerTickEvent event) {

@@ -1,26 +1,20 @@
 Item Input for Multiblocks
-Use to solve Assline refusing to work if handling recipe with duplicated items
-and you are using independent ME network for each Advanced ME Input Bus.
-You don't need this Bus if: Your all 16 ME Input Buses share the same network
-or there's no duplicated items in the Assline recipe you handles.
-You may choose to rename the duplicated items to workaround this bug(?) of course.
-Why the Assline refuses to work:
-Assline will check type of the first item in ME Bus, but check number and consume from the LAST ME Bus that contains the same item.
-e.g. For recipe {screw x1,plate x1,plate x1,plate x1}, Assline will check the 4th ME Bus to see if there's 3 plates.
-Assline will not work, because there's only 1 plate in last Bus' ME network regardless of the 2nd nad 3rd ME Bus.
-Even if x3 the recipe to pass the check, Assline will extract only from the 4th ME Bus and exhaust the ME storage
-leaving the remaining 2 recipes unfinished or stuck.
-How to use:
-First 15 ME storages connect to corresponding Advanced ME Input Bus, do not connect the 16th ME storage.
-Use this ME Bus as the last Bus, and access the first 15 ME storages and the 16th ME storage via Storage Bus.
-Set priority acsending with the index of the ME network.
-Finally enable 'Auto Pull'.
-----------------------------------------------------------------------------------------------------------------------------------------
-This ME Bus disguises as if 'all 16 ME Input Buses share the same network' to trick Assline into working,
-and extract items via Storage Bus in a more resonable order.
-This ME Bus will always auto-pull items in ME network with higher priority, to make sure the items in 16th ME storage will always
-be in the first slot.
-And since it's the last ME Bus and is accessible to all 16 networks, it will always be the ME Bus to be checked and extracted from.
-So a valid recipe will always pass the check. When consuming items, it will do it in order of reserved priority,
-that is, Bus of lower index gets consumed first, just like normal Buses.
-Shift+Screwdriver RMB to toggle reserve first slot if storage of highest priority is empty
+When GT Multiblock has several ME Input Buses with same item inputs.
+It only sees the inputs in the last one and ignore all same items in previous ME Input Buses.
+So if you got Assline recipe like{Screw x1,Plate x1,Plate x1,Plate x1}
+and try to input them to an Assline with 4 independent ME Network via 4 ME Input Buses,
+Assline will only see one Plate in the #4 ME Input Bus and refuse to work since one is less than all 3 plates.
+Even if you input x3 the inputs, Assline will work but exhaust the #4 ME Storage first, not extracting evenly from #2~4.
+Then stuck your crafting process, with the rest 2 batches unfinished.
+This specialized ME Bus is to workaround this bug/feature.
+--------------------------------------------------------------------------------------
+Assline use all Advanced ME Input Bus, 16 independent ME Network, Auto-pull on.
+Replace the last Advanced ME Input Bus with this, accessing 16 independent ME Network with ME Storage Bus.
+This Bus will collect all ingredients from all networks,
+then GT Multiblock will always see items in this Bus because it's the last one.
+This bus will evenly dispatch the extraction behaviour, to avoid the case that one Network is exhausted too early.
+--------------------------------------------------------------------------------------
+Set ME Storage Buses that access all 16 Networks with acsending priority (the 16th one is the highest)
+to make sure that Decoy Bus will show items in the 16th Network in the first slot.
+Screwdriver+RMB to toggle if to reserve the first slot for the ME Network of highest priority.
+Hint: Renaming the duplicated items is also a valid way to workaround.

@@ -812,6 +812,7 @@ public class MyMod {
 	public static BlockRequestTunnel request_tunnel;
 	public static Item emitterpattern;
 	public static boolean newGTCache;
+	public static Item part_tunnel;
 
 	@SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
 	public void pretick(final TickEvent.ServerTickEvent event) {

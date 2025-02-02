@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import appeng.integration.modules.waila.PartWailaDataProvider;
 import appeng.integration.modules.waila.part.IPartWailaDataProvider;
+import reobf.proghatches.ae.part2.PartRequestTunnel;
 import reobf.proghatches.eucrafting.PartEUP2PInterface;
 import reobf.proghatches.eucrafting.PartEUSource;
 
@@ -23,6 +24,8 @@ public class MixinWailaProvider {
 
 		providers.add(new PartEUP2PInterface.WailaDataProvider());
 		providers.add(new PartEUSource.WailaDataProvider());
+		providers.add(new PartRequestTunnel.WailaDataProvider());
+		
 	}
 
 }

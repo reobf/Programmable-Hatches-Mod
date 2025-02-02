@@ -26,8 +26,7 @@ import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
-
-
+import appeng.items.misc.ItemEncodedPattern;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 import gregtech.api.gui.modularui.GTUIInfos;
@@ -49,16 +48,17 @@ import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.IItemRenderer.ItemRenderType;
 import net.minecraftforge.client.IItemRenderer.ItemRendererHelper;
 import net.minecraftforge.fluids.FluidStack;
+import reobf.proghatches.item.DummySuper2;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class ItemEmitterPattern extends Item implements ICraftingPatternItem,IItemWithModularUI{
+public class ItemEmitterPattern extends DummySuper2 implements ICraftingPatternItem,IItemWithModularUI{
 
 	public ItemEmitterPattern() {
-		//super(target);
+		super();
 		 if (Platform.isClient()) {
 	            MinecraftForgeClient.registerItemRenderer(this, new ItemEmitterPatternRenderer());
 	        }
@@ -338,7 +338,7 @@ public ItemStack one(ItemStack is){is.stackSize=1;return is;}
 		protected final Supplier<Integer> COLOR_TEXT_WARN = () -> getTextColorOrDefault("text_warn", 0xff0000);
 	}
 	@Override
-	public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
+	public void addCheckedInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
 		p_77624_3_.add(StatCollector.translateToLocal("item.emitterpattern.name.tooltip.0"));
 		p_77624_3_.add(StatCollector.translateToLocal("item.emitterpattern.name.tooltip.1"));
 		p_77624_3_.add(StatCollector.translateToLocal("item.emitterpattern.name.tooltip.2"));

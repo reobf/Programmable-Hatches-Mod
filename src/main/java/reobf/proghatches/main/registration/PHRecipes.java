@@ -2024,6 +2024,21 @@ public class PHRecipes implements Runnable {
 						.duration(1 * SECONDS)
 						.eut(30)
 						.addTo(RecipeMaps.assemblerRecipes);
+					 
+					 
+						IRecipe recx = new ShapedOreRecipe(new ItemStack(MyMod.part_tunnel,1,0),"C",'C',
+								new ItemStack(MyMod.request_tunnel,1,0)
+								);
+						CraftingManager.getInstance().getRecipeList().add(recx); 
+						 recx = new ShapedOreRecipe(new ItemStack(MyMod.request_tunnel,1,0),"C",'C',
+									new ItemStack(MyMod.part_tunnel,1,0)
+									);
+							CraftingManager.getInstance().getRecipeList().add(recx); 
+						
+						
+						
+					 
+					 
 					/* rec = new ShapelessOreRecipe(    new ItemStack( MyMod.plunger,1,1),
 							 ItemEnum.BOOSTER_CARD.getStack(0),
 		                     new ItemStack( MyMod.plunger)

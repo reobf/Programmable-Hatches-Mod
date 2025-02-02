@@ -43,6 +43,7 @@ import reobf.proghatches.ae.TileMolecularAssemblerInterface;
 import reobf.proghatches.ae.TileRequestTunnel;
 import reobf.proghatches.ae.TileStockingCircuitRequestInterceptor;
 import reobf.proghatches.ae.TileStorageProxy;
+import reobf.proghatches.ae.part2.ItemPartRequestTunnel;
 import reobf.proghatches.block.BlockAnchorAlert;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.block.BlockReactorSyncer;
@@ -202,6 +203,8 @@ public class CommonProxy {
 				.setUnlocalizedName("proghatches.part.lazer.p2p").setTextureName("?"), "proghatches.part.lazer.p2p");
 		GameRegistry.registerItem(MyMod.ma_p2p_part = new ItemPartMAP2P()
 				.setUnlocalizedName("proghatches.part.ma.p2p").setTextureName("?"), "proghatches.part.ma.p2p");
+		GameRegistry.registerItem(MyMod.part_tunnel = new ItemPartRequestTunnel()
+				.setUnlocalizedName("proghatches.part.tunnel").setTextureName("?"), "proghatches.part.tunnel");
 
 		GameRegistry
 				.registerItem(

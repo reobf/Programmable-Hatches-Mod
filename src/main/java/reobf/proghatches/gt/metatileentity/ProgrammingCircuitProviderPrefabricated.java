@@ -29,6 +29,7 @@ import gregtech.api.util.GTOreDictUnificator;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.oredict.OreDictionary;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.gt.metatileentity.util.ICircuitProvider;
 import reobf.proghatches.item.ItemProgrammingCircuit;
@@ -226,10 +227,13 @@ static void init(){
 	
 	 }
 	 for(Werkstoff mat:Werkstoff.werkstoffHashSet){
-		 ItemStack opt=  WerkstoffLoader.getCorrespondingItemStackUnsafe(OrePrefixes.lens, mat, i);
-		 if(opt!=null)is.add(opt);
+		
+		 ItemStack opt=  WerkstoffLoader.getCorrespondingItemStackUnsafe(OrePrefixes.lens, mat, 1);
+		 if(opt!=null&&
+		OreDictionary.getOreIDs(opt).length>0
+		)is.add(opt);
 	 }
-	 System.out.println(is);System.out.println("TTTTTTTTTTTTT");
+	 //System.out.println(is);System.out.println("TTTTTTTTTTTTT");
 	 reg(5,is);
 	 
 	 

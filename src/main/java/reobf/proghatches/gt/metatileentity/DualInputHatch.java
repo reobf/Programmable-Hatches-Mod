@@ -865,7 +865,7 @@ public void reinitTierBasedField() {
 	}
 
 	@SuppressWarnings("rawtypes")
-	final static Iterator emptyItr = new Iterator() {
+	public final static Iterator emptyItr = new Iterator() {
 
 		public boolean hasNext() {
 			return false;
@@ -879,6 +879,7 @@ public void reinitTierBasedField() {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Iterator<? extends IDualInputInventory> inventories() {
+		if(!this.isValid())return emptyItr;
 		if (theInv.isEmpty())
 			return emptyItr;
 		return Arrays.asList(theInv).iterator();
@@ -889,6 +890,7 @@ public void reinitTierBasedField() {
 	}
 	@Override
 	public Optional<IDualInputInventory> getFirstNonEmptyInventory() {
+		if(!this.isValid())return Optional.empty();
 		boolean empty = true;
 
 		for (FluidStack f : theInv.getFluidInputs()) {
@@ -932,7 +934,7 @@ public void reinitTierBasedField() {
 					return false;
 				}
 			}
-			for (ItemStack i : getItemInputs()) {
+			for (ItemStack i : mInventory/*getItemInputs()*/) {
 
 				if (i != null && i.stackSize > 0) {
 					return false;
@@ -2280,13 +2282,30 @@ public class OptioanlSharedContents{
 			all.addAll(markedFluid);
 			all.removeIf(Objects::isNull);
 			return all.toArray(new FluidStack[0]);}
+	
+	private void broken(){
+		MyMod.LOG.fatal("FAILED TO UPDATE ME INPUTS!");
+		MyMod.LOG.fatal("basemeta:"+getBaseMetaTileEntity());
+		
+		if(getBaseMetaTileEntity()!=null){
+			MyMod.LOG.fatal("same:"+(getBaseMetaTileEntity().getMetaTileEntity()==DualInputHatch.this)+
+			("valid:"+DualInputHatch.this.isValid())+
+			("x:"+getBaseMetaTileEntity().getXCoord())+
+			("y:"+getBaseMetaTileEntity().getYCoord())+
+			("z:"+getBaseMetaTileEntity().getZCoord()));
+		
+		}
+		
+		
+		
+	}
 	public ItemStack[] getItems(){
 		ArrayList<ItemStack> all=new ArrayList<>();
 		all.addAll(circuitInv);
 		all.add(mInventory[getCircuitSlot()]);
 		if(recipe==false){
-			MyMod.LOG.fatal("broken");
-			Thread.dumpStack();
+			broken();
+			//Thread.dumpStack();
 			broken=true;
 		all.removeIf(Objects::isNull);
 			return all.toArray(new ItemStack[0]);
@@ -2298,8 +2317,8 @@ public class OptioanlSharedContents{
 	
 	public FluidStack[] getFluid(){
 		if(recipe==false){
-			MyMod.LOG.fatal("broken");
-			Thread.dumpStack();
+			broken();
+			//Thread.dumpStack();
 			broken=true;
 			return new FluidStack[0];
 		}

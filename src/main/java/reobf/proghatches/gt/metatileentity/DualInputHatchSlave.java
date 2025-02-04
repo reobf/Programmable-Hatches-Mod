@@ -158,11 +158,13 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch&IMet
 
 	@Override
 	public Iterator<? extends IDualInputInventory> inventories() {
+		if(!this.isValid())return DualInputHatch.emptyItr;
 		return getMaster() != null ? getMaster().inventories() : Collections.emptyIterator();
 	}
 
 	@Override
 	public Optional<IDualInputInventory> getFirstNonEmptyInventory() {
+		if(!this.isValid())return Optional.empty();
 		return getMaster() != null ? getMaster().getFirstNonEmptyInventory() : Optional.empty();
 	}
 

@@ -1581,6 +1581,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Optional</* ? extends */IDualInputInventory> getFirstNonEmptyInventory() {
+		if(!this.isValid())return Optional.empty();
 		markDirty();
 		dirty = true;
 
@@ -1610,6 +1611,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 	}
 	@Override
 	public Iterator<? extends IDualInputInventory> inventories() {
+		if(!this.isValid())return emptyItr;
 		markDirty();
 		dirty = true;
 

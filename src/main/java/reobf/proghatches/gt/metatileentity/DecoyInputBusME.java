@@ -632,10 +632,7 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 	}
 
 
-	@Override
-	public Supplier<Lookup> lookup() {
-		return ()->MethodHandles.lookup();
-	}
+
 
 	@Override
 	public boolean impl_pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
@@ -680,5 +677,23 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 	@Override
 	public String getCopiedDataIdentifier(EntityPlayer player) {
 		return IDataCopyablePlaceHolderSuper.super.getCopiedDataIdentifier(player);
+	}
+
+	@Override
+	public NBTTagCompound super_getCopiedData(EntityPlayer player) {
+	
+		return super.getCopiedData(player);
+	}
+
+	@Override
+	public String super_getCopiedDataIdentifier(EntityPlayer player) {
+		
+		return super.getCopiedDataIdentifier(player);
+	}
+
+	@Override
+	public boolean super_pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+	
+		return super.pasteCopiedData(player, nbt);
 	}
 }

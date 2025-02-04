@@ -540,10 +540,7 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	reserveFirst=aNBT.getBoolean("reserveFirst");
 	super.loadNBTData(aNBT);
 }
-@Override
-public Supplier<Lookup> lookup() {
-	return ()->MethodHandles.lookup();
-}
+
 @Override
 public boolean impl_pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
 	if(nbt.hasKey("reserveFirst"))reserveFirst=nbt.getBoolean("reserveFirst");
@@ -565,5 +562,22 @@ public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
 @Override
 public String getCopiedDataIdentifier(EntityPlayer player) {
 	return IDataCopyablePlaceHolderSuper.super.getCopiedDataIdentifier(player);
+}
+@Override
+public NBTTagCompound super_getCopiedData(EntityPlayer player) {
+
+	return super.getCopiedData(player);
+}
+
+@Override
+public String super_getCopiedDataIdentifier(EntityPlayer player) {
+	
+	return super.getCopiedDataIdentifier(player);
+}
+
+@Override
+public boolean super_pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+
+	return super.pasteCopiedData(player, nbt);
 }
 }

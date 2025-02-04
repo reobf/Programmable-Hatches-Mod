@@ -54,24 +54,13 @@ import reobf.proghatches.fmp.ICraftingMachinePart;
 
 public class PartRequestTunnel  extends PartBasicState  implements ICraftingMachinePart,ISidedInventory,IFluidHandler,IGridTickable{
 
-	public static class WailaDataProvider implements IPartWailaDataProvider {
+	public static class WailaDataProvider extends appeng.integration.modules.waila.part.BasePartWailaDataProvider {
 
-		@Override
-		public ItemStack getWailaStack(IPart part, IWailaConfigHandler config, ItemStack partStack) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public List<String> getWailaHead(IPart part, List<String> currentToolTip, IWailaDataAccessor accessor,
-				IWailaConfigHandler config) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
+	
 		@Override
 		public List<String> getWailaBody(IPart part, List<String> currenttip, IWailaDataAccessor accessor,
 				IWailaConfigHandler config) {
+			if(!(part instanceof PartRequestTunnel)){return currenttip;}
 			 try{
 					/*if( accessor.getSide()==((TileRequestTunnel)accessor.getTileEntity()).getUp().getOpposite()){
 						
@@ -86,12 +75,14 @@ public class PartRequestTunnel  extends PartBasicState  implements ICraftingMach
 				
 				ArrayList<ItemStack> cacheR=new ArrayList<>();
 				 {	 NBTTagList t= (NBTTagList) data.getTag("cacheR");
-					 for(int i=0;i<t.tagCount();i++){
+					 if(t!=null)
+				 for(int i=0;i<t.tagCount();i++){
 						 cacheR.add(ItemStack.loadItemStackFromNBT(t.getCompoundTagAt(i))); 
 						 
 					}	 }
 				 ArrayList<FluidStack> cacheFR=new ArrayList<>();
 				 {	 NBTTagList t= (NBTTagList) data.getTag("cacheFR");
+				 if(t!=null)
 				 for(int i=0;i<t.tagCount();i++){
 					 cacheFR.add(FluidStack.loadFluidStackFromNBT(t.getCompoundTagAt(i))); 
 					 
@@ -117,6 +108,7 @@ public class PartRequestTunnel  extends PartBasicState  implements ICraftingMach
 				 });
 				 NavigableMap<AEItemStack,Long> waiting=new TreeMap<>();
 				 NBTTagList t= (NBTTagList) data.getTag("waiting");
+				 if(t!=null)
 				 for(int i=0;i<t.tagCount();i++){
 					NBTTagCompound tag = t.getCompoundTagAt(i); 
 					
@@ -139,16 +131,13 @@ public class PartRequestTunnel  extends PartBasicState  implements ICraftingMach
 				return currenttip;
 		}
 
-		@Override
-		public List<String> getWailaTail(IPart part, List<String> currentToolTip, IWailaDataAccessor accessor,
-				IWailaConfigHandler config) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+		
 
 		@Override
 		public NBTTagCompound getNBTData(EntityPlayerMP player, IPart part, TileEntity te, NBTTagCompound data,
 				World world, int x, int y, int z) {
+			
+			if(!(part instanceof PartRequestTunnel)){return data;}
 			PartRequestTunnel thiz= (PartRequestTunnel) part;
 			{
 			NBTTagList listR=new NBTTagList();

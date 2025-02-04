@@ -9,10 +9,11 @@ import java.util.function.Supplier;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
+import gregtech.api.interfaces.IDataCopyable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 
-public interface IDataCopyablePlaceHolder extends IFakeSuperInterface{
+public interface IDataCopyablePlaceHolder extends IDataCopyable{
 	NBTTagCompound getCopiedData(EntityPlayer player);
 	default NBTTagCompound writeType(NBTTagCompound t,EntityPlayer player){
 		t.setString("type", this.getCopiedDataIdentifier(player));

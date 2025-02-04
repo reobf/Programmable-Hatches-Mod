@@ -366,8 +366,21 @@ public String getCopiedDataIdentifier(EntityPlayer player) {
 	return super_getCopiedDataIdentifier(player,()->MethodHandles.lookup());
 }*/
 @Override
-public Supplier<Lookup> lookup() {
-	return ()->MethodHandles.lookup();
+public NBTTagCompound super_getCopiedData(EntityPlayer player) {
+
+	return super.getCopiedData(player);
+}
+
+@Override
+public String super_getCopiedDataIdentifier(EntityPlayer player) {
+	
+	return super.getCopiedDataIdentifier(player);
+}
+
+@Override
+public boolean super_pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+
+	return super.pasteCopiedData(player, nbt);
 }
 
 @Override

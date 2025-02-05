@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -65,20 +65,18 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
      * Constructs a new {@link LookupSwitchInsnNode}.
      * 
      * @param dflt
-     *            beginning of the default handler block.
+     *               beginning of the default handler block.
      * @param keys
-     *            the values of the keys.
+     *               the values of the keys.
      * @param labels
-     *            beginnings of the handler blocks. <tt>labels[i]</tt> is the
-     *            beginning of the handler block for the <tt>keys[i]</tt> key.
+     *               beginnings of the handler blocks. <tt>labels[i]</tt> is the
+     *               beginning of the handler block for the <tt>keys[i]</tt> key.
      */
-    public LookupSwitchInsnNode(final LabelNode dflt, final int[] keys,
-            final LabelNode[] labels) {
+    public LookupSwitchInsnNode(final LabelNode dflt, final int[] keys, final LabelNode[] labels) {
         super(Opcodes.LOOKUPSWITCH);
         this.dflt = dflt;
         this.keys = new ArrayList<Integer>(keys == null ? 0 : keys.length);
-        this.labels = new ArrayList<LabelNode>(labels == null ? 0
-                : labels.length);
+        this.labels = new ArrayList<LabelNode>(labels == null ? 0 : labels.length);
         if (keys != null) {
             for (int i = 0; i < keys.length; ++i) {
                 this.keys.add(new Integer(keys[i]));
@@ -98,11 +96,13 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
     public void accept(final MethodVisitor mv) {
         int[] keys = new int[this.keys.size()];
         for (int i = 0; i < keys.length; ++i) {
-            keys[i] = this.keys.get(i).intValue();
+            keys[i] = this.keys.get(i)
+                .intValue();
         }
         Label[] labels = new Label[this.labels.size()];
         for (int i = 0; i < labels.length; ++i) {
-            labels[i] = this.labels.get(i).getLabel();
+            labels[i] = this.labels.get(i)
+                .getLabel();
         }
         mv.visitLookupSwitchInsn(dflt.getLabel(), keys, labels);
         acceptAnnotations(mv);
@@ -110,8 +110,7 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
 
     @Override
     public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
-        LookupSwitchInsnNode clone = new LookupSwitchInsnNode(clone(dflt,
-                labels), null, clone(this.labels, labels));
+        LookupSwitchInsnNode clone = new LookupSwitchInsnNode(clone(dflt, labels), null, clone(this.labels, labels));
         clone.keys.addAll(keys);
         return clone.cloneAnnotations(this);
     }

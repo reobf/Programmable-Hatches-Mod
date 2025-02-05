@@ -82,7 +82,8 @@ public class MathExpressionParser {
         // This also correctly interprets numbers in the French locale typed by user using spaces as thousands
         // separators.
         // See: https://bugs.java.com/bugdatabase/view_bug?bug_id=4510618
-        expr = expr.replace(" ", "").replace("_", "");
+        expr = expr.replace(" ", "")
+            .replace("_", "");
 
         if (expr.isEmpty()) {
             ctx.success = true;
@@ -244,8 +245,8 @@ public class MathExpressionParser {
         if (stack.get(stack.size() - 1).isOperator) {
             ctx.success = false;
             ctx.errorMessage = "Syntax error: two operators in a row: " + stack.get(stack.size() - 1).operator
-                    + ", "
-                    + op;
+                + ", "
+                + op;
             return false;
         }
         // Evaluate any preceding operations with equal or higher priority than op.
@@ -331,8 +332,8 @@ public class MathExpressionParser {
         if (!stack.isEmpty() && stack.get(stack.size() - 1).isValue) {
             ctx.success = false;
             ctx.errorMessage = "Syntax error: Number " + stack.get(stack.size() - 1).value
-                    + " followed by number "
-                    + value;
+                + " followed by number "
+                + value;
             return false;
         }
         stack.add(new StackElement(value));
@@ -371,7 +372,7 @@ public class MathExpressionParser {
         if (stack.get(stack.size() - 1).isOperator) {
             ctx.success = false;
             ctx.errorMessage = "Syntax error: Closed bracket immediately after operator "
-                    + stack.get(stack.size() - 1).operator;
+                + stack.get(stack.size() - 1).operator;
             return false;
         }
 
@@ -380,7 +381,7 @@ public class MathExpressionParser {
 
         // Check for and remove matching open bracket.
         if (stack.size() < 2 || !stack.get(stack.size() - 2).isOperator
-                || stack.get(stack.size() - 2).operator != Operator.OPEN_BRACKET) {
+            || stack.get(stack.size() - 2).operator != Operator.OPEN_BRACKET) {
             ctx.success = false;
             ctx.errorMessage = "Syntax error: Mismatched closed bracket";
             return false;

@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -51,11 +51,11 @@ public class TypeInsnNode extends AbstractInsnNode {
      * Constructs a new {@link TypeInsnNode}.
      * 
      * @param opcode
-     *            the opcode of the type instruction to be constructed. This
-     *            opcode must be NEW, ANEWARRAY, CHECKCAST or INSTANCEOF.
+     *               the opcode of the type instruction to be constructed. This
+     *               opcode must be NEW, ANEWARRAY, CHECKCAST or INSTANCEOF.
      * @param desc
-     *            the operand of the instruction to be constructed. This operand
-     *            is an internal name (see {@link reobf.proghatches.main.asm.repack.objectwebasm.Type}).
+     *               the operand of the instruction to be constructed. This operand
+     *               is an internal name (see {@link reobf.proghatches.main.asm.repack.objectwebasm.Type}).
      */
     public TypeInsnNode(final int opcode, final String desc) {
         super(opcode);
@@ -66,8 +66,8 @@ public class TypeInsnNode extends AbstractInsnNode {
      * Sets the opcode of this instruction.
      * 
      * @param opcode
-     *            the new instruction opcode. This opcode must be NEW,
-     *            ANEWARRAY, CHECKCAST or INSTANCEOF.
+     *               the new instruction opcode. This opcode must be NEW,
+     *               ANEWARRAY, CHECKCAST or INSTANCEOF.
      */
     public void setOpcode(final int opcode) {
         this.opcode = opcode;

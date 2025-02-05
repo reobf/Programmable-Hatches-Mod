@@ -2,6 +2,11 @@ package reobf.proghatches.main;
 
 import java.util.EnumSet;
 
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.util.ForgeDirection;
+
 import com.google.common.collect.ImmutableSet;
 
 import appeng.api.config.Actionable;
@@ -19,197 +24,193 @@ import appeng.helpers.DualityInterface;
 import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.IPriorityHost;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class FakeHost extends TileEntity implements IInterfaceHost, IUpgradeableHost, IPriorityHost, ICustomNameObject {
-	
-	public FakeHost(TileEntity coverHost, IInterfaceHost realCover) {
-		super();
-		if (coverHost != null) {
-			this.xCoord = coverHost.xCoord;
-			this.yCoord = coverHost.yCoord;
-			this.zCoord = coverHost.zCoord;
-			this.setWorldObj(coverHost.getWorldObj());
-		}
-		cover = realCover;
-	}
 
-	IInterfaceHost cover;
+    public FakeHost(TileEntity coverHost, IInterfaceHost realCover) {
+        super();
+        if (coverHost != null) {
+            this.xCoord = coverHost.xCoord;
+            this.yCoord = coverHost.yCoord;
+            this.zCoord = coverHost.zCoord;
+            this.setWorldObj(coverHost.getWorldObj());
+        }
+        cover = realCover;
+    }
 
-	@Override
-	public void provideCrafting(ICraftingProviderHelper craftingTracker) {
-		cover.provideCrafting(craftingTracker);
+    IInterfaceHost cover;
 
-	}
+    @Override
+    public void provideCrafting(ICraftingProviderHelper craftingTracker) {
+        cover.provideCrafting(craftingTracker);
 
-	@Override
-	public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
-		// TODO Auto-generated method stub
-		return cover.pushPattern(patternDetails, table);
-	}
+    }
 
-	@Override
-	public boolean isBusy() {
-		// TODO Auto-generated method stub
-		return cover.isBusy();
-	}
+    @Override
+    public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
+        // TODO Auto-generated method stub
+        return cover.pushPattern(patternDetails, table);
+    }
 
-	@Override
-	public int getInstalledUpgrades(Upgrades u) {
-		// TODO Auto-generated method stub
-		return cover.getInstalledUpgrades(u);
-	}
+    @Override
+    public boolean isBusy() {
+        // TODO Auto-generated method stub
+        return cover.isBusy();
+    }
 
-	@Override
-	public TileEntity getTile() {
-		// TODO Auto-generated method stub
-		return cover.getTile();
-	}
+    @Override
+    public int getInstalledUpgrades(Upgrades u) {
+        // TODO Auto-generated method stub
+        return cover.getInstalledUpgrades(u);
+    }
 
-	@Override
-	public IConfigManager getConfigManager() {
-		// TODO Auto-generated method stub
-		return cover.getConfigManager();
-	}
+    @Override
+    public TileEntity getTile() {
+        // TODO Auto-generated method stub
+        return cover.getTile();
+    }
 
-	@Override
-	public IInventory getInventoryByName(String name) {
-		// TODO Auto-generated method stub
-		return cover.getInventoryByName(name);
-	}
+    @Override
+    public IConfigManager getConfigManager() {
+        // TODO Auto-generated method stub
+        return cover.getConfigManager();
+    }
 
-	@Override
-	public ImmutableSet<ICraftingLink> getRequestedJobs() {
-		// TODO Auto-generated method stub
-		return cover.getRequestedJobs();
-	}
+    @Override
+    public IInventory getInventoryByName(String name) {
+        // TODO Auto-generated method stub
+        return cover.getInventoryByName(name);
+    }
 
-	@Override
-	public IAEItemStack injectCraftedItems(ICraftingLink link, IAEItemStack items, Actionable mode) {
-		// TODO Auto-generated method stub
-		return cover.injectCraftedItems(link, items, mode);
-	}
+    @Override
+    public ImmutableSet<ICraftingLink> getRequestedJobs() {
+        // TODO Auto-generated method stub
+        return cover.getRequestedJobs();
+    }
 
-	@Override
-	public void jobStateChange(ICraftingLink link) {
-		cover.jobStateChange(link);
-	}
+    @Override
+    public IAEItemStack injectCraftedItems(ICraftingLink link, IAEItemStack items, Actionable mode) {
+        // TODO Auto-generated method stub
+        return cover.injectCraftedItems(link, items, mode);
+    }
 
-	@Override
-	public IGridNode getActionableNode() {
-		// TODO Auto-generated method stub
-		return cover.getActionableNode();
-	}
+    @Override
+    public void jobStateChange(ICraftingLink link) {
+        cover.jobStateChange(link);
+    }
 
-	@Override
-	public IGridNode getGridNode(ForgeDirection dir) {
-		// TODO Auto-generated method stub
-		return cover.getGridNode(dir);
-	}
+    @Override
+    public IGridNode getActionableNode() {
+        // TODO Auto-generated method stub
+        return cover.getActionableNode();
+    }
 
-	@Override
-	public AECableType getCableConnectionType(ForgeDirection dir) {
-		// TODO Auto-generated method stub
-		return cover.getCableConnectionType(dir);
-	}
+    @Override
+    public IGridNode getGridNode(ForgeDirection dir) {
+        // TODO Auto-generated method stub
+        return cover.getGridNode(dir);
+    }
 
-	@Override
-	public void securityBreak() {
-		cover.securityBreak();
+    @Override
+    public AECableType getCableConnectionType(ForgeDirection dir) {
+        // TODO Auto-generated method stub
+        return cover.getCableConnectionType(dir);
+    }
 
-	}
+    @Override
+    public void securityBreak() {
+        cover.securityBreak();
 
-	@Override
-	public DimensionalCoord getLocation() {
-		// TODO Auto-generated method stub
-		return cover.getLocation();
-	}
+    }
 
-	@Override
-	public int rows() {
-		// TODO Auto-generated method stub
-		return cover.rows();
-	}
+    @Override
+    public DimensionalCoord getLocation() {
+        // TODO Auto-generated method stub
+        return cover.getLocation();
+    }
 
-	@Override
-	public int rowSize() {
-		// TODO Auto-generated method stub
-		return cover.rowSize();
-	}
+    @Override
+    public int rows() {
+        // TODO Auto-generated method stub
+        return cover.rows();
+    }
 
-	@Override
-	public IInventory getPatterns() {
-		// TODO Auto-generated method stub
-		return cover.getPatterns();
-	}
+    @Override
+    public int rowSize() {
+        // TODO Auto-generated method stub
+        return cover.rowSize();
+    }
 
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return cover.getName();
-	}
+    @Override
+    public IInventory getPatterns() {
+        // TODO Auto-generated method stub
+        return cover.getPatterns();
+    }
 
-	@Override
-	public boolean shouldDisplay() {
-		// TODO Auto-generated method stub
-		return cover.shouldDisplay();
-	}
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return cover.getName();
+    }
 
-	@Override
-	public DualityInterface getInterfaceDuality() {
-		// TODO Auto-generated method stub
-		return cover.getInterfaceDuality();
-	}
+    @Override
+    public boolean shouldDisplay() {
+        // TODO Auto-generated method stub
+        return cover.shouldDisplay();
+    }
 
-	@Override
-	public EnumSet<ForgeDirection> getTargets() {
-		// TODO Auto-generated method stub
-		return cover.getTargets();
-	}
+    @Override
+    public DualityInterface getInterfaceDuality() {
+        // TODO Auto-generated method stub
+        return cover.getInterfaceDuality();
+    }
 
-	@Override
-	public TileEntity getTileEntity() {
-		// TODO Auto-generated method stub
-		return cover.getTileEntity();
-	}
+    @Override
+    public EnumSet<ForgeDirection> getTargets() {
+        // TODO Auto-generated method stub
+        return cover.getTargets();
+    }
 
-	@Override
-	public void saveChanges() {
-		cover.saveChanges();
+    @Override
+    public TileEntity getTileEntity() {
+        // TODO Auto-generated method stub
+        return cover.getTileEntity();
+    }
 
-	}
+    @Override
+    public void saveChanges() {
+        cover.saveChanges();
 
-	@Override
-	public int getPriority() {
+    }
 
-		return ((IPriorityHost) cover).getPriority();
-	}
+    @Override
+    public int getPriority() {
 
-	@Override
-	public void setPriority(int newValue) {
-		((IPriorityHost) cover).setPriority(newValue);
+        return ((IPriorityHost) cover).getPriority();
+    }
 
-	}
+    @Override
+    public void setPriority(int newValue) {
+        ((IPriorityHost) cover).setPriority(newValue);
 
-	@Override
-	public String getCustomName() {
-		// TODO Auto-generated method stub
-		return ((ICustomNameObject) cover).getCustomName();
-	}
+    }
 
-	@Override
-	public boolean hasCustomName() {
-		// TODO Auto-generated method stub
-		return ((ICustomNameObject) cover).hasCustomName();
-	}
+    @Override
+    public String getCustomName() {
+        // TODO Auto-generated method stub
+        return ((ICustomNameObject) cover).getCustomName();
+    }
 
-	@Override
-	public void setCustomName(String name) {
-		((ICustomNameObject) cover).setCustomName(name);
+    @Override
+    public boolean hasCustomName() {
+        // TODO Auto-generated method stub
+        return ((ICustomNameObject) cover).hasCustomName();
+    }
 
-	}
+    @Override
+    public void setCustomName(String name) {
+        ((ICustomNameObject) cover).setCustomName(name);
+
+    }
 
 }

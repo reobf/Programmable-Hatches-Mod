@@ -16,16 +16,17 @@ import reobf.proghatches.eucrafting.PartEUSource;
 
 @Mixin(value = PartWailaDataProvider.class, remap = false, priority = 1)
 public class MixinWailaProvider {
-	@Shadow
-	private List<IPartWailaDataProvider> providers;
 
-	@Inject(method = "<init>", at = @At(value = "RETURN"), require = 1)
-	public void constructor(CallbackInfo a) {
+    @Shadow
+    private List<IPartWailaDataProvider> providers;
 
-		providers.add(new PartEUP2PInterface.WailaDataProvider());
-		providers.add(new PartEUSource.WailaDataProvider());
-		providers.add(new PartRequestTunnel.WailaDataProvider());
-		
-	}
+    @Inject(method = "<init>", at = @At(value = "RETURN"), require = 1)
+    public void constructor(CallbackInfo a) {
+
+        providers.add(new PartEUP2PInterface.WailaDataProvider());
+        providers.add(new PartEUSource.WailaDataProvider());
+        providers.add(new PartRequestTunnel.WailaDataProvider());
+
+    }
 
 }

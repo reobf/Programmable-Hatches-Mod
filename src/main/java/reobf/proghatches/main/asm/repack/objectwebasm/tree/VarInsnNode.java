@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -52,12 +52,12 @@ public class VarInsnNode extends AbstractInsnNode {
      * Constructs a new {@link VarInsnNode}.
      * 
      * @param opcode
-     *            the opcode of the local variable instruction to be
-     *            constructed. This opcode must be ILOAD, LLOAD, FLOAD, DLOAD,
-     *            ALOAD, ISTORE, LSTORE, FSTORE, DSTORE, ASTORE or RET.
+     *               the opcode of the local variable instruction to be
+     *               constructed. This opcode must be ILOAD, LLOAD, FLOAD, DLOAD,
+     *               ALOAD, ISTORE, LSTORE, FSTORE, DSTORE, ASTORE or RET.
      * @param var
-     *            the operand of the instruction to be constructed. This operand
-     *            is the index of a local variable.
+     *               the operand of the instruction to be constructed. This operand
+     *               is the index of a local variable.
      */
     public VarInsnNode(final int opcode, final int var) {
         super(opcode);
@@ -68,9 +68,9 @@ public class VarInsnNode extends AbstractInsnNode {
      * Sets the opcode of this instruction.
      * 
      * @param opcode
-     *            the new instruction opcode. This opcode must be ILOAD, LLOAD,
-     *            FLOAD, DLOAD, ALOAD, ISTORE, LSTORE, FSTORE, DSTORE, ASTORE or
-     *            RET.
+     *               the new instruction opcode. This opcode must be ILOAD, LLOAD,
+     *               FLOAD, DLOAD, ALOAD, ISTORE, LSTORE, FSTORE, DSTORE, ASTORE or
+     *               RET.
      */
     public void setOpcode(final int opcode) {
         this.opcode = opcode;

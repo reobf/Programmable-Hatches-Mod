@@ -1,104 +1,110 @@
 package reobf.proghatches.ae;
 
-import appeng.api.AEApi;
-import appeng.api.networking.crafting.ICraftingPatternDetails;
-import appeng.api.storage.data.IAEItemStack;
-import appeng.util.item.AEItemStack;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+
+import appeng.api.AEApi;
+import appeng.api.networking.crafting.ICraftingPatternDetails;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.util.item.AEItemStack;
 import reobf.proghatches.eucrafting.IInputMightBeEmptyPattern;
 import reobf.proghatches.gt.metatileentity.util.IDisallowOptimize;
 
-public class EmitterPattern implements 	 ICraftingPatternDetails,IInputMightBeEmptyPattern,IDisallowOptimize {
-private  final ItemStack patternStack;
-private final IAEItemStack outputs;
-private int priority = 0;
+public class EmitterPattern implements ICraftingPatternDetails, IInputMightBeEmptyPattern, IDisallowOptimize {
 
-public EmitterPattern(ItemStack patternStack,IAEItemStack outputs){
-	this.patternStack=patternStack;
-	this.outputs=outputs;
-	
-	
-}
-@Override
-	public boolean equals(Object obj) {
-		
-	if(obj instanceof EmitterPattern){
-		
-		return outputs.equals(((EmitterPattern)obj).outputs);
-	}
-	
-		return super.equals(obj);
-	}
-@Override
-	public int hashCode() {
-	
-		return ((AEItemStack)outputs).hashCode();
-	}
-@Override
-public ItemStack getPattern() {
-	
-	return patternStack;
-}
+    private final ItemStack patternStack;
+    private final IAEItemStack outputs;
+    private int priority = 0;
 
-@Override
-public boolean isValidItemForSlot(int slotIndex, ItemStack itemStack, World world) {
-	
-	return false;
-}
+    public EmitterPattern(ItemStack patternStack, IAEItemStack outputs) {
+        this.patternStack = patternStack;
+        this.outputs = outputs;
 
-@Override
-public boolean isCraftable() {
-	
-	return false;
-}
+    }
 
-@Override
-public IAEItemStack[] getInputs() {
-	return new IAEItemStack[] { AEApi.instance().storage().createItemStack(new ItemStack(Items.apple, 0)) };
-	
-}
+    @Override
+    public boolean equals(Object obj) {
 
-@Override
-public IAEItemStack[] getCondensedInputs() {
-	
-	return getInputs();
-}
+        if (obj instanceof EmitterPattern) {
 
-@Override
-public IAEItemStack[] getCondensedOutputs() {
-	
-	return new IAEItemStack[]{outputs};
-}
+            return outputs.equals(((EmitterPattern) obj).outputs);
+        }
 
-@Override
-public IAEItemStack[] getOutputs() {
-	return new IAEItemStack[]{outputs};
-}
+        return super.equals(obj);
+    }
 
-@Override
-public boolean canSubstitute() {
-	
-	return false;
-}
+    @Override
+    public int hashCode() {
 
-@Override
-public ItemStack getOutput(InventoryCrafting craftingInv, World world) {
-	
-	return 	outputs.getItemStack();
-}
+        return ((AEItemStack) outputs).hashCode();
+    }
 
-@Override
-public int getPriority() {
+    @Override
+    public ItemStack getPattern() {
 
-	return priority;
-}
+        return patternStack;
+    }
 
-@Override
-public void setPriority(int priority) {
-	this.priority=priority;
-	
-}
+    @Override
+    public boolean isValidItemForSlot(int slotIndex, ItemStack itemStack, World world) {
+
+        return false;
+    }
+
+    @Override
+    public boolean isCraftable() {
+
+        return false;
+    }
+
+    @Override
+    public IAEItemStack[] getInputs() {
+        return new IAEItemStack[] { AEApi.instance()
+            .storage()
+            .createItemStack(new ItemStack(Items.apple, 0)) };
+
+    }
+
+    @Override
+    public IAEItemStack[] getCondensedInputs() {
+
+        return getInputs();
+    }
+
+    @Override
+    public IAEItemStack[] getCondensedOutputs() {
+
+        return new IAEItemStack[] { outputs };
+    }
+
+    @Override
+    public IAEItemStack[] getOutputs() {
+        return new IAEItemStack[] { outputs };
+    }
+
+    @Override
+    public boolean canSubstitute() {
+
+        return false;
+    }
+
+    @Override
+    public ItemStack getOutput(InventoryCrafting craftingInv, World world) {
+
+        return outputs.getItemStack();
+    }
+
+    @Override
+    public int getPriority() {
+
+        return priority;
+    }
+
+    @Override
+    public void setPriority(int priority) {
+        this.priority = priority;
+
+    }
 }

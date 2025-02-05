@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -63,8 +63,8 @@ public abstract class Interpreter<V extends Value> {
      * by long and double types.
      * 
      * @param type
-     *            a primitive or reference type, or <tt>null</tt> to represent
-     *            an uninitialized value.
+     *             a primitive or reference type, or <tt>null</tt> to represent
+     *             an uninitialized value.
      * @return a value that represents the given type. The size of the returned
      *         value must be equal to the size of the given type.
      */
@@ -79,13 +79,12 @@ public abstract class Interpreter<V extends Value> {
      * DCONST_1, BIPUSH, SIPUSH, LDC, JSR, GETSTATIC, NEW
      * 
      * @param insn
-     *            the bytecode instruction to be interpreted.
+     *             the bytecode instruction to be interpreted.
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException
-     *             if an error occured during the interpretation.
+     *                           if an error occured during the interpretation.
      */
-    public abstract V newOperation(AbstractInsnNode insn)
-            throws AnalyzerException;
+    public abstract V newOperation(AbstractInsnNode insn) throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction that moves a value on the stack or to
@@ -95,16 +94,15 @@ public abstract class Interpreter<V extends Value> {
      * ASTORE, DUP, DUP_X1, DUP_X2, DUP2, DUP2_X1, DUP2_X2, SWAP
      * 
      * @param insn
-     *            the bytecode instruction to be interpreted.
+     *              the bytecode instruction to be interpreted.
      * @param value
-     *            the value that must be moved by the instruction.
+     *              the value that must be moved by the instruction.
      * @return the result of the interpretation of the given instruction. The
      *         returned value must be <tt>equal</tt> to the given value.
      * @throws AnalyzerException
-     *             if an error occured during the interpretation.
+     *                           if an error occured during the interpretation.
      */
-    public abstract V copyOperation(AbstractInsnNode insn, V value)
-            throws AnalyzerException;
+    public abstract V copyOperation(AbstractInsnNode insn, V value) throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction with a single argument. This method is
@@ -117,15 +115,14 @@ public abstract class Interpreter<V extends Value> {
      * INSTANCEOF, MONITORENTER, MONITOREXIT, IFNULL, IFNONNULL
      * 
      * @param insn
-     *            the bytecode instruction to be interpreted.
+     *              the bytecode instruction to be interpreted.
      * @param value
-     *            the argument of the instruction to be interpreted.
+     *              the argument of the instruction to be interpreted.
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException
-     *             if an error occured during the interpretation.
+     *                           if an error occured during the interpretation.
      */
-    public abstract V unaryOperation(AbstractInsnNode insn, V value)
-            throws AnalyzerException;
+    public abstract V unaryOperation(AbstractInsnNode insn, V value) throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction with two arguments. This method is
@@ -139,17 +136,16 @@ public abstract class Interpreter<V extends Value> {
      * IF_ACMPEQ, IF_ACMPNE, PUTFIELD
      * 
      * @param insn
-     *            the bytecode instruction to be interpreted.
+     *               the bytecode instruction to be interpreted.
      * @param value1
-     *            the first argument of the instruction to be interpreted.
+     *               the first argument of the instruction to be interpreted.
      * @param value2
-     *            the second argument of the instruction to be interpreted.
+     *               the second argument of the instruction to be interpreted.
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException
-     *             if an error occured during the interpretation.
+     *                           if an error occured during the interpretation.
      */
-    public abstract V binaryOperation(AbstractInsnNode insn, V value1, V value2)
-            throws AnalyzerException;
+    public abstract V binaryOperation(AbstractInsnNode insn, V value1, V value2) throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction with three arguments. This method is
@@ -158,19 +154,18 @@ public abstract class Interpreter<V extends Value> {
      * IASTORE, LASTORE, FASTORE, DASTORE, AASTORE, BASTORE, CASTORE, SASTORE
      * 
      * @param insn
-     *            the bytecode instruction to be interpreted.
+     *               the bytecode instruction to be interpreted.
      * @param value1
-     *            the first argument of the instruction to be interpreted.
+     *               the first argument of the instruction to be interpreted.
      * @param value2
-     *            the second argument of the instruction to be interpreted.
+     *               the second argument of the instruction to be interpreted.
      * @param value3
-     *            the third argument of the instruction to be interpreted.
+     *               the third argument of the instruction to be interpreted.
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException
-     *             if an error occured during the interpretation.
+     *                           if an error occured during the interpretation.
      */
-    public abstract V ternaryOperation(AbstractInsnNode insn, V value1,
-            V value2, V value3) throws AnalyzerException;
+    public abstract V ternaryOperation(AbstractInsnNode insn, V value1, V value2, V value3) throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction with a variable number of arguments.
@@ -180,15 +175,14 @@ public abstract class Interpreter<V extends Value> {
      * MULTIANEWARRAY and INVOKEDYNAMIC
      * 
      * @param insn
-     *            the bytecode instruction to be interpreted.
+     *               the bytecode instruction to be interpreted.
      * @param values
-     *            the arguments of the instruction to be interpreted.
+     *               the arguments of the instruction to be interpreted.
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException
-     *             if an error occured during the interpretation.
+     *                           if an error occured during the interpretation.
      */
-    public abstract V naryOperation(AbstractInsnNode insn,
-            List<? extends V> values) throws AnalyzerException;
+    public abstract V naryOperation(AbstractInsnNode insn, List<? extends V> values) throws AnalyzerException;
 
     /**
      * Interprets a bytecode return instruction. This method is called for the
@@ -197,16 +191,15 @@ public abstract class Interpreter<V extends Value> {
      * IRETURN, LRETURN, FRETURN, DRETURN, ARETURN
      * 
      * @param insn
-     *            the bytecode instruction to be interpreted.
+     *                 the bytecode instruction to be interpreted.
      * @param value
-     *            the argument of the instruction to be interpreted.
+     *                 the argument of the instruction to be interpreted.
      * @param expected
-     *            the expected return type of the analyzed method.
+     *                 the expected return type of the analyzed method.
      * @throws AnalyzerException
-     *             if an error occured during the interpretation.
+     *                           if an error occured during the interpretation.
      */
-    public abstract void returnOperation(AbstractInsnNode insn, V value,
-            V expected) throws AnalyzerException;
+    public abstract void returnOperation(AbstractInsnNode insn, V value, V expected) throws AnalyzerException;
 
     /**
      * Merges two values. The merge operation must return a value that
@@ -216,9 +209,9 @@ public abstract class Interpreter<V extends Value> {
      * contains the previous ones. Likewise for other types of values).
      * 
      * @param v
-     *            a value.
+     *          a value.
      * @param w
-     *            another value.
+     *          another value.
      * @return the merged value. If the merged value is equal to <tt>v</tt>,
      *         this method <i>must</i> return <tt>v</tt>.
      */

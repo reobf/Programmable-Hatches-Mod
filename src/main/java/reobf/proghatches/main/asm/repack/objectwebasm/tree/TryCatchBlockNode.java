@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -85,18 +85,17 @@ public class TryCatchBlockNode {
      * Constructs a new {@link TryCatchBlockNode}.
      * 
      * @param start
-     *            beginning of the exception handler's scope (inclusive).
+     *                beginning of the exception handler's scope (inclusive).
      * @param end
-     *            end of the exception handler's scope (exclusive).
+     *                end of the exception handler's scope (exclusive).
      * @param handler
-     *            beginning of the exception handler's code.
+     *                beginning of the exception handler's code.
      * @param type
-     *            internal name of the type of exceptions handled by the
-     *            handler, or <tt>null</tt> to catch any exceptions (for
-     *            "finally" blocks).
+     *                internal name of the type of exceptions handled by the
+     *                handler, or <tt>null</tt> to catch any exceptions (for
+     *                "finally" blocks).
      */
-    public TryCatchBlockNode(final LabelNode start, final LabelNode end,
-            final LabelNode handler, final String type) {
+    public TryCatchBlockNode(final LabelNode start, final LabelNode end, final LabelNode handler, final String type) {
         this.start = start;
         this.end = end;
         this.handler = handler;
@@ -109,8 +108,8 @@ public class TryCatchBlockNode {
      * type annotations of this block.
      * 
      * @param index
-     *            the new index of this try catch block in the method's list of
-     *            try catch block nodes.
+     *              the new index of this try catch block in the method's list of
+     *              try catch block nodes.
      */
     public void updateIndex(final int index) {
         int newTypeRef = 0x42000000 | (index << 8);
@@ -130,24 +129,19 @@ public class TryCatchBlockNode {
      * Makes the given visitor visit this try catch block.
      * 
      * @param mv
-     *            a method visitor.
+     *           a method visitor.
      */
     public void accept(final MethodVisitor mv) {
-        mv.visitTryCatchBlock(start.getLabel(), end.getLabel(),
-                handler == null ? null : handler.getLabel(), type);
-        int n = visibleTypeAnnotations == null ? 0 : visibleTypeAnnotations
-                .size();
+        mv.visitTryCatchBlock(start.getLabel(), end.getLabel(), handler == null ? null : handler.getLabel(), type);
+        int n = visibleTypeAnnotations == null ? 0 : visibleTypeAnnotations.size();
         for (int i = 0; i < n; ++i) {
             TypeAnnotationNode an = visibleTypeAnnotations.get(i);
-            an.accept(mv.visitTryCatchAnnotation(an.typeRef, an.typePath,
-                    an.desc, true));
+            an.accept(mv.visitTryCatchAnnotation(an.typeRef, an.typePath, an.desc, true));
         }
-        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations
-                .size();
+        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations.size();
         for (int i = 0; i < n; ++i) {
             TypeAnnotationNode an = invisibleTypeAnnotations.get(i);
-            an.accept(mv.visitTryCatchAnnotation(an.typeRef, an.typePath,
-                    an.desc, false));
+            an.accept(mv.visitTryCatchAnnotation(an.typeRef, an.typePath, an.desc, false));
         }
     }
 }

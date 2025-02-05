@@ -3,11 +3,14 @@ package reobf.proghatches.gt.metatileentity;
 import static gregtech.api.util.GTUtility.moveMultipleItemStacks;
 
 import java.util.Optional;
-import com.google.common.collect.ImmutableMap;
-import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
-import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+
+import com.google.common.collect.ImmutableMap;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+
 import gregtech.api.GregTechAPI;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -19,86 +22,96 @@ import reobf.proghatches.util.ProghatchesUtil;
 
 public class FilterOutputBus extends MTEHatchOutputBus {
 
-	public FilterOutputBus(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
-			boolean keepone) {
-		super(mName, mTier, mDescriptionArray, mTextures);
-		this.keepone = keepone;
-	}
+    public FilterOutputBus(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
+        boolean keepone) {
+        super(mName, mTier, mDescriptionArray, mTextures);
+        this.keepone = keepone;
+    }
 
-	@Override
-	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
+    @Override
+    public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 
-		super.addUIWidgets(builder, buildContext);
-		ProghatchesUtil.attachZeroSizedStackRemover(builder, buildContext);
+        super.addUIWidgets(builder, buildContext);
+        ProghatchesUtil.attachZeroSizedStackRemover(builder, buildContext);
 
-	}
+    }
 
-	public FilterOutputBus(int aID, String aName, String aNameRegional, int tier, boolean keepone) {
-		super(aID, aName, aNameRegional, tier, reobf.proghatches.main.Config.get("FOB",
-				ImmutableMap.of("keepone", keepone, "slots", Math.min(16, (1 + tier) * (tier + 1))))
-		
+    public FilterOutputBus(int aID, String aName, String aNameRegional, int tier, boolean keepone) {
+        super(
+            aID,
+            aName,
+            aNameRegional,
+            tier,
+            reobf.proghatches.main.Config
+                .get("FOB", ImmutableMap.of("keepone", keepone, "slots", Math.min(16, (1 + tier) * (tier + 1))))
 
-		);
-		this.keepone = keepone;
-		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
-	}
+        );
+        this.keepone = keepone;
+        Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
+    }
 
-	private boolean keepone;
+    private boolean keepone;
 
-	@Override
-	public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
+    @Override
+    public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
 
-		return new FilterOutputBus(mName, mTier, mDescriptionArray, mTextures, keepone);
-	}
+        return new FilterOutputBus(mName, mTier, mDescriptionArray, mTextures, keepone);
+    }
 
-	@Override
-	public void setInventorySlotContents(int aIndex, ItemStack aStack) {
-		if (protectFlag) {
+    @Override
+    public void setInventorySlotContents(int aIndex, ItemStack aStack) {
+        if (protectFlag) {
 
-			if (aStack == null) {
-				Optional.ofNullable(this.mInventory[aIndex]).ifPresent(s -> s.stackSize = 0);
-				return;
-			}
+            if (aStack == null) {
+                Optional.ofNullable(this.mInventory[aIndex])
+                    .ifPresent(s -> s.stackSize = 0);
+                return;
+            }
 
-		}
+        }
 
-		super.setInventorySlotContents(aIndex, aStack);
-	}
+        super.setInventorySlotContents(aIndex, aStack);
+    }
 
-	private boolean protectFlag;
+    private boolean protectFlag;
 
-	@Override
-	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-		if (aBaseMetaTileEntity.isClientSide() && GTClient.changeDetected == 4) {
-			aBaseMetaTileEntity.issueTextureUpdate();
-		}
-		if (aBaseMetaTileEntity.isServerSide() && aBaseMetaTileEntity.isAllowedToWork() && (aTick & 0x7) == 0) {
-			final IInventory tTileEntity = aBaseMetaTileEntity
-					.getIInventoryAtSide(aBaseMetaTileEntity.getFrontFacing());
-			if (tTileEntity != null) {
-				protectFlag = true;
-				if (keepone) {
-					for (int i = 0; i < mInventory.length; i++)
-						if (mInventory[i] != null)
-							mInventory[i].stackSize--;
+    @Override
+    public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
+        if (aBaseMetaTileEntity.isClientSide() && GTClient.changeDetected == 4) {
+            aBaseMetaTileEntity.issueTextureUpdate();
+        }
+        if (aBaseMetaTileEntity.isServerSide() && aBaseMetaTileEntity.isAllowedToWork() && (aTick & 0x7) == 0) {
+            final IInventory tTileEntity = aBaseMetaTileEntity
+                .getIInventoryAtSide(aBaseMetaTileEntity.getFrontFacing());
+            if (tTileEntity != null) {
+                protectFlag = true;
+                if (keepone) {
+                    for (int i = 0; i < mInventory.length; i++) if (mInventory[i] != null) mInventory[i].stackSize--;
 
-				}
-				moveMultipleItemStacks(aBaseMetaTileEntity, tTileEntity, aBaseMetaTileEntity.getFrontFacing(),
-						aBaseMetaTileEntity.getBackFacing(), null, false, (byte) 64, (byte) 1, (byte) 64, (byte) 1,
-						mInventory.length);
-				if (keepone) {
-					for (int i = 0; i < mInventory.length; i++)
-						if (mInventory[i] != null)
-							mInventory[i].stackSize++;
+                }
+                moveMultipleItemStacks(
+                    aBaseMetaTileEntity,
+                    tTileEntity,
+                    aBaseMetaTileEntity.getFrontFacing(),
+                    aBaseMetaTileEntity.getBackFacing(),
+                    null,
+                    false,
+                    (byte) 64,
+                    (byte) 1,
+                    (byte) 64,
+                    (byte) 1,
+                    mInventory.length);
+                if (keepone) {
+                    for (int i = 0; i < mInventory.length; i++) if (mInventory[i] != null) mInventory[i].stackSize++;
 
-				}
-				protectFlag = false;
-				// for (int i = 0; i < mInventory.length; i++)
-				// if (mInventory[i] != null && mInventory[i].stackSize <= 0)
-				// mInventory[i] = null;
-			}
-		}
+                }
+                protectFlag = false;
+                // for (int i = 0; i < mInventory.length; i++)
+                // if (mInventory[i] != null && mInventory[i].stackSize <= 0)
+                // mInventory[i] = null;
+            }
+        }
 
-	}
+    }
 
 }

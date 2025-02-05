@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -91,19 +91,19 @@ final class AnnotationWriter extends AnnotationVisitor {
      * Constructs a new {@link AnnotationWriter}.
      * 
      * @param cw
-     *            the class writer to which this annotation must be added.
+     *               the class writer to which this annotation must be added.
      * @param named
-     *            <tt>true<tt> if values are named, <tt>false</tt> otherwise.
+     *               <tt>true<tt> if values are named, <tt>false</tt> otherwise.
      * @param bv
-     *            where the annotation values must be stored.
+     *               where the annotation values must be stored.
      * @param parent
-     *            where the number of annotation values must be stored.
+     *               where the number of annotation values must be stored.
      * @param offset
-     *            where in <tt>parent</tt> the number of annotation values must
-     *            be stored.
+     *               where in <tt>parent</tt> the number of annotation values must
+     *               be stored.
      */
-    AnnotationWriter(final ClassWriter cw, final boolean named,
-            final ByteVector bv, final ByteVector parent, final int offset) {
+    AnnotationWriter(final ClassWriter cw, final boolean named, final ByteVector bv, final ByteVector parent,
+        final int offset) {
         super(Opcodes.ASM5);
         this.cw = cw;
         this.named = named;
@@ -190,24 +190,24 @@ final class AnnotationWriter extends AnnotationVisitor {
     }
 
     @Override
-    public void visitEnum(final String name, final String desc,
-            final String value) {
+    public void visitEnum(final String name, final String desc, final String value) {
         ++size;
         if (named) {
             bv.putShort(cw.newUTF8(name));
         }
-        bv.put12('e', cw.newUTF8(desc)).putShort(cw.newUTF8(value));
+        bv.put12('e', cw.newUTF8(desc))
+            .putShort(cw.newUTF8(value));
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String name,
-            final String desc) {
+    public AnnotationVisitor visitAnnotation(final String name, final String desc) {
         ++size;
         if (named) {
             bv.putShort(cw.newUTF8(name));
         }
         // write tag and type, and reserve space for values count
-        bv.put12('@', cw.newUTF8(desc)).putShort(0);
+        bv.put12('@', cw.newUTF8(desc))
+            .putShort(0);
         return new AnnotationWriter(cw, true, bv, bv, bv.length - 2);
     }
 
@@ -283,19 +283,19 @@ final class AnnotationWriter extends AnnotationVisitor {
      * Puts the given annotation lists into the given byte vector.
      * 
      * @param panns
-     *            an array of annotation writer lists.
+     *              an array of annotation writer lists.
      * @param off
-     *            index of the first annotation to be written.
+     *              index of the first annotation to be written.
      * @param out
-     *            where the annotations must be put.
+     *              where the annotations must be put.
      */
-    static void put(final AnnotationWriter[] panns, final int off,
-            final ByteVector out) {
+    static void put(final AnnotationWriter[] panns, final int off, final ByteVector out) {
         int size = 1 + 2 * (panns.length - off);
         for (int i = off; i < panns.length; ++i) {
             size += panns[i] == null ? 0 : panns[i].getSize();
         }
-        out.putInt(size).putByte(panns.length - off);
+        out.putInt(size)
+            .putByte(panns.length - off);
         for (int i = off; i < panns.length; ++i) {
             AnnotationWriter aw = panns[i];
             AnnotationWriter last = null;
@@ -321,45 +321,45 @@ final class AnnotationWriter extends AnnotationVisitor {
      * LOCAL_VARIABLE and RESOURCE_VARIABLE target types are not supported.
      * 
      * @param typeRef
-     *            a reference to the annotated type. See {@link TypeReference}.
+     *                 a reference to the annotated type. See {@link TypeReference}.
      * @param typePath
-     *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static inner type within 'typeRef'. May be
-     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
+     *                 the path to the annotated type argument, wildcard bound, array
+     *                 element type, or static inner type within 'typeRef'. May be
+     *                 <tt>null</tt> if the annotation targets 'typeRef' as a whole.
      * @param out
-     *            where the type reference and type path must be put.
+     *                 where the type reference and type path must be put.
      */
     static void putTarget(int typeRef, TypePath typePath, ByteVector out) {
         switch (typeRef >>> 24) {
-        case 0x00: // CLASS_TYPE_PARAMETER
-        case 0x01: // METHOD_TYPE_PARAMETER
-        case 0x16: // METHOD_FORMAL_PARAMETER
-            out.putShort(typeRef >>> 16);
-            break;
-        case 0x13: // FIELD
-        case 0x14: // METHOD_RETURN
-        case 0x15: // METHOD_RECEIVER
-            out.putByte(typeRef >>> 24);
-            break;
-        case 0x47: // CAST
-        case 0x48: // CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT
-        case 0x49: // METHOD_INVOCATION_TYPE_ARGUMENT
-        case 0x4A: // CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT
-        case 0x4B: // METHOD_REFERENCE_TYPE_ARGUMENT
-            out.putInt(typeRef);
-            break;
-        // case 0x10: // CLASS_EXTENDS
-        // case 0x11: // CLASS_TYPE_PARAMETER_BOUND
-        // case 0x12: // METHOD_TYPE_PARAMETER_BOUND
-        // case 0x17: // THROWS
-        // case 0x42: // EXCEPTION_PARAMETER
-        // case 0x43: // INSTANCEOF
-        // case 0x44: // NEW
-        // case 0x45: // CONSTRUCTOR_REFERENCE
-        // case 0x46: // METHOD_REFERENCE
-        default:
-            out.put12(typeRef >>> 24, (typeRef & 0xFFFF00) >> 8);
-            break;
+            case 0x00: // CLASS_TYPE_PARAMETER
+            case 0x01: // METHOD_TYPE_PARAMETER
+            case 0x16: // METHOD_FORMAL_PARAMETER
+                out.putShort(typeRef >>> 16);
+                break;
+            case 0x13: // FIELD
+            case 0x14: // METHOD_RETURN
+            case 0x15: // METHOD_RECEIVER
+                out.putByte(typeRef >>> 24);
+                break;
+            case 0x47: // CAST
+            case 0x48: // CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT
+            case 0x49: // METHOD_INVOCATION_TYPE_ARGUMENT
+            case 0x4A: // CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT
+            case 0x4B: // METHOD_REFERENCE_TYPE_ARGUMENT
+                out.putInt(typeRef);
+                break;
+            // case 0x10: // CLASS_EXTENDS
+            // case 0x11: // CLASS_TYPE_PARAMETER_BOUND
+            // case 0x12: // METHOD_TYPE_PARAMETER_BOUND
+            // case 0x17: // THROWS
+            // case 0x42: // EXCEPTION_PARAMETER
+            // case 0x43: // INSTANCEOF
+            // case 0x44: // NEW
+            // case 0x45: // CONSTRUCTOR_REFERENCE
+            // case 0x46: // METHOD_REFERENCE
+            default:
+                out.put12(typeRef >>> 24, (typeRef & 0xFFFF00) >> 8);
+                break;
         }
         if (typePath == null) {
             out.putByte(0);

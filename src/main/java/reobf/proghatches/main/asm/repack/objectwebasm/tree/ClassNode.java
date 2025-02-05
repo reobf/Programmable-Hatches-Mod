@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -189,7 +189,7 @@ public class ClassNode extends ClassVisitor {
      * version.
      * 
      * @throws IllegalStateException
-     *             If a subclass calls this constructor.
+     *                               If a subclass calls this constructor.
      */
     public ClassNode() {
         this(Opcodes.ASM5);
@@ -218,9 +218,8 @@ public class ClassNode extends ClassVisitor {
     // ------------------------------------------------------------------------
 
     @Override
-    public void visit(final int version, final int access, final String name,
-            final String signature, final String superName,
-            final String[] interfaces) {
+    public void visit(final int version, final int access, final String name, final String signature,
+        final String superName, final String[] interfaces) {
         this.version = version;
         this.access = access;
         this.name = name;
@@ -238,16 +237,14 @@ public class ClassNode extends ClassVisitor {
     }
 
     @Override
-    public void visitOuterClass(final String owner, final String name,
-            final String desc) {
+    public void visitOuterClass(final String owner, final String name, final String desc) {
         outerClass = owner;
         outerMethod = name;
         outerMethodDesc = desc;
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String desc,
-            final boolean visible) {
+    public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
         AnnotationNode an = new AnnotationNode(desc);
         if (visible) {
             if (visibleAnnotations == null) {
@@ -264,8 +261,7 @@ public class ClassNode extends ClassVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
         TypeAnnotationNode an = new TypeAnnotationNode(typeRef, typePath, desc);
         if (visible) {
             if (visibleTypeAnnotations == null) {
@@ -290,33 +286,29 @@ public class ClassNode extends ClassVisitor {
     }
 
     @Override
-    public void visitInnerClass(final String name, final String outerName,
-            final String innerName, final int access) {
-        InnerClassNode icn = new InnerClassNode(name, outerName, innerName,
-                access);
+    public void visitInnerClass(final String name, final String outerName, final String innerName, final int access) {
+        InnerClassNode icn = new InnerClassNode(name, outerName, innerName, access);
         innerClasses.add(icn);
     }
 
     @Override
-    public FieldVisitor visitField(final int access, final String name,
-            final String desc, final String signature, final Object value) {
+    public FieldVisitor visitField(final int access, final String name, final String desc, final String signature,
+        final Object value) {
         FieldNode fn = new FieldNode(access, name, desc, signature, value);
         fields.add(fn);
         return fn;
     }
 
     @Override
-    public MethodVisitor visitMethod(final int access, final String name,
-            final String desc, final String signature, final String[] exceptions) {
-        MethodNode mn = new MethodNode(access, name, desc, signature,
-                exceptions);
+    public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature,
+        final String[] exceptions) {
+        MethodNode mn = new MethodNode(access, name, desc, signature, exceptions);
         methods.add(mn);
         return mn;
     }
 
     @Override
-    public void visitEnd() {
-    }
+    public void visitEnd() {}
 
     // ------------------------------------------------------------------------
     // Accept method
@@ -334,12 +326,10 @@ public class ClassNode extends ClassVisitor {
      */
     public void check(final int api) {
         if (api == Opcodes.ASM4) {
-            if (visibleTypeAnnotations != null
-                    && visibleTypeAnnotations.size() > 0) {
+            if (visibleTypeAnnotations != null && visibleTypeAnnotations.size() > 0) {
                 throw new RuntimeException();
             }
-            if (invisibleTypeAnnotations != null
-                    && invisibleTypeAnnotations.size() > 0) {
+            if (invisibleTypeAnnotations != null && invisibleTypeAnnotations.size() > 0) {
                 throw new RuntimeException();
             }
             for (FieldNode f : fields) {
@@ -355,7 +345,7 @@ public class ClassNode extends ClassVisitor {
      * Makes the given class visitor visit this class.
      * 
      * @param cv
-     *            a class visitor.
+     *           a class visitor.
      */
     public void accept(final ClassVisitor cv) {
         // visits header
@@ -385,15 +375,12 @@ public class ClassNode extends ClassVisitor {
         n = visibleTypeAnnotations == null ? 0 : visibleTypeAnnotations.size();
         for (i = 0; i < n; ++i) {
             TypeAnnotationNode an = visibleTypeAnnotations.get(i);
-            an.accept(cv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc,
-                    true));
+            an.accept(cv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc, true));
         }
-        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations
-                .size();
+        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations.size();
         for (i = 0; i < n; ++i) {
             TypeAnnotationNode an = invisibleTypeAnnotations.get(i);
-            an.accept(cv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc,
-                    false));
+            an.accept(cv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc, false));
         }
         n = attrs == null ? 0 : attrs.size();
         for (i = 0; i < n; ++i) {
@@ -401,15 +388,18 @@ public class ClassNode extends ClassVisitor {
         }
         // visits inner classes
         for (i = 0; i < innerClasses.size(); ++i) {
-            innerClasses.get(i).accept(cv);
+            innerClasses.get(i)
+                .accept(cv);
         }
         // visits fields
         for (i = 0; i < fields.size(); ++i) {
-            fields.get(i).accept(cv);
+            fields.get(i)
+                .accept(cv);
         }
         // visits methods
         for (i = 0; i < methods.size(); ++i) {
-            methods.get(i).accept(cv);
+            methods.get(i)
+                .accept(cv);
         }
         // visits end
         cv.visitEnd();

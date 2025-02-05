@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -80,14 +80,13 @@ public class SimpleVerifier extends BasicVerifier {
      * class will not be loaded into the JVM since it may be incorrect.
      * 
      * @param currentClass
-     *            the class that is verified.
+     *                          the class that is verified.
      * @param currentSuperClass
-     *            the super class of the class that is verified.
+     *                          the super class of the class that is verified.
      * @param isInterface
-     *            if the class that is verified is an interface.
+     *                          if the class that is verified is an interface.
      */
-    public SimpleVerifier(final Type currentClass,
-            final Type currentSuperClass, final boolean isInterface) {
+    public SimpleVerifier(final Type currentClass, final Type currentSuperClass, final boolean isInterface) {
         this(currentClass, currentSuperClass, null, isInterface);
     }
 
@@ -96,24 +95,21 @@ public class SimpleVerifier extends BasicVerifier {
      * class will not be loaded into the JVM since it may be incorrect.
      * 
      * @param currentClass
-     *            the class that is verified.
+     *                               the class that is verified.
      * @param currentSuperClass
-     *            the super class of the class that is verified.
+     *                               the super class of the class that is verified.
      * @param currentClassInterfaces
-     *            the interfaces implemented by the class that is verified.
+     *                               the interfaces implemented by the class that is verified.
      * @param isInterface
-     *            if the class that is verified is an interface.
+     *                               if the class that is verified is an interface.
      */
-    public SimpleVerifier(final Type currentClass,
-            final Type currentSuperClass,
-            final List<Type> currentClassInterfaces, final boolean isInterface) {
-        this(ASM5, currentClass, currentSuperClass, currentClassInterfaces,
-                isInterface);
+    public SimpleVerifier(final Type currentClass, final Type currentSuperClass,
+        final List<Type> currentClassInterfaces, final boolean isInterface) {
+        this(ASM5, currentClass, currentSuperClass, currentClassInterfaces, isInterface);
     }
 
-    protected SimpleVerifier(final int api, final Type currentClass,
-            final Type currentSuperClass,
-            final List<Type> currentClassInterfaces, final boolean isInterface) {
+    protected SimpleVerifier(final int api, final Type currentClass, final Type currentSuperClass,
+        final List<Type> currentClassInterfaces, final boolean isInterface) {
         super(api);
         this.currentClass = currentClass;
         this.currentSuperClass = currentSuperClass;
@@ -127,7 +123,7 @@ public class SimpleVerifier extends BasicVerifier {
      * classes.
      * 
      * @param loader
-     *            a <code>ClassLoader</code> to use
+     *               a <code>ClassLoader</code> to use
      */
     public void setClassLoader(final ClassLoader loader) {
         this.loader = loader;
@@ -141,12 +137,13 @@ public class SimpleVerifier extends BasicVerifier {
 
         boolean isArray = type.getSort() == Type.ARRAY;
         if (isArray) {
-            switch (type.getElementType().getSort()) {
-            case Type.BOOLEAN:
-            case Type.CHAR:
-            case Type.BYTE:
-            case Type.SHORT:
-                return new BasicValue(type);
+            switch (type.getElementType()
+                .getSort()) {
+                case Type.BOOLEAN:
+                case Type.CHAR:
+                case Type.BYTE:
+                case Type.SHORT:
+                    return new BasicValue(type);
             }
         }
 
@@ -154,7 +151,8 @@ public class SimpleVerifier extends BasicVerifier {
         if (BasicValue.REFERENCE_VALUE.equals(v)) {
             if (isArray) {
                 v = newValue(type.getElementType());
-                String desc = v.getType().getDescriptor();
+                String desc = v.getType()
+                    .getDescriptor();
                 for (int i = 0; i < type.getDimensions(); ++i) {
                     desc = '[' + desc;
                 }
@@ -169,18 +167,18 @@ public class SimpleVerifier extends BasicVerifier {
     @Override
     protected boolean isArrayValue(final BasicValue value) {
         Type t = value.getType();
-        return t != null
-                && ("Lnull;".equals(t.getDescriptor()) || t.getSort() == Type.ARRAY);
+        return t != null && ("Lnull;".equals(t.getDescriptor()) || t.getSort() == Type.ARRAY);
     }
 
     @Override
-    protected BasicValue getElementValue(final BasicValue objectArrayValue)
-            throws AnalyzerException {
+    protected BasicValue getElementValue(final BasicValue objectArrayValue) throws AnalyzerException {
         Type arrayType = objectArrayValue.getType();
         if (arrayType != null) {
             if (arrayType.getSort() == Type.ARRAY) {
-                return newValue(Type.getType(arrayType.getDescriptor()
-                        .substring(1)));
+                return newValue(
+                    Type.getType(
+                        arrayType.getDescriptor()
+                            .substring(1)));
             } else if ("Lnull;".equals(arrayType.getDescriptor())) {
                 return objectArrayValue;
             }
@@ -189,28 +187,26 @@ public class SimpleVerifier extends BasicVerifier {
     }
 
     @Override
-    protected boolean isSubTypeOf(final BasicValue value,
-            final BasicValue expected) {
+    protected boolean isSubTypeOf(final BasicValue value, final BasicValue expected) {
         Type expectedType = expected.getType();
         Type type = value.getType();
         switch (expectedType.getSort()) {
-        case Type.INT:
-        case Type.FLOAT:
-        case Type.LONG:
-        case Type.DOUBLE:
-            return type.equals(expectedType);
-        case Type.ARRAY:
-        case Type.OBJECT:
-            if ("Lnull;".equals(type.getDescriptor())) {
-                return true;
-            } else if (type.getSort() == Type.OBJECT
-                    || type.getSort() == Type.ARRAY) {
-                return isAssignableFrom(expectedType, type);
-            } else {
-                return false;
-            }
-        default:
-            throw new Error("Internal error");
+            case Type.INT:
+            case Type.FLOAT:
+            case Type.LONG:
+            case Type.DOUBLE:
+                return type.equals(expectedType);
+            case Type.ARRAY:
+            case Type.OBJECT:
+                if ("Lnull;".equals(type.getDescriptor())) {
+                    return true;
+                } else if (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY) {
+                    return isAssignableFrom(expectedType, type);
+                } else {
+                    return false;
+                }
+            default:
+                throw new Error("Internal error");
         }
     }
 
@@ -219,10 +215,8 @@ public class SimpleVerifier extends BasicVerifier {
         if (!v.equals(w)) {
             Type t = v.getType();
             Type u = w.getType();
-            if (t != null
-                    && (t.getSort() == Type.OBJECT || t.getSort() == Type.ARRAY)) {
-                if (u != null
-                        && (u.getSort() == Type.OBJECT || u.getSort() == Type.ARRAY)) {
+            if (t != null && (t.getSort() == Type.OBJECT || t.getSort() == Type.ARRAY)) {
+                if (u != null && (u.getSort() == Type.OBJECT || u.getSort() == Type.ARRAY)) {
                     if ("Lnull;".equals(t.getDescriptor())) {
                         return w;
                     }
@@ -279,8 +273,7 @@ public class SimpleVerifier extends BasicVerifier {
                 return false;
             } else {
                 if (isInterface) {
-                    return u.getSort() == Type.OBJECT
-                            || u.getSort() == Type.ARRAY;
+                    return u.getSort() == Type.OBJECT || u.getSort() == Type.ARRAY;
                 }
                 return isAssignableFrom(t, getSuperClass(u));
             }
@@ -309,8 +302,11 @@ public class SimpleVerifier extends BasicVerifier {
     protected Class<?> getClass(final Type t) {
         try {
             if (t.getSort() == Type.ARRAY) {
-                return Class.forName(t.getDescriptor().replace('/', '.'),
-                        false, loader);
+                return Class.forName(
+                    t.getDescriptor()
+                        .replace('/', '.'),
+                    false,
+                    loader);
             }
             return Class.forName(t.getClassName(), false, loader);
         } catch (ClassNotFoundException e) {

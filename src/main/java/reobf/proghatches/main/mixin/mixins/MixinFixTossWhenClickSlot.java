@@ -9,28 +9,27 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.gtnewhorizons.modularui.common.internal.wrapper.ModularGui;
 
-
 @Mixin(value = GuiContainer.class, remap = true)
 public abstract class MixinFixTossWhenClickSlot {
 
-	@ModifyVariable(method = "mouseClicked", at = @At(value = "FIELD", opcode = Opcodes.GETFIELD, target = "Lnet/minecraft/inventory/Slot;slotNumber:I"), ordinal = 1)
-	protected boolean mouseClicked(boolean c) {
+    @ModifyVariable(
+        method = "mouseClicked",
+        at = @At(value = "FIELD", opcode = Opcodes.GETFIELD, target = "Lnet/minecraft/inventory/Slot;slotNumber:I"),
+        ordinal = 1)
+    protected boolean mouseClicked(boolean c) {
 
-		if (((Object) this) instanceof ModularGui)
-			return false;// only applies to ModularUI
+        if (((Object) this) instanceof ModularGui) return false;// only applies to ModularUI
 
-		return c;
-	}
-//spotless:off
-/*
-GuiContainer.java
-
-boolean flag1 = mouseX < i1 || mouseY < j1 || mouseX >= i1 + this.xSize || mouseY >= j1 + this.ySize;
-if (slot != null) {
-flag1 = this.localvar$zzg000$programmablehatches$mouseClicked(flag1);<-----------inject here
-k1 = slot.slotNumber;
-}
-
-*/
+        return c;
+    }
+    // spotless:off
+    /*
+     * GuiContainer.java
+     * boolean flag1 = mouseX < i1 || mouseY < j1 || mouseX >= i1 + this.xSize || mouseY >= j1 + this.ySize;
+     * if (slot != null) {
+     * flag1 = this.localvar$zzg000$programmablehatches$mouseClicked(flag1);<-----------inject here
+     * k1 = slot.slotNumber;
+     * }
+     */
 
 }

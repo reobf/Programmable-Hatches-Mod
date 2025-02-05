@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-//spotless:off
+// spotless:off
 public class SimpleParser {
 
     static enum OPType {
@@ -812,7 +812,5 @@ public class SimpleParser {
             return this;
         }
     }
-
-  
 
 }

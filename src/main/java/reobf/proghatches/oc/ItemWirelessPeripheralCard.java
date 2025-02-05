@@ -5,6 +5,13 @@ import static reobf.proghatches.oc.WirelessPeripheralManager.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.SoundResource;
@@ -14,204 +21,209 @@ import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
 import reobf.proghatches.lang.LangManager;
 
 public class ItemWirelessPeripheralCard extends Item implements li.cil.oc.api.driver.item.HostAware {
 
-	@Override
-	public boolean worksWith(ItemStack stack) {
+    @Override
+    public boolean worksWith(ItemStack stack) {
 
-		return stack.getItem() == this;
-	}
+        return stack.getItem() == this;
+    }
 
-	@Override
-	public ManagedEnvironment createEnvironment(ItemStack stack, EnvironmentHost host) {
+    @Override
+    public ManagedEnvironment createEnvironment(ItemStack stack, EnvironmentHost host) {
 
-		return new Env(stack, host);
-	}
+        return new Env(stack, host);
+    }
 
-	public class Env implements ManagedEnvironment {
-		private ItemStack stack;
+    public class Env implements ManagedEnvironment {
 
-		public Env(ItemStack stack, EnvironmentHost host) {
-			this.host = host;
-			this.stack = stack;
-		}
+        private ItemStack stack;
 
-		public EnvironmentHost host;
-		private Node node = li.cil.oc.api.Network.newNode(this, Visibility.Network).withConnector().create();
+        public Env(ItemStack stack, EnvironmentHost host) {
+            this.host = host;
+            this.stack = stack;
+        }
 
-		@Override
-		public void load(NBTTagCompound nbt) {
-			Optional.ofNullable(nbt.getTag("node")).ifPresent(s -> {
-				if (node() != null)
-					node().load((NBTTagCompound) s);
-			});
+        public EnvironmentHost host;
+        private Node node = li.cil.oc.api.Network.newNode(this, Visibility.Network)
+            .withConnector()
+            .create();
 
-		}
+        @Override
+        public void load(NBTTagCompound nbt) {
+            Optional.ofNullable(nbt.getTag("node"))
+                .ifPresent(s -> { if (node() != null) node().load((NBTTagCompound) s); });
 
-		@Override
-		public void save(NBTTagCompound nbt) {
-			NBTTagCompound t = new NBTTagCompound();
-			Optional.ofNullable(node()).ifPresent(s -> s.save(t));
-			nbt.setTag("node", t);
-		}
+        }
 
-		@Override
-		public void onMessage(Message message) {
+        @Override
+        public void save(NBTTagCompound nbt) {
+            NBTTagCompound t = new NBTTagCompound();
+            Optional.ofNullable(node())
+                .ifPresent(s -> s.save(t));
+            nbt.setTag("node", t);
+        }
 
-		}
+        @Override
+        public void onMessage(Message message) {
 
-		public void createTagIfAbsent() {
-			if (stack.getTagCompound() == null)
-				stack.setTagCompound(new NBTTagCompound());
-		}
+        }
 
-		public UUID getUUID() {
-			createTagIfAbsent();
-			return UUID.fromString(stack.getTagCompound().getString("remoteUUID"));
-		}
+        public void createTagIfAbsent() {
+            if (stack.getTagCompound() == null) stack.setTagCompound(new NBTTagCompound());
+        }
 
-		public void markBad() {
-			createTagIfAbsent();
-			stack.getTagCompound().setBoolean("isBad", true);
-		}
+        public UUID getUUID() {
+            createTagIfAbsent();
+            return UUID.fromString(
+                stack.getTagCompound()
+                    .getString("remoteUUID"));
+        }
 
-		public boolean isBad() {
-			createTagIfAbsent();
-			return stack.getTagCompound().getBoolean("isBad");
-		}
+        public void markBad() {
+            createTagIfAbsent();
+            stack.getTagCompound()
+                .setBoolean("isBad", true);
+        }
 
-		public boolean isValid() {
+        public boolean isBad() {
+            createTagIfAbsent();
+            return stack.getTagCompound()
+                .getBoolean("isBad");
+        }
 
-			return (!isBad()) && Optional.ofNullable(stack.getTagCompound())
-					.map(s -> !s.getString("remoteUUID").isEmpty()).orElse(false);
-		}
+        public boolean isValid() {
 
-		@Override
-		public void onDisconnect(Node node) {
-			if (!isValid())
-				return;
-			if (node == this.node) {// this means the card is removed
-				WirelessPeripheralManager.remove(cards, getUUID());
-			} else {// otherwise means another component is removed, just ignore
-			}
+            return (!isBad()) && Optional.ofNullable(stack.getTagCompound())
+                .map(
+                    s -> !s.getString("remoteUUID")
+                        .isEmpty())
+                .orElse(false);
+        }
 
-		}
+        @Override
+        public void onDisconnect(Node node) {
+            if (!isValid()) return;
+            if (node == this.node) {// this means the card is removed
+                WirelessPeripheralManager.remove(cards, getUUID());
+            } else {// otherwise means another component is removed, just ignore
+            }
 
-		@Override
-		public void onConnect(Node node) {
-			if (!isValid())
-				return;
+        }
 
-			if (WirelessPeripheralManager.cards.containsKey(getUUID())
-					&& WirelessPeripheralManager.cards.get(getUUID()) != this.node) {
-				// channel in use, disable it
-				markBad();
-				return;
-			}
-			if (this.node != null) {
-				// TODO: check if node is a Computer Case?
-				WirelessPeripheralManager.add(cards, getUUID(), this.node);
-			}
-		}
+        @Override
+        public void onConnect(Node node) {
+            if (!isValid()) return;
 
-		@Override
-		public Node node() {
+            if (WirelessPeripheralManager.cards.containsKey(getUUID())
+                && WirelessPeripheralManager.cards.get(getUUID()) != this.node) {
+                // channel in use, disable it
+                markBad();
+                return;
+            }
+            if (this.node != null) {
+                // TODO: check if node is a Computer Case?
+                WirelessPeripheralManager.add(cards, getUUID(), this.node);
+            }
+        }
 
-			return node;
-		}
+        @Override
+        public Node node() {
 
-		boolean init;
+            return node;
+        }
 
-		@Override
-		public void update() {
+        boolean init;
 
-			if (!init) {
-				init = true;
-				if (isValid() && node != null) {
-					WirelessPeripheralManager.cards.put(this.getUUID(), node);
-				}
-			}
-		}
+        @Override
+        public void update() {
 
-		@Override
-		public boolean canUpdate() {
+            if (!init) {
+                init = true;
+                if (isValid() && node != null) {
+                    WirelessPeripheralManager.cards.put(this.getUUID(), node);
+                }
+            }
+        }
 
-			return true;
-		}
-	};
+        @Override
+        public boolean canUpdate() {
 
-	@Override
-	public String slot(ItemStack stack) {
+            return true;
+        }
+    };
 
-		return li.cil.oc.common.Slot.Card();
-	}
+    @Override
+    public String slot(ItemStack stack) {
 
-	@Override
-	public int tier(ItemStack stack) {
+        return li.cil.oc.common.Slot.Card();
+    }
 
-		return 1;
-	}
+    @Override
+    public int tier(ItemStack stack) {
 
-	@Override
-	public NBTTagCompound dataTag(ItemStack stack) {
+        return 1;
+    }
 
-		return null;
-	}
+    @Override
+    public NBTTagCompound dataTag(ItemStack stack) {
 
-	@Override
-	public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player) {
+        return null;
+    }
 
-		if (player.isSneaking()) {
-			GTUtility.doSoundAtClient(SoundResource.IC2_TOOLS_OD_SCANNER, 1, 1.0F, player.posX, player.posY,
-					player.posZ);
+    @Override
+    public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player) {
 
-			itemStackIn.setTagCompound(null);
-		}
-		return super.onItemRightClick(itemStackIn, worldIn, player);
-	}
+        if (player.isSneaking()) {
+            GTUtility
+                .doSoundAtClient(SoundResource.IC2_TOOLS_OD_SCANNER, 1, 1.0F, player.posX, player.posY, player.posZ);
 
-	@SuppressWarnings("unchecked")
-	@SideOnly(value = Side.CLIENT)
-	@Override
-	public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
+            itemStackIn.setTagCompound(null);
+        }
+        return super.onItemRightClick(itemStackIn, worldIn, player);
+    }
 
-		int i = 0;
-		while (true) {
-			String k = "item.proghatches.oc.peripheral_card.tooltip";
-			if (LangManager.translateToLocal(k).equals(Integer.valueOf(i).toString())) {
-				break;
-			}
-			String key = k + "." + i;
-			String trans = LangManager.translateToLocal(key);
+    @SuppressWarnings("unchecked")
+    @SideOnly(value = Side.CLIENT)
+    @Override
+    public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
 
-			p_77624_3_.add(trans);
-			i++;
-		}
+        int i = 0;
+        while (true) {
+            String k = "item.proghatches.oc.peripheral_card.tooltip";
+            if (LangManager.translateToLocal(k)
+                .equals(
+                    Integer.valueOf(i)
+                        .toString())) {
+                break;
+            }
+            String key = k + "." + i;
+            String trans = LangManager.translateToLocal(key);
 
-		NBTTagCompound tag = p_77624_1_.getTagCompound();
-		if (tag == null) {
-			p_77624_3_.add(LangManager.translateToLocal("item.proghatches.oc.peripheral_card.tooltip.unbound"));
-		} else {
-			if (tag.getBoolean("isBad")) {
-				p_77624_3_.add(LangManager.translateToLocal("item.proghatches.oc.peripheral_card.tooltip.bad"));
-			} else
-				p_77624_3_.add(LangManager.translateToLocalFormatted(
-						"item.proghatches.oc.peripheral_card.tooltip.valid", tag.getString("remoteUUID")));
-		}
+            p_77624_3_.add(trans);
+            i++;
+        }
 
-		super.addInformation(p_77624_1_, p_77624_2_, p_77624_3_, p_77624_4_);
-	}
+        NBTTagCompound tag = p_77624_1_.getTagCompound();
+        if (tag == null) {
+            p_77624_3_.add(LangManager.translateToLocal("item.proghatches.oc.peripheral_card.tooltip.unbound"));
+        } else {
+            if (tag.getBoolean("isBad")) {
+                p_77624_3_.add(LangManager.translateToLocal("item.proghatches.oc.peripheral_card.tooltip.bad"));
+            } else p_77624_3_.add(
+                LangManager.translateToLocalFormatted(
+                    "item.proghatches.oc.peripheral_card.tooltip.valid",
+                    tag.getString("remoteUUID")));
+        }
 
-	@Override
-	public boolean worksWith(ItemStack stack, Class<? extends EnvironmentHost> host) {
+        super.addInformation(p_77624_1_, p_77624_2_, p_77624_3_, p_77624_4_);
+    }
 
-		return stack.getItem() == this;
-	}
+    @Override
+    public boolean worksWith(ItemStack stack, Class<? extends EnvironmentHost> host) {
+
+        return stack.getItem() == this;
+    }
 }

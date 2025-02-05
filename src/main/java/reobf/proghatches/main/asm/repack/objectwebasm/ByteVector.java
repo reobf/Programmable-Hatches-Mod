@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -60,7 +60,7 @@ public class ByteVector {
      * size.
      * 
      * @param initialSize
-     *            the initial size of the byte vector to be constructed.
+     *                    the initial size of the byte vector to be constructed.
      */
     public ByteVector(final int initialSize) {
         data = new byte[initialSize];
@@ -71,7 +71,7 @@ public class ByteVector {
      * enlarged if necessary.
      * 
      * @param b
-     *            a byte.
+     *          a byte.
      * @return this byte vector.
      */
     public ByteVector putByte(final int b) {
@@ -89,9 +89,9 @@ public class ByteVector {
      * enlarged if necessary.
      * 
      * @param b1
-     *            a byte.
+     *           a byte.
      * @param b2
-     *            another byte.
+     *           another byte.
      * @return this byte vector.
      */
     ByteVector put11(final int b1, final int b2) {
@@ -111,7 +111,7 @@ public class ByteVector {
      * enlarged if necessary.
      * 
      * @param s
-     *            a short.
+     *          a short.
      * @return this byte vector.
      */
     public ByteVector putShort(final int s) {
@@ -131,9 +131,9 @@ public class ByteVector {
      * automatically enlarged if necessary.
      * 
      * @param b
-     *            a byte.
+     *          a byte.
      * @param s
-     *            a short.
+     *          a short.
      * @return this byte vector.
      */
     ByteVector put12(final int b, final int s) {
@@ -154,7 +154,7 @@ public class ByteVector {
      * enlarged if necessary.
      * 
      * @param i
-     *            an int.
+     *          an int.
      * @return this byte vector.
      */
     public ByteVector putInt(final int i) {
@@ -176,7 +176,7 @@ public class ByteVector {
      * enlarged if necessary.
      * 
      * @param l
-     *            a long.
+     *          a long.
      * @return this byte vector.
      */
     public ByteVector putLong(final long l) {
@@ -204,7 +204,7 @@ public class ByteVector {
      * automatically enlarged if necessary.
      * 
      * @param s
-     *            a String whose UTF8 encoded length must be less than 65536.
+     *          a String whose UTF8 encoded length must be less than 65536.
      * @return this byte vector.
      */
     public ByteVector putUTF8(final String s) {
@@ -245,14 +245,14 @@ public class ByteVector {
      * this.length - i - 2 >= 0).
      * 
      * @param s
-     *            the String to encode.
+     *                      the String to encode.
      * @param i
-     *            the index of the first character to encode. The previous
-     *            characters are supposed to have already been encoded, using
-     *            only one byte per character.
+     *                      the index of the first character to encode. The previous
+     *                      characters are supposed to have already been encoded, using
+     *                      only one byte per character.
      * @param maxByteLength
-     *            the maximum byte length of the encoded string, including the
-     *            already encoded characters.
+     *                      the maximum byte length of the encoded string, including the
+     *                      already encoded characters.
      * @return this byte vector.
      */
     ByteVector encodeUTF8(final String s, int i, int maxByteLength) {
@@ -274,8 +274,8 @@ public class ByteVector {
         }
         int start = length - i - 2;
         if (start >= 0) {
-          data[start] = (byte) (byteLength >>> 8);
-          data[start + 1] = (byte) byteLength;
+            data[start] = (byte) (byteLength >>> 8);
+            data[start + 1] = (byte) byteLength;
         }
         if (length + byteLength - i > data.length) {
             enlarge(byteLength - i);
@@ -326,8 +326,8 @@ public class ByteVector {
      * Enlarge this byte vector so that it can receive n more bytes.
      * 
      * @param size
-     *            number of additional bytes that this byte vector should be
-     *            able to receive.
+     *             number of additional bytes that this byte vector should be
+     *             able to receive.
      */
     private void enlarge(final int size) {
         int length1 = 2 * data.length;

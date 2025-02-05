@@ -1,13 +1,11 @@
 package reobf.proghatches.gt.metatileentity.util;
 
-import appeng.api.networking.crafting.ICraftingPatternDetails;
-import appeng.me.cluster.implementations.CraftingCPUCluster;
 import net.minecraft.inventory.InventoryCrafting;
 
+import appeng.api.networking.crafting.ICraftingPatternDetails;
+
 public interface IMultiplePatternPushable {
-	public int pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table
-			,int maxTodo);
-			
-			
-			
+
+    public int pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo);
+
 }

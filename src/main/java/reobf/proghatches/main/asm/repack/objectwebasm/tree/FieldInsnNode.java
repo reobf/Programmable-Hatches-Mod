@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -61,19 +61,18 @@ public class FieldInsnNode extends AbstractInsnNode {
      * Constructs a new {@link FieldInsnNode}.
      * 
      * @param opcode
-     *            the opcode of the type instruction to be constructed. This
-     *            opcode must be GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
+     *               the opcode of the type instruction to be constructed. This
+     *               opcode must be GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
      * @param owner
-     *            the internal name of the field's owner class (see
-     *            {@link reobf.proghatches.main.asm.repack.objectwebasm.Type#getInternalName()
-     *            getInternalName}).
+     *               the internal name of the field's owner class (see
+     *               {@link reobf.proghatches.main.asm.repack.objectwebasm.Type#getInternalName()
+     *               getInternalName}).
      * @param name
-     *            the field's name.
+     *               the field's name.
      * @param desc
-     *            the field's descriptor (see {@link reobf.proghatches.main.asm.repack.objectwebasm.Type}).
+     *               the field's descriptor (see {@link reobf.proghatches.main.asm.repack.objectwebasm.Type}).
      */
-    public FieldInsnNode(final int opcode, final String owner,
-            final String name, final String desc) {
+    public FieldInsnNode(final int opcode, final String owner, final String name, final String desc) {
         super(opcode);
         this.owner = owner;
         this.name = name;
@@ -84,8 +83,8 @@ public class FieldInsnNode extends AbstractInsnNode {
      * Sets the opcode of this instruction.
      * 
      * @param opcode
-     *            the new instruction opcode. This opcode must be GETSTATIC,
-     *            PUTSTATIC, GETFIELD or PUTFIELD.
+     *               the new instruction opcode. This opcode must be GETSTATIC,
+     *               PUTSTATIC, GETFIELD or PUTFIELD.
      */
     public void setOpcode(final int opcode) {
         this.opcode = opcode;
@@ -104,7 +103,6 @@ public class FieldInsnNode extends AbstractInsnNode {
 
     @Override
     public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
-        return new FieldInsnNode(opcode, owner, name, desc)
-                .cloneAnnotations(this);
+        return new FieldInsnNode(opcode, owner, name, desc).cloneAnnotations(this);
     }
 }

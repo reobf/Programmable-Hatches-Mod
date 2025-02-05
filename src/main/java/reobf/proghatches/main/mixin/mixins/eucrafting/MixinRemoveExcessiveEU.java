@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -28,153 +29,156 @@ import reobf.proghatches.util.ProghatchesUtil;
 @Mixin(CraftingJobV2.class)
 public class MixinRemoveExcessiveEU {
 
-	private static Field f;
-	static {
+    private static Field f;
+    static {
 
-		try {
-			f = CraftingCPUCluster.class.getDeclaredField("tasks");
-			f.setAccessible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        try {
+            f = CraftingCPUCluster.class.getDeclaredField("tasks");
+            f.setAccessible(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-	}
-	private boolean removeAll = true;
+    }
+    private boolean removeAll = true;
 
-	@Inject(method = "startCrafting", at = { @At("RETURN") }, remap = false)
-	public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, BaseActionSource src,
-			CallbackInfo c) {
-		CraftingCPUCluster cluster = (CraftingCPUCluster) rawCluster;
-		try{
-		
-		if (removeAll) {
-			try {
-				@SuppressWarnings("unchecked")
-				Map<ICraftingPatternDetails, Object> tasks = (Map<ICraftingPatternDetails, Object>) f.get(cluster);
+    @Inject(method = "startCrafting", at = { @At("RETURN") }, remap = false)
+    public void startCrafting(MECraftingInventory storage, ICraftingCPU rawCluster, BaseActionSource src,
+        CallbackInfo c) {
+        CraftingCPUCluster cluster = (CraftingCPUCluster) rawCluster;
+        try {
 
-				tasks.forEach((a, b) -> {
+            if (removeAll) {
+                try {
+                    @SuppressWarnings("unchecked")
+                    Map<ICraftingPatternDetails, Object> tasks = (Map<ICraftingPatternDetails, Object>) f.get(cluster);
 
-					if (a instanceof CircuitProviderPatternDetial) {
-						CircuitProviderPatternDetial w = (CircuitProviderPatternDetial) a;
-						Optional.ofNullable(w).map(s->s.out).ifPresent(x->{
-						
-						if (w.out.getItem() == MyMod.eu_token) {
-							MyMod.LOG.info("Removing EU Source Pattern Request: " + x+x.getTagCompound());
-							MixinCallback.setter.accept(b, 0l);
-						}
-						});
-						
-					}
-					if (a instanceof SISOPatternDetail) {
-						SISOPatternDetail w = (SISOPatternDetail) a;
-						Optional.ofNullable(w).map(s->s.out).ifPresent(x->{
-						if (w.in.getItem() == MyMod.eu_token && w.out.getItem() == MyMod.eu_token) {
-							MyMod.LOG.info("Removing EU Interface Binding Pattern Request: " + x+x.getTagCompound());
-							MixinCallback.setter.accept(b, 0l);
-						}
-						});
-						
-					}
+                    tasks.forEach((a, b) -> {
 
-				});
+                        if (a instanceof CircuitProviderPatternDetial) {
+                            CircuitProviderPatternDetial w = (CircuitProviderPatternDetial) a;
+                            Optional.ofNullable(w)
+                                .map(s -> s.out)
+                                .ifPresent(x -> {
 
-				return;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		}catch(Exception e){
-			MyMod.LOG.error("caught error in mixin",e);
-			//e.printStackTrace();
-		}
-		
-		if(removeAll){return;}
-		
-		
-		
-		try {
-			@SuppressWarnings("unchecked")
-			Map<ICraftingPatternDetails, Object> tasks = (Map<ICraftingPatternDetails, Object>) f.get(cluster);
-			Map<UUID, Long> num = new HashMap<>();
+                                    if (w.out.getItem() == MyMod.eu_token) {
+                                        MyMod.LOG.info("Removing EU Source Pattern Request: " + x + x.getTagCompound());
+                                        MixinCallback.setter.accept(b, 0l);
+                                    }
+                                });
 
-			tasks.forEach((a, b) -> {
-				if (a instanceof WrappedPatternDetail) {
-					WrappedPatternDetail pattern = (WrappedPatternDetail) a;
-					UUID id = ProghatchesUtil.deser(pattern.extraIn0.getTagCompound(), "EUFI");
-					num.put(id, pattern.extraIn.getStackSize());
-				}
-			});
+                        }
+                        if (a instanceof SISOPatternDetail) {
+                            SISOPatternDetail w = (SISOPatternDetail) a;
+                            Optional.ofNullable(w)
+                                .map(s -> s.out)
+                                .ifPresent(x -> {
+                                    if (w.in.getItem() == MyMod.eu_token && w.out.getItem() == MyMod.eu_token) {
+                                        MyMod.LOG.info(
+                                            "Removing EU Interface Binding Pattern Request: " + x + x.getTagCompound());
+                                        MixinCallback.setter.accept(b, 0l);
+                                    }
+                                });
 
-			Map<SISOPatternDetail, Long> tokill = new HashMap<>();
-			tasks.entrySet().forEach((d) -> {
-				if (d.getKey() instanceof SISOPatternDetail == false)
-					return;
-				UUID id = ProghatchesUtil.deser(((SISOPatternDetail) d.getKey()).out.getTagCompound(), "EUFI");
-				long need = num.getOrDefault(id, 0l);
-				long actual = MixinCallback.getter.apply(d.getValue());
-				long excessive = actual - need;
-				if (excessive <= 0)
-					return;
-				tokill.merge((SISOPatternDetail) d.getKey(), excessive, Long::sum);
-				return;
-			});
+                        }
 
-			// System.out.println(tokill);
-			HashMap<IAEItemStack, Long> killnum = new HashMap();
-			tokill.forEach((a, b) -> {
-				tasks.computeIfPresent(a,
+                    });
 
-						(x, y) -> {
-							MyMod.LOG.info("Removing Excessive EU Request:" + b);
-							// MixinCallback.setter.accept(y,MixinCallback.getter.apply(y)-b);
-							MixinCallback.setter.accept(y, 0l);
-							// killnum[0]+=b;
+                    return;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+            MyMod.LOG.error("caught error in mixin", e);
+            // e.printStackTrace();
+        }
 
-							IAEItemStack is = a.i[0].copy().setStackSize(1);
+        if (removeAll) {
+            return;
+        }
 
-							killnum.merge(is, a.i[0].getStackSize() * b, Long::sum);
+        try {
+            @SuppressWarnings("unchecked")
+            Map<ICraftingPatternDetails, Object> tasks = (Map<ICraftingPatternDetails, Object>) f.get(cluster);
+            Map<UUID, Long> num = new HashMap<>();
 
-							return y;
-						});
+            tasks.forEach((a, b) -> {
+                if (a instanceof WrappedPatternDetail) {
+                    WrappedPatternDetail pattern = (WrappedPatternDetail) a;
+                    UUID id = ProghatchesUtil.deser(pattern.extraIn0.getTagCompound(), "EUFI");
+                    num.put(id, pattern.extraIn.getStackSize());
+                }
+            });
 
-			});
-			// System.out.println(killnum);
-			// HashSet<> =
-			// tokill.keySet().stream().map(S->S.i[0]).collect(Collectors.toCollection(HashSet::new));
-			tasks.forEach((a, b) -> {
+            Map<SISOPatternDetail, Long> tokill = new HashMap<>();
+            tasks.entrySet()
+                .forEach((d) -> {
+                    if (d.getKey() instanceof SISOPatternDetail == false) return;
+                    UUID id = ProghatchesUtil.deser(((SISOPatternDetail) d.getKey()).out.getTagCompound(), "EUFI");
+                    long need = num.getOrDefault(id, 0l);
+                    long actual = MixinCallback.getter.apply(d.getValue());
+                    long excessive = actual - need;
+                    if (excessive <= 0) return;
+                    tokill.merge((SISOPatternDetail) d.getKey(), excessive, Long::sum);
+                    return;
+                });
 
-				if (a instanceof CircuitProviderPatternDetial) {
-					CircuitProviderPatternDetial w = (CircuitProviderPatternDetial) a;
+            // System.out.println(tokill);
+            HashMap<IAEItemStack, Long> killnum = new HashMap();
+            tokill.forEach((a, b) -> {
+                tasks.computeIfPresent(
+                    a,
 
-					if (killnum.containsKey(AEItemStack.create(w.out))) {
+                    (x, y) -> {
+                        MyMod.LOG.info("Removing Excessive EU Request:" + b);
+                        // MixinCallback.setter.accept(y,MixinCallback.getter.apply(y)-b);
+                        MixinCallback.setter.accept(y, 0l);
+                        // killnum[0]+=b;
 
-						// MixinCallback.setter.accept(b,MixinCallback.getter.apply(b)-killnum.get(AEItemStack.create(w.out)));
-						MixinCallback.setter.accept(b, 0l);
+                        IAEItemStack is = a.i[0].copy()
+                            .setStackSize(1);
 
-					}
+                        killnum.merge(is, a.i[0].getStackSize() * b, Long::sum);
 
-				}
+                        return y;
+                    });
 
-			});
+            });
+            // System.out.println(killnum);
+            // HashSet<> =
+            // tokill.keySet().stream().map(S->S.i[0]).collect(Collectors.toCollection(HashSet::new));
+            tasks.forEach((a, b) -> {
 
-			/*
-			 * tasks.forEach((s,b)->{
-			 * 
-			 * System.out.println(s+" "+MixinCallback.getter.apply(b));
-			 * 
-			 * 
-			 * });
-			 */
+                if (a instanceof CircuitProviderPatternDetial) {
+                    CircuitProviderPatternDetial w = (CircuitProviderPatternDetial) a;
 
-			//
-			// System.out.println(killnum.get(AEItemStack.create(w.out)));
+                    if (killnum.containsKey(AEItemStack.create(w.out))) {
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+                        // MixinCallback.setter.accept(b,MixinCallback.getter.apply(b)-killnum.get(AEItemStack.create(w.out)));
+                        MixinCallback.setter.accept(b, 0l);
 
-		// MixinCallback.getter.apply(cluster);
+                    }
 
-	}
+                }
+
+            });
+
+            /*
+             * tasks.forEach((s,b)->{
+             * System.out.println(s+" "+MixinCallback.getter.apply(b));
+             * });
+             */
+
+            //
+            // System.out.println(killnum.get(AEItemStack.create(w.out)));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // MixinCallback.getter.apply(cluster);
+
+    }
 
 }

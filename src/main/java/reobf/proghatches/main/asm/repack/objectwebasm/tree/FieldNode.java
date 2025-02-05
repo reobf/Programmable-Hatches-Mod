@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -124,26 +124,26 @@ public class FieldNode extends FieldVisitor {
      * {@link #FieldNode(int, int, String, String, String, Object)} version.
      * 
      * @param access
-     *            the field's access flags (see
-     *            {@link reobf.proghatches.main.asm.repack.objectwebasm.Opcodes}). This parameter also
-     *            indicates if the field is synthetic and/or deprecated.
+     *                  the field's access flags (see
+     *                  {@link reobf.proghatches.main.asm.repack.objectwebasm.Opcodes}). This parameter also
+     *                  indicates if the field is synthetic and/or deprecated.
      * @param name
-     *            the field's name.
+     *                  the field's name.
      * @param desc
-     *            the field's descriptor (see {@link reobf.proghatches.main.asm.repack.objectwebasm.Type
-     *            Type}).
+     *                  the field's descriptor (see {@link reobf.proghatches.main.asm.repack.objectwebasm.Type
+     *                  Type}).
      * @param signature
-     *            the field's signature.
+     *                  the field's signature.
      * @param value
-     *            the field's initial value. This parameter, which may be
-     *            <tt>null</tt> if the field does not have an initial value,
-     *            must be an {@link Integer}, a {@link Float}, a {@link Long}, a
-     *            {@link Double} or a {@link String}.
+     *                  the field's initial value. This parameter, which may be
+     *                  <tt>null</tt> if the field does not have an initial value,
+     *                  must be an {@link Integer}, a {@link Float}, a {@link Long}, a
+     *                  {@link Double} or a {@link String}.
      * @throws IllegalStateException
-     *             If a subclass calls this constructor.
+     *                               If a subclass calls this constructor.
      */
-    public FieldNode(final int access, final String name, final String desc,
-            final String signature, final Object value) {
+    public FieldNode(final int access, final String name, final String desc, final String signature,
+        final Object value) {
         this(Opcodes.ASM5, access, name, desc, signature, value);
         if (getClass() != FieldNode.class) {
             throw new IllegalStateException();
@@ -155,27 +155,27 @@ public class FieldNode extends FieldVisitor {
      * constructor</i>.
      * 
      * @param api
-     *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *                  the ASM API version implemented by this visitor. Must be one
+     *                  of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param access
-     *            the field's access flags (see
-     *            {@link reobf.proghatches.main.asm.repack.objectwebasm.Opcodes}). This parameter also
-     *            indicates if the field is synthetic and/or deprecated.
+     *                  the field's access flags (see
+     *                  {@link reobf.proghatches.main.asm.repack.objectwebasm.Opcodes}). This parameter also
+     *                  indicates if the field is synthetic and/or deprecated.
      * @param name
-     *            the field's name.
+     *                  the field's name.
      * @param desc
-     *            the field's descriptor (see {@link reobf.proghatches.main.asm.repack.objectwebasm.Type
-     *            Type}).
+     *                  the field's descriptor (see {@link reobf.proghatches.main.asm.repack.objectwebasm.Type
+     *                  Type}).
      * @param signature
-     *            the field's signature.
+     *                  the field's signature.
      * @param value
-     *            the field's initial value. This parameter, which may be
-     *            <tt>null</tt> if the field does not have an initial value,
-     *            must be an {@link Integer}, a {@link Float}, a {@link Long}, a
-     *            {@link Double} or a {@link String}.
+     *                  the field's initial value. This parameter, which may be
+     *                  <tt>null</tt> if the field does not have an initial value,
+     *                  must be an {@link Integer}, a {@link Float}, a {@link Long}, a
+     *                  {@link Double} or a {@link String}.
      */
-    public FieldNode(final int api, final int access, final String name,
-            final String desc, final String signature, final Object value) {
+    public FieldNode(final int api, final int access, final String name, final String desc, final String signature,
+        final Object value) {
         super(api);
         this.access = access;
         this.name = name;
@@ -189,8 +189,7 @@ public class FieldNode extends FieldVisitor {
     // ------------------------------------------------------------------------
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String desc,
-            final boolean visible) {
+    public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
         AnnotationNode an = new AnnotationNode(desc);
         if (visible) {
             if (visibleAnnotations == null) {
@@ -207,8 +206,7 @@ public class FieldNode extends FieldVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
         TypeAnnotationNode an = new TypeAnnotationNode(typeRef, typePath, desc);
         if (visible) {
             if (visibleTypeAnnotations == null) {
@@ -233,8 +231,7 @@ public class FieldNode extends FieldVisitor {
     }
 
     @Override
-    public void visitEnd() {
-    }
+    public void visitEnd() {}
 
     // ------------------------------------------------------------------------
     // Accept methods
@@ -252,12 +249,10 @@ public class FieldNode extends FieldVisitor {
      */
     public void check(final int api) {
         if (api == Opcodes.ASM4) {
-            if (visibleTypeAnnotations != null
-                    && visibleTypeAnnotations.size() > 0) {
+            if (visibleTypeAnnotations != null && visibleTypeAnnotations.size() > 0) {
                 throw new RuntimeException();
             }
-            if (invisibleTypeAnnotations != null
-                    && invisibleTypeAnnotations.size() > 0) {
+            if (invisibleTypeAnnotations != null && invisibleTypeAnnotations.size() > 0) {
                 throw new RuntimeException();
             }
         }
@@ -267,7 +262,7 @@ public class FieldNode extends FieldVisitor {
      * Makes the given class visitor visit this field.
      * 
      * @param cv
-     *            a class visitor.
+     *           a class visitor.
      */
     public void accept(final ClassVisitor cv) {
         FieldVisitor fv = cv.visitField(access, name, desc, signature, value);
@@ -288,15 +283,12 @@ public class FieldNode extends FieldVisitor {
         n = visibleTypeAnnotations == null ? 0 : visibleTypeAnnotations.size();
         for (i = 0; i < n; ++i) {
             TypeAnnotationNode an = visibleTypeAnnotations.get(i);
-            an.accept(fv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc,
-                    true));
+            an.accept(fv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc, true));
         }
-        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations
-                .size();
+        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations.size();
         for (i = 0; i < n; ++i) {
             TypeAnnotationNode an = invisibleTypeAnnotations.get(i);
-            an.accept(fv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc,
-                    false));
+            an.accept(fv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc, false));
         }
         n = attrs == null ? 0 : attrs.size();
         for (i = 0; i < n; ++i) {

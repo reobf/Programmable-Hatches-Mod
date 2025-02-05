@@ -12,11 +12,8 @@ import java.util.regex.Pattern;
 
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.MathHelper;
-import reobf.proghatches.gt.metatileentity.util.polyfill.MathExpressionParser.Context;
 
-import com.gtnewhorizons.modularui.ModularUI;
 import com.gtnewhorizons.modularui.api.GlStateManager;
-
 import com.gtnewhorizons.modularui.api.drawable.GuiHelper;
 import com.gtnewhorizons.modularui.api.math.Alignment;
 import com.gtnewhorizons.modularui.api.widget.ISyncedWidget;
@@ -24,6 +21,7 @@ import com.gtnewhorizons.modularui.api.widget.Interactable;
 import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
 
 import cpw.mods.fml.common.Loader;
+import reobf.proghatches.gt.metatileentity.util.polyfill.MathExpressionParser.Context;
 
 /**
  * A widget that allows the user to enter a numeric value. Synced between client and server. Automatically handles
@@ -72,15 +70,15 @@ public class NumericWidget extends BaseTextFieldWidget implements ISyncedWidget 
     public void draw(float partialTicks) {
         Point draggableTranslate = getDraggableTranslate();
         GuiHelper
-                .useScissor(pos.x + draggableTranslate.x, pos.y + draggableTranslate.y, size.width, size.height, () -> {
-                    GlStateManager.pushMatrix();
-                    GlStateManager.translate(1, 1, 0);
-                    renderer.setSimulate(false);
-                    renderer.setScale(scale);
-                    renderer.setAlignment(textAlignment, size.width - 2, size.height - 2);
-                    renderer.draw(handler.getText());
-                    GlStateManager.popMatrix();
-                });
+            .useScissor(pos.x + draggableTranslate.x, pos.y + draggableTranslate.y, size.width, size.height, () -> {
+                GlStateManager.pushMatrix();
+                GlStateManager.translate(1, 1, 0);
+                renderer.setSimulate(false);
+                renderer.setScale(scale);
+                renderer.setAlignment(textAlignment, size.width - 2, size.height - 2);
+                renderer.draw(handler.getText());
+                GlStateManager.popMatrix();
+            });
     }
 
     public double getValue() {
@@ -92,10 +90,13 @@ public class NumericWidget extends BaseTextFieldWidget implements ISyncedWidget 
 
         String displayValue = numberFormat.format(value);
 
-        if (handler.getText().isEmpty()) {
-            handler.getText().add(displayValue);
+        if (handler.getText()
+            .isEmpty()) {
+            handler.getText()
+                .add(displayValue);
         } else {
-            handler.getText().set(0, displayValue);
+            handler.getText()
+                .set(0, displayValue);
         }
     }
 
@@ -120,22 +121,34 @@ public class NumericWidget extends BaseTextFieldWidget implements ISyncedWidget 
     }
 
     private double parseValueFromTextField() {
-        if (handler.getText().isEmpty()) {
-            handler.getText().add("");
+        if (handler.getText()
+            .isEmpty()) {
+            handler.getText()
+                .add("");
         }
-        if (handler.getText().size() > 1) {
+        if (handler.getText()
+            .size() > 1) {
             throw new IllegalStateException("NumericWidget can only have one line!");
         }
 
         if (isGTNHLibLoaded) {
-            double newValue = MathExpressionParser.parse(handler.getText().get(0), ctx);
+            double newValue = MathExpressionParser.parse(
+                handler.getText()
+                    .get(0),
+                ctx);
             return ctx.wasSuccessful() ? newValue : value;
         } else {
-            if (handler.getText().get(0) == null || handler.getText().get(0).isEmpty()) {
+            if (handler.getText()
+                .get(0) == null || handler.getText()
+                    .get(0)
+                    .isEmpty()) {
                 return defaultValue;
             }
             try {
-                return numberFormat.parse(handler.getText().get(0)).doubleValue();
+                return numberFormat.parse(
+                    handler.getText()
+                        .get(0))
+                    .doubleValue();
             } catch (ParseException ignore) {
                 return value;
             }

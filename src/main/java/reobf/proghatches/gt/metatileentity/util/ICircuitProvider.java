@@ -2,19 +2,21 @@ package reobf.proghatches.gt.metatileentity.util;
 
 import java.util.Collection;
 import java.util.HashSet;
+
 import net.minecraft.item.ItemStack;
 
 public interface ICircuitProvider {
-	public void clearDirty();
 
-	public boolean patternDirty();
+    public void clearDirty();
 
-	public Collection<ItemStack> getCircuit();
+    public boolean patternDirty();
 
-	public default boolean checkLoop(HashSet<Object> blacklist) {
+    public Collection<ItemStack> getCircuit();
 
-		return blacklist.add(this);
+    public default boolean checkLoop(HashSet<Object> blacklist) {
 
-	};
+        return blacklist.add(this);
+
+    };
 
 }

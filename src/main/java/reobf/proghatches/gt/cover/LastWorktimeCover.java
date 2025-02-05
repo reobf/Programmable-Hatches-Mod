@@ -1,12 +1,14 @@
 package reobf.proghatches.gt.cover;
 
-
-
 import java.util.ArrayList;
+
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.StatCollector;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
 
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 
-import appeng.helpers.IPriorityHost;
 import gregtech.api.gui.modularui.CoverUIBuildContext;
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
@@ -20,15 +22,8 @@ import gregtech.api.util.ISerializableObject;
 import gregtech.common.gui.modularui.widget.CoverDataControllerWidget;
 import gregtech.common.gui.modularui.widget.CoverDataFollowerCycleButtonWidget;
 
-import gregtech.common.tileentities.machines.MTEHatchCraftingInputME;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-
 public class LastWorktimeCover extends CoverBehavior {
 
-  
     public LastWorktimeCover() {
         this(null);
     }
@@ -46,81 +41,86 @@ public class LastWorktimeCover extends CoverBehavior {
     @Override
     public int doCoverThings(ForgeDirection side, byte aInputRedstone, int aCoverID, int aCoverVariable,
         ICoverable aTileEntity, long aTimer) {
-       
+
         if ((aTileEntity instanceof IMachineProgress)) {
-        	
-        boolean on=	(((IMachineProgress) aTileEntity).hasThingsToDo());
-        	int bits=aCoverVariable&0b111;
-            if(on){
-        		aCoverVariable=bits|(101<<3);
-        	}else{
-        		isEnabled(0,aCoverVariable);
-        		int val=aCoverVariable;//&(~0b111);
-        		val=val>>3;
-        		if(val>0){
-        			if(isEnabled(0,aCoverVariable)){val--;}else{val=0;}
-        		 aCoverVariable=bits|(val<<3);
-        		}
-        	
-        	}
-         
-          }
-      boolean on=(aCoverVariable>>3)>0;  
-     // boolean settrue=false;
-      
-      if(on==false&&isEnabled(1,aCoverVariable)){
-    	on=true;
-       if ((aTileEntity instanceof IGregTechTileEntity)) {
-        	IGregTechTileEntity mt=(IGregTechTileEntity) aTileEntity;
-        	IMetaTileEntity meta = mt.getMetaTileEntity();
-        	if(meta!=null&&meta instanceof MTEMultiBlockBase){
-        		MTEMultiBlockBase multi=(MTEMultiBlockBase) meta;
-        		
-        		if(multi.getStoredFluids().isEmpty()){
-        		ArrayList<ItemStack> in = multi.getStoredInputs();
-       			in.removeIf(s->s.stackSize<=0);
-        		if(in.isEmpty()){
-        			if(multi.mDualInputHatches.stream().map(s->s.getFirstNonEmptyInventory().orElse(null))
-							.count()==0)
-							on = false;
-        			}
-        		}
-        		
-        	}
-        	
-        	
+
+            boolean on = (((IMachineProgress) aTileEntity).hasThingsToDo());
+            int bits = aCoverVariable & 0b111;
+            if (on) {
+                aCoverVariable = bits | (101 << 3);
+            } else {
+                isEnabled(0, aCoverVariable);
+                int val = aCoverVariable;// &(~0b111);
+                val = val >> 3;
+                if (val > 0) {
+                    if (isEnabled(0, aCoverVariable)) {
+                        val--;
+                    } else {
+                        val = 0;
+                    }
+                    aCoverVariable = bits | (val << 3);
+                }
+
+            }
+
         }
-      }else{
-    	//on=false;
-    	  
-      }
-        
-       aTileEntity.setOutputRedstoneSignal(side, (byte) (
-    		   (on)
-    		   ?15:0));
-       
+        boolean on = (aCoverVariable >> 3) > 0;
+        // boolean settrue=false;
+
+        if (on == false && isEnabled(1, aCoverVariable)) {
+            on = true;
+            if ((aTileEntity instanceof IGregTechTileEntity)) {
+                IGregTechTileEntity mt = (IGregTechTileEntity) aTileEntity;
+                IMetaTileEntity meta = mt.getMetaTileEntity();
+                if (meta != null && meta instanceof MTEMultiBlockBase) {
+                    MTEMultiBlockBase multi = (MTEMultiBlockBase) meta;
+
+                    if (multi.getStoredFluids()
+                        .isEmpty()) {
+                        ArrayList<ItemStack> in = multi.getStoredInputs();
+                        in.removeIf(s -> s.stackSize <= 0);
+                        if (in.isEmpty()) {
+                            if (multi.mDualInputHatches.stream()
+                                .map(
+                                    s -> s.getFirstNonEmptyInventory()
+                                        .orElse(null))
+                                .count() == 0) on = false;
+                        }
+                    }
+
+                }
+
+            }
+        } else {
+            // on=false;
+
+        }
+
+        aTileEntity.setOutputRedstoneSignal(side, (byte) ((on) ? 15 : 0));
+
         return aCoverVariable;
     }
-/*
-    @Override
-    public int onCoverScrewdriverclick(ForgeDirection side, int aCoverID, int aCoverVariable, ICoverable aTileEntity,
-        EntityPlayer aPlayer, float aX, float aY, float aZ) {
-        aCoverVariable = (aCoverVariable + (aPlayer.isSneaking() ? -1 : 1)) % 4;
-        if (aCoverVariable < 0) {
-            aCoverVariable = 3;
-        }
-        switch (aCoverVariable) {
-            case 0 -> GTUtility.sendChatToPlayer(aPlayer, GTUtility.trans("018", "Normal"));
-            // Progress scaled
-            case 1 -> GTUtility.sendChatToPlayer(aPlayer, GTUtility.trans("019", "Inverted"));
-            // ^ inverted
-            case 2 -> GTUtility.sendChatToPlayer(aPlayer, GTUtility.trans("020", "Ready to work"));
-            // Not Running
-            case 3 -> GTUtility.sendChatToPlayer(aPlayer, GTUtility.trans("021", "Not ready to work"));
-            // Running
-        }
-        return aCoverVariable;
-    }*/
+    /*
+     * @Override
+     * public int onCoverScrewdriverclick(ForgeDirection side, int aCoverID, int aCoverVariable, ICoverable aTileEntity,
+     * EntityPlayer aPlayer, float aX, float aY, float aZ) {
+     * aCoverVariable = (aCoverVariable + (aPlayer.isSneaking() ? -1 : 1)) % 4;
+     * if (aCoverVariable < 0) {
+     * aCoverVariable = 3;
+     * }
+     * switch (aCoverVariable) {
+     * case 0 -> GTUtility.sendChatToPlayer(aPlayer, GTUtility.trans("018", "Normal"));
+     * // Progress scaled
+     * case 1 -> GTUtility.sendChatToPlayer(aPlayer, GTUtility.trans("019", "Inverted"));
+     * // ^ inverted
+     * case 2 -> GTUtility.sendChatToPlayer(aPlayer, GTUtility.trans("020", "Ready to work"));
+     * // Not Running
+     * case 3 -> GTUtility.sendChatToPlayer(aPlayer, GTUtility.trans("021", "Not ready to work"));
+     * // Running
+     * }
+     * return aCoverVariable;
+     * }
+     */
 
     @Override
     public boolean letsEnergyIn(ForgeDirection side, int aCoverID, int aCoverVariable, ICoverable aTileEntity) {
@@ -174,7 +174,7 @@ public class LastWorktimeCover extends CoverBehavior {
         return true;
     }
 
-   // @Override
+    // @Override
     public boolean useModularUI() {
         return true;
     }
@@ -197,75 +197,89 @@ public class LastWorktimeCover extends CoverBehavior {
 
         @Override
         protected void addUIWidgets(ModularWindow.Builder builder) {
-            builder
-                .widget(
-                    new CoverDataControllerWidget.CoverDataIndexedControllerWidget_CycleButtons<>(
-                        this::getCoverData,
-                        this::setCoverData,
-                        LastWorktimeCover.this,
-                        (id, coverData) -> isEnabled(id, convert(coverData))?1:0,
-                        (id, coverData) -> new ISerializableObject.LegacyCoverData(
-                            getNewCoverVariable(id, convert(coverData))))
-                                .addCycleButton(
-                                    0,
-                                   new  CoverDataFollowerCycleButtonWidget<>()
-                                 
-                                   ,
-                                    widget -> widget.setLength(2)
-                                    .addTooltip(0, StatCollector.translateToLocal("item.proghatch.cover.dedicated.3.tooltips.5sec.false"))
-                                    .addTooltip(1, StatCollector.translateToLocal("item.proghatch.cover.dedicated.3.tooltips.5sec.true"))
+            builder.widget(
+                new CoverDataControllerWidget.CoverDataIndexedControllerWidget_CycleButtons<>(
+                    this::getCoverData,
+                    this::setCoverData,
+                    LastWorktimeCover.this,
+                    (id, coverData) -> isEnabled(id, convert(coverData)) ? 1 : 0,
+                    (id, coverData) -> new ISerializableObject.LegacyCoverData(
+                        getNewCoverVariable(id, convert(coverData))))
+                            .addCycleButton(0, new CoverDataFollowerCycleButtonWidget<>()
+
+                                ,
+                                widget -> widget.setLength(2)
+                                    .addTooltip(
+                                        0,
+                                        StatCollector
+                                            .translateToLocal("item.proghatch.cover.dedicated.3.tooltips.5sec.false"))
+                                    .addTooltip(
+                                        1,
+                                        StatCollector
+                                            .translateToLocal("item.proghatch.cover.dedicated.3.tooltips.5sec.true"))
                                     .setStaticTexture(GTUITextures.OVERLAY_BUTTON_PROGRESS)
-                                        .setPos(spaceX * 0, spaceY * 0)
-                                        
-                                		)
-                                	.addCycleButton(
-                                    1,
-                                    new  CoverDataFollowerCycleButtonWidget<>(),
-                                    widget -> widget.setLength(2)
-                                    .addTooltip(0, StatCollector.translateToLocal("item.proghatch.cover.dedicated.3.tooltips.inputdetect.false"))
-                                    .addTooltip(1, StatCollector.translateToLocal("item.proghatch.cover.dedicated.3.tooltips.inputdetect.true"))
+                                    .setPos(spaceX * 0, spaceY * 0)
+
+                            )
+                            .addCycleButton(
+                                1,
+                                new CoverDataFollowerCycleButtonWidget<>(),
+                                widget -> widget.setLength(2)
+                                    .addTooltip(
+                                        0,
+                                        StatCollector.translateToLocal(
+                                            "item.proghatch.cover.dedicated.3.tooltips.inputdetect.false"))
+                                    .addTooltip(
+                                        1,
+                                        StatCollector.translateToLocal(
+                                            "item.proghatch.cover.dedicated.3.tooltips.inputdetect.true"))
                                     .setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-                                        .setPos(spaceX * 1, spaceY * 0))
-                               /* .addToggleButton(
-                                    2,
-                                    CoverDataFollower_ToggleButtonWidget.ofRedstone(),
-                                    widget -> widget.setPos(spaceX * 0, spaceY * 1))*/
-                                .setPos(startX, startY))
-              /*  .widget(
-                    TextWidget
-                        .dynamicString(
-                            () -> ((convert(getCoverData()) & 0x2) > 0) ? "5s":"0s")
-                        .setSynced(false)
-                        .setDefaultColor(COLOR_TEXT_GRAY.get())
-                        .setPos(startX + spaceX * 3, 4 + startY + spaceY * 0))
-                .widget(
-                    TextWidget
-                        .dynamicString(
-                            () -> ((convert(getCoverData()) & 0x1) > 0) ? "empty":"")
-                        .setSynced(false)
-                        .setDefaultColor(COLOR_TEXT_GRAY.get())
-                        .setPos(startX + spaceX * 3, 4 + startY + spaceY * 1))*/;
+                                    .setPos(spaceX * 1, spaceY * 0))
+                            /*
+                             * .addToggleButton(
+                             * 2,
+                             * CoverDataFollower_ToggleButtonWidget.ofRedstone(),
+                             * widget -> widget.setPos(spaceX * 0, spaceY * 1))
+                             */
+                            .setPos(startX, startY))
+            /*
+             * .widget(
+             * TextWidget
+             * .dynamicString(
+             * () -> ((convert(getCoverData()) & 0x2) > 0) ? "5s":"0s")
+             * .setSynced(false)
+             * .setDefaultColor(COLOR_TEXT_GRAY.get())
+             * .setPos(startX + spaceX * 3, 4 + startY + spaceY * 0))
+             * .widget(
+             * TextWidget
+             * .dynamicString(
+             * () -> ((convert(getCoverData()) & 0x1) > 0) ? "empty":"")
+             * .setSynced(false)
+             * .setDefaultColor(COLOR_TEXT_GRAY.get())
+             * .setPos(startX + spaceX * 3, 4 + startY + spaceY * 1))
+             */;
         }
 
-		
-        
-    }private int getNewCoverVariable(int id, int data) {
-			int mask=(1<<id);
-			int stencil=~(1<<id);
-			if((data&mask)>0){
-				return data&stencil;
-			}else{
-				return data|mask;
-			}
-		}
+    }
 
-		private boolean isEnabled(int id, int data) {
-			
-			return (data&(1<<id))>0;
-		}
-@Override
-public boolean allowsTickRateAddition() {
-	
-	return false;
-}
+    private int getNewCoverVariable(int id, int data) {
+        int mask = (1 << id);
+        int stencil = ~(1 << id);
+        if ((data & mask) > 0) {
+            return data & stencil;
+        } else {
+            return data | mask;
+        }
+    }
+
+    private boolean isEnabled(int id, int data) {
+
+        return (data & (1 << id)) > 0;
+    }
+
+    @Override
+    public boolean allowsTickRateAddition() {
+
+        return false;
+    }
 }

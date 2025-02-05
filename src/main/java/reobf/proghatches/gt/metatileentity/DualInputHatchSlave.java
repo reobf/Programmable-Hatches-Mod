@@ -9,12 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import com.google.common.collect.ImmutableMap;
-
-import appeng.api.networking.crafting.ICraftingMedium;
-import appeng.api.networking.crafting.ICraftingProvider;
-import appeng.api.util.IInterfaceViewable;
-import appeng.helpers.ICustomNameObject;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -26,6 +20,10 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.google.common.collect.ImmutableMap;
+
+import appeng.api.networking.crafting.ICraftingMedium;
+import appeng.helpers.ICustomNameObject;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.interfaces.ITexture;
@@ -38,7 +36,6 @@ import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
-import gregtech.common.tileentities.machines.MTEHatchCraftingInputME;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import mcp.mobius.waila.api.IWailaConfigHandler;
@@ -47,312 +44,310 @@ import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.main.registration.Registration;
 
-public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch&IMetaTileEntity> extends MTEHatchInputBus
-		implements IDualInputHatch , IRecipeProcessingAwareDualHatch,IDataCopyablePlaceHolder {
+public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch & IMetaTileEntity> extends MTEHatchInputBus
+    implements IDualInputHatch, IRecipeProcessingAwareDualHatch, IDataCopyablePlaceHolder {
 
-	private T master; // use getMaster() to access
-	private int masterX, masterY, masterZ;
-	private boolean masterSet = false; // indicate if values of masterX,
-										// masterY, masterZ are valid
+    private T master; // use getMaster() to access
+    private int masterX, masterY, masterZ;
+    private boolean masterSet = false; // indicate if values of masterX,
+                                       // masterY, masterZ are valid
 
-	public DualInputHatchSlave(int aID, String aName, String aNameRegional) {
-		super(aID, aName, aNameRegional, 6, 0, reobf.proghatches.main.Config.get("DHS", ImmutableMap.of())
-		
-		);
-		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
-		disableSort = true;
-	}
+    public DualInputHatchSlave(int aID, String aName, String aNameRegional) {
+        super(aID, aName, aNameRegional, 6, 0, reobf.proghatches.main.Config.get("DHS", ImmutableMap.of())
 
-	public DualInputHatchSlave(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures) {
-		super(aName, aTier, 0, aDescription, aTextures);
-		disableSort = true;
-	}
+        );
+        Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
+        disableSort = true;
+    }
 
-	@Override
-	public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
-		return new DualInputHatchSlave<>(mName, mTier, mDescriptionArray, mTextures);
-	}
+    public DualInputHatchSlave(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures) {
+        super(aName, aTier, 0, aDescription, aTextures);
+        disableSort = true;
+    }
 
-	@Override
-	public ITexture[] getTexturesActive(ITexture aBaseTexture) {
-		return getTexturesInactive(aBaseTexture);
-	}
+    @Override
+    public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
+        return new DualInputHatchSlave<>(mName, mTier, mDescriptionArray, mTextures);
+    }
 
-	@Override
-	public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
-		return new ITexture[] { aBaseTexture, TextureFactory.of(OVERLAY_ME_CRAFTING_INPUT_SLAVE) };
-	}
+    @Override
+    public ITexture[] getTexturesActive(ITexture aBaseTexture) {
+        return getTexturesInactive(aBaseTexture);
+    }
 
-	@Override
-	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
-		super.onPostTick(aBaseMetaTileEntity, aTimer);
-		if (aTimer % 100 == 0 && masterSet && getMaster() == null) {
-			trySetMasterFromCoord(masterX, masterY, masterZ);
-		}
-	}
+    @Override
+    public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
+        return new ITexture[] { aBaseTexture, TextureFactory.of(OVERLAY_ME_CRAFTING_INPUT_SLAVE) };
+    }
 
-	@Override
-	public void loadNBTData(NBTTagCompound aNBT) {
-		if(aNBT.hasKey("x")==false)return;
-		super.loadNBTData(aNBT);
+    @Override
+    public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
+        super.onPostTick(aBaseMetaTileEntity, aTimer);
+        if (aTimer % 100 == 0 && masterSet && getMaster() == null) {
+            trySetMasterFromCoord(masterX, masterY, masterZ);
+        }
+    }
 
-		if (aNBT.hasKey("master")) {
-			NBTTagCompound masterNBT = aNBT.getCompoundTag("master");
-			masterX = masterNBT.getInteger("x");
-			masterY = masterNBT.getInteger("y");
-			masterZ = masterNBT.getInteger("z");
-			masterSet = true;
-		}
-	}
+    @Override
+    public void loadNBTData(NBTTagCompound aNBT) {
+        if (aNBT.hasKey("x") == false) return;
+        super.loadNBTData(aNBT);
 
-	@Override
-	public void saveNBTData(NBTTagCompound aNBT) {
-		super.saveNBTData(aNBT);
-		if (masterSet) {
-			NBTTagCompound masterNBT = new NBTTagCompound();
-			masterNBT.setInteger("x", masterX);
-			masterNBT.setInteger("y", masterY);
-			masterNBT.setInteger("z", masterZ);
-			aNBT.setTag("master", masterNBT);
-		}
-	}
+        if (aNBT.hasKey("master")) {
+            NBTTagCompound masterNBT = aNBT.getCompoundTag("master");
+            masterX = masterNBT.getInteger("x");
+            masterY = masterNBT.getInteger("y");
+            masterZ = masterNBT.getInteger("z");
+            masterSet = true;
+        }
+    }
 
-	@Override
-	public boolean isGivingInformation() {
-		return true;
-	}
+    @Override
+    public void saveNBTData(NBTTagCompound aNBT) {
+        super.saveNBTData(aNBT);
+        if (masterSet) {
+            NBTTagCompound masterNBT = new NBTTagCompound();
+            masterNBT.setInteger("x", masterX);
+            masterNBT.setInteger("y", masterY);
+            masterNBT.setInteger("z", masterZ);
+            aNBT.setTag("master", masterNBT);
+        }
+    }
 
-	@Override
-	public String[] getInfoData() {
-		ArrayList<String> ret = new ArrayList<String>();
-		if (getMaster() != null) {
-			ret.add("This bus is linked to the Crafting Input Buffer at " + masterX + ", " + masterY + ", " + masterZ
-					+ ".");
-			ret.addAll(Arrays.asList(getMaster().getInfoData()));
-		} else
-			ret.add("This bus is not linked to any Buffered Dual Inputhatch.");
-		return ret.toArray(new String[0]);
-	}
+    @Override
+    public boolean isGivingInformation() {
+        return true;
+    }
 
-	public T getMaster() {
-		if (master == null)
-			return null;
-		if (((IMetaTileEntity) master).getBaseMetaTileEntity() == null) { // master
-																			// disappeared
-			master = null;
-		}
-		return master;
-	}
+    @Override
+    public String[] getInfoData() {
+        ArrayList<String> ret = new ArrayList<String>();
+        if (getMaster() != null) {
+            ret.add(
+                "This bus is linked to the Crafting Input Buffer at " + masterX
+                    + ", "
+                    + masterY
+                    + ", "
+                    + masterZ
+                    + ".");
+            ret.addAll(Arrays.asList(getMaster().getInfoData()));
+        } else ret.add("This bus is not linked to any Buffered Dual Inputhatch.");
+        return ret.toArray(new String[0]);
+    }
 
-	@Override
-	public boolean allowPullStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
-			ItemStack aStack) {
-		return false;
-	}
+    public T getMaster() {
+        if (master == null) return null;
+        if (((IMetaTileEntity) master).getBaseMetaTileEntity() == null) { // master
+                                                                          // disappeared
+            master = null;
+        }
+        return master;
+    }
 
-	@Override
-	public boolean allowPutStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
-			ItemStack aStack) {
-		return false;
-	}
+    @Override
+    public boolean allowPullStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
+        ItemStack aStack) {
+        return false;
+    }
 
-	@Override
-	public Iterator<? extends IDualInputInventory> inventories() {
-		if(!this.isValid())return DualInputHatch.emptyItr;
-		return getMaster() != null ? getMaster().inventories() : Collections.emptyIterator();
-	}
+    @Override
+    public boolean allowPutStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
+        ItemStack aStack) {
+        return false;
+    }
 
-	@Override
-	public Optional<IDualInputInventory> getFirstNonEmptyInventory() {
-		if(!this.isValid())return Optional.empty();
-		return getMaster() != null ? getMaster().getFirstNonEmptyInventory() : Optional.empty();
-	}
+    @Override
+    public Iterator<? extends IDualInputInventory> inventories() {
+        if (!this.isValid()) return DualInputHatch.emptyItr;
+        return getMaster() != null ? getMaster().inventories() : Collections.emptyIterator();
+    }
 
-	@Override
-	public boolean supportsFluids() {
-		return getMaster() != null && getMaster().supportsFluids();
-	}
+    @Override
+    public Optional<IDualInputInventory> getFirstNonEmptyInventory() {
+        if (!this.isValid()) return Optional.empty();
+        return getMaster() != null ? getMaster().getFirstNonEmptyInventory() : Optional.empty();
+    }
 
-	@Override
-	public boolean justUpdated() {
-		return getMaster() != null && getMaster().justUpdated();
-	}
+    @Override
+    public boolean supportsFluids() {
+        return getMaster() != null && getMaster().supportsFluids();
+    }
 
-	@SuppressWarnings("unchecked")
-	public IDualInputHatch trySetMasterFromCoord(int x, int y, int z) {
-		TileEntity tileEntity = getBaseMetaTileEntity().getWorld().getTileEntity(x, y, z);
-		if (tileEntity == null)
-			return null;
-		if (!(tileEntity instanceof IGregTechTileEntity))
-			return null;
-		IMetaTileEntity metaTileEntity = ((IGregTechTileEntity) tileEntity).getMetaTileEntity();
-		if (!(metaTileEntity instanceof IDualInputHatch))
-			return null;
+    @Override
+    public boolean justUpdated() {
+        return getMaster() != null && getMaster().justUpdated();
+    }
 
-		if (!(metaTileEntity instanceof reobf.proghatches.gt.metatileentity.DualInputHatch))
-			return null;
+    @SuppressWarnings("unchecked")
+    public IDualInputHatch trySetMasterFromCoord(int x, int y, int z) {
+        TileEntity tileEntity = getBaseMetaTileEntity().getWorld()
+            .getTileEntity(x, y, z);
+        if (tileEntity == null) return null;
+        if (!(tileEntity instanceof IGregTechTileEntity)) return null;
+        IMetaTileEntity metaTileEntity = ((IGregTechTileEntity) tileEntity).getMetaTileEntity();
+        if (!(metaTileEntity instanceof IDualInputHatch)) return null;
 
-		masterX = x;
-		masterY = y;
-		masterZ = z;
-		masterSet = true;
-		master = (T) metaTileEntity;
-		return master;
-	}
+        if (!(metaTileEntity instanceof reobf.proghatches.gt.metatileentity.DualInputHatch)) return null;
 
-	private boolean tryLinkDataStick(EntityPlayer aPlayer) {
-		ItemStack dataStick = aPlayer.inventory.getCurrentItem();
+        masterX = x;
+        masterY = y;
+        masterZ = z;
+        masterSet = true;
+        master = (T) metaTileEntity;
+        return master;
+    }
 
-		if (!ItemList.Tool_DataStick.isStackEqual(dataStick, false, true)) {
-			return false;
-		}
-		if (dataStick.hasTagCompound()&&dataStick.stackTagCompound.getString("type")
-	            .equals("CraftingInputBuffer")) {
-			aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.gt.slave.compat"));
-	        return false;
-	     }
-		if (!dataStick.hasTagCompound()
-				|| !dataStick.stackTagCompound.getString("type").equals("ProgHatchesDualInput")) {
-			return false;
-		}
+    private boolean tryLinkDataStick(EntityPlayer aPlayer) {
+        ItemStack dataStick = aPlayer.inventory.getCurrentItem();
 
-		NBTTagCompound nbt = dataStick.stackTagCompound;
-		int x = nbt.getInteger("x");
-		int y = nbt.getInteger("y");
-		int z = nbt.getInteger("z");
-		if (trySetMasterFromCoord(x, y, z) != null) {
-			aPlayer.addChatMessage(new ChatComponentText("Link successful"));
-			return true;
-		}
-		aPlayer.addChatMessage(new ChatComponentText("Link failed"));
-		return true;
-	}
+        if (!ItemList.Tool_DataStick.isStackEqual(dataStick, false, true)) {
+            return false;
+        }
+        if (dataStick.hasTagCompound() && dataStick.stackTagCompound.getString("type")
+            .equals("CraftingInputBuffer")) {
+            aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.gt.slave.compat"));
+            return false;
+        }
+        if (!dataStick.hasTagCompound() || !dataStick.stackTagCompound.getString("type")
+            .equals("ProgHatchesDualInput")) {
+            return false;
+        }
 
-	@Override
-	public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
-		if (!(aPlayer instanceof EntityPlayerMP)) {
-			return false;
-		}
-		if (tryLinkDataStick(aPlayer)) {
-			return true;
-		}
-		IDualInputHatch master = getMaster();
-		if (master != null) {
-			return ((MetaTileEntity) master).onRightclick(((IMetaTileEntity) master).getBaseMetaTileEntity(), aPlayer);
-		}
-		return false;
-	}
+        NBTTagCompound nbt = dataStick.stackTagCompound;
+        int x = nbt.getInteger("x");
+        int y = nbt.getInteger("y");
+        int z = nbt.getInteger("z");
+        if (trySetMasterFromCoord(x, y, z) != null) {
+            aPlayer.addChatMessage(new ChatComponentText("Link successful"));
+            return true;
+        }
+        aPlayer.addChatMessage(new ChatComponentText("Link failed"));
+        return true;
+    }
 
-	@Override
-	public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
-			IWailaConfigHandler config) {
-		NBTTagCompound tag = accessor.getNBTData();
-		currenttip.add((tag.getBoolean("linked") ? "Linked" : "Not linked"));
+    @Override
+    public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
+        if (!(aPlayer instanceof EntityPlayerMP)) {
+            return false;
+        }
+        if (tryLinkDataStick(aPlayer)) {
+            return true;
+        }
+        IDualInputHatch master = getMaster();
+        if (master != null) {
+            return ((MetaTileEntity) master).onRightclick(((IMetaTileEntity) master).getBaseMetaTileEntity(), aPlayer);
+        }
+        return false;
+    }
 
-		if (tag.hasKey("masterX")) {
-			currenttip.add("Bound to " + tag.getInteger("masterX") + ", " + tag.getInteger("masterY") + ", "
-					+ tag.getInteger("masterZ"));
-		}
+    @Override
+    public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+        IWailaConfigHandler config) {
+        NBTTagCompound tag = accessor.getNBTData();
+        currenttip.add((tag.getBoolean("linked") ? "Linked" : "Not linked"));
 
-		
-		  if (tag.hasKey("masterName")) {
-		  currenttip.add(EnumChatFormatting.GOLD + tag.getString("masterName")
-		  + EnumChatFormatting.RESET); }
-		 
+        if (tag.hasKey("masterX")) {
+            currenttip.add(
+                "Bound to " + tag
+                    .getInteger("masterX") + ", " + tag.getInteger("masterY") + ", " + tag.getInteger("masterZ"));
+        }
 
-		super.getWailaBody(itemStack, currenttip, accessor, config);
-	}
-  
+        if (tag.hasKey("masterName")) {
+            currenttip.add(EnumChatFormatting.GOLD + tag.getString("masterName") + EnumChatFormatting.RESET);
+        }
+
+        super.getWailaBody(itemStack, currenttip, accessor, config);
+    }
+
     public String getNameOf(T tg) {
-    	
-    	if(tg instanceof ICustomNameObject){
-    		ICustomNameObject iv=(ICustomNameObject) tg;
-    		if(iv.hasCustomName())
-    		return iv.getCustomName();
-    		
-    	}
-    	
+
+        if (tg instanceof ICustomNameObject) {
+            ICustomNameObject iv = (ICustomNameObject) tg;
+            if (iv.hasCustomName()) return iv.getCustomName();
+
+        }
+
         StringBuilder name = new StringBuilder();
-        if (tg instanceof ICraftingMedium &&((ICraftingMedium)tg).getCrafterIcon() != null) {
-            name.append(((ICraftingMedium)tg).getCrafterIcon().getDisplayName());
+        if (tg instanceof ICraftingMedium && ((ICraftingMedium) tg).getCrafterIcon() != null) {
+            name.append(
+                ((ICraftingMedium) tg).getCrafterIcon()
+                    .getDisplayName());
         } else {
             name.append(tg.getLocalName());
         }
 
-      
         return name.toString();
     }
-	@Override
-	public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
-			int z) {
 
-		tag.setBoolean("linked", getMaster() != null);
-		if (masterSet) {
-			tag.setInteger("masterX", masterX);
-			tag.setInteger("masterY", masterY);
-			tag.setInteger("masterZ", masterZ);
-		} 
-		if (getMaster() != null) tag.setString("masterName", getNameOf(getMaster()));
-		/*
-		 * if (getMaster() != null) tag.setString("masterName",
-		 * getMaster().getnam);
-		 */
+    @Override
+    public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
+        int z) {
 
-		super.getWailaNBTData(player, tile, tag, world, x, y, z);
-	}
+        tag.setBoolean("linked", getMaster() != null);
+        if (masterSet) {
+            tag.setInteger("masterX", masterX);
+            tag.setInteger("masterY", masterY);
+            tag.setInteger("masterZ", masterZ);
+        }
+        if (getMaster() != null) tag.setString("masterName", getNameOf(getMaster()));
+        /*
+         * if (getMaster() != null) tag.setString("masterName",
+         * getMaster().getnam);
+         */
 
-	@Override
-	public void startRecipeProcessing() {
-		
-		if(getMaster() != null) 
-			if(getMaster() instanceof IRecipeProcessingAwareDualHatch)
-			((IRecipeProcessingAwareDualHatch)getMaster()).startRecipeProcessing();
-		
-	}
+        super.getWailaNBTData(player, tile, tag, world, x, y, z);
+    }
 
-	@Override
-	public CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) {
-		if(getMaster() != null) 
-			if(getMaster() instanceof IRecipeProcessingAwareDualHatch)
-			return ((IRecipeProcessingAwareDualHatch)getMaster()).endRecipeProcessing(controller);
-		return CheckRecipeResultRegistry.SUCCESSFUL;
-	}
-	  @Override
-	    public List<ItemStack> getItemsForHoloGlasses() {
-	        return getMaster() != null ? getMaster().getItemsForHoloGlasses() : null;
-	    }
-	  
-	  @Override
-	  public NBTTagCompound getCopiedData(EntityPlayer player) {
-	   NBTTagCompound ret=new NBTTagCompound();
-	   writeType(ret, player);
-		 ret.setInteger("masterX", masterX);
-	   ret.setInteger("masterY", masterY);
-	   ret.setInteger("masterZ", masterZ);
-	   ret.setBoolean("masterSet", masterSet);
-	 
-	  return ret;
-	  }
-	  @Override
-	  public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) { 
-	  	if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
-	  	if(nbt.hasKey("masterX"))masterX=nbt.getInteger("masterX");
-	  	if(nbt.hasKey("masterY")) masterY=nbt.getInteger("masterY");
-	  	if(nbt.hasKey("masterZ"))masterZ=nbt.getInteger("masterZ");
-	  	if(nbt.hasKey("masterSet")) masterSet=nbt.getBoolean("masterSet");
-		master=null;
-	  return true;
-	  }
+    @Override
+    public void startRecipeProcessing() {
 
+        if (getMaster() != null) if (getMaster() instanceof IRecipeProcessingAwareDualHatch)
+            ((IRecipeProcessingAwareDualHatch) getMaster()).startRecipeProcessing();
 
+    }
 
-	  @Override
-	    public ItemStack[] getSharedItems() {
-	        return getMaster() != null ? getMaster().getSharedItems() : new ItemStack[0];
-	    }
+    @Override
+    public CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) {
+        if (getMaster() != null) if (getMaster() instanceof IRecipeProcessingAwareDualHatch)
+            return ((IRecipeProcessingAwareDualHatch) getMaster()).endRecipeProcessing(controller);
+        return CheckRecipeResultRegistry.SUCCESSFUL;
+    }
 
-	  @Override
-	    public void setProcessingLogic(ProcessingLogic pl) {
-	        if (getMaster() != null) getMaster().setProcessingLogic(pl);
-	    }
+    @Override
+    public List<ItemStack> getItemsForHoloGlasses() {
+        return getMaster() != null ? getMaster().getItemsForHoloGlasses() : null;
+    }
+
+    @Override
+    public NBTTagCompound getCopiedData(EntityPlayer player) {
+        NBTTagCompound ret = new NBTTagCompound();
+        writeType(ret, player);
+        ret.setInteger("masterX", masterX);
+        ret.setInteger("masterY", masterY);
+        ret.setInteger("masterZ", masterZ);
+        ret.setBoolean("masterSet", masterSet);
+
+        return ret;
+    }
+
+    @Override
+    public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+        if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+        if (nbt.hasKey("masterX")) masterX = nbt.getInteger("masterX");
+        if (nbt.hasKey("masterY")) masterY = nbt.getInteger("masterY");
+        if (nbt.hasKey("masterZ")) masterZ = nbt.getInteger("masterZ");
+        if (nbt.hasKey("masterSet")) masterSet = nbt.getBoolean("masterSet");
+        master = null;
+        return true;
+    }
+
+    @Override
+    public ItemStack[] getSharedItems() {
+        return getMaster() != null ? getMaster().getSharedItems() : new ItemStack[0];
+    }
+
+    @Override
+    public void setProcessingLogic(ProcessingLogic pl) {
+        if (getMaster() != null) getMaster().setProcessingLogic(pl);
+    }
 }

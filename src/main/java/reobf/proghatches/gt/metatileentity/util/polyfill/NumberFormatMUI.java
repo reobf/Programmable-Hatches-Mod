@@ -8,12 +8,10 @@ import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Locale;
 
-
-
 /**
  * A specialization of {@link NumberFormat} for ModularUI. Provides methods for formatting and parsing of numbers.
  * Mirrors most of the functionality of {@link NumberFormat}, but is always based on the locale specified in ModularUI's
- *  (By default, this is the player's system locale.) Also provides some GTNH-specific formatting options.
+ * (By default, this is the player's system locale.) Also provides some GTNH-specific formatting options.
  */
 public class NumberFormatMUI extends NumberFormat {
 
@@ -31,7 +29,9 @@ public class NumberFormatMUI extends NumberFormat {
     public NumberFormatMUI() {
         refreshBaseFormat();
     }
+
     public static Locale locale = Locale.getDefault();
+
     /**
      * Updates the base format based on the locale from ModularUI's config, and then modifies all properties that have
      * been previously changed through this instance.

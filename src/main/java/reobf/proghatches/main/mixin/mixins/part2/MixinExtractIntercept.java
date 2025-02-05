@@ -13,31 +13,24 @@ import appeng.crafting.v2.CraftingContext;
 import appeng.crafting.v2.CraftingRequest;
 import appeng.crafting.v2.resolvers.CraftingTask;
 import appeng.crafting.v2.resolvers.ExtractItemResolver;
-import appeng.util.item.AEItemStack;
 import reobf.proghatches.ae.IIsExtractFromInvAllowed;
-import reobf.proghatches.main.MyMod;
 
-@Mixin(value=ExtractItemResolver.ExtractItemTask.class,remap=false)
-public abstract class MixinExtractIntercept extends CraftingTask{
+@Mixin(value = ExtractItemResolver.ExtractItemTask.class, remap = false)
+public abstract class MixinExtractIntercept extends CraftingTask {
 
-	
-	protected MixinExtractIntercept(CraftingRequest request, int priority) {
-		super(request, priority);
-		
-	}
+    protected MixinExtractIntercept(CraftingRequest request, int priority) {
+        super(request, priority);
 
-	@Inject( require = 1,method="extractExact", at = { @At("HEAD") },cancellable=true)
-	
-	public void extract(CraftingContext context, MECraftingInventory source, List<IAEItemStack> removedList,CallbackInfo c){
-		if(
-				!((IIsExtractFromInvAllowed)(Object)context).isAllowed(this.request.stack)
-		){
-			
-			
-			c.cancel();
-		}
-		
-		
-		
-	}
+    }
+
+    @Inject(require = 1, method = "extractExact", at = { @At("HEAD") }, cancellable = true)
+
+    public void extract(CraftingContext context, MECraftingInventory source, List<IAEItemStack> removedList,
+        CallbackInfo c) {
+        if (!((IIsExtractFromInvAllowed) (Object) context).isAllowed(this.request.stack)) {
+
+            c.cancel();
+        }
+
+    }
 }

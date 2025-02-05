@@ -2,6 +2,11 @@ package reobf.proghatches.eucrafting;
 
 import java.util.ArrayList;
 import java.util.Optional;
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.util.ForgeDirection;
+
 import appeng.api.exceptions.FailedConnection;
 import appeng.api.networking.IGridConnection;
 import appeng.api.networking.IGridNode;
@@ -13,183 +18,180 @@ import appeng.me.GridConnection;
 import appeng.me.helpers.AENetworkProxy;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.util.ISerializableObject;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.eucrafting.AECover.Data;
-import reobf.proghatches.main.MyMod;
 
 public class BridgingData implements Data {
-	public IInterfaceHost getInterfaceOrNull(){return null;};
-	public interface TriConsumer<a, b, c> {
-		public void accept(a aa, b bb, c cc);
 
-	}
+    public IInterfaceHost getInterfaceOrNull() {
+        return null;
+    };
 
-	public void setTag(NBTTagCompound tagCompound) {
-		tag = tagCompound;
-	}
+    public interface TriConsumer<a, b, c> {
 
-	public NBTTagCompound getTag() {
-		return tag;
-	}
+        public void accept(a aa, b bb, c cc);
 
-	NBTTagCompound tag;
-	ForgeDirection side = ForgeDirection.UNKNOWN;
-	DimensionalCoord pos = new DimensionalCoord(0, 0, 0, -1000);
-	AENetworkProxy gridProxy;
+    }
 
-	@Override
-	public AENetworkProxy getGridProxy() {
+    public void setTag(NBTTagCompound tagCompound) {
+        tag = tagCompound;
+    }
 
-		return gridProxy;
-	}
+    public NBTTagCompound getTag() {
+        return tag;
+    }
 
-	@Override
-	public void setGridProxy(AENetworkProxy gridProxy) {
-		this.gridProxy = gridProxy;
+    NBTTagCompound tag;
+    ForgeDirection side = ForgeDirection.UNKNOWN;
+    DimensionalCoord pos = new DimensionalCoord(0, 0, 0, -1000);
+    AENetworkProxy gridProxy;
 
-	}
+    @Override
+    public AENetworkProxy getGridProxy() {
 
-	@Override
-	public ForgeDirection getSide() {
+        return gridProxy;
+    }
 
-		return side;
-	}
+    @Override
+    public void setGridProxy(AENetworkProxy gridProxy) {
+        this.gridProxy = gridProxy;
 
-	@Override
-	public void setSide(ForgeDirection side) {
-		this.side = side;
-	}
+    }
 
-	@Override
-	public DimensionalCoord getPos() {
+    @Override
+    public ForgeDirection getSide() {
 
-		return pos;
-	}
+        return side;
+    }
 
-	@Override
-	public void setPos(DimensionalCoord pos) {
-		this.pos = pos;
+    @Override
+    public void setSide(ForgeDirection side) {
+        this.side = side;
+    }
 
-	}
+    @Override
+    public DimensionalCoord getPos() {
 
-	@Override
-	public void update(ICoverable aTileEntity) {
+        return pos;
+    }
 
-		// TileEntity te=aTileEntity.getTileEntityAtSide(side);
-		/*
-		 * for(ForgeDirection side:ForgeDirection.VALID_DIRECTIONS){
-		 * if(side==this.side)continue; Iterator<IGridConnection> it = this
-		 * .getProxy() .getNode() .getConnections().iterator(); IGridConnection
-		 * item=null; IGridNode thenode=null; ISerializableObject obj =
-		 * aTileEntity.getComplexCoverDataAtSide(side); if(obj instanceof Data)
-		 * thenode =((Data)obj).getGridNode(side); if(thenode==null){continue;}
-		 * boolean found=false;
-		 * 
-		 * 
-		 * //boolean
-		 * thisSideValid=AECover.canConnect(thenode,side.getOpposite());
-		 * 
-		 * 
-		 * 
-		 * while(it.hasNext()){ item=it.next();
-		 * if(item.a()==thenode||item.b()==thenode)
-		 * 
-		 * { found=true; break; } };
-		 * 
-		 * 
-		 * 
-		 * if(found==false){ try {IGridNode thiz = this.getProxy().getNode();
-		 * new GridConnection(thiz, thenode, ForgeDirection.UNKNOWN);
-		 * 
-		 * MyMod.LOG.info("Bridging Node connect@"+this.getPos()+" "
-		 * +this.side+"->"+side); } catch (FailedConnection e) {
-		 * System.out.println(this.getProxy().getNode());
-		 * System.out.println(thenode); e.printStackTrace(); }
-		 * 
-		 * }; }
-		 */
+    @Override
+    public void setPos(DimensionalCoord pos) {
+        this.pos = pos;
 
-		IGridNode thiz = this.getProxy().getNode();
-		IReadOnlyCollection<IGridConnection> it = this.getProxy().getNode().getConnections();
-		ArrayList<IGridNode> a = new ArrayList<>(it.size());
-		it.forEach(s -> {
-			if (s.a() == thiz)
-				a.add(s.b());
-			else
-				a.add(s.a());
-		});
+    }
 
-		TriConsumer<IGridNode, String, ForgeDirection> tryConnect = (thenode, info, dir) -> {
-			if (!a.contains(thenode)) {
-				try {
-					new GridConnection(thiz, thenode, ForgeDirection.UNKNOWN);
+    @Override
+    public void update(ICoverable aTileEntity) {
 
-					//MyMod.LOG.info(info + " Bridging Node connect@" + this.getPos() + " " + this.side + "->" + dir);
-				} catch (FailedConnection e) {
-					System.out.println(this.getProxy().getNode());
-					System.out.println(thenode);
-					e.printStackTrace();
-				}
+        // TileEntity te=aTileEntity.getTileEntityAtSide(side);
+        /*
+         * for(ForgeDirection side:ForgeDirection.VALID_DIRECTIONS){
+         * if(side==this.side)continue; Iterator<IGridConnection> it = this
+         * .getProxy() .getNode() .getConnections().iterator(); IGridConnection
+         * item=null; IGridNode thenode=null; ISerializableObject obj =
+         * aTileEntity.getComplexCoverDataAtSide(side); if(obj instanceof Data)
+         * thenode =((Data)obj).getGridNode(side); if(thenode==null){continue;}
+         * boolean found=false;
+         * //boolean
+         * thisSideValid=AECover.canConnect(thenode,side.getOpposite());
+         * while(it.hasNext()){ item=it.next();
+         * if(item.a()==thenode||item.b()==thenode)
+         * { found=true; break; } };
+         * if(found==false){ try {IGridNode thiz = this.getProxy().getNode();
+         * new GridConnection(thiz, thenode, ForgeDirection.UNKNOWN);
+         * MyMod.LOG.info("Bridging Node connect@"+this.getPos()+" "
+         * +this.side+"->"+side); } catch (FailedConnection e) {
+         * System.out.println(this.getProxy().getNode());
+         * System.out.println(thenode); e.printStackTrace(); }
+         * }; }
+         */
 
-			}
-		};
+        IGridNode thiz = this.getProxy()
+            .getNode();
+        IReadOnlyCollection<IGridConnection> it = this.getProxy()
+            .getNode()
+            .getConnections();
+        ArrayList<IGridNode> a = new ArrayList<>(it.size());
+        it.forEach(s -> {
+            if (s.a() == thiz) a.add(s.b());
+            else a.add(s.a());
+        });
 
-		for (ForgeDirection side : ForgeDirection.VALID_DIRECTIONS) {
-			if (side == this.side)
-				continue;
-			ISerializableObject obj = aTileEntity.getComplexCoverDataAtSide(side);
-			IGridNode thenode = null;
-			if (obj instanceof Data)
-				thenode = ((Data) obj).getGridNode(side);
-			if (thenode == null) {
-				continue;
-			}
+        TriConsumer<IGridNode, String, ForgeDirection> tryConnect = (thenode, info, dir) -> {
+            if (!a.contains(thenode)) {
+                try {
+                    new GridConnection(thiz, thenode, ForgeDirection.UNKNOWN);
 
-			tryConnect.accept(thenode, "Internal", side);
-		}
+                    // MyMod.LOG.info(info + " Bridging Node connect@" + this.getPos() + " " + this.side + "->" + dir);
+                } catch (FailedConnection e) {
+                    System.out.println(
+                        this.getProxy()
+                            .getNode());
+                    System.out.println(thenode);
+                    e.printStackTrace();
+                }
 
-		WorldCoord npos = this.getPos().copy().add(side, 1);
-		Optional.ofNullable(this.getPos().getWorld().getTileEntity(npos.x, npos.y, npos.z))
-				.map(s -> s instanceof ICoverable ? (ICoverable) s : null)
-				.map(s -> s.getComplexCoverDataAtSide(side.getOpposite())).map(s -> s instanceof Data ? (Data) s : null)
-				.map(s -> s.getProxy().getNode()).ifPresent(s -> tryConnect.accept(s, "External", side));
+            }
+        };
 
-		/*
-		 * for(ForgeDirection side:ForgeDirection.VALID_DIRECTIONS){
-		 * if(side==this.side)continue;
-		 * 
-		 * }
-		 */
+        for (ForgeDirection side : ForgeDirection.VALID_DIRECTIONS) {
+            if (side == this.side) continue;
+            ISerializableObject obj = aTileEntity.getComplexCoverDataAtSide(side);
+            IGridNode thenode = null;
+            if (obj instanceof Data) thenode = ((Data) obj).getGridNode(side);
+            if (thenode == null) {
+                continue;
+            }
 
-		Data.super.update(aTileEntity);
-	}
+            tryConnect.accept(thenode, "Internal", side);
+        }
 
-	
+        WorldCoord npos = this.getPos()
+            .copy()
+            .add(side, 1);
+        Optional.ofNullable(
+            this.getPos()
+                .getWorld()
+                .getTileEntity(npos.x, npos.y, npos.z))
+            .map(s -> s instanceof ICoverable ? (ICoverable) s : null)
+            .map(s -> s.getComplexCoverDataAtSide(side.getOpposite()))
+            .map(s -> s instanceof Data ? (Data) s : null)
+            .map(
+                s -> s.getProxy()
+                    .getNode())
+            .ifPresent(s -> tryConnect.accept(s, "External", side));
 
-	@Override
-	public boolean firstUpdate() {
-		if (first) {
-			first = false;
-			return true;
-		}
-		return false;
-	}
+        /*
+         * for(ForgeDirection side:ForgeDirection.VALID_DIRECTIONS){
+         * if(side==this.side)continue;
+         * }
+         */
 
-	boolean first = true;
+        Data.super.update(aTileEntity);
+    }
 
-	public boolean hasAEGUI() {
-		return false;
-	};
+    @Override
+    public boolean firstUpdate() {
+        if (first) {
+            first = false;
+            return true;
+        }
+        return false;
+    }
 
-	@Override
-	public TileEntity fakeTile() {
+    boolean first = true;
 
-		return null;
-	}
+    public boolean hasAEGUI() {
+        return false;
+    };
 
-	public boolean requireChannel() {
-		return false;
-	}
+    @Override
+    public TileEntity fakeTile() {
+
+        return null;
+    }
+
+    public boolean requireChannel() {
+        return false;
+    }
 }

@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -58,18 +58,17 @@ public class TypeAnnotationNode extends AnnotationNode {
      * {@link #TypeAnnotationNode(int, int, TypePath, String)} version.
      * 
      * @param typeRef
-     *            a reference to the annotated type. See {@link TypeReference}.
+     *                 a reference to the annotated type. See {@link TypeReference}.
      * @param typePath
-     *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static inner type within 'typeRef'. May be
-     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
+     *                 the path to the annotated type argument, wildcard bound, array
+     *                 element type, or static inner type within 'typeRef'. May be
+     *                 <tt>null</tt> if the annotation targets 'typeRef' as a whole.
      * @param desc
-     *            the class descriptor of the annotation class.
+     *                 the class descriptor of the annotation class.
      * @throws IllegalStateException
-     *             If a subclass calls this constructor.
+     *                               If a subclass calls this constructor.
      */
-    public TypeAnnotationNode(final int typeRef, final TypePath typePath,
-            final String desc) {
+    public TypeAnnotationNode(final int typeRef, final TypePath typePath, final String desc) {
         this(Opcodes.ASM5, typeRef, typePath, desc);
         if (getClass() != TypeAnnotationNode.class) {
             throw new IllegalStateException();
@@ -80,19 +79,18 @@ public class TypeAnnotationNode extends AnnotationNode {
      * Constructs a new {@link AnnotationNode}.
      * 
      * @param api
-     *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *                 the ASM API version implemented by this visitor. Must be one
+     *                 of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param typeRef
-     *            a reference to the annotated type. See {@link TypeReference}.
+     *                 a reference to the annotated type. See {@link TypeReference}.
      * @param typePath
-     *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static inner type within 'typeRef'. May be
-     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
+     *                 the path to the annotated type argument, wildcard bound, array
+     *                 element type, or static inner type within 'typeRef'. May be
+     *                 <tt>null</tt> if the annotation targets 'typeRef' as a whole.
      * @param desc
-     *            the class descriptor of the annotation class.
+     *                 the class descriptor of the annotation class.
      */
-    public TypeAnnotationNode(final int api, final int typeRef,
-            final TypePath typePath, final String desc) {
+    public TypeAnnotationNode(final int api, final int typeRef, final TypePath typePath, final String desc) {
         super(api, desc);
         this.typeRef = typeRef;
         this.typePath = typePath;

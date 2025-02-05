@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -76,10 +76,10 @@ public class TypePath {
      * Creates a new type path.
      * 
      * @param b
-     *            the byte array containing the type path in Java class file
-     *            format.
+     *               the byte array containing the type path in Java class file
+     *               format.
      * @param offset
-     *            the offset of the first byte of the type path in 'b'.
+     *               the offset of the first byte of the type path in 'b'.
      */
     TypePath(byte[] b, int offset) {
         this.b = b;
@@ -99,7 +99,7 @@ public class TypePath {
      * Returns the value of the given step of this path.
      * 
      * @param index
-     *            an index between 0 and {@link #getLength()}, exclusive.
+     *              an index between 0 and {@link #getLength()}, exclusive.
      * @return {@link #ARRAY_ELEMENT ARRAY_ELEMENT}, {@link #INNER_TYPE
      *         INNER_TYPE}, {@link #WILDCARD_BOUND WILDCARD_BOUND}, or
      *         {@link #TYPE_ARGUMENT TYPE_ARGUMENT}.
@@ -114,7 +114,7 @@ public class TypePath {
      * {@link #TYPE_ARGUMENT TYPE_ARGUMENT}.
      * 
      * @param index
-     *            an index between 0 and {@link #getLength()}, exclusive.
+     *              an index between 0 and {@link #getLength()}, exclusive.
      * @return the index of the type argument that the given step is stepping
      *         into.
      */
@@ -127,8 +127,8 @@ public class TypePath {
      * {@link #toString()}, into a TypePath object.
      * 
      * @param typePath
-     *            a type path in string form, in the format used by
-     *            {@link #toString()}. May be null or empty.
+     *                 a type path in string form, in the format used by
+     *                 {@link #toString()}. May be null or empty.
      * @return the corresponding TypePath object, or null if the path is empty.
      */
     public static TypePath fromString(final String typePath) {
@@ -172,20 +172,20 @@ public class TypePath {
         StringBuilder result = new StringBuilder(length * 2);
         for (int i = 0; i < length; ++i) {
             switch (getStep(i)) {
-            case ARRAY_ELEMENT:
-                result.append('[');
-                break;
-            case INNER_TYPE:
-                result.append('.');
-                break;
-            case WILDCARD_BOUND:
-                result.append('*');
-                break;
-            case TYPE_ARGUMENT:
-                result.append(getStepArgument(i));
-                break;
-            default:
-                result.append('_');
+                case ARRAY_ELEMENT:
+                    result.append('[');
+                    break;
+                case INNER_TYPE:
+                    result.append('.');
+                    break;
+                case WILDCARD_BOUND:
+                    result.append('*');
+                    break;
+                case TYPE_ARGUMENT:
+                    result.append(getStepArgument(i));
+                    break;
+                default:
+                    result.append('_');
             }
         }
         return result.toString();

@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -84,16 +84,16 @@ public abstract class AnnotationVisitor {
      * Visits a primitive value of the annotation.
      * 
      * @param name
-     *            the value name.
+     *              the value name.
      * @param value
-     *            the actual value, whose type must be {@link Byte},
-     *            {@link Boolean}, {@link Character}, {@link Short},
-     *            {@link Integer} , {@link Long}, {@link Float}, {@link Double},
-     *            {@link String} or {@link Type} or OBJECT or ARRAY sort. This
-     *            value can also be an array of byte, boolean, short, char, int,
-     *            long, float or double values (this is equivalent to using
-     *            {@link #visitArray visitArray} and visiting each array element
-     *            in turn, but is more convenient).
+     *              the actual value, whose type must be {@link Byte},
+     *              {@link Boolean}, {@link Character}, {@link Short},
+     *              {@link Integer} , {@link Long}, {@link Float}, {@link Double},
+     *              {@link String} or {@link Type} or OBJECT or ARRAY sort. This
+     *              value can also be an array of byte, boolean, short, char, int,
+     *              long, float or double values (this is equivalent to using
+     *              {@link #visitArray visitArray} and visiting each array element
+     *              in turn, but is more convenient).
      */
     public void visit(String name, Object value) {
         if (av != null) {
@@ -105,11 +105,11 @@ public abstract class AnnotationVisitor {
      * Visits an enumeration value of the annotation.
      * 
      * @param name
-     *            the value name.
+     *              the value name.
      * @param desc
-     *            the class descriptor of the enumeration class.
+     *              the class descriptor of the enumeration class.
      * @param value
-     *            the actual enumeration value.
+     *              the actual enumeration value.
      */
     public void visitEnum(String name, String desc, String value) {
         if (av != null) {
@@ -121,9 +121,9 @@ public abstract class AnnotationVisitor {
      * Visits a nested annotation value of the annotation.
      * 
      * @param name
-     *            the value name.
+     *             the value name.
      * @param desc
-     *            the class descriptor of the nested annotation class.
+     *             the class descriptor of the nested annotation class.
      * @return a visitor to visit the actual nested annotation value, or
      *         <tt>null</tt> if this visitor is not interested in visiting this
      *         nested annotation. <i>The nested annotation value must be fully
@@ -144,7 +144,7 @@ public abstract class AnnotationVisitor {
      * {@link ClassReader} does.
      * 
      * @param name
-     *            the value name.
+     *             the value name.
      * @return a visitor to visit the actual array value elements, or
      *         <tt>null</tt> if this visitor is not interested in visiting these
      *         values. The 'name' parameters passed to the methods of this

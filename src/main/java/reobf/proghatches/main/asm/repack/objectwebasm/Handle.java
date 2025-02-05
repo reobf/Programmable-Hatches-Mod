@@ -7,13 +7,13 @@
  * modification, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -68,22 +68,22 @@ public final class Handle {
      * Constructs a new field or method handle.
      * 
      * @param tag
-     *            the kind of field or method designated by this Handle. Must be
-     *            {@link Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC},
-     *            {@link Opcodes#H_PUTFIELD}, {@link Opcodes#H_PUTSTATIC},
-     *            {@link Opcodes#H_INVOKEVIRTUAL},
-     *            {@link Opcodes#H_INVOKESTATIC},
-     *            {@link Opcodes#H_INVOKESPECIAL},
-     *            {@link Opcodes#H_NEWINVOKESPECIAL} or
-     *            {@link Opcodes#H_INVOKEINTERFACE}.
+     *              the kind of field or method designated by this Handle. Must be
+     *              {@link Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC},
+     *              {@link Opcodes#H_PUTFIELD}, {@link Opcodes#H_PUTSTATIC},
+     *              {@link Opcodes#H_INVOKEVIRTUAL},
+     *              {@link Opcodes#H_INVOKESTATIC},
+     *              {@link Opcodes#H_INVOKESPECIAL},
+     *              {@link Opcodes#H_NEWINVOKESPECIAL} or
+     *              {@link Opcodes#H_INVOKEINTERFACE}.
      * @param owner
-     *            the internal name of the class that owns the field or method
-     *            designated by this handle.
+     *              the internal name of the class that owns the field or method
+     *              designated by this handle.
      * @param name
-     *            the name of the field or method designated by this handle.
+     *              the name of the field or method designated by this handle.
      * @param desc
-     *            the descriptor of the field or method designated by this
-     *            handle.
+     *              the descriptor of the field or method designated by this
+     *              handle.
      */
     public Handle(int tag, String owner, String name, String desc) {
         this.tag = tag;
@@ -144,8 +144,7 @@ public final class Handle {
             return false;
         }
         Handle h = (Handle) obj;
-        return tag == h.tag && owner.equals(h.owner) && name.equals(h.name)
-                && desc.equals(h.desc);
+        return tag == h.tag && owner.equals(h.owner) && name.equals(h.name) && desc.equals(h.desc);
     }
 
     @Override

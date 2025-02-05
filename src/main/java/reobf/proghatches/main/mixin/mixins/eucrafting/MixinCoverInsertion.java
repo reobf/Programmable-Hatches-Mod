@@ -1,5 +1,7 @@
 package reobf.proghatches.main.mixin.mixins.eucrafting;
 
+import net.minecraftforge.common.util.ForgeDirection;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -9,13 +11,12 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import appeng.helpers.DualityInterface;
 import appeng.helpers.IInterfaceHost;
 import appeng.parts.AEBasePart;
-import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.eucrafting.IActualSideProvider;
-import reobf.proghatches.eucrafting.InterfaceData;
 
 @Mixin(value = DualityInterface.class, remap = false)
 public class MixinCoverInsertion {
-	//spotless:off
+
+    // spotless:off
 	@ModifyVariable(require=0,expect=0,at = @At(value="INVOKE"
 			,shift=Shift.BY,by=-3,
 			target="getAdaptor(Ljava/lang/Object;Lnet/minecraftforge/common/util/ForgeDirection;)Lappeng/util/InventoryAdaptor;"
@@ -34,28 +35,29 @@ public class MixinCoverInsertion {
 		return correct(old);
 	}
 	//spotless:on
-	@Shadow
-	private IInterfaceHost iHost;
+    @Shadow
+    private IInterfaceHost iHost;
 
-	private ForgeDirection correct(ForgeDirection f) {
-		if (f != ForgeDirection.UNKNOWN)
-			return f;
+    private ForgeDirection correct(ForgeDirection f) {
+        if (f != ForgeDirection.UNKNOWN) return f;
 
-		if (this instanceof IActualSideProvider) {
-			return ((IActualSideProvider) this).getActualSide().getOpposite();
-		}
+        if (this instanceof IActualSideProvider) {
+            return ((IActualSideProvider) this).getActualSide()
+                .getOpposite();
+        }
 
-		if (AEBasePart.class.isInstance(iHost)) {
-			AEBasePart host = (AEBasePart) iHost;
-			if (host.getHost() instanceof IActualSideProvider) {
+        if (AEBasePart.class.isInstance(iHost)) {
+            AEBasePart host = (AEBasePart) iHost;
+            if (host.getHost() instanceof IActualSideProvider) {
 
-				return ((IActualSideProvider) host.getHost()).getActualSide().getOpposite();
+                return ((IActualSideProvider) host.getHost()).getActualSide()
+                    .getOpposite();
 
-			}
+            }
 
-		}
-		return f;
+        }
+        return f;
 
-	}
+    }
 
 }

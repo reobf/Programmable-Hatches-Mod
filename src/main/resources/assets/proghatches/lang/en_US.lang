@@ -746,3 +746,4 @@ programmable_hatches.gt.newcrib.4=Turning off this mode will clear all the cache
 programmable_hatches.gt.newcrib.5=When off, GT Multi is not allowed to cache recipes for this hatch.
 programmable_hatches.gt.newcrib.nosupport=§cNot supported on current GT5u
 item.proghatches.part.tunnel.name=Crafting Request Tunnel
+provider.water.name=Water Provider

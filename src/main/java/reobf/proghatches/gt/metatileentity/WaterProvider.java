@@ -22,7 +22,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 
+import com.glodblock.github.common.item.ItemFluidDrop;
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
@@ -62,6 +65,8 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTUtility;
+import gtPlusPlus.core.util.data.ArrayUtils;
+import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.block.BlockIOHub;
@@ -74,24 +79,24 @@ import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
-public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidgets, IPowerChannelState,
-    ICraftingProvider, IGridProxyable, ICircuitProvider, IInstantCompletable, ICustomNameObject, IInterfaceViewable {
+public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChannelState,
+    ICraftingProvider, IGridProxyable, IInstantCompletable, ICustomNameObject, IInterfaceViewable {
 
-    int tech;
+   
 
-    public ProgrammingCircuitProvider(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount,
-        int tech) {
+    public WaterProvider(int aID, String aName, String aNameRegional, int aTier
+       ) {
         super(
             aID,
             aName,
             aNameRegional,
             aTier,
-            aInvSlotCount,
-            reobf.proghatches.main.Config.get("PCP", ImmutableMap.of())
+           0,
+            reobf.proghatches.main.Config.get("WP", ImmutableMap.of())
 
         );
         Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
-        this.tech = tech;
+    
     }
 
     private void updateValidGridProxySides() {
@@ -114,10 +119,10 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         updateValidGridProxySides();
     }
 
-    public ProgrammingCircuitProvider(String aName, int aTier, int aInvSlotCount, String[] aDescription,
-        ITexture[][][] aTextures, int tech) {
-        super(aName, aTier, aInvSlotCount, aDescription, aTextures);
-        this.tech = tech;
+    public WaterProvider(String aName, int aTier, String[] aDescription,
+        ITexture[][][] aTextures) {
+        super(aName, aTier, 0, aDescription, aTextures);
+       
     }
 
     // item returned in ae tick will not be recognized, delay to the next
@@ -335,155 +340,19 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
 
     @Override
     public void provideCrafting(ICraftingProviderHelper craftingTracker) {
-        // IStorageGrid storage = getStorageGrid();
-        // if (storage == null) return;
-        /*
-         * { ItemStack pattern = getPattern(new ItemStack[0],new ItemStack[]{new
-         * ItemStack(Blocks.bookshelf)}); ICraftingPatternItem patter =
-         * (ICraftingPatternItem) pattern.getItem();
-         * craftingTracker.addCraftingOption(this,
-         * patter.getPatternForItem(pattern,
-         * this.getBaseMetaTileEntity().getWorld())); } ItemStack pattern =
-         * getPattern(new ItemStack[]{new ItemStack(Blocks.anvil)},new
-         * ItemStack[]{new ItemStack(Blocks.brick_stairs)});
-         * ICraftingPatternItem patter = (ICraftingPatternItem)
-         * pattern.getItem(); craftingTracker.addCraftingOption(this,
-         * patter.getPatternForItem(pattern,
-         * this.getBaseMetaTileEntity().getWorld()));
-         */
-
+      
         doSnapshot();
-        /* if (this.mInventory[0] != null) */ {
-            for (ItemStack is : mInventory) craftingTracker
-                .addCraftingOption(this, new CircuitProviderPatternDetial(ItemProgrammingCircuit.wrap(is, 1, legacy)));
+       {
+          craftingTracker.addCraftingOption(this, new ProgrammingCircuitProvider.CircuitProviderPatternDetial(
+        		  
+        		  ItemFluidDrop.newStack(new FluidStack(FluidRegistry.WATER, 0+100_000_000))
+        		  ));
 
         }
 
     }
 
-    public static class CircuitProviderPatternDetial
-        implements ICraftingPatternDetails, IInputMightBeEmptyPattern, IDisallowOptimize {
-
-        @Nonnull
-        final public ItemStack out;
-        @Nonnull
-        final int hash;
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null) {
-                return false;
-            }
-            if (!(obj instanceof CircuitProviderPatternDetial)) {
-                return false;
-            }
-            return ItemStack.areItemStacksEqual(out, ((CircuitProviderPatternDetial) obj).out);
-        }
-
-        @Override
-        public int hashCode() {
-            if (out == null) return 0;
-            return hash;
-            /*
-             * Optional.ofNullable(out.stackTagCompound).map(Object::hashCode).
-             * orElse(0)^
-             * Integer.valueOf(Item.getIdFromItem(out.getItem())).hashCode()^
-             * Integer.valueOf(out.getItemDamage());
-             */
-        }
-
-        public CircuitProviderPatternDetial(@Nonnull ItemStack o) {
-            if (o == null) throw new IllegalArgumentException("null");
-            this.out = o;
-            if (o.stackSize <= 0) throw new IllegalArgumentException("invalid stackSize");
-            hash = AEItemStack.create(out)
-                .hashCode() ^ 0x1234abcd;
-            /*
-             * if(out ==null){ Thread.dumpStack();
-             * System.exit(0);}
-             */
-        }
-
-        @Override
-        public ItemStack getPattern() {
-            return Optional.of(new ItemStack(MyMod.fakepattern))
-                .map(s -> {
-
-                    s.stackTagCompound = (NBTTagCompound) out.writeToNBT(new NBTTagCompound())
-                        .copy();
-                    s.stackTagCompound.setInteger("icount", out.stackSize);
-                    return s;
-                })
-                .get();
-
-        }
-
-        @Override
-        public boolean isValidItemForSlot(int slotIndex, ItemStack itemStack, World world) {
-            // glad I don't have to implement this
-            throw new IllegalStateException("workbench crafting");
-        }
-
-        @Override
-        public boolean isCraftable() {
-
-            return false;
-        }
-
-        /**
-         * if return zero-sized input, ae2fc coremodhooks will crash so use one
-         * zero-stacksized item to workaround
-         */
-        @Override
-        public IAEItemStack[] getInputs() {
-
-            return new IAEItemStack[] { AEApi.instance()
-                .storage()
-                .createItemStack(new ItemStack(Items.apple, 0)) };
-        }
-
-        @Override
-        public IAEItemStack[] getCondensedInputs() {
-            return getInputs();
-        }
-
-        @Override
-        public IAEItemStack[] getCondensedOutputs() {
-
-            return new IAEItemStack[] { AEApi.instance()
-                .storage()
-                .createItemStack(out) };
-        }
-
-        @Override
-        public IAEItemStack[] getOutputs() {
-
-            return getCondensedOutputs();
-        }
-
-        @Override
-        public boolean canSubstitute() {
-
-            return false;
-        }
-
-        @Override
-        public ItemStack getOutput(InventoryCrafting craftingInv, World world) {
-            return out.copy();
-        }
-
-        @Override
-        public int getPriority() {
-
-            return Integer.MAX_VALUE - 10;
-        }
-
-        @Override
-        public void setPriority(int priority) {
-
-        }
-
-    }
+    
 
     @Override
     public boolean isPowered() {
@@ -505,14 +374,27 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
     @Override
     public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
 
-        return new ProgrammingCircuitProvider(mName, mTier, mInventory.length, mDescriptionArray, mTextures, tech);
+        return new WaterProvider(mName, mTier, mDescriptionArray, mTextures);
     }
 
     @Override
     public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirection side, ForgeDirection aFacing,
         int colorIndex, boolean aActive, boolean redstoneLevel) {
 
-        return super.getTexture(aBaseMetaTileEntity, side, aFacing, colorIndex, aActive, redstoneLevel);
+    	ITexture[] tex= super.getTexture(aBaseMetaTileEntity, side, aFacing, colorIndex, aActive, redstoneLevel);
+    	
+    	ITexture[] texn=null;
+    	
+    	if(side==aFacing){texn=tex;
+    	
+    		}else{
+    		texn=new ITexture[tex.length+1];
+    	System.arraycopy(tex, 0, texn, 0, tex.length);
+    	texn[texn.length-1]=TextureFactory.of(TexturesGtBlock.Overlay_Water);
+    	}
+    	
+    	
+    	return texn;
 
     }
 
@@ -616,7 +498,7 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         // aNBT.setString("customName",customName);
         aNBT.setBoolean("disabled", disabled);
         aNBT.setBoolean("legacy", legacy);
-        aNBT.setInteger("tech", tech);
+      
     }
 
     @Override
@@ -631,8 +513,7 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         customName = aNBT.getString("customName");
         disabled = aNBT.getBoolean("disabled");
         legacy = false;// aNBT.getBoolean("legacy");
-        if (aNBT.hasKey("tech")) tech = aNBT.getInteger("tech");
-        else tech = 1;
+     
     }
 
     @Override
@@ -641,7 +522,7 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         return new ItemStack(GregTechAPI.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID());
     }
 
-    @Override
+   /* @Override
     public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
         int z) {
         tag.setBoolean("disabled", disabled);
@@ -650,9 +531,9 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
             if (is != null) tag.setTag("#" + i, is.writeToNBT(new NBTTagCompound()));;
         }
         super.getWailaNBTData(player, tile, tag, world, x, y, z);
-    }
+    }*/
 
-    @Override
+   /* @Override
     public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
         IWailaConfigHandler config) {
 
@@ -676,7 +557,7 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
 
         super.getWailaBody(itemStack, currenttip, accessor, config);
     }
-
+*/
     boolean disabled;
 
     public void disable() {
@@ -699,24 +580,7 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         super.receiveClientEvent(aEventID, aValue);
     }
 
-    @Override
-    public Collection<ItemStack> getCircuit() {
-        boolean[] nullfound = new boolean[1];
-        return Arrays.stream(mInventory)
-            .filter(s -> {
-                if (s == null) {
-                    if (!nullfound[0]) {
-                        nullfound[0] = true;
-                        return true;
-                    }
-                    return false;
-                }
-                return true;
-            })
-            .map(s -> ItemProgrammingCircuit.wrap(s, 1, legacy))
-            .collect(Collectors.toList());
-    }
-
+    
     @Override
     public void complete() {
         // returnItems();

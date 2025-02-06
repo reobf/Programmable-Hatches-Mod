@@ -65,6 +65,7 @@ import reobf.proghatches.gt.metatileentity.SuperTankME;
 import reobf.proghatches.gt.metatileentity.SuperfluidHatch;
 import reobf.proghatches.gt.metatileentity.VoidOutputBus;
 import reobf.proghatches.gt.metatileentity.VoidOutputHatch;
+import reobf.proghatches.gt.metatileentity.WaterProvider;
 import reobf.proghatches.gt.metatileentity.multi.IngredientDistributor;
 import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
 import reobf.proghatches.lang.LangManager;
@@ -91,7 +92,8 @@ public class Registration implements Runnable {
     public final static int FilterOffset = 74;// -77
     private static final int RecipeCheckResultDetectorOffset = 78;
     public final static int IngBufferOffset = 79;// -80
-
+    public final static int WaterProviderOffset = 81;
+    
     public final static int BufferedQuadDualInputHatchOffset = 100;// -115
     public final static int LargeProviderOffset = 116;
     public final static int ChainerOffset = 117;
@@ -546,6 +548,15 @@ public class Registration implements Runnable {
 
         );
 
+        new WaterProvider(
+                Config.metaTileEntityOffset + WaterProviderOffset,
+
+                "provider.water",
+                LangManager.translateToLocalFormatted("provider.water.name"), 6
+
+            );
+        
+        
         /*
          * for (int i = 0; i < 4; i++) {
          * new DualInputHatch(

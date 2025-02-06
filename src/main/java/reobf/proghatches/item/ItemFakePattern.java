@@ -62,7 +62,11 @@ public class ItemFakePattern extends Item implements ICraftingPatternItem {
                         .getInteger("pr"));
             }
 
+            
             ItemStack iss = ItemStack.loadItemStackFromNBT(is.getTagCompound());
+           if(is.getTagCompound()!=null&&is.getTagCompound().hasKey("icount"))
+            iss.stackSize=is.getTagCompound().getInteger("icount");
+            
             return new CircuitProviderPatternDetial(iss);
 
         } catch (Exception ew) {

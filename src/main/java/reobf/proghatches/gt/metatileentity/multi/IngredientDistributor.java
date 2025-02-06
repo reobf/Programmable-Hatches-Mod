@@ -1095,8 +1095,9 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
                 .iterator();
             // if(check!=null)
             while (itr.hasNext()) {
-                IAEItemStack next;
-                if ((next = verifyForRealExistance(itr.next(), itemInventory)).isSameType(check) == false
+                IAEItemStack next= verifyForRealExistance(itr.next(), itemInventory);
+                if (next!=null)
+                if ((next).isSameType(check) == false
                     && next.getStackSize() > 0) {
                     if (check == null) return TransferCheckResult.ofFail("net.diff.bus.null", index, cp(next));
                     return TransferCheckResult.ofFail("net.diff.bus", index, cp(next), cp(check));
@@ -1135,8 +1136,9 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
             Iterator<IAEFluidStack> itr = itemCache.iterator();
             // if(check!=null)
             while (itr.hasNext()) {
-                IAEFluidStack next;
-                if (!sameType(next = itr.next(), (check)) && next.getStackSize() > 0) {
+                IAEFluidStack next= itr.next();
+                if(next!=null)
+                if (!sameType(next , (check)) && next.getStackSize() > 0) {
                     if (check == null) return TransferCheckResult.ofFail("cache.diff.hatch.null", index, cp(next));
                     return TransferCheckResult.ofFail("cache.diff.hatch", index, cp(next), cp(check));
                 }
@@ -1148,8 +1150,9 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
                 .iterator();
             // if(check!=null)
             while (itr.hasNext()) {
-                IAEFluidStack next;
-                if (!sameType(next = verifyForRealExistance(itr.next(), itemInventory), (check))
+                IAEFluidStack next= verifyForRealExistance(itr.next(), itemInventory);
+                if (next!=null)
+                if (!sameType(next , (check))
                     && next.getStackSize() > 0) {
                     if (check == null) return TransferCheckResult.ofFail("net.diff.hatch.null", index, cp(next));
                     return TransferCheckResult.ofFail("net.diff.hatch", index, cp(next), cp(check));
@@ -1218,6 +1221,7 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
     }
 
     private static boolean sameType(IAEFluidStack a, FluidStack b) {
+    	if (a == null) return false;
         if (b == null) return false;
         if (a.getFluid() != b.getFluid()) return false;
         if (a.getTagCompound() == null) {

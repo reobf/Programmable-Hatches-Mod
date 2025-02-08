@@ -34,7 +34,7 @@ import io.netty.buffer.ByteBuf;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover.Data> implements IControlsWorkCover {
+public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover.Data> /*implements IControlsWorkCover*/ {
 
     @Override
     public ModularWindow createWindow(CoverUIBuildContext buildContext) {

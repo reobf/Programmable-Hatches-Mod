@@ -2,6 +2,8 @@ package reobf.proghatches.main.registration;
 
 import static gregtech.api.enums.Textures.BlockIcons.MACHINE_CASINGS;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
@@ -17,7 +19,9 @@ import appeng.api.AEApi;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Dyes;
 import gregtech.api.enums.GTValues;
+import gregtech.api.interfaces.ITexture;
 import gregtech.api.render.TextureFactory;
+import gregtech.api.util.CoverBehaviorBase;
 import gregtech.api.util.LightingHelper;
 import gregtech.common.render.GTCopiedBlockTextureRender;
 import reobf.proghatches.eucrafting.AECover;
@@ -202,26 +206,26 @@ public class Registration implements Runnable {
             5,
             4,
             1);
-
-        GregTechAPI.registerCover(
+        
+        registerCover(
             new ItemStack(MyMod.cover, 1, 100),
             TextureFactory.of(
                 MACHINE_CASINGS[1][0],
                 TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
             new LevelControlCover());
-        GregTechAPI.registerCover(
+        registerCover(
             new ItemStack(MyMod.cover, 1, 0),
             TextureFactory.of(
                 MACHINE_CASINGS[1][0],
                 TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
             new ProgrammingCover());
-        GregTechAPI.registerCover(
+        registerCover(
             new ItemStack(MyMod.cover, 1, 1),
             TextureFactory.of(
                 MACHINE_CASINGS[1][0],
                 TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
             new WirelessControlCover());
-        GregTechAPI.registerCover(
+        registerCover(
             new ItemStack(MyMod.cover, 1, 4),
             TextureFactory.of(
                 MACHINE_CASINGS[1][0],
@@ -229,7 +233,7 @@ public class Registration implements Runnable {
             new LinkedBusSlaveCover());
         // WIP
         /*
-         * GregTechAPI.registerCover(
+         * registerCover(
          * new ItemStack(MyMod.cover, 1, 15),
          * TextureFactory.of(
          * MACHINE_CASINGS[1][0],
@@ -237,14 +241,14 @@ public class Registration implements Runnable {
          * new RecipeOutputAwarenessCover());
          */
         /*
-         * GregTechAPI.registerCover(
+         * registerCover(
          * new ItemStack(MyMod.cover, 1, 2),
          * TextureFactory.of(
          * MACHINE_CASINGS[1][0],
          * TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
          * new RecipeCheckResultCover());
          */
-        GregTechAPI.registerCover(
+        registerCover(
             new ItemStack(MyMod.cover, 1, 3),
             TextureFactory.of(
                 MACHINE_CASINGS[1][0],
@@ -254,14 +258,14 @@ public class Registration implements Runnable {
 
         for (int i = 0; i < 15; i++) {
             ;
-            GregTechAPI.registerCover(
+            registerCover(
                 new ItemStack(MyMod.smartarm, 1, i),
                 TextureFactory
                     .of(MACHINE_CASINGS[i][0], TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_ARM)),
                 new SmartArmCover(i));
         }
 
-        GregTechAPI.registerCover(
+        registerCover(
             new ItemStack(MyMod.cover, 1, 32),
             TextureFactory.of(
                 AEApi.instance()
@@ -269,29 +273,29 @@ public class Registration implements Runnable {
 
             new AECover(InterfaceData.class));
 
-        GregTechAPI.registerCover(
+        registerCover(
             new ItemStack(MyMod.cover, 1, 33),
             TextureFactory.of(ItemAndBlockHolder.INTERFACE),
 
             new AECover(InterfaceData.FluidInterfaceData_TileFluidInterface.class));
-        GregTechAPI.registerCover(
+        registerCover(
             new ItemStack(MyMod.cover, 1, 34),
             TextureFactory.of(
                 AEApi.instance()
                     .blocks().blockInterface.block()),
 
             new AECover(InterfaceP2PNoFluidData.class));
-        GregTechAPI.registerCover(
+        registerCover(
             new ItemStack(MyMod.cover, 1, 35),
             TextureFactory.of(ItemAndBlockHolder.INTERFACE),
 
             new AECover(InterfaceP2PData.class));
-        GregTechAPI.registerCover(
+        registerCover(
             new ItemStack(MyMod.cover, 1, 36),
             new DeferredGetterTexture(() -> MyMod.block_euinterface, ForgeDirection.UP, 0, Dyes._NULL.mRGBa, false),
 
             new AECover(InterfaceP2PEUData.class));
-        GregTechAPI.registerCover(
+        registerCover(
             new ItemStack(MyMod.cover, 1, 37),
 
             TextureFactory.of(MyMod.iohub, 0X7F)
@@ -301,7 +305,7 @@ public class Registration implements Runnable {
             new AECover(BridgingData.class));
 
         for (int i = 0; i <= 4; i++) {
-            GregTechAPI.registerCover(
+            registerCover(
                 new ItemStack(MyMod.cover, 1, 90 + i),
                 TextureFactory.of(
                     MACHINE_CASINGS[1][0],
@@ -578,7 +582,31 @@ public class Registration implements Runnable {
          */
     }
 
-    public class DeferredGetterTexture extends GTCopiedBlockTextureRender {
+    
+    
+    private Method registerCover;
+    private void registerCover(ItemStack itemStack, ITexture of, CoverBehaviorBase<?> circuitHolderCover) {
+		
+    	if(registerCover==null){
+    		try {
+    			registerCover=GregTechAPI.class.getDeclaredMethod("registerCover", ItemStack.class,ITexture.class,CoverBehaviorBase.class);
+			} catch (NoSuchMethodException e) {}
+		}	
+    		
+    	if(registerCover==null){
+    		try {
+    			registerCover=Class.forName("gregtech.api.covers.CoverRegistry").getDeclaredMethod("registerCover", ItemStack.class,ITexture.class,CoverBehaviorBase.class);
+			} catch (Exception e) {}
+		}	
+    	if(registerCover==null)throw new AssertionError("ERROR");
+    	try {
+			registerCover.invoke(null,itemStack, of,circuitHolderCover);
+		} catch (Exception e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	public class DeferredGetterTexture extends GTCopiedBlockTextureRender {
 
         private IIcon getIcon(int ordinalSide) {
 

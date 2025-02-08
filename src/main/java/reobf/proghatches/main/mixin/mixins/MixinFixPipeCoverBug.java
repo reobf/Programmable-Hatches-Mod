@@ -14,7 +14,7 @@ import gregtech.api.util.GTUtility;
 
 @Mixin(value = BaseMetaPipeEntity.class, remap = false, priority = 999)
 public class MixinFixPipeCoverBug {
-
+/*
     ForgeDirection realSide;
 
     @Inject(remap = false, method = "onRightclick", at = @At(value = "INVOKE", target = "onPlayerAttach"), require = 1)
@@ -25,5 +25,5 @@ public class MixinFixPipeCoverBug {
             realSide = GTUtility.determineWrenchingSide(side, aX, aY, aZ);
 
     }
-
+*/
 }

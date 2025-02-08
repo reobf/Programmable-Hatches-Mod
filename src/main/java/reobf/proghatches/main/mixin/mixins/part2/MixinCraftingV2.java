@@ -4,6 +4,7 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 import appeng.api.implementations.tiles.ICraftingMachine;
@@ -14,14 +15,20 @@ import gregtech.api.metatileentity.CommonMetaTileEntity;
 import reobf.proghatches.gt.metatileentity.util.ICraftingV2;
 
 @Mixin(value = BaseMetaTileEntity.class, remap = false)
-public abstract class MixinCraftingV2 extends CommonMetaTileEntity implements ICraftingMachine {
-
+public abstract class MixinCraftingV2 /*extends CommonMetaTileEntity */implements ICraftingMachine {
+	
+	
+	private IMetaTileEntity getMetaTileEntity0(){
+		
+		BaseMetaTileEntity x=(BaseMetaTileEntity)(Object)this;
+		return x.getMetaTileEntity();
+	};
     @Override
     public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table,
         ForgeDirection ejectionDirection) {
         if (notV2) return false;
         IMetaTileEntity mte;
-        if ((mte = getMetaTileEntity()) instanceof ICraftingV2) {
+        if ((mte = getMetaTileEntity0()) instanceof ICraftingV2) {
             if (((ICraftingV2) mte).enableCM() == false) {
                 return false;
             }
@@ -43,7 +50,7 @@ public abstract class MixinCraftingV2 extends CommonMetaTileEntity implements IC
     public boolean acceptsPlans() {
         if (notV2) return false;
         IMetaTileEntity mte;
-        if ((mte = getMetaTileEntity()) instanceof ICraftingV2) {
+        if ((mte = getMetaTileEntity0()) instanceof ICraftingV2) {
             if (((ICraftingV2) mte).enableCM() == false) {
                 return false;
             }

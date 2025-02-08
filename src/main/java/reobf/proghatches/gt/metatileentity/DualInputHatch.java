@@ -2394,7 +2394,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
         private void broken() {
             MyMod.LOG.fatal("FAILED TO UPDATE ME INPUTS!");
             MyMod.LOG.fatal("basemeta:" + getBaseMetaTileEntity());
-
+            Thread.dumpStack();
             if (getBaseMetaTileEntity() != null) {
                 MyMod.LOG.fatal(
                     "same:" + (getBaseMetaTileEntity().getMetaTileEntity() == DualInputHatch.this)
@@ -2412,7 +2412,8 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
             all.addAll(circuitInv);
             all.add(mInventory[getCircuitSlot()]);
             if (recipe == false) {
-                broken();
+                if(!broken)
+            	broken();
                 // Thread.dumpStack();
                 broken = true;
                 all.removeIf(Objects::isNull);

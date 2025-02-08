@@ -163,8 +163,8 @@ static public ArrayList<String> retLate = new ArrayList<>();
         }
         if (ff) retLate.add("eucrafting." + "MixinInvTracker");
 
-        if (ff) retLate.add("MixinFixPipeCoverBug");
-        if (ff) retLate.add("MixinFixPipeCoverBug2");
+        //if (ff) retLate.add("MixinFixPipeCoverBug");
+       // if (ff) retLate.add("MixinFixPipeCoverBug2");
 
         if (ff) retLate.add("MixinAEAdaptorSkipStackSizeCheck");
         if (ff) retLate.add("MixinAwarenessForDualHatch");
@@ -204,7 +204,7 @@ static public ArrayList<String> retLate = new ArrayList<>();
         retLate.add("part2.MixinCraftingV2");
 
         retLate.add("part2.MixinDirectionCapture");
-
+        // retLate.add("part2.M2");
         retLate.add("part2.MixinEIOInit");
         retLate.add("part2.MixinEIOBundle");
         retLate.add("part2.MixinContextNoCircuitCache");

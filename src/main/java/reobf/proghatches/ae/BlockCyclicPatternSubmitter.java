@@ -42,7 +42,7 @@ public class BlockCyclicPatternSubmitter extends BlockContainer implements IName
     public void onBlockPlacedBy(World worldIn, int x, int y, int z, EntityLivingBase placer, ItemStack itemIn) {
 
         super.onBlockPlacedBy(worldIn, x, y, z, placer, itemIn);
-
+        if(worldIn.isRemote==false)
         if (placer instanceof EntityPlayer) {
             if (!(placer instanceof FakePlayer))
                 ((TileCyclicPatternSubmitter) worldIn.getTileEntity(x, y, z)).mark((EntityPlayer) placer);

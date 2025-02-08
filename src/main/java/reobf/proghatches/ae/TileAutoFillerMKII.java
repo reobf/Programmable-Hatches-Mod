@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -266,5 +267,10 @@ public class TileAutoFillerMKII extends TileFluidAutoFiller/* implements IInstan
 
         return data;
     }
+    public void mark(EntityPlayer placer) {
+        getProxy().setOwner((EntityPlayer) placer);
+     
+    }
+
 
 }

@@ -19,7 +19,7 @@ import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 
-@SuppressWarnings("unused")
+
 @Pseudo
 @Mixin(
 
@@ -60,7 +60,7 @@ public abstract class MixinAwarenessForDualHatch {
     }
 
     @Unique
-    public void setResultIfFailure0(CheckRecipeResult endRecipeProcessing) {
+    private void setResultIfFailure0(CheckRecipeResult endRecipeProcessing) {
         try {
             MH_setResultIfFailure.invoke((MTEMultiBlockBase) (Object) this, endRecipeProcessing);
         } catch (Throwable e) {
@@ -71,7 +71,7 @@ public abstract class MixinAwarenessForDualHatch {
     }
 
     @Unique
-    public ArrayList<IDualInputHatch> mDualInputHatches0() {
+    private ArrayList<IDualInputHatch> mDualInputHatches0() {
         try {
             return (ArrayList<IDualInputHatch>) MH_mDualInputHatches.invoke((MTEMultiBlockBase) (Object) this);
         } catch (Throwable e) {
@@ -80,7 +80,7 @@ public abstract class MixinAwarenessForDualHatch {
         }
     }
 
-    @Inject(method = "startRecipeProcessing", at = { @At(value = "RETURN") }/* ,require=1 */)
+    @Inject(method = "startRecipeProcessing", at = { @At(value = "RETURN") } ,require=1 )
     public void startRecipeProcessing(CallbackInfo c) {
         ArrayList<IDualInputHatch> collection = mDualInputHatches0();
         Iterator<IDualInputHatch> it = collection.iterator();
@@ -99,7 +99,7 @@ public abstract class MixinAwarenessForDualHatch {
         }
     }
 
-    @Inject(method = "endRecipeProcessing", at = { @At(value = "RETURN") }/* ,require=1 */)
+    @Inject(method = "endRecipeProcessing", at = { @At(value = "RETURN") } ,require=1 )
     public void endRecipeProcessing(CallbackInfo c) {
         /*
          * Consumer<CheckRecipeResult> setResultIfFailure = result -> { if

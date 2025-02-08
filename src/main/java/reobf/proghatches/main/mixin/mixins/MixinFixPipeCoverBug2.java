@@ -10,7 +10,7 @@ import gregtech.api.metatileentity.BaseMetaPipeEntity;
 
 @Mixin(value = BaseMetaPipeEntity.class, remap = false, priority = 1000)
 public class MixinFixPipeCoverBug2 {
-
+/*
     @ModifyArg(
         remap = false,
         method = "onRightclick",
@@ -27,5 +27,5 @@ public class MixinFixPipeCoverBug2 {
     }
 
     ForgeDirection realSide;
-
+*/
 }

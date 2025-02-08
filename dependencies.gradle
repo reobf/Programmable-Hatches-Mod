@@ -149,7 +149,7 @@ dependencies {
 	 
 	 
 	  api("com.github.GTNewHorizons:ironchest:6.0.87:dev")
-  
+    api("com.github.GTNewHorizons:RemoteIO:2.7.1:dev")
   
   
   ////////

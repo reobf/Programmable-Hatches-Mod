@@ -1,15 +1,19 @@
 package reobf.proghatches.ae;
 
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.glodblock.github.FluidCraft;
@@ -76,5 +80,18 @@ public class BlockAutoFillerMKII extends BlockContainer implements INameAndToolt
     public String getName(ItemStack p_77624_1_) {
         // TODO Auto-generated method stub
         return null;
+    }  
+    @Override
+    public void onBlockPlacedBy(World worldIn, int x, int y, int z, EntityLivingBase placer, ItemStack itemIn) {
+
+        super.onBlockPlacedBy(worldIn, x, y, z, placer, itemIn);
+if(worldIn.isRemote==false)
+        if (placer instanceof EntityPlayer) {
+            if (!(placer instanceof FakePlayer))
+                ((TileAutoFillerMKII) worldIn.getTileEntity(x, y, z)).mark((EntityPlayer) placer);
+        }
+      
+
+
     }
 }

@@ -640,7 +640,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
     public void placeCover(ForgeDirection side, ItemStack aCover, ICoverable aTileEntity) {
         super.placeCover(side, aCover, aTileEntity);
 
-        Data data = ((Data) aTileEntity.getComplexCoverDataAtSide(side));
+        Data data = ((Data) aTileEntity.getCoverInfoAtSide(side).getCoverData());
         data.setTag(aCover.getTagCompound());
         data.accept(side, aTileEntity, false);
 
@@ -649,7 +649,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
     @Override
     public void onPlayerAttach(EntityPlayer player, ItemStack aCover, ICoverable aTileEntity, ForgeDirection side) {
 
-        Data data = (Data) aTileEntity.getComplexCoverDataAtSide(side);
+        Data data = (Data) aTileEntity.getCoverInfoAtSide(side).getCoverData();
         data.getProxy()
             .setOwner(player);
     }
@@ -933,7 +933,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
         return new AECoverUIFactory(
             buildContext,
             ((Data) buildContext.getTile()
-                .getComplexCoverDataAtSide(buildContext.getCoverSide()))).createWindow();
+            		.getCoverInfoAtSide(buildContext.getCoverSide()).getCoverData())).createWindow();
     }
 
     private class AECoverUIFactory extends UIFactory {

@@ -349,7 +349,7 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
             }
             if (grid == null) {
                 for (ForgeDirection fd : ForgeDirection.VALID_DIRECTIONS) {
-                    ISerializableObject dat = aTileEntity.getComplexCoverDataAtSide(fd);
+                    ISerializableObject dat = aTileEntity.getCoverInfoAtSide(fd).getCoverData();
                     if (dat instanceof AECover.Data) {
                         AECover.Data ae = (reobf.proghatches.eucrafting.AECover.Data) dat;
                         grid = ae.getProxy();
@@ -383,7 +383,13 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
         boolean ok = (aCoverVariable.invert ? amount <= aCoverVariable.amount : amount >= aCoverVariable.amount);
 
         if (aTileEntity instanceof IMachineProgress) {
-            ((IMachineProgress) aTileEntity).setAllowedToWork(ok);
+          
+            boolean allowedToWork = ok;
+            if (allowedToWork) {
+            	 ((IMachineProgress) aTileEntity).enableWorking();
+             } else {
+            	 ((IMachineProgress) aTileEntity).disableWorking();
+             }
 
         }
         return aCoverVariable;

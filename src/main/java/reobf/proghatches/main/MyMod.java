@@ -493,11 +493,11 @@ public class MyMod {
             ICoverable tileEntity = (ICoverable) te;
 
             for (ForgeDirection side : ForgeDirection.VALID_DIRECTIONS) {
-                if (tileEntity.getCoverBehaviorAtSideNew(side) instanceof AECover) GTValues.NW.sendToPlayer(
+                if (tileEntity.getCoverInfoAtSide(side).getCoverBehavior() instanceof AECover) GTValues.NW.sendToPlayer(
                     new GTPacketSendCoverData(
                         side,
                         tileEntity.getCoverIDAtSide(side),
-                        tileEntity.getComplexCoverDataAtSide(side),
+                        tileEntity.getCoverInfoAtSide(side).getCoverData(),
                         tileEntity),
                     (EntityPlayerMP) event.entityPlayer);
 
@@ -512,7 +512,7 @@ public class MyMod {
                 .isPresent()) {
                 IMemoryCardSensitive cv = Optional.ofNullable(event.world.getTileEntity(event.x, event.y, event.z))
                     .map(s -> s instanceof ICoverable ? (ICoverable) s : null)
-                    .map(s -> s.getComplexCoverDataAtSide(ForgeDirection.getOrientation(event.face)))
+                    .map(s -> s .getCoverInfoAtSide(ForgeDirection.getOrientation(event.face)).getCoverData())
                     .map(s -> s instanceof AECover.IMemoryCardSensitive ? (AECover.IMemoryCardSensitive) s : null)
                     .orElse(null);
 
@@ -607,7 +607,7 @@ public class MyMod {
             if (te instanceof ICoverable) {
                 ICoverable c = (ICoverable) te;
                 for (ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
-                    Optional.ofNullable(c.getComplexCoverDataAtSide(dir))
+                    Optional.ofNullable(c .getCoverInfoAtSide( dir).getCoverData())
                         .ifPresent(s -> {
                             if (s instanceof AECover.Data) {
                                 ((AECover.Data) s).destroy();

@@ -22,7 +22,7 @@ import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
 import gregtech.api.gui.modularui.CoverUIBuildContext;
 import gregtech.api.gui.modularui.GTUITextures;
-import gregtech.api.interfaces.covers.IControlsWorkCover;
+
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IMachineProgress;
@@ -81,7 +81,7 @@ public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover
                 if ((aInputRedstone > 0)) {
                     if (!machine.isAllowedToWork()) machine.enableWorking();
                 } else if (machine.isAllowedToWork()) machine.disableWorking();
-                machine.setWorkDataValue(aInputRedstone);
+                //machine.setWorkDataValue(aInputRedstone);
             } else if (d.crashed) {
                 machine.disableWorking();
             } else {
@@ -289,7 +289,7 @@ public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover
         boolean aForced) {
         if ((aTileEntity instanceof IMachineProgress)) {
             ((IMachineProgress) aTileEntity).enableWorking();
-            ((IMachineProgress) aTileEntity).setWorkDataValue((byte) 0);
+           // ((IMachineProgress) aTileEntity).setWorkDataValue((byte) 0);
         }
         return true;
     }

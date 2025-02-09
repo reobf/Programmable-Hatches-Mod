@@ -46,7 +46,7 @@ public class LinkedBusSlaveCover extends CoverBehavior implements IProgrammer {
             .filter(s -> s instanceof MTELinkedInputBus)
             .isPresent()) return false;
         for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS) {
-            CoverBehaviorBase<?> beh = aTileEntity.getCoverBehaviorAtSideNew(d);
+            CoverBehaviorBase<?> beh = aTileEntity.getCoverInfoAtSide(d).getCoverBehavior();
             if (beh != null && beh.getClass() == ProgrammingCover.class) {
                 return false;
             }

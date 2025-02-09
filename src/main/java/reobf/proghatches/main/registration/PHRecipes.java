@@ -47,6 +47,7 @@ import gregtech.api.util.GTRecipe;
 import gregtech.api.util.GTRecipeBuilder;
 import gregtech.api.util.GTRecipeConstants;
 import gregtech.api.util.GTUtility;
+import gtPlusPlus.xmod.gregtech.api.enums.GregtechItemList;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
@@ -2007,7 +2008,22 @@ public class PHRecipes implements Runnable {
         CraftingManager.getInstance()
             .getRecipeList()
             .add(recx);
-
+        
+        GTValues.RA.stdBuilder()
+        .itemInputs(
+        		GregtechItemList.Hatch_Reservoir.get(1),
+        		new ItemStack(
+                        GregTechAPI.sBlockMachines,
+                        1,
+                        Config.metaTileEntityOffset + Registration.CircuitProviderOffsetT0)
+        		)
+        .itemOutputs(  new ItemStack(
+                GregTechAPI.sBlockMachines,
+                1,
+                Config.metaTileEntityOffset + Registration.WaterProviderOffset))
+        .duration(1 * SECONDS)
+        .eut(30)
+        .addTo(RecipeMaps.assemblerRecipes);
         /*
          * rec = new ShapelessOreRecipe( new ItemStack( MyMod.plunger,1,1),
          * ItemEnum.BOOSTER_CARD.getStack(0),

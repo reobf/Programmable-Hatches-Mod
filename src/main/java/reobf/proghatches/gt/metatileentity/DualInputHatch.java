@@ -2666,9 +2666,9 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
         if (g == null) {
             Object optCover = this.getBaseMetaTileEntity()
-                .getComplexCoverDataAtSide(
-                    this.getBaseMetaTileEntity()
-                        .getFrontFacing());
+                .getCoverInfoAtSide( this.getBaseMetaTileEntity()
+                        .getFrontFacing()).getCoverData()
+                   ;
             if (optCover instanceof AECover.Data) {
 
                 IInterfaceHost iface = ((AECover.Data) optCover).getInterfaceOrNull();

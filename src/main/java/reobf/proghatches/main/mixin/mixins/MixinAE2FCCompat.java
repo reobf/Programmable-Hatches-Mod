@@ -73,7 +73,7 @@ public class MixinAE2FCCompat {
 
         if (te instanceof ICoverable) {
             ICoverable c = (ICoverable) te;
-            ISerializableObject data = c.getComplexCoverDataAtSide(face);
+            ISerializableObject data = c.getCoverInfoAtSide( face).getCoverData();
             if (data instanceof AECover.Data) {
                 return ((AECover.Data) data).supportFluid();
             }

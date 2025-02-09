@@ -110,7 +110,7 @@ public class ProgrammingCover extends CoverBehavior implements IProgrammer {
             .isPresent()) return false;
 
         for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS) {
-            CoverBehaviorBase<?> beh = aTileEntity.getCoverBehaviorAtSideNew(d);
+            CoverBehaviorBase<?> beh = aTileEntity.getCoverInfoAtSide(d).getCoverBehavior();
             if (beh != null && beh.getClass() == LinkedBusSlaveCover.class) {
                 return false;
             }

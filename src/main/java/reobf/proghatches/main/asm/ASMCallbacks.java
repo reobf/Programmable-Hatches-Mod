@@ -1,5 +1,6 @@
 package reobf.proghatches.main.asm;
 
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.CommonMetaTileEntity;
 import reobf.proghatches.oc.IActualEnvironment;
 
@@ -9,7 +10,7 @@ public class ASMCallbacks {
 
         if (o instanceof CommonMetaTileEntity) {
 
-            CommonMetaTileEntity mte = (CommonMetaTileEntity) o;
+        	IGregTechTileEntity mte = (IGregTechTileEntity) o;
             if (mte.getMetaTileEntity() instanceof IActualEnvironment) {
 
                 return o instanceof li.cil.oc.api.network.Environment;

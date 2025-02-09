@@ -28,7 +28,7 @@ public abstract class MixinHandleProgrammingOnRecipeStart {
             Arrays.stream(ForgeDirection.VALID_DIRECTIONS)
                 .map(
                     s -> bus.getBaseMetaTileEntity()
-                        .getCoverBehaviorAtSideNew(s))
+                    .getCoverInfoAtSide(s).getCoverBehavior())
                 .filter(Objects::nonNull)
                 .filter(s -> s instanceof IProgrammer)
                 .forEach(s -> ((IProgrammer) s).impl(bus.getBaseMetaTileEntity()));;

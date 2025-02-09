@@ -34,7 +34,9 @@ import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatchDataAccess;
 import gregtech.api.render.TextureFactory;
+import gregtech.api.util.AssemblyLineUtils;
 import gregtech.api.util.GTUtility;
+import gregtech.api.util.GTRecipe.RecipeAssemblyLine;
 import reobf.proghatches.gt.metatileentity.util.IMEStorageChangeAwareness;
 import reobf.proghatches.main.registration.Registration;
 import tectech.thing.casing.BlockGTCasingsTT;
@@ -145,6 +147,7 @@ public class DataHatchME extends MTEHatchDataAccess
     }
 
     private void updateCache() {
+    		cachedRecipes=null;
         if ((!getProxy().isPowered()) || (!getProxy().isActive())) {
             inv = new ItemStack[] {};
             return;
@@ -307,13 +310,48 @@ public class DataHatchME extends MTEHatchDataAccess
 
     private long lastupdate = -99999;
 
-    @Override
+    //@Override
     public List<ItemStack> getInventoryItems(Predicate<ItemStack> filter) {
         long thistick = ((BaseMetaTileEntity) this.getBaseMetaTileEntity()).mTickTimer;
         if (Math.abs(lastupdate - thistick) > 100) {
             updateCache();
             lastupdate = thistick;
         }
-        return super.getInventoryItems(filter);
+        return super_getInventoryItems(filter);
+    }
+    public List super_getInventoryItems(Predicate filter) {
+        ArrayList items = new ArrayList();
+        IGregTechTileEntity te = this.getBaseMetaTileEntity();
+
+        for(int i = 0; i < te.getSizeInventory(); ++i) {
+           ItemStack slot = te.getStackInSlot(i);
+           if (slot != null && filter != null && filter.test(slot)) {
+              items.add(slot);
+           }
+        }
+
+        return items;
+     }
+    
+    
+    List<RecipeAssemblyLine> cachedRecipes;
+    public List<RecipeAssemblyLine> getAssemblyLineRecipes() {
+    	 long thistick = ((BaseMetaTileEntity) this.getBaseMetaTileEntity()).mTickTimer;
+    	 if (Math.abs(lastupdate - thistick) > 100) {
+             updateCache();
+             lastupdate = thistick;
+         }
+    	 if (cachedRecipes == null) {
+             cachedRecipes = new ArrayList<>();
+
+             for (int i = 0; i < getSizeInventory(); i++) {
+                 cachedRecipes.addAll(AssemblyLineUtils.findALRecipeFromDataStick(getStackInSlot(i)));
+             }
+         }
+
+        
+		return cachedRecipes;
+
+ 
     }
 }

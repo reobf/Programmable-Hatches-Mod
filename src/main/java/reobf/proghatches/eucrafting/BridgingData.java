@@ -136,7 +136,7 @@ public class BridgingData implements Data {
 
         for (ForgeDirection side : ForgeDirection.VALID_DIRECTIONS) {
             if (side == this.side) continue;
-            ISerializableObject obj = aTileEntity.getComplexCoverDataAtSide(side);
+            ISerializableObject obj = aTileEntity.getCoverInfoAtSide(side).getCoverData();
             IGridNode thenode = null;
             if (obj instanceof Data) thenode = ((Data) obj).getGridNode(side);
             if (thenode == null) {
@@ -154,7 +154,7 @@ public class BridgingData implements Data {
                 .getWorld()
                 .getTileEntity(npos.x, npos.y, npos.z))
             .map(s -> s instanceof ICoverable ? (ICoverable) s : null)
-            .map(s -> s.getComplexCoverDataAtSide(side.getOpposite()))
+            .map(s -> s.getCoverInfoAtSide(side.getOpposite()).getCoverData())
             .map(s -> s instanceof Data ? (Data) s : null)
             .map(
                 s -> s.getProxy()

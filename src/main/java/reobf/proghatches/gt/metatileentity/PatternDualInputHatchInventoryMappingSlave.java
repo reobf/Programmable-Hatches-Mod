@@ -873,6 +873,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                 BufferedDualInputHatch m = (BufferedDualInputHatch) master;
 
                 DualInvBuffer theBuffer = ((BufferedDualInputHatch) master).classifyForce();
+                if(theBuffer!=null)
                 ((BufferedDualInputHatch) master).recordRecipe(theBuffer);
                 // ((BufferedDualInputHatch) master).classifyForce();
             }
@@ -1124,6 +1125,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                  */
 
                 DualInvBuffer theBuffer = ((BufferedDualInputHatch) master).classifyForce();
+                if(theBuffer!=null)
                 m.recordRecipe(theBuffer);
                 // DualInvBuffer theBuffer=((BufferedDualInputHatch) master).classifyForce();
 

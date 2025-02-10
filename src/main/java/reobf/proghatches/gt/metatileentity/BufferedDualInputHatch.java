@@ -2790,6 +2790,7 @@ public class BufferedDualInputHatch extends DualInputHatch
     }
 
     public void recordRecipe(DualInvBuffer thiz) {
+    	 if (thiz==null) return;
         if (thiz.PID > 0) return;
         if (useNewGTPatternCache == false) {
             return;

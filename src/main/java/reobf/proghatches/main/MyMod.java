@@ -1,5 +1,10 @@
 package reobf.proghatches.main;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -34,6 +39,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.oredict.OreDictionary;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -95,6 +101,7 @@ import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricat
 import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.keybinding.KeyBindings;
 import reobf.proghatches.lang.LangManager;
+import reobf.proghatches.main.asm.repack.objectwebasm.ClassWriter;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.net.ConnectionModeMessage;
 import reobf.proghatches.net.MAFXMessage;
@@ -379,15 +386,13 @@ public class MyMod {
 
     public static Achievement achievement;
 
-    /**
-     * @param event
-     */
+ 
     @Mod.EventHandler
 
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
-        // KeyBindings
-
+       
+OreDictionary.registerOre("ph:circuit", new ItemStack( progcircuit,1,OreDictionary.WILDCARD_VALUE));
         {
             AchievementPage page = new AchievementPage(
                 MODID,

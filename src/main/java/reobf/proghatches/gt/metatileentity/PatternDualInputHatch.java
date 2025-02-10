@@ -658,6 +658,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
          */
 
         DualInvBuffer theBuffer = /* ((BufferedDualInputHatch) master). */classifyForce();
+        if(theBuffer!=null)
         recordRecipe(theBuffer);
 
         justHadNewItems = true;
@@ -1053,6 +1054,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
          */
 
         DualInvBuffer theBuffer = /* ((BufferedDualInputHatch) master). */classifyForce();
+        if(theBuffer!=null)
         recordRecipe(theBuffer);
 
         // if(theBuffer!=null){

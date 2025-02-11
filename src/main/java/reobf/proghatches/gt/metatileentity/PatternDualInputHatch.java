@@ -999,16 +999,16 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
     }
 
     @Override
-    public int pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
-        if (Config.fastPatternDualInput == false) return 0;
-        if (maxTodo <= 0) return 0;
-        if (!isActive() && !skipActiveCheck) return 0;
-        if (!isEmpty()) return 0;
+    public int[] pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
+        if (Config.fastPatternDualInput == false) return AZERO;
+        if (maxTodo <= 0) return AZERO;
+        if (!isActive() && !skipActiveCheck) return AZERO;
+        if (!isEmpty()) return AZERO;
         if (!supportsFluids()) {
             for (int i = 0; i < table.getSizeInventory(); ++i) {
                 ItemStack itemStack = table.getStackInSlot(i);
                 if (itemStack == null) continue;
-                if (itemStack.getItem() instanceof ItemFluidPacket) return 0;
+                if (itemStack.getItem() instanceof ItemFluidPacket) return AZERO;
             }
         }
 
@@ -1022,7 +1022,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
                 fluids++;
                 if (fluids > this.fluidSlots()) {
                     clearInv();
-                    return 0;
+                    return  AZERO;
                 }
 
                 mStoredFluid[fluids - 1].setFluidDirect(ItemFluidPacket.getFluidStack(itemStack));
@@ -1031,7 +1031,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
                 items++;
                 if (items > 16) {
                     clearInv();
-                    return 0;
+                    return  AZERO;
                 }
                 mInventory[items - 1] = itemStack;
 
@@ -1111,7 +1111,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
         saved += suc;
 
         justHadNewItems = true;
-        return suc;
+        return new int[]{suc};
     }
 
     long saved;

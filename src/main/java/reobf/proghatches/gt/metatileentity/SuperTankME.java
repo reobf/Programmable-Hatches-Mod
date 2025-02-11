@@ -383,7 +383,7 @@ public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxya
 
         @Override
         public IAEFluidStack injectItems(IAEFluidStack input, Actionable type, BaseActionSource src) {
-            post();
+        	 if (type != Actionable.SIMULATE)post();
             try {
                 int acc = content.fill(input.getFluidStack(), type == Actionable.MODULATE);
                 IAEFluidStack ret = input.copy();

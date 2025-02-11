@@ -1041,10 +1041,10 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
             new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
         return true;
     }
-
+    static int[] AZERO={0};
     @Override
-    public int pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
-        if (Config.fastPatternDualInput == false) return 0;
+    public int[] pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
+        if (Config.fastPatternDualInput == false) return AZERO;
 
         if (getMaster() instanceof PatternDualInputHatch) {
             PatternDualInputHatch dih = ((PatternDualInputHatch) getMaster());
@@ -1058,7 +1058,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         int suc = 0;
         if (master != null) {
             if (!isInputEmpty(master)) {
-                return 0;
+            	return AZERO;
             }
 
             int i = 0;
@@ -1079,13 +1079,13 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                     while (fs.amount > 0) {
                         if (f >= master.mStoredFluid.length) {
                             clearInv(master);
-                            return 0;
+                            return AZERO;
                         }
                         int tosplit = Math.min(fs.amount, flimit);
                         fs.amount -= tosplit;
                         if ((!fsplit) && fs.amount > 0) {
                             clearInv(master);
-                            return 0;
+                            return AZERO;
                         }
                         FluidStack splitted = new FluidStack(fs.getFluid(), tosplit);
                         master.mStoredFluid[f].setFluidDirect(splitted);
@@ -1096,12 +1096,12 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                     while (is.stackSize > 0) {
                         if (master.isValidSlot(i) == false) {
                             clearInv(master);
-                            return 0;
+                            return AZERO;
                         }
                         ItemStack splitted = is.splitStack(Math.min(is.stackSize, ilimit));
                         if ((!isplit) && is.stackSize > 0) {
                             clearInv(master);
-                            return 0;
+                            return AZERO;
                         }
                         master.mInventory[i] = splitted;
                         i++;
@@ -1171,7 +1171,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
         }
 
-        return suc;
+        return new int[]{suc};
 
     }
 

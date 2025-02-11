@@ -79,7 +79,10 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
 
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-        boolean active = this.getProxy()
+       
+    	if (getBaseMetaTileEntity().isServerSide()) {
+            tickCounter = aTick;}
+    	boolean active = this.getProxy()
             .isActive();
         if (!aBaseMetaTileEntity.getWorld().isRemote) {
             if (wasActive != active) {
@@ -145,15 +148,22 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
     /**
      * Check if the internal cache can still fit more fluids in it
      */
-    public boolean canAcceptItem() {
+   /* public boolean canAcceptItem() {
         return getCachedAmount() < getCacheCapacity() || lastInputTick == tickCounter;
-    }
-
-    int lastInputTick, tickCounter;
+    }*/
+	@Override
+	public boolean canAcceptFluid() {
+		 return getCachedAmount() < getCacheCapacity() || lastInputTick == tickCounter;
+	}
+	@Override
+	public boolean canFillFluid() {
+		  return canAcceptFluid() || lastInputTick == tickCounter;
+	}
+    long lastInputTick, tickCounter;
 
     public int tryFillAE(final FluidStack stack) {
 
-        if (canAcceptItem() || (lastInputTick == tickCounter)) {
+        if (canAcceptFluid() || (lastInputTick == tickCounter)) {
 
             try {
                 AEFluidStack is = AEFluidStack.create(stack);

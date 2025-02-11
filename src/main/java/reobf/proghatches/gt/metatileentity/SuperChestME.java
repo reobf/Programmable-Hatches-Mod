@@ -410,7 +410,7 @@ public class SuperChestME extends MTEHatch implements ICellContainer, IGridProxy
 
         @Override
         public IAEItemStack injectItems(IAEItemStack input, Actionable type, BaseActionSource src) {
-            post();
+        	 if (type != Actionable.SIMULATE)post();
             try {
                 long l = input.getStackSize();
                 long compl = 0;

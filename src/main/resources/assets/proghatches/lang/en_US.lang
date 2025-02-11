@@ -747,3 +747,4 @@ programmable_hatches.gt.newcrib.5=When off, GT Multi is not allowed to cache rec
 programmable_hatches.gt.newcrib.nosupport=§cNot supported on current GT5u
 item.proghatches.part.tunnel.name=Crafting Request Tunnel
 provider.water.name=Water Provider
+input.focus.me.name=Automatable Focus Input Bus(ME)

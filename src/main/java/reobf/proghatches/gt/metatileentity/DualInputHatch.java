@@ -130,7 +130,7 @@ import reobf.proghatches.net.UpgradesMessage;
 public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCircuitSupport, IAddGregtechLogo,
     IAddUIWidgets, IDualInputHatch, IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch, ISkipStackSizeCheck,
     IOnFillCallback/* ,IMultiCircuitSupport */ {
-
+static int[] AZERO={0};
     static java.text.DecimalFormat format = new java.text.DecimalFormat("#,###");
     public boolean mMultiFluid;
 

@@ -1345,23 +1345,23 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
 
         return false;
     }
-
+   // boolean instant=true;
     @Override
-    public int pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
+    public int[] pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
 
         if (maxTodo <= 0) {
-            return 0;
+            return new int[]{0};
         }
-        if (!getBaseMetaTileEntity().isActive()) return 0;
+        if (!getBaseMetaTileEntity().isActive()) return new int[]{0};
         try {
             if (!(patternDetails instanceof ProgrammingCircuitProvider.CircuitProviderPatternDetial)) {
-                return 0;
+                return new int[]{0};
             }
             if (ItemProgrammingCircuit.getCircuit(((CircuitProviderPatternDetial) patternDetails).out)
                 .map(ItemStack::getItem)
                 .orElse(null) == MyMod.progcircuit) {
                 shut(this, null);
-                return 0;
+                return new int[]{0};
             }
 
         } catch (Exception e) {}
@@ -1382,8 +1382,10 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
         AEItemStack ais = AEItemStack.create(circuitItem);
         if (ais != null) ais.setStackSize(ais.getStackSize() * maxTodo);
         ret.add(ais);
-
-        return maxTodo;
+      /*  if(instant){
+        	return new int[]{maxTodo,0};
+        }*/
+        return new int[]{maxTodo};
     }
  
 }

@@ -745,3 +745,4 @@ programmable_hatches.gt.newcrib.5=此模式关闭时,会阻止GT多方块缓存�
 programmable_hatches.gt.newcrib.nosupport=§c当前版本GT5u没有缓存机制 这个选项没有意义
 item.proghatches.part.tunnel.name=合成请求隧道
 provider.water.name=水提供器
+input.focus.me.name=自动化焦点输入总线(ME)

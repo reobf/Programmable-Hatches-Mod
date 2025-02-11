@@ -60,11 +60,11 @@ public class DataHatchME extends MTEHatchDataAccess
         getProxy().onReady();
         updateCache();
     }
-
+    String[] descCache;
     @Override
     public String[] getDescription() {
 
-        return reobf.proghatches.main.Config.get("DHME", ImmutableMap.of());
+        return descCache==null?(descCache=reobf.proghatches.main.Config.get("DHME", ImmutableMap.of())):descCache;
     }
 
     @Override

@@ -51,6 +51,7 @@ import reobf.proghatches.gt.metatileentity.DualInputHatchSlaveHatch;
 import reobf.proghatches.gt.metatileentity.FilterOutputBus;
 import reobf.proghatches.gt.metatileentity.IngredientBuffer;
 import reobf.proghatches.gt.metatileentity.MultiCircuitInputBus;
+import reobf.proghatches.gt.metatileentity.NBTHatchMEFocus;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatchInventoryMappingSlave;
 import reobf.proghatches.gt.metatileentity.PriorityFilterInputBusME;
@@ -97,6 +98,8 @@ public class Registration implements Runnable {
     private static final int RecipeCheckResultDetectorOffset = 78;
     public final static int IngBufferOffset = 79;// -80
     public final static int WaterProviderOffset = 81;
+    public final static int MEFocusOffset = 82;
+    
     
     public final static int BufferedQuadDualInputHatchOffset = 100;// -115
     public final static int LargeProviderOffset = 116;
@@ -559,6 +562,13 @@ public class Registration implements Runnable {
                 LangManager.translateToLocalFormatted("provider.water.name"), 6
 
             );
+        
+        new NBTHatchMEFocus(
+                Config.metaTileEntityOffset + MEFocusOffset,
+                "input.focus.me",
+                LangManager.translateToLocal("input.focus.me.name"));
+        
+        
         
         
         /*

@@ -181,9 +181,11 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
                     return;
                 }
 
-                used = ((IMultiplePatternPushable) medium).pushPatternMulti(detail, inv, maxtry);
-
-                if (max != Integer.MAX_VALUE) remainingOperations -= Math.max(used - max, 0);
+              int[] retarr  = ((IMultiplePatternPushable) medium).pushPatternMulti(detail, inv, maxtry);
+              used=retarr[0];
+              int parallelused=used;//retarr.length>1?retarr[1]:used;
+              
+                if (max != Integer.MAX_VALUE) remainingOperations -= Math.max(parallelused - max, 0);
                 MixinCallback.setter.accept(e.getValue(), num - used);
 
                 if (used > 0) {

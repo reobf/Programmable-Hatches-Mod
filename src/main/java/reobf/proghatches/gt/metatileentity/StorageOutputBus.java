@@ -74,7 +74,10 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
 
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-        boolean active = this.getProxy()
+    	if (getBaseMetaTileEntity().isServerSide()) {
+            tickCounter = aTick;}
+    	
+    	boolean active = this.getProxy()
             .isActive();
         if (!aBaseMetaTileEntity.getWorld().isRemote) {
             if (wasActive != active) {
@@ -143,7 +146,7 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
         return getCachedAmount() < getCacheCapacity();
     }
 
-    int lastInputTick, tickCounter;
+    long lastInputTick, tickCounter;
 
     public int store(final ItemStack stack) {
 

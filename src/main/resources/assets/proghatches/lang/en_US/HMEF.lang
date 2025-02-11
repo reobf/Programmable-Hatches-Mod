@@ -1,0 +1,5 @@
+Input Bus for Foci
+Connect ME Network to access the first Active Foci slot
+Not a Stocking Input Bus!
+You still need to automate the Foci switching process
+(e.g. use ME Level Emitter to detect items in Input Bus of Target Chamber)

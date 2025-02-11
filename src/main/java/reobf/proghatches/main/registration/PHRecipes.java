@@ -48,6 +48,7 @@ import gregtech.api.util.GTRecipeBuilder;
 import gregtech.api.util.GTRecipeConstants;
 import gregtech.api.util.GTUtility;
 import gtPlusPlus.xmod.gregtech.api.enums.GregtechItemList;
+import gtnhlanth.common.register.LanthItemList;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
@@ -2021,6 +2022,21 @@ public class PHRecipes implements Runnable {
                 GregTechAPI.sBlockMachines,
                 1,
                 Config.metaTileEntityOffset + Registration.WaterProviderOffset))
+        .duration(1 * SECONDS)
+        .eut(30)
+        .addTo(RecipeMaps.assemblerRecipes);
+        
+        
+        GTValues.RA.stdBuilder()
+        .itemInputs(
+        		Api.INSTANCE.parts().partStorageBus.stack(1)
+        		,
+        		LanthItemList.BEAMLINE_FOCUS_INPUT_BUS.copy()
+        		)
+        .itemOutputs(  new ItemStack(
+                GregTechAPI.sBlockMachines,
+                1,
+                Config.metaTileEntityOffset + Registration.MEFocusOffset))
         .duration(1 * SECONDS)
         .eut(30)
         .addTo(RecipeMaps.assemblerRecipes);

@@ -1,9 +1,13 @@
 package reobf.proghatches.gt.metatileentity;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -343,9 +347,27 @@ public class DataHatchME extends MTEHatchDataAccess
          }
     	 if (cachedRecipes == null) {
              cachedRecipes = new ArrayList<>();
-
+             Method f=null;
+            try {
+			f=AssemblyLineUtils.class.getDeclaredMethod("findALRecipeFromDataStick", ItemStack.class);
+			} catch (Exception e) {}
+            try {
+    			f=AssemblyLineUtils.class.getDeclaredMethod("findAssemblyLineRecipeFromDataStick", ItemStack.class);
+    			} catch (Exception e) {}
+			
+             if(f==null)throw new AssertionError();
              for (int i = 0; i < getSizeInventory(); i++) {
-                 cachedRecipes.addAll(AssemblyLineUtils.findALRecipeFromDataStick(getStackInSlot(i)));
+                 try {
+					cachedRecipes.addAll(
+							 
+							 (Collection<? extends RecipeAssemblyLine>) f.invoke(null, getStackInSlot(i))
+						
+							 
+							 
+							 );
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
              }
          }
 

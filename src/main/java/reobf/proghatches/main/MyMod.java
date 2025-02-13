@@ -82,6 +82,7 @@ import li.cil.oc.api.Driver;
 import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockAutoFillerMKII;
 import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
+import reobf.proghatches.ae.BlockOrbSwitcher;
 import reobf.proghatches.ae.BlockRequestTunnel;
 import reobf.proghatches.block.ChunkTrackingGridCahce;
 import reobf.proghatches.block.TileIOHub;
@@ -777,10 +778,11 @@ OreDictionary.registerOre("ph:circuit", new ItemStack( progcircuit,1,OreDictiona
     public static Item emitterpattern;
     public static boolean newGTCache;
     public static Item part_tunnel;
+	public static BlockOrbSwitcher orbswitcher;
 
     @SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
     public void pretick(final TickEvent.ServerTickEvent event) {
-        if (event.phase == Phase.START && event.side == Side.SERVER) {
+        if (event.phase == Phase.START && event.side == Side.SERVER&&event.type==TickEvent.Type.SERVER) {
             callbacks.forEach((a, b) -> b.run());
         }
     }

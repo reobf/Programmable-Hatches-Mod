@@ -2040,6 +2040,21 @@ public class PHRecipes implements Runnable {
         .duration(1 * SECONDS)
         .eut(30)
         .addTo(RecipeMaps.assemblerRecipes);
+        
+        GTValues.RA.stdBuilder()
+        .itemInputs(
+        		Api.INSTANCE.parts().partStorageBus.stack(1)
+        		,
+        		GregtechItemList.Bus_Catalysts.get(1)
+        		)
+        .itemOutputs(  new ItemStack(
+                GregTechAPI.sBlockMachines,
+                1,
+                Config.metaTileEntityOffset + Registration.MECatalystOffset))
+        .duration(1 * SECONDS)
+        .eut(30)
+        .addTo(RecipeMaps.assemblerRecipes);
+        
         /*
          * rec = new ShapelessOreRecipe( new ItemStack( MyMod.plunger,1,1),
          * ItemEnum.BOOSTER_CARD.getStack(0),

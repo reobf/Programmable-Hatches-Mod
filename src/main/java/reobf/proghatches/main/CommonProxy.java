@@ -23,6 +23,7 @@ import reobf.proghatches.ae.BlockAutoFillerMKII;
 import reobf.proghatches.ae.BlockCraftingCondenser;
 import reobf.proghatches.ae.BlockCyclicPatternSubmitter;
 import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
+import reobf.proghatches.ae.BlockOrbSwitcher;
 import reobf.proghatches.ae.BlockRequestTunnel;
 import reobf.proghatches.ae.BlockStockingCircuitRequestInterceptor;
 import reobf.proghatches.ae.BlockStorageProxy;
@@ -36,6 +37,7 @@ import reobf.proghatches.ae.TileAutoFillerMKII;
 import reobf.proghatches.ae.TileCraftingCondenser;
 import reobf.proghatches.ae.TileCyclicPatternSubmitter;
 import reobf.proghatches.ae.TileMolecularAssemblerInterface;
+import reobf.proghatches.ae.TileOrbSwitcher;
 import reobf.proghatches.ae.TileRequestTunnel;
 import reobf.proghatches.ae.TileStockingCircuitRequestInterceptor;
 import reobf.proghatches.ae.TileStorageProxy;
@@ -105,6 +107,7 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(TileAutoFillerMKII.class, "proghatches.autofillerMKII");
         GameRegistry.registerTileEntity(TileGTHatchConfigurator.class, "proghatches.configurator");
         GameRegistry.registerTileEntity(TileRequestTunnel.class, "proghatches.request_tunnel");
+        GameRegistry.registerTileEntity(TileOrbSwitcher.class, "proghatches.orb_switcher");
         ItemMEPlunger a = new ItemMEPlunger(100000);
 
         GameRegistry.registerItem(
@@ -269,7 +272,11 @@ public class CommonProxy {
             ItemBlockTooltip.class,
             "autofillerMKII",
             new Object[] { "" });
-
+        GameRegistry.registerBlock(
+                MyMod.orbswitcher = new BlockOrbSwitcher(),
+                ItemBlockTooltip.class,
+                "orbswitcher",
+                new Object[] { "" });
         GameRegistry.registerTileEntity(TileCraftingCondenser.class, "proghatches.craftingdumper");
         GameRegistry.registerBlock(MyMod.ma_iface = new BlockMolecularAssemblerInterface(), ItemBlockTooltip.class
 

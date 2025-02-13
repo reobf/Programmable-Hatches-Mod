@@ -31,6 +31,7 @@ import gregtech.api.GregTechAPI;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
+import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.nbthandlers.MTEHatchCatalysts;
 import gtnhlanth.common.hatch.MTEBusInputFocus;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -39,12 +40,12 @@ import reobf.proghatches.gt.metatileentity.SuperChestME.UnlimitedWrapper;
 import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.main.registration.Registration;
 
-public class NBTHatchMEFocus extends MTEBusInputFocus implements ICellContainer, IGridProxyable, IStoageCellUpdate{
-	public NBTHatchMEFocus(int id, String name, String nameRegional) {
+public class NBTHatchMECatalyst extends MTEHatchCatalysts implements ICellContainer, IGridProxyable, IStoageCellUpdate{
+	public NBTHatchMECatalyst(int id, String name, String nameRegional) {
 		super(id, name, nameRegional);
 		 Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, id));
 	}
-	public NBTHatchMEFocus(String name, String[] descriptionArray, ITexture[][][] textures) {
+	public NBTHatchMECatalyst(String name, String[] descriptionArray, ITexture[][][] textures) {
 		super(name, descriptionArray, textures);
 		
 	}
@@ -52,7 +53,7 @@ String[] descCache;
 @Override
 public String[] getDescription() {
 
-    return descCache==null?(descCache=reobf.proghatches.main.Config.get("HMEF", ImmutableMap.of())):descCache;
+    return descCache==null?(descCache=reobf.proghatches.main.Config.get("HMEC", ImmutableMap.of())):descCache;
 }
 	/*@Override
 	public boolean isItemValidForUsageSlot(ItemStack aStack) {
@@ -387,7 +388,7 @@ public String[] getDescription() {
 	 @Override
 	public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
 		
-		return new NBTHatchMEFocus(mName, mDescriptionArray, mTextures);
+		return new NBTHatchMECatalyst(mName, mDescriptionArray, mTextures);
 	}
 	   private void updateValidGridProxySides() {
 	        /*

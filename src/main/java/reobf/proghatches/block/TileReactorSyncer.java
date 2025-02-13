@@ -39,14 +39,16 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI 
 
     @Override
     public void validate() {
+      
+        if(this.worldObj.isRemote==false) MyMod.callbacks.put(this, this::pretick); 
         super.validate();
-        MyMod.callbacks.put(this, this::pretick);
     }
 
     boolean skipCycleZero;
 
     public void pretick() {
         if ((!isDead) && (!isInvalid())) {
+        	if(this.worldObj.getTileEntity(xCoord, yCoord, zCoord)==this){
             TileEntityNuclearReactorElectric reactor = findTarget();
 
             if (reactor != null) tick = reactor.updateTicker % 20;
@@ -65,7 +67,7 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI 
 
             power = new_power;
 
-        }
+        }}
     }
 
     public int power() {

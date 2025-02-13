@@ -37,6 +37,7 @@ import reobf.proghatches.gt.cover.LinkedBusSlaveCover;
 import reobf.proghatches.gt.cover.ProgrammingCover;
 import reobf.proghatches.gt.cover.SmartArmCover;
 import reobf.proghatches.gt.cover.WirelessControlCover;
+import reobf.proghatches.gt.metatileentity.AutoDataOrbHatch;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch;
 import reobf.proghatches.gt.metatileentity.CommunicationPortHatch;
 import reobf.proghatches.gt.metatileentity.DataHatchME;
@@ -51,6 +52,7 @@ import reobf.proghatches.gt.metatileentity.DualInputHatchSlaveHatch;
 import reobf.proghatches.gt.metatileentity.FilterOutputBus;
 import reobf.proghatches.gt.metatileentity.IngredientBuffer;
 import reobf.proghatches.gt.metatileentity.MultiCircuitInputBus;
+import reobf.proghatches.gt.metatileentity.NBTHatchMECatalyst;
 import reobf.proghatches.gt.metatileentity.NBTHatchMEFocus;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatchInventoryMappingSlave;
@@ -99,8 +101,9 @@ public class Registration implements Runnable {
     public final static int IngBufferOffset = 79;// -80
     public final static int WaterProviderOffset = 81;
     public final static int MEFocusOffset = 82;
-    
-    
+    public final static int DataOrbOffset = 83;
+    public final static int MECatalystOffset = 84;
+    		
     public final static int BufferedQuadDualInputHatchOffset = 100;// -115
     public final static int LargeProviderOffset = 116;
     public final static int ChainerOffset = 117;
@@ -562,12 +565,18 @@ public class Registration implements Runnable {
                 LangManager.translateToLocalFormatted("provider.water.name"), 6
 
             );
-        
+        new NBTHatchMECatalyst(
+                Config.metaTileEntityOffset + MECatalystOffset,
+                "input.catalyst.me",
+                LangManager.translateToLocal("input.catalyst.me.name"));
         new NBTHatchMEFocus(
                 Config.metaTileEntityOffset + MEFocusOffset,
                 "input.focus.me",
                 LangManager.translateToLocal("input.focus.me.name"));
-        
+        new AutoDataOrbHatch(
+                Config.metaTileEntityOffset + DataOrbOffset,
+                "input.dataorb",
+                LangManager.translateToLocal("input.dataorb.name"), 10);
         
         
         

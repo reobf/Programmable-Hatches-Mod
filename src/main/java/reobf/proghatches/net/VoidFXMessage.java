@@ -56,7 +56,7 @@ public class VoidFXMessage implements IMessage {
 
                     ;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
                 else try {
                     ((VoidOutputBus) ((IGregTechTileEntity) Minecraft.getMinecraft().theWorld
@@ -64,11 +64,11 @@ public class VoidFXMessage implements IMessage {
 
                     ;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                   // e.printStackTrace();
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+               // e.printStackTrace();
             }
 
             return null;

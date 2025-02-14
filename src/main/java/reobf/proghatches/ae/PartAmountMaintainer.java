@@ -201,7 +201,10 @@ public class PartAmountMaintainer extends PartBasicState
 
     Future<ICraftingJob> job;
     ICraftingLink link;
+    int interval=1;
+    int interval_count=0;
     int reqcooldown;
+	
 
     public void requestForMissing(IAEStack primitive) {
         if (upgrade[1] == null) return;
@@ -260,6 +263,17 @@ public class PartAmountMaintainer extends PartBasicState
             inv.clear();
             return TickRateModulation.SAME;
         }
+        
+        interval_count++;
+        if(interval_count>=interval){
+        	interval_count=0;
+        }	else{
+        	 return TickRateModulation.SAME;
+        }
+        	
+        
+        
+        
         if (getProxy().isActive() == false) return TickRateModulation.SAME;
         for (StorageChannel ch : new StorageChannel[] { StorageChannel.FLUIDS, StorageChannel.ITEMS }) {
             IMEInventory inv = getInv(ch);
@@ -329,6 +343,7 @@ public class PartAmountMaintainer extends PartBasicState
                                 Actionable.SIMULATE,
                                 source);
                             long missing = -amount + expected - (take == null ? 0 : take.getStackSize());
+                           
                             if (missing > 0) requestForMissing(
                                 is.copy()
                                     .setStackSize(missing));
@@ -712,6 +727,23 @@ public class PartAmountMaintainer extends PartBasicState
         }.setPos(60 + 40, 3 + 20)
             .addTooltip(StatCollector.translateToLocal("proghatches.amountmaintainer.craftcard")));
 
+       
+        builder.widget(
+                new NumericWidget().setSetter(val -> interval = (int) val)
+                    .setGetter(() -> interval)
+                    .setBounds(1, 400)
+                    .setScrollValues(1, 4, 64)
+                    .setTextAlignment(Alignment.Center)
+                    .setTextColor(Color.WHITE.normal)
+                    .setSize(40, 18)
+                    .setPos(60 + 18+40, 3+20)
+                    .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD)
+                    .addTooltips(
+                        Arrays.asList(
+                            StatCollector.translateToLocal("proghatches.amountmaintainer.interval.0")
+                        )
+
+                    ));
         return builder.build();
     }
 
@@ -765,6 +797,10 @@ public class PartAmountMaintainer extends PartBasicState
         mode = data.getInteger("mode");
         rsmode = data.getInteger("rsmode");
         redstone = data.getInteger("redstone");
+        interval=data.getInteger("interval");
+        if(interval<1){interval=1;}
+        interval_count=data.getInteger("interval_count");
+        
         amount = data.getLong("amount");
         lastredstone = data.getBoolean("lastredstone");
         mark[0] = ItemStack.loadItemStackFromNBT(data.getCompoundTag("mark"));
@@ -806,6 +842,10 @@ public class PartAmountMaintainer extends PartBasicState
         data.setInteger("mode", mode);
         data.setInteger("rsmode", rsmode);
         data.setInteger("redstone", redstone);
+        data.setInteger("interval", interval);
+        data.setInteger("interval_count", interval_count);
+        
+        
         data.setLong("amount", amount);
         data.setBoolean("lastredstone", lastredstone);
         if (mark[0] != null) {

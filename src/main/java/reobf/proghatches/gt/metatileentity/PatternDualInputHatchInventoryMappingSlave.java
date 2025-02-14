@@ -609,8 +609,8 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         StringBuilder name = new StringBuilder();
 
         name.append(
-            m.getMachineCraftingIcon()
-                .getDisplayName());
+            Optional.ofNullable(m.getMachineCraftingIcon()).map(s->s.getDisplayName()+"(Mapped)")
+              .orElse(m.getLocalName()==null?"":m.getLocalName()+"(Mapped)"));
         if (m.mInventory[m.getCircuitSlot()] != null) {
             name.append(" - ");
             ItemStack is = m.mInventory[m.getCircuitSlot()];

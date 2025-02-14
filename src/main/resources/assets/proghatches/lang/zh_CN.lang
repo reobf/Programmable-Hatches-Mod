@@ -760,3 +760,4 @@ proghatch.orb_switcher.tooltip.5=维持目标网络中物品,为数量为1的电
 proghatch.orb_switcher.tooltip.6=提示:用于自动化化工厂催化剂/靶仓聚焦物品/元素数据球仓
 input.catalyst.me.name=自动化催化剂仓(ME)
 tile.proghatches.orb_switcher.name=催化剂物品切换器(WIP)
+proghatches.amountmaintainer.interval.0=更新间隔(单位tick)

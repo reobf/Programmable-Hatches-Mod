@@ -33,7 +33,9 @@ import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.SlotGroup;
 
+import appeng.api.util.DimensionalCoord;
 import appeng.util.Platform;
+import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.GregTechAPI;
@@ -159,10 +161,24 @@ public class VoidOutputBus extends MTEHatchOutputBus {
 
     public boolean dump(ItemStack aStack) {
         boolean b = filterPredicate.test(aStack);
-        if (b && fx) MyMod.net.sendToDimension(
+		if (b && fx)
+			MyMod.net.sendToAllAround(
+        		
+        		
+        		
             new VoidFXMessage(this.getBaseMetaTileEntity(), aStack),
-            this.getBaseMetaTileEntity()
-                .getWorld().provider.dimensionId);
+           new TargetPoint( this.getBaseMetaTileEntity().getWorld().provider.dimensionId,
+        		   this.getBaseMetaTileEntity().getXCoord(),
+        		   this.getBaseMetaTileEntity().getYCoord(),
+        		   this.getBaseMetaTileEntity().getZCoord(),
+        		   64
+        		   )
+            );
+          
+              
+                
+        		
+        		
         return b;
     }
 

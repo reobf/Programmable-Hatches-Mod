@@ -612,7 +612,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
             masterName = ((IInterfaceViewable) m).getName();
         } else {
             masterName = Optional.ofNullable(m.getMachineCraftingIcon()).map(ItemStack::getDisplayName)
-                .orElse(m.getLocalName()==null?"":m.getLocalName());
+                .orElse(m.getLocalName()==null?getLocalName():m.getLocalName());
         }
         name.append(masterName);
         name.append("(Mapped)");

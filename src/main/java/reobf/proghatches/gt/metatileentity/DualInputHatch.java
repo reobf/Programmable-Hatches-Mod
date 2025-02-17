@@ -1181,7 +1181,7 @@ static int[] AZERO={0};
         })
         .filter(a -> a != null && a.amount > 0)
         .toArray(FluidStack[]::new);
-    static VargsFunction<ItemStack[], ItemStack[]> filterStack = (s) -> Arrays.stream(s)
+    public static VargsFunction<ItemStack[], ItemStack[]> filterStack = (s) -> Arrays.stream(s)
         .flatMap(Arrays::stream)
         .filter(a -> a != null)
         .toArray(ItemStack[]::new);

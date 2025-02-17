@@ -102,6 +102,7 @@ public class PartAmountMaintainer extends PartBasicState
                 data.setInteger("rsmode", rsmode);
                 data.setInteger("redstone", redstone);
                 data.setLong("amount", amount);
+                data.setInteger("interval", interval);
                 // data.setBoolean("lastredstone", lastredstone);
                 if (mark[0] != null) data.setTag("mark", mark[0].writeToNBT(new NBTTagCompound()));
                 // if(upgrade[0]!=null)data.setTag("upgrade", upgrade[0].writeToNBT(new NBTTagCompound()));
@@ -121,6 +122,7 @@ public class PartAmountMaintainer extends PartBasicState
                 rsmode = data.getInteger("rsmode");
                 redstone = data.getInteger("redstone");
                 amount = data.getLong("amount");
+               interval= data.getInteger("interval");
                 // lastredstone=data.getBoolean("lastredstone" );
                 if (data.getCompoundTag("mark")
                     .hasNoTags() == false) mark[0] = ItemStack.loadItemStackFromNBT(data.getCompoundTag("mark"));

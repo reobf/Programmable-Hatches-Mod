@@ -396,6 +396,7 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
 
 	@Override
 	protected MultiblockTooltipBuilder createTooltip() {
+		
 		final MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
 		Config.get(tt, "M_ID");
 		return tt;

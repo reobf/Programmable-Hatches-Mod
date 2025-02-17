@@ -761,3 +761,6 @@ proghatch.orb_switcher.tooltip.6=提示:用于自动化化工厂催化剂/靶仓
 input.catalyst.me.name=自动化催化剂仓(ME)
 tile.proghatches.orb_switcher.name=催化剂物品切换器(WIP)
 proghatches.amountmaintainer.interval.0=更新间隔(单位tick)
+hatch.dualinput.stocking.me.name=库存二合一输入仓(ME)
+hatch.dualinput.stocking.autopull.me.name=进阶库存二合一输入仓(ME)
+hatch.dualinput.stocking.autopull.program=自动消耗编程器电路设置虚拟电路槽

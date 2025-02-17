@@ -218,10 +218,10 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
             final long max = getMaxSkips();
             stop: for (int i = 0; i < max; i = (i < Integer.MAX_VALUE - 10) ? (i + 1) : i) {
                 if (MixinCallback.getter.apply(e.getValue()) <= 1) {
-                    break;
+                    break stop;
                 }
                 if (medium.isBusy()) {
-                    break;
+                    break stop;
                 }
 
                 if (detail.isCraftable()) {
@@ -273,7 +273,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
                         }
                     }
                     ic = null;
-                    break;
+                    break stop;
                 }
                 if (medium.pushPattern(detail, ic)) {
                     MixinCallback.setter.accept(e.getValue(), MixinCallback.getter.apply(e.getValue()) - 1);

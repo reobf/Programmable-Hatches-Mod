@@ -763,3 +763,6 @@ proghatch.orb_switcher.tooltip.6=Hint: use this to automate Power Plant Catalyst
 input.catalyst.me.name=Automatable Catalyst Housing (ME)
 tile.proghatches.orb_switcher.name=Catalyst Item Switcher(WIP)
 proghatches.amountmaintainer.interval.0=Update interval in tick(s)
+hatch.dualinput.stocking.me.name=Stocking Dual Input Hatch (ME)
+hatch.dualinput.stocking.autopull.me.name=Advanced Stocking Dual Input Hatch (ME)
+hatch.dualinput.stocking.autopull.program=Auto consume Programming Circuit and set the virtual circuit slot

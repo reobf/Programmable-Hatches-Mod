@@ -33,370 +33,396 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gtnhlanth.common.hatch.MTEBusInputFocus;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.gt.metatileentity.SuperChestME.UnlimitedWrapper;
 import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.main.registration.Registration;
 
-public class NBTHatchMEFocus extends MTEBusInputFocus implements ICellContainer, IGridProxyable, IStoageCellUpdate{
+public class NBTHatchMEFocus extends MTEBusInputFocus implements ICellContainer, IGridProxyable, IStoageCellUpdate {
 	public NBTHatchMEFocus(int id, String name, String nameRegional) {
 		super(id, name, nameRegional);
-		 Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, id));
+		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, id));
 	}
+
 	public NBTHatchMEFocus(String name, String[] descriptionArray, ITexture[][][] textures) {
 		super(name, descriptionArray, textures);
-		
-	}
-String[] descCache;
-@Override
-public String[] getDescription() {
 
-    return descCache==null?(descCache=reobf.proghatches.main.Config.get("HMEF", ImmutableMap.of())):descCache;
-}
-	/*@Override
-	public boolean isItemValidForUsageSlot(ItemStack aStack) {
-		return false;
-	}*/
+	}
+
+	String[] descCache;
+
+	@Override
+	public String[] getDescription() {
+
+		return descCache == null ? (descCache = reobf.proghatches.main.Config.get("HMEF", ImmutableMap.of()))
+				: descCache;
+	}
+
+	/*
+	 * @Override public boolean isItemValidForUsageSlot(ItemStack aStack) {
+	 * return false; }
+	 */
 	@Override
 	public IGridNode getActionableNode() {
-	
+
 		return getProxy().getNode();
 	}
+
 	@Override
 	public IGridNode getGridNode(ForgeDirection dir) {
-	
+
 		return getProxy().getNode();
 	}
+
 	@Override
 	public void securityBreak() {
 	}
-	public int getIndex(){
-		
+
+	public int getIndex() {
+
 		return getInputSlotCount();
 	}
-	 IMEInventoryHandler<AEItemStack> handler = new MEInventoryHandler(new UnlimitedWrapper(), StorageChannel.ITEMS) ;
-	 public class UnlimitedWrapper implements IMEInventory<IAEItemStack> {
 
-	        public UnlimitedWrapper() {
+	IMEInventoryHandler<AEItemStack> handler = new MEInventoryHandler(new UnlimitedWrapper(), StorageChannel.ITEMS);
 
-	        }
+	public class UnlimitedWrapper implements IMEInventory<IAEItemStack> {
 
-	        @Override
-	        public IAEItemStack injectItems(IAEItemStack input, Actionable type, BaseActionSource src) {
-	        	 if (type != Actionable.SIMULATE)post();
-	        	 
-	        	 if(input==null){
-	        		 return input;
-	        	 }
-	        	 if(!isItemValidForUsageSlot(input.getItemStack())){
-	        		return input;
-	        	 }
-	        	 
-	            try {
-	                long l = input.getStackSize();
-	                long compl = 0;
-	                if (l > Integer.MAX_VALUE) {
-	                    compl = l - Integer.MAX_VALUE;
-	                }
-	                ItemStack in = input.getItemStack();
-	                ItemStack thiz = mInventory[getIndex()];
-	                if (thiz != null && !Platform.isSameItem(in, thiz)) return input;
-	                if (thiz == null) {
-	                    thiz = in.copy();
-	                    thiz.stackSize = 0;
-	                }
-	                int space = Math.max(0, cap() - thiz.stackSize);
-	                int transfer = Math.min(space, in.stackSize);
-	                if (type == Actionable.SIMULATE) {
-	                    in.stackSize -= transfer;
-	                    if (in.stackSize <= 0 && compl == 0) in = null;
-	                    AEItemStack ret = AEItemStack.create(in);
-	                    if (ret != null) ret.incStackSize(compl);
-	                    return ret;
-	                }
-	                if (type == Actionable.MODULATE) {
-	                    thiz.stackSize += transfer;
-	                    mInventory[getIndex()] = thiz;
-	                    in.stackSize -= transfer;
-	                    if (in.stackSize <= 0 && compl == 0) in = null;
-	                    AEItemStack ret = AEItemStack.create(in);
-	                    if (ret != null) ret.incStackSize(compl);
-	                    return ret;
+		public UnlimitedWrapper() {
 
-	                }
+		}
 
-	                return null;
-	            } finally {
-	                last = AEItemStack.create(mInventory[getIndex()]);
-	                
-	            }
-	        }
+		@Override
+		public IAEItemStack injectItems(IAEItemStack input, Actionable type, BaseActionSource src) {
+			if (type != Actionable.SIMULATE)
+				post();
 
-	       
+			if (input == null) {
+				return input;
+			}
+			if (!isItemValidForUsageSlot(input.getItemStack())) {
+				return input;
+			}
 
-			@Override
-	        public IAEItemStack extractItems(IAEItemStack input, Actionable type, BaseActionSource src) {
-	            try {
+			try {
+				long l = input.getStackSize();
+				long compl = 0;
+				if (l > Integer.MAX_VALUE) {
+					compl = l - Integer.MAX_VALUE;
+				}
+				ItemStack in = input.getItemStack();
+				ItemStack thiz = mInventory[getIndex()];
+				if (thiz != null && !Platform.isSameItem(in, thiz))
+					return input;
+				if (thiz == null) {
+					thiz = in.copy();
+					thiz.stackSize = 0;
+				}
+				int space = Math.max(0, cap() - thiz.stackSize);
+				int transfer = Math.min(space, in.stackSize);
+				if (type == Actionable.SIMULATE) {
+					in.stackSize -= transfer;
+					if (in.stackSize <= 0 && compl == 0)
+						in = null;
+					AEItemStack ret = AEItemStack.create(in);
+					if (ret != null)
+						ret.incStackSize(compl);
+					return ret;
+				}
+				if (type == Actionable.MODULATE) {
+					thiz.stackSize += transfer;
+					mInventory[getIndex()] = thiz;
+					in.stackSize -= transfer;
+					if (in.stackSize <= 0 && compl == 0)
+						in = null;
+					AEItemStack ret = AEItemStack.create(in);
+					if (ret != null)
+						ret.incStackSize(compl);
+					return ret;
 
-	                if (type != Actionable.SIMULATE) post();
+				}
 
-	                ItemStack in = input.getItemStack();
-	                ItemStack thiz = mInventory[getIndex()];
-	                if (thiz != null && !Platform.isSameItem(in, thiz)) return null;
-	                if (thiz == null) {
-	                    return null;
-	                } // thiz=in.copy(); }
-	                int transfer = Math.min(in.stackSize, thiz.stackSize);
-	                if (transfer == 0) return null;
-	                if (type == Actionable.SIMULATE) {
-	                    in.stackSize = transfer;
-	                    return AEItemStack.create(in);
+				return null;
+			} finally {
+				last = AEItemStack.create(mInventory[getIndex()]);
 
-	                }
-	                if (type == Actionable.MODULATE) {
-	                    thiz.stackSize -= transfer;
-	                    if (thiz.stackSize <= 0) thiz = null;
-	                    mInventory[getIndex()] = thiz;
-	                    in.stackSize = transfer;
-	                    return AEItemStack.create(in);
-	                }
+			}
+		}
 
-	                return null;
-	            } finally {
+		@Override
+		public IAEItemStack extractItems(IAEItemStack input, Actionable type, BaseActionSource src) {
+			try {
 
-	                last = AEItemStack.create(mInventory[getIndex()]);
-	            }
-	        }
+				if (type != Actionable.SIMULATE)
+					post();
 
-	        @Override
-	        public IItemList<IAEItemStack> getAvailableItems(IItemList<IAEItemStack> out) {
-	            if (mInventory[getIndex()] != null) out.addStorage(AEItemStack.create(mInventory[getIndex()]));
-	            return out;
-	        }
+				ItemStack in = input.getItemStack();
+				ItemStack thiz = mInventory[getIndex()];
+				if (thiz != null && !Platform.isSameItem(in, thiz))
+					return null;
+				if (thiz == null) {
+					return null;
+				} // thiz=in.copy(); }
+				int transfer = Math.min(in.stackSize, thiz.stackSize);
+				if (transfer == 0)
+					return null;
+				if (type == Actionable.SIMULATE) {
+					in.stackSize = transfer;
+					return AEItemStack.create(in);
 
-	        @Override
-	        public StorageChannel getChannel() {
+				}
+				if (type == Actionable.MODULATE) {
+					thiz.stackSize -= transfer;
+					if (thiz.stackSize <= 0)
+						thiz = null;
+					mInventory[getIndex()] = thiz;
+					in.stackSize = transfer;
+					return AEItemStack.create(in);
+				}
 
-	            return StorageChannel.ITEMS;
-	        }
-	    }
-	 
-	 private AEItemStack last;
+				return null;
+			} finally {
 
-	    private void post() {
+				last = AEItemStack.create(mInventory[getIndex()]);
+			}
+		}
 
-	        try {
+		@Override
+		public IItemList<IAEItemStack> getAvailableItems(IItemList<IAEItemStack> out) {
+			if (mInventory[getIndex()] != null)
+				out.addStorage(AEItemStack.create(mInventory[getIndex()]));
+			return out;
+		}
 
-	            // this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
-	            // this.getProxy().getGrid().postEvent(new MENetworkStorageEvent(handler0, StorageChannel.ITEMS));
-	            try {
+		@Override
+		public StorageChannel getChannel() {
 
-	                if (last != null) {
-	                    if (mInventory[getIndex()] != null) {
-	                        if (last.equals(mInventory[getIndex()])) {
-	                            if (last.getStackSize() == mInventory[getIndex()].stackSize) {
-	                                return;
-	                            } else {
+			return StorageChannel.ITEMS;
+		}
+	}
 
-	                                this.getProxy()
-	                                    .getStorage()
-	                                    .postAlterationOfStoredItems(
-	                                        StorageChannel.ITEMS,
-	                                        ImmutableList.of(
-	                                            last.copy()
-	                                                .setStackSize(mInventory[getIndex()].stackSize - last.getStackSize())),
-	                                        new MachineSource(this));
-	                                last = AEItemStack.create(mInventory[getIndex()]);
-	                                return;
-	                            }
-	                        }
+	private AEItemStack last;
 
-	                    } ;
+	private void post() {
 
-	                    this.getProxy()
-	                        .getStorage()
-	                        .postAlterationOfStoredItems(
-	                            StorageChannel.ITEMS,
-	                            ImmutableList.of(
-	                                last.copy()
-	                                    .setStackSize(-last.getStackSize())),
-	                            new MachineSource(this));
-	                }
-	                last = AEItemStack.create(mInventory[getIndex()]);
-	                if (last != null) {
-	                    this.getProxy()
-	                        .getStorage()
-	                        .postAlterationOfStoredItems(
-	                            StorageChannel.ITEMS,
-	                            ImmutableList.of(
-	                                last.copy()
-	                                    .setStackSize(last.getStackSize())),
-	                            new MachineSource(this));
-	                }
+		try {
 
-	            } catch (final GridAccessException ignore) {}
-	        } catch (Exception e) {
-	            // TODO Auto-generated catch block
-	            e.printStackTrace();
-	        }
+			// this.getProxy().getGrid().postEvent(new
+			// MENetworkCellArrayUpdate());
+			// this.getProxy().getGrid().postEvent(new
+			// MENetworkStorageEvent(handler0, StorageChannel.ITEMS));
+			try {
 
-	    }
+				if (last != null) {
+					if (mInventory[getIndex()] != null) {
+						if (last.equals(mInventory[getIndex()])) {
+							if (last.getStackSize() == mInventory[getIndex()].stackSize) {
+								return;
+							} else {
+
+								this.getProxy().getStorage().postAlterationOfStoredItems(StorageChannel.ITEMS,
+										ImmutableList.of(last.copy()
+												.setStackSize(mInventory[getIndex()].stackSize - last.getStackSize())),
+										new MachineSource(this));
+								last = AEItemStack.create(mInventory[getIndex()]);
+								return;
+							}
+						}
+
+					}
+					;
+
+					this.getProxy().getStorage().postAlterationOfStoredItems(StorageChannel.ITEMS,
+							ImmutableList.of(last.copy().setStackSize(-last.getStackSize())), new MachineSource(this));
+				}
+				last = AEItemStack.create(mInventory[getIndex()]);
+				if (last != null) {
+					this.getProxy().getStorage().postAlterationOfStoredItems(StorageChannel.ITEMS,
+							ImmutableList.of(last.copy().setStackSize(last.getStackSize())), new MachineSource(this));
+				}
+
+			} catch (final GridAccessException ignore) {
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
 	@Override
 	public List<IMEInventoryHandler> getCellArray(StorageChannel channel) {
-	if(channel==StorageChannel.FLUIDS)return ImmutableList.of();
-	
+		if (channel == StorageChannel.FLUIDS)
+			return ImmutableList.of();
+
 		return ImmutableList.of(handler);
 	}
+
 	@Override
 	public int getPriority() {
-		
+
 		return 0;
 	}
+
 	@Override
 	public void saveChanges(IMEInventory cellInventory) {
 		markDirty();
-		
+
 	}
+
 	@Override
 	public void cellUpdate() {
 		markDirty();
-		 update = true;
+		update = true;
 	}
+
 	@Override
 	public DimensionalCoord getLocation() {
-	
-		return new DimensionalCoord((TileEntity)this.getBaseMetaTileEntity());
+
+		return new DimensionalCoord((TileEntity) this.getBaseMetaTileEntity());
 	}
+
 	AENetworkProxy gridProxy;
+
 	@Override
-    public AENetworkProxy getProxy() {
-		
+	public AENetworkProxy getProxy() {
+
 		if (gridProxy == null) {
-            gridProxy = new AENetworkProxy(this, "proxy", visualStack(), true);
-            gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
-            updateValidGridProxySides();
-            if (getBaseMetaTileEntity().getWorld() != null) gridProxy.setOwner(
-                getBaseMetaTileEntity().getWorld()
-                    .getPlayerEntityByName(getBaseMetaTileEntity().getOwnerName()));
-        }
-
-        return this.gridProxy;}
-	
-	private ItemStack visualStack() {
-        return new ItemStack(GregTechAPI.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID());
-    }
-	
-	 @Override
-	    public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {
-
-	        super.onFirstTick(aBaseMetaTileEntity);
-	        getProxy().onReady();
-	       // onColorChangeServer(aBaseMetaTileEntity.getColorization());
-	        post();
-	    }  boolean wasActive;
-	 boolean update;
-	  int rep;    
-	  public void updateStatus() {
-
-	        post();
-
-	    }
-	 @Override
-	    public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-
-	        boolean active = this.getProxy()
-	            .isActive();
-	        if (!aBaseMetaTileEntity.getWorld().isRemote) {
-	            if (aTick % 40 == 1) {
-	                post();
-	            }
-
-	            if (rep > 0) {
-	                rep--;
-	                update = true;
-	            }
-	            if (this.getBaseMetaTileEntity()
-	                .hasInventoryBeenModified()) {
-	                update = true;
-	                rep = 1;
-	            } ;
-
-	            if (update) {
-	                update = false;
-	                updateStatus();
-	            }
-	            if (wasActive != active) {
-	                wasActive = active;
-
-	                try {
-	                    this.getProxy()
-	                        .getGrid()
-	                        .postEvent(new MENetworkCellArrayUpdate());
-	                } catch (GridAccessException e) {
-
-	                }
-	                post();
-	            }
-	            
-	         
-
-	            if (!aBaseMetaTileEntity.getWorld().isRemote && (aTick & 16) != 0) {
-	                this.getBaseMetaTileEntity()
-	                    .setActive(
-	                        this.getProxy()
-	                            .isPowered() && active);
-
-	            }
-
-	           
-
-	        }
-	        super.onPostTick(aBaseMetaTileEntity, aTick);
-
-	        if (aBaseMetaTileEntity.getWorld().isRemote) {
-	            return;
-	        }
-
-	        boolean needToSort = false;
-	        for (int i = 1; i < mInventory.length; i++) {
-	            ItemStack is = mInventory[i];
-	            if (is == null) continue;
-	            markDirty();
-	            if (mInventory[getIndex()] == null) {
-	                mInventory[getIndex()] = is.copy();
-	                mInventory[i] = null;
-	            } else if (cap() - is.stackSize >= mInventory[getIndex()].stackSize) {
-	                mInventory[getIndex()].stackSize += is.stackSize;
-	                mInventory[i] = null;
-	            } else {
-	                int to = Math.min(cap() - mInventory[getIndex()].stackSize, is.stackSize);
-	                mInventory[getIndex()].stackSize += to;
-	                mInventory[i].stackSize -= to;
-	                needToSort = true;
-	            }
-	        }
-	        if (needToSort) fillStacksIntoFirstSlots();
-
-	    } 
-	 private int cap() {
-			
-			return 1;
+			gridProxy = new AENetworkProxy(this, "proxy", visualStack(), true);
+			gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
+			updateValidGridProxySides();
+			if (getBaseMetaTileEntity().getWorld() != null)
+				gridProxy.setOwner(getBaseMetaTileEntity().getWorld()
+						.getPlayerEntityByName(getBaseMetaTileEntity().getOwnerName()));
 		}
-	 
-	 @Override
+
+		return this.gridProxy;
+	}
+
+	private ItemStack visualStack() {
+		return new ItemStack(GregTechAPI.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID());
+	}
+
+	@Override
+	public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {
+
+		super.onFirstTick(aBaseMetaTileEntity);
+		getProxy().onReady();
+		// onColorChangeServer(aBaseMetaTileEntity.getColorization());
+		post();
+	}
+
+	boolean wasActive;
+	boolean update;
+	int rep;
+
+	public void updateStatus() {
+
+		post();
+
+	}
+
+	@Override
+	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
+
+		boolean active = this.getProxy().isActive();
+		if (!aBaseMetaTileEntity.getWorld().isRemote) {
+			if (aTick % 40 == 1) {
+				post();
+			}
+
+			if (rep > 0) {
+				rep--;
+				update = true;
+			}
+			if (this.getBaseMetaTileEntity().hasInventoryBeenModified()) {
+				update = true;
+				rep = 1;
+			}
+			;
+
+			if (update) {
+				update = false;
+				updateStatus();
+			}
+			if (wasActive != active) {
+				wasActive = active;
+
+				try {
+					this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
+				} catch (GridAccessException e) {
+
+				}
+				post();
+			}
+
+			if (!aBaseMetaTileEntity.getWorld().isRemote && (aTick & 16) != 0) {
+				this.getBaseMetaTileEntity().setActive(this.getProxy().isPowered() && active);
+
+			}
+
+		}
+		super.onPostTick(aBaseMetaTileEntity, aTick);
+
+		if (aBaseMetaTileEntity.getWorld().isRemote) {
+			return;
+		}
+
+		boolean needToSort = false;
+		for (int i = 1; i < mInventory.length; i++) {
+			ItemStack is = mInventory[i];
+			if (is == null)
+				continue;
+			markDirty();
+			if (mInventory[getIndex()] == null) {
+				mInventory[getIndex()] = is.copy();
+				mInventory[i] = null;
+			} else if (cap() - is.stackSize >= mInventory[getIndex()].stackSize) {
+				mInventory[getIndex()].stackSize += is.stackSize;
+				mInventory[i] = null;
+			} else {
+				int to = Math.min(cap() - mInventory[getIndex()].stackSize, is.stackSize);
+				mInventory[getIndex()].stackSize += to;
+				mInventory[i].stackSize -= to;
+				needToSort = true;
+			}
+		}
+		if (needToSort)
+			fillStacksIntoFirstSlots();
+
+	}
+
+	private int cap() {
+
+		return 1;
+	}
+
+	@Override
 	public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
-		
+
 		return new NBTHatchMEFocus(mName, mDescriptionArray, mTextures);
 	}
-	   private void updateValidGridProxySides() {
-	        /*
-	         * if (disabled) {
-	         * getProxy().setValidSides(EnumSet.noneOf(ForgeDirection.class));
-	         * return;
-	         * }
-	         */
-	        getProxy().setValidSides(EnumSet.complementOf(EnumSet.of(ForgeDirection.UNKNOWN)));
 
-	    }
+	private void updateValidGridProxySides() {
+		/*
+		 * if (disabled) {
+		 * getProxy().setValidSides(EnumSet.noneOf(ForgeDirection.class));
+		 * return; }
+		 */
+		getProxy().setValidSides(EnumSet.complementOf(EnumSet.of(ForgeDirection.UNKNOWN)));
+
+	}
+
+	@Override
+	public void saveNBTData(NBTTagCompound aNBT) {
+		getProxy().writeToNBT(aNBT);
+		super.saveNBTData(aNBT);
+	}
+
+	@Override
+	public void loadNBTData(NBTTagCompound aNBT) {
+		getProxy().readFromNBT(aNBT);
+		super.loadNBTData(aNBT);
+	}
 }

@@ -65,6 +65,7 @@ import reobf.proghatches.gt.metatileentity.RemoteInputBus;
 import reobf.proghatches.gt.metatileentity.RemoteInputHatch;
 import reobf.proghatches.gt.metatileentity.RestrictedInputBusME;
 import reobf.proghatches.gt.metatileentity.RestrictedInputHatchME;
+import reobf.proghatches.gt.metatileentity.StockingDualInputHatchME;
 import reobf.proghatches.gt.metatileentity.StorageOutputBus;
 import reobf.proghatches.gt.metatileentity.StorageOutputHatch;
 import reobf.proghatches.gt.metatileentity.SuperChestME;
@@ -103,7 +104,10 @@ public class Registration implements Runnable {
     public final static int MEFocusOffset = 82;
     public final static int DataOrbOffset = 83;
     public final static int MECatalystOffset = 84;
-    		
+    public final static int StockingDualInputOffset=85;//-86
+    
+    
+    
     public final static int BufferedQuadDualInputHatchOffset = 100;// -115
     public final static int LargeProviderOffset = 116;
     public final static int ChainerOffset = 117;
@@ -577,8 +581,14 @@ public class Registration implements Runnable {
                 Config.metaTileEntityOffset + DataOrbOffset,
                 "input.dataorb",
                 LangManager.translateToLocal("input.dataorb.name"), 10);
-        
-        
+        new StockingDualInputHatchME(
+                Config.metaTileEntityOffset + StockingDualInputOffset,
+                "hatch.dualinput.stocking.me",
+                LangManager.translateToLocal("hatch.dualinput.stocking.me.name"), 8, false);
+        new StockingDualInputHatchME(
+                Config.metaTileEntityOffset + StockingDualInputOffset+1,
+                "hatch.dualinput.stocking.autopull.me",
+                LangManager.translateToLocal("hatch.dualinput.stocking.autopull.me.name"), 10, true);
         
         /*
          * for (int i = 0; i < 4; i++) {

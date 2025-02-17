@@ -607,10 +607,15 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
             return getLocalName();
         }
         StringBuilder name = new StringBuilder();
-
-        name.append(
-            Optional.ofNullable(m.getMachineCraftingIcon()).map(s->s.getDisplayName()+"(Mapped)")
-              .orElse(m.getLocalName()==null?"":m.getLocalName()+"(Mapped)"));
+        String masterName;
+        if (m instanceof IInterfaceViewable) {
+            masterName = ((IInterfaceViewable) m).getName();
+        } else {
+            masterName = Optional.ofNullable(m.getMachineCraftingIcon()).map(ItemStack::getDisplayName)
+                .orElse(m.getLocalName()==null?"":m.getLocalName());
+        }
+        name.append(masterName);
+        name.append("(Mapped)");
         if (m.mInventory[m.getCircuitSlot()] != null) {
             name.append(" - ");
             ItemStack is = m.mInventory[m.getCircuitSlot()];
@@ -771,7 +776,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
     @Override
     public boolean hasCustomName() {
 
-        return customName != null && (!customName.equals(""));
+        return customName != null && (!customName.isEmpty());
     }
 
     public boolean isInputEmpty(T master) {

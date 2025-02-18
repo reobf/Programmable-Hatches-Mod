@@ -78,6 +78,7 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
+import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
@@ -878,8 +879,8 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                 BufferedDualInputHatch m = (BufferedDualInputHatch) master;
 
                 DualInvBuffer theBuffer = ((BufferedDualInputHatch) master).classifyForce();
-                if(theBuffer!=null)
-                ((BufferedDualInputHatch) master).recordRecipe(theBuffer);
+                if(theBuffer!=null){
+                ((BufferedDualInputHatch) master).recordRecipe(theBuffer);theBuffer.onChange();}
                 // ((BufferedDualInputHatch) master).classifyForce();
             }
             return true;// hoo ray
@@ -1141,11 +1142,11 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                         for (int ix = 0; ix < theBuffer.i; ix++) {
                             if (theBuffer.mStoredItemInternalSingle[ix] != null) {
                                 if (theBuffer.mStoredItemInternal[ix] == null) {
-                                    theBuffer.mStoredItemInternal[ix] = theBuffer.mStoredItemInternalSingle[ix].copy();
-                                    theBuffer.mStoredItemInternal[ix].stackSize = 0;// circuit?
+                                    theBuffer.mStoredItemInternal[ix] = ItemStackG.neo(theBuffer.mStoredItemInternalSingle[ix].copy());
+                                    theBuffer.mStoredItemInternal[ix].stackSize (0);// circuit?
                                 }
-                                theBuffer.mStoredItemInternal[ix].stackSize += theBuffer.mStoredItemInternalSingle[ix].stackSize
-                                    * todo;
+                                theBuffer.mStoredItemInternal[ix].stackSizeInc(  theBuffer.mStoredItemInternalSingle[ix].stackSize
+                                    * todo);
                             }
                         }
 
@@ -1165,7 +1166,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
                         suc += todo;
                     }
-
+                    theBuffer.onChange();
                 }
 
             }

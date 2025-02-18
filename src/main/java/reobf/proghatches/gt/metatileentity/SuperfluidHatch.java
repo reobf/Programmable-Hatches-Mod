@@ -53,12 +53,12 @@ public class SuperfluidHatch extends BufferedDualInputHatch {
 
     }
 
-    public int fluidLimit() {
+    public long fluidLimit() {
         return 100_000_000;
 
     }
 
-    public int itemLimit() {
+    public long itemLimit() {
         return 64;
     }
 

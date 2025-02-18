@@ -3,16 +3,18 @@ package reobf.proghatches.gt.metatileentity.util;
 import net.minecraft.item.ItemStack;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 
+import java.util.Optional;
+
 import com.gtnewhorizons.modularui.api.forge.ItemHandlerHelper;
 
 import gregtech.api.util.GTUtility;
 
-public class MappingItemHandler
+public class MappingItemHandlerG
     implements com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable, IInterhandlerGroup {
 
     public Runnable update = () -> {};
 
-    public MappingItemHandler(ItemStack[] is, int index, int num) {
+    public MappingItemHandlerG(ItemStackG[] is, int index, int num) {
         this.is = is;
         this.index = index;
         this.num = num;
@@ -22,12 +24,12 @@ public class MappingItemHandler
 
 	boolean phantom;
 
-    public MappingItemHandler phantom() {
+    public MappingItemHandlerG phantom() {
         phantom = true;
         return this;
     }
 
-    ItemStack[] is;
+    ItemStackG[] is;
     int index, num;
 
     @Override
@@ -39,7 +41,7 @@ public class MappingItemHandler
     @Override
     public ItemStack getStackInSlot(int var1) {
 
-        return is[var1 - index];
+        return Optional.ofNullable(is[var1 - index]).map(s->s.getZero()).orElse(null);
     }
 
     protected int getStackLimit(int slot, ItemStack stack) {
@@ -53,7 +55,7 @@ public class MappingItemHandler
                 return null;
             } else {
                 // this.validateSlotIndex(slot);
-                ItemStack existing = is[slot - index];
+                ItemStack existing = getStackInSlot(slot - index);
                 int limit = this.getStackLimit(slot - index, stack);
                 if (existing != null) {
                     if (!ItemHandlerHelper.canItemStacksStack(stack, existing)) {
@@ -69,7 +71,7 @@ public class MappingItemHandler
                     boolean reachedLimit = stack.stackSize > limit;
                     if (!simulate) {
                         if (existing == null) {
-                            is[slot - index] = (reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, limit)
+                            is[slot - index] =ItemStackG.neo(reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, limit)
                                 : stack);
 
                         } else {
@@ -94,7 +96,7 @@ public class MappingItemHandler
                 return null;
             } else {
                 // this.validateSlotIndex(slot);
-                ItemStack existing = (ItemStack) is[slot - index];
+                ItemStack existing = getStackInSlot(slot - index);
                 if (existing == null) {
                     return null;
                 } else {
@@ -108,8 +110,8 @@ public class MappingItemHandler
                         return existing;
                     } else {
                         if (!simulate) {
-                            is[slot - index] = ItemHandlerHelper
-                                .copyStackWithSize(existing, existing.stackSize - toExtract);
+                            is[slot - index] =ItemStackG.setZero(is[slot - index],ItemHandlerHelper
+                                .copyStackWithSize(existing, existing.stackSize - toExtract));
                             // this.onContentsChanged(slot);
                         }
 
@@ -131,15 +133,15 @@ public class MappingItemHandler
     public void setStackInSlot(int var1, ItemStack var2) {
         try {
             if (phantom) {
-                is[var1 - index] = GTUtility.copyAmount(0, var2);
+                is[var1 - index] =ItemStackG.setZero(is[var1 - index],GTUtility.copyAmount(0, var2));
 
-            } else is[var1 - index] = var2;
+            } else is[var1 - index] =ItemStackG.setZero(is[var1 - index],var2);
         } finally {
             update.run();
         }
     }
 
-    public MappingItemHandler id(long i) {
+    public MappingItemHandlerG id(long i) {
         id = i;
         return this;
     }

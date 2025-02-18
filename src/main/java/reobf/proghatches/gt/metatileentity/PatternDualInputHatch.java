@@ -81,6 +81,7 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
+import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.lang.LangManager;
@@ -89,6 +90,9 @@ import reobf.proghatches.main.Config;
 public class PatternDualInputHatch extends BufferedDualInputHatch implements ICraftingProvider, IGridProxyable,
     ICustomNameObject, IInterfaceViewable, IPowerChannelState, IActionHost, IMultiplePatternPushable {
 
+	
+	
+	
     public PatternDualInputHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
         boolean mMultiFluid, int bufferNum) {
         super(mName, mTier, mDescriptionArray, mTextures, mMultiFluid, bufferNum);
@@ -356,7 +360,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 
                 @Override
                 ItemStack[] geti() {
-                    return s.mStoredItemInternal;
+                    return flat(s.mStoredItemInternal);
                 }
 
                 @Override
@@ -658,9 +662,9 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
          */
 
         DualInvBuffer theBuffer = /* ((BufferedDualInputHatch) master). */classifyForce();
-        if(theBuffer!=null)
-        recordRecipe(theBuffer);
-
+        if(theBuffer!=null){
+        recordRecipe(theBuffer);theBuffer.onChange();
+        }
         justHadNewItems = true;
         return true;
     }
@@ -940,14 +944,14 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
         }
     }
 
-    public int fluidLimit() {
+    public long fluidLimit() {
 
-        return Integer.MAX_VALUE;
+        return Long.MAX_VALUE;
     }
 
-    public int itemLimit() {
+    public long itemLimit() {
 
-        return Integer.MAX_VALUE;
+        return Long.MAX_VALUE;
     }
 
     boolean createInsertion() {
@@ -1083,11 +1087,11 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
                 for (int ix = 0; ix < theBuffer.i; ix++) {
                     if (theBuffer.mStoredItemInternalSingle[ix] != null) {
                         if (theBuffer.mStoredItemInternal[ix] == null) {
-                            theBuffer.mStoredItemInternal[ix] = theBuffer.mStoredItemInternalSingle[ix].copy();
-                            theBuffer.mStoredItemInternal[ix].stackSize = 0;// circuit?
+                            theBuffer.mStoredItemInternal[ix] = ItemStackG.neo(theBuffer.mStoredItemInternalSingle[ix].copy());
+                            theBuffer.mStoredItemInternal[ix].stackSize(0);// circuit?
                         }
-                        theBuffer.mStoredItemInternal[ix].stackSize += theBuffer.mStoredItemInternalSingle[ix].stackSize
-                            * todo;
+                        theBuffer.mStoredItemInternal[ix].stackSizeInc( theBuffer.mStoredItemInternalSingle[ix].stackSize
+                            * todo);
                     }
                 }
 
@@ -1105,7 +1109,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
                 }
                 suc += todo;
             }
-
+            theBuffer.onChange();
         }
 
         saved += suc;

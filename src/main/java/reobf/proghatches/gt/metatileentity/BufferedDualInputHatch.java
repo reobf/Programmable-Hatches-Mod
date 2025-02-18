@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
@@ -17,6 +16,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -100,12 +100,10 @@ import gregtech.api.util.GTModHandler;
 import gregtech.api.util.GTTooltipDataCache.TooltipData;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IDualInputInventory;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMaps;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.Recipe;
+import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.FirstObjectHolder;
 import reobf.proghatches.gt.metatileentity.util.ICraftingV2;
@@ -113,6 +111,7 @@ import reobf.proghatches.gt.metatileentity.util.IInputStateProvider;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.gt.metatileentity.util.ListeningFluidTank;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
+import reobf.proghatches.gt.metatileentity.util.MappingItemHandlerG;
 import reobf.proghatches.gt.metatileentity.util.polyfill.INeoDualInputInventory;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.lang.LangManager;
@@ -145,22 +144,22 @@ public class BufferedDualInputHatch extends DualInputHatch
         return (int) ((int) (32000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1)));
     }
 
-    public int fluidLimit() {
+    public long fluidLimit() {
 
         return (int) ((int) (128000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1)));
     }
 
-    public int itemLimit() {
+    public long itemLimit() {
 
         return (int) (64 * Math.pow(4, Math.max(mTier - 3, 0)));
     }
 
-    private static int fluidLimit(int mTier, boolean mMultiFluid) {
+    private static long fluidLimit(int mTier, boolean mMultiFluid) {
 
         return (int) ((int) (128000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1)));
     }
 
-    private static int itemLimit(int mTier) {
+    private static long itemLimit(int mTier) {
 
         return (int) (64 * Math.pow(4, Math.max(mTier - 3, 0)));
     }
@@ -257,23 +256,10 @@ public class BufferedDualInputHatch extends DualInputHatch
          * }
          */
         public long tickFirstClassify = -1;
-        
-       protected Int2ObjectMap<ArrayList<ItemStack>> mExItem=new Int2ObjectArrayMap<>();
-       protected Int2ObjectMap<ArrayList<FluidStack>> mExFluid=new Int2ObjectArrayMap<>();
-       protected ArrayList<ItemStack> getExItem(int index){
-    	   if(mExItem.containsKey(index)){
-    		   mExItem.put(index, new ArrayList<>());
-    	   }
-    	   return mExItem.get(index);
-       }
-       protected ArrayList<FluidStack> getExFluid(int index){
-    	   if(mExFluid.containsKey(index)){
-    		   mExFluid.put(index, new ArrayList<>());
-    	   }
-    	   return mExFluid.get(index);
-       }
+        public void onChange(){}
+       
         protected FluidTank[] mStoredFluidInternal;
-        protected ItemStack[] mStoredItemInternal;
+        protected ItemStackG[] mStoredItemInternal;
         protected FluidTank[] mStoredFluidInternalSingle;
         protected ItemStack[] mStoredItemInternalSingle;
         public boolean recipeLocked;
@@ -287,15 +273,16 @@ public class BufferedDualInputHatch extends DualInputHatch
 
         // public boolean lock;
         public boolean full() {
-        	 for (int index = 0; index < mStoredItemInternalSingle.length; index++) {
-                ItemStack i = mStoredItemInternal[index];
+
+            for (int index = 0; index < mStoredItemInternalSingle.length; index++) {
+                ItemStackG i = mStoredItemInternal[index];
                 ItemStack si = mStoredItemInternalSingle[index];
                 if (i != null) {
-                    if (si != null && Integer.MAX_VALUE - i.stackSize < si.stackSize) {
+                    if (si != null && Long.MAX_VALUE - i.stackSize() < si.stackSize) {
                         return true;// over flow! count as full
                     }
 
-                    if (i.stackSize >= itemLimit()) {
+                    if (i.stackSize() >= itemLimit()) {
                         return true;
                     }
                 }
@@ -318,7 +305,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
         public void updateSlots() {
             for (int i = 0; i < this.i; i++)
-                if (mStoredItemInternal[i] != null && mStoredItemInternal[i].stackSize <= 0) {
+                if (mStoredItemInternal[i] != null && mStoredItemInternal[i].stackSize() <= 0) {
                     mStoredItemInternal[i] = null;
                 }
             for (int i = 0; i < this.f; i++) if (Optional.ofNullable(mStoredFluidInternal[i].getFluid())
@@ -344,7 +331,7 @@ public class BufferedDualInputHatch extends DualInputHatch
             }
             for (int i = 0; i < mStoredItemInternal.length; i++) {
                 if (mStoredItemInternal[i] != null)
-                    tag.setTag("mStoredItemInternal" + i, writeToNBT(mStoredItemInternal[i], new NBTTagCompound()));
+                    tag.setTag("mStoredItemInternal" + i, writeToNBTG(mStoredItemInternal[i], new NBTTagCompound()));
             }
             for (int i = 0; i < mStoredItemInternalSingle.length; i++) {
                 if (mStoredItemInternalSingle[i] != null) tag.setTag(
@@ -379,7 +366,7 @@ public class BufferedDualInputHatch extends DualInputHatch
             if (mStoredItemInternal != null) {
                 for (int i = 0; i < mStoredItemInternal.length; i++) {
                     if (tag.hasKey("mStoredItemInternal" + i)) {
-                        mStoredItemInternal[i] = loadItemStackFromNBT(tag.getCompoundTag("mStoredItemInternal" + i));
+                        mStoredItemInternal[i] = loadItemStackFromNBTG(tag.getCompoundTag("mStoredItemInternal" + i));
                     }
                 }
             }
@@ -407,7 +394,7 @@ public class BufferedDualInputHatch extends DualInputHatch
             f = fluid;
             mStoredFluidInternal = initFluidTack(new FluidTank[fluid]);
             mStoredFluidInternalSingle = initFluidTack(new FluidTank[fluid]);
-            mStoredItemInternal = new ItemStack[item + v];
+            mStoredItemInternal = new ItemStackG[item + v];
             mStoredItemInternalSingle = new ItemStack[item];
         }
 
@@ -439,9 +426,9 @@ public class BufferedDualInputHatch extends DualInputHatch
                     return false;
                 }
             }
-            for (ItemStack i : mStoredItemInternal) {
+            for (ItemStackG i : mStoredItemInternal) {
 
-                if (i != null && i.stackSize > 0) {
+                if (i != null && i.stackSize() > 0) {
                     return false;
                 }
             }
@@ -544,9 +531,9 @@ public class BufferedDualInputHatch extends DualInputHatch
 
             }
             for (int ix = 0; ix < i; ix++) {
-                mStoredItemInternal[ix] = Optional.ofNullable(iin[ix])
+                mStoredItemInternal[ix] =ItemStackG.neo( Optional.ofNullable(iin[ix])
                     .map(ItemStack::copy)
-                    .orElse(null);
+                    .orElse(null));
                 iin[ix] = null;
             }
             /*
@@ -559,13 +546,14 @@ public class BufferedDualInputHatch extends DualInputHatch
             markJustHadNewItems();
             onClassify();
             programLocal();
+            onChange();
         }
 
         private void programLocal() {
             if (!program) return;
             ArrayList<ItemStack> isa = new ArrayList<>();
             for (int i = 0; i < mStoredItemInternal.length; i++) {
-                ItemStack is = mStoredItemInternal[i];
+                ItemStackG is = mStoredItemInternal[i];
                 if (is == null) continue;
                 if (is.getItem() != MyMod.progcircuit) continue;
                 mStoredItemInternal[i] = null;
@@ -574,7 +562,7 @@ public class BufferedDualInputHatch extends DualInputHatch
                 isa.add(
                     GTUtility.copyAmount(
                         0,
-                        ItemProgrammingCircuit.getCircuit(is)
+                        ItemProgrammingCircuit.getCircuit(is.getStack())
                             .orElse(null)));
             }
 
@@ -583,7 +571,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
             for (int i = 0; i < v; i++) {
                 if (i < nums) {
-                    mStoredItemInternal[this.i + i] = isa.get(i);
+                    mStoredItemInternal[this.i + i] = ItemStackG.neo(isa.get(i));
                 } else {
                     mStoredItemInternal[this.i + i] = null;
                 }
@@ -615,7 +603,7 @@ public class BufferedDualInputHatch extends DualInputHatch
                 }
                 if (ItemStack.areItemStacksEqual(mStoredItemInternalSingle[ix], iin[ix])) {
                     if ((iin[ix] != null && mStoredItemInternal[ix] != null)
-                        && !areItemStacksEqualIngoreAmount(mStoredItemInternal[ix], iin[ix])) {
+                        && !areItemStacksEqualIngoreAmount(mStoredItemInternal[ix].getStack(), iin[ix])) {
                         return false;
                     }
                 } else {
@@ -637,8 +625,8 @@ public class BufferedDualInputHatch extends DualInputHatch
             }
             for (int ix = 0; ix < i; ix++) {
                 if (mStoredItemInternalSingle[ix] != null)
-                    if (mStoredItemInternal[ix] == null) mStoredItemInternal[ix] = mStoredItemInternalSingle[ix].copy();
-                    else mStoredItemInternal[ix].stackSize += mStoredItemInternalSingle[ix].stackSize;
+                    if (mStoredItemInternal[ix] == null) mStoredItemInternal[ix] = ItemStackG.neo(mStoredItemInternalSingle[ix].copy());
+                    else mStoredItemInternal[ix].stackSizeInc(  mStoredItemInternalSingle[ix].stackSize);
                 if (removeInputOnSuccess) iin[ix] = null;
                 else if (iin[ix] != null) iin[ix] = iin[ix].copy();
             }
@@ -658,6 +646,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
             onClassify();
             if (program) programLocal();
+            onChange();
             return true;
         }
 
@@ -700,7 +689,7 @@ public class BufferedDualInputHatch extends DualInputHatch
              * bruh;
              */
 
-            ItemStack[] condensed = filterStack.apply(mStoredItemInternal, shared.getItems());
+            ItemStack[] condensed = filterStack.apply(flat(mStoredItemInternal), shared.getItems());
 
             // if(!trunOffEnsure){condensed=ensureIntMax(condensed);}
 
@@ -708,7 +697,9 @@ public class BufferedDualInputHatch extends DualInputHatch
 
         }
 
-        @Override
+       
+
+		@Override
         public FluidStack[] getFluidInputs() {
             FluidStack[] condensed = asFluidStack.apply(mStoredFluidInternal, shared.getFluid());
             // if(!trunOffEnsure){condensed=ensureIntMax(condensed);}
@@ -717,14 +708,14 @@ public class BufferedDualInputHatch extends DualInputHatch
         }
 
         public int space() {
-            int ret = Integer.MAX_VALUE;
+            long ret = Integer.MAX_VALUE;
             boolean found = false;
             for (int ix = 0; ix < i; ix++) {
 
                 if (mStoredItemInternalSingle[ix] != null && mStoredItemInternalSingle[ix].stackSize > 0) {
-                    int now = 0;
-                    if (mStoredItemInternal[ix] != null) now = mStoredItemInternal[ix].stackSize;
-                    int tmp = (itemLimit() - now) / mStoredItemInternalSingle[ix].stackSize;
+                    long now = 0;
+                    if (mStoredItemInternal[ix] != null) now = mStoredItemInternal[ix].stackSize();
+                    long tmp = (itemLimit() - now) / mStoredItemInternalSingle[ix].stackSize;
                     if (tmp < ret) {
                         ret = tmp;
                         found = true;
@@ -736,7 +727,7 @@ public class BufferedDualInputHatch extends DualInputHatch
                 if (mStoredFluidInternalSingle[ix].getFluidAmount() > 0) {
                     int now = mStoredFluidInternal[ix].getFluidAmount();
 
-                    int tmp = (fluidLimit() - now) / mStoredFluidInternalSingle[ix].getFluidAmount();
+                    long tmp = (fluidLimit() - now) / mStoredFluidInternalSingle[ix].getFluidAmount();
                     if (tmp < ret) {
                         ret = tmp;
                         found = true;
@@ -744,7 +735,7 @@ public class BufferedDualInputHatch extends DualInputHatch
                 }
             }
 
-            if (found) return ret;
+            if (found) return (int) Math.min(ret, Integer.MAX_VALUE);
             return 0;
 
         }
@@ -1064,7 +1055,7 @@ public class BufferedDualInputHatch extends DualInputHatch
     final int offset = 0;
 
     public void add1by1Slot(ModularWindow.Builder builder, int index, IDrawable... background) {
-        final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(
+        final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(
             inv0.get(index).mStoredItemInternal,
             offset,
             1).id(1);
@@ -1082,7 +1073,7 @@ public class BufferedDualInputHatch extends DualInputHatch
     }
 
     public void add2by2Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
-        final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(
+        final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(
             inv0.get(index).mStoredItemInternal,
             offset,
             4).id(1);
@@ -1100,7 +1091,7 @@ public class BufferedDualInputHatch extends DualInputHatch
     }
 
     public void add3by3Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
-        final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(
+        final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(
             inv0.get(index).mStoredItemInternal,
             offset,
             9).id(1);
@@ -1118,7 +1109,7 @@ public class BufferedDualInputHatch extends DualInputHatch
     }
 
     public void add4by4Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
-        final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(
+        final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(
             inv0.get(index).mStoredItemInternal,
             offset,
             16).id(1);
@@ -1211,7 +1202,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
         Scrollable sc = new Scrollable().setVerticalScroll();
 
-        final IItemHandlerModifiable inventoryHandler = new MappingItemHandler(
+        final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(
             inv0.get(index).mStoredItemInternal,
             0,
             inv0.get(index).mStoredItemInternal.length).phantom();
@@ -1454,6 +1445,38 @@ public class BufferedDualInputHatch extends DualInputHatch
 
         // ProghatchesUtil.removeMultiCache(builder, this);
         ProghatchesUtil.attachZeroSizedStackRemover(builder, buildContext);
+       
+        builder.widget(new SyncedWidget() {
+
+            
+			Consumer<Widget> ticker = ss -> {
+            	
+            	for(int i=0;i<inv0.size();i++){
+            		DualInvBuffer inv=inv0.get(i);
+            		if(getContext().isWindowOpen(BUFFER_0 + i))
+            		for(ItemStackG items:inv.mStoredItemInternal){
+            			if(items!=null){items.adjust();}
+            		}
+            	}
+           };
+
+            {
+                this.setTicker(ticker);
+            }
+
+            public void detectAndSendChanges(boolean init) {
+              
+                ticker.accept(this);
+            };
+
+            @Override
+            public void readOnClient(int id, PacketBuffer buf) throws IOException {}
+
+            @Override
+            public void readOnServer(int id, PacketBuffer buf) throws IOException {}
+        });
+        
+        
         super.addUIWidgets(builder, buildContext);
         // builder.widget(widget);
 
@@ -1587,7 +1610,7 @@ public class BufferedDualInputHatch extends DualInputHatch
         @Override
         public int getCapacity() {
 
-            return fluidLimit();
+            return (int) Math.min(fluidLimit(),Integer.MAX_VALUE);
         }
 
         @Override
@@ -1627,7 +1650,7 @@ public class BufferedDualInputHatch extends DualInputHatch
         }
 
         DualInvBuffer buff;
-        int piority;
+        long piority;
 
         @Override
         public String toString() {
@@ -1637,7 +1660,7 @@ public class BufferedDualInputHatch extends DualInputHatch
         @Override
         public int compareTo(PiorityBuffer o) {
 
-            return -piority + o.piority;
+            return Long.compare(piority , o.piority);
         }
 
     }
@@ -1685,10 +1708,10 @@ public class BufferedDualInputHatch extends DualInputHatch
         markDirty();
         dirty = true;
 
-        if (merge) {
+        /*if (merge) {
             return mergeSame();
 
-        }
+        }*/
 
         if (Config.experimentalOptimize) {
 
@@ -1926,7 +1949,7 @@ public class BufferedDualInputHatch extends DualInputHatch
                             (a, b) -> a.append(b))
                         .toString());
 
-                sub.setInteger("possibleCopies", (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times);
+                sub.setLong("possibleCopies", (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times);
             });
 
         super.getWailaNBTData(player, tile, tag, world, x, y, z);
@@ -1946,24 +1969,24 @@ public class BufferedDualInputHatch extends DualInputHatch
     private static class RecipeTracker {
 
         boolean broken;
-        int times;
+        long times;
         boolean first = true;
         boolean onceCompared;
 
-        public void track(@Nonnull ItemStack recipe, @Nullable ItemStack storage) {
+        public void track(@Nonnull ItemStack recipe, @Nullable ItemStackG mStoredItemInternal) {
             if (recipe.getItem() instanceof ItemProgrammingCircuit) {
                 onceCompared = true;
                 return;
             }
-            if (recipe.getItem() != (storage == null ? null : storage.getItem())) {
+            if (recipe.getItem() != (mStoredItemInternal == null ? null : mStoredItemInternal.getItem())) {
                 broken = true;
                 onceCompared = true;
                 return;
             }
             int a = recipe.stackSize;
-            int b = Optional.ofNullable(storage)
-                .map(s -> s.stackSize)
-                .orElse(0);
+            long b = Optional.ofNullable(mStoredItemInternal)
+                .map(s -> s.stackSize())
+                .orElse(0l);
             track(a, b, false);
         }
 
@@ -1984,8 +2007,8 @@ public class BufferedDualInputHatch extends DualInputHatch
             track(a, b, false);
         }
 
-        public void track(int a, int b, boolean ignoreEmpty) {
-            int t = 0;
+        public void track(int a, long b, boolean ignoreEmpty) {
+            long t = 0;
             if (a == 0) {
                 broken = true;
                 return;
@@ -2014,7 +2037,7 @@ public class BufferedDualInputHatch extends DualInputHatch
         }
     }
 
-    public int getPossibleCopies(DualInvBuffer toCheck) {
+    public long getPossibleCopies(DualInvBuffer toCheck) {
         DualInvBuffer inv = toCheck;
         RecipeTracker rt = new RecipeTracker();
 
@@ -2235,14 +2258,14 @@ public class BufferedDualInputHatch extends DualInputHatch
 
     @Override
     public void onBlockDestroyed() {
-        IGregTechTileEntity te = this.getBaseMetaTileEntity();
+       /* IGregTechTileEntity te = this.getBaseMetaTileEntity();
         World aWorld = te.getWorld();
         int aX = te.getXCoord();
         short aY = te.getYCoord();
         int aZ = te.getZCoord();
         for (DualInvBuffer inv : this.inv0) for (int i = 0; i < inv.mStoredItemInternal.length; i++) {
-            final ItemStack tItem = inv.mStoredItemInternal[i];
-            if ((tItem != null) && (tItem.stackSize > 0)) {
+            final ItemStackG tItem = inv.mStoredItemInternal[i];
+            if ((tItem != null) && (tItem.stackSize() > 0)) {
                 final EntityItem tItemEntity = new EntityItem(
                     aWorld,
                     aX + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
@@ -2262,7 +2285,7 @@ public class BufferedDualInputHatch extends DualInputHatch
                 tItem.stackSize = 0;
                 inv.mStoredItemInternal[i] = null;
             }
-        }
+        }*/
         super.onBlockDestroyed();
     }
 
@@ -2289,7 +2312,7 @@ public class BufferedDualInputHatch extends DualInputHatch
      * return super.onRightclick(aBaseMetaTileEntity, aPlayer, side, aX, aY,
      * aZ); }
      */
-    @SuppressWarnings("unchecked")
+    /*@SuppressWarnings("unchecked")
     public Iterator<? extends IDualInputInventory> mergeSame() {
 
         class Wrapper {
@@ -2303,9 +2326,7 @@ public class BufferedDualInputHatch extends DualInputHatch
             boolean fast = true;;
 
             private int sft(int i, int t) {
-                /*
-                 * i=(i*17)%32; return (i<<t)|(i>>>(32-t));
-                 */return i ^ t;
+              return i ^ t;
             }
 
             @Override
@@ -2495,7 +2516,7 @@ public class BufferedDualInputHatch extends DualInputHatch
             })
             .iterator();
     }
-
+*/
     static public boolean fluidEquals(FluidTank a, FluidTank b) {
         // if(a==b)return false;
         // if(a==null||b==null)return false;
@@ -2754,6 +2775,7 @@ public class BufferedDualInputHatch extends DualInputHatch
                 DualInvBuffer buff = ((BufferedDualInputHatch) master).classifyForce();
                 if (buff != null) {
                     recordRecipe(buff);
+                    buff.onChange();
                 }
             }
             return true;// hoo ray
@@ -2820,5 +2842,26 @@ public class BufferedDualInputHatch extends DualInputHatch
             check = currentID;
         }
         thiz.PID = check;
+    } 
+    public static NBTTagCompound writeToNBTG(ItemStackG is, NBTTagCompound tag) {
+        is.writeToNBT(tag);
+       // tag.setInteger("ICount", is.stackSize);
+
+        return tag;
     }
+
+    public static ItemStackG loadItemStackFromNBTG(NBTTagCompound tag) {
+
+        ItemStackG is = ItemStackG.loadItemStackFromNBT(tag);
+        //is.stackSize = tag.getInteger("ICount");
+        return is;
+    }
+    public static ItemStack[] flat(ItemStackG[] mStoredItemInternal2) {
+	
+    	return Arrays.asList(mStoredItemInternal2).stream().flatMap(s->Arrays.stream(s.flat())).toArray(ItemStack[]::new);
+    	
+    	
+    	
+		
+	}
 }

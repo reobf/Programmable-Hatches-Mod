@@ -1,6 +1,8 @@
 package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_INPUT_HATCH_ACTIVE;
+import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_CRAFTING_INPUT_BUFFER;
+import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_CRAFTING_INPUT_BUS;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_INPUT_FLUID_HATCH_ACTIVE;
 import static kubatech.api.Variables.numberFormat;
 import static kubatech.api.Variables.numberFormatScientific;
@@ -57,11 +59,13 @@ import appeng.api.config.Actionable;
 import appeng.api.config.FuzzyMode;
 import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
+import appeng.api.networking.IGridNode;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.DimensionalCoord;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
@@ -84,6 +88,7 @@ import gregtech.api.objects.GTDualInputs;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
+import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.shutdown.ShutDownReason;
@@ -99,6 +104,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -109,7 +115,7 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
 public class StockingDualInputHatchME extends MTEHatchInputBus
-		implements IDualInputHatch, IRecipeProcessingAwareDualHatch, IPowerChannelState
+		implements IDualInputHatch, IRecipeProcessingAwareDualHatch, IPowerChannelState,IGridProxyable
 
 {
 
@@ -611,7 +617,20 @@ public void program(){
 		if(ext!=null&&ext.getStackSize()>0){
 			ItemStack item = ext.getItemStack();
 			item.stackSize=0;
-			this.setInventorySlotContents(getCircuitSlot(),ItemProgrammingCircuit.getCircuit(item).orElse(null));
+			
+			ItemStack circuit = ItemProgrammingCircuit.getCircuit(item).orElse(null);
+			this.setInventorySlotContents(getCircuitSlot(),circuit);
+			
+			this.getProxy().getNode().getGrid().getMachines(this.getClass()).forEach(m->{
+				StockingDualInputHatchME thiz=(StockingDualInputHatchME) m.getMachine();
+				if(thiz.program){
+					thiz.setInventorySlotContents(thiz.getCircuitSlot(),circuit);
+					
+				}
+				
+				
+				
+			});;
 			
 		}
 		}
@@ -860,7 +879,7 @@ public void program(){
 
 		if (gridProxy == null) {
 			if (getBaseMetaTileEntity() instanceof IGridProxyable) {
-				gridProxy = new AENetworkProxy((IGridProxyable) getBaseMetaTileEntity(), "proxy",
+				gridProxy = new AENetworkProxy(this, "proxy",
 						new ItemStack(GregTechAPI.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID()), true);
 				gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
 				updateValidGridProxySides();
@@ -896,7 +915,7 @@ public void program(){
 	}
 
 	@Override
-	public void saveNBTData(NBTTagCompound aNBT) {allowAuto=aNBT.getBoolean("allowAuto");
+	public void saveNBTData(NBTTagCompound aNBT) {aNBT.setBoolean("allowAuto",allowAuto);
 		getProxy().writeToNBT(aNBT);
 		super.saveNBTData(aNBT);
 		NBTTagList nbtTagList = new NBTTagList();
@@ -941,7 +960,7 @@ public void program(){
 	}
 
 	@Override
-	public void loadNBTData(NBTTagCompound aNBT) {aNBT.setBoolean("allowAuto", allowAuto);
+	public void loadNBTData(NBTTagCompound aNBT) {allowAuto=aNBT.getBoolean("allowAuto" );
 		getProxy().readFromNBT(aNBT);
 		super.loadNBTData(aNBT);
 		if (aNBT.hasKey("storedFluids")) {
@@ -1003,5 +1022,35 @@ public void program(){
 	}
 
 	public IItemHandlerModifiable inventoryHandlerMark = new ItemStackHandler(i_mark);;
-	public IItemHandlerModifiable inventoryHandlerDisplay = new ItemStackHandler(i_display);;
+	public IItemHandlerModifiable inventoryHandlerDisplay = new ItemStackHandler(i_display);
+
+	@Override
+	public IGridNode getGridNode(ForgeDirection dir) {
+		
+		return getProxy().getNode();
+	}
+
+	@Override
+	public void securityBreak() {
+	
+		
+	}
+
+	@Override
+	public DimensionalCoord getLocation() {
+	
+		return new DimensionalCoord((TileEntity)this.getBaseMetaTileEntity());
+	};    
+	@Override
+    public ITexture[] getTexturesActive(ITexture aBaseTexture) {
+		return new ITexture[] { aBaseTexture,
+	            TextureFactory.of(MyMod.iohub ,MyMod.iohub.magicNO_overlay_dual_active) };
+    }
+
+    @Override
+    public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
+        return new ITexture[] { aBaseTexture,
+            TextureFactory.of( MyMod.iohub,MyMod.iohub.magicNO_overlay_dual) };
+    }
+
 }

@@ -181,7 +181,7 @@ public class CommonProxy {
             "proghatches.proxy",
             new Object[] { "tile.proghatches.proxy.tooltip" });
 
-        MyMod.iohub = GameRegistry.registerBlock(new BlockIOHub(), ItemBlockIOHub.class, "proghatches.iohub");
+        MyMod.iohub = (BlockIOHub) GameRegistry.registerBlock(new BlockIOHub(), ItemBlockIOHub.class, "proghatches.iohub");
         MyMod.alert = GameRegistry.registerBlock(
             new BlockAnchorAlert(Material.rock),
             ItemBlockAnchorAlert.class,

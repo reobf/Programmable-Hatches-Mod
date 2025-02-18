@@ -84,6 +84,7 @@ import reobf.proghatches.ae.BlockAutoFillerMKII;
 import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
 import reobf.proghatches.ae.BlockOrbSwitcher;
 import reobf.proghatches.ae.BlockRequestTunnel;
+import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.block.ChunkTrackingGridCahce;
 import reobf.proghatches.block.TileIOHub;
 import reobf.proghatches.eio.ICraftingMachineConduit;
@@ -218,7 +219,7 @@ public class MyMod {
     public static Item cover;
     public static Item oc_redstone;
     public static Item oc_api;
-    public static Block iohub;
+    public static BlockIOHub iohub;
     public static Block pstation;
     public static Item pitem;
     @Nullable

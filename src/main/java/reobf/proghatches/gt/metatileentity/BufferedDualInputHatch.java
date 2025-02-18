@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
@@ -99,6 +100,9 @@ import gregtech.api.util.GTModHandler;
 import gregtech.api.util.GTTooltipDataCache.TooltipData;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IDualInputInventory;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMaps;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.Recipe;
@@ -253,6 +257,21 @@ public class BufferedDualInputHatch extends DualInputHatch
          * }
          */
         public long tickFirstClassify = -1;
+        
+       protected Int2ObjectMap<ArrayList<ItemStack>> mExItem=new Int2ObjectArrayMap<>();
+       protected Int2ObjectMap<ArrayList<FluidStack>> mExFluid=new Int2ObjectArrayMap<>();
+       protected ArrayList<ItemStack> getExItem(int index){
+    	   if(mExItem.containsKey(index)){
+    		   mExItem.put(index, new ArrayList<>());
+    	   }
+    	   return mExItem.get(index);
+       }
+       protected ArrayList<FluidStack> getExFluid(int index){
+    	   if(mExFluid.containsKey(index)){
+    		   mExFluid.put(index, new ArrayList<>());
+    	   }
+    	   return mExFluid.get(index);
+       }
         protected FluidTank[] mStoredFluidInternal;
         protected ItemStack[] mStoredItemInternal;
         protected FluidTank[] mStoredFluidInternalSingle;
@@ -268,8 +287,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
         // public boolean lock;
         public boolean full() {
-
-            for (int index = 0; index < mStoredItemInternalSingle.length; index++) {
+        	 for (int index = 0; index < mStoredItemInternalSingle.length; index++) {
                 ItemStack i = mStoredItemInternal[index];
                 ItemStack si = mStoredItemInternalSingle[index];
                 if (i != null) {

@@ -441,6 +441,9 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
         // if(succ){forceUpdatePattern=true ;}
         multiply = Math.min(multiply, totalAcc + 1);
         multiply = Math.max(multiply, 1);
+        
+        if(mEnergyHatches.size()==0)return false;
+        
         return succ;
     }
 

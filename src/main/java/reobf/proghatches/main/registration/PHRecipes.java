@@ -2068,6 +2068,38 @@ public class PHRecipes implements Runnable {
         .duration(1 * SECONDS)
         .eut(30)
         .addTo(RecipeMaps.assemblerRecipes);
+        
+        
+        
+        GTValues.RA.stdBuilder()
+        .itemInputs(
+        		ItemList.Hatch_Input_Bus_ME.get(1),
+        		ItemList.Hatch_Input_ME.get(1),
+        		new ItemStack(MyMod.toolkit,0,OreDictionary.WILDCARD_VALUE)
+        		)
+        .itemOutputs(  new ItemStack(
+                GregTechAPI.sBlockMachines,
+                1,
+                Config.metaTileEntityOffset + Registration.StockingDualInputOffset))
+        .duration(1 * SECONDS)
+        .eut(30)
+        .addTo(RecipeMaps.assemblerRecipes);
+        
+        GTValues.RA.stdBuilder()
+        .itemInputs(
+        		ItemList.Hatch_Input_Bus_ME_Advanced.get(1),
+        		ItemList.Hatch_Input_ME_Advanced.get(1),
+        		new ItemStack(MyMod.toolkit,0,OreDictionary.WILDCARD_VALUE)
+        		)
+        .itemOutputs(  new ItemStack(
+                GregTechAPI.sBlockMachines,
+                1,
+                Config.metaTileEntityOffset + Registration.StockingDualInputOffset+1))
+        .duration(1 * SECONDS)
+        .eut(30)
+        .addTo(RecipeMaps.assemblerRecipes);
+        
+        
         /*
          * rec = new ShapelessOreRecipe( new ItemStack( MyMod.plunger,1,1),
          * ItemEnum.BOOSTER_CARD.getStack(0),

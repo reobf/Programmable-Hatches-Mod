@@ -52,6 +52,11 @@ public class BlockIOHub extends BlockContainer {
         provider_in_overlay = reg.registerIcon("proghatches:provider_in");
         provider_in_active_overlay = reg.registerIcon("proghatches:provider_in_active");
         inv_me_slave = reg.registerIcon("proghatches:inv_me_slave");
+        
+       overlay_dual = reg.registerIcon("proghatches:overlay_dual");
+       overlay_dual_active = reg.registerIcon("proghatches:overlay_dual_active");
+        
+        
         super.registerBlockIcons(reg);
     }
 
@@ -104,12 +109,14 @@ public class BlockIOHub extends BlockContainer {
     public static IIcon provider_active_overlay;
     public static IIcon provider_in_overlay;
     public static IIcon provider_in_active_overlay;
+    public static IIcon  overlay_dual,overlay_dual_active;
     static public int magicNO_provider_overlay = 0x7e;
     static public int magicNO_provider_active_overlay = 0x7d;
     static public int magicNO_provider_in_overlay = 0x7c;
     static public int magicNO_provider_in_active_overlay = 0x7b;
     static public int magicNO_inv_me_slave = 0x7a;
-
+    static public int magicNO_overlay_dual = 0x79;
+    static public int magicNO_overlay_dual_active= 0x78;
     @SideOnly(value = Side.CLIENT)
     @Override
     public IIcon getIcon(int side, int meta) {
@@ -120,6 +127,9 @@ public class BlockIOHub extends BlockContainer {
 		if(meta==0x7c)return provider_in_overlay;
 		if(meta==0x7b)return provider_in_active_overlay;
 		if(meta==0x7a)return inv_me_slave;
+		
+		if(meta==magicNO_overlay_dual)return overlay_dual;
+		if(meta==magicNO_overlay_dual_active)return overlay_dual_active;
 		//spotless:on
         return super.getIcon(side, meta);
     }

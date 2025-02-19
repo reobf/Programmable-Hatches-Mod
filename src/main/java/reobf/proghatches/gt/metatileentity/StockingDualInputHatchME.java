@@ -1144,6 +1144,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 			for(int i=0;i<16;i++)
 			f_client[i] = l.get();
 		}
+		
 		program = aNBT.getBoolean("program");
 		interval = aNBT.getInteger("interval");
 		intmaxs = aNBT.getInteger("intmaxs");

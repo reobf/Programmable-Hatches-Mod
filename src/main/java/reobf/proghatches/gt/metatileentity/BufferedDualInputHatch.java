@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
@@ -103,6 +104,7 @@ import gregtech.common.tileentities.machines.IDualInputInventory;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.Recipe;
+import reobf.proghatches.gt.metatileentity.bufferutil.FluidTankG;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.FirstObjectHolder;
@@ -258,7 +260,7 @@ public class BufferedDualInputHatch extends DualInputHatch
         public long tickFirstClassify = -1;
         public void onChange(){}
        
-        protected FluidTank[] mStoredFluidInternal;
+        protected FluidTankG[] mStoredFluidInternal;
         protected ItemStackG[] mStoredItemInternal;
         protected FluidTank[] mStoredFluidInternalSingle;
         protected ItemStack[] mStoredItemInternalSingle;
@@ -289,9 +291,9 @@ public class BufferedDualInputHatch extends DualInputHatch
             }
 
             for (int index = 0; index < mStoredFluidInternalSingle.length; index++) {
-                FluidTank i = mStoredFluidInternal[index];
+                FluidTankG i = mStoredFluidInternal[index];
                 FluidTank si = mStoredFluidInternalSingle[index];
-                if (si != null && Integer.MAX_VALUE - i.getFluidAmount() < si.getFluidAmount()) {
+                if (si != null && Long.MAX_VALUE - i.getFluidAmount() < si.getFluidAmount()) {
                     return true;// over flow! count as full
                 }
                 if (i.getFluidAmount() >= fluidLimit()) {
@@ -392,7 +394,7 @@ public class BufferedDualInputHatch extends DualInputHatch
         public void init(int item, int fluid) {
             i = item;
             f = fluid;
-            mStoredFluidInternal = initFluidTack(new FluidTank[fluid]);
+            mStoredFluidInternal = initFluidTack(new FluidTankG[fluid]);
             mStoredFluidInternalSingle = initFluidTack(new FluidTank[fluid]);
             mStoredItemInternal = new ItemStackG[item + v];
             mStoredItemInternalSingle = new ItemStack[item];
@@ -404,7 +406,12 @@ public class BufferedDualInputHatch extends DualInputHatch
             }
             return t;
         }
-
+        private FluidTankG[] initFluidTack(FluidTankG[] t) {
+            for (int i = 0; i < t.length; i++) {
+                t[i] = new FluidTankG();
+            }
+            return t;
+        }
         public boolean isAccessibleForMulti() {
 
             /*
@@ -421,7 +428,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
         public boolean isEmpty() {
 
-            for (FluidTank f : mStoredFluidInternal) {
+            for (FluidTankG f : mStoredFluidInternal) {
                 if (f.getFluidAmount() > 0) {
                     return false;
                 }
@@ -497,7 +504,14 @@ public class BufferedDualInputHatch extends DualInputHatch
 
             return true;
         }
+        private boolean fluidEqualsIngoreAmount(FluidTankG a, FluidTank b) {
 
+            if (a.getFluid() == null && a.getFluid() == null) return true;
+            if (a.getFluid() != null && (!a.getFluid()
+                .equals(b.getFluid()))) return false;
+
+            return true;
+        }
         public boolean areItemStacksEqualIngoreAmount(ItemStack p_77989_0_, ItemStack p_77989_1_) {
             return p_77989_0_ == null && p_77989_1_ == null ? true
                 : (p_77989_0_ != null && p_77989_1_ != null ? isItemStackEqualIngoreAmount(p_77989_0_, p_77989_1_)
@@ -725,7 +739,7 @@ public class BufferedDualInputHatch extends DualInputHatch
             for (int ix = 0; ix < f; ix++) {
 
                 if (mStoredFluidInternalSingle[ix].getFluidAmount() > 0) {
-                    int now = mStoredFluidInternal[ix].getFluidAmount();
+                    long now = mStoredFluidInternal[ix].getFluidAmount();
 
                     long tmp = (fluidLimit() - now) / mStoredFluidInternalSingle[ix].getFluidAmount();
                     if (tmp < ret) {
@@ -1589,10 +1603,10 @@ public class BufferedDualInputHatch extends DualInputHatch
 
     public class LimitedFluidTank implements IFluidTank {
 
-        IFluidTank inner;
+        FluidTankG inner;
 
-        public LimitedFluidTank(IFluidTank i) {
-            inner = i;
+        public LimitedFluidTank(FluidTankG mStoredFluidInternal) {
+            inner = mStoredFluidInternal;
         }
 
         @Override
@@ -1604,7 +1618,7 @@ public class BufferedDualInputHatch extends DualInputHatch
         @Override
         public int getFluidAmount() {
 
-            return inner.getFluidAmount();
+            return (int) Math.min(inner.getFluidAmount(),Integer.MAX_VALUE);
         }
 
         @Override
@@ -1990,11 +2004,11 @@ public class BufferedDualInputHatch extends DualInputHatch
             track(a, b, false);
         }
 
-        public void track(@Nonnull FluidTank recipe, @Nonnull FluidTank storage) {
+        public void track(@Nonnull FluidTank recipe, @Nonnull FluidTankG storage) {
             if (recipe.getFluid()
                 .getFluid()
                 != Optional.of(storage)
-                    .map(FluidTank::getFluid)
+                    .map(FluidTankG::getFluid)
                     .map(FluidStack::getFluid)
                     .orElse(null)) {
                 broken = true;
@@ -2003,7 +2017,7 @@ public class BufferedDualInputHatch extends DualInputHatch
             }
 
             int a = recipe.getFluidAmount();
-            int b = storage.getFluidAmount();
+            long b = storage.getFluidAmount();
             track(a, b, false);
         }
 
@@ -2858,7 +2872,15 @@ public class BufferedDualInputHatch extends DualInputHatch
     }
     public static ItemStack[] flat(ItemStackG[] mStoredItemInternal2) {
 	
-    	return Arrays.asList(mStoredItemInternal2).stream().flatMap(s->Arrays.stream(s.flat())).toArray(ItemStack[]::new);
+    	return Arrays.asList(mStoredItemInternal2).stream().filter(Objects::nonNull).flatMap(s->Arrays.stream(s.flat())).toArray(ItemStack[]::new);
+    	
+    	
+    	
+		
+	}
+    public static FluidStack[] flat(FluidTankG[] mStoredItemInternal2) {
+    	
+    	return Arrays.asList(mStoredItemInternal2).stream().flatMap(s->Arrays.stream(s.flat())).toArray(FluidStack[]::new);
     	
     	
     	

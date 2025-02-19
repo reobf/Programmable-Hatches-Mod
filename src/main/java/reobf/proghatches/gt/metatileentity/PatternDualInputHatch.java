@@ -2,6 +2,7 @@ package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -319,7 +320,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 
             abstract ItemStack[] geti();
 
-            abstract FluidTank[] getf();
+            abstract FluidStack[] getf();
         }
         Consumer<Inv> consumer = inv -> {
             try {
@@ -336,19 +337,16 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
                 }
                 IMEMonitor<IAEFluidStack> fsg = getProxy().getStorage()
                     .getFluidInventory();
-                for (FluidTank fluidStack : inv.getf()) {
-                    if (fluidStack == null || fluidStack.getFluidAmount() == 0) continue;
+                for (FluidStack fluidStack : inv.getf()) {
+                    if (fluidStack == null || fluidStack.amount == 0) continue;
                     IAEFluidStack rest = Platform.poweredInsert(
                         getProxy().getEnergy(),
                         fsg,
                         AEApi.instance()
                             .storage()
-                            .createFluidStack(fluidStack.getFluid()),
+                            .createFluidStack(fluidStack),
                         src);
-                    fluidStack.setFluid(
-                        Optional.ofNullable(rest)
-                            .map(IAEFluidStack::getFluidStack)
-                            .orElse(null));
+                    fluidStack.amount=0;
                 } ;
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -364,8 +362,8 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
                 }
 
                 @Override
-                FluidTank[] getf() {
-                    return s.mStoredFluidInternal;
+                FluidStack[] getf() {
+                    return flat(s.mStoredFluidInternal);
                 }
             })
             .forEach(consumer);;
@@ -378,9 +376,9 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
             }
 
             @Override
-            FluidTank[] getf() {
+            FluidStack[] getf() {
 
-                return mStoredFluid;
+                return Arrays.stream(mStoredFluid).map(s->s.getFluid()).toArray(FluidStack[]::new);
             }
         });
 

@@ -8,6 +8,9 @@ import static kubatech.api.Variables.numberFormat;
 import static kubatech.api.Variables.numberFormatScientific;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.LongBuffer;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +57,7 @@ import com.gtnewhorizons.modularui.common.widget.TabButton;
 import com.gtnewhorizons.modularui.common.widget.TabContainer;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.NumericWidget;
+
 
 import appeng.api.config.Actionable;
 import appeng.api.config.FuzzyMode;
@@ -109,33 +113,37 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
+import reobf.proghatches.gt.metatileentity.bufferutil.FluidTankG;
+import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
+import reobf.proghatches.gt.metatileentity.util.IDoNotCacheThisPattern;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
 public class StockingDualInputHatchME extends MTEHatchInputBus
-		implements IDualInputHatch, IRecipeProcessingAwareDualHatch, IPowerChannelState,IGridProxyable
+		implements IDualInputHatch, IRecipeProcessingAwareDualHatch, IPowerChannelState, IGridProxyable
 
 {
 
-	public StockingDualInputHatchME(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures, boolean allowAuto2) {
+	public StockingDualInputHatchME(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures,
+			boolean allowAuto2) {
 		super(aName, aTier, 1, aDescription, aTextures);
-		allowAuto=allowAuto2;
+		allowAuto = allowAuto2;
 	}
 
-	public StockingDualInputHatchME(int id, String name, String nameRegional, int tier,boolean a) {
-		super(id, name, nameRegional, tier, 1, reobf.proghatches.main.Config.get(
-                "SDIHME",  ImmutableMap.of()));
+	public StockingDualInputHatchME(int id, String name, String nameRegional, int tier, boolean a) {
+		super(id, name, nameRegional, tier, 1, reobf.proghatches.main.Config.get("SDIHME", ImmutableMap.of()));
 		Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, id));
-		allowAuto=a;
+		allowAuto = a;
 	}
+
 	boolean allowAuto;
 
 	@Override
 	public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
 
-		return new StockingDualInputHatchME(mName, mTier, mDescriptionArray, mTextures,allowAuto);
+		return new StockingDualInputHatchME(mName, mTier, mDescriptionArray, mTextures, allowAuto);
 	}
 
 	@Override
@@ -158,7 +166,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 
 	private boolean autoPullItemList;
 	private long minAutoPullStackSize;
-	private int interval=1;
+	private int interval = 1;
 
 	public ItemStack updateInformationSlot(int aIndex, ItemStack aStack) {
 
@@ -173,9 +181,14 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 			try {
 				IMEMonitor<IAEItemStack> sg = proxy.getStorage().getItemInventory();
 				IAEItemStack request = AEItemStack.create(i_mark[aIndex]);
-				request.setStackSize(Integer.MAX_VALUE);
+				request.setStackSize(Long.MAX_VALUE);
 				IAEItemStack result = sg.extractItems(request, Actionable.SIMULATE, source);
 				ItemStack s = (result != null) ? result.getItemStack() : null;
+				if(result!=null){
+				ItemStackG g=ItemStackG.fromAE(result, intmaxs);
+				result.setStackSize(g.stackSize());
+				}
+				i_client[aIndex] = result == null ? 0 : result.getStackSize();
 				// We want to track changes in any ItemStack to notify any
 				// connected controllers to make a recipe
 				// check early
@@ -211,9 +224,14 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 		try {
 			IMEMonitor<IAEFluidStack> sg = proxy.getStorage().getFluidInventory();
 			IAEFluidStack request = AEFluidStack.create(fluidStack);
-			request.setStackSize(Integer.MAX_VALUE);
+			request.setStackSize(Long.MAX_VALUE);
 			IAEFluidStack result = sg.extractItems(request, Actionable.SIMULATE, source);
+			if(result!=null){
+			FluidTankG g=new FluidTankG();
+			g.fromAE(result, intmaxs);
+			result.setStackSize(g.getFluidAmount());}
 			FluidStack resultFluid = (result != null) ? result.getFluidStack() : null;
+			f_client[index] = result == null ? 0 : result.getStackSize();
 			// We want to track if any FluidStack is modified to notify any
 			// connected controllers to make a recipe check
 			// early
@@ -245,8 +263,8 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 
 		IDrawable tab1 = new ItemDrawable(gregtech.api.enums.ItemList.Hatch_Input_Bus_ME_Advanced.get(1))
 				.withFixedSize(18, 18, 4, 4);
-		IDrawable tab2 = new ItemDrawable(gregtech.api.enums.ItemList.Hatch_Input_ME_Advanced.get(1))
-				.withFixedSize(18, 18, 4, 4);
+		IDrawable tab2 = new ItemDrawable(gregtech.api.enums.ItemList.Hatch_Input_ME_Advanced.get(1)).withFixedSize(18,
+				18, 4, 4);
 		IDrawable tab3 = new ItemDrawable(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Iron, 1))
 				.withFixedSize(18, 18, 4, 4);
 
@@ -281,82 +299,76 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 										0, 1f, 1f),
 								tab3)
 						.setPos(getGUIWidth() - 4, 56))
-				.addPage(
-						new MultiChildWidget()
-								.addChild(
-										SlotGroup.ofItemHandler(inventoryHandlerDisplay, 4).startFromSlot(0)
-												.endAtSlot(15).phantom(true).background(GTUITextures.SLOT_DARK_GRAY)
-												.widgetCreator(slot -> aeSlotWidgets[slot
-														.getSlotIndex()] = new AESlotWidget(slot).disableInteraction())
-												.build().setPos(97, 9))
+				.addPage(new MultiChildWidget().addChild(SlotGroup.ofItemHandler(inventoryHandlerDisplay, 4)
+						.startFromSlot(0).endAtSlot(15).phantom(true).background(GTUITextures.SLOT_DARK_GRAY)
+						.widgetCreator(slot -> aeSlotWidgets[slot.getSlotIndex()] = new AESlotWidget(slot)
+								.setOverwriteItemStackTooltip(s -> rewriteItem(slot, s)).disableInteraction())
+						.build().setPos(97, 9))
 
-								.addChild(SlotGroup.ofItemHandler(inventoryHandlerMark, 4).startFromSlot(0)
-										.endAtSlot(15).phantom(true)
-										.slotCreator(index -> new BaseSlot(inventoryHandlerMark, index, true) {
+						.addChild(SlotGroup.ofItemHandler(inventoryHandlerMark, 4).startFromSlot(0).endAtSlot(15)
+								.phantom(true).slotCreator(index -> new BaseSlot(inventoryHandlerMark, index, true) {
 
-											@Override
-											public boolean isEnabled() {
-												return !autoPullItemList && super.isEnabled();
-											}
-										}).widgetCreator(slot -> (SlotWidget) new SlotWidget(slot) {
+									@Override
+									public boolean isEnabled() {
+										return !autoPullItemList && super.isEnabled();
+									}
+								}).widgetCreator(slot -> (SlotWidget) new SlotWidget(slot) {
 
-											@Override
-											protected void phantomClick(ClickData clickData, ItemStack cursorStack) {
-												if (clickData.mouseButton != 0 || !getMcSlot().isEnabled())
-													return;
-												final int aSlotIndex = getMcSlot().getSlotIndex();
-												if (cursorStack == null) {
-													getMcSlot().putStack(null);
-												} else {
-													if (containsSuchStack(cursorStack))
-														return;
-													getMcSlot().putStack(GTUtility.copyAmount(1, cursorStack));
-												}
-												if (getBaseMetaTileEntity().isServerSide()) {
-													final ItemStack newInfo = updateInformationSlot(aSlotIndex,
-															cursorStack);
-													aeSlotWidgets[getMcSlot().getSlotIndex()].getMcSlot()
-															.putStack(newInfo);
-												}
-											}
+									@Override
+									protected void phantomClick(ClickData clickData, ItemStack cursorStack) {
+										if (clickData.mouseButton != 0 || !getMcSlot().isEnabled())
+											return;
+										final int aSlotIndex = getMcSlot().getSlotIndex();
+										if (cursorStack == null) {
+											getMcSlot().putStack(null);
+										} else {
+											if (containsSuchStack(cursorStack))
+												return;
+											getMcSlot().putStack(GTUtility.copyAmount(1, cursorStack));
+										}
+										if (getBaseMetaTileEntity().isServerSide()) {
+											final ItemStack newInfo = updateInformationSlot(aSlotIndex, cursorStack);
+											aeSlotWidgets[getMcSlot().getSlotIndex()].getMcSlot().putStack(newInfo);
+										}
+									}
 
-											@Override
-											public IDrawable[] getBackground() {
-												IDrawable slot;
-												if (autoPullItemList) {
-													slot = GTUITextures.SLOT_DARK_GRAY;
-												} else {
-													slot = ModularUITextures.ITEM_SLOT;
-												}
-												return new IDrawable[] { slot, GTUITextures.OVERLAY_SLOT_ARROW_ME };
-											}
+									@Override
+									public IDrawable[] getBackground() {
+										IDrawable slot;
+										if (autoPullItemList) {
+											slot = GTUITextures.SLOT_DARK_GRAY;
+										} else {
+											slot = ModularUITextures.ITEM_SLOT;
+										}
+										return new IDrawable[] { slot, GTUITextures.OVERLAY_SLOT_ARROW_ME };
+									}
 
-											@Override
-											public List<String> getExtraTooltip() {
-												if (autoPullItemList) {
-													return Collections.singletonList(StatCollector.translateToLocal(
-															"GT5U.machines.stocking_bus.cannot_set_slot"));
-												} else {
-													return Collections.singletonList(StatCollector
-															.translateToLocal("modularui.phantom.single.clear"));
-												}
-											}
+									@Override
+									public List<String> getExtraTooltip() {
+										if (autoPullItemList) {
+											return Collections.singletonList(StatCollector
+													.translateToLocal("GT5U.machines.stocking_bus.cannot_set_slot"));
+										} else {
+											return Collections.singletonList(
+													StatCollector.translateToLocal("modularui.phantom.single.clear"));
+										}
+									}
 
-											private boolean containsSuchStack(ItemStack tStack) {
-												for (int i = 0; i < 16; ++i) {
-													if (GTUtility.areStacksEqual(i_mark[i], tStack, false))
-														return true;
-												}
-												return false;
-											}
-										}.dynamicTooltip(() -> {
-											if (autoPullItemList) {
-												return Collections.singletonList(StatCollector.translateToLocal(
-														"GT5U.machines.stocking_bus.cannot_set_slot"));
-											} else {
-												return Collections.emptyList();
-											}
-										}).setUpdateTooltipEveryTick(true)).build().setPos(7, 9))
+									private boolean containsSuchStack(ItemStack tStack) {
+										for (int i = 0; i < 16; ++i) {
+											if (GTUtility.areStacksEqual(i_mark[i], tStack, false))
+												return true;
+										}
+										return false;
+									}
+								}.dynamicTooltip(() -> {
+									if (autoPullItemList) {
+										return Collections.singletonList(StatCollector
+												.translateToLocal("GT5U.machines.stocking_bus.cannot_set_slot"));
+									} else {
+										return Collections.emptyList();
+									}
+								}).setUpdateTooltipEveryTick(true)).build().setPos(7, 9))
 
 				).addPage(new MultiChildWidget().addChild(
 
@@ -431,7 +443,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 								}.setUpdateTooltipEveryTick(true)).build().setPos(new Pos2d(7, 9))
 
 				).addChild(SlotGroup.ofFluidTanks(IntStream.range(0, 16).mapToObj(index -> createTankForFluidStack(f_display, index, Integer.MAX_VALUE)).collect(Collectors.toList()), 4).phantom(true).widgetCreator((slotIndex, h) -> (FluidSlotWidget) new FluidSlotWidget(h) {
-
+					
 					@Override
 					protected void tryClickPhantom(ClickData clickData, ItemStack cursorStack) {
 					}
@@ -445,7 +457,20 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 						FluidStack fluid = getContent();
 						if (fluid != null) {
 							addFluidNameInfo(tooltip, fluid);
-							tooltip.add(Text.localised("modularui.fluid.phantom.amount", fluid.amount));
+							
+							tooltip.add(Text.localised("modularui.fluid.phantom.amount",
+							/*df.format*/(f_client[slotIndex])));
+							
+							
+							if(f_client[slotIndex]>Integer.MAX_VALUE){
+							double cp = f_client[slotIndex]*1d/Integer.MAX_VALUE;
+							
+							tooltip.add(Text.localised("proghatch.stockingdual.exceedintmax"));
+							
+							tooltip.add(new Text(df2.format(cp)+"*int.max"));
+							}
+								
+				
 							addAdditionalFluidInfo(tooltip, fluid);
 							if (!Interactable.hasShiftDown()) {
 								tooltip.add(Text.EMPTY);
@@ -458,12 +483,19 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 				}.setUpdateTooltipEveryTick(true)).background(GTUITextures.SLOT_DARK_GRAY).controlsAmount(true).build()
 						.setPos(new Pos2d(97, 9)))
 
-				).addPage(
-					new MultiChildWidget().addChild(TextWidget.localised("GT5U.machines.stocking_bus.refresh_time").setPos(3, 42).setSize(74, 14)).addChild(new NumericWidget().setSetter(val -> interval = (int) val).setGetter(() -> interval).setBounds(1, Integer.MAX_VALUE).setScrollValues(1, 4, 64).setTextAlignment(Alignment.Center).setTextColor(Color.WHITE.normal).setSize(70, 18).setPos(3, 3).setBackground(GTUITextures.BACKGROUND_TEXT_FIELD))
-					.addChild(new ButtonWidget().setOnClick((clickData, widget) -> {
-					if (clickData.mouseButton == 0) {
-						if(allowAuto)
-						setAutoPullItemList(!autoPullItemList);
+				).addPage(new MultiChildWidget()
+						.addChild(TextWidget.localised("GT5U.machines.stocking_bus.refresh_time").setPos(3, 22).setSize(74, 14))
+						.addChild(new NumericWidget().setSetter(val -> interval = (int) val).setGetter(() -> interval).setBounds(1, Integer.MAX_VALUE).setScrollValues(1, 4, 64).setTextAlignment(Alignment.Center).setTextColor(Color.WHITE.normal).setSize(70, 18).setPos(3, 3).setBackground(GTUITextures.BACKGROUND_TEXT_FIELD))
+						.addChild(TextWidget.localised("proghatch.stockingdual.intmax").setPos(3, 64).setSize(74, 14).addTooltip(
+								StatCollector.translateToLocal("proghatch.stockingdual.intmax.tooltips")
+								))
+						.addChild(new NumericWidget().setSetter(val -> intmaxs = (int) val).setGetter(() -> intmaxs).setBounds(1, 100).setScrollValues(1, 4, 64).setTextAlignment(Alignment.Center).setTextColor(Color.WHITE.normal).setSize(70, 18).setPos(3, 3+40).setBackground(GTUITextures.BACKGROUND_TEXT_FIELD))
+						
+						.addChild(new ButtonWidget().setOnClick((clickData, widget) -> {
+					
+							if (clickData.mouseButton == 0) {
+						if (allowAuto)
+							setAutoPullItemList(!autoPullItemList);
 					} else if (clickData.mouseButton == 1 && !widget.isClient()) {
 						/*
 						 * widget.getContext()
@@ -481,43 +513,78 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 				}).addTooltips(
 						Arrays.asList(StatCollector.translateToLocal("GT5U.machines.stocking_bus.auto_pull.tooltip.1"),
 								StatCollector.translateToLocal("GT5U.machines.stocking_bus.auto_pull.tooltip.2")))
-						.setSize(16, 16).setPos(80, 3))
-					.addChild(new ButtonWidget().setOnClick((clickData, widget) -> {
-						if (clickData.mouseButton == 0) {
-						
-							program=!program;
-						} else if (clickData.mouseButton == 1 && !widget.isClient()) {
-							/*
-							 * widget.getContext()
-							 * .openSyncedWindow(CONFIG_WINDOW_ID);
-							 */
-						}
-					}).setBackground(() -> {
-						if (program) {
-							return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
-									new ItemDrawable(GTUtility.getIntegratedCircuit(0))
-									/*GTUITextures.OVERLAY_BUTTON_AUTOPULL_ME*/ };
-						} else {
-							return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
-									new ItemDrawable(GTUtility.getIntegratedCircuit(0))};
-						}
-					}).addTooltips(
-							Arrays.asList(StatCollector.translateToLocal("hatch.dualinput.stocking.autopull.program")
-									))
-							.setSize(16, 16).setPos(80, 3+20))
-					
-					
-					
-					
-						
-						))
+						.setSize(16, 16).setPos(80, 3)).addChild(new ButtonWidget().setOnClick((clickData, widget) -> {
+							if (clickData.mouseButton == 0) {
+
+								program = !program;
+							} else if (clickData.mouseButton == 1 && !widget.isClient()) {
+								/*
+								 * widget.getContext()
+								 * .openSyncedWindow(CONFIG_WINDOW_ID);
+								 */
+							}
+						}).setBackground(() -> {
+							if (program) {
+								return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
+										new ItemDrawable(GTUtility.getIntegratedCircuit(0))
+										/*
+										 * GTUITextures.
+										 * OVERLAY_BUTTON_AUTOPULL_ME
+										 */ };
+							} else {
+								return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
+										new ItemDrawable(GTUtility.getIntegratedCircuit(0)) };
+							}
+						}).addTooltips(Arrays
+								.asList(StatCollector.translateToLocal("hatch.dualinput.stocking.autopull.program")))
+								.setSize(16, 16).setPos(80, 3 + 20))
+
+		))
 
 		;
-		builder.widget(new FakeSyncWidget.BooleanSyncer(() -> program,
-				s->{program=s;}));
+		builder.widget(new FakeSyncWidget.BooleanSyncer(() -> program, s -> {
+			program = s;
+		}).setSynced(true, false));
 		builder.widget(new FakeSyncWidget.BooleanSyncer(() -> autoPullItemList,
-				StockingDualInputHatchME.this::setAutoPullItemList));
+				StockingDualInputHatchME.this::setAutoPullItemList).setSynced(false, true));
+
+		for (int ii = 0; ii < 16; ii++) {
+			final int i = ii;
+			builder.widget(new FakeSyncWidget.LongSyncer(() -> {
+				// i_client[i]=i_saved[i];
+				return i_client[i];
+			}, s -> i_client[i] = s).setSynced(false, true)
+
+			);
+		}
+
+		for (int ii = 0; ii < 16; ii++) {
+			final int i = ii;
+			builder.widget(new FakeSyncWidget.LongSyncer(() -> {
+				// f_client[i]=f_shadow[i].getFluidAmount();
+				return f_client[i];
+			}, s -> f_client[i] = s).setSynced(false, true));
+		}
+
 		// return builder;
+	}
+
+	long i_client[] = new long[16];
+
+	long f_client[] = new long[16];
+	DecimalFormat df2 = new DecimalFormat("#,###.00");
+	DecimalFormat df = new DecimalFormat("#,###");
+	private List<String> rewriteItem(BaseSlot slot, List<String> s) {
+
+		int i = slot.getSlotIndex();
+		s.add("size:" + df.format(i_client[i]));
+		if(i_client[i]>Integer.MAX_VALUE){
+		double cp = i_client[i]*1d/Integer.MAX_VALUE;
+		s.add(StatCollector.translateToLocal("proghatch.stockingdual.exceedintmax"));
+		s.add(df2.format(cp)+"*int.max");
+			
+		}
+		return s;
 	}
 
 	protected void setAutoPullItemList(boolean pullItemList) {
@@ -592,7 +659,8 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 	}
 
 	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
-		if (getBaseMetaTileEntity().isServerSide()) {program();
+		if (getBaseMetaTileEntity().isServerSide()) {
+			program();
 			if (aTimer % interval == 0 && autoPullItemList) {
 				refreshItemList();
 				refreshItemListF();
@@ -604,48 +672,49 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 
 		super.onPostTick(aBaseMetaTileEntity, aTimer);
 	};
-	boolean program;
-public void program(){
-	
-	if(program)
-	try {
-	
-		
-		for(IAEItemStack s:getProxy().getStorage().getItemInventory().getStorageList())
-		{
-		IAEItemStack ext = getProxy().getStorage().getItemInventory().extractItems(s, Actionable.MODULATE, source);
-		if(ext!=null&&ext.getStackSize()>0){
-			ItemStack item = ext.getItemStack();
-			item.stackSize=0;
-			
-			ItemStack circuit = ItemProgrammingCircuit.getCircuit(item).orElse(null);
-			this.setInventorySlotContents(getCircuitSlot(),circuit);
-			
-			this.getProxy().getNode().getGrid().getMachines(this.getClass()).forEach(m->{
-				StockingDualInputHatchME thiz=(StockingDualInputHatchME) m.getMachine();
-				if(thiz.program){
-					thiz.setInventorySlotContents(thiz.getCircuitSlot(),circuit);
-					
-				}
-				
-				
-				
-			});;
-			
-		}
-		}
-		
 
-	
-	} catch (GridAccessException e) {
+	boolean program;
+
+	public void program() {
+
+		if (program)
+			try {
+
+				for (IAEItemStack s : getProxy().getStorage().getItemInventory().getStorageList()) {
+					IAEItemStack ext = getProxy().getStorage().getItemInventory().extractItems(s, Actionable.MODULATE,
+							source);
+					if (ext != null && ext.getStackSize() > 0) {
+						ItemStack item = ext.getItemStack();
+						item.stackSize = 0;
+
+						ItemStack circuit = ItemProgrammingCircuit.getCircuit(item).orElse(null);
+						this.setInventorySlotContents(getCircuitSlot(), circuit);
+
+						this.getProxy().getNode().getGrid().getMachines(this.getClass()).forEach(m -> {
+							StockingDualInputHatchME thiz = (StockingDualInputHatchME) m.getMachine();
+							if (thiz.program) {
+								thiz.setInventorySlotContents(thiz.getCircuitSlot(), circuit);
+
+							}
+
+						});
+						;
+
+					}
+				}
+
+			} catch (GridAccessException e) {
+			}
 	}
-}
+
 	MachineSource source = new MachineSource(((IActionHost) getBaseMetaTileEntity()));
 	boolean recipe;
+	int intmaxs = 3;
 
 	@Override
 	public void startRecipeProcessing() {
-		recipe = true;program();
+		recipe = true;
+		program();
 		for (int i = 0; i < 16; i++) {
 			i_shadow[i] = null;
 			i_saved[i] = 0;
@@ -653,27 +722,26 @@ public void program(){
 
 				try {
 					IAEItemStack possible = getProxy().getStorage().getItemInventory().extractItems(
-							AEItemStack.create(i_mark[i]).setStackSize(Integer.MAX_VALUE), Actionable.SIMULATE, source);
-					i_shadow[i] = possible == null ? null : possible.getItemStack();
+							AEItemStack.create(i_mark[i]).setStackSize(Long.MAX_VALUE), Actionable.SIMULATE, source);
+					i_shadow[i] = possible == null ? null : ItemStackG.fromAE(possible, intmaxs);
 					if (i_shadow[i] != null)
-						i_saved[i] = i_shadow[i].stackSize;
+						i_saved[i] = i_shadow[i].stackSize();
 
 				} catch (GridAccessException e) {
 				}
 			}
 		}
 		for (int i = 0; i < 16; i++) {
-			f_shadow[i] = null;
+			f_shadow[i] .setFluid(null);
 			f_saved[i] = 0;
 			if (f_mark[i] != null) {
 
 				try {
 					IAEFluidStack possible = getProxy().getStorage().getFluidInventory().extractItems(
-							AEFluidStack.create(f_mark[i]).setStackSize(Integer.MAX_VALUE), Actionable.SIMULATE,
-							source);
-					f_shadow[i] = possible == null ? null : possible.getFluidStack();
+							AEFluidStack.create(f_mark[i]).setStackSize(Long.MAX_VALUE), Actionable.SIMULATE, source);
+					f_shadow[i].fromAE(possible, intmaxs);
 					if (f_shadow[i] != null)
-						f_saved[i] = f_shadow[i].amount;
+						f_saved[i] = f_shadow[i].getFluidAmount();
 
 				} catch (GridAccessException e) {
 				}
@@ -685,8 +753,8 @@ public void program(){
 	public CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) {
 		recipe = false;
 		for (int i = 0; i < 16; i++) {
-			int current = i_shadow[i] == null ? 0 : i_shadow[i].stackSize;
-			int original = i_saved[i];
+			long current = i_shadow[i] == null ? 0 : i_shadow[i].stackSize();
+			long original = i_saved[i];
 			if (current > original) {
 				throw new AssertionError("?");
 			}
@@ -694,7 +762,7 @@ public void program(){
 				throw new AssertionError("??");
 			}
 			if (current < original) {
-				int delta = original - current;
+				long delta = original - current;
 				if (i_mark[i] == null) {
 					MyMod.LOG.fatal("marked item missing!");
 					controller.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
@@ -720,8 +788,8 @@ public void program(){
 		}
 
 		for (int i = 0; i < 16; i++) {
-			int current = f_shadow[i] == null ? 0 : f_shadow[i].amount;
-			int original = f_saved[i];
+			long current = f_shadow[i] == null ? 0 : f_shadow[i].getFluidAmount();
+			long original = f_saved[i];
 			if (current > original) {
 				throw new AssertionError("?");
 			}
@@ -729,7 +797,7 @@ public void program(){
 				throw new AssertionError("??");
 			}
 			if (current < original) {
-				int delta = original - current;
+				long delta = original - current;
 				if (f_mark[i] == null) {
 					MyMod.LOG.fatal("marked fluid missing!");
 					controller.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
@@ -770,13 +838,20 @@ public void program(){
 	}
 
 	ItemStack[] i_mark = new ItemStack[16];
-	ItemStack[] i_shadow = new ItemStack[16];
+	ItemStackG[] i_shadow = new ItemStackG[16];
 	ItemStack[] i_display = new ItemStack[16];
-	int[] i_saved = new int[16];
+	long[] i_saved = new long[16];
 	FluidStack[] f_mark = new FluidStack[16];
-	FluidStack[] f_shadow = new FluidStack[16];
+	FluidTankG[] f_shadow = new FluidTankG[16];
+	{
+		
+		for(int i=0;i<16;i++){
+			
+			f_shadow[i]=new FluidTankG();
+		}
+	}
 	FluidStack[] f_display = new FluidStack[16];
-	int[] f_saved = new int[16];
+	long[] f_saved = new long[16];
 
 	@Override
 	public boolean justUpdated() {
@@ -801,20 +876,26 @@ public void program(){
 	}
 
 	public boolean isEmpty() {
-		for (ItemStack i : i_shadow) {
-			if (i != null && i.stackSize > 0)
+		for (ItemStackG i : i_shadow) {
+			if (i != null && i.stackSize() > 0)
 				return false;
 		}
-		for (FluidStack i : f_shadow) {
-			if (i != null && i.amount > 0)
+		for (FluidTankG i : f_shadow) {
+			if (i != null && i.getFluidAmount() > 0)
 				return false;
 		}
 		return true;
 	}
 
+	
+	private interface x extends IDualInputInventory,IDoNotCacheThisPattern{@Override
+	default boolean areYouSerious() {
+		return true;
+	}}
+	
 	private Iterator<? extends IDualInputInventory> getItr() {
 
-		IDualInputInventory xx = new IDualInputInventory() {
+		IDualInputInventory xx = new x() {
 
 			@Override
 			public boolean isEmpty() {
@@ -823,12 +904,13 @@ public void program(){
 
 			@Override
 			public ItemStack[] getItemInputs() {
-				return DualInputHatch.filterStack.apply(i_shadow, new ItemStack[] { getStackInSlot(0) });
+				return DualInputHatch.filterStack.apply(BufferedDualInputHatch.flat(i_shadow),
+						new ItemStack[] { getStackInSlot(0) });
 			}
 
 			@Override
 			public FluidStack[] getFluidInputs() {
-				return DualInputHatch.asFluidStack.apply(f_shadow);
+				return DualInputHatch.asFluidStack.apply(BufferedDualInputHatch.flat(f_shadow));
 			}
 
 			@Override
@@ -915,7 +997,8 @@ public void program(){
 	}
 
 	@Override
-	public void saveNBTData(NBTTagCompound aNBT) {aNBT.setBoolean("allowAuto",allowAuto);
+	public void saveNBTData(NBTTagCompound aNBT) {
+		aNBT.setBoolean("allowAuto", allowAuto);
 		getProxy().writeToNBT(aNBT);
 		super.saveNBTData(aNBT);
 		NBTTagList nbtTagList = new NBTTagList();
@@ -944,23 +1027,46 @@ public void program(){
 		}
 		aNBT.setTag("storedItems", nbtTagList);
 
-		int[] sizesf = new int[16];
-		for (int i = 0; i < 16; ++i)
-			sizesf[i] = f_display[i] == null ? 0 : f_display[i].amount;
-		aNBT.setIntArray("sizesF", sizesf);
-		int[] sizes = new int[16];
-		for (int i = 0; i < 16; ++i)
-			sizes[i] = i_display[i] == null ? 0 : i_display[i].stackSize;
-		aNBT.setIntArray("sizes", sizes);
+		{
+			int[] sizesf = new int[16];
+			for (int i = 0; i < 16; ++i)
+				sizesf[i] = f_display[i] == null ? 0 : f_display[i].amount;
+			aNBT.setIntArray("sizesF", sizesf);
+			int[] sizes = new int[16];
+			for (int i = 0; i < 16; ++i)
+				sizes[i] = i_display[i] == null ? 0 : i_display[i].stackSize;
+			aNBT.setIntArray("sizes", sizes);
+		}
+		
+		
+		
+		{
+			ByteBuffer b = ByteBuffer.allocate(Long.SIZE / Byte.SIZE*16);
+			for (long l : i_client) {
+				b.putLong(l);
+			}
+			aNBT.setByteArray("clientDisplayValue", b.array());
+
+			b = ByteBuffer.allocate(Long.SIZE / Byte.SIZE*16);
+			for (long l : f_client) {
+				b.putLong(l);
+			}
+			aNBT.setByteArray("clientDisplayValueF", b.array());
+
+		}
+
 		aNBT.setBoolean("program", program);
 		aNBT.setBoolean("autoPull", autoPullItemList);
+		
+		aNBT.setInteger("intmaxs", intmaxs);
 		aNBT.setInteger("interval", interval);
 
 		getProxy().writeToNBT(aNBT);
 	}
 
 	@Override
-	public void loadNBTData(NBTTagCompound aNBT) {allowAuto=aNBT.getBoolean("allowAuto" );
+	public void loadNBTData(NBTTagCompound aNBT) {
+		allowAuto = aNBT.getBoolean("allowAuto");
 		getProxy().readFromNBT(aNBT);
 		super.loadNBTData(aNBT);
 		if (aNBT.hasKey("storedFluids")) {
@@ -1011,13 +1117,36 @@ public void program(){
 				if (i_mark[i] != null) {
 					i_display[i] = i_mark[i].copy();
 					i_display[i].stackSize = size[i];
-
+					/*
+					 * if(i_display[i].hasTagCompound()==false){
+					 * i_display[i].setTagCompound(new NBTTagCompound());
+					 * 
+					 * } i_display[i].getTagCompound().setLong("", value);
+					 */
 				}
 
 			}
 		}
-		program=aNBT.getBoolean("program");
+		if(aNBT.hasKey("clientDisplayValue"))
+		{
+			ByteBuffer b = ByteBuffer.allocate(8 * 16);
+			b.put(aNBT.getByteArray("clientDisplayValue"));
+			b.flip();
+			LongBuffer l = b.asLongBuffer();
+			for(int i=0;i<16;i++)
+			i_client[i] = l.get();
+			
+			
+			b = ByteBuffer.allocate(8 * 16);
+			b.put(aNBT.getByteArray("clientDisplayValueF"));
+			b.flip();
+			 l = b.asLongBuffer();
+			for(int i=0;i<16;i++)
+			f_client[i] = l.get();
+		}
+		program = aNBT.getBoolean("program");
 		interval = aNBT.getInteger("interval");
+		intmaxs = aNBT.getInteger("intmaxs");
 		autoPullItemList = aNBT.getBoolean("autoPull");
 	}
 
@@ -1026,31 +1155,29 @@ public void program(){
 
 	@Override
 	public IGridNode getGridNode(ForgeDirection dir) {
-		
+
 		return getProxy().getNode();
 	}
 
 	@Override
 	public void securityBreak() {
-	
-		
+
 	}
 
 	@Override
 	public DimensionalCoord getLocation() {
-	
-		return new DimensionalCoord((TileEntity)this.getBaseMetaTileEntity());
-	};    
-	@Override
-    public ITexture[] getTexturesActive(ITexture aBaseTexture) {
-		return new ITexture[] { aBaseTexture,
-	            TextureFactory.of(MyMod.iohub ,MyMod.iohub.magicNO_overlay_dual_active) };
-    }
 
-    @Override
-    public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
-        return new ITexture[] { aBaseTexture,
-            TextureFactory.of( MyMod.iohub,MyMod.iohub.magicNO_overlay_dual) };
-    }
+		return new DimensionalCoord((TileEntity) this.getBaseMetaTileEntity());
+	};
+
+	@Override
+	public ITexture[] getTexturesActive(ITexture aBaseTexture) {
+		return new ITexture[] { aBaseTexture, TextureFactory.of(MyMod.iohub, MyMod.iohub.magicNO_overlay_dual_active) };
+	}
+
+	@Override
+	public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
+		return new ITexture[] { aBaseTexture, TextureFactory.of(MyMod.iohub, MyMod.iohub.magicNO_overlay_dual) };
+	}
 
 }

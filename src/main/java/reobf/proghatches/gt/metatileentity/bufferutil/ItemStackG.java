@@ -3,6 +3,9 @@ package reobf.proghatches.gt.metatileentity.bufferutil;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.annotation.Nonnull;
+
+import appeng.api.storage.data.IAEItemStack;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,7 +21,7 @@ public class ItemStackG {
 			return null;
 		return new ItemStackG(is);
 	}
-
+	private ItemStackG() {}
 	private ItemStackG(ItemStack is) {
 		arr.add(is);
 	}
@@ -168,6 +171,30 @@ public ItemStack getZero(){
 			}
 			
 		}
+	}
+
+	public static ItemStackG fromAE(@Nonnull IAEItemStack possible, int intmaxs) {
+		ItemStackG ret=new ItemStackG();
+		
+		long all=possible.getStackSize();
+		all=Math.min(all, intmaxs*1L*Integer.MAX_VALUE);
+		
+		long maxs=all/(1L*Integer.MAX_VALUE);
+		long remain=all-maxs*Integer.MAX_VALUE;
+		for(int i=0;i<maxs;i++){
+			ItemStack is = possible.getItemStack();
+			is.stackSize=Integer.MAX_VALUE;
+			ret.arr.add(is);
+		}
+		if(remain>0){
+			ItemStack is = possible.getItemStack();
+			is.stackSize=(int) Math.min(remain,Integer.MAX_VALUE);
+			ret.arr.add(is);
+		}
+		
+		
+		
+		return ret;
 	}
 
 }

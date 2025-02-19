@@ -766,3 +766,7 @@ proghatches.amountmaintainer.interval.0=Update interval in tick(s)
 hatch.dualinput.stocking.me.name=Stocking Dual Input Hatch (ME)
 hatch.dualinput.stocking.autopull.me.name=Advanced Stocking Dual Input Hatch (ME)
 hatch.dualinput.stocking.autopull.program=Auto consume Programming Circuit and set the virtual circuit slot
+proghatch.stockingdual.exceedintmax=Actual pulled amount exceeds 2.1G, check tooltips for real amount! 
+proghatch.stockingdual.intmax=Max pull amount (in int.max)
+proghatch.stockingdual.intmax.tooltips=Maximum amount allowed to pull in multiples of int.max(2.1G). Do not set to a large number especially when you has 9.2E item/fluid in storage.
+

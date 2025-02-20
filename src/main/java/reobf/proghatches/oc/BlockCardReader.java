@@ -49,14 +49,21 @@ public class BlockCardReader extends BlockContainer {
 
     @SideOnly(Side.CLIENT)
     IIcon icon;
-
+    
+    @Override
     @SideOnly(Side.CLIENT)
+    protected String getTextureName() {
+        return this.textureName = "proghatches:cardreader";
+    }
+
+    
+   /* @SideOnly(Side.CLIENT)
     @Override
     public IIcon getIcon(int side, int meta) {
         if (icon != null) return icon;
         Block b = GameRegistry.findBlock("OpenComputers", "raid");
         return icon = b.getIcon(ForgeDirection.UP.ordinal(), 0);
-    }
+    }*/
 
     Random field_149955_b = new Random();
 

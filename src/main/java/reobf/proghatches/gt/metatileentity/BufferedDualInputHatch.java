@@ -715,7 +715,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		@Override
         public FluidStack[] getFluidInputs() {
-            FluidStack[] condensed = asFluidStack.apply(mStoredFluidInternal, shared.getFluid());
+            FluidStack[] condensed = asFluidStack.apply(flat(mStoredFluidInternal), shared.getFluid());
             // if(!trunOffEnsure){condensed=ensureIntMax(condensed);}
 
             return condensed;
@@ -2272,7 +2272,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
     @Override
     public void onBlockDestroyed() {
-       /* IGregTechTileEntity te = this.getBaseMetaTileEntity();
+        IGregTechTileEntity te = this.getBaseMetaTileEntity();
         World aWorld = te.getWorld();
         int aX = te.getXCoord();
         short aY = te.getYCoord();
@@ -2285,21 +2285,16 @@ public class BufferedDualInputHatch extends DualInputHatch
                     aX + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
                     aY + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
                     aZ + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
-                    new ItemStack(tItem.getItem(), tItem.stackSize, tItem.getItemDamage()));
-                if (tItem.hasTagCompound()) {
-                    tItemEntity.getEntityItem()
-                        .setTagCompound(
-                            (NBTTagCompound) tItem.getTagCompound()
-                                .copy());
-                }
+                    tItem.getStack());
+               
                 tItemEntity.motionX = (XSTR_INSTANCE.nextGaussian() * 0.05D);
                 tItemEntity.motionY = (XSTR_INSTANCE.nextGaussian() * 0.25D);
                 tItemEntity.motionZ = (XSTR_INSTANCE.nextGaussian() * 0.05D);
                 aWorld.spawnEntityInWorld(tItemEntity);
-                tItem.stackSize = 0;
+                tItem.stackSize(0);
                 inv.mStoredItemInternal[i] = null;
             }
-        }*/
+        }
         super.onBlockDestroyed();
     }
 
@@ -2616,7 +2611,7 @@ public class BufferedDualInputHatch extends DualInputHatch
             .addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.5"))
             .addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.6")));
 
-        builder.widget(new CycleButtonWidget().setToggle(() -> merge, (s) -> {
+        /*builder.widget(new CycleButtonWidget().setToggle(() -> merge, (s) -> {
             merge = s;
 
         })
@@ -2628,7 +2623,7 @@ public class BufferedDualInputHatch extends DualInputHatch
             .addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.merge.0"))
             .addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.merge.1"))
 
-        );
+        );*/
         if (isInfBuffer() || shared.infbufUpgrades > 0)
             builder.widget(new CycleButtonWidget().setToggle(() -> autoAppend, (s) -> {
                 autoAppend = s;

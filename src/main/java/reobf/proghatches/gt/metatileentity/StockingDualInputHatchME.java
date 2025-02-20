@@ -165,7 +165,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 	}
 
 	private boolean autoPullItemList;
-	private long minAutoPullStackSize;
+	private long minAutoPullStackSize=1;
 	private int interval = 1;
 
 	public ItemStack updateInformationSlot(int aIndex, ItemStack aStack) {

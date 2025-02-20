@@ -90,9 +90,9 @@ public class ItemPartStockingExportBus extends Item implements IPartItem {
     @Override
     public void registerIcons(IIconRegister _iconRegister) {
 
-        itemIcon = _iconRegister.registerIcon("proghatches:proxy_item_part");
-        alt = _iconRegister.registerIcon("proghatches:proxy_fluid_part");
-        alt2 = _iconRegister.registerIcon("proghatches:proxy_item_adv_part");
+        itemIcon = _iconRegister.registerIcon("proghatches:export_item_part");
+        alt = _iconRegister.registerIcon("proghatches:export_fluid_part");
+        alt2 = _iconRegister.registerIcon("proghatches:export_item_part");
     }
 
     IIcon alt;

@@ -136,7 +136,8 @@ public class ItemMEPlunger extends DummySuper implements INetworkEncodable {
         for (IGridNode node : grid.getMachines(TileWireless.class)) {
             IWirelessAccessPoint accessPoint = (IWirelessAccessPoint) node.getMachine();
 
-            if (stack.getItemDamage() == 0) if (accessPoint.isActive() && accessPoint.getLocation()
+            if (stack.getItemDamage() == 0) 
+            	if (accessPoint.isActive() && accessPoint.getLocation()
                 .getDimension() == player.dimension) {
                     WorldCoord distance = accessPoint.getLocation()
                         .subtract((int) player.posX, (int) player.posY, (int) player.posZ);
@@ -145,12 +146,11 @@ public class ItemMEPlunger extends DummySuper implements INetworkEncodable {
                         return true;
 
                     }
-                } else {
-                    if (accessPoint.isActive()) {
-                        return true;
-                    }
-
-                }
+                } 
+            
+            if (stack.getItemDamage() == 1) {
+            	return accessPoint.isActive();
+            }
 
         }
         return false;

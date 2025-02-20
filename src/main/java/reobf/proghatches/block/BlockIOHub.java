@@ -22,7 +22,8 @@ import gregtech.common.blocks.MaterialMachines;
 
 public class BlockIOHub extends BlockContainer {
 
-    private IIcon inv_me_slave;
+   
+	private IIcon inv_me_slave;
 
     public BlockIOHub() {
         super(new MaterialMachines());
@@ -55,7 +56,7 @@ public class BlockIOHub extends BlockContainer {
         
        overlay_dual = reg.registerIcon("proghatches:overlay_dual");
        overlay_dual_active = reg.registerIcon("proghatches:overlay_dual_active");
-        
+        ma=reg.registerIcon("proghatches:blockMAConduit");
         
         super.registerBlockIcons(reg);
     }
@@ -110,6 +111,7 @@ public class BlockIOHub extends BlockContainer {
     public static IIcon provider_in_overlay;
     public static IIcon provider_in_active_overlay;
     public static IIcon  overlay_dual,overlay_dual_active;
+    public static IIcon  ma;
     static public int magicNO_provider_overlay = 0x7e;
     static public int magicNO_provider_active_overlay = 0x7d;
     static public int magicNO_provider_in_overlay = 0x7c;
@@ -117,6 +119,7 @@ public class BlockIOHub extends BlockContainer {
     static public int magicNO_inv_me_slave = 0x7a;
     static public int magicNO_overlay_dual = 0x79;
     static public int magicNO_overlay_dual_active= 0x78;
+    static public int magicNO_ma = 0x77;
     @SideOnly(value = Side.CLIENT)
     @Override
     public IIcon getIcon(int side, int meta) {
@@ -130,6 +133,7 @@ public class BlockIOHub extends BlockContainer {
 		
 		if(meta==magicNO_overlay_dual)return overlay_dual;
 		if(meta==magicNO_overlay_dual_active)return overlay_dual_active;
+		if(meta==magicNO_ma)return ma;
 		//spotless:on
         return super.getIcon(side, meta);
     }

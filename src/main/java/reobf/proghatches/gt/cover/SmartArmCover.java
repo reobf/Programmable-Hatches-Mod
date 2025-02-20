@@ -499,7 +499,7 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
 
             builder.widget(new DrawableWidget().setDrawable(() ->
 
-            UITexture.fullImage(new ResourceLocation("proghatches", "textures/formula" + getCoverData().mode + ".png"))
+            UITexture.fullImage(new ResourceLocation("proghatches", "textures/gui/formula" + getCoverData().mode + ".png"))
 
             )
                 .addTooltip(LangManager.translateToLocal("programmable_hatches.cover.smart.tips.0"))

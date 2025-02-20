@@ -19,8 +19,10 @@ import appeng.me.GridAccessException;
 import appeng.parts.p2p.PartP2PTunnelStatic;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.fmp.ICraftingMachinePart;
 import reobf.proghatches.fmp.LayerCraftingMachine.StateHolder;
+import reobf.proghatches.main.MyMod;
 
 public class PartMAP2P extends PartP2PTunnelStatic<PartMAP2P> implements ICraftingMachinePart {
 
@@ -208,7 +210,7 @@ public class PartMAP2P extends PartP2PTunnelStatic<PartMAP2P> implements ICrafti
     @Override
     @SideOnly(Side.CLIENT)
     public void renderInventory(final IPartRenderHelper rh, final RenderBlocks renderer) {
-        rh.setTexture(Blocks.crafting_table.getIcon(1, 0));
+        rh.setTexture(MyMod.iohub.getIcon(0, BlockIOHub.magicNO_ma));
 
         rh.setBounds(2, 2, 14, 14, 14, 16);
         rh.renderInventoryBox(renderer);
@@ -232,7 +234,7 @@ public class PartMAP2P extends PartP2PTunnelStatic<PartMAP2P> implements ICrafti
         final RenderBlocks renderer) {
         this.setRenderCache(rh.useSimplifiedRendering(x, y, z, this, this.getRenderCache()));
 
-        rh.setTexture(Blocks.crafting_table.getIcon(1, 0));
+        rh.setTexture(MyMod.iohub.getIcon(0, BlockIOHub.magicNO_ma));
 
         rh.setBounds(2, 2, 14, 14, 14, 16);
         rh.renderBlock(x, y, z, renderer);

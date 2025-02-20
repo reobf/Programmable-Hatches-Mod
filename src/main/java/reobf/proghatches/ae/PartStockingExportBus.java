@@ -10,6 +10,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.glodblock.github.common.item.ItemFluidDrop;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
@@ -256,7 +257,7 @@ public class PartStockingExportBus extends PartBasicState implements
             for (IAEItemStack iae : iinv.getStorageList()) {
                 // IAEItemStack iae=iinv.getStorageList().getFirstItem();
                 if (iae == null) break;
-
+                if(iae.getItem( )instanceof ItemFluidDrop){continue;}
                 final IAEItemStack itemsToAdd = inv.extractItems(
                     iae.copy()
                         .setStackSize(itemToSend),

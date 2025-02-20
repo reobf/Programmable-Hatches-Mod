@@ -44,6 +44,7 @@ import crazypants.enderio.conduit.render.ConduitRenderer;
 import crazypants.enderio.conduit.render.DefaultConduitRenderer;
 import crazypants.enderio.tool.ToolUtil;
 import reobf.proghatches.ae.PartMAP2P;
+import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.fmp.LayerCraftingMachine.StateHolder;
 import reobf.proghatches.main.MyMod;
 
@@ -131,7 +132,7 @@ public class MAConduit extends AbstractConduit implements ICraftingMachineCondui
     @Override
     public IIcon getTextureForState(CollidableComponent component) {
 
-        return Blocks.crafting_table.getIcon(1, 0);
+        return MyMod.iohub.getIcon(0, BlockIOHub.magicNO_ma);
     }
 
     @Override

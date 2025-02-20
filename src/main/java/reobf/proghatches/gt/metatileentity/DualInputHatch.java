@@ -503,7 +503,7 @@ static int[] AZERO={0};
         1,
         1);
     private static final SizedDrawable t1 = new SizedDrawable(
-        AdaptableUITexture.of("proghatches", "states", 16, 16, 0),
+        AdaptableUITexture.of("proghatches", "gui/states", 16, 16, 0),
         16,
         16,
         1,

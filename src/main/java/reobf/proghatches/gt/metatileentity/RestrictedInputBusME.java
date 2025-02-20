@@ -393,8 +393,8 @@ public class RestrictedInputBusME extends MTEHatchInputBusME implements IDataCop
         multiples = aNBT.getInteger("multiples");
     }
 
-    static AdaptableUITexture mode0 = AdaptableUITexture.of("proghatches", "restrict_mode0", 18, 18, 1);
-    static AdaptableUITexture mode1 = AdaptableUITexture.of("proghatches", "restrict_mode1", 18, 18, 1);
+    static AdaptableUITexture mode0 = AdaptableUITexture.of("proghatches", "gui/restrict_mode0", 18, 18, 1);
+    static AdaptableUITexture mode1 = AdaptableUITexture.of("proghatches", "gui/restrict_mode1", 18, 18, 1);
 
     /*
      * @Override

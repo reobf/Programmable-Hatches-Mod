@@ -480,7 +480,7 @@ public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover
         .fullImage(GregTech.ID, "blocks/iconsets/OVERLAY_FRONT_IMPLOSION_COMPRESSOR.png");
     public static final UITexture ON = UITexture
         .fullImage(GregTech.ID, "blocks/iconsets/OVERLAY_FRONT_IMPLOSION_COMPRESSOR_ACTIVE.png");
-    public static final UITexture MACHINE = UITexture.fullImage("proghatches", "uuid_machine.png");
-    public static final UITexture COVER = UITexture.fullImage("proghatches", "uuid_cover.png");
+    public static final UITexture MACHINE = UITexture.fullImage("proghatches", "gui/uuid_machine.png");
+    public static final UITexture COVER = UITexture.fullImage("proghatches", "gui/uuid_cover.png");
 
 }

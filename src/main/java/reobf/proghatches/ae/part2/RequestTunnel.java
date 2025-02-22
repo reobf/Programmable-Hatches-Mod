@@ -321,7 +321,8 @@ public abstract class RequestTunnel implements ICraftingMachine, ICraftingReques
     Future<ICraftingJob> job;
 
     // @TileEvent(TileEventType.TICK)
-    public void update() {
+    @SuppressWarnings("unchecked")
+	public void update() {
         tick++;
         if (getWorldObj().isRemote) return;
 
@@ -386,6 +387,7 @@ public abstract class RequestTunnel implements ICraftingMachine, ICraftingReques
             if (last == null) {
                 if (job == null) {
                     if (req != null) {
+                    	if(cd>=-100)cd--;//5 charges
                         if (cd-- <= 0) {
                             job = getProxy().getCrafting()
                                 .beginCraftingJob(
@@ -394,12 +396,12 @@ public abstract class RequestTunnel implements ICraftingMachine, ICraftingReques
                                     new MachineSource(this),
                                     req,
                                     null);
-                            cd = 40;
+                            cd += 20;
                         }
                     }
                 } else if (job.isDone() && !job.isCancelled()) {
                     last = getProxy().getCrafting()
-                        .submitJob(job.get(), this, null, true, new MachineSource(this));
+                        .submitJob(job.get(), this, null, false, new MachineSource(this));
                     job = null;
                 } else if (job.isCancelled()) {
                     last = null;

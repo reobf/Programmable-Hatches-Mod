@@ -456,7 +456,11 @@ public class RemoteInputHatch extends MTEHatchMultiInput
         if (processingRecipe == false) return new ArrayList<FluidStack>();
 
         try {
-            if (tmp != null) endRecipeProcessing(null);
+            if (tmp != null) {
+            	return (List<FluidStack>) (Object)tmp;
+            }
+            	
+            //endRecipeProcessing(null);
             // this means this method is called twice during recipe check?
             // remove consumed fluid
         } catch (Exception ex) {

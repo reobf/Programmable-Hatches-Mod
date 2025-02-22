@@ -326,7 +326,7 @@ public class TileCyclicPatternSubmitter extends TileEntity
                             job.times = howmany;
                         }
                         last = getProxy().getCrafting()
-                            .submitJob(job, this, null, true, source);
+                            .submitJob(job, this, null, false, source);
 
                     }
                     submitfail = last == null;

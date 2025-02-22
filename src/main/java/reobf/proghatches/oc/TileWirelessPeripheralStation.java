@@ -143,10 +143,10 @@ public class TileWirelessPeripheralStation extends TileEntity implements li.cil.
         @SideOnly(value = Side.CLIENT)
         public void registerBlockIcons(IIconRegister reg) {
             super.registerBlockIcons(reg);
-            a = reg.registerIcon("proghatches:pstation");
-            d = reg.registerIcon("proghatches:pstation_on");
-            b = reg.registerIcon("proghatches:pstation_0");
-            c = reg.registerIcon("proghatches:pstation_1");
+            a = reg.registerIcon("proghatches:pstation_on");
+            d = reg.registerIcon("proghatches:pstation");
+            b = reg.registerIcon("proghatches:pstation_1");
+            c = reg.registerIcon("proghatches:pstation_0");
         }
 
         IIcon a, b, c;
@@ -154,12 +154,14 @@ public class TileWirelessPeripheralStation extends TileEntity implements li.cil.
         @Override
         @SideOnly(value = Side.CLIENT)
         public IIcon getIcon(int side, int meta) {
-            if (side <= 1) return a;// top bottom
+          
             if (meta == 0) {
             	 if(side == 1)return d;
             	return b;
             	
-            }
+            }  
+            
+            if (side <= 1) return a;// top bottom
             else return c;
         }
 

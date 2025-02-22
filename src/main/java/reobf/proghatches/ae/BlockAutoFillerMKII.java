@@ -4,6 +4,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 
+import net.bdew.ae2stuff.machines.wireless.TileWireless;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;
@@ -41,7 +42,7 @@ public class BlockAutoFillerMKII extends BlockContainer implements INameAndToolt
 
     @Override
     public TileEntity createNewTileEntity(World worldIn, int meta) {
-
+   
         return new TileAutoFillerMKII();
     }
 

@@ -524,6 +524,7 @@ public class SuperChestME extends MTEHatch implements ICellContainer, IGridProxy
 		if (mInventory[0] == null || mInventory[0].stackSize == 0) {
 			return true;
 		}
+		
 		return Platform.isSameItem(mInventory[0], aStack);
 	}
 

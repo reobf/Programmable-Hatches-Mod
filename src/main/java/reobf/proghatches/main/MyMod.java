@@ -51,6 +51,7 @@ import appeng.api.AEApi;
 import appeng.api.config.Upgrades;
 import appeng.core.features.registries.InterfaceTerminalRegistry;
 import appeng.items.tools.ToolMemoryCard;
+import bartworks.API.BorosilicateGlass;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -274,8 +275,11 @@ public class MyMod {
 
     public void init(FMLInitializationEvent event) {
         proxy.init(event);
-
+        
+      /*  for(int i=0;i<GTValues.V.length;i++)
+        BorosilicateGlass.registerGlass(block, i, i);*/
         new KeyBindings();
+        
 
         AEApi.instance()
             .partHelper()

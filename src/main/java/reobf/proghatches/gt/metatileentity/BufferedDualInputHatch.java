@@ -722,7 +722,7 @@ public class BufferedDualInputHatch extends DualInputHatch
         }
 
         public int space() {
-            long ret = Integer.MAX_VALUE;
+            long ret = Long.MAX_VALUE;
             boolean found = false;
             for (int ix = 0; ix < i; ix++) {
 
@@ -730,7 +730,7 @@ public class BufferedDualInputHatch extends DualInputHatch
                     long now = 0;
                     if (mStoredItemInternal[ix] != null) now = mStoredItemInternal[ix].stackSize();
                     long tmp = (itemLimit() - now) / mStoredItemInternalSingle[ix].stackSize;
-                    if (tmp < ret) {
+                    if (tmp <= ret) {
                         ret = tmp;
                         found = true;
                     }
@@ -742,7 +742,7 @@ public class BufferedDualInputHatch extends DualInputHatch
                     long now = mStoredFluidInternal[ix].getFluidAmount();
 
                     long tmp = (fluidLimit() - now) / mStoredFluidInternalSingle[ix].getFluidAmount();
-                    if (tmp < ret) {
+                    if (tmp <= ret) {
                         ret = tmp;
                         found = true;
                     }
@@ -2121,7 +2121,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
                 }
                 String cpinfo = "";
-                int copies = sub.getInteger("possibleCopies");
+                long copies = sub.getLong("possibleCopies");
                 if (copies == -1 && (sub.getBoolean("locked"))// if not locked, do
                                                               // not warn about
                                                               // the copies

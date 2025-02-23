@@ -767,4 +767,4 @@ hatch.dualinput.stocking.autopull.program=自动消耗编程器电路设置虚�
 proghatch.stockingdual.exceedintmax=拉取数量超过2.1G, 查看tooltips获取真实数量! 
 proghatch.stockingdual.intmax=最大拉取数量 (单位:int.max)
 proghatch.stockingdual.intmax.tooltips=最多能拉取int.max(2.1G)的几倍 不要设太大,尤其是当存储中有9.2E个物品时(比如无限水元件),否则可能会非常卡甚至损坏你的存档
-
+proghatch.saved.statistic=优化掉的pushPattern调用次数: %s

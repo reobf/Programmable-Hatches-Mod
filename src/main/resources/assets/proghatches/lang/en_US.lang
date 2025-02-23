@@ -769,4 +769,4 @@ hatch.dualinput.stocking.autopull.program=Auto consume Programming Circuit and s
 proghatch.stockingdual.exceedintmax=Actual pulled amount exceeds 2.1G, check tooltips for real amount! 
 proghatch.stockingdual.intmax=Max pull amount (in int.max)
 proghatch.stockingdual.intmax.tooltips=Maximum amount allowed to pull in multiples of int.max(2.1G). Do not set to a large number especially when you has 9.2E item/fluid in storage.
-
+proghatch.saved.statistic=Saved pushPattern calls: %s

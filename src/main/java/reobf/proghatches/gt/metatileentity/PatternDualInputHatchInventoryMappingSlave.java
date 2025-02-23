@@ -97,7 +97,8 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
     public int masterX, masterY, masterZ;
     public boolean masterSet = false; // indicate if values of masterX,
                                       // masterY, masterZ are valid
-
+    
+    
     public PatternDualInputHatchInventoryMappingSlave(int aID, String aName, String aNameRegional, int aTier) {
         super(
             aID,
@@ -1153,14 +1154,13 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                         for (int ix = 0; ix < theBuffer.f; ix++) {
                             if (theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount() > 0) {
                                 if (theBuffer.mStoredFluidInternal[ix].getFluidAmount() <= 0) {
-                                    theBuffer.mStoredFluidInternal[ix].setFluid(
-                                        theBuffer.mStoredFluidInternalSingle[ix].getFluid()
-                                            .copy());
-                                    theBuffer.mStoredFluidInternal[ix].getFluid().amount = 0;
+                                	FluidStack zerof = theBuffer.mStoredFluidInternalSingle[ix].getFluid().copy();
+        							zerof.amount = 0;
+        							theBuffer.mStoredFluidInternal[ix].setFluid(zerof);
+
                                 }
-                                theBuffer.mStoredFluidInternal[ix]
-                                    .getFluid().amount += theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount()
-                                        * todo;
+                                theBuffer.mStoredFluidInternal[ix].amountAcc ( theBuffer.mStoredFluidInternalSingle[ix]
+        								.getFluidAmount() *1l* todo);
                             }
                         }
 
@@ -1174,7 +1174,11 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
             if (master instanceof BufferedDualInputHatch) {
                 ((BufferedDualInputHatch) master).justHadNewItems = true;
             }
-
+            if (master instanceof PatternDualInputHatch) {
+                ((PatternDualInputHatch) master).saved+=suc;
+            }
+            
+            
         }
 
         return new int[]{suc};

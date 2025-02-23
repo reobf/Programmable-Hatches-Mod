@@ -22,7 +22,9 @@ public class FluidTankG {
 
 		return arr.stream().mapToLong(s -> s.amount).sum();
 	}
-
+/**
+ * return value is readonly!!!!
+ * */
 	public FluidStack getFluid() {
 		if (arr.size() > 0) {
 			FluidStack f = arr.get(0).copy();
@@ -63,7 +65,7 @@ public class FluidTankG {
 	}
 
 	public void readFromNBT(NBTTagCompound compoundTag) {
-
+		arr.clear();
 		FluidTank tk = new FluidTank(0);
 		tk.readFromNBT(compoundTag);
 		if (tk.getFluidAmount() > 0)
@@ -198,6 +200,36 @@ public class FluidTankG {
 		}
 		
 		
+		
+		
+		
+	}
+
+	public void amountAcc(long l) {
+		if (l==0) {
+			return;
+		}
+		long todo =l;
+		for (FluidStack is : arr) {
+			long cando = Math.min(
+
+					Integer.MAX_VALUE
+							// 64
+
+							- is.amount,
+					todo);
+			todo -= cando;
+			is.amount += cando;
+			if (todo <= 0)
+				return ;
+		}
+		while(todo>0){
+			int t=(int) Math.min(Integer.MAX_VALUE,todo);
+			todo-=t;
+			FluidStack i = arr.get(0).copy();
+			i.amount = t;
+			arr.add(i);
+		}
 		
 		
 		

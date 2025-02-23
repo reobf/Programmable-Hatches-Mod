@@ -1617,8 +1617,13 @@ public class BufferedDualInputHatch extends DualInputHatch
 
         @Override
         public int getFluidAmount() {
+int ret=(int) Math.min(inner.getFluidAmount(),Integer.MAX_VALUE);
 
-            return (int) Math.min(inner.getFluidAmount(),Integer.MAX_VALUE);
+if(ret>64){
+	
+	System.out.println(ret);
+}
+            return ret;
         }
 
         @Override

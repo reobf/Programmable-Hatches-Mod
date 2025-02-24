@@ -12,6 +12,7 @@ import gregtech.api.GregTechAPI;
 import gregtech.api.util.GTUtility;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
+import reobf.proghatches.util.ProghatchesUtil;
 import thaumcraft.common.config.ConfigItems;
 
 public class ProgHatchCreativeTab extends CreativeTabs {
@@ -32,7 +33,7 @@ public class ProgHatchCreativeTab extends CreativeTabs {
         p_78018_1_.addAll(Registration.items);
 
         p_78018_1_.add(ItemProgrammingCircuit.wrap(null));
-        GregTechAPI.getConfigurationCircuitList(100)
+        ProghatchesUtil.allCircuits()
             .stream()
             .map(ItemProgrammingCircuit::wrap)
             .forEach(p_78018_1_::add);

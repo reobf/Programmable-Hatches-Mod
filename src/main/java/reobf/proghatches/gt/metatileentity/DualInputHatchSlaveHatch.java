@@ -53,13 +53,23 @@ public class DualInputHatchSlaveHatch<T extends MetaTileEntity & IDualInputHatch
     // masterY, masterZ are valid
 
     public DualInputHatchSlaveHatch(int aID, String aName, String aNameRegional) {
-        super(aID, 1, aName, aNameRegional, 6, reobf.proghatches.main.Config.get("DHSH", ImmutableMap.of())
+        super(aID, 1, aName, aNameRegional, 6
 
         );
         Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 
     }
-
+    String[] desc;
+@Override
+public String[] getDescription() {
+	
+	if(desc==null){
+		desc=reobf.proghatches.main.Config.get("DHSH", ImmutableMap.of());
+		
+	}
+	
+	return desc;
+}
     public DualInputHatchSlaveHatch(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures) {
         super(aName, 1, 6, aDescription, aTextures);
 

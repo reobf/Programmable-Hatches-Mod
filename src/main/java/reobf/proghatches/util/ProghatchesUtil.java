@@ -3,7 +3,9 @@ package reobf.proghatches.util;
 import static gregtech.api.util.GTUtility.*;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -339,4 +341,23 @@ public class ProghatchesUtil {
 
     }
 
+    static  List<ItemStack> allc=new ArrayList<>();
+    public static List<ItemStack> allCircuits(){
+    	
+    	if(allc==null){
+    		try {
+				allc=(List<ItemStack>) GTUtility.class.getDeclaredMethod("getAllIntegratedCircuits").invoke(null);
+			} catch (Exception e) {
+				//e.printStackTrace();
+			}
+    		}  else{
+    			try {
+    		allc=(List<ItemStack>) GregTechAPI.class.getDeclaredMethod("getConfigurationCircuitList",int.class).invoke(null,100); 
+    			} catch (Exception e) {
+    				//e.printStackTrace();
+    			}    
+    		}
+		return allc;
+    	
+    }
 }

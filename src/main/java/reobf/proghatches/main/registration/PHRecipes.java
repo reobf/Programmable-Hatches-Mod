@@ -52,6 +52,7 @@ import gtnhlanth.common.register.LanthItemList;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
+import reobf.proghatches.util.ProghatchesUtil;
 import tconstruct.smeltery.TinkerSmeltery;
 import tectech.recipe.TTRecipeAdder;
 import thaumcraft.common.config.ConfigItems;
@@ -389,7 +390,7 @@ public class PHRecipes implements Runnable {
 
         });
         pc0.forEach(s -> {
-            GregTechAPI.getConfigurationCircuitList(100)
+        	 ProghatchesUtil.allCircuits()
                 .stream()
                 .forEach(ss -> {
                     GTValues.RA.stdBuilder()

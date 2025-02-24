@@ -207,13 +207,23 @@ public class RemoteInputHatch extends MTEHatchMultiInput
     }
 
     public RemoteInputHatch(int id, String name, String nameRegional, int tier) {
-        super(id, 0, name, nameRegional, tier, reobf.proghatches.main.Config.get("RIH", ImmutableMap.of())
+        super(id, 0, name, nameRegional, tier
 
         );
         Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, id));
 
     }
-
+    String[] desc;
+@Override
+public String[] getDescription() {
+	
+	if(desc==null){
+		reobf.proghatches.main.Config.get("RIH", ImmutableMap.of());
+		
+	}
+	
+	return desc;
+}
     @SuppressWarnings("unchecked")
     @Override
     public void addUIWidgets(Builder builder, UIBuildContext buildContext) {

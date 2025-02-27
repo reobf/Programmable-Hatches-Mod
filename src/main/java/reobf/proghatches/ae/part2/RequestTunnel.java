@@ -21,6 +21,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
+import reobf.proghatches.ae.PatternCraftingJob;
 
 import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.common.item.ItemFluidPacket;
@@ -61,6 +62,14 @@ public abstract class RequestTunnel implements ICraftingMachine, ICraftingReques
     @Override
     public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table,
         ForgeDirection ejectionDirection) {
+    	
+    	 try {
+			PatternCraftingJob job = new PatternCraftingJob(patternDetails, getProxy().getStorage());
+		getProxy().getCrafting().getCraftingPatterns();
+    	 } catch (GridAccessException e) {
+		}
+
+    	
         for (int i = 0; i < table.getSizeInventory(); i++) {
             ItemStack is = table.getStackInSlot(i);
             if (is != null) {
@@ -233,7 +242,7 @@ public abstract class RequestTunnel implements ICraftingMachine, ICraftingReques
     public ImmutableSet<ICraftingLink> getRequestedJobs() {
         return last == null ? ImmutableSet.of() : ImmutableSet.of(last);
     }
-
+boolean returnAll=true;
     @Override
     public IAEItemStack injectCraftedItems(ICraftingLink link, IAEItemStack items, Actionable mode) {
         if (mode == Actionable.SIMULATE) {
@@ -274,12 +283,16 @@ public abstract class RequestTunnel implements ICraftingMachine, ICraftingReques
 
         } else {
             if ((this.mode & 1) != 0) {
-
+            	if(!returnAll)
                 return items;// not waiting, just return items as unwanted
             }
 
         }
-
+        if(returnAll){
+			long size=left.getStackSize();
+        	left.decStackSize(size);
+        	items.incStackSize(size);
+        }
         if (items.getItem() instanceof ItemFluidDrop) {
             cacheFR.add(
                 ItemFluidDrop.getAeFluidStack(items)
@@ -288,7 +301,7 @@ public abstract class RequestTunnel implements ICraftingMachine, ICraftingReques
             cacheR.add(items.getItemStack());
 
         }
-
+		if(left.getStackSize()==0)left=null;
         return left;
     }
 

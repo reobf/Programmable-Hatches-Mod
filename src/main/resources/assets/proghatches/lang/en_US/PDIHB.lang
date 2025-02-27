@@ -6,5 +6,5 @@ If all pattern inputs cannot be push in one single try, it won't be pushed at al
 No fluid support, patterns with fluid will be rejected.
 Buffer: {bufferNum}
 For each buffer:
-Slot maximum stacksize:2^31-1
+Slot maximum stacksize:2^63-1
 §eHas better performance working with large amount of Co-Processing Units.

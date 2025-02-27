@@ -1,0 +1,8 @@
+Item Input for Multiblocks, wait... not exactly
+Do not accept real item stack inputs
+Instead, you can mark phantom items mark up to 64 types
+LMB click with a datastick to link,
+a datastick can link 1023 Phantom Input Buses at the same time.
+Then RMB click a Phantom Input Bus to copy marked items in this bus
+to all Phantom Input Buses this datastick links to.
+Make sure chunk is loaded or copying will fail.

@@ -56,6 +56,7 @@ import reobf.proghatches.gt.metatileentity.NBTHatchMECatalyst;
 import reobf.proghatches.gt.metatileentity.NBTHatchMEFocus;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatchInventoryMappingSlave;
+import reobf.proghatches.gt.metatileentity.PhantomInputBus;
 import reobf.proghatches.gt.metatileentity.PriorityFilterInputBusME;
 import reobf.proghatches.gt.metatileentity.PriorityFilterInputHatchME;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
@@ -105,7 +106,7 @@ public class Registration implements Runnable {
     public final static int DataOrbOffset = 83;
     public final static int MECatalystOffset = 84;
     public final static int StockingDualInputOffset=85;//-86
-    
+    public final static int PhantomInputBusOffset=87;
     
     
     public final static int BufferedQuadDualInputHatchOffset = 100;// -115
@@ -589,7 +590,10 @@ public class Registration implements Runnable {
                 Config.metaTileEntityOffset + StockingDualInputOffset+1,
                 "hatch.dualinput.stocking.autopull.me",
                 LangManager.translateToLocal("hatch.dualinput.stocking.autopull.me.name"), 10, true);
-        
+        new PhantomInputBus(
+                Config.metaTileEntityOffset + PhantomInputBusOffset,
+                "phantom.bus",
+                LangManager.translateToLocal("phantom.bus.name"), 10);
         /*
          * for (int i = 0; i < 4; i++) {
          * new DualInputHatch(

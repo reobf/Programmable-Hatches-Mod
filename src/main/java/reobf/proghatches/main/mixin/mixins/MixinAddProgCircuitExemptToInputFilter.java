@@ -24,7 +24,9 @@ import reobf.proghatches.main.MyMod;
 @Mixin(value = gregtech.api.recipe.RecipeMap.class, remap = false)
 public abstract class MixinAddProgCircuitExemptToInputFilter {
 
-    @Inject(method = "containsInput", at = @At("RETURN"), require = 1, cancellable = true)
+    @Inject(method = "containsInput", at = @At("RETURN"), require = 1,
+    		
+    		cancellable = true)
     public void containsInput(ItemStack aStack, CallbackInfoReturnable<Boolean> c) {
         if (aStack == null) return;
         boolean ret = c.getReturnValueZ();

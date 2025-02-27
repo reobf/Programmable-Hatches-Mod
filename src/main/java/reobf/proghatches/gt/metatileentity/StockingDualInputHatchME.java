@@ -21,17 +21,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.gtnewhorizons.modularui.api.GlStateManager;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
+import com.gtnewhorizons.modularui.api.drawable.GuiHelper;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
 import com.gtnewhorizons.modularui.api.drawable.Text;
+import com.gtnewhorizons.modularui.api.drawable.TextRenderer;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
+import com.gtnewhorizons.modularui.api.fluids.FluidTankLongDelegate;
+import com.gtnewhorizons.modularui.api.fluids.FluidTanksHandler;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.math.Alignment;
@@ -45,6 +55,7 @@ import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.api.widget.Widget.ClickData;
 import com.gtnewhorizons.modularui.common.fluid.FluidStackTank;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
+import com.gtnewhorizons.modularui.common.internal.wrapper.ModularGui;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.DynamicTextWidget;
@@ -67,16 +78,22 @@ import appeng.api.networking.IGridNode;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.IMEMonitor;
+import appeng.api.storage.IItemDisplayRegistry.ItemRenderHook;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.DimensionalCoord;
+import appeng.client.render.AppEngRenderItem;
+import appeng.core.AELog;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
+import appeng.util.Platform;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import codechicken.nei.NEIClientUtils;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.MaterialsUEVplus;
@@ -98,13 +115,22 @@ import gregtech.api.util.GTUtility;
 import gregtech.api.util.shutdown.ShutDownReason;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.common.gui.modularui.widget.AESlotWidget;
+
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import kubatech.api.enums.ItemList;
 import kubatech.api.tea.TeaNetwork;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -247,13 +273,32 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 	}
 
 	private FluidStackTank createTankForFluidStack(FluidStack[] fluidStacks, int slotIndex, int capacity) {
-		return new FluidStackTank(() -> fluidStacks[slotIndex], (stack) -> {
+		
+		class IndexFluidStackTank extends FluidStackTank implements Supplier<Integer>{
+
+			public IndexFluidStackTank(Supplier<FluidStack> getter, Consumer<FluidStack> setter, int capacity) {
+				super(getter, setter, capacity);
+			
+			}
+
+			@Override
+			public Integer get() {
+				
+				return slotIndex;
+			}}
+		
+		
+		return new IndexFluidStackTank(() -> fluidStacks[slotIndex], (stack) -> {
 			if (getBaseMetaTileEntity().isServerSide()) {
 				return;
 			}
 
 			fluidStacks[slotIndex] = stack;
 		}, capacity);
+		
+		
+		
+		
 	}
 
 	@Override
@@ -301,7 +346,119 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 						.setPos(getGUIWidth() - 4, 56))
 				.addPage(new MultiChildWidget().addChild(SlotGroup.ofItemHandler(inventoryHandlerDisplay, 4)
 						.startFromSlot(0).endAtSlot(15).phantom(true).background(GTUITextures.SLOT_DARK_GRAY)
-						.widgetCreator(slot -> aeSlotWidgets[slot.getSlotIndex()] = new AESlotWidget(slot)
+						.widgetCreator(slot -> aeSlotWidgets[slot.getSlotIndex()] = new AESlotWidget(slot){
+							  @Override
+							    public List<String> getExtraTooltip() {
+							        List<String> extraLines = new ArrayList<>();
+							        if (i_client[slot.getSlotIndex()] >= 1000) {
+							            extraLines.add(I18n.format("modularui.amount",i_client[slot.getSlotIndex()]));
+							        }
+							        if (isPhantom()) {
+							            if (canControlAmount()) {
+							                String[] lines = I18n.format("modularui.item.phantom.control").split("\\\\n");
+							                extraLines.addAll(Arrays.asList(lines));
+							            } else if (!interactionDisabled) {
+							                extraLines.add(I18n.format("modularui.phantom.single.clear"));
+							            }
+							        }
+							        return extraLines.isEmpty() ? Collections.emptyList() : extraLines;
+							    }
+							  @SideOnly(Side.CLIENT)
+						    private RenderItem setItemRender(final RenderItem item) {
+						        final RenderItem ri = ModularGui.getItemRenderer();
+						        ModularGui.setItemRenderer(item);
+						        return ri;
+						    }
+						    @Override
+						    @SideOnly(Side.CLIENT)
+						    protected void drawSlot(Slot slotIn) {
+						        final AppEngRenderItem aeRenderItem = new AppEngRenderItem();
+						        AppEngRenderItem.POST_HOOKS.add(HookHolder.SKIP_ITEM_STACK_SIZE_HOOK);
+						        final RenderItem pIR = this.setItemRender(aeRenderItem);
+						        try {
+						            aeRenderItem.setAeStack(Platform.getAEStackInSlot(slotIn).setStackSize(i_client[slotIn.getSlotIndex()]));
+						           drawSlot(slotIn, true);
+						        } catch (final Exception err) {
+						            AELog.warn("[AppEng] AE prevented crash while drawing slot: " + err);
+						        }
+						        AppEngRenderItem.POST_HOOKS.remove(HookHolder.SKIP_ITEM_STACK_SIZE_HOOK);
+						        this.setItemRender(pIR);
+						    }
+
+							
+							
+							@SideOnly(Side.CLIENT)			
+							private final TextRenderer textRenderer = new TextRenderer();		
+							@SideOnly(Side.CLIENT)					
+							public void drawSlot(Slot slotIn, boolean drawStackSize){
+								super.drawSlot(slotIn,false);
+								
+								if(drawStackSize){
+									 
+
+									 ItemStack itemstack = getItemStackForRendering(slotIn);
+									 if (itemstack != null) {
+										 
+										 
+										 getContext().getScreen().setZ(100f);
+										  ModularGui.getItemRenderer().zLevel = 100.0F;
+							             GlStateManager.enableRescaleNormal();
+							             GlStateManager.enableLighting();
+							             RenderHelper.enableGUIStandardItemLighting();
+							             GlStateManager.enableDepth();
+							             GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+							             GlStateManager.pushMatrix();
+							             // so that item z levels are properly ordered
+							             GlStateManager.translate(0, 0, 150 * getWindowLayer());
+							             
+							             GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+							             GlStateManager.popMatrix();
+							             long amount=i_client[slotIn.getSlotIndex()];
+							             if (drawStackSize) {
+							                 if (amount < 0) {
+							                     amount = itemstack.stackSize;
+							                 }
+							                 String format=null;
+											// render the amount overlay
+							                 if (amount > 1 || format != null) {
+							                     String amountText = numberFormat
+							                             .formatWithSuffix(amount, new StringBuffer(format == null ? "" : format)).toString();
+							                     float scale = 1f;
+							                     if (amountText.length() == 3) {
+							                         scale = 0.8f;
+							                     } else if (amountText.length() == 4) {
+							                         scale = 0.6f;
+							                     } else if (amountText.length() > 4) {
+							                         scale = 0.5f;
+							                     }
+							                     textRenderer.setShadow(true);
+							                     textRenderer.setScale(scale);
+							                     textRenderer.setColor(Color.WHITE.normal);
+							                     textRenderer.setAlignment(Alignment.BottomRight, size.width - 1, size.height - 1);
+							                     textRenderer.setPos(1, 1);
+							                     GlStateManager.disableLighting();
+							                     GlStateManager.disableDepth();
+							                     GlStateManager.disableBlend();
+							                     textRenderer.draw(amountText);
+							                     GlStateManager.enableLighting();
+							                     GlStateManager.enableDepth();
+							                     GlStateManager.enableBlend();
+							                 }
+							             }
+
+							           
+							             GlStateManager.disableDepth();
+							          GL11.glDisable(GL11.GL_BLEND);
+							     ModularGui.getItemRenderer().zLevel = 0.0F;
+							     getContext().getScreen().setZ(0f);
+									 
+									 }
+								}
+								
+								
+							}
+							
+						}
 								.setOverwriteItemStackTooltip(s -> rewriteItem(slot, s)).disableInteraction())
 						.build().setPos(97, 9))
 
@@ -313,6 +470,13 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 										return !autoPullItemList && super.isEnabled();
 									}
 								}).widgetCreator(slot -> (SlotWidget) new SlotWidget(slot) {
+									
+										
+
+
+
+				
+
 
 									@Override
 									protected void phantomClick(ClickData clickData, ItemStack cursorStack) {
@@ -442,7 +606,17 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 									}
 								}.setUpdateTooltipEveryTick(true)).build().setPos(new Pos2d(7, 9))
 
-				).addChild(SlotGroup.ofFluidTanks(IntStream.range(0, 16).mapToObj(index -> createTankForFluidStack(f_display, index, Integer.MAX_VALUE)).collect(Collectors.toList()), 4).phantom(true).widgetCreator((slotIndex, h) -> (FluidSlotWidget) new FluidSlotWidget(h) {
+				).addChild(SlotGroup.ofFluidTanks(IntStream.range(0, 16).mapToObj(index -> createTankForFluidStack(f_display, index, Integer.MAX_VALUE)).collect(Collectors.toList()), 4)
+						.tankHandlerCreator(s->new FluidTanksHandler(new FluidTankLongDelegate(s)){
+							
+							 @Override
+							    public long getTankStoredAmount(int tank) {
+							        return f_client[((Supplier<Integer>)s).get()];
+							    }
+							
+							
+						})
+						.phantom(true).widgetCreator((slotIndex, h) -> (FluidSlotWidget) new FluidSlotWidget(h) {
 					
 					@Override
 					protected void tryClickPhantom(ClickData clickData, ItemStack cursorStack) {
@@ -1180,5 +1354,20 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 	public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
 		return new ITexture[] { aBaseTexture, TextureFactory.of(MyMod.iohub, MyMod.iohub.magicNO_overlay_dual) };
 	}
+	
+	 private static class HookHolder {
 
+	        static ItemRenderHook SKIP_ITEM_STACK_SIZE_HOOK = new ItemRenderHook() {
+
+	            @Override
+	            public boolean renderOverlay(FontRenderer fr, TextureManager tm, ItemStack is, int x, int y) {
+	                return true;
+	            }
+
+	            @Override
+	            public boolean showStackSize(ItemStack is) {
+	                return false;
+	            }
+	        };
+	    }
 }

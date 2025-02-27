@@ -52,6 +52,7 @@ import appeng.api.config.Upgrades;
 import appeng.core.features.registries.InterfaceTerminalRegistry;
 import appeng.items.tools.ToolMemoryCard;
 import bartworks.API.BorosilicateGlass;
+import codechicken.nei.api.API;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -141,9 +142,9 @@ public class MyMod {
 
     public static MyMod instance;
     {
-
+    	
         // System.out.println("cccccccccccccccc");
-
+    	
         try {
             new GTDualInputs();
         } catch (Throwable t) {
@@ -397,7 +398,7 @@ public class MyMod {
 
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
-       
+      // API.addRecipeCatalyst(new ItemStack(Items.glowstone_dust), "smelting");
 OreDictionary.registerOre("ph:circuit", new ItemStack( progcircuit,1,OreDictionary.WILDCARD_VALUE));
         {
             AchievementPage page = new AchievementPage(

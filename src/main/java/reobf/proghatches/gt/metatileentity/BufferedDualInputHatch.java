@@ -1760,8 +1760,8 @@ if(ret>64){
 
         return to;
     }
-
-    final int mask = new Random().nextInt();
+    static Random ran=new Random();
+    final int mask = ran.nextInt();
 
     public static class Recipe {
 
@@ -1826,7 +1826,7 @@ if(ret>64){
             }
             tag.setInteger("ff", f.length);
             for (int ii = 0; ii < i.length; ii++) {
-                if (i[ii] != null) tag.setTag("i" + i, writeToNBT(i[ii], new NBTTagCompound()));
+                if (i[ii] != null) tag.setTag("i" + ii, writeToNBT(i[ii], new NBTTagCompound()));
             }
             tag.setInteger("ii", i.length);
             return tag;

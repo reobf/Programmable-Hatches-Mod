@@ -5,10 +5,13 @@ import java.util.Collection;
 import com.google.common.base.Objects;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
+import com.gtnewhorizons.modularui.api.math.Alignment;
+import com.gtnewhorizons.modularui.api.math.Color;
 import com.gtnewhorizons.modularui.api.screen.ITileWithModularUI;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.textfield.NumericWidget;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.FuzzyMode;
@@ -75,6 +78,7 @@ boolean nbt;
 boolean meta;
 boolean circuit=true;
 boolean index;
+private int amount=1;
 
 public void pretick(){
 	
@@ -104,7 +108,7 @@ public void pretick(){
 						 
 						 select=mte.getStackInSlot(((IConfigurationCircuitSupport) mte).getCircuitSlot());
 						 if(select!=null){select=select.copy();
-						 select.stackSize=1;}
+						 select.stackSize=amount;}
 					 }
 				 }
 			}else{
@@ -113,7 +117,7 @@ public void pretick(){
 					for(int i=0;i<inv.getInventoryStackLimit();i++){
 						if(inv.getStackInSlot(i)!=null&&inv.getStackInSlot(i).stackSize>0){
 							select=inv.getStackInSlot(i).copy();
-							select.stackSize=1;
+							select.stackSize=amount;
 							
 						}
 						
@@ -222,6 +226,8 @@ public boolean same(IAEItemStack a, ItemStack b){
 		compound.setByte("facing", (byte) facing.ordinal());
 		compound.setBoolean("nbt",nbt);
 		compound.setBoolean("meta",meta);
+		compound.setByte("amount", (byte) amount);
+		
 		super.writeToNBT(compound);
 	}
 
@@ -235,6 +241,8 @@ public boolean same(IAEItemStack a, ItemStack b){
 		facing=ForgeDirection.VALID_DIRECTIONS[compound.getByte("facing")];
 		nbt=compound.getBoolean("nbt");
 		meta=compound.getBoolean("meta");
+		amount=compound.getByte("amount");
+		if(amount<0)amount=1;
 		super.readFromNBT(compound);
 	}
 
@@ -403,7 +411,9 @@ public void onChunkUnload() {
              builder.bindPlayerInventory(buildContext.getPlayer());
          }
          
-         
+         builder.widget(new NumericWidget().setSetter(val -> amount = (int) val).setGetter(() -> amount).setBounds(1, Integer.MAX_VALUE-1).setScrollValues(1, 4, 64).setTextAlignment(Alignment.Center).setTextColor(Color.WHITE.normal).setSize(70, 18).setPos(43, 3).setBackground(GTUITextures.BACKGROUND_TEXT_FIELD)
+        		 .addTooltip(StatCollector.translateToLocal("proghatches.orb_switcher.amount"))
+        		 );
          builder.widget(
                  new CycleButtonWidget().setToggle(() -> nbt, s -> nbt = s)
                      .setTextureGetter(s -> {

@@ -341,22 +341,25 @@ public class ProghatchesUtil {
 
     }
 
-    static  List<ItemStack> allc=new ArrayList<>();
+    static  List<ItemStack> allc=null;
     public static List<ItemStack> allCircuits(){
     	
     	if(allc==null){
     		try {
 				allc=(List<ItemStack>) GTUtility.class.getDeclaredMethod("getAllIntegratedCircuits").invoke(null);
 			} catch (Exception e) {
-				//e.printStackTrace();
+				e.printStackTrace();
 			}
-    		}  else{
+    		}  
+    	if(allc==null){
     			try {
     		allc=(List<ItemStack>) GregTechAPI.class.getDeclaredMethod("getConfigurationCircuitList",int.class).invoke(null,100); 
     			} catch (Exception e) {
-    				//e.printStackTrace();
+    				e.printStackTrace();
     			}    
     		}
+    	
+    	
 		return allc;
     	
     }

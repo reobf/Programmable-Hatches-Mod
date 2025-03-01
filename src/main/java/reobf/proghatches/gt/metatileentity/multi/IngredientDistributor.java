@@ -57,6 +57,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.me.GridAccessException;
+import appeng.util.IterationCounter;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import gregtech.api.GregTechAPI;
@@ -989,7 +990,7 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
 					if (itemCache.isEmpty() == false) {
 						return false;
 					}
-					itemCache = o.getProxy().getStorage().getItemInventory().getStorageList();
+					itemCache = o.getProxy().getStorage().getItemInventory().getAvailableItems(AEApi.instance().storage().createItemList(), IterationCounter.fetchNewId());
 					if (itemCache.isEmpty() == false) {
 						return false;
 					}
@@ -1010,7 +1011,7 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
 					if (itemCache.isEmpty() == false) {
 						return false;
 					}
-					itemCache = o.getProxy().getStorage().getFluidInventory().getStorageList();
+					itemCache = o.getProxy().getStorage().getFluidInventory().getAvailableItems(AEApi.instance().storage().createFluidList(), IterationCounter.fetchNewId());
 					if (itemCache.isEmpty() == false) {
 						return false;
 					}
@@ -1066,7 +1067,7 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
 				}
 			}
 			IMEMonitor<IAEItemStack> itemInventory = bus.getProxy().getStorage().getItemInventory();
-			itr = itemInventory.getStorageList().iterator();
+			itr = itemInventory.getAvailableItems(AEApi.instance().storage().createItemList(), IterationCounter.fetchNewId()).iterator();
 			// if(check!=null)
 			while (itr.hasNext()) {
 				IAEItemStack next = verifyForRealExistance(itr.next(), itemInventory);
@@ -1112,7 +1113,7 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
 					}
 			}
 			IMEMonitor<IAEFluidStack> itemInventory = bus.getProxy().getStorage().getFluidInventory();
-			itr = itemInventory.getStorageList().iterator();
+			itr = itemInventory.getAvailableItems(AEApi.instance().storage().createFluidList(), IterationCounter.fetchNewId()).iterator();
 			// if(check!=null)
 			while (itr.hasNext()) {
 				IAEFluidStack next = verifyForRealExistance(itr.next(), itemInventory);

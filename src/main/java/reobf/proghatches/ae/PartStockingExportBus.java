@@ -264,6 +264,7 @@ public class PartStockingExportBus extends PartBasicState implements
                     Actionable.SIMULATE,
                     this.mySrc);
                 if (itemsToAdd == null) break;
+                itemsToAdd.setCraftable(false);
                 this.pushItemIntoTarget(destination, energy, inv, itemsToAdd);
 
                 if (itemToSend <= 0) break;

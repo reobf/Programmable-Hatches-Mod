@@ -290,7 +290,11 @@ public class MyMod {
             .registerNewLayer(
                 "reobf.proghatches.fmp.LayerCraftingMachine",
                 "appeng.api.implementations.tiles.ICraftingMachine");
-
+        AEApi.instance()
+        .partHelper()
+        .registerNewLayer(
+            "reobf.proghatches.fmp.LayerUpdatable",
+            "reobf.proghatches.fmp.IUpdatable");
         OCApi.put(iohub, TileIOHub.OCApi.class);
         OCApi.put(oc_api, ItemAPICard.APIEnv.class);
         OCApi.put(oc_redstone, ItemGTRedstoneCard.RedstoneEnv.class);
@@ -785,6 +789,7 @@ OreDictionary.registerOre("ph:circuit", new ItemStack( progcircuit,1,OreDictiona
     public static boolean newGTCache;
     public static Item part_tunnel;
 	public static BlockOrbSwitcher orbswitcher;
+	public static Item part_cow;
 
     @SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
     public void pretick(final TickEvent.ServerTickEvent event) {

@@ -245,6 +245,7 @@ public class PartStockingFluidExportBus extends PartBasicState implements
                     Actionable.SIMULATE,
                     this.mySrc);
                 if (itemsToAdd == null) break;
+                itemsToAdd.setCraftable(false);
                 // long before=itemToSend;
                 this.pushItemIntoTarget(te, energy, inv, itemsToAdd);
                 // if(before==itemToSend)break;

@@ -75,6 +75,7 @@ import appeng.api.config.FuzzyMode;
 import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
+import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.IMEMonitor;
@@ -126,6 +127,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -135,6 +137,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -208,7 +211,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 				IMEMonitor<IAEItemStack> sg = proxy.getStorage().getItemInventory();
 				IAEItemStack request = AEItemStack.create(i_mark[aIndex]);
 				request.setStackSize(Long.MAX_VALUE);
-				IAEItemStack result = sg.extractItems(request, Actionable.SIMULATE, source);
+				IAEItemStack result = sg.extractItems(request, Actionable.SIMULATE, getRequestSource());
 				ItemStack s = (result != null) ? result.getItemStack() : null;
 				if(result!=null){
 				ItemStackG g=ItemStackG.fromAE(result, intmaxs);
@@ -251,7 +254,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 			IMEMonitor<IAEFluidStack> sg = proxy.getStorage().getFluidInventory();
 			IAEFluidStack request = AEFluidStack.create(fluidStack);
 			request.setStackSize(Long.MAX_VALUE);
-			IAEFluidStack result = sg.extractItems(request, Actionable.SIMULATE, source);
+			IAEFluidStack result = sg.extractItems(request, Actionable.SIMULATE, getRequestSource());
 			if(result!=null){
 			FluidTankG g=new FluidTankG();
 			g.fromAE(result, intmaxs);
@@ -303,6 +306,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 
 	@Override
 	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
+		updateAllInformationSlots();
 		final SlotWidget[] aeSlotWidgets = new SlotWidget[16];
 		builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
 
@@ -376,8 +380,11 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 						        AppEngRenderItem.POST_HOOKS.add(HookHolder.SKIP_ITEM_STACK_SIZE_HOOK);
 						        final RenderItem pIR = this.setItemRender(aeRenderItem);
 						        try {
-						            aeRenderItem.setAeStack(Platform.getAEStackInSlot(slotIn).setStackSize(i_client[slotIn.getSlotIndex()]));
-						           drawSlot(slotIn, true);
+						        	IAEItemStack is = Platform.getAEStackInSlot(slotIn);
+						        	if(is!=null){is.setStackSize(i_client[slotIn.getSlotIndex()]);}
+						        	aeRenderItem.setAeStack(is);
+						           
+						            drawSlot(slotIn, true);
 						        } catch (final Exception err) {
 						            AELog.warn("[AppEng] AE prevented crash while drawing slot: " + err);
 						        }
@@ -856,7 +863,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 
 				for (IAEItemStack s : getProxy().getStorage().getItemInventory().getStorageList()) {
 					IAEItemStack ext = getProxy().getStorage().getItemInventory().extractItems(s, Actionable.MODULATE,
-							source);
+							getRequestSource());
 					if (ext != null && ext.getStackSize() > 0) {
 						ItemStack item = ext.getItemStack();
 						item.stackSize = 0;
@@ -880,8 +887,11 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 			} catch (GridAccessException e) {
 			}
 	}
-
-	MachineSource source = new MachineSource(((IActionHost) getBaseMetaTileEntity()));
+    private BaseActionSource getRequestSource() {
+        if (requestSource == null) requestSource = new MachineSource((IActionHost) getBaseMetaTileEntity());
+        return requestSource;
+    }
+	MachineSource requestSource ;//= new MachineSource(((IActionHost) getBaseMetaTileEntity()));
 	boolean recipe;
 	int intmaxs = 3;
 
@@ -895,8 +905,10 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 			if (i_mark[i] != null) {
 
 				try {
-					IAEItemStack possible = getProxy().getStorage().getItemInventory().extractItems(
-							AEItemStack.create(i_mark[i]).setStackSize(Long.MAX_VALUE), Actionable.SIMULATE, source);
+					IAEItemStack possible=null;
+					if(i_mark[i]!=null)
+					possible= getProxy().getStorage().getItemInventory().extractItems(
+							AEItemStack.create(i_mark[i]).setStackSize(Long.MAX_VALUE), Actionable.SIMULATE, getRequestSource());
 					i_shadow[i] = possible == null ? null : ItemStackG.fromAE(possible, intmaxs);
 					if (i_shadow[i] != null)
 						i_saved[i] = i_shadow[i].stackSize();
@@ -911,8 +923,10 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 			if (f_mark[i] != null) {
 
 				try {
-					IAEFluidStack possible = getProxy().getStorage().getFluidInventory().extractItems(
-							AEFluidStack.create(f_mark[i]).setStackSize(Long.MAX_VALUE), Actionable.SIMULATE, source);
+					IAEFluidStack possible=null;
+					if(f_mark[i]!=null)
+					possible=  getProxy().getStorage().getFluidInventory().extractItems(
+							AEFluidStack.create(f_mark[i]).setStackSize(Long.MAX_VALUE), Actionable.SIMULATE, getRequestSource());
 					f_shadow[i].fromAE(possible, intmaxs);
 					if (f_shadow[i] != null)
 						f_saved[i] = f_shadow[i].getFluidAmount();
@@ -945,7 +959,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 				IAEItemStack toextract = AEItemStack.create(i_mark[i]).setStackSize(delta);
 				try {
 					IAEItemStack get = getProxy().getStorage().getItemInventory().extractItems(toextract,
-							Actionable.MODULATE, source);
+							Actionable.MODULATE, getRequestSource());
 					if (get == null || get.getStackSize() != get.getStackSize()) {
 						MyMod.LOG.fatal("cannot extract!");
 						controller.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
@@ -980,7 +994,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 				IAEFluidStack toextract = AEFluidStack.create(f_mark[i]).setStackSize(delta);
 				try {
 					IAEFluidStack get = getProxy().getStorage().getFluidInventory().extractItems(toextract,
-							Actionable.MODULATE, source);
+							Actionable.MODULATE, getRequestSource());
 					if (get == null || get.getStackSize() != get.getStackSize()) {
 						MyMod.LOG.fatal("cannot extract!");
 						controller.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
@@ -1171,7 +1185,8 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 	}
 
 	@Override
-	public void saveNBTData(NBTTagCompound aNBT) {
+	public void saveNBTData(NBTTagCompound aNBT) {	
+		aNBT.setBoolean("additionalConnection", additionalConnection);
 		aNBT.setBoolean("allowAuto", allowAuto);
 		getProxy().writeToNBT(aNBT);
 		super.saveNBTData(aNBT);
@@ -1179,6 +1194,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 		for (int i = 0; i < 16; i++) {
 			FluidStack fluidStack = f_mark[i];
 			if (fluidStack == null) {
+				nbtTagList.appendTag(new NBTTagCompound());
 				continue;
 			}
 			NBTTagCompound fluidTag = fluidStack.writeToNBT(new NBTTagCompound());
@@ -1192,6 +1208,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 		for (int i = 0; i < 16; i++) {
 			ItemStack fluidStack = i_mark[i];
 			if (fluidStack == null) {
+				nbtTagList.appendTag(new NBTTagCompound());
 				continue;
 			}
 			NBTTagCompound fluidTag = fluidStack.writeToNBT(new NBTTagCompound());
@@ -1239,7 +1256,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 	}
 
 	@Override
-	public void loadNBTData(NBTTagCompound aNBT) {
+	public void loadNBTData(NBTTagCompound aNBT) {additionalConnection = aNBT.getBoolean("additionalConnection");
 		allowAuto = aNBT.getBoolean("allowAuto");
 		getProxy().readFromNBT(aNBT);
 		super.loadNBTData(aNBT);
@@ -1370,4 +1387,15 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 	            }
 	        };
 	    }
+	 @Override
+		public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
+				float aX, float aY, float aZ) {
+			additionalConnection = !additionalConnection;
+			updateValidGridProxySides();
+			aPlayer.addChatComponentMessage(
+					new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
+			return true;
+		}
+	 
+	 
 }

@@ -1,13 +1,20 @@
 package reobf.proghatches.item;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemEditableBook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.StringUtils;
-
+import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.graphs.PowerNode;
+import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.BaseMetaPipeEntity;
+import gregtech.api.metatileentity.implementations.MTECable;
 
 public class ItemBookTutorial extends ItemEditableBook {
 
@@ -25,4 +32,6 @@ public class ItemBookTutorial extends ItemEditableBook {
         return super.getItemStackDisplayName(p_77653_1_);
     }
 
+    
+   
 }

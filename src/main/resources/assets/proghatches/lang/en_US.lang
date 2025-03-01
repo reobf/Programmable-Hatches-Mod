@@ -780,3 +780,11 @@ proghatch.phantombus.chat.success=Synchronized successfully to %s Phantom Input 
 proghatch.phantombus.chat.link.exceed=Max amount of links exceed: 1023
 proghatch.phantombus.chat.link.success=Linked. Total links: %s
 proghatch.phantombus.chat.link.noop=Already linked. Total links: %s
+item.proghatches.part.cow.name=Channel-over-Wire Panel
+item.proghatches.part.cow.tooltips.0=Pass ME channels through GT Cable!
+item.proghatches.part.cow.tooltips.1=Connect CoW Panel with GT Cable and use Memory Card to link them
+item.proghatches.part.cow.tooltips.2=If link is a success, this panel can pass 32 channels!
+item.proghatches.part.cow.tooltips.3=Cannot have more than 2 panels with same freq in same GT wire net
+item.proghatches.part.cow.tooltips.4=Can be placed on Dense Cable
+
+

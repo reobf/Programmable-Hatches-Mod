@@ -41,6 +41,7 @@ import reobf.proghatches.ae.TileOrbSwitcher;
 import reobf.proghatches.ae.TileRequestTunnel;
 import reobf.proghatches.ae.TileStockingCircuitRequestInterceptor;
 import reobf.proghatches.ae.TileStorageProxy;
+import reobf.proghatches.ae.part2.ItemPartCoW;
 import reobf.proghatches.ae.part2.ItemPartRequestTunnel;
 import reobf.proghatches.block.BlockAnchorAlert;
 import reobf.proghatches.block.BlockIOHub;
@@ -236,7 +237,10 @@ public class CommonProxy {
             MyMod.part_tunnel = new ItemPartRequestTunnel().setUnlocalizedName("proghatches.part.tunnel")
                 .setTextureName("?"),
             "proghatches.part.tunnel");
-
+        GameRegistry.registerItem(
+                MyMod.part_cow = new ItemPartCoW().setUnlocalizedName("proghatches.part.cow")
+                    .setTextureName("?"),
+                "proghatches.part.cow");
         GameRegistry.registerItem(
             MyMod.euinterface_p2p = new ItemPartEUP2PInterface().setUnlocalizedName("proghatches.euinterface.p2p")
                 .setTextureName("?"),

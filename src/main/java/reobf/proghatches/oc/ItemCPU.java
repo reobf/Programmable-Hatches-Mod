@@ -2,10 +2,17 @@ package reobf.proghatches.oc;
 
 import java.util.Optional;
 
+import gregtech.api.graphs.PowerNode;
+import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.BaseMetaPipeEntity;
+import gregtech.api.metatileentity.implementations.MTECable;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import li.cil.oc.api.Network;
 import li.cil.oc.api.driver.item.Slot;
 import li.cil.oc.api.machine.Architecture;
@@ -141,5 +148,39 @@ public class ItemCPU extends Item implements li.cil.oc.api.driver.item.HostAware
 
         return stack.getItem() instanceof ItemCPU;
     }
-
+    @Override
+    public boolean onItemUse(ItemStack p_77648_1_, EntityPlayer p_77648_2_, World w, int x, int y, int z,
+        int p_77648_7_, float p_77648_8_, float p_77648_9_, float p_77648_10_) {
+    	if(w.isRemote)return false;
+    	TileEntity te = w.getTileEntity(x, y, z);
+    	if(te instanceof IGregTechTileEntity){
+    		IGregTechTileEntity gte=(IGregTechTileEntity) te;
+    		IMetaTileEntity mte = gte.getMetaTileEntity();
+    		if(mte instanceof MTECable){
+    			MTECable c=(MTECable) mte;
+    	        final BaseMetaPipeEntity tBase = (BaseMetaPipeEntity) c.getBaseMetaTileEntity();
+    	        if ((tBase.getNode() instanceof PowerNode )) {
+    	        	PowerNode	tNode=(PowerNode) tBase.getNode();
+    	        	tNode.mConsumers.forEach(s->{
+    	        		
+    	        		TileEntity tte = s.mTileEntity;
+    	        		if(tte!=null){
+    	        			System.out.println(tte);
+    	        			System.out.println(tte.xCoord);
+    	        			System.out.println(tte.yCoord);
+    	        			System.out.println(tte.zCoord);
+    	        		}
+    	        		
+    	        		
+    	        		
+    	        	});
+    	        	
+    	        	
+    	        }
+    		}
+    		
+    	}
+    	
+    	return false;
+    }
 }

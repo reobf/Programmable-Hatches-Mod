@@ -181,7 +181,8 @@ public class FluidTankG {
 	}
 
 	public void fromAE(@Nonnull IAEFluidStack possible, int intmaxs) {
-
+		if(possible==null){arr
+			.clear();return;}
 		
 		long all=possible.getStackSize();
 		all=Math.min(all, intmaxs*1L*Integer.MAX_VALUE);

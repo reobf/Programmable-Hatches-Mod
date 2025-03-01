@@ -87,12 +87,12 @@ String cfg=
 ;
 public static boolean noEUMixin;
 static public ArrayList<String> retLate = new ArrayList<>();
-
+public static boolean loaded;
 //spotless:on
     @SuppressWarnings("unused")
     @Override
     public List<String> getMixins() {
-
+    	loaded=true;
         boolean ff = true;
 
         File f = new File(System.getProperty("user.dir") + File.separator + "config", "proghatches.mixin.properties");

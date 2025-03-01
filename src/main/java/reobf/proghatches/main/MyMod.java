@@ -106,6 +106,7 @@ import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.keybinding.KeyBindings;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.asm.repack.objectwebasm.ClassWriter;
+import reobf.proghatches.main.mixin.MixinPlugin;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.net.ConnectionModeMessage;
 import reobf.proghatches.net.MAFXMessage;
@@ -153,23 +154,11 @@ public class MyMod {
             FMLCommonHandler.instance()
                 .exitJava(1, false);
         }
-        if ((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")) {
+        /*if ((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")) {
 
             ProcessingLogic.class.getDeclaredFields();
-            /*
-             * DualityInterface.class.getDeclaredFields();
-             * CraftFromPatternTask.class.getDeclaredFields();
-             * NEECraftingHandler.class.getDeclaredFields();
-             * GregTech5RecipeProcessor.class.getDeclaredFields();
-             * FluidPatternTerminalRecipeTransferHandler.class.getDeclaredFields();
-             */
-            /*
-             * CraftingCPUCluster.class.getDeclaredFields();
-             * NBTTagCompound t=new NBTTagCompound();
-             * AEFluidStack.create(new FluidStack(FluidRegistry.WATER,123).writeToNBT(t));
-             */
-
-        }
+          
+        }*/
 
         instance = this;
     }
@@ -177,7 +166,17 @@ public class MyMod {
     static {
 
         //
-
+    	if(MixinPlugin.loaded==false){
+    		   LOG.fatal("!!!ERROR!!!");
+    		   LOG.fatal("Mixins fails to load.");
+    		   LOG.fatal("Will stop the game since it's impossible to proceed.");
+    		   
+    		   throw new AssertionError("abort");
+    		   
+    	}else{
+    		 LOG.fatal("Mixins loaded, sounds good!");
+    		
+    	}
         class test extends Item {
 
             @Override

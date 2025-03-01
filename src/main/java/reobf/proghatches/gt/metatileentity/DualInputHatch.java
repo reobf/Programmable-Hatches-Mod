@@ -2401,9 +2401,15 @@ static int[] AZERO={0};
                         + ("valid:" + DualInputHatch.this.isValid())
                         + ("x:" + getBaseMetaTileEntity().getXCoord())
                         + ("y:" + getBaseMetaTileEntity().getYCoord())
-                        + ("z:" + getBaseMetaTileEntity().getZCoord()));
+                        + ("z:" + getBaseMetaTileEntity().getZCoord())
+                        + ("w:" + getBaseMetaTileEntity().getWorld().provider.dimensionId));
 
             }
+            
+            MyMod.LOG.fatal(shadowFluid.toString());
+            MyMod.LOG.fatal(shadowItems.toString());
+            MyMod.LOG.fatal(cachedFluid.toString());
+            MyMod.LOG.fatal(cachedItems.toString());
 
         }
 
@@ -2426,7 +2432,8 @@ static int[] AZERO={0};
 
         public FluidStack[] getFluid() {
             if (recipe == false) {
-                broken();
+            	if(!broken)
+            		broken();
                 // Thread.dumpStack();
                 broken = true;
                 return new FluidStack[0];
@@ -2728,6 +2735,11 @@ static int[] AZERO={0};
       * }
       * }
       */
-
+   
+@Override
+	public ItemStack getMachineCraftingIcon() {
+		// TODO Auto-generated method stub
+		return super.getMachineCraftingIcon();
+	}
     public List<ProcessingLogic> processingLogics = new ArrayList<>();
 }

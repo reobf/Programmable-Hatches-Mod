@@ -10,6 +10,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidHandler;
 
+import java.util.List;
+
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
@@ -334,5 +336,9 @@ public class PartStockingFluidExportBus extends PartBasicState implements
         EUUtil.open(player, player.getEntityWorld(), t.xCoord, t.yCoord, t.zCoord, getSide());
 
         return true;
+    }  @Override
+    public void getDrops(final List<ItemStack> drops, final boolean wrenched) {
+        if (inv[0] != null) drops.add(inv[0]);
+      
     }
 }

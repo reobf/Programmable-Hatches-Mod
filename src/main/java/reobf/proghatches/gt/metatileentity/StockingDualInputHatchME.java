@@ -395,7 +395,14 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 							
 							
 							@SideOnly(Side.CLIENT)			
-							private final TextRenderer textRenderer = new TextRenderer();		
+							private  TextRenderer textRenderer0;
+							
+							{
+							if(cpw.mods.fml.common.FMLCommonHandler. instance().getSide()==Side.CLIENT){
+								textRenderer0= new TextRenderer();	
+							}
+							
+							}	
 							@SideOnly(Side.CLIENT)					
 							public void drawSlot(Slot slotIn, boolean drawStackSize){
 								super.drawSlot(slotIn,false);
@@ -438,15 +445,15 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 							                     } else if (amountText.length() > 4) {
 							                         scale = 0.5f;
 							                     }
-							                     textRenderer.setShadow(true);
-							                     textRenderer.setScale(scale);
-							                     textRenderer.setColor(Color.WHITE.normal);
-							                     textRenderer.setAlignment(Alignment.BottomRight, size.width - 1, size.height - 1);
-							                     textRenderer.setPos(1, 1);
+							                     textRenderer0.setShadow(true);
+							                     textRenderer0.setScale(scale);
+							                     textRenderer0.setColor(Color.WHITE.normal);
+							                     textRenderer0.setAlignment(Alignment.BottomRight, size.width - 1, size.height - 1);
+							                     textRenderer0.setPos(1, 1);
 							                     GlStateManager.disableLighting();
 							                     GlStateManager.disableDepth();
 							                     GlStateManager.disableBlend();
-							                     textRenderer.draw(amountText);
+							                     textRenderer0.draw(amountText);
 							                     GlStateManager.enableLighting();
 							                     GlStateManager.enableDepth();
 							                     GlStateManager.enableBlend();

@@ -10,6 +10,8 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import java.util.List;
+
 import com.glodblock.github.common.item.ItemFluidDrop;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
@@ -48,7 +50,7 @@ import reobf.proghatches.fmp.ICraftingMachinePart;
 
 public class PartStockingExportBus extends PartBasicState implements
 
-    IGridProxyable, IActionHost, IGuiProvidingPart, IGridTickable, ICraftingMachinePart {
+    IGridProxyable, IActionHost, IGuiProvidingPart, IGridTickable {
 
     ItemStack[] inv = new ItemStack[1];
 
@@ -352,8 +354,12 @@ public class PartStockingExportBus extends PartBasicState implements
 
         return true;
     }
-
     @Override
+    public void getDrops(final List<ItemStack> drops, final boolean wrenched) {
+        if (inv[0] != null) drops.add(inv[0]);
+      
+    }
+   /* @Override
     public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table,
         ForgeDirection ejectionDirection) {
 
@@ -364,6 +370,6 @@ public class PartStockingExportBus extends PartBasicState implements
     public boolean acceptsPlans(ForgeDirection ejectionDirection) {
         System.out.println(ejectionDirection);
         return false;
-    }
+    }*/
 
 }

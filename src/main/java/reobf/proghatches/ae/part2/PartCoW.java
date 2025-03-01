@@ -170,8 +170,11 @@ public class PartCoW extends PartBasicState implements IGridTickable, IPartGT5Po
 	@Override
 	public TickRateModulation tickingRequest(IGridNode nodexx, int TicksSinceLastCallxx) {
 		count++;
-		boolean thisTick=(update&1)!=0;
+		boolean thisTick;
+		synchronized (this) {
+		thisTick=(update&1)!=0;
 		update=update>>1;
+		}
 		if(thisTick){
 			onNeighborChanged();
 			
@@ -500,10 +503,13 @@ public class PartCoW extends PartBasicState implements IGridTickable, IPartGT5Po
 		}
 
 	}
+	
 	int update;
 	public void update() {
-		update=update|0x1010;//update after 4 ticks and 12 ticks
 		
+	synchronized (this) {
+		update=update|0x1010;//update after 4 ticks and 12 ticks
+		}
 	}
 
 }

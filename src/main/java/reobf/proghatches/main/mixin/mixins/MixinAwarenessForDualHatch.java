@@ -5,6 +5,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -16,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
+import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 
@@ -37,6 +39,12 @@ public abstract class MixinAwarenessForDualHatch {
     // @Shadow
     // public abstract void setResultIfFailure(CheckRecipeResult result) ;
 
+	
+	private MTEMultiBlockBase cast(){
+		Object o=this;
+		return (MTEMultiBlockBase) o;
+	}
+	/*
     @Unique
     private static MethodHandle MH_mDualInputHatches;
     @Unique
@@ -79,20 +87,21 @@ public abstract class MixinAwarenessForDualHatch {
             throw new AssertionError(e);
         }
     }
-
+*/
+	
+	
+	
+	
+	
+	
     @Inject(method = "startRecipeProcessing", at = { @At(value = "RETURN") } ,require=1 )
     public void startRecipeProcessing(CallbackInfo c) {
-        ArrayList<IDualInputHatch> collection = mDualInputHatches0();
-        Iterator<IDualInputHatch> it = collection.iterator();
-        while (it.hasNext()) {
-            IDualInputHatch hatch = it.next();
-            if (hatch == null) continue;
-            if (!((MetaTileEntity) hatch).isValid()) {
-                if (hatch instanceof IRecipeProcessingAwareDualHatch) {
-                    it.remove();
-                }
-                continue;
-            }
+     
+      
+       @SuppressWarnings({ "unchecked", "rawtypes" })
+	   List<IDualInputHatch> l=(List<IDualInputHatch>)(List) GTUtility.validMTEList((List<MetaTileEntity>)(Object)(cast().mDualInputHatches));
+		for (IDualInputHatch hatch:l) {
+            
             if (hatch instanceof IRecipeProcessingAwareDualHatch) {
                 ((IRecipeProcessingAwareDualHatch) hatch).startRecipeProcessing();
             }
@@ -106,10 +115,10 @@ public abstract class MixinAwarenessForDualHatch {
          * (!result.wasSuccessful()) { this.checkRecipeResult = result; } };
          */
 
-        for (IDualInputHatch hatch : (mDualInputHatches0())) {
+        for (IDualInputHatch hatch : (cast().mDualInputHatches)) {
             if (hatch == null || !((MetaTileEntity) hatch).isValid()) continue;
             if (hatch instanceof IRecipeProcessingAwareDualHatch) {
-                setResultIfFailure0(
+            	cast().setResultIfFailure(
                     ((IRecipeProcessingAwareDualHatch) hatch).endRecipeProcessing((MTEMultiBlockBase) (Object) this));
             }
         }

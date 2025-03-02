@@ -869,6 +869,11 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 			try {
 
 				for (IAEItemStack s : getProxy().getStorage().getItemInventory().getStorageList()) {
+					if(s==null)continue;
+					if(!(s.getItem() instanceof ItemProgrammingCircuit)){
+						continue;
+					}
+					
 					IAEItemStack ext = getProxy().getStorage().getItemInventory().extractItems(s, Actionable.MODULATE,
 							getRequestSource());
 					if (ext != null && ext.getStackSize() > 0) {

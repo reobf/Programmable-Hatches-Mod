@@ -18,6 +18,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.util.GTUtility;
+import gregtech.api.util.ValidMTEList;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 
@@ -99,7 +100,7 @@ public abstract class MixinAwarenessForDualHatch {
      
       
        @SuppressWarnings({ "unchecked", "rawtypes" })
-	   List<IDualInputHatch> l=(List<IDualInputHatch>)(List) GTUtility.validMTEList((List<MetaTileEntity>)(Object)(cast().mDualInputHatches));
+       Iterable<IDualInputHatch> l=(Iterable<IDualInputHatch>)(Iterable) GTUtility.validMTEList((List<MetaTileEntity>)(Object)(cast().mDualInputHatches));
 		for (IDualInputHatch hatch:l) {
             
             if (hatch instanceof IRecipeProcessingAwareDualHatch) {

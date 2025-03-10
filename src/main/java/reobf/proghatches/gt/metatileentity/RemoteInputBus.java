@@ -265,11 +265,14 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
                 if (count-- <= 0) {
                     count = 100;
                 } else return;
-
+              
                 Optional<TileEntity> opt = getTile();
                 if (opt.isPresent()) {
+                	 arr=null;
                     List<ItemStack> list = opt.map(e -> filterTakable(e))
                         .get();
+                    arr=null;
+                    
                     for (int i = 0; i < is.getSlots() - 1; i++) {
                         is.setStackInSlot(i, list.size() > i ? list.get(i) : null);
                     }

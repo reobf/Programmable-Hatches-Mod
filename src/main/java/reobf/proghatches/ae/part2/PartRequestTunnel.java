@@ -15,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
@@ -23,6 +24,8 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 
 import com.glodblock.github.util.BlockPos;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow;
+import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 
 import appeng.api.AEApi;
 import appeng.api.networking.IGridNode;
@@ -48,10 +51,12 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
+import reobf.proghatches.eucrafting.EUUtil;
+import reobf.proghatches.eucrafting.IGuiProvidingPart;
 import reobf.proghatches.fmp.ICraftingMachinePart;
 
 public class PartRequestTunnel extends PartBasicState
-    implements ICraftingMachinePart, ISidedInventory, IFluidHandler, IGridTickable {
+    implements ICraftingMachinePart, ISidedInventory, IFluidHandler, IGridTickable ,IGuiProvidingPart{
 
     public static class WailaDataProvider extends appeng.integration.modules.waila.part.BasePartWailaDataProvider {
 
@@ -507,6 +512,19 @@ public class PartRequestTunnel extends PartBasicState
         rh.renderBlock(x, y, z, renderer);
 
         // this.renderLights(x, y, z, rh, renderer);
+    }@Override
+    public boolean onPartActivate(EntityPlayer player, Vec3 pos) {
+        if (player.isSneaking()) return false;
+        TileEntity t = this.getTile();
+        // System.out.println(getSide());
+        EUUtil.open(player, player.getEntityWorld(), t.xCoord, t.yCoord, t.zCoord, getSide());
+    	return true;
     }
+
+	@Override
+	public ModularWindow createWindow(UIBuildContext buildContext) {
+		// TODO Auto-generated method stub
+		return internal.createWindow(buildContext);
+	}
 
 }

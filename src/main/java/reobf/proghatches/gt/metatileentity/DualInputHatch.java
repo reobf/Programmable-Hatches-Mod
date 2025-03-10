@@ -111,6 +111,7 @@ import gregtech.common.tileentities.machines.IDualInputInventory;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.IOnFillCallback;
+import reobf.proghatches.gt.metatileentity.util.IPHDual;
 import reobf.proghatches.gt.metatileentity.util.IProgrammingCoverBlacklisted;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.gt.metatileentity.util.ISkipStackSizeCheck;
@@ -129,7 +130,7 @@ import reobf.proghatches.net.UpgradesMessage;
  */
 public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCircuitSupport, IAddGregtechLogo,
     IAddUIWidgets, IDualInputHatch, IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch, ISkipStackSizeCheck,
-    IOnFillCallback/* ,IMultiCircuitSupport */ {
+    IOnFillCallback,IPHDual/* ,IMultiCircuitSupport */ {
 static int[] AZERO={0};
     static java.text.DecimalFormat format = new java.text.DecimalFormat("#,###");
     public boolean mMultiFluid;

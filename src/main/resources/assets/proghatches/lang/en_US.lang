@@ -786,5 +786,8 @@ item.proghatches.part.cow.tooltips.1=Connect CoW Panel with GT Cable and use Mem
 item.proghatches.part.cow.tooltips.2=If link is a success, this panel can pass 32 channels!
 item.proghatches.part.cow.tooltips.3=Cannot have more than 2 panels with same freq in same GT wire net
 item.proghatches.part.cow.tooltips.4=Can be placed on Dense Cable
+proghatches.requesttunnel.both=Stocking first
+proghatches.requesttunnel.craft=Craft Only
+proghatches.requesttunnel.stock=Stocking Only
 
 

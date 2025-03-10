@@ -784,3 +784,6 @@ item.proghatches.part.cow.tooltips.1=用GT导线连接CoW面板,并用内存卡�
 item.proghatches.part.cow.tooltips.2=成功连接后,就能传递至多32频道
 item.proghatches.part.cow.tooltips.3=一个GT线网最多连接2个同频率CoW面板
 item.proghatches.part.cow.tooltips.4=可以放置于致密线缆上
+proghatches.requesttunnel.both=库存优先
+proghatches.requesttunnel.craft=仅合成
+proghatches.requesttunnel.stock=仅库存

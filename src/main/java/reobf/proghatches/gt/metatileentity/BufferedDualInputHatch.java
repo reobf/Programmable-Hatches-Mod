@@ -350,6 +350,7 @@ public class BufferedDualInputHatch extends DualInputHatch
         }
 
         public void fromTag(NBTTagCompound tag) {
+        	
             PID = tag.getInteger("PID");
             if (mStoredFluidInternal != null) {
                 for (int i = 0; i < mStoredFluidInternal.length; i++) {
@@ -1512,16 +1513,29 @@ public class BufferedDualInputHatch extends DualInputHatch
         if (aNBT.hasKey("x") == false) return;
         dirty = aNBT.getBoolean("dirty");
         int iex = aNBT.getInteger("exinvlen");
-        for (int i = 0; i < bufferNum + iex; i++) {
-            final int ii = i;
+        boolean warn=false;
+        for (int i = 0; i < bufferNum + iex; i++) {final int ii = i;
+          NBTTagCompound tag = (NBTTagCompound) aNBT.getTag("BUFFER_" + ii);
+        	
+        	if(tag==null){
+        		if(warn==false){
+        			warn=true;
+        			MyMod.LOG.error("Tag broken:"+ii);
+        			MyMod.LOG.error(aNBT.toString());
+        		}
+        		
+        		continue;
+        	}
+        	
+        	
             if (i < bufferNum) inv0.get(i)
-                .fromTag((NBTTagCompound) aNBT.getTag("BUFFER_" + ii));
+                .fromTag(tag);
             else {
                 DualInvBuffer append;
                 inv0.add(append = new DualInvBuffer());
                 append.init(this.mInventory.length - 1, this.mStoredFluid.length);
                 inv0.get(i)
-                    .fromTag((NBTTagCompound) aNBT.getTag("BUFFER_" + ii));
+                    .fromTag(tag);
             }
         }
         CMMode = aNBT.getBoolean("CMMode");

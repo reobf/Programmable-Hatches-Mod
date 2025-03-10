@@ -683,14 +683,14 @@ public class PartEUSource extends AEBasePart implements IGuiProvidingPart, ICraf
                     TileEntity t = this.host.getTile();
                     t.getWorldObj()
                         .createExplosion(null, t.xCoord + 0.5, t.yCoord + 0.5, t.zCoord + 0.5, 2, true);
-                    GTUtility.sendSoundToPlayers(
+                   /* GTUtility.sendSoundToPlayers(
                         t.getWorldObj(),
                         GregTechAPI.sSoundList.get(209),
                         1.0F,
                         -1.0F,
                         t.xCoord,
                         t.yCoord,
-                        t.zCoord);
+                        t.zCoord);*/
                     this.host.removePart(side, false);
                 }
 

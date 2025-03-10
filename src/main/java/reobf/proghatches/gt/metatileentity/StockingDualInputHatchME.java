@@ -137,6 +137,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
@@ -145,6 +146,7 @@ import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.gt.metatileentity.bufferutil.FluidTankG;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 import reobf.proghatches.gt.metatileentity.util.IDoNotCacheThisPattern;
+import reobf.proghatches.gt.metatileentity.util.IPHDual;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
@@ -152,7 +154,7 @@ import reobf.proghatches.main.registration.Registration;
 
 public class StockingDualInputHatchME extends MTEHatchInputBus
 		implements IDualInputHatch, IRecipeProcessingAwareDualHatch, IPowerChannelState, IGridProxyable
-
+,IPHDual
 {
 
 	public StockingDualInputHatchME(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures,
@@ -1399,6 +1401,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 	            }
 	        };
 	    }
+	 
 	 @Override
 		public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
 				float aX, float aY, float aZ) {
@@ -1408,6 +1411,24 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 					new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
 			return true;
 		}
-	 
+	   @Override
+	    public void onLeftclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
+	        if (!(aPlayer instanceof EntityPlayerMP)) return;
+
+	        ItemStack dataStick = aPlayer.inventory.getCurrentItem();
+	        if (!gregtech.api.enums.ItemList.Tool_DataStick.isStackEqual(dataStick, false, true)) return;
+
+	        NBTTagCompound tag = new NBTTagCompound();
+	        tag.setString("type", "ProgHatchesDualInput");
+	        tag.setInteger("x", aBaseMetaTileEntity.getXCoord());
+	        tag.setInteger("y", aBaseMetaTileEntity.getYCoord());
+	        tag.setInteger("z", aBaseMetaTileEntity.getZCoord());
+
+	        dataStick.stackTagCompound = tag;
+	        dataStick.setStackDisplayName(
+	            "ProgHatches Dual Input Hatch Link Data Stick (" + aBaseMetaTileEntity
+	                .getXCoord() + ", " + aBaseMetaTileEntity.getYCoord() + ", " + aBaseMetaTileEntity.getZCoord() + ")");
+	        aPlayer.addChatMessage(new ChatComponentText("Saved Link Data to Data Stick"));
+	    }
 	 
 }

@@ -320,6 +320,7 @@ public String[] getDescription() {
                     List<FluidStack> list = opt.map(e -> {
                         try {
                             processingRecipe = true;
+                            tmp = null;
                             return filterTakable(e);
                         } finally {
                             processingRecipe = false;

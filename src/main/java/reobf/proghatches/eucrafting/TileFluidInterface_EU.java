@@ -1261,8 +1261,8 @@ public class TileFluidInterface_EU extends TileFluidInterface
                             int tY = te.yCoord;
                             int tZ = te.zCoord;
                             World tWorld = te.getWorldObj();
-                            GTUtility
-                                .sendSoundToPlayers(tWorld, GregTechAPI.sSoundList.get(209), 1.0F, -1.0F, tX, tY, tZ);
+                            /*GTUtility
+                                .sendSoundToPlayers(tWorld, GregTechAPI.sSoundList.get(209), 1.0F, -1.0F, tX, tY, tZ);*/
                             tWorld.setBlock(tX, tY, tZ, Blocks.air);
                             if (GregTechAPI.sMachineExplosions) {
                                 tWorld.createExplosion(

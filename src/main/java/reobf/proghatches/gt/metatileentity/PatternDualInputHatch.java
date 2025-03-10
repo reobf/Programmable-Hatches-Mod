@@ -2,6 +2,7 @@ package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -31,6 +32,15 @@ import org.lwjgl.input.Keyboard;
 import com.glodblock.github.common.item.ItemFluidPacket;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.gtnewhorizon.gtnhlib.util.parsing.MathExpressionParser;
+import com.gtnewhorizon.gtnhlib.util.parsing.MathExpressionParser.Context;
+import com.gtnewhorizons.modularui.api.ModularUITextures;
+import com.gtnewhorizons.modularui.api.NumberFormatMUI;
+import com.gtnewhorizons.modularui.api.drawable.AdaptableUITexture;
+import com.gtnewhorizons.modularui.api.drawable.IDrawable;
+import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
+import com.gtnewhorizons.modularui.api.math.Alignment;
+import com.gtnewhorizons.modularui.api.math.Color;
 import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
@@ -39,7 +49,13 @@ import com.gtnewhorizons.modularui.api.widget.IWidgetBuilder;
 import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.MultiChildWidget;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
+import com.gtnewhorizons.modularui.common.widget.TabButton;
+import com.gtnewhorizons.modularui.common.widget.TabContainer;
+import com.gtnewhorizons.modularui.common.widget.TextWidget;
+import com.gtnewhorizons.modularui.common.widget.textfield.NumericWidget;
+import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
 import appeng.api.AEApi;
 import appeng.api.implementations.ICraftingPatternItem;
@@ -59,6 +75,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IInterfaceViewable;
+import appeng.core.Api;
 import appeng.core.AppEng;
 import appeng.core.sync.GuiBridge;
 import appeng.helpers.ICustomNameObject;
@@ -73,12 +90,15 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
+import gregtech.api.enums.Materials;
+import gregtech.api.enums.OrePrefixes;
 import gregtech.api.enums.Textures.BlockIcons;
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.render.TextureFactory;
+import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTUtility;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -89,6 +109,7 @@ import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
+import reobf.proghatches.main.MyMod;
 
 public class PatternDualInputHatch extends BufferedDualInputHatch implements ICraftingProvider, IGridProxyable,
 		ICustomNameObject, IInterfaceViewable, IPowerChannelState, IActionHost, IMultiplePatternPushable {
@@ -372,28 +393,141 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 
 		super.addUIWidgets(builder, buildContext);
 	}
-
+	static AdaptableUITexture mode0 = AdaptableUITexture.of("proghatches", "gui/restrict_mode0", 18, 18, 1);
+    
+	int[] multiplier = new int[36];
+	{Arrays.fill(multiplier, 1);}
+public void refresh(){
+	
+	postMEPatternChange();
+	
+	
+}
 	protected ModularWindow createPatternWindow(final EntityPlayer player) {
 		final int WIDTH = 18 * 4 + 6;
 		final int HEIGHT = 18 * 9 + 6;
 		final int PARENT_WIDTH = getGUIWidth();
 		final int PARENT_HEIGHT = getGUIHeight();
-
 		ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
+		IDrawable tab1 = new ItemDrawable(  Api.INSTANCE.definitions().items().encodedPattern().maybeStack(1).get())
+				.withFixedSize(18, 18, 4, 4);
+		IDrawable tab2 = GTUITextures.OVERLAY_BUTTON_BATCH_MODE_OFF.withFixedSize(18, 18, 4, 4);;
+		
+		/*new ItemDrawable(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Iron, 1))
+				.withFixedSize(18, 18, 4, 4);*/
+		IDrawable tab3 = GTUITextures.OVERLAY_BUTTON_BATCH_MODE_ON.withFixedSize(18, 18, 4, 4);;/*new ItemDrawable(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Gold, 1))
+				.withFixedSize(18, 18, 4, 4);*/
+		
+		
+		
+		
+		
+		
+		
+		TabContainer tab;
+		builder.widget(tab = new TabContainer().setButtonSize(28, 32)
+				.addTabButton(new TabButton(0)
+						.setBackground(true,
+								ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 0f, 1f, 1 / 3f).getSubArea(0, 0,
+										0.5f, 1f),
+								tab1)
+						.setBackground(false,
+								ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 0f, 1f, 1 / 3f).getSubArea(0.5f, 0,
+										1f, 1f),
+								tab1)
+						.setPos(WIDTH - 3, -1).addTooltip("Patterns"))
+				.addTabButton(new TabButton(1)
+						.setBackground(true,
+								ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f).getSubArea(0, 0,
+										0.5f, 1f),
+								tab2)
+						.setBackground(false,
+								ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f).getSubArea(0.5f,
+										0, 1f, 1f),
+								tab2)
+						.setPos(WIDTH - 3, 28 - 1).addTooltip("Individual Multiplier Op."))
+				.addTabButton(new TabButton(2)
+						.setBackground(true,
+								ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f).getSubArea(0, 0,
+										0.5f, 1f),
+								tab3)
+						.setBackground(false, ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
+								.getSubArea(0.5f, 0, 1f, 1f), tab3)
+						.setPos(WIDTH - 3, 56 - 1).addTooltip("Batch Multiplier Op.")));
+
 		builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
 		builder.setGuiTint(getGUIColorization());
 		builder.setDraggable(true);
 		builder.setPos((a, b) -> new Pos2d(PARENT_WIDTH + b.getPos().getX(), PARENT_HEIGHT * 0 + b.getPos().getY()));
+		MultiChildWidget page1 = new MultiChildWidget();
+		tab.addPage(page1);
+		MultiChildWidget page2 = new MultiChildWidget();
+		tab.addPage(page2);
+		MultiChildWidget page3 = new MultiChildWidget();
+		tab.addPage(page3);
+		
+		page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick)->{
+			for(int i=0;i<36;i++)
+			{multiplier[i]*=2;
+			multiplier[i]=Math.max(multiplier[i], 1);
+			}
+			refresh();
+		}) .setSize(16, 16).setPos(3,3).setBackground(GTUITextures.BUTTON_STANDARD,GTUITextures.OVERLAY_BUTTON_X2).addTooltip("x2")
+		);
+		page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick)->{
+			for(int i=0;i<36;i++)
+			multiplier[i]=1;
+			refresh();
+		}) .setSize(16, 16).setPos(3+16,3).setBackground(GTUITextures.BUTTON_STANDARD,GTUITextures.OVERLAY_BUTTON_CROSS).addTooltip("=1")
+		);
+		
 		MappingItemHandler shared_handler = new MappingItemHandler(pattern, 0, 36);
 		// use shared handler
 		// or shift clicking a pattern in pattern slot will just transfer it to
 		// another pattern slot
 		// instead of player inventory!
 		for (int i = 0; i < 36; i++) {
+			final int ii = i;
+			
+			page2.addChild(new SlotWidget(new BaseSlot(shared_handler, i)) {
+				@Override
+				protected ItemStack getItemStackForRendering(Slot slotIn) {
+					ItemStack stack = slotIn.getStack();
+					if (stack == null || !(stack.getItem() instanceof ItemEncodedPattern)) {
+						return stack;
+					}
+					ItemStack output = ((ItemEncodedPattern) stack.getItem()).getOutput(stack);
+					return output != null ? output : stack;
 
-			BaseSlot bs;
+				}
+			}.disableInteraction().setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3).setBackground(GTUITextures.SLOT_DARK_GRAY,
+					GTUITextures.OVERLAY_SLOT_PATTERN_ME));
 
-			builder.widget(new SlotWidget(bs = new BaseSlot(shared_handler, i)
+			page2.addChild(new TextFieldWidget()
+					
+					.setValidator(s->{
+				try{
+				Integer.valueOf(s);}catch(Exception e){return "1";}
+				return s;
+			}).setSetter(s -> {
+				
+				multiplier[ii] = Integer.valueOf(s);
+			
+			refresh();})
+					
+					.setGetter(() -> multiplier[ii]+"").setTextColor(Color.RED.bright(0))
+					.setMaxLength(999)
+				
+					.setScrollBar()
+					
+					
+					.setPos((i % 4) * 18 + 3, (i / 4) * 18 + 1)
+					
+					
+					
+					.setSize(18, 16)
+					.setBackground());
+			page1.addChild(new SlotWidget(new BaseSlot(shared_handler, i)
 
 			) {
 
@@ -412,12 +546,34 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 						onPatternChange();
 					}).setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
 					.setBackground(getGUITextureSet().getItemSlot(), GTUITextures.OVERLAY_SLOT_PATTERN_ME));
-
+				
+			page1.addChild(TextWidget
+					.dynamicString(() -> 
+					{
+						
+						String s=multiplier[ii]==1?"":(ps(multiplier[ii])+"");
+						if(pattern[ii]==null)return s="§7"+s;
+						
+					return s;
+					}
+							)
+					.setTextAlignment(Alignment.TopLeft)
+					.setDefaultColor(Color.WHITE.normal)
+					.setPos((i % 4) * 18 + 3, (i / 4) * 18 + 2)
+					
+					
+					
+					.setSize(36, 16)
+					.setBackground());
 		}
 
 		return builder.build();
 	}
-
+	private static String ps(int amount){
+		return numberFormatx.formatWithSuffix(amount);
+		
+	}
+	  private static final NumberFormatMUI numberFormatx = new NumberFormatMUI();
 	boolean needPatternSync;
 
 	private void onPatternChange() {
@@ -499,6 +655,11 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 		getProxy().readFromNBT(aNBT);
 		saved = aNBT.getLong("saved");
 		super.loadNBTData(aNBT);
+		multiplier=aNBT.getIntArray("multiplier" );
+		if(multiplier.length<36)multiplier=new int[36];
+		for(int i=0;i<multiplier.length;i++){
+			multiplier[i]=Math.max(multiplier[i], 1);
+		}
 		updateValidGridProxySides();
 	}
 
@@ -516,6 +677,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 		Optional.ofNullable(customName).ifPresent(s -> aNBT.setString("customName", s));
 		getProxy().writeToNBT(aNBT);
 		aNBT.setLong("saved", saved);
+		aNBT.setIntArray("multiplier", multiplier);
 		super.saveNBTData(aNBT);
 	}
 
@@ -781,7 +943,133 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 
 	ItemStack[] patternItemCache = new ItemStack[36];
 	ICraftingPatternDetails[] patternDetailCache = new ICraftingPatternDetails[36];
+public static class DA implements ICraftingPatternDetails{
+public DA(ICraftingPatternDetails p,
+int m){
+	if(p==null)throw new NullPointerException();
+	this.p=p;
+	this.m=m;
+	if(m<1)m=1;
+}
+	ICraftingPatternDetails p;
+	int m;
+	@Override
+	public ItemStack getPattern() {
+	
+		ItemStack is = new ItemStack(MyMod.fakepattern);
+		is.setTagCompound(new NBTTagCompound());
+		is.getTagCompound().setByte("type", (byte) 3);
+		is.getTagCompound().setTag("p", p.getPattern().writeToNBT(new NBTTagCompound()));
+		is.getTagCompound().setInteger("m", m);
+		 return is;
+	}
 
+	@Override
+	public boolean isValidItemForSlot(int slotIndex, ItemStack itemStack, World world) {
+	
+		return p.isValidItemForSlot(slotIndex, itemStack, world);
+	}
+
+	@Override
+	public boolean isCraftable() {
+	
+		return p.isCraftable();
+	}
+	IAEItemStack[] i;
+	
+	public  IAEItemStack[] mul(IAEItemStack[] in){
+		IAEItemStack[] ret=new IAEItemStack[in.length];
+		for(int k=0;k<ret.length;k++){
+			ret[k]=in[k];
+			if(ret[k]!=null){
+				ret[k]=ret[k].copy().setStackSize(ret[k].getStackSize()*m);
+			}
+			
+		}
+		return ret;
+	}
+	
+	@Override
+	public IAEItemStack[] getInputs() {
+		if(i==null){i=mul(p.getInputs());
+		
+		}
+		return i;
+	}
+	IAEItemStack[] ci;
+	@Override
+	public IAEItemStack[] getCondensedInputs() {
+		if(ci==null){ci=mul(p.getCondensedInputs());}
+		return ci;
+	}IAEItemStack[] co;
+
+	@Override
+	public IAEItemStack[] getCondensedOutputs() {
+		if(co==null){co=mul(p.getCondensedOutputs());}
+		return co;
+	}
+	IAEItemStack[] o;
+	@Override
+	public IAEItemStack[] getOutputs() {
+		if(o==null){o=mul(p.getOutputs());}
+		return o;
+	}
+
+	@Override
+	public boolean canSubstitute() {
+	
+		return p.canBeSubstitute();
+	}
+	ItemStack so;
+	@Override
+	public ItemStack getOutput(InventoryCrafting craftingInv, World world) {
+		if(so==null){
+			so=p.getOutput(craftingInv, world);
+		if(so!=null){
+			so=so.copy();
+			so.stackSize*=m;
+		}
+		}
+		return so;
+	}
+
+	@Override
+	public int getPriority() {
+		
+		return p.getPriority();
+	}
+
+	@Override
+	public void setPriority(int priority) {
+		p.setPriority(priority);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+            return false;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        final DA other = (DA) obj;
+        if (this.p != null && other.p != null) {
+            return this.p.equals(other.p) && this.m == other.m;
+        }
+        return false;
+		
+		}
+		
+		
+		
+			
+		
+	@Override
+		public int hashCode() {
+			
+			return p.hashCode()+31*(m-1);
+		}
+}
 	@Override
 	public void provideCrafting(ICraftingProviderHelper craftingTracker) {
 		if (!isActive())
@@ -815,7 +1103,12 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 			}
 			patternItemCache[index] = pattern[index];
 			patternDetailCache[index] = details;
-			craftingTracker.addCraftingOption(this, details);
+			
+			
+			
+			
+			craftingTracker.addCraftingOption(this, multiplier[index]==1?details:new DA(details, multiplier[index]));
+			
 		}
 
 	}
@@ -1049,8 +1342,8 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 							theBuffer.mStoredFluidInternal[ix].setFluid(zerof);
 
 						}
-						theBuffer.mStoredFluidInternal[ix].amountAcc ( theBuffer.mStoredFluidInternalSingle[ix]
-								.getFluidAmount() *1l* todo);
+						theBuffer.mStoredFluidInternal[ix]
+								.amountAcc(theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount() * 1l * todo);
 					}
 				}
 				suc += todo;

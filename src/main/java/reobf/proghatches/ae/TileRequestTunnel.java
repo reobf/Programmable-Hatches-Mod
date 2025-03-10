@@ -24,6 +24,9 @@ import net.minecraftforge.fluids.IFluidHandler;
 
 import com.glodblock.github.util.BlockPos;
 import com.google.common.collect.ImmutableSet;
+import com.gtnewhorizons.modularui.api.screen.ITileWithModularUI;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow;
+import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
@@ -53,7 +56,7 @@ import mcp.mobius.waila.api.IWailaDataProvider;
 import reobf.proghatches.ae.part2.RequestTunnel;
 
 public class TileRequestTunnel extends AENetworkTile
-    implements ICraftingMachine, ICraftingRequester, IOrientable, ISidedInventory, IFluidHandler {
+    implements ICraftingMachine, ICraftingRequester, IOrientable, ISidedInventory, IFluidHandler,ITileWithModularUI {
 
     RequestTunnel internal = new RequestTunnel() {
 
@@ -513,5 +516,12 @@ public class TileRequestTunnel extends AENetworkTile
 
         return internal.getTankInfo(from);
     }
+
+	@Override
+	public ModularWindow createWindow(UIBuildContext buildContext) {
+		// TODO Auto-generated method stub
+		return internal.createWindow(buildContext);
+	}
+	
 
 }

@@ -13,6 +13,7 @@ import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.items.misc.ItemEncodedPattern;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
+import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
 
 /**
@@ -62,6 +63,23 @@ public class ItemFakePattern extends Item implements ICraftingPatternItem {
                         .getInteger("pr"));
             }
 
+            if (is.getTagCompound()
+                    .getByte("type") == 3) {
+            	try{
+            	ItemStack iss=  ItemStack.loadItemStackFromNBT( is.getTagCompound().getCompoundTag("p"));
+            	 return new PatternDualInputHatch.DA(((ICraftingPatternItem)iss.getItem()).getPatternForItem(iss, w), is.getTagCompound().getInteger("m"));
+            	}catch(Exception e){return null;}
+            
+            }
+            
+            
+            
+            
+            
+            
+            
+            
+            
             
             ItemStack iss = ItemStack.loadItemStackFromNBT(is.getTagCompound());
            if(is.getTagCompound()!=null&&is.getTagCompound().hasKey("icount"))
@@ -71,7 +89,7 @@ public class ItemFakePattern extends Item implements ICraftingPatternItem {
 
         } catch (Exception ew) {
             ew.printStackTrace();
-            return new CircuitProviderPatternDetial(new ItemStack(Items.baked_potato).setStackDisplayName("ERROR"));
+            return null;//new CircuitProviderPatternDetial(new ItemStack(Items.baked_potato).setStackDisplayName("ERROR"));
         }
     }
 

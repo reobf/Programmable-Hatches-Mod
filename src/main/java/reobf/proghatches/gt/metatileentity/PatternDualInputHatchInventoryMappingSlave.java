@@ -979,8 +979,8 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                 continue;
             }
             patternItemCache[index] = pattern[index];
-            patternDetailCache[index] = details;
-            craftingTracker.addCraftingOption(this,  multiplier[index]==1?details:new DA(details, multiplier[index]));
+            patternDetailCache[index] = multiplier[index]==1?details:new DA(details, multiplier[index]);
+            craftingTracker.addCraftingOption(this,  patternDetailCache[index] );
         }
 
     }

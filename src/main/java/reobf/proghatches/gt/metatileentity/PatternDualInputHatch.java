@@ -104,6 +104,7 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
+import reobf.proghatches.gt.metatileentity.PatternDualInputHatch.DA;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
@@ -1104,12 +1105,11 @@ int m){
 				continue;
 			}
 			patternItemCache[index] = pattern[index];
-			patternDetailCache[index] = details;
 			
 			
 			
-			
-			craftingTracker.addCraftingOption(this, multiplier[index]==1?details:new DA(details, multiplier[index]));
+			patternDetailCache[index] = multiplier[index]==1?details:new DA(details, multiplier[index]);
+            craftingTracker.addCraftingOption(this,  patternDetailCache[index] );
 			
 		}
 

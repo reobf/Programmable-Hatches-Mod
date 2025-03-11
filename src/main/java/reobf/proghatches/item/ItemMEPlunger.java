@@ -45,9 +45,11 @@ import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntityItemPipe;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTEBasicTank;
+import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
+import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.lang.LangManager;
 
 public class ItemMEPlunger extends DummySuper implements INetworkEncodable {
@@ -215,6 +217,10 @@ public class ItemMEPlunger extends DummySuper implements INetworkEncodable {
                 IStorageGrid storage = getWirelessGrid(aStack).getGrid()
                     .getCache(IStorageGrid.class);
                 IDualInputHatch dual = (IDualInputHatch) mTileEntity;
+                if(dual instanceof IRecipeProcessingAwareDualHatch){
+                	IRecipeProcessingAwareDualHatch d=(IRecipeProcessingAwareDualHatch) dual;
+                	d.trunOffME();
+                	}
                 for (IDualInputInventory inv : (Iterable<IDualInputInventory>) (Iterable) (() -> dual.inventories())) {
                     if ((aPlayer.capabilities.isCreativeMode) || damage(aStack)) {} else {
                         continue;
@@ -248,7 +254,13 @@ public class ItemMEPlunger extends DummySuper implements INetworkEncodable {
                     GTUtility
                         .sendSoundToPlayers(aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE, 1.0F, -1.0F, aX, aY, aZ);
                 }
-
+                if(dual instanceof IRecipeProcessingAwareDualHatch){
+                	IRecipeProcessingAwareDualHatch d=(IRecipeProcessingAwareDualHatch) dual;
+                	d.trunOffME();
+                	}
+                if(mTileEntity instanceof MTEHatchInputBus){
+               ( (MTEHatchInputBus)mTileEntity).updateSlots();
+                }
                 return true;
             }
 

@@ -987,7 +987,9 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 	int[] multiplier = new int[36];
 	{Arrays.fill(multiplier, 1);}
 public void refresh(){
-	
+	for(int i=0;i<patternItemCache.length;i++){
+		patternItemCache[i]=null;
+	}
 	postMEPatternChange();
 	
 	
@@ -1061,13 +1063,13 @@ public void refresh(){
 			multiplier[i]=Math.max(multiplier[i], 1);
 			}
 			refresh();
-		}) .setSize(16, 16).setPos(3,3).setBackground(GTUITextures.BUTTON_STANDARD,GTUITextures.OVERLAY_BUTTON_X2).addTooltip("x2")
+		}) .setSize(16, 16).setPos(3,3).setBackground(GTUITextures.BUTTON_STANDARD).addTooltip("x2")
 		);
 		page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick)->{
 			for(int i=0;i<36;i++)
 			multiplier[i]=1;
 			refresh();
-		}) .setSize(16, 16).setPos(3+16,3).setBackground(GTUITextures.BUTTON_STANDARD,GTUITextures.OVERLAY_BUTTON_CROSS).addTooltip("=1")
+		}) .setSize(16, 16).setPos(3+16,3).setBackground(GTUITextures.BUTTON_STANDARD).addTooltip("=1")
 		);
 		
 		MappingItemHandler shared_handler = new MappingItemHandler(pattern, 0, 36);

@@ -351,4 +351,18 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch & IM
     public void setProcessingLogic(ProcessingLogic pl) {
         if (getMaster() != null) getMaster().setProcessingLogic(pl);
     }
+  
+ 	@Override
+ 	public void trunOffME() {
+ 		T master = getMaster();
+ 		if(master instanceof IRecipeProcessingAwareDualHatch)
+ 			((IRecipeProcessingAwareDualHatch) master).trunOffME();
+     }
+
+ 	@Override
+ 	public void trunONME() {
+ 		T master = getMaster();
+ 		if(master instanceof IRecipeProcessingAwareDualHatch)
+ 			((IRecipeProcessingAwareDualHatch) master).trunONME();
+ 	}
 }

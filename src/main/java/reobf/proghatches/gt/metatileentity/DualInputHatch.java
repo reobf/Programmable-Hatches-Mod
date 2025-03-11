@@ -2415,6 +2415,8 @@ static int[] AZERO={0};
         }
 
         public ItemStack[] getItems() {
+        	
+        	if(off){return new ItemStack[0];}
             ArrayList<ItemStack> all = new ArrayList<>();
             all.addAll(circuitInv);
             all.add(mInventory[getCircuitSlot()]);
@@ -2432,6 +2434,7 @@ static int[] AZERO={0};
         }
 
         public FluidStack[] getFluid() {
+        	if(off){return new FluidStack[0];}
             if (recipe == false) {
             	if(!broken)
             		broken();
@@ -2743,4 +2746,16 @@ static int[] AZERO={0};
 		return super.getMachineCraftingIcon();
 	}
     public List<ProcessingLogic> processingLogics = new ArrayList<>();
+
+    boolean off;
+	@Override
+	public void trunOffME() {
+		off=true;
+    }
+
+	@Override
+	public void trunONME() {
+		
+		off=false;
+	}
 }

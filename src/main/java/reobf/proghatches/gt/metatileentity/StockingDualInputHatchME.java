@@ -1070,6 +1070,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 
 	@Override
 	public Iterator<? extends IDualInputInventory> inventories() {
+		if(off)return new ArrayList().iterator();
 		if (!recipe) {
 			return (Iterator<? extends IDualInputInventory>) new ArrayList().iterator();// huh...
 		}
@@ -1133,6 +1134,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 
 	@Override
 	public Optional<IDualInputInventory> getFirstNonEmptyInventory() {
+		if(off)return Optional.empty();
 		if (!recipe) {
 			return Optional.empty();// huh...
 		}
@@ -1430,5 +1432,17 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 	                .getXCoord() + ", " + aBaseMetaTileEntity.getYCoord() + ", " + aBaseMetaTileEntity.getZCoord() + ")");
 	        aPlayer.addChatMessage(new ChatComponentText("Saved Link Data to Data Stick"));
 	    }
+
+	   boolean off;
+		@Override
+		public void trunOffME() {
+			off=true;
+	    }
+
+		@Override
+		public void trunONME() {
+			
+			off=false;
+		}
 	 
 }

@@ -218,7 +218,7 @@ public class RemoteInputHatch extends MTEHatchMultiInput
 public String[] getDescription() {
 	
 	if(desc==null){
-		reobf.proghatches.main.Config.get("RIH", ImmutableMap.of());
+		desc=reobf.proghatches.main.Config.get("RIH", ImmutableMap.of());
 		
 	}
 	

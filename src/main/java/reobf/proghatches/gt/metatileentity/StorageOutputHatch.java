@@ -87,6 +87,16 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
     	boolean active = this.getProxy()
             .isActive();
         if (!aBaseMetaTileEntity.getWorld().isRemote) {
+        	if (facingJustChanged) {
+                facingJustChanged = false;
+                try {
+                    this.getProxy()
+                        .getGrid()
+                        .postEvent(new MENetworkCellArrayUpdate());
+                } catch (GridAccessException e) {}
+                post();
+
+            }
             if (wasActive != active) {
                 wasActive = active;
 
@@ -102,7 +112,12 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
         super.onPostTick(aBaseMetaTileEntity, aTick);
     }
 
-    boolean additionalConnection;
+    private void post() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	boolean additionalConnection;
 
     private void updateValidGridProxySides() {
 
@@ -211,7 +226,8 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
 
         @Override
         public AEFluidStack injectItems(AEFluidStack input, Actionable type, BaseActionSource src) {
-        	if(IngredientDistributor.flag){
+        	
+        	if(IngredientDistributor.flag){if(type==Actionable.SIMULATE){return null;}
         		return  (AEFluidStack) input.copy().setStackSize(tryFillAE(input.getFluidStack()));
         	}
         	return input;
@@ -328,7 +344,12 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
         // store(new FluidStack(Items.apple));
         return super.onRightclick(aBaseMetaTileEntity, aPlayer);
     }
-
+    boolean facingJustChanged;
+    @Override
+    public void onFacingChange() {
+        updateValidGridProxySides();
+        facingJustChanged=true;
+    }
     @Override
     public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
         int z) {

@@ -615,6 +615,16 @@ public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxya
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 
         if (!aBaseMetaTileEntity.getWorld().isRemote) {
+        	if (facingJustChanged) {
+                facingJustChanged = false;
+                try {
+                    this.getProxy()
+                        .getGrid()
+                        .postEvent(new MENetworkCellArrayUpdate());
+                } catch (GridAccessException e) {}
+                post();
+
+            }
             if (aTick % 40 == 1) {
                 post();
             }
@@ -976,10 +986,12 @@ public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxya
                 .setSize(18, 18));;
 
     }
-
+boolean facingJustChanged;
     @Override
     public void onFacingChange() {
         updateValidGridProxySides();
+        facingJustChanged=true;
+        		
     }
 
     private Widget createButton(Supplier<Boolean> getter, Consumer<Boolean> setter, IDrawable picture,

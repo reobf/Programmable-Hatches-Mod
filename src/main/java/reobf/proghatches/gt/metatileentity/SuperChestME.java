@@ -591,6 +591,16 @@ public class SuperChestME extends MTEHatch implements ICellContainer, IGridProxy
 
 		boolean active = this.getProxy().isActive();
 		if (!aBaseMetaTileEntity.getWorld().isRemote) {
+			if (facingJustChanged) {
+                facingJustChanged = false;
+                try {
+                    this.getProxy()
+                        .getGrid()
+                        .postEvent(new MENetworkCellArrayUpdate());
+                } catch (GridAccessException e) {}
+                post();
+
+            }
 			if (aTick % 40 == 1) {
 				post();
 			}
@@ -961,10 +971,13 @@ public class SuperChestME extends MTEHatch implements ICellContainer, IGridProxy
 			aNBT.setInteger("capOverride", capOverride);
 	}
 
-	@Override
-	public void onFacingChange() {
-		updateValidGridProxySides();
-	}
+	boolean facingJustChanged;
+    @Override
+    public void onFacingChange() {
+        updateValidGridProxySides();
+        facingJustChanged=true;
+        		
+    }
 
 	@Override
 	public void setItemNBT(NBTTagCompound aNBT) {

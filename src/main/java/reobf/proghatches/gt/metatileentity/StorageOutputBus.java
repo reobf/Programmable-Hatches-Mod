@@ -211,8 +211,13 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
         @Override
         public AEItemStack injectItems(AEItemStack input, Actionable type, BaseActionSource src) {
         
-        	if(IngredientDistributor.flag){	if(type==Actionable.SIMULATE){return null;}
-        		return (AEItemStack) input.copy().setStackSize(store(input.getItemStack()));
+        	if(IngredientDistributor.flag){	
+        		if(type==Actionable.SIMULATE){
+        			return null;
+        			}
+        		AEItemStack ret = (AEItemStack) input.copy().setStackSize(store(input.getItemStack()));
+        		if(ret.getStackSize()<=0)ret=null;
+        		return  ret;
         	}
         	return input;
         }

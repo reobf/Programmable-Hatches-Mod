@@ -226,9 +226,14 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
 
         @Override
         public AEFluidStack injectItems(AEFluidStack input, Actionable type, BaseActionSource src) {
-        	
-        	if(IngredientDistributor.flag){if(type==Actionable.SIMULATE){return null;}
-        		return  (AEFluidStack) input.copy().setStackSize(tryFillAE(input.getFluidStack()));
+
+        	if(IngredientDistributor.flag){	
+        		if(type==Actionable.SIMULATE){
+        			return null;
+        			}
+        		AEFluidStack ret = (AEFluidStack) input.copy().setStackSize(tryFillAE(input.getFluidStack()));
+        		if(ret.getStackSize()<=0)ret=null;
+        		return  ret;
         	}
         	return input;
         }

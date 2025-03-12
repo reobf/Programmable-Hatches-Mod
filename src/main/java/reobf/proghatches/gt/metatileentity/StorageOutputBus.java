@@ -46,6 +46,7 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.MTEHatchOutputBusME;
+import reobf.proghatches.gt.metatileentity.multi.IngredientDistributor;
 import reobf.proghatches.main.registration.Registration;
 import tectech.util.TTUtility;
 
@@ -167,7 +168,7 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
             }
 
             lastInputTick = tickCounter;
-
+            return 0;
         }
         return stack.stackSize;
     }
@@ -194,7 +195,11 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
 
         @Override
         public AEItemStack injectItems(AEItemStack input, Actionable type, BaseActionSource src) {
-            return input;
+            
+        	if(IngredientDistributor.flag){
+        		return (AEItemStack) input.copy().setStackSize(store(input.getItemStack()));
+        	}
+        	return input;
         }
 
         @Override

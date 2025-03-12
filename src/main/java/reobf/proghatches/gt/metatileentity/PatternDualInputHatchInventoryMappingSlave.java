@@ -670,7 +670,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
         return true;
     }
-
+int n;
     ItemStack[] pattern = new ItemStack[36];
     IInventory patternMapper = new IInventory() {
 
@@ -1065,12 +1065,64 @@ public void refresh(){
 			refresh();
 		}) .setSize(16, 16).setPos(3,3).setBackground(GTUITextures.BUTTON_STANDARD).addTooltip("x2")
 		);
+		page3.addChild(TextWidget.dynamicString(()->"x2").setPos(3+3, 3));
 		page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick)->{
 			for(int i=0;i<36;i++)
 			multiplier[i]=1;
 			refresh();
 		}) .setSize(16, 16).setPos(3+16,3).setBackground(GTUITextures.BUTTON_STANDARD).addTooltip("=1")
 		);
+		page3.addChild(TextWidget.dynamicString(()->"=2").setPos(3+3+16,3));
+		page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick)->{
+			for(int i=0;i<36;i++)
+			{multiplier[i]*=n;
+			multiplier[i]=Math.max(multiplier[i], 1);
+			}
+			refresh();
+		}) .setSize(16, 16).setPos(3,3+32).setBackground(GTUITextures.BUTTON_STANDARD).addTooltip("xN")
+		);
+		page3.addChild(TextWidget.dynamicString(()->"x"+n).setPos(3+3,3+32));
+		page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick)->{
+			for(int i=0;i<36;i++)
+			multiplier[i]=n;
+			refresh();
+		}) .setSize(16, 16).setPos(3+16,3+32).setBackground(GTUITextures.BUTTON_STANDARD).addTooltip("=N")
+		);
+		page3.addChild(TextWidget.dynamicString(()->"="+n).setPos(3+3+16,3+32));
+		TextFieldWidget text_n;
+		page3.addChild((text_n= new TextFieldWidget()).setValidator(s->{
+			try{
+			Integer.valueOf(s);}catch(Exception e){return "1";}
+			return s;
+		}).setSetter(s -> {
+			
+			n = Integer.valueOf(s);
+		
+		refresh();})
+				
+				.setGetter(() -> n+"")
+				
+               .setTextAlignment(Alignment.Center)
+                .setTextColor(Color.WHITE.normal).addTooltip("N=")
+                .setSize(60, 18)
+                .setPos(3, 3+32+18)
+                .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
+		
+		page3.addChild(
+				new TextWidget().setStringSupplier(()->{
+					if(text_n==text_n.getContext().getCursor().getFocused()){return "Enter <Space> to update value";}
+					return "";
+				}).setPos(3, 3+32+18+18)
+				
+				
+				/*
+				TextWidget.dynamicString(()->{
+					//if(text_n.isFocused()){return "Enter <Space> to update value";}
+					System.out.println(text_n.getContext().getCursor().getFocused());
+					System.out.println(text_n);
+					return "";}).setPos(3, 3+32+18+18)*/
+				);
+		
 		
 		MappingItemHandler shared_handler = new MappingItemHandler(pattern, 0, 36);
 		// use shared handler
@@ -1137,7 +1189,7 @@ public void refresh(){
 						onPatternChange();
 					}).setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
 					.setBackground(getGUITextureSet().getItemSlot(), GTUITextures.OVERLAY_SLOT_PATTERN_ME));
-			
+				
 			page1.addChild(TextWidget
 					.dynamicString(() -> 
 					{

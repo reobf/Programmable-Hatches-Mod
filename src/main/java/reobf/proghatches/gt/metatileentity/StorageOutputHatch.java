@@ -43,6 +43,7 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.util.item.AEFluidStack;
+import appeng.util.item.AEItemStack;
 import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
@@ -51,6 +52,7 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.MTEHatchOutputME;
+import reobf.proghatches.gt.metatileentity.multi.IngredientDistributor;
 import reobf.proghatches.main.registration.Registration;
 import tectech.util.TTUtility;
 
@@ -182,7 +184,7 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
             }
 
             lastInputTick = tickCounter;
-
+            return 0;
         }
         return stack.amount;
     }
@@ -209,7 +211,10 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
 
         @Override
         public AEFluidStack injectItems(AEFluidStack input, Actionable type, BaseActionSource src) {
-            return input;
+        	if(IngredientDistributor.flag){
+        		return  (AEFluidStack) input.copy().setStackSize(tryFillAE(input.getFluidStack()));
+        	}
+        	return input;
         }
 
         @Override

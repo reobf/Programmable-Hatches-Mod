@@ -100,7 +100,7 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
 		super(aName);
 
 	}
-
+	public static boolean flag;
 	public static <T> IStructureElement<T> ofFrameAdder(Materials aFrameMaterial, Consumer<T> onadded) {
 		IStructureElement<Object> frame = GTStructureUtility.ofFrame(aFrameMaterial);
 
@@ -712,18 +712,24 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
 		if (possibleSource == null)
 			return false;
 		Iterator<IDualInputInventory> itr = (Iterator<IDualInputInventory>) possibleSource;
-		if (blocking) {
-			if (allMEHatch) {
-				while (itr.hasNext()) {
-					if (moveToOutpusME(itr.next())) {
-						return true;
+		
+		flag=true;
+		try{
+			if (blocking) {
+				if (allMEHatch) {
+					while (itr.hasNext()) {
+						if (moveToOutpusME(itr.next())) {
+							return true;
+						}
+						;
+	
 					}
-					;
-
 				}
+				return false;
 			}
-			return false;
-		}
+		}finally{flag=false;}
+		
+		
 		while (itr.hasNext()) {
 			if (moveToOutpus(itr.next(), true)) {
 				return true;

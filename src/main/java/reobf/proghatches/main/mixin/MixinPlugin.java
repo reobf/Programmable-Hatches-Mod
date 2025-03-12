@@ -190,7 +190,7 @@ public static boolean loaded;
         retLate.add("MixinCraftFromPatternTaskPatch");
         retLate.add("MixinGolemCore");
         retLate.add("MixinGolem");
-        retLate.add("MixinStorageChangeEvent");
+        //retLate.add("MixinStorageChangeEvent");
         retLate.add("MixinOptimize");
         retLate.add("part2.MixinIsWailaCall");
         retLate.add("part2.MixinPresetsInject");

@@ -129,8 +129,8 @@ import reobf.proghatches.util.ProghatchesUtil;
     version = Tags.VERSION,
     name = MyMod.MODNAME,
     acceptedMinecraftVersions = "[1.7.10]",
-    dependencies = "required-after:appliedenergistics2;required-after:gregtech;",
-    acceptableRemoteVersions = "*"
+    dependencies = "required-after:appliedenergistics2;required-after:gregtech;"//,
+    //acceptableRemoteVersions = "*"
 /*
  * ,dependencies= "required-after:neenergistics;"
  */

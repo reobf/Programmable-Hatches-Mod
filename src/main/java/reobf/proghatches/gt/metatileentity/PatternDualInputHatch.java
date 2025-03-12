@@ -1273,8 +1273,10 @@ int m){
 	}
 
 	public Net getNetwork() {
-
-		return new Net(this.getGridNode(ForgeDirection.UP).getGrid(), this);
+try{
+		return new Net(this.getGridNode(ForgeDirection.UP).getGrid(), this);}catch(Exception e){
+			return null;
+		}
 	}
 
 	@Override

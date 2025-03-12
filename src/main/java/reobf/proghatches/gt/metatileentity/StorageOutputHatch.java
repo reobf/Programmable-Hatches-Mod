@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.spongepowered.asm.mixin.Unique;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -27,6 +29,9 @@ import appeng.api.config.Actionable;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.events.MENetworkCellArrayUpdate;
+import appeng.api.networking.events.MENetworkChannelsChanged;
+import appeng.api.networking.events.MENetworkEventSubscribe;
+import appeng.api.networking.events.MENetworkPowerStatusChange;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.ICellContainer;
@@ -53,10 +58,11 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.MTEHatchOutputME;
 import reobf.proghatches.gt.metatileentity.multi.IngredientDistributor;
+import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.main.registration.Registration;
 import tectech.util.TTUtility;
 
-public class StorageOutputHatch extends MTEHatchOutputME implements ICellContainer, IGridProxyable {
+public class StorageOutputHatch extends MTEHatchOutputME implements ICellContainer, IGridProxyable,IStoageCellUpdate {
 
     public StorageOutputHatch(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional);
@@ -188,12 +194,12 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
                 is = (AEFluidStack) ItemFluidDrop.getAeFluidStack(
                     (IAEItemStack) ((CraftingGridCache) getProxy().getCrafting())
                         .injectItems(ItemFluidDrop.newAeStack(is), Actionable.MODULATE, new MachineSource(this)));
-
+                if(is!=null){
                 this.getProxy()
                     .getStorage()
                     .postAlterationOfStoredItems(StorageChannel.FLUIDS, ImmutableList.of(is), new MachineSource(this));
                 itemCache.addStorage(is);
-
+                }
             } catch (GridAccessException e) {
 
             }
@@ -252,7 +258,7 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
         }
 
         public IItemList<AEFluidStack> getAvailableItems(IItemList<AEFluidStack> out) {
-            itemCache.forEach(s -> out.addStorage((AEFluidStack) s));
+            itemCache.forEach(s -> out.addStorage((AEFluidStack) s.copy()));
             return out;
         };
 
@@ -268,7 +274,8 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
         }
     };
 
-    IMEInventoryHandler<AEFluidStack> handler = new MEInventoryHandler(cache, StorageChannel.FLUIDS);
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	IMEInventoryHandler<AEFluidStack> handler = new MEInventoryHandler(cache, StorageChannel.FLUIDS);
 
     @Override
     public List<IMEInventoryHandler> getCellArray(StorageChannel channel) {
@@ -384,4 +391,26 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
             tagList.appendTag(stackTag);
         }
     }
+    @MENetworkEventSubscribe
+    @Unique
+    public void powerRender(final MENetworkPowerStatusChange w) {
+
+        cellUpdate();
+        
+    }
+
+    @MENetworkEventSubscribe
+    @Unique
+    public void updateChannels(final MENetworkChannelsChanged w) {
+       cellUpdate();
+        
+    }
+    @Override
+	public void cellUpdate() {
+		 try {
+			this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
+		} catch (GridAccessException e) {
+		}
+		
+	}
 }

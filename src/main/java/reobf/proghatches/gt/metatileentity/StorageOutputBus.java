@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.spongepowered.asm.mixin.Unique;
+
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -22,6 +24,9 @@ import appeng.api.config.Actionable;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.events.MENetworkCellArrayUpdate;
+import appeng.api.networking.events.MENetworkChannelsChanged;
+import appeng.api.networking.events.MENetworkEventSubscribe;
+import appeng.api.networking.events.MENetworkPowerStatusChange;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.ICellContainer;
@@ -42,15 +47,17 @@ import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.interfaces.ITexture;
+import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.MTEHatchOutputBusME;
 import reobf.proghatches.gt.metatileentity.multi.IngredientDistributor;
+import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.main.registration.Registration;
 import tectech.util.TTUtility;
 
-public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContainer, IGridProxyable {
+public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContainer, IGridProxyable,IStoageCellUpdate {
 
     public StorageOutputBus(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional);
@@ -172,12 +179,12 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
                 AEItemStack is = AEItemStack.create(stack);
                 is = (AEItemStack) ((CraftingGridCache) getProxy().getCrafting())
                     .injectItems(is, Actionable.MODULATE, new MachineSource(this));
-
+                if(is!=null){
                 this.getProxy()
                     .getStorage()
                     .postAlterationOfStoredItems(StorageChannel.ITEMS, ImmutableList.of(is), new MachineSource(this));
                 itemCache.addStorage(is);
-
+                }
             } catch (GridAccessException e) {
 
             }
@@ -236,7 +243,7 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
         }
 
         public IItemList<AEItemStack> getAvailableItems(IItemList<AEItemStack> out) {
-            itemCache.forEach(s -> out.addStorage((AEItemStack) s));
+            itemCache.forEach(s -> out.addStorage((AEItemStack) s.copy()));
             return out;
         };
 
@@ -365,5 +372,29 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
             stack.writeToNBT(stackTag);
             tagList.appendTag(stackTag);
         }
+    }
+
+	@Override
+	public void cellUpdate() {
+		 try {
+			this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
+		} catch (GridAccessException e) {
+		}
+		
+	}
+
+    @MENetworkEventSubscribe
+    @Unique
+    public void powerRender(final MENetworkPowerStatusChange w) {
+
+        cellUpdate();
+        
+    }
+
+    @MENetworkEventSubscribe
+    @Unique
+    public void updateChannels(final MENetworkChannelsChanged w) {
+       cellUpdate();
+        
     }
 }

@@ -4,6 +4,7 @@ import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static gregtech.api.enums.Textures.BlockIcons.*;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
+import static gregtech.api.util.GTUtility.validMTEList;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -633,6 +634,15 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
+			updateSlots();
+			mDualInputHatches.forEach(s->{
+				if(s instanceof MTEHatchInputBus){
+					
+					MTEHatchInputBus b=(MTEHatchInputBus) s;b.updateSlots();
+				}
+				
+				
+			});
 			fail = false;
 			endRecipeProcessing();
 			if (fail)

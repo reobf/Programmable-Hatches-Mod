@@ -23,8 +23,16 @@ import appeng.api.config.FuzzyMode;
 import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
+import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.networking.events.MENetworkStorageEvent;
+import appeng.api.networking.security.BaseActionSource;
+import appeng.api.networking.storage.IBaseMonitor;
+import appeng.api.storage.IMEMonitor;
+import appeng.api.storage.IMEMonitorHandlerReceiver;
+import appeng.api.storage.data.IAEFluidStack;
+import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.DimensionalCoord;
+import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.item.AEItemStack;
@@ -46,7 +54,7 @@ import reobf.proghatches.main.registration.Registration;
 import tectech.thing.casing.BlockGTCasingsTT;
 
 public class DataHatchME extends MTEHatchDataAccess
-    implements IPowerChannelState, IGridProxyable, IMEStorageChangeAwareness {
+    implements IPowerChannelState, IGridProxyable {
 
     public DataHatchME(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional, 8);
@@ -63,7 +71,46 @@ public class DataHatchME extends MTEHatchDataAccess
         super.onFirstTick(aBaseMetaTileEntity);
         getProxy().onReady();
         updateCache();
+      
     }
+    public void gridChanged() {
+    	super.gridChanged();
+    	IMEMonitor<IAEItemStack> fluidGrid;
+		try {
+			fluidGrid = getProxy().getStorage().getItemInventory();
+		 if (fluidGrid != null) {
+            fluidGrid.addListener(new IMEMonitorHandlerReceiver<IAEItemStack>() {
+				
+				@Override
+				public void postChange(IBaseMonitor<IAEItemStack> monitor, Iterable<IAEItemStack> change,
+						BaseActionSource actionSource) {
+				
+					 updateCache();
+				}
+				
+				@Override
+				public void onListUpdate() {
+					 updateCache();
+					
+				}
+				
+				@Override
+				public boolean isValid(Object verificationToken) {
+					
+					try {
+						IMEMonitor<IAEItemStack> a = getProxy().getStorage().getItemInventory();
+			            return  a== verificationToken;
+			        } catch (final GridAccessException e) {
+			            return false;
+			        }
+				}
+			}, fluidGrid);
+            
+		}} catch (GridAccessException e) {
+		}
+       
+        
+    };
     String[] descCache;
     @Override
     public String[] getDescription() {
@@ -107,7 +154,7 @@ public class DataHatchME extends MTEHatchDataAccess
         if (gridProxy == null) {
             if (getBaseMetaTileEntity() instanceof IGridProxyable) {
                 gridProxy = new AENetworkProxy(
-                    (IGridProxyable) getBaseMetaTileEntity(),
+                   this,
                     "proxy",
                     new ItemStack(GregTechAPI.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID()),
                     true);
@@ -254,7 +301,7 @@ public class DataHatchME extends MTEHatchDataAccess
         return new DimensionalCoord((TileEntity) this.getBaseMetaTileEntity());
     }
 
-    @Override
+    @MENetworkEventSubscribe
     public void storageChange(MENetworkStorageEvent w) {
         updateCache();
 

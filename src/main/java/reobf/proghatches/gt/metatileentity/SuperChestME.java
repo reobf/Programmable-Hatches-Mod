@@ -12,6 +12,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
+import org.spongepowered.asm.mixin.Unique;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -1092,18 +1094,27 @@ public class SuperChestME extends MTEHatch implements ICellContainer, IGridProxy
 	boolean voidFull;
 	boolean voidOverflow;
 
-	@MENetworkEventSubscribe
-	public void powerRender(final MENetworkPowerStatusChange c) {
-		this.updateStatus();
-	}
+	  @MENetworkEventSubscribe
+	    @Unique
+	    public void powerRender(final MENetworkPowerStatusChange w) {
 
-	public void updateChannels(final MENetworkChannelsChanged changedChannels) {
-		this.updateStatus();
-	}
+	        cellUpdate();
+	        
+	    }
+
+	    @MENetworkEventSubscribe
+	    @Unique
+	    public void updateChannels(final MENetworkChannelsChanged w) {
+	       cellUpdate();
+	        
+	    }
 
 	@Override
 	public void cellUpdate() {
-		update = true;
+		 try {
+				this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
+			} catch (GridAccessException e) {
+			}
 
 	}
 

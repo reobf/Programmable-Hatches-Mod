@@ -133,7 +133,7 @@ public class MappingItemHandlerG
     public void setStackInSlot(int var1, ItemStack var2) {
         try {
             if (phantom) {
-                is[var1 - index] =ItemStackG.setZero(is[var1 - index],GTUtility.copyAmount(0, var2));
+                is[var1 - index] =ItemStackG.neo(GTUtility.copyAmount(0, var2));
 
             } else is[var1 - index] =ItemStackG.setZero(is[var1 - index],var2);
         } finally {

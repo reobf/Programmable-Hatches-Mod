@@ -23,6 +23,7 @@ public class ItemStackG {
 	}
 	private ItemStackG() {}
 	private ItemStackG(ItemStack is) {
+		if(is!=null)is=is.copy();
 		arr.add(is);
 	}
 public ItemStack getZero(){
@@ -137,7 +138,7 @@ public ItemStack getZero(){
 
 	public static ItemStackG setZero(ItemStackG itemStackG, ItemStack copyStackWithSize) {
 		
-		
+		//return neo(copyStackWithSize);
 		if(itemStackG==null){
 			return neo(copyStackWithSize);
 		}
@@ -147,6 +148,7 @@ public ItemStack getZero(){
 			else
 		itemStackG.arr.get(0).stackSize=copyStackWithSize.stackSize;
 		itemStackG.adjust();
+		if(itemStackG.stackSize()<=0)return null;
 		return itemStackG;
 	}
 	

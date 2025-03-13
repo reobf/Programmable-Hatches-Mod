@@ -19,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -99,7 +100,11 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
             getProxy().setValidSides(EnumSet.noneOf(ForgeDirection.class));
             return;
         }
-        getProxy().setValidSides(EnumSet.of(getBaseMetaTileEntity().getFrontFacing()));
+        if (additionalConnection) {
+            getProxy().setValidSides(EnumSet.complementOf(EnumSet.of(ForgeDirection.UNKNOWN)));
+        } else {
+            getProxy().setValidSides(EnumSet.of(getBaseMetaTileEntity().getFrontFacing()));
+        }
 
     }
 
@@ -617,6 +622,7 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         aNBT.setBoolean("disabled", disabled);
         aNBT.setBoolean("legacy", legacy);
         aNBT.setInteger("tech", tech);
+        aNBT.setBoolean("additionalConnection", additionalConnection);
     }
 
     @Override
@@ -633,6 +639,8 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         legacy = false;// aNBT.getBoolean("legacy");
         if (aNBT.hasKey("tech")) tech = aNBT.getInteger("tech");
         else tech = 1;
+        
+        additionalConnection = aNBT.getBoolean("additionalConnection");
     }
 
     @Override
@@ -888,5 +896,19 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
     public boolean allowsPatternOptimization() {
 
         return false;
-    }
+    }  
+ 
+
+  
+    
+    boolean additionalConnection;
+    @Override
+    public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
+            float aX, float aY, float aZ) {
+            additionalConnection = !additionalConnection;
+            updateValidGridProxySides();
+            aPlayer.addChatComponentMessage(
+                new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
+            return true;
+        }
 }

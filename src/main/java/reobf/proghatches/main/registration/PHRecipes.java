@@ -2133,45 +2133,32 @@ public class PHRecipes implements Runnable {
         .addTo(RecipeMaps.assemblerRecipes);
         
         
+        GTValues.RA.stdBuilder()
+        .itemInputs(
+        	ItemList.WormholeGenerator.get(1),
+        	Api.INSTANCE.definitions()
+            .parts()
+            .p2PTunnelME()
+            .maybeStack(16)
+            .get()
+        		)
+        .itemOutputs(  new ItemStack(
+               MyMod.lazer_p2p_part,16))
+        .duration(1 * SECONDS)
+        .eut(30)
+        .addTo(RecipeMaps.assemblerRecipes);
         
-        /*
-         * rec = new ShapelessOreRecipe( new ItemStack( MyMod.plunger,1,1),
-         * ItemEnum.BOOSTER_CARD.getStack(0),
-         * new ItemStack( MyMod.plunger)
-         * ){
-         * public ItemStack getCraftingResult(net.minecraft.inventory.InventoryCrafting var1) {
-         * ItemStack ist = super.getCraftingResult(var1);
-         * for(int i=0;i<var1.getSizeInventory();i++){
-         * if(var1.getStackInSlot(i)!=null){
-         * if(var1.getStackInSlot(i).getItem()==MyMod.plunger){
-         * ist.setTagCompound(var1.getStackInSlot(i).getTagCompound());
-         * }
-         * }
-         * }
-         * return ist;
-         * };
-         * };
-         * CraftingManager.getInstance().getRecipeList().add(rec);
-         */
-
-        /*
-         * GTRecipeBuilder.builder()
-         * .metadata(RESEARCH_ITEM, new ItemStack(ChiselBlocks.present,1,16))
-         * .metadata(RESEARCH_TIME, 1 )
-         * .itemInputs(
-         * new ItemStack(ChiselBlocks.present,1,0),
-         * new ItemStack(ChiselBlocks.present,1,1),
-         * new ItemStack(ChiselBlocks.present,1,2),
-         * new ItemStack(ChiselBlocks.present,1,0)
-         * )
-         * .fluidInputs(new FluidStack(FluidRegistry.WATER,1)
-         * )
-         * .itemOutputs( new ItemStack(ChiselBlocks.present,1,15))
-         * .eut(TierEU.RECIPE_LV)
-         * .duration(10)
-         * .addTo( GTRecipeConstants.AssemblyLine);
-         */
-
+        
+        GTValues.RA.stdBuilder()
+        .itemInputs(
+        		GTOreDictUnificator.get(  OrePrefixes.circuit.get(Materials.UV), 1),
+        		 new ItemStack(GregTechAPI.sBlockMachines, 0, Config.metaTileEntityOffset + Registration.LargeProviderOffset))
+        .itemOutputs(  new ItemStack(
+               MyMod.chip))
+        .duration(1 * SECONDS)
+        .eut(30)
+        .addTo(RecipeMaps.assemblerRecipes);
+       
     }
 
 }

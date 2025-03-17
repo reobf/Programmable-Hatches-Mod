@@ -256,7 +256,7 @@ public class ItemMEPlunger extends DummySuper implements INetworkEncodable {
                 }
                 if(dual instanceof IRecipeProcessingAwareDualHatch){
                 	IRecipeProcessingAwareDualHatch d=(IRecipeProcessingAwareDualHatch) dual;
-                	d.trunOffME();
+                	d.trunONME();
                 	}
                 if(mTileEntity instanceof MTEHatchInputBus){
                ( (MTEHatchInputBus)mTileEntity).updateSlots();

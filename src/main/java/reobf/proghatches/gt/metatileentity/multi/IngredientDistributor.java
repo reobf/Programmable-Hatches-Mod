@@ -942,8 +942,9 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
 						tag.setInteger("t" + i, 0);
 					}
 					if (o instanceof ItemStack) {
-						tag.setTag("o" + i, ((ItemStack) o).writeToNBT(new NBTTagCompound()));
-						tag.setInteger("t" + i, 1);
+						//tag.setTag("o" + i, ((ItemStack) o).writeToNBT(new NBTTagCompound()));
+						//tag.setInteger("t" + i, 1);
+						o=AEItemStack.create((ItemStack) o);
 					}
 					if (o instanceof AEItemStack) {
 						NBTTagCompound tmp = new NBTTagCompound();

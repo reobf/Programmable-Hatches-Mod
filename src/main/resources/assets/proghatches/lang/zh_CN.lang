@@ -787,3 +787,5 @@ item.proghatches.part.cow.tooltips.4=可以放置于致密线缆上
 proghatches.requesttunnel.both=库存优先
 proghatches.requesttunnel.craft=仅合成
 proghatches.requesttunnel.stock=仅库存
+item.proghatches.chip.name=提供器升级芯片
+proghatches.chip.tooltips=瞬间完成!

@@ -106,6 +106,8 @@ public class ProgHatchCreativeTab extends CreativeTabs {
         p_78018_1_.add(new ItemStack(MyMod.emitterpattern));
         p_78018_1_.add(new ItemStack(MyMod.request_tunnel));
         p_78018_1_.add(new ItemStack(MyMod.orbswitcher));
+        p_78018_1_.add(new ItemStack(MyMod.part_cow));
+        p_78018_1_.add(new ItemStack(MyMod.chip));
     }
 
     @Override

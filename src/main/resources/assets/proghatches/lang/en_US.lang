@@ -789,5 +789,5 @@ item.proghatches.part.cow.tooltips.4=Can be placed on Dense Cable
 proghatches.requesttunnel.both=Stocking first
 proghatches.requesttunnel.craft=Craft Only
 proghatches.requesttunnel.stock=Stocking Only
-
-
+item.proghatches.chip.name=Circuit Provider Upgrade Chip
+proghatches.chip.tooltips=Instant complete! 

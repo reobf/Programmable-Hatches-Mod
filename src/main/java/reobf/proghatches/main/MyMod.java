@@ -241,6 +241,7 @@ public class MyMod {
     public static Block submitter;
     public static Item cpu;
     public static Block reader;
+    public static Item chip;
     {
         FMLCommonHandler.instance()
             .bus()

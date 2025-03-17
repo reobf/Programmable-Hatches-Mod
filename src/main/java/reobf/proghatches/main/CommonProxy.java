@@ -5,8 +5,9 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-
+import net.minecraft.util.StatCollector;
 import appeng.block.AEBaseItemBlock;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLInterModComms;
@@ -293,6 +294,12 @@ public class CommonProxy {
         GameRegistry.registerBlock(MyMod.request_tunnel = new BlockRequestTunnel(), ItemBlockTooltip.class
 
             , "request_tunnel", new Object[] { "" });
+        
+        GameRegistry.registerItem( MyMod.chip=new Item(){
+        	
+        	public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_)
+        	{p_77624_3_.add(StatCollector.translateToLocal("proghatches.chip.tooltips"));};
+        }.setUnlocalizedName("proghatches.chip").setTextureName("proghatches:chip"), "proghatches.chip");
 
     }
 

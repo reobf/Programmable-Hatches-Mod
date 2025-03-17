@@ -443,6 +443,7 @@ static int[] AZERO={0};
     public ItemStackHandler getInventoryHandler() {
 
         if (bridge == null) bridge = new InventoryItemHandler(mInventory, this).id(1);
+      
         return bridge;
     }
 

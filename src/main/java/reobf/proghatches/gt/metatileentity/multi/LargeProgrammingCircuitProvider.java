@@ -159,7 +159,7 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
     }
 
     public List<ICircuitProvider> providers = new ArrayList<>();
-
+    private boolean chip;
     protected static final int CASING_INDEX = 49;
     private static final IStructureDefinition<LargeProgrammingCircuitProvider> STRUCTURE_DEFINITION;
     protected static final String STRUCTURE_PIECE_BASE = "base";
@@ -657,6 +657,7 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
     @Override
     public void saveNBTData(NBTTagCompound aNBT) {
         aNBT.setBoolean("removeStorageCircuit", removeStorageCircuit);
+        aNBT.setBoolean("chip", chip);
         aNBT.setInteger("multiply", multiply);
         getProxy().writeToNBT(aNBT);
         int[] count = new int[1];
@@ -704,10 +705,15 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
 
         return out;
     }
-
+@Override
+public void setItemNBT(NBTTagCompound nbt) {
+	if(chip)nbt.setBoolean("chip", chip);
+	
+}
     @Override
     public void loadNBTData(NBTTagCompound aNBT) {
         removeStorageCircuit = aNBT.getBoolean("removeStorageCircuit");
+        chip = aNBT.getBoolean("chip");
         multiply = aNBT.getInteger("multiply");
         if (multiply <= 0) multiply = 1;
         getProxy().readFromNBT(aNBT);
@@ -862,6 +868,19 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
         super.onPostTick(aBaseMetaTileEntity, aTick);
         returnItems();
         if (aBaseMetaTileEntity.getWorld().isRemote) return;
+        
+        
+       if(mInventory[1]!=null){
+    	   
+    	   if(chip==false&&mInventory[1].getItem()==MyMod.chip){
+    		   chip=true;
+    		   mInventory[1].stackSize--;
+    		   if( mInventory[1].stackSize==0) mInventory[1]=null;
+    	   }
+    	   
+    	   
+       }
+        
         if (getBaseMetaTileEntity().isActive()) {
             if (removeStorageCircuit && (aTick % 50 == 0)) {
                 try {
@@ -1390,5 +1409,10 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
         }*/
         return new int[]{maxTodo};
     }
+
+	public boolean instant() {
+	
+		return chip;
+	}
  
 }

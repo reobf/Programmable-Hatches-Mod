@@ -36,6 +36,8 @@ import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.tile.crafting.TileCraftingTile;
 import appeng.util.item.AEItemStack;
 import reobf.proghatches.ae.ICondenser;
+import reobf.proghatches.gt.metatileentity.multi.IngredientDistributor;
+import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.main.mixin.MixinCallback;
 
@@ -117,7 +119,15 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
                                                        * ,
                                                        * @Share("isMulti") LocalBooleanRef isMulti
                                                        */) {
-
+    	
+    	
+    	boolean inf=false;	
+    	//System.out.println(medium);
+    	if(medium instanceof LargeProgrammingCircuitProvider){
+    		if(((LargeProgrammingCircuitProvider)medium).instant())
+    		inf=true;
+    	
+    	}
         InventoryCrafting inv = inv0.get();
         // if (isMulti.get()) {
         if (medium instanceof IMultiplePatternPushable) {
@@ -165,11 +175,13 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
                     }
                 }
                 if (any == false) {
-                    return;
+                   // return;
                 }
 
                 long num = MixinCallback.getter.apply(e.getValue());
-                final long max = getMaxSkips();
+                /*final*/ long max = getMaxSkips();
+                if(inf){max=Integer.MAX_VALUE-1;}
+               
                 int maxtry = Math.min(
                     Math.min(
                         (int) (num > (Integer.MAX_VALUE - 1) ? (Integer.MAX_VALUE - 1) : num) - 1,
@@ -212,10 +224,14 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
                 }
             }
 
-        } else {
-            if (getMaxSkips() <= 0) return;
+        } else { 
+        	
+        	
+        	/*final*/ long max = getMaxSkips();
+        	if(inf)max=Integer.MAX_VALUE-1;
+            if (max <= 0) return;
             // int now = temp1.getOrDefault(detail, 0);
-            final long max = getMaxSkips();
+           
             stop: for (int i = 0; i < max; i = (i < Integer.MAX_VALUE - 10) ? (i + 1) : i) {
                 if (MixinCallback.getter.apply(e.getValue()) <= 1) {
                     break stop;

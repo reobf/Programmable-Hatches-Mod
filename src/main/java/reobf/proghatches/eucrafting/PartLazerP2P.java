@@ -74,9 +74,22 @@ public class PartLazerP2P<S extends MetaTileEntity & IConnectsToEnergyTunnel, D 
 				f .invoke(s);
 			} catch (Exception e) {
 				throw new AssertionError(e);
+			}};
+    		
+    		Field f2 = c.getDeclaredField("connectionCount");
+    		getConn=sp->{
+    		
+    		try {
+				return ((Byte) f2 .get(sp)).intValue();
+			} catch (Exception e) {
+				throw new AssertionError(e);
 			}
-    	};
-		} catch (Exception e1) {	throw new AssertionError(e1);
+    		
+    		
+    		
+    	
+			};
+			}catch (Exception e1) {	throw new AssertionError(e1);
 		}	
 			
 		
@@ -232,7 +245,7 @@ public class PartLazerP2P<S extends MetaTileEntity & IConnectsToEnergyTunnel, D 
                             if (getConn.apply(aMetaTileEntity) < 2) {
                                 return null;
                             } else {
-                               mark.accept(getConn);
+                               mark.accept(aMetaTileEntity);
                             }
                             continue;
                         }
@@ -283,7 +296,7 @@ public class PartLazerP2P<S extends MetaTileEntity & IConnectsToEnergyTunnel, D 
                             if (getConn.apply(aMetaTileEntity) < 2) {
                                 return null;
                             } else {
-                            	 mark.accept(getConn);
+                            	 mark.accept(aMetaTileEntity);
                             }
                             continue;
                         }

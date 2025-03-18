@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -21,6 +22,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -46,14 +48,19 @@ import org.apache.logging.log4j.Logger;
 
 import com.glodblock.github.common.parts.PartFluidP2PInterface;
 import com.glodblock.github.inventory.FluidConvertingInventoryAdaptor;
+import com.projecturanus.betterp2p.BetterP2P;
 
 import appeng.api.AEApi;
 import appeng.api.config.Upgrades;
+import appeng.api.definitions.IItemDefinition;
+import appeng.core.features.ActivityState;
+import appeng.core.features.ItemDefinition;
 import appeng.core.features.registries.InterfaceTerminalRegistry;
 import appeng.items.tools.ToolMemoryCard;
 import bartworks.API.BorosilicateGlass;
 import codechicken.nei.api.API;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.FMLModContainer;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -80,12 +87,15 @@ import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.net.GTPacketSendCoverData;
 import gregtech.api.objects.GTDualInputs;
 import gregtech.common.blocks.BlockMachines;
+import kotlin.jvm.functions.Function1;
 import li.cil.oc.api.Driver;
 import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockAutoFillerMKII;
 import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
 import reobf.proghatches.ae.BlockOrbSwitcher;
 import reobf.proghatches.ae.BlockRequestTunnel;
+import reobf.proghatches.ae.ItemPartMAP2P;
+import reobf.proghatches.ae.PartMAP2P;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.block.ChunkTrackingGridCahce;
 import reobf.proghatches.block.TileIOHub;
@@ -97,6 +107,7 @@ import reobf.proghatches.eucrafting.AECover.IMemoryCardSensitive;
 import reobf.proghatches.eucrafting.BlockEUInterface;
 import reobf.proghatches.eucrafting.InterfaceData;
 import reobf.proghatches.eucrafting.PartEUP2PInterface;
+import reobf.proghatches.eucrafting.PartLazerP2P;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
 import reobf.proghatches.gt.metatileentity.DualInputHachOC;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
@@ -492,8 +503,56 @@ OreDictionary.registerOre("ph:circuit", new ItemStack( progcircuit,1,OreDictiona
         OFFSETS.put(Offsets.key(ICraftingMachineConduit.class, Axis.Y), Offset.SOUTH_EAST);
         OFFSETS.put(Offsets.key(ICraftingMachineConduit.class, Axis.Z), Offset.EAST_DOWN);
 
+        
+       
+        bp2p.reg();
+       // proxy=
     }
 
+    public static class bp2p{
+    	static void reg(){
+    		com.projecturanus.betterp2p.CommonProxy p = BetterP2P.proxy;
+    		if(p instanceof com.projecturanus.betterp2p.CommonProxy)
+    		try {
+				Method m=p.getClass().getDeclaredMethod("registerTunnel", IItemDefinition.class,int.class,Class.class);
+				m.setAccessible(true);
+				m.invoke(p,new ItemDefinition(lazer_p2p_part, ActivityState.Enabled),101,PartLazerP2P.class);
+				m.invoke(p,new ItemDefinition(ma_p2p_part, ActivityState.Enabled),102,PartMAP2P.class);
+				
+    		} catch (Exception e) {
+				e.printStackTrace();
+			}	
+    		if(p instanceof com.projecturanus.betterp2p.ClientProxy)
+    		try {
+				Method m=p.getClass().getDeclaredMethod("registerTunnel", IItemDefinition.class,int.class,Class.class,Function1.class);
+				m.setAccessible(true);
+				m.invoke(p,new ItemDefinition(lazer_p2p_part, ActivityState.Enabled),101,PartLazerP2P.class,new Function1(){
+					@Override
+					public Object invoke(Object arg0) {
+					
+						return Blocks.stone.getIcon(0, 0);
+				}});
+				
+				m.invoke(p,new ItemDefinition(ma_p2p_part, ActivityState.Enabled),102,PartMAP2P.class,new Function1(){
+					@Override
+					public Object invoke(Object arg0) {
+					
+						return MyMod.iohub.getIcon(0, BlockIOHub.magicNO_ma);
+				}});
+				
+				
+				
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}	
+    		
+    	}
+    	
+    }
+    
+    
+    
     @SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
     public void tick(final TickEvent.ServerTickEvent event) {
         while (scheduled.isEmpty() == false) scheduled.removeLast()

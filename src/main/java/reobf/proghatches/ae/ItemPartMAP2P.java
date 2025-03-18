@@ -21,7 +21,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class ItemPartMAP2P extends Item implements IPartItem {
 
     @SideOnly(Side.CLIENT)
-    private IIcon icon;
+    static public IIcon icon;
 
     public ItemPartMAP2P() {
         this.setMaxStackSize(64);
@@ -74,7 +74,7 @@ public class ItemPartMAP2P extends Item implements IPartItem {
     @Override
     public void registerIcons(IIconRegister register) {
 
-        this.icon = register.registerIcon("appliedenergistics2:ItemPart.P2PTunnel");
+       icon = register.registerIcon("appliedenergistics2:ItemPart.P2PTunnel");
     }
 
     @SideOnly(Side.CLIENT)

@@ -627,7 +627,8 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
 
     @Override
     public void loadNBTData(NBTTagCompound aNBT) {
-        if (aNBT.hasKey("x") == false) return;
+        if (aNBT.hasKey("x") == false) return; 
+        additionalConnection = aNBT.getBoolean("additionalConnection");
         super.loadNBTData(aNBT);
         this.ret = this.readList((NBTTagList) aNBT.getTag("ret"));
         int[] count = new int[1];
@@ -640,7 +641,7 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         if (aNBT.hasKey("tech")) tech = aNBT.getInteger("tech");
         else tech = 1;
         
-        additionalConnection = aNBT.getBoolean("additionalConnection");
+       
     }
 
     @Override

@@ -2132,7 +2132,7 @@ public class PHRecipes implements Runnable {
         .eut(30)
         .addTo(RecipeMaps.assemblerRecipes);
         
-        
+       /* 
         GTValues.RA.stdBuilder()
         .itemInputs(
         	ItemList.WormholeGenerator.get(1),
@@ -2147,7 +2147,7 @@ public class PHRecipes implements Runnable {
         .duration(1 * SECONDS)
         .eut(30)
         .addTo(RecipeMaps.assemblerRecipes);
-        
+        */
         
         GTValues.RA.stdBuilder()
         .itemInputs(

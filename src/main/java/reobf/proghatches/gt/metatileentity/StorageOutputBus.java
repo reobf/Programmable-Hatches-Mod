@@ -7,12 +7,14 @@ import java.util.List;
 
 import org.spongepowered.asm.mixin.Unique;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -304,7 +306,7 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
             tag.setLong("size", s.getStackSize());
             items.appendTag(tag);
         }
-
+        aNBT.setBoolean("additionalConnectionPH", additionalConnection);
         aNBT.setTag("cachedItemsPH", items);
         super.saveNBTData(aNBT);
     }
@@ -329,7 +331,8 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
                             + tagItemStack);
                 }
             }
-        }
+        }  
+        additionalConnection = aNBT.getBoolean("additionalConnectionPH");
         super.loadNBTData(aNBT);
     }/*
       * @Override
@@ -396,5 +399,13 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
     public void updateChannels(final MENetworkChannelsChanged w) {
        cellUpdate();
         
-    }
+    } @Override
+    public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
+            float aX, float aY, float aZ) {
+            additionalConnection = !additionalConnection;
+            updateValidGridProxySides();
+            aPlayer.addChatComponentMessage(
+                new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
+            return true;
+        }
 }

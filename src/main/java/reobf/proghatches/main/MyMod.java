@@ -75,6 +75,7 @@ import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import crazypants.enderio.conduit.ConduitDisplayMode;
 import crazypants.enderio.conduit.geom.Offset;
 import crazypants.enderio.conduit.geom.Offsets;
@@ -151,6 +152,8 @@ public class MyMod {
     final public static String MODID = "programmablehatches";
     final public static String MODNAME = "ProgrammableHatches";
     public static final Logger LOG = LogManager.getLogger(MODID);
+
+
 
     public static MyMod instance;
     {

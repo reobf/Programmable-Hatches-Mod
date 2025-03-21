@@ -14,6 +14,7 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
@@ -321,7 +322,8 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
             tag.setTag("fluidStack", tagFluidStack);
             tag.setLong("size", s.getStackSize());
             fluids.appendTag(tag);
-        }
+        }  
+        aNBT.setBoolean("additionalConnectionPH", additionalConnection);
         aNBT.setTag("cachedFluidsPH", fluids);
         super.saveNBTData(aNBT);
     }
@@ -347,7 +349,8 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
                             + tagFluidStack);
                 }
             }
-        }
+        }  
+        additionalConnection = aNBT.getBoolean("additionalConnectionPH");
         super.loadNBTData(aNBT);
     }
 
@@ -412,5 +415,13 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
 		} catch (GridAccessException e) {
 		}
 		
-	}
+	} @Override
+    public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
+            float aX, float aY, float aZ) {
+            additionalConnection = !additionalConnection;
+            updateValidGridProxySides();
+            aPlayer.addChatComponentMessage(
+                new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
+            return true;
+        }
 }

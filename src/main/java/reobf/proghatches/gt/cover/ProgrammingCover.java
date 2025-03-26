@@ -159,7 +159,7 @@ public class ProgrammingCover extends CoverBehavior implements IProgrammer {
         }
     }
 
-    private static RuntimeException RESUABLE_EXCEPTION = new RuntimeException("", null, false, false) {
+    private static RuntimeException REUSABLE_EXCEPTION = new RuntimeException("", null, false, false) {
 
         private static final long serialVersionUID = 1L;
     };
@@ -171,8 +171,8 @@ public class ProgrammingCover extends CoverBehavior implements IProgrammer {
             .filter(s -> Objects.equals(s.str, chan))
             .findAny()
             .orElse(null);
-        if (data == null) throw RESUABLE_EXCEPTION;
-        return data.circuit.copy();
+        if (data == null) throw REUSABLE_EXCEPTION;
+        return data.circuit==null?null:data.circuit.copy();
     }
 
     private static String ggfabGetRealChannel(MTELinkedInputBus thiz) {

@@ -241,7 +241,10 @@ public class BufferedDualInputHatch extends DualInputHatch
     // public FluidStack[] dualFluid(){return
     // asFluidStack.apply(inv0.mStoredFluidInternal);}
     final public ArrayList<DualInvBuffer> inv0 = new ArrayList<DualInvBuffer>();
-
+boolean limitToIntMax;
+public long singleSlotLimit(){
+	return limitToIntMax?Integer.MAX_VALUE:Long.MAX_VALUE;
+}
     // private long mask=new Random().nextLong()&(~0b1111_1111_1111_1111);//65536 buffers
     // private short count;
     public int currentID = 1;
@@ -280,7 +283,7 @@ public class BufferedDualInputHatch extends DualInputHatch
                 ItemStackG i = mStoredItemInternal[index];
                 ItemStack si = mStoredItemInternalSingle[index];
                 if (i != null) {
-                    if (si != null && Long.MAX_VALUE - i.stackSize() < si.stackSize) {
+                    if (si != null &&singleSlotLimit() - i.stackSize() < si.stackSize) {
                         return true;// over flow! count as full
                     }
 
@@ -293,7 +296,7 @@ public class BufferedDualInputHatch extends DualInputHatch
             for (int index = 0; index < mStoredFluidInternalSingle.length; index++) {
                 FluidTankG i = mStoredFluidInternal[index];
                 FluidTank si = mStoredFluidInternalSingle[index];
-                if (si != null && Long.MAX_VALUE - i.getFluidAmount() < si.getFluidAmount()) {
+                if (si != null &&singleSlotLimit() - i.getFluidAmount() < si.getFluidAmount()) {
                     return true;// over flow! count as full
                 }
                 if (i.getFluidAmount() >= fluidLimit()) {

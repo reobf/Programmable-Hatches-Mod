@@ -123,6 +123,7 @@ import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.net.ConnectionModeMessage;
 import reobf.proghatches.net.MAFXMessage;
 import reobf.proghatches.net.MasterSetMessage;
+import reobf.proghatches.net.ModeSwitchedMessage;
 import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
 import reobf.proghatches.net.RenameMessage;
@@ -278,6 +279,8 @@ public class MyMod {
         net.registerMessage(new ConnectionModeMessage.Handler(), ConnectionModeMessage.class, 7, Side.SERVER);
         net.registerMessage(new MAFXMessage.Handler(), MAFXMessage.class, 8, Side.CLIENT);
         net.registerMessage(new SwitchModeMessage.Handler(), SwitchModeMessage.class, 9, Side.SERVER);
+        net.registerMessage(new ModeSwitchedMessage.Handler(), ModeSwitchedMessage.class, 10, Side.CLIENT);
+        
         proxy.preInit(event);
     }
 

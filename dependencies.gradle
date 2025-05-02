@@ -136,7 +136,7 @@ dependencies {
   api("com.github.GTNewHorizons:OpenComputers:1.11.0-GTNH:dev")    
 	
 	api("com.github.GTNewHorizons:ForgeMultipart:1.5.0:dev") { transitive = false }
-	 api("com.github.GTNewHorizons:ae2stuff:0.8.5-GTNH:dev")
+	 api("com.github.GTNewHorizons:ae2stuff:0.9.4-GTNH:dev")
 	api("com.github.GTNewHorizons:CraftTweaker:3.4.0:dev") { transitive = false }
 	
 	 

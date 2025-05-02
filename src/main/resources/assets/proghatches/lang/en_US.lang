@@ -791,3 +791,4 @@ proghatches.requesttunnel.craft=Craft Only
 proghatches.requesttunnel.stock=Stocking Only
 item.proghatches.chip.name=Circuit Provider Upgrade Chip
 proghatches.chip.tooltips=Instant complete! 
+item.proghatch_circuit_fixer2.name=Pattern Programming Circuit Normalization Tool

@@ -67,6 +67,7 @@ import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemDedicatedCover;
 import reobf.proghatches.item.ItemFakePattern;
 import reobf.proghatches.item.ItemFixer;
+import reobf.proghatches.item.ItemFixer2;
 import reobf.proghatches.item.ItemMEPlunger;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.item.ItemProgrammingToolkit;
@@ -129,7 +130,10 @@ public class CommonProxy {
             MyMod.fixer = new ItemFixer().setUnlocalizedName("proghatch_circuit_fixer")
                 .setTextureName("ic2:itemToolWrench"),
             "proghatch_circuit_fixer");
-
+        GameRegistry.registerItem(
+                MyMod.fixer2 = new ItemFixer2().setUnlocalizedName("proghatch_circuit_fixer2")
+                    .setTextureName("ic2:itemToolWrench"),
+                "proghatch_circuit_fixer2");
         GameRegistry.registerItem(
             MyMod.toolkit = new ItemProgrammingToolkit().setUnlocalizedName("prog_toolkit")
                 .setTextureName("?"),

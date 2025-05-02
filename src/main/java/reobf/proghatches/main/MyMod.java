@@ -855,6 +855,7 @@ OreDictionary.registerOre("ph:circuit", new ItemStack( progcircuit,1,OreDictiona
     public static Item part_tunnel;
 	public static BlockOrbSwitcher orbswitcher;
 	public static Item part_cow;
+	public static Item fixer2;
 
     @SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
     public void pretick(final TickEvent.ServerTickEvent event) {

@@ -438,7 +438,11 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
         return true;
     }
-
+@Override
+public boolean allowsPatternOptimization() {
+	// TODO Auto-generated method stub
+	return false;
+}
     @Override
     public boolean allowPullStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
         ItemStack aStack) {

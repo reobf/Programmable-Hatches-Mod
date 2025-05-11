@@ -60,17 +60,20 @@ public class DualInputHatchSlaveHatch<T extends MetaTileEntity & IDualInputHatch
         Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
 
     }
+
     String[] desc;
-@Override
-public String[] getDescription() {
-	
-	if(desc==null){
-		desc=reobf.proghatches.main.Config.get("DHSH", ImmutableMap.of());
-		
-	}
-	
-	return desc;
-}
+
+    @Override
+    public String[] getDescription() {
+
+        if (desc == null) {
+            desc = reobf.proghatches.main.Config.get("DHSH", ImmutableMap.of());
+
+        }
+
+        return desc;
+    }
+
     public DualInputHatchSlaveHatch(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures) {
         super(aName, 1, 6, aDescription, aTextures);
 

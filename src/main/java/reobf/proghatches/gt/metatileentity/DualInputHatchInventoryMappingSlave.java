@@ -19,8 +19,8 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 
+import com.cleanroommc.modularui.utils.item.IItemHandlerModifiable;
 import com.google.common.collect.ImmutableMap;
-import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 
 import appeng.api.networking.crafting.ICraftingMedium;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
@@ -175,7 +175,7 @@ public class DualInputHatchInventoryMappingSlave<T extends MetaTileEntity & IDua
     }
 
     @Override
-    public ItemStackHandler getInventoryHandler() {
+    public IItemHandlerModifiable getInventoryHandler() {
         if ((master = getMaster()) != null) {
             return master.getInventoryHandler();
         } ;
@@ -486,7 +486,7 @@ public class DualInputHatchInventoryMappingSlave<T extends MetaTileEntity & IDua
 
     @Override
     public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
-        float aX, float aY, float aZ) {
+        float aX, float aY, float aZ, ItemStack is) {
         allowAllSides = !allowAllSides;
 
         aPlayer

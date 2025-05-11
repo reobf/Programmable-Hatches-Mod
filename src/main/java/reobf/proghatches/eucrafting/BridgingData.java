@@ -17,7 +17,6 @@ import appeng.helpers.IInterfaceHost;
 import appeng.me.GridConnection;
 import appeng.me.helpers.AENetworkProxy;
 import gregtech.api.interfaces.tileentity.ICoverable;
-import gregtech.api.util.ISerializableObject;
 import reobf.proghatches.eucrafting.AECover.Data;
 
 public class BridgingData implements Data {
@@ -136,7 +135,7 @@ public class BridgingData implements Data {
 
         for (ForgeDirection side : ForgeDirection.VALID_DIRECTIONS) {
             if (side == this.side) continue;
-            ISerializableObject obj = aTileEntity.getCoverInfoAtSide(side).getCoverData();
+            ISer obj = getCoverData(aTileEntity.getCoverAtSide(side));
             IGridNode thenode = null;
             if (obj instanceof Data) thenode = ((Data) obj).getGridNode(side);
             if (thenode == null) {
@@ -154,7 +153,7 @@ public class BridgingData implements Data {
                 .getWorld()
                 .getTileEntity(npos.x, npos.y, npos.z))
             .map(s -> s instanceof ICoverable ? (ICoverable) s : null)
-            .map(s -> s.getCoverInfoAtSide(side.getOpposite()).getCoverData())
+            .map(s -> getCoverData(s.getCoverAtSide(side.getOpposite())))
             .map(s -> s instanceof Data ? (Data) s : null)
             .map(
                 s -> s.getProxy()

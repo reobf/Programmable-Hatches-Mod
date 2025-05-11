@@ -16,6 +16,8 @@ public interface IRecipeProcessingAwareDualHatch extends
     void startRecipeProcessing();
 
     CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller);
+
     public void trunOffME();
+
     public void trunONME();
 }

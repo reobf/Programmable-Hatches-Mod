@@ -5,10 +5,8 @@ import static gregtech.api.enums.Mods.GregTech;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 
 import com.google.common.io.ByteArrayDataInput;
@@ -20,29 +18,32 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
+import gregtech.api.covers.CoverContext;
 import gregtech.api.gui.modularui.CoverUIBuildContext;
 import gregtech.api.gui.modularui.GTUITextures;
-
+import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IMachineProgress;
-import gregtech.api.util.CoverBehaviorBase;
-import gregtech.api.util.ISerializableObject;
 import gregtech.common.covers.redstone.CoverAdvancedRedstoneReceiverBase.GateMode;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
+import gregtech.common.gui.mui1.cover.CoverUIFactory;
 import io.netty.buffer.ByteBuf;
+import reobf.proghatches.eucrafting.CoverBehaviorBase;
+import reobf.proghatches.eucrafting.ISer;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover.Data> /*implements IControlsWorkCover*/ {
+public class WirelessControlCover
+    extends CoverBehaviorBase<WirelessControlCover.Data> /* implements IControlsWorkCover */ {
 
     @Override
     public ModularWindow createWindow(CoverUIBuildContext buildContext) {
         return new WirelessCCUIFactory(buildContext).createWindow();
     }
 
-    public WirelessControlCover() {
-        super(Data.class);
+    public WirelessControlCover(CoverContext context, ITexture t) {
+        super(context, WirelessControlCover.Data.class, t);
 
     }
 
@@ -59,30 +60,29 @@ public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover
     }
 
     @Override
-    protected int getTickRateImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity) {
+    public int getDefaultTickRate() {
 
         return 1;
     }
 
     @Override
-    public Data doCoverThingsImpl(ForgeDirection side, byte aInputRedstone, int aCoverID, Data d,
-        ICoverable aTileEntity, long aTimer) {
-        aTileEntity.markDirty();
-        aInputRedstone = getRedstone(d, aTileEntity);
-        if (d.invert) aInputRedstone = (byte) (15 - aInputRedstone);
+    public void doCoverThings(byte x, long aTimer) {
+        getTile().markDirty();
+        byte aInputRedstone = getRedstone(coverData, getTile());
+        if (coverData.invert) aInputRedstone = (byte) (15 - aInputRedstone);
 
         /*
          * if (!makeSureOnlyOne(side, aTileEntity))
          * return d;
          */
-        if (aTileEntity instanceof IMachineProgress) {
-            IMachineProgress machine = (IMachineProgress) aTileEntity;
-            if (d.safe == false && d.crashed == false) {
+        if (getTile() instanceof IMachineProgress) {
+            IMachineProgress machine = (IMachineProgress) getTile();
+            if (coverData.safe == false && coverData.crashed == false) {
                 if ((aInputRedstone > 0)) {
                     if (!machine.isAllowedToWork()) machine.enableWorking();
                 } else if (machine.isAllowedToWork()) machine.disableWorking();
-                //machine.setWorkDataValue(aInputRedstone);
-            } else if (d.crashed) {
+                // machine.setWorkDataValue(aInputRedstone);
+            } else if (coverData.crashed) {
                 machine.disableWorking();
             } else {
                 if (machine.wasShutdown()) {
@@ -97,17 +97,17 @@ public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover
                      * aTileEntity.getYCoord(), aTileEntity.getZCoord()) +
                      * " shut down."); } }
                      */
-                    d.crashed = true;
-                    return d;
+                    coverData.crashed = true;
+                    return;
                 } else {
-                    d.safe = false;
-                    doCoverThingsImpl(side, aInputRedstone, aCoverID, d, aTileEntity, aTimer);
-                    d.safe = true;
-                    return d;
+                    coverData.safe = false;
+                    doCoverThings(x, aTimer);
+                    coverData.safe = true;
+                    return;
                 }
             }
         }
-        return d;
+        return;
     }
 
     private byte getRedstone(Data d, ICoverable aTileEntity) {
@@ -126,7 +126,7 @@ public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover
 
     }
 
-    public class Data implements ISerializableObject {
+    public class Data implements ISer {
 
         boolean privateFreq;
         boolean invert;
@@ -148,7 +148,7 @@ public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover
         public int gateMode;
 
         @Override
-        public ISerializableObject copy() {
+        public ISer copy() {
 
             Data d = new Data(freq, useMachineOwnerUUID, user);
             d.crashed = crashed;
@@ -194,7 +194,7 @@ public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover
         }
 
         @Override
-        public ISerializableObject readFromPacket(ByteArrayDataInput aBuf, EntityPlayerMP aPlayer) {
+        public void readFromPacket(ByteArrayDataInput aBuf) {
             Data d = new Data();
             d.privateFreq = aBuf.readBoolean();
             d.invert = aBuf.readBoolean();
@@ -212,7 +212,7 @@ public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover
              * d.safe=b; d.crashed=c; d.privateFreq=e;
              * d.gateMode=aBuf.readInt();
              */
-            return d;
+
         }
 
         @Override
@@ -233,13 +233,7 @@ public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover
     }
 
     @Override
-    public Data createDataObject(int aLegacyData) {
-
-        throw new RuntimeException("not legacy");
-    }
-
-    @Override
-    public Data createDataObject() {
+    public Data initializeDataSer() {
 
         return new Data(0, false, null);
     }
@@ -251,50 +245,45 @@ public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover
      */
 
     @Override
-    public boolean letsEnergyInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity) {
+    public boolean letsEnergyIn() {
         return true;
     }
 
     @Override
-    public boolean letsEnergyOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity) {
+    public boolean letsEnergyOut() {
         return true;
     }
 
     @Override
-    public boolean letsFluidInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, Fluid aFluid,
-        ICoverable aTileEntity) {
+    public boolean letsFluidIn(Fluid aFluid) {
         return true;
     }
 
     @Override
-    public boolean letsFluidOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, Fluid aFluid,
-        ICoverable aTileEntity) {
+    public boolean letsFluidOut(Fluid aFluid) {
         return true;
     }
 
     @Override
-    public boolean letsItemsInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, int aSlot,
-        ICoverable aTileEntity) {
+    public boolean letsItemsIn(int aSlot) {
         return true;
     }
 
     @Override
-    public boolean letsItemsOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, int aSlot,
-        ICoverable aTileEntity) {
+    public boolean letsItemsOut(int aSlot) {
         return true;
     }
 
     @Override
-    public boolean onCoverRemovalImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity,
-        boolean aForced) {
-        if ((aTileEntity instanceof IMachineProgress)) {
-            ((IMachineProgress) aTileEntity).enableWorking();
-           // ((IMachineProgress) aTileEntity).setWorkDataValue((byte) 0);
+    public void onCoverRemoval() {
+        if ((getTile() instanceof IMachineProgress)) {
+            ((IMachineProgress) getTile()).enableWorking();
+            // ((IMachineProgress) aTileEntity).setWorkDataValue((byte) 0);
         }
-        return true;
+
     }
 
-    private class WirelessCCUIFactory extends UIFactory {
+    private class WirelessCCUIFactory extends CoverUIFactory {
 
         private static final int startX = 10;
         private static final int startY = 25;
@@ -473,6 +462,11 @@ public class WirelessControlCover extends CoverBehaviorBase<WirelessControlCover
 
             ;
 
+        }
+
+        private Data getCoverData() {
+            // TODO Auto-generated method stub
+            return coverData;
         }
     }
 

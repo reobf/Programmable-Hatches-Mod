@@ -70,10 +70,8 @@ import appeng.parts.p2p.IPartGT5Power;
 import appeng.util.item.AEItemStack;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.GregTechAPI;
 import gregtech.api.enums.GTValues;
 import gregtech.api.gui.modularui.GTUITextures;
-import gregtech.api.util.GTUtility;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -683,14 +681,16 @@ public class PartEUSource extends AEBasePart implements IGuiProvidingPart, ICraf
                     TileEntity t = this.host.getTile();
                     t.getWorldObj()
                         .createExplosion(null, t.xCoord + 0.5, t.yCoord + 0.5, t.zCoord + 0.5, 2, true);
-                   /* GTUtility.sendSoundToPlayers(
-                        t.getWorldObj(),
-                        GregTechAPI.sSoundList.get(209),
-                        1.0F,
-                        -1.0F,
-                        t.xCoord,
-                        t.yCoord,
-                        t.zCoord);*/
+                    /*
+                     * GTUtility.sendSoundToPlayers(
+                     * t.getWorldObj(),
+                     * GregTechAPI.sSoundList.get(209),
+                     * 1.0F,
+                     * -1.0F,
+                     * t.xCoord,
+                     * t.yCoord,
+                     * t.zCoord);
+                     */
                     this.host.removePart(side, false);
                 }
 

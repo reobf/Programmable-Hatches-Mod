@@ -8,8 +8,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.inventory.InventoryCrafting;
@@ -24,7 +22,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
-import reobf.proghatches.ae.PatternCraftingJob;
 
 import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.common.item.ItemFluidPacket;
@@ -55,6 +52,7 @@ import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.util.GTUtility;
+import reobf.proghatches.ae.PatternCraftingJob;
 
 public abstract class RequestTunnel implements ICraftingMachine, ICraftingRequester, ISidedInventory, IFluidHandler {
 
@@ -71,14 +69,13 @@ public abstract class RequestTunnel implements ICraftingMachine, ICraftingReques
     @Override
     public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table,
         ForgeDirection ejectionDirection) {
-    	
-    	 try {
-			PatternCraftingJob job = new PatternCraftingJob(patternDetails, getProxy().getStorage());
-		getProxy().getCrafting().getCraftingPatterns();
-    	 } catch (GridAccessException e) {
-		}
 
-    	
+        try {
+            PatternCraftingJob job = new PatternCraftingJob(patternDetails, getProxy().getStorage());
+            getProxy().getCrafting()
+                .getCraftingPatterns();
+        } catch (GridAccessException e) {}
+
         for (int i = 0; i < table.getSizeInventory(); i++) {
             ItemStack is = table.getStackInSlot(i);
             if (is != null) {
@@ -104,11 +101,9 @@ public abstract class RequestTunnel implements ICraftingMachine, ICraftingReques
 
     // @TileEvent(TileEventType.WORLD_NBT_READ)
     public void readFromNBT_AENetworkX(NBTTagCompound data) {
-    	if(data.hasKey("returnAll"))
-    	returnAll=data.getBoolean("returnAll");
-    	if(data.hasKey("mode"))
-      	mode=data.getByte("mode" );
-    	cache.clear();
+        if (data.hasKey("returnAll")) returnAll = data.getBoolean("returnAll");
+        if (data.hasKey("mode")) mode = data.getByte("mode");
+        cache.clear();
         {
             NBTTagList t = (NBTTagList) data.getTag("cache");
             for (int i = 0; i < t.tagCount(); i++) {
@@ -163,8 +158,8 @@ public abstract class RequestTunnel implements ICraftingMachine, ICraftingReques
 
     // @TileEvent(TileEventType.WORLD_NBT_WRITE)
     public void writeToNBT_AENetworkX(NBTTagCompound data) {
-    	data.setBoolean("returnAll", returnAll);
-    	data.setByte("mode", (byte) mode);
+        data.setBoolean("returnAll", returnAll);
+        data.setByte("mode", (byte) mode);
         NBTTagList list = new NBTTagList();
         cache.stream()
             .map(s -> s.writeToNBT(new NBTTagCompound()))
@@ -257,14 +252,16 @@ public abstract class RequestTunnel implements ICraftingMachine, ICraftingReques
     public ImmutableSet<ICraftingLink> getRequestedJobs() {
         return last == null ? ImmutableSet.of() : ImmutableSet.of(last);
     }
-boolean returnAll=true;
+
+    boolean returnAll = true;
+
     @Override
     public IAEItemStack injectCraftedItems(ICraftingLink link, IAEItemStack items, Actionable mode) {
         if (mode == Actionable.SIMULATE) {
 
             return null;
         }
-        
+
         AEItemStack left = null;
 
         Long get = waiting.get((items));
@@ -273,7 +270,7 @@ boolean returnAll=true;
             waiting.put((AEItemStack) items, tmp = Math.max(0, get - items.getStackSize()));
             if (tmp <= 0) waiting.remove(items);
 
-            /*if ((this.mode & 1) != 0)*/ {
+            /* if ((this.mode & 1) != 0) */ {
                 if (get < items.getStackSize()) {// inject more than waiting for?
                     items = items.copy()
                         .setStackSize(get);// that's the part we need
@@ -283,18 +280,17 @@ boolean returnAll=true;
             }
 
         } else {
-            /*if ((this.mode & 1) != 0)*/ 
-            	if(!returnAll)
-                return items;// not waiting, just return items as unwanted
-            
+            /* if ((this.mode & 1) != 0) */
+            if (!returnAll) return items;// not waiting, just return items as unwanted
 
         }
-        if(returnAll){
-        	//merge left into items
-        	if(left!=null){
-			long size=left.getStackSize();
-        	left.decStackSize(size);
-        	items.incStackSize(size);}
+        if (returnAll) {
+            // merge left into items
+            if (left != null) {
+                long size = left.getStackSize();
+                left.decStackSize(size);
+                items.incStackSize(size);
+            }
         }
         if (items.getItem() instanceof ItemFluidDrop) {
             cacheFR.add(
@@ -304,7 +300,7 @@ boolean returnAll=true;
             cacheR.add(items.getItemStack());
 
         }
-		if(left!=null&&left.getStackSize()==0)left=null;
+        if (left != null && left.getStackSize() == 0) left = null;
         return left;
     }
 
@@ -338,7 +334,7 @@ boolean returnAll=true;
 
     // @TileEvent(TileEventType.TICK)
     @SuppressWarnings("unchecked")
-	public void update() {
+    public void update() {
         tick++;
         if (getWorldObj().isRemote) return;
 
@@ -374,10 +370,10 @@ boolean returnAll=true;
 
         if (waiting.isEmpty() == false) {
 
-            if ((mode & 1) == 0 /*&& last == null*/) useExisting();
+            if ((mode & 1) == 0 /* && last == null */) useExisting();
         }
         if (this.tick % 40 == 2) {
-        	dump();
+            dump();
             fillStacksIntoFirstSlots(cacheR);
             fillStacksIntoFirstSlotsF(cacheFR);
             fillStacksIntoFirstSlots(cache);
@@ -392,8 +388,7 @@ boolean returnAll=true;
                 .copy()
                 .setStackSize(ent.getValue());
         }
-        if((mode & 2) == 0)
-        try {
+        if ((mode & 2) == 0) try {
             if (last != null) {
                 if (last.isDone() || last.isCanceled()) {
                     last = null;
@@ -403,7 +398,7 @@ boolean returnAll=true;
             if (last == null) {
                 if (job == null) {
                     if (req != null) {
-                    	if(cd>=-100)cd--;//5 charges
+                        if (cd >= -100) cd--;// 5 charges
                         if (cd-- <= 0) {
                             job = getProxy().getCrafting()
                                 .beginCraftingJob(
@@ -730,57 +725,57 @@ boolean returnAll=true;
 
     public abstract World getWorldObj();
 
-	public ModularWindow createWindow(UIBuildContext buildContext) {
-		 ModularWindow.Builder builder = ModularWindow.builder(176, 107 + 20);
-		 
-	        builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
-	        builder.bindPlayerInventory(buildContext.getPlayer());
-	        
-	        builder.widget(new CycleButtonWidget().setGetter(() -> mode)
-	                .setSetter(s -> mode = s)
-	                .setLength(3)
-	                .setTextureGetter(s -> {
-	                    if (s == 0) return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ITEM;
-	                    if (s == 1) return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_FLUID;
-	                    return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ALL;
-	                })
-	              .addTooltip(0, StatCollector.translateToLocal("proghatches.requesttunnel.both"))
-	                .addTooltip(1, StatCollector.translateToLocal("proghatches.requesttunnel.craft"))
-	                .addTooltip(2, StatCollector.translateToLocal("proghatches.requesttunnel.stock"))
-	               // .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.0"))
-	                //.addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.1"))
-	                .setBackground(() -> {
-	                    {
-	                        return new IDrawable[] { GTUITextures.BUTTON_STANDARD, };
-	                    }
-	                })
+    public ModularWindow createWindow(UIBuildContext buildContext) {
+        ModularWindow.Builder builder = ModularWindow.builder(176, 107 + 20);
 
-	                .setSize(18, 18)
-	                .setPos(120 + 20, 3));
-	   
-	      /*  builder.widget(new CycleButtonWidget().setGetter(() -> returnAll?1:0)
-	                .setSetter(s -> returnAll = s==1)
-	                .setLength(2)
-	                .setTextureGetter(s -> {
-	                    if (s == 0) return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ITEM;
-	                    if (s == 1) return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_FLUID;
-	                    return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ALL;
-	                }) .addTooltip(0, StatCollector.translateToLocal("returnAll0"))
-	                .addTooltip(1, StatCollector.translateToLocal("returnAll1"))
-	               // .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.0"))
-	               // .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.1"))
-	                .setBackground(() -> {
-	                    {
-	                        return new IDrawable[] { GTUITextures.BUTTON_STANDARD, };
-	                    }
-	                })
+        builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
+        builder.bindPlayerInventory(buildContext.getPlayer());
 
-	                .setSize(18, 18)
-	                .setPos(  20, 3)); */
-	        
-	        
-	        
-		return builder.build();
-	}
+        builder.widget(
+            new CycleButtonWidget().setGetter(() -> mode)
+                .setSetter(s -> mode = s)
+                .setLength(3)
+                .setTextureGetter(s -> {
+                    if (s == 0) return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ITEM;
+                    if (s == 1) return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_FLUID;
+                    return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ALL;
+                })
+                .addTooltip(0, StatCollector.translateToLocal("proghatches.requesttunnel.both"))
+                .addTooltip(1, StatCollector.translateToLocal("proghatches.requesttunnel.craft"))
+                .addTooltip(2, StatCollector.translateToLocal("proghatches.requesttunnel.stock"))
+                // .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.0"))
+                // .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.1"))
+                .setBackground(() -> {
+                    {
+                        return new IDrawable[] { GTUITextures.BUTTON_STANDARD, };
+                    }
+                })
+
+                .setSize(18, 18)
+                .setPos(120 + 20, 3));
+
+        /*
+         * builder.widget(new CycleButtonWidget().setGetter(() -> returnAll?1:0)
+         * .setSetter(s -> returnAll = s==1)
+         * .setLength(2)
+         * .setTextureGetter(s -> {
+         * if (s == 0) return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ITEM;
+         * if (s == 1) return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_FLUID;
+         * return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ALL;
+         * }) .addTooltip(0, StatCollector.translateToLocal("returnAll0"))
+         * .addTooltip(1, StatCollector.translateToLocal("returnAll1"))
+         * // .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.0"))
+         * // .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.1"))
+         * .setBackground(() -> {
+         * {
+         * return new IDrawable[] { GTUITextures.BUTTON_STANDARD, };
+         * }
+         * })
+         * .setSize(18, 18)
+         * .setPos( 20, 3));
+         */
+
+        return builder.build();
+    }
 
 }

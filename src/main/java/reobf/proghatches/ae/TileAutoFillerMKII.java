@@ -267,10 +267,10 @@ public class TileAutoFillerMKII extends TileFluidAutoFiller/* implements IInstan
 
         return data;
     }
+
     public void mark(EntityPlayer placer) {
         getProxy().setOwner((EntityPlayer) placer);
-     
-    }
 
+    }
 
 }

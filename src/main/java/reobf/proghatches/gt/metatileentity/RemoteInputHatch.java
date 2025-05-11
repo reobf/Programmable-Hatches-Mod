@@ -213,17 +213,20 @@ public class RemoteInputHatch extends MTEHatchMultiInput
         Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, id));
 
     }
+
     String[] desc;
-@Override
-public String[] getDescription() {
-	
-	if(desc==null){
-		desc=reobf.proghatches.main.Config.get("RIH", ImmutableMap.of());
-		
-	}
-	
-	return desc;
-}
+
+    @Override
+    public String[] getDescription() {
+
+        if (desc == null) {
+            desc = reobf.proghatches.main.Config.get("RIH", ImmutableMap.of());
+
+        }
+
+        return desc;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
@@ -468,10 +471,10 @@ public String[] getDescription() {
 
         try {
             if (tmp != null) {
-            	return (List<FluidStack>) (Object)tmp;
+                return (List<FluidStack>) (Object) tmp;
             }
-            	
-            //endRecipeProcessing(null);
+
+            // endRecipeProcessing(null);
             // this means this method is called twice during recipe check?
             // remove consumed fluid
         } catch (Exception ex) {

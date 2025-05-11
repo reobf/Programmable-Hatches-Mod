@@ -8,7 +8,6 @@ import net.minecraft.item.ItemStack;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.GregTechAPI;
 import gregtech.api.util.GTUtility;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
@@ -106,6 +105,8 @@ public class ProgHatchCreativeTab extends CreativeTabs {
         p_78018_1_.add(new ItemStack(MyMod.emitterpattern));
         p_78018_1_.add(new ItemStack(MyMod.request_tunnel));
         p_78018_1_.add(new ItemStack(MyMod.orbswitcher));
+        p_78018_1_.add(new ItemStack(MyMod.part_cow));
+        p_78018_1_.add(new ItemStack(MyMod.chip));
     }
 
     @Override

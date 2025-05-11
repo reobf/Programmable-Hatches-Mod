@@ -1,12 +1,7 @@
 package reobf.proghatches.ae;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
-import net.bdew.ae2stuff.machines.wireless.TileWireless;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;
@@ -28,9 +23,6 @@ import com.glodblock.github.util.Util;
 
 import appeng.api.config.SecurityPermissions;
 import appeng.util.Platform;
-import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
-import gregtech.common.tileentities.machines.IDualInputHatch;
-import gregtech.common.tileentities.machines.IDualInputInventory;
 import reobf.proghatches.block.INameAndTooltips;
 
 public class BlockAutoFillerMKII extends BlockContainer implements INameAndTooltips {
@@ -43,17 +35,12 @@ public class BlockAutoFillerMKII extends BlockContainer implements INameAndToolt
         this.setHarvestLevel("pickaxe", 0);
         setBlockName("proghatches.autofillerMKII");
         setBlockTextureName(FluidCraft.MODID + ":" + NameConst.BLOCK_FLUID_AUTO_FILLER);
-        
-        
-        
-       
-      
-       
+
     }
 
     @Override
     public TileEntity createNewTileEntity(World worldIn, int meta) {
-   
+
         return new TileAutoFillerMKII();
     }
 
@@ -90,20 +77,17 @@ public class BlockAutoFillerMKII extends BlockContainer implements INameAndToolt
 
     @Override
     public String getName(ItemStack p_77624_1_) {
-        // TODO Auto-generated method stub
         return null;
-    }  
+    }
+
     @Override
     public void onBlockPlacedBy(World worldIn, int x, int y, int z, EntityLivingBase placer, ItemStack itemIn) {
 
         super.onBlockPlacedBy(worldIn, x, y, z, placer, itemIn);
-if(worldIn.isRemote==false)
-        if (placer instanceof EntityPlayer) {
+        if (worldIn.isRemote == false) if (placer instanceof EntityPlayer) {
             if (!(placer instanceof FakePlayer))
                 ((TileAutoFillerMKII) worldIn.getTileEntity(x, y, z)).mark((EntityPlayer) placer);
         }
-      
-
 
     }
 }

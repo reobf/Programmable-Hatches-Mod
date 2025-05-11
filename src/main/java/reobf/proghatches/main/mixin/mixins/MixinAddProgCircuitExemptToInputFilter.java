@@ -8,8 +8,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import gregtech.api.util.GTRecipe;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 
@@ -24,9 +26,12 @@ import reobf.proghatches.main.MyMod;
 @Mixin(value = gregtech.api.recipe.RecipeMap.class, remap = false)
 public abstract class MixinAddProgCircuitExemptToInputFilter {
 
-    @Inject(method = "containsInput", at = @At("RETURN"), require = 1,
-    		
-    		cancellable = true)
+    @Inject(
+        method = "containsInput",
+        at = @At("RETURN"),
+        require = 1,
+
+        cancellable = true)
     public void containsInput(ItemStack aStack, CallbackInfoReturnable<Boolean> c) {
         if (aStack == null) return;
         boolean ret = c.getReturnValueZ();
@@ -39,5 +44,6 @@ public abstract class MixinAddProgCircuitExemptToInputFilter {
 
     @Shadow
     abstract public boolean containsInput(ItemStack aStack);
-
+    
+   
 }

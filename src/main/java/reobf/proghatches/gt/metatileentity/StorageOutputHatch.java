@@ -5,8 +5,6 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.spongepowered.asm.mixin.Unique;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -14,9 +12,12 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
+
+import org.spongepowered.asm.mixin.Unique;
 
 import com.glodblock.github.common.item.FCBaseItemCell;
 import com.glodblock.github.common.item.ItemFluidDrop;
@@ -26,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
+import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.events.MENetworkCellArrayUpdate;
@@ -48,7 +50,6 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.util.item.AEFluidStack;
-import appeng.util.item.AEItemStack;
 import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
@@ -62,7 +63,8 @@ import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.main.registration.Registration;
 import tectech.util.TTUtility;
 
-public class StorageOutputHatch extends MTEHatchOutputME implements ICellContainer, IGridProxyable,IStoageCellUpdate {
+public class StorageOutputHatch extends MTEHatchOutputME
+    implements ICellContainer, IGridProxyable, IStoageCellUpdate, IPowerChannelState {
 
     public StorageOutputHatch(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional);
@@ -87,13 +89,14 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
 
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-       
-    	if (getBaseMetaTileEntity().isServerSide()) {
-            tickCounter = aTick;}
-    	boolean active = this.getProxy()
+
+        if (getBaseMetaTileEntity().isServerSide()) {
+            tickCounter = aTick;
+        }
+        boolean active = this.getProxy()
             .isActive();
         if (!aBaseMetaTileEntity.getWorld().isRemote) {
-        	if (facingJustChanged) {
+            if (facingJustChanged) {
                 facingJustChanged = false;
                 try {
                     this.getProxy()
@@ -119,11 +122,11 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
     }
 
     private void post() {
-		// TODO Auto-generated method stub
-		
-	}
+        // TODO Auto-generated method stub
 
-	boolean additionalConnection;
+    }
+
+    boolean additionalConnection;
 
     private void updateValidGridProxySides() {
 
@@ -171,17 +174,21 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
     /**
      * Check if the internal cache can still fit more fluids in it
      */
-   /* public boolean canAcceptItem() {
+    /*
+     * public boolean canAcceptItem() {
+     * return getCachedAmount() < getCacheCapacity() || lastInputTick == tickCounter;
+     * }
+     */
+    @Override
+    public boolean canAcceptFluid() {
         return getCachedAmount() < getCacheCapacity() || lastInputTick == tickCounter;
-    }*/
-	@Override
-	public boolean canAcceptFluid() {
-		 return getCachedAmount() < getCacheCapacity() || lastInputTick == tickCounter;
-	}
-	@Override
-	public boolean canFillFluid() {
-		  return canAcceptFluid() || lastInputTick == tickCounter;
-	}
+    }
+
+    @Override
+    public boolean canFillFluid() {
+        return canAcceptFluid() || lastInputTick == tickCounter;
+    }
+
     long lastInputTick, tickCounter;
 
     public int tryFillAE(final FluidStack stack) {
@@ -194,11 +201,14 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
                 is = (AEFluidStack) ItemFluidDrop.getAeFluidStack(
                     (IAEItemStack) ((CraftingGridCache) getProxy().getCrafting())
                         .injectItems(ItemFluidDrop.newAeStack(is), Actionable.MODULATE, new MachineSource(this)));
-                if(is!=null){
-                this.getProxy()
-                    .getStorage()
-                    .postAlterationOfStoredItems(StorageChannel.FLUIDS, ImmutableList.of(is), new MachineSource(this));
-                itemCache.addStorage(is);
+                if (is != null) {
+                    this.getProxy()
+                        .getStorage()
+                        .postAlterationOfStoredItems(
+                            StorageChannel.FLUIDS,
+                            ImmutableList.of(is),
+                            new MachineSource(this));
+                    itemCache.addStorage(is);
                 }
             } catch (GridAccessException e) {
 
@@ -233,15 +243,16 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
         @Override
         public AEFluidStack injectItems(AEFluidStack input, Actionable type, BaseActionSource src) {
 
-        	if(IngredientDistributor.flag){	
-        		if(type==Actionable.SIMULATE){
-        			return null;
-        			}
-        		AEFluidStack ret = (AEFluidStack) input.copy().setStackSize(tryFillAE(input.getFluidStack()));
-        		if(ret.getStackSize()<=0)ret=null;
-        		return  ret;
-        	}
-        	return input;
+            if (IngredientDistributor.flag) {
+                if (type == Actionable.SIMULATE) {
+                    return null;
+                }
+                AEFluidStack ret = (AEFluidStack) input.copy()
+                    .setStackSize(tryFillAE(input.getFluidStack()));
+                if (ret.getStackSize() <= 0) ret = null;
+                return ret;
+            }
+            return input;
         }
 
         @Override
@@ -275,7 +286,7 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
     };
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-	IMEInventoryHandler<AEFluidStack> handler = new MEInventoryHandler(cache, StorageChannel.FLUIDS);
+    IMEInventoryHandler<AEFluidStack> handler = new MEInventoryHandler(cache, StorageChannel.FLUIDS);
 
     @Override
     public List<IMEInventoryHandler> getCellArray(StorageChannel channel) {
@@ -322,6 +333,7 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
             tag.setLong("size", s.getStackSize());
             fluids.appendTag(tag);
         }
+        aNBT.setBoolean("additionalConnectionPH", additionalConnection);
         aNBT.setTag("cachedFluidsPH", fluids);
         super.saveNBTData(aNBT);
     }
@@ -348,6 +360,7 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
                 }
             }
         }
+        additionalConnection = aNBT.getBoolean("additionalConnectionPH");
         super.loadNBTData(aNBT);
     }
 
@@ -356,12 +369,15 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
         // store(new FluidStack(Items.apple));
         return super.onRightclick(aBaseMetaTileEntity, aPlayer);
     }
+
     boolean facingJustChanged;
+
     @Override
     public void onFacingChange() {
         updateValidGridProxySides();
-        facingJustChanged=true;
+        facingJustChanged = true;
     }
+
     @Override
     public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
         int z) {
@@ -391,26 +407,51 @@ public class StorageOutputHatch extends MTEHatchOutputME implements ICellContain
             tagList.appendTag(stackTag);
         }
     }
+
     @MENetworkEventSubscribe
     @Unique
     public void powerRender(final MENetworkPowerStatusChange w) {
 
         cellUpdate();
-        
+
     }
 
     @MENetworkEventSubscribe
     @Unique
     public void updateChannels(final MENetworkChannelsChanged w) {
-       cellUpdate();
-        
+        cellUpdate();
+
     }
+
     @Override
-	public void cellUpdate() {
-		 try {
-			this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
-		} catch (GridAccessException e) {
-		}
-		
-	}
+    public void cellUpdate() {
+        try {
+            this.getProxy()
+                .getGrid()
+                .postEvent(new MENetworkCellArrayUpdate());
+        } catch (GridAccessException e) {}
+
+    }
+
+    @Override
+    public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
+        float aX, float aY, float aZ, ItemStack is) {
+        additionalConnection = !additionalConnection;
+        updateValidGridProxySides();
+        aPlayer.addChatComponentMessage(
+            new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
+        return true;
+    }
+
+    @Override
+    public boolean isPowered() {
+
+        return getProxy().isPowered();
+    }
+
+    @Override
+    public boolean isActive() {
+
+        return getProxy().isActive();
+    }
 }

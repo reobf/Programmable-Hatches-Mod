@@ -3,7 +3,6 @@ package reobf.proghatches.item;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -64,32 +63,33 @@ public class ItemFakePattern extends Item implements ICraftingPatternItem {
             }
 
             if (is.getTagCompound()
-                    .getByte("type") == 3) {
-            	try{
-            	ItemStack iss=  ItemStack.loadItemStackFromNBT( is.getTagCompound().getCompoundTag("p"));
-            	 return new PatternDualInputHatch.DA(((ICraftingPatternItem)iss.getItem()).getPatternForItem(iss, w), is.getTagCompound().getInteger("m"));
-            	}catch(Exception e){return null;}
-            
+                .getByte("type") == 3) {
+                try {
+                    ItemStack iss = ItemStack.loadItemStackFromNBT(
+                        is.getTagCompound()
+                            .getCompoundTag("p"));
+                    return new PatternDualInputHatch.DA(
+                        ((ICraftingPatternItem) iss.getItem()).getPatternForItem(iss, w),
+                        is.getTagCompound()
+                            .getInteger("m"));
+                } catch (Exception e) {
+                    return null;
+                }
+
             }
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
+
             ItemStack iss = ItemStack.loadItemStackFromNBT(is.getTagCompound());
-           if(is.getTagCompound()!=null&&is.getTagCompound().hasKey("icount"))
-            iss.stackSize=is.getTagCompound().getInteger("icount");
-            
+            if (is.getTagCompound() != null && is.getTagCompound()
+                .hasKey("icount"))
+                iss.stackSize = is.getTagCompound()
+                    .getInteger("icount");
+
             return new CircuitProviderPatternDetial(iss);
 
         } catch (Exception ew) {
             ew.printStackTrace();
-            return null;//new CircuitProviderPatternDetial(new ItemStack(Items.baked_potato).setStackDisplayName("ERROR"));
+            return null;// new CircuitProviderPatternDetial(new
+                        // ItemStack(Items.baked_potato).setStackDisplayName("ERROR"));
         }
     }
 

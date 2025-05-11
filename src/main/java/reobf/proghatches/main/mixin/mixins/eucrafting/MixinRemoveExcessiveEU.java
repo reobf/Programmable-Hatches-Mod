@@ -25,7 +25,7 @@ import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitPro
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.mixin.MixinCallback;
 import reobf.proghatches.util.ProghatchesUtil;
-
+@Deprecated
 @Mixin(CraftingJobV2.class)
 public class MixinRemoveExcessiveEU {
 

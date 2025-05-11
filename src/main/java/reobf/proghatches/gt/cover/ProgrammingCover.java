@@ -13,23 +13,29 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import ggfab.mte.MTELinkedInputBus;
+import gregtech.api.covers.CoverContext;
+import gregtech.api.covers.CoverPlacer;
 import gregtech.api.interfaces.IConfigurationCircuitSupport;
+import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.util.CoverBehavior;
-import gregtech.api.util.CoverBehaviorBase;
 import gregtech.api.util.GTUtility;
+import gregtech.common.covers.Cover;
 import reobf.proghatches.gt.metatileentity.util.IMultiCircuitSupport;
 import reobf.proghatches.gt.metatileentity.util.IProgrammingCoverBlacklisted;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 
-public class ProgrammingCover extends CoverBehavior implements IProgrammer {
+public class ProgrammingCover extends Cover implements IProgrammer {
+
+    public ProgrammingCover(CoverContext context, ITexture tex) {
+        super(context, tex);
+
+    }
 
     @Override
-    public int getTickRate(ForgeDirection side, int aCoverID, int aCoverVariable, ICoverable aTileEntity) {
-
+    public int getDefaultTickRate() {
         return 1;
     }
 
@@ -101,8 +107,15 @@ public class ProgrammingCover extends CoverBehavior implements IProgrammer {
 
     }
 
-    @Override
-    public boolean isCoverPlaceable(ForgeDirection side, ItemStack aStack, ICoverable aTileEntity) {
+    public static CoverPlacer placer() {
+        return CoverPlacer.builder()
+
+            .onlyPlaceIf(ProgrammingCover::isCoverPlaceable)
+            .build();
+
+    }
+
+    public static boolean isCoverPlaceable(ForgeDirection side, ItemStack aStack, ICoverable aTileEntity) {
         if (Optional.of(aTileEntity)
             .filter(s -> s instanceof IGregTechTileEntity)
             .map(s -> ((IGregTechTileEntity) s).getMetaTileEntity())
@@ -110,27 +123,45 @@ public class ProgrammingCover extends CoverBehavior implements IProgrammer {
             .isPresent()) return false;
 
         for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS) {
-            CoverBehaviorBase<?> beh = aTileEntity.getCoverInfoAtSide(d).getCoverBehavior();
+            Cover beh = aTileEntity.getCoverAtSide(d);
             if (beh != null && beh.getClass() == LinkedBusSlaveCover.class) {
                 return false;
             }
         }
 
-        return super.isCoverPlaceable(side, aStack, aTileEntity);
+        return true;
     }
+    /*
+     * public static class Placer extends CoverPlacerBase{
+     * @Override
+     * public boolean isCoverPlaceable(ForgeDirection side, ItemStack aStack, ICoverable aTileEntity) {
+     * if (Optional.of(aTileEntity)
+     * .filter(s -> s instanceof IGregTechTileEntity)
+     * .map(s -> ((IGregTechTileEntity) s).getMetaTileEntity())
+     * .filter(s -> s instanceof IProgrammingCoverBlacklisted)
+     * .isPresent()) return false;
+     * for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS) {
+     * Cover beh = aTileEntity.getCoverAtSide(d);
+     * if (beh != null && beh.getClass() == LinkedBusSlaveCover.class) {
+     * return false;
+     * }
+     * }
+     * return super.isCoverPlaceable(side, aStack, aTileEntity);
+     * }
+     * }
+     */
 
     @Override
-    public int doCoverThings(ForgeDirection side, byte aInputRedstone, int aCoverID, int aCoverVariable,
-        ICoverable aTileEntity, long aTimer) {
-        impl(aTileEntity);
-        if (aTileEntity instanceof IGregTechTileEntity) {
-            IMetaTileEntity x = ((IGregTechTileEntity) aTileEntity).getMetaTileEntity();
+    public void doCoverThings(byte xs, long aTimer) {
+        impl(this.getTile());
+        if (getTile() instanceof IGregTechTileEntity) {
+            IMetaTileEntity x = ((IGregTechTileEntity) getTile()).getMetaTileEntity();
             if (x instanceof MTELinkedInputBus) {
                 markOrUpdate((MTELinkedInputBus) x);
             }
 
         }
-        return aCoverVariable;
+        return;
     }
 
     public static class Data {

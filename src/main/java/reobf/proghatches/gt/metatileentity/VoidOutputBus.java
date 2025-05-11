@@ -33,7 +33,6 @@ import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.SlotGroup;
 
-import appeng.api.util.DimensionalCoord;
 import appeng.util.Platform;
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import cpw.mods.fml.relauncher.Side;
@@ -161,24 +160,20 @@ public class VoidOutputBus extends MTEHatchOutputBus {
 
     public boolean dump(ItemStack aStack) {
         boolean b = filterPredicate.test(aStack);
-		if (b && fx)
-			MyMod.net.sendToAllAround(
-        		
-        		
-        		
+        if (b && fx) MyMod.net.sendToAllAround(
+
             new VoidFXMessage(this.getBaseMetaTileEntity(), aStack),
-           new TargetPoint( this.getBaseMetaTileEntity().getWorld().provider.dimensionId,
-        		   this.getBaseMetaTileEntity().getXCoord(),
-        		   this.getBaseMetaTileEntity().getYCoord(),
-        		   this.getBaseMetaTileEntity().getZCoord(),
-        		   64
-        		   )
-            );
-          
-              
-                
-        		
-        		
+            new TargetPoint(
+                this.getBaseMetaTileEntity()
+                    .getWorld().provider.dimensionId,
+                this.getBaseMetaTileEntity()
+                    .getXCoord(),
+                this.getBaseMetaTileEntity()
+                    .getYCoord(),
+                this.getBaseMetaTileEntity()
+                    .getZCoord(),
+                64));
+
         return b;
     }
 
@@ -463,7 +458,7 @@ public class VoidOutputBus extends MTEHatchOutputBus {
     public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
         ItemStack aTool) {
 
-        if (!getBaseMetaTileEntity().getCoverInfoAtSide(side)
+        if (!getBaseMetaTileEntity().getCoverAtSide(side)
             .isGUIClickable()) return;
         fx = !fx;
         GTUtility.sendChatToPlayer(aPlayer, StatCollector.translateToLocal("proghatches.gt.void.fx." + fx));

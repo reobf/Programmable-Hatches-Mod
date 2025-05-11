@@ -25,11 +25,13 @@ public class BlockStockingCircuitRequestInterceptor extends BlockContainer imple
         setBlockName("proghatches.circuit_interceptor");
         setBlockTextureName("proghatches:circuit_interceptor");
     }
-@Override
-public void getSubBlocks(Item itemIn, CreativeTabs tab, List list) {
-	list.add(new ItemStack(itemIn, 1, 1));
-	super.getSubBlocks(itemIn, tab, list);
-}
+
+    @Override
+    public void getSubBlocks(Item itemIn, CreativeTabs tab, List list) {
+        list.add(new ItemStack(itemIn, 1, 1));
+        super.getSubBlocks(itemIn, tab, list);
+    }
+
     @Override
     public boolean onBlockActivated(World worldIn, int x, int y, int z, EntityPlayer player, int side, float subX,
         float subY, float subZ) {

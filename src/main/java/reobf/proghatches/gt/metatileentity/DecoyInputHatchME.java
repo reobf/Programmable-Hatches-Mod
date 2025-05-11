@@ -427,7 +427,8 @@ public class DecoyInputHatchME extends MTEHatchInputME implements IMEHatchOverri
     boolean reserveFirst;
 
     @Override
-    public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ) {
+    public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
+        ItemStack is) {
         if (aPlayer.isSneaking()) {
             reserveFirst = !reserveFirst;
             aPlayer.addChatMessage(
@@ -436,7 +437,7 @@ public class DecoyInputHatchME extends MTEHatchInputME implements IMEHatchOverri
 
             return;
         }
-        super.onScrewdriverRightClick(side, aPlayer, aX, aY, aZ);
+        super.onScrewdriverRightClick(side, aPlayer, aX, aY, aZ, is);
     }
 
     @Override

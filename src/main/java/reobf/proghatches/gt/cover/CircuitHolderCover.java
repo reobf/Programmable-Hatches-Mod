@@ -7,8 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -16,7 +14,6 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.common.util.ForgeDirection;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,27 +36,32 @@ import com.gtnewhorizons.modularui.common.widget.ChangeableWidget;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
 import com.gtnewhorizons.modularui.common.widget.Scrollable;
 
+import gregtech.api.covers.CoverContext;
 import gregtech.api.gui.modularui.CoverUIBuildContext;
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.IConfigurationCircuitSupport;
+import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
-import gregtech.api.util.CoverBehaviorBase;
 import gregtech.api.util.GTUtility;
-import gregtech.api.util.ISerializableObject;
+import gregtech.common.covers.Cover;
+import gregtech.common.gui.mui1.cover.CoverUIFactory;
 import io.netty.buffer.ByteBuf;
+import reobf.proghatches.eucrafting.CoverBehaviorBase;
+import reobf.proghatches.eucrafting.ISer;
+import reobf.proghatches.gt.cover.SmartArmCover.Data;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Data> {
 
-    public CircuitHolderCover() {
-        super(CircuitHolderCover.Data.class);
+    public CircuitHolderCover(CoverContext context, ITexture t) {
+        super(context, CircuitHolderCover.Data.class, t);
 
     }
 
-    public static class Data implements ISerializableObject {
+    public static class Data implements ISer {
 
         NBTTagCompound tag;
 
@@ -68,7 +70,7 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
         }
 
         @Override
-        public ISerializableObject copy() {
+        public ISer copy() {
 
             return new Data(tag);
         }
@@ -98,7 +100,7 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
         }
 
         @Override
-        public ISerializableObject readFromPacket(ByteArrayDataInput aBuf, EntityPlayerMP aPlayer) {
+        public void readFromPacket(ByteArrayDataInput aBuf) {
 
             byte[] b = new byte[aBuf.readInt()];
             aBuf.readFully(b);
@@ -109,7 +111,7 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
                 e.printStackTrace();
             }
 
-            return new Data(xtag);
+            tag = xtag;
         }
     }
 
@@ -125,10 +127,10 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
         return new CircuitHolderUIFactory(buildContext).createWindow();
     }
 
-    private class CircuitHolderUIFactory extends UIFactory {
+    private class CircuitHolderUIFactory extends CoverUIFactory<CircuitHolderCover> {
 
         @Override
-        protected void addTitleToUI(Builder builder) {
+        public void addTitleToUI(Builder builder) {
             ItemStack coverItem = GTUtility.intToStack(getUIBuildContext().getCoverID());
             if (coverItem != null) {
                 builder.widget(
@@ -144,7 +146,7 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
         }
 
         @Override
-        protected int getGUIWidth() {
+        public int getGUIWidth() {
             return 176 / 2;
         }
 
@@ -154,7 +156,7 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
         }
 
         @Override
-        protected void addUIWidgets(ModularWindow.Builder builder) {
+        public void addUIWidgets(ModularWindow.Builder builder) {
 
             builder.setPos((size, window) ->
             // window.
@@ -221,6 +223,19 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
                 .setSize(16, 16)
                 .setPos(3 + 32 + 16, 3));
 
+        }
+
+        @Override
+        protected CircuitHolderCover adaptCover(Cover cover) {
+            if (cover instanceof CircuitHolderCover) {
+                return (CircuitHolderCover) cover;
+            }
+            return null;
+        }
+
+        private Data getCoverData() {
+
+            return getCover().coverData;
         }
 
         ChangeableWidget chw;
@@ -371,7 +386,7 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
         }
 
         @Override
-        protected @NotNull Size determineSize(int maxWidth, int maxHeight) {
+        public @NotNull Size determineSize(int maxWidth, int maxHeight) {
             if (this.child.isEmpty()) {
                 return Size.ZERO;
             }
@@ -516,13 +531,7 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
     }
 
     @Override
-    public Data createDataObject(int aLegacyData) {
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Data createDataObject() {
+    public Data initializeDataSer() {
 
         return new Data(new NBTTagCompound());
     }
@@ -533,17 +542,4 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
         return super.allowsCopyPasteTool();
     }
 
-    @Override
-    protected boolean onCoverRightClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
-        ICoverable aTileEntity, EntityPlayer aPlayer, float aX, float aY, float aZ) {
-
-        return super.onCoverRightClickImpl(side, aCoverID, aCoverVariable, aTileEntity, aPlayer, aX, aY, aZ);
-    }
-
-    @Override
-    protected boolean onCoverShiftRightClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
-        ICoverable aTileEntity, EntityPlayer aPlayer) {
-        // TODO Auto-generated method stub
-        return super.onCoverShiftRightClickImpl(side, aCoverID, aCoverVariable, aTileEntity, aPlayer);
-    }
 }

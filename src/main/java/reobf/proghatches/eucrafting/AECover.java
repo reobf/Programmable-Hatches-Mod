@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -22,6 +21,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
+
+import org.jetbrains.annotations.NotNull;
 
 import com.glodblock.github.loader.ItemAndBlockHolder;
 import com.google.common.io.ByteArrayDataInput;
@@ -45,12 +46,13 @@ import appeng.me.helpers.IGridProxyable;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.covers.CoverContext;
+import gregtech.api.covers.CoverPlacer;
 import gregtech.api.gui.modularui.CoverUIBuildContext;
 import gregtech.api.gui.modularui.GTUIInfos;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.util.CoverBehaviorBase;
-import gregtech.api.util.ISerializableObject;
+import gregtech.common.covers.Cover;
 import gregtech.crossmod.waila.GregtechWailaDataProvider;
 import io.netty.buffer.ByteBuf;
 import reobf.proghatches.main.Config;
@@ -72,18 +74,20 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
 
     }
 
-    public AECover() {
+    /*
+     * public AECover() {
+     * this(InterfaceData.class);
+     * }
+     */
 
-        this(InterfaceData.class);
+    @SuppressWarnings("unchecked")
+    public AECover(CoverContext context, @NotNull Class<? extends Data> c, gregtech.api.interfaces.ITexture t) {
+
+        super(context, (@NotNull Class<Data>) (clazz = c), t);
 
     }
 
-    public AECover(Class<?> c) {
-        super(Data.class);
-        clazz = c;
-    }
-
-    Class<?> clazz;
+    static Class<?> clazz;
 
     public static class DummyData implements Data {
 
@@ -103,7 +107,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
         }
 
         @Override
-        public ISerializableObject copy() {
+        public ISer copy() {
             // TODO Auto-generated method stub
             return this;
         }
@@ -123,12 +127,6 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
         @Override
         public void loadDataFromNBT(NBTBase aNBT) {
 
-        }
-
-        @Override
-        public ISerializableObject readFromPacket(ByteArrayDataInput aBuf, EntityPlayerMP aPlayer) {
-            // TODO Auto-generated method stub
-            return this;
         }
 
         @Override
@@ -220,12 +218,26 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
             // TODO Auto-generated method stub
             return null;
         }
+
+        @Override
+        public void readFromPacket(ByteArrayDataInput aBuf) {
+            // TODO Auto-generated method stub
+
+        }
     }
 
     static int h0 = GregtechWailaDataProvider.class.getName()
         .hashCode();
 
-    public static interface Data extends ISerializableObject, IGridProxyable {
+    public static interface Data extends ISer, IGridProxyable {
+
+        default public ISer getCoverData(Cover c) {
+            if (c instanceof AECover) {
+                return ((AECover) c).coverData;
+            }
+            return null;
+
+        }
 
         default public boolean isWailaCall() {
             if (FMLCommonHandler.instance()
@@ -321,7 +333,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
         public void setPos(DimensionalCoord pos);
 
         @Override
-        default public ISerializableObject copy() {
+        default public ISer copy() {
 
             Data o = newInst();
             o.setSide(getSide());
@@ -413,7 +425,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
         }
 
         @Override
-        default public ISerializableObject readFromPacket(ByteArrayDataInput aBuf, EntityPlayerMP aPlayer) {
+        default public void readFromPacket(ByteArrayDataInput aBuf) {
             setSide(ForgeDirection.getOrientation(aBuf.readInt()));
             int x = aBuf.readInt();
             int y = aBuf.readInt();
@@ -426,7 +438,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
                 fakeTile().zCoord = z;
                 fakeTile().setWorldObj(getPos().getWorld());
             }
-            return this;
+            // return this;
         }
 
         public TileEntity fakeTile();
@@ -530,7 +542,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
 
                 }
 
-                aTileEntity.dropCover(side, side, true);
+                aTileEntity.dropCover(side, side);
                 return false;
 
             }
@@ -569,38 +581,10 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
         NBTTagCompound getTag();
     }
 
-    @Override
-    public Data createDataObject(int aLegacyData) {
-
-        throw new UnsupportedOperationException("no legacy");
-    }
-
-    @Override
-    protected ItemStack getDisplayStackImpl(int aCoverID, Data aCoverVariable) {
-        ItemStack is = super.getDisplayStackImpl(aCoverID, aCoverVariable);
-
-        if (aCoverVariable.dualityName()) {
-            String s = aCoverVariable.name();
-            if (s == null || s.equals("")) {
-                is.stackTagCompound = null;
-            } else {
-                is.setStackDisplayName(s);
-            }
-
-        } else {
-            String s = aCoverVariable.tagName();
-            if (s != null && !s.equals("")) {
-                is.setStackDisplayName(s);
-            }
-        }
-
-        return is;
-    }
-
     // private static Throwable t = new Throwable();
 
     @Override
-    public Data createDataObject() {
+    public Data initializeDataSer() {
 
         if (FMLCommonHandler.instance()
             .getEffectiveSide() == Side.CLIENT) {
@@ -623,39 +607,73 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
         } ;
 
         try {
-            return (Data) clazz.newInstance();
+            return typeToken.newInstance();
         } catch (Exception e) {
 
-            throw new RuntimeException(e);
+            throw new AssertionError(e);
         }
     }
 
-    public void chunkUnload(Data t) {
-        t.getProxy()
+    /*
+     * static Function<Object,Data> newInst;
+     * static Field f;
+     * static{
+     * try {
+     * f=CoverBehaviorBase.class.getDeclaredField("typeToken");
+     * f.setAccessible(true);
+     * newInst=s->{
+     * try {
+     * return (Data) ((Class)f.get(s)).newInstance();
+     * } catch (Exception e) { e.printStackTrace();
+     * throw new AssertionError(e);
+     * }
+     * };
+     * } catch (Exception e) {e.printStackTrace();
+     * throw new AssertionError(e);
+     * }
+     * }
+     */
+    /*
+     * public void chunkUnload(Data t) {
+     * t.getProxy()
+     * .onChunkUnload();
+     * }
+     */
+    @Override
+    public void onCoverUnload() {
+        coverData.getProxy()
             .onChunkUnload();
 
     }
 
-    @Override
-    public void placeCover(ForgeDirection side, ItemStack aCover, ICoverable aTileEntity) {
-        super.placeCover(side, aCover, aTileEntity);
-
-        Data data = ((Data) aTileEntity.getCoverInfoAtSide(side).getCoverData());
-        data.setTag(aCover.getTagCompound());
-        data.accept(side, aTileEntity, false);
+    public static CoverPlacer placer() {
+        return CoverPlacer.builder()
+            .onlyPlaceIf(AECover::isCoverPlaceable)
+            .build();
 
     }
 
-    @Override
-    public void onPlayerAttach(EntityPlayer player, ItemStack aCover, ICoverable aTileEntity, ForgeDirection side) {
+    public static boolean isCoverPlaceable(ForgeDirection side, ItemStack aStack, ICoverable aTileEntity) {
+        if (!Config.MECover && aTileEntity instanceof IGridProxyable
+            && ((IGridProxyable) aTileEntity).getProxy() != null) {
+            return false;
+        }
 
-        Data data = (Data) aTileEntity.getCoverInfoAtSide(side).getCoverData();
+        return true;
+    }
+
+    @Override
+    public void onPlayerAttach(EntityPlayer player, ItemStack coverItem) {
+
+        Data data = (Data) this.coverData;
+        data.accept(coverSide, getTile(), false);
         data.getProxy()
             .setOwner(player);
+
     }
 
-    protected boolean onCoverRightClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
-        ICoverable aTileEntity, EntityPlayer aPlayer, float aX, float aY, float aZ) {
+    public boolean onCoverRightClick(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity,
+        EntityPlayer aPlayer, float aX, float aY, float aZ) {
         if (aCoverVariable.nonShiftClick(side, aCoverID, aCoverVariable, aTileEntity, aPlayer)) {
             return true;
         }
@@ -664,10 +682,9 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
     };
 
     @Override
-    protected Data onCoverScrewdriverClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
-        ICoverable aTileEntity, EntityPlayer aPlayer, float aX, float aY, float aZ) {
-        if (aCoverVariable.hasModularGUI()) GTUIInfos.openCoverUI(aTileEntity, aPlayer, side);
-        return super.onCoverScrewdriverClickImpl(side, aCoverID, aCoverVariable, aTileEntity, aPlayer, aX, aY, aZ);
+    public void onCoverScrewdriverClick(EntityPlayer aPlayer, float aX, float aY, float aZ) {
+        if (this.coverData.hasModularGUI()) GTUIInfos.openCoverUI(this.coveredTile.get(), aPlayer, coverSide);
+        super.onCoverScrewdriverClick(aPlayer, aX, aY, aZ);
     }
 
     private boolean openGUI(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity,
@@ -696,13 +713,12 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
     }
 
     @Override
-    protected boolean onCoverShiftRightClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
-        ICoverable aTileEntity, EntityPlayer aPlayer) {
-        if (aCoverVariable.shiftClick(side, aCoverID, aCoverVariable, aTileEntity, aPlayer)) {
+    public boolean onCoverShiftRightClick(EntityPlayer aPlayer) {
+        if (coverData.shiftClick(coverSide, this.coverID, coverData, coveredTile.get(), aPlayer)) {
             return true;
         } ;
 
-        openGUI(side, aCoverID, aCoverVariable, aTileEntity, aPlayer);
+        openGUI(coverSide, this.coverID, coverData, coveredTile.get(), aPlayer);
 
         /*
          * if (aCoverVariable.hasAEGUI() && !aPlayer.worldObj.isRemote) {
@@ -727,20 +743,19 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
     }
 
     @Override
-    protected int getTickRateImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity) {
+    public int getMinimumTickRate() {
 
         return 1;
     }
 
     @Override
-    protected boolean onCoverRemovalImpl(ForgeDirection side, int aCoverID, Data data, ICoverable aTileEntity,
-        boolean aForced) {
-        data.destroy();
-        return true;
+    public void onCoverRemoval() {
+        this.coverData.destroy();
+
     }
 
     /*
-     * @Override protected void onBaseTEDestroyedImpl(ForgeDirection side, int
+     * @Override public void onBaseTEDestroyed(ForgeDirection side, int
      * aCoverID, Data data, ICoverable aTileEntity) {
      * data.getProxy().getNode().getConnections().forEach(s->s.destroy());
      * data.getProxy().invalidate(); try {
@@ -779,10 +794,13 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
     }
 
     @Override
-    protected Data doCoverThingsImpl(ForgeDirection side, byte aInputRedstone, int aCoverID, Data data,
-        ICoverable aTileEntity, long aTimer) {
+    public void doCoverThings(byte aRedstone, long aTickTimer) {
+        @NotNull
+        Data data = this.coverData;
+        ForgeDirection side = this.coverSide;
+        ICoverable aTileEntity = this.coveredTile.get();
         if (data.firstUpdate()) if (!data.accept(side, aTileEntity, false)) {
-            return data;
+            return;
         } ;
 
         if (!data.getProxy()
@@ -866,53 +884,46 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
 
         }
 
-        return super.doCoverThingsImpl(side, aInputRedstone, aCoverID, data, aTileEntity, aTimer);
+        super.doCoverThings(aRedstone, aTickTimer);
     }
 
     @Override
-    protected boolean letsEnergyInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity) {
+    public boolean letsEnergyIn() {
         return true;
     }
 
     @Override
-    protected boolean letsEnergyOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
-        ICoverable aTileEntity) {
+    public boolean letsEnergyOut() {
         return true;
     }
 
     @Override
-    protected boolean letsFluidInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, Fluid aFluid,
-        ICoverable aTileEntity) {
+    public boolean letsFluidIn(Fluid fluid) {
         return true;
     }
 
     @Override
-    protected boolean letsFluidOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, Fluid aFluid,
-        ICoverable aTileEntity) {
+    public boolean letsFluidOut(Fluid fluid) {
         return true;
     }
 
     @Override
-    protected boolean letsItemsInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, int aSlot,
-        ICoverable aTileEntity) {
+    public boolean letsItemsIn(int slot) {
         return true;
     }
 
     @Override
-    protected boolean letsItemsOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, int aSlot,
-        ICoverable aTileEntity) {
+    public boolean letsItemsOut(int slot) {
         return true;
     }
 
     @Override
-    protected boolean letsRedstoneGoInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
-        ICoverable aTileEntity) {
+    public boolean letsRedstoneGoIn() {
         return true;
     }
 
     @Override
-    protected boolean letsRedstoneGoOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
-        ICoverable aTileEntity) {
+    public boolean letsRedstoneGoOut() {
         return true;
     }
 
@@ -932,11 +943,11 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
     public ModularWindow createWindow(CoverUIBuildContext buildContext) {
         return new AECoverUIFactory(
             buildContext,
-            ((Data) buildContext.getTile()
-            		.getCoverInfoAtSide(buildContext.getCoverSide()).getCoverData())).createWindow();
+            (((AECover) buildContext.getTile()
+                .getCoverAtSide(buildContext.getCoverSide())).coverData)).createWindow();
     }
 
-    private class AECoverUIFactory extends UIFactory {
+    private class AECoverUIFactory extends CoverUIFactory<AECover> {
 
         public AECoverUIFactory(CoverUIBuildContext buildContext, Data d) {
             super(buildContext);
@@ -952,7 +963,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
         }
 
         @Override
-        protected void addUIWidgets(Builder builder) {
+        public void addUIWidgets(Builder builder) {
 
             data.addUIWidgets(builder, getUIBuildContext());
         }
@@ -964,14 +975,11 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
         return false;// no!
     }
 
-    @Override
-    public boolean isCoverPlaceable(ForgeDirection side, ItemStack aStack, ICoverable aTileEntity) {
-        if (!Config.MECover && aTileEntity instanceof IGridProxyable
-            && ((IGridProxyable) aTileEntity).getProxy() != null) {
-            return false;
-        } // cannot be placed on ME hatches
-
-        return super.isCoverPlaceable(side, aStack, aTileEntity);
+    public static ISer getCoverData(Cover c) {
+        if (c instanceof AECover) {
+            return ((AECover) c).coverData;
+        }
+        return null;
     }
 
 }

@@ -3,8 +3,8 @@ package reobf.proghatches.gt.metatileentity.util;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
+import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.forge.ItemHandlerHelper;
-import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 
 // spotless:off
 /**

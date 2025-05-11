@@ -1,16 +1,14 @@
 package reobf.proghatches.ae;
 
+import java.util.List;
+
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-
-import java.util.List;
 
 import com.glodblock.github.common.item.ItemFluidDrop;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
@@ -23,7 +21,6 @@ import appeng.api.config.Actionable;
 import appeng.api.config.Upgrades;
 import appeng.api.implementations.items.IUpgradeModule;
 import appeng.api.networking.IGridNode;
-import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.energy.IEnergyGrid;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
@@ -46,7 +43,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import reobf.proghatches.eucrafting.EUUtil;
 import reobf.proghatches.eucrafting.IGuiProvidingPart;
-import reobf.proghatches.fmp.ICraftingMachinePart;
 
 public class PartStockingExportBus extends PartBasicState implements
 
@@ -259,7 +255,9 @@ public class PartStockingExportBus extends PartBasicState implements
             for (IAEItemStack iae : iinv.getStorageList()) {
                 // IAEItemStack iae=iinv.getStorageList().getFirstItem();
                 if (iae == null) break;
-                if(iae.getItem( )instanceof ItemFluidDrop){continue;}
+                if (iae.getItem() instanceof ItemFluidDrop) {
+                    continue;
+                }
                 final IAEItemStack itemsToAdd = inv.extractItems(
                     iae.copy()
                         .setStackSize(itemToSend),
@@ -354,22 +352,23 @@ public class PartStockingExportBus extends PartBasicState implements
 
         return true;
     }
+
     @Override
     public void getDrops(final List<ItemStack> drops, final boolean wrenched) {
         if (inv[0] != null) drops.add(inv[0]);
-      
-    }
-   /* @Override
-    public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table,
-        ForgeDirection ejectionDirection) {
 
-        return false;
     }
-
-    @Override
-    public boolean acceptsPlans(ForgeDirection ejectionDirection) {
-        System.out.println(ejectionDirection);
-        return false;
-    }*/
+    /*
+     * @Override
+     * public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table,
+     * ForgeDirection ejectionDirection) {
+     * return false;
+     * }
+     * @Override
+     * public boolean acceptsPlans(ForgeDirection ejectionDirection) {
+     * System.out.println(ejectionDirection);
+     * return false;
+     * }
+     */
 
 }

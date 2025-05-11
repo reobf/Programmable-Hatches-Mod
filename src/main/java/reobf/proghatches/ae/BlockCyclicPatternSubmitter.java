@@ -42,8 +42,7 @@ public class BlockCyclicPatternSubmitter extends BlockContainer implements IName
     public void onBlockPlacedBy(World worldIn, int x, int y, int z, EntityLivingBase placer, ItemStack itemIn) {
 
         super.onBlockPlacedBy(worldIn, x, y, z, placer, itemIn);
-        if(worldIn.isRemote==false)
-        if (placer instanceof EntityPlayer) {
+        if (worldIn.isRemote == false) if (placer instanceof EntityPlayer) {
             if (!(placer instanceof FakePlayer))
                 ((TileCyclicPatternSubmitter) worldIn.getTileEntity(x, y, z)).mark((EntityPlayer) placer);
         }
@@ -74,37 +73,6 @@ public class BlockCyclicPatternSubmitter extends BlockContainer implements IName
     @Override
     public boolean onBlockActivated(World worldIn, int x, int y, int z, EntityPlayer player, int side, float subX,
         float subY, float subZ) {
-        /*
-         * if(worldIn.isRemote)return true;
-         * TileCyclicPatternSubmitter a=((TileCyclicPatternSubmitter)worldIn.getTileEntity(x, y, z));
-         * a.inv[0]=player.getCurrentEquippedItem();
-         */
-        /*
-         * if(player.getUniqueID().equals(a.owner)==false){
-         * player.addChatComponentMessage(new ChatComponentTranslation("proghatch.chunk_loading_alert.owner"));
-         * return false;}
-         * a.mode++;
-         * if(a.mode>3)a.mode=0;
-         * a.markDirty();
-         * player.addChatComponentMessage(new ChatComponentTranslation("proghatch.chunk_loading_alert.mode."+a.mode));
-         */
-        TileEntity te = worldIn.getTileEntity(x, y, z);
-        /*
-         * boolean suc= ((TileIOHub) te) .onRightclick(player,
-         * ForgeDirection.getOrientation(side), subX, subY, subZ); if(suc)return
-         * suc;
-         */
-        final ItemStack is = player.inventory.getCurrentItem();
-        /*
-         * if (is != null && is.getItem() instanceof ToolQuartzCuttingKnife) {
-         * if (ForgeEventFactory.onItemUseStart(player, is, 1) <= 0)
-         * return false;
-         * // System.out.println(te);
-         * player.openGui(AppEng.instance(), GuiBridge.GUI_RENAMER.ordinal() << 5 | (side), te.getWorldObj(),
-         * te.xCoord, te.yCoord, te.zCoord);
-         * return true;
-         * }
-         */
         b: {
             if (NetworkUtils.isClient()) break b;
             UIInfos.TILE_MODULAR_UI.open(player, worldIn, x, y, z);
@@ -198,7 +166,7 @@ public class BlockCyclicPatternSubmitter extends BlockContainer implements IName
 
     @Override
     public String getName(ItemStack p_77624_1_) {
-        // TODO Auto-generated method stub
+      
         return null;
     }
 

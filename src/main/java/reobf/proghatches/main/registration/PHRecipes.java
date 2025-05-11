@@ -390,7 +390,7 @@ public class PHRecipes implements Runnable {
 
         });
         pc0.forEach(s -> {
-        	 ProghatchesUtil.allCircuits()
+            ProghatchesUtil.allCircuits()
                 .stream()
                 .forEach(ss -> {
                     GTValues.RA.stdBuilder()
@@ -2010,167 +2010,142 @@ public class PHRecipes implements Runnable {
         CraftingManager.getInstance()
             .getRecipeList()
             .add(recx);
-        
+
         GTValues.RA.stdBuilder()
-        .itemInputs(
-        		GregtechItemList.Hatch_Reservoir.get(1),
-        		new ItemStack(
-                        GregTechAPI.sBlockMachines,
-                        1,
-                        Config.metaTileEntityOffset + Registration.CircuitProviderOffsetT0)
-        		)
-        .itemOutputs(  new ItemStack(
-                GregTechAPI.sBlockMachines,
-                1,
-                Config.metaTileEntityOffset + Registration.WaterProviderOffset))
-        .duration(1 * SECONDS)
-        .eut(30)
-        .addTo(RecipeMaps.assemblerRecipes);
-        
-        
+            .itemInputs(
+                GregtechItemList.Hatch_Reservoir.get(1),
+                new ItemStack(
+                    GregTechAPI.sBlockMachines,
+                    1,
+                    Config.metaTileEntityOffset + Registration.CircuitProviderOffsetT0))
+            .itemOutputs(
+                new ItemStack(
+                    GregTechAPI.sBlockMachines,
+                    1,
+                    Config.metaTileEntityOffset + Registration.WaterProviderOffset))
+            .duration(1 * SECONDS)
+            .eut(30)
+            .addTo(RecipeMaps.assemblerRecipes);
+
         GTValues.RA.stdBuilder()
-        .itemInputs(
-        		Api.INSTANCE.parts().partStorageBus.stack(1)
-        		,
-        		LanthItemList.BEAMLINE_FOCUS_INPUT_BUS.copy()
-        		)
-        .itemOutputs(  new ItemStack(
-                GregTechAPI.sBlockMachines,
-                1,
-                Config.metaTileEntityOffset + Registration.MEFocusOffset))
-        .duration(1 * SECONDS)
-        .eut(30)
-        .addTo(RecipeMaps.assemblerRecipes);
-        
+            .itemInputs(Api.INSTANCE.parts().partStorageBus.stack(1), LanthItemList.BEAMLINE_FOCUS_INPUT_BUS.copy())
+            .itemOutputs(
+                new ItemStack(GregTechAPI.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.MEFocusOffset))
+            .duration(1 * SECONDS)
+            .eut(30)
+            .addTo(RecipeMaps.assemblerRecipes);
+
         GTValues.RA.stdBuilder()
-        .itemInputs(
-        		Api.INSTANCE.parts().partStorageBus.stack(1)
-        		,
-        		GregtechItemList.Bus_Catalysts.get(1)
-        		)
-        .itemOutputs(  new ItemStack(
-                GregTechAPI.sBlockMachines,
-                1,
-                Config.metaTileEntityOffset + Registration.MECatalystOffset))
-        .duration(1 * SECONDS)
-        .eut(30)
-        .addTo(RecipeMaps.assemblerRecipes);
-        
+            .itemInputs(Api.INSTANCE.parts().partStorageBus.stack(1), GregtechItemList.Bus_Catalysts.get(1))
+            .itemOutputs(
+                new ItemStack(
+                    GregTechAPI.sBlockMachines,
+                    1,
+                    Config.metaTileEntityOffset + Registration.MECatalystOffset))
+            .duration(1 * SECONDS)
+            .eut(30)
+            .addTo(RecipeMaps.assemblerRecipes);
+
         GTValues.RA.stdBuilder()
-        .itemInputs(
-        		ItemList.Tool_DataOrb.get(1)
-        		,
-        		 GregtechItemList.Hatch_Input_Elemental_Duplicator.get(1)
-        		)
-        .itemOutputs(  new ItemStack(
-                GregTechAPI.sBlockMachines,
-                1,
-                Config.metaTileEntityOffset + Registration.DataOrbOffset))
-        .duration(1 * SECONDS)
-        .eut(30)
-        .addTo(RecipeMaps.assemblerRecipes);
-        
-        
-        
+            .itemInputs(ItemList.Tool_DataOrb.get(1), GregtechItemList.Hatch_Input_Elemental_Duplicator.get(1))
+            .itemOutputs(
+                new ItemStack(GregTechAPI.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.DataOrbOffset))
+            .duration(1 * SECONDS)
+            .eut(30)
+            .addTo(RecipeMaps.assemblerRecipes);
+
         GTValues.RA.stdBuilder()
-        .itemInputs(
-        		ItemList.Hatch_Input_Bus_ME.get(1),
-        		ItemList.Hatch_Input_ME.get(1),
-        		new ItemStack(MyMod.toolkit,0,OreDictionary.WILDCARD_VALUE)
-        		)
-        .itemOutputs(  new ItemStack(
-                GregTechAPI.sBlockMachines,
-                1,
-                Config.metaTileEntityOffset + Registration.StockingDualInputOffset))
-        .duration(1 * SECONDS)
-        .eut(30)
-        .addTo(RecipeMaps.assemblerRecipes);
-        
+            .itemInputs(
+                ItemList.Hatch_Input_Bus_ME.get(1),
+                ItemList.Hatch_Input_ME.get(1),
+                new ItemStack(MyMod.toolkit, 0, OreDictionary.WILDCARD_VALUE))
+            .itemOutputs(
+                new ItemStack(
+                    GregTechAPI.sBlockMachines,
+                    1,
+                    Config.metaTileEntityOffset + Registration.StockingDualInputOffset))
+            .duration(1 * SECONDS)
+            .eut(30)
+            .addTo(RecipeMaps.assemblerRecipes);
+
         GTValues.RA.stdBuilder()
-        .itemInputs(
-        		ItemList.Hatch_Input_Bus_ME_Advanced.get(1),
-        		ItemList.Hatch_Input_ME_Advanced.get(1),
-        		new ItemStack(MyMod.toolkit,0,OreDictionary.WILDCARD_VALUE)
-        		)
-        .itemOutputs(  new ItemStack(
-                GregTechAPI.sBlockMachines,
-                1,
-                Config.metaTileEntityOffset + Registration.StockingDualInputOffset+1))
-        .duration(1 * SECONDS)
-        .eut(30)
-        .addTo(RecipeMaps.assemblerRecipes);
-        
+            .itemInputs(
+                ItemList.Hatch_Input_Bus_ME_Advanced.get(1),
+                ItemList.Hatch_Input_ME_Advanced.get(1),
+                new ItemStack(MyMod.toolkit, 0, OreDictionary.WILDCARD_VALUE))
+            .itemOutputs(
+                new ItemStack(
+                    GregTechAPI.sBlockMachines,
+                    1,
+                    Config.metaTileEntityOffset + Registration.StockingDualInputOffset + 1))
+            .duration(1 * SECONDS)
+            .eut(30)
+            .addTo(RecipeMaps.assemblerRecipes);
+
         GTValues.RA.stdBuilder()
-        .itemInputs(
-        		ItemList.HATCHES_INPUT_BUS[8].get(1),
-        		new ItemStack(MyMod.upgrades,4,0)
-        	
-        		)
-        .itemOutputs(  new ItemStack(
-                GregTechAPI.sBlockMachines,
-                1,
-                Config.metaTileEntityOffset + Registration.PhantomInputBusOffset))
-        .duration(1 * SECONDS)
-        .eut(30)
-        .addTo(RecipeMaps.assemblerRecipes);
-        
-        
+            .itemInputs(ItemList.HATCHES_INPUT_BUS[8].get(1), new ItemStack(MyMod.upgrades, 4, 0)
+
+            )
+            .itemOutputs(
+                new ItemStack(
+                    GregTechAPI.sBlockMachines,
+                    1,
+                    Config.metaTileEntityOffset + Registration.PhantomInputBusOffset))
+            .duration(1 * SECONDS)
+            .eut(30)
+            .addTo(RecipeMaps.assemblerRecipes);
+
         GTValues.RA.stdBuilder()
-        .itemInputs(
-        		 Api.INSTANCE.definitions()
-                 .parts()
-                .p2PTunnelGregtech().maybeStack(1).get(),
+            .itemInputs(
                 Api.INSTANCE.definitions()
-                .materials().cardInverter().maybeStack(1).get(),
+                    .parts()
+                    .p2PTunnelGregtech()
+                    .maybeStack(1)
+                    .get(),
+                Api.INSTANCE.definitions()
+                    .materials()
+                    .cardInverter()
+                    .maybeStack(1)
+                    .get(),
                 GTUtility.getIntegratedCircuit(4)
-        	
-        		)
-        .itemOutputs(  new ItemStack(
-               
-               MyMod.part_cow))
-        .duration(1 * SECONDS)
-        .eut(30)
-        .addTo(RecipeMaps.assemblerRecipes);
-        
-        
-        
-        /*
-         * rec = new ShapelessOreRecipe( new ItemStack( MyMod.plunger,1,1),
-         * ItemEnum.BOOSTER_CARD.getStack(0),
-         * new ItemStack( MyMod.plunger)
-         * ){
-         * public ItemStack getCraftingResult(net.minecraft.inventory.InventoryCrafting var1) {
-         * ItemStack ist = super.getCraftingResult(var1);
-         * for(int i=0;i<var1.getSizeInventory();i++){
-         * if(var1.getStackInSlot(i)!=null){
-         * if(var1.getStackInSlot(i).getItem()==MyMod.plunger){
-         * ist.setTagCompound(var1.getStackInSlot(i).getTagCompound());
-         * }
-         * }
-         * }
-         * return ist;
-         * };
-         * };
-         * CraftingManager.getInstance().getRecipeList().add(rec);
-         */
+
+            )
+            .itemOutputs(
+                new ItemStack(
+
+                    MyMod.part_cow))
+            .duration(1 * SECONDS)
+            .eut(30)
+            .addTo(RecipeMaps.assemblerRecipes);
 
         /*
-         * GTRecipeBuilder.builder()
-         * .metadata(RESEARCH_ITEM, new ItemStack(ChiselBlocks.present,1,16))
-         * .metadata(RESEARCH_TIME, 1 )
+         * GTValues.RA.stdBuilder()
          * .itemInputs(
-         * new ItemStack(ChiselBlocks.present,1,0),
-         * new ItemStack(ChiselBlocks.present,1,1),
-         * new ItemStack(ChiselBlocks.present,1,2),
-         * new ItemStack(ChiselBlocks.present,1,0)
+         * ItemList.WormholeGenerator.get(1),
+         * Api.INSTANCE.definitions()
+         * .parts()
+         * .p2PTunnelME()
+         * .maybeStack(16)
+         * .get()
          * )
-         * .fluidInputs(new FluidStack(FluidRegistry.WATER,1)
-         * )
-         * .itemOutputs( new ItemStack(ChiselBlocks.present,1,15))
-         * .eut(TierEU.RECIPE_LV)
-         * .duration(10)
-         * .addTo( GTRecipeConstants.AssemblyLine);
+         * .itemOutputs( new ItemStack(
+         * MyMod.lazer_p2p_part,16))
+         * .duration(1 * SECONDS)
+         * .eut(30)
+         * .addTo(RecipeMaps.assemblerRecipes);
          */
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTOreDictUnificator.get(OrePrefixes.circuit.get(Materials.UV), 1),
+                new ItemStack(
+                    GregTechAPI.sBlockMachines,
+                    0,
+                    Config.metaTileEntityOffset + Registration.LargeProviderOffset))
+            .itemOutputs(new ItemStack(MyMod.chip))
+            .duration(1 * SECONDS)
+            .eut(30)
+            .addTo(RecipeMaps.assemblerRecipes);
 
     }
 

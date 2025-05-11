@@ -411,7 +411,8 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
     // private BaseActionSource requestSource;
 
     @Override
-    public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ) {
+    public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
+        ItemStack is) {
         if (aPlayer.isSneaking()) {
             reserveFirst = !reserveFirst;
             aPlayer.addChatMessage(
@@ -420,7 +421,7 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 
             return;
         }
-        super.onScrewdriverRightClick(side, aPlayer, aX, aY, aZ);
+        super.onScrewdriverRightClick(side, aPlayer, aX, aY, aZ, is);
     }
 
     @Override

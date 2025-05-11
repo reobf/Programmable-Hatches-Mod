@@ -10,7 +10,7 @@ public class ASMCallbacks {
 
         if (o instanceof CommonMetaTileEntity) {
 
-        	IGregTechTileEntity mte = (IGregTechTileEntity) o;
+            IGregTechTileEntity mte = (IGregTechTileEntity) o;
             if (mte.getMetaTileEntity() instanceof IActualEnvironment) {
 
                 return o instanceof li.cil.oc.api.network.Environment;

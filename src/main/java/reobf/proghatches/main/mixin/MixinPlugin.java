@@ -92,7 +92,7 @@ public static boolean loaded;
     @SuppressWarnings("unused")
     @Override
     public List<String> getMixins() {
-    	loaded=true;
+        loaded = true;
         boolean ff = true;
 
         File f = new File(System.getProperty("user.dir") + File.separator + "config", "proghatches.mixin.properties");
@@ -127,7 +127,7 @@ public static boolean loaded;
         // Configuration configuration = new Configuration(f);
 
         // load all jars that mixin involves
-        HashMap<String, String> map = new HashMap<>(6);
+        //HashMap<String, String> map = new HashMap<>(6);
         /*
          * map.put( "com/github/vfyjxf/nee/NotEnoughEnergistics.class", "NotEnoughEnergistics");
          * map.put( "gregtech/GTMod.class", "GT5U");
@@ -136,61 +136,48 @@ public static boolean loaded;
          * map.put( "com/glodblock/github/FluidCraft.class", "ae2fc");
          * map.put( "codechicken/nei/NEIModContainer.class", "NEI");
          */
-        loadJarOf(map);
+        //loadJarOf(map);
 
         ArrayList<String> ret = new ArrayList<>();
         retLate.add("eucrafting." + "MixinWailaProvider");
         retLate.add("eucrafting." + "MixinInstantComplete");
-
-        // if (!"true".equals(pp.get("noFixRecursiveCraft")))
-
         if ("true".equals(pp.get("addEUCraftingMixins"))) {
-            if (ff) retLate.add("eucrafting." + "MixinMachineIdle");
-            if (ff) retLate.add("eucrafting." + "MixinMachineIdle2");
-            if (ff) retLate.add("eucrafting." + "MixinCpuClusterEUAutoRequest");
-            if (ff) retLate.add("eucrafting." + "MixinRemoveExcessiveEU");
-            if (ff) retLate.add("eucrafting." + "MixinCraftingRecursiveWorkaround");
+            retLate.add("eucrafting." + "MixinMachineIdle");
+            retLate.add("eucrafting." + "MixinMachineIdle2");
+            retLate.add("eucrafting." + "MixinCpuClusterEUAutoRequest");
+            retLate.add("eucrafting." + "MixinRemoveExcessiveEU");
+            retLate.add("eucrafting." + "MixinCraftingRecursiveWorkaround");
         } else {
 
             noEUMixin = true;
         }
 
-        if (ff) retLate.add("eucrafting." + "MixinEUSourceCoverChunkUnloadNotification");
-        if (ff) retLate.add("eucrafting." + "MixinCoverInsertion");
+        retLate.add("eucrafting." + "MixinEUSourceCoverChunkUnloadNotification");
+        retLate.add("eucrafting." + "MixinCoverInsertion");
         if (FMLLaunchHandler.side()
             .isClient()) {
-            if (ff) retLate.add("eucrafting." + "MixinWirelessRename");
+            retLate.add("eucrafting." + "MixinWirelessRename");
         }
-        if (ff) retLate.add("eucrafting." + "MixinInvTracker");
-
-        //if (ff) retLate.add("MixinFixPipeCoverBug");
-       // if (ff) retLate.add("MixinFixPipeCoverBug2");
-
-        if (ff) retLate.add("MixinAEAdaptorSkipStackSizeCheck");
-        if (ff) retLate.add("MixinAwarenessForDualHatch");
-
-        /*
-         * if (!"true".equals(pp.get("noRemoveUnusedCacheInModularUIContainer")))
-         * if(ff)retLate.add("MixinRemoveUnunsedItemStackCache");
-         */
-
-        if (ff) retLate.add("MixinAE2FCCompat");
+        retLate.add("eucrafting." + "MixinInvTracker");
+        retLate.add("MixinAEAdaptorSkipStackSizeCheck");
+        retLate.add("MixinAwarenessForDualHatch");
+        retLate.add("MixinAE2FCCompat");
 
         if (!"true".equals(pp.get("noRecipeFilterForDualHatch"))) {
-            if (ff) retLate.add("MixinGTRecipeFilter");
+            retLate.add("MixinGTRecipeFilter");
             // GT Multiblock will not set recipe filter of DualInputHatch, set
             // it via mixin
-            if (ff) retLate.add("MixinAddProgCircuitExemptToInputFilter");
+            retLate.add("MixinAddProgCircuitExemptToInputFilter");
         }
         // Crafting CPU cannot recognize empty-input pattern
         // bypass the check anyway
         retLate.add("MixinCanCraftExempt");
-        if (ff) retLate.add("MixinNoFuzzyForProgrammingCircuit");
-        if (ff) retLate.add("MixinHandleProgrammingOnRecipeStart");
+        retLate.add("MixinNoFuzzyForProgrammingCircuit");
+        retLate.add("MixinHandleProgrammingOnRecipeStart");
         retLate.add("MixinCraftFromPatternTaskPatch");
         retLate.add("MixinGolemCore");
         retLate.add("MixinGolem");
-        //retLate.add("MixinStorageChangeEvent");
+        // retLate.add("MixinStorageChangeEvent");
         retLate.add("MixinOptimize");
         retLate.add("part2.MixinIsWailaCall");
         retLate.add("part2.MixinPresetsInject");
@@ -202,34 +189,26 @@ public static boolean loaded;
         retLate.add("part2.MixinCraftingCondender");
         retLate.add("part2.MixinVoidingHatch");
         retLate.add("part2.MixinCraftingV2");
-
         retLate.add("part2.MixinDirectionCapture");
         // retLate.add("part2.M2");
         retLate.add("part2.MixinEIOInit");
         retLate.add("part2.MixinEIOBundle");
         retLate.add("part2.MixinContextNoCircuitCache");
         retLate.add("part2.MixinExtractIntercept");
-        // System.out.println("zzzzzzzzzzz");
-        // System.out.println(cpw.mods.fml.common.Loader.instance().getIndexedModList());
-
-        // FMLCommonHandler.instance().exitJava(0, true);
-
+        //retLate.add("part2.MixinCraftRevive");
         if (FMLLaunchHandler.side()
             .isClient()) {
             retLate.add("part2.MixinEIOGui");
-            if (!"true".equals(pp.get("noAEItemSortMixins"))) if (ff) retLate.add("MixinAEItemStackCompare");
-            if (!"true".equals(pp.get("noFixTossBug"))) if (ff) ret.add("MixinFixTossWhenClickSlot");
+            if (!"true".equals(pp.get("noAEItemSortMixins"))) retLate.add("MixinAEItemStackCompare");
+            //if (!"true".equals(pp.get("noFixTossBug"))) ret.add("MixinFixTossWhenClickSlot");
 
             if (!"true".equals(pp.get("noPatternEncodingMixin"))) {
-                // if(ff)retLate.add("MixinPatternEncodingCiruitSpecialTreatment");// For
-                // ae2fc
-                // pattern
-                // encoder
-                if (ff) retLate.add("MixinPatternEncodingCiruitSpecialTreatment2"); // For
-                // nee
-                // pattern
-                // encoder
-                if (ff) retLate.add("MixinPatternEncodingCiruitSpecialTreatmentNeo");
+                // if(ff)retLate.add("MixinPatternEncodingCiruitSpecialTreatment");
+            	
+            	//  wo/ fluid
+                retLate.add("MixinPatternEncodingCiruitSpecialTreatment2"); 
+                //  with fluid
+                retLate.add("MixinPatternEncodingCiruitSpecialTreatmentNeo");
             }
 
         } ;
@@ -240,7 +219,7 @@ public static boolean loaded;
 
     @Override
     public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-        // TODO Auto-generated method stub
+       
 
     }
 
@@ -250,17 +229,14 @@ public static boolean loaded;
     }
 
     public static boolean hasTrait(Path p, Map<String, String> classTrait) {
-        // System.err.println(p);
+        
         try (ZipInputStream zs = new ZipInputStream(Files.newInputStream(p))) {
 
             ZipEntry entry = null;
             while ((entry = zs.getNextEntry()) != null) {
                 String entryName = entry.getName();
 
-                /*
-                 * if(p.toString().contains("NotEnoughEnergistics-1.4.2.jar")){
-                 * System.err.println(p); }
-                 */
+                
                 boolean bingo = false;
                 if (classTrait.remove(entryName) != null) {
 

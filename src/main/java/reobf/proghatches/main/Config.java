@@ -162,7 +162,7 @@ public class Config {
             try {
                 MyMod.LOG.warn("toolTipFinisher with String arg not found.");
                 MyMod.LOG.warn("Try toolTipFinisher with String[] arg.");
-                e.printStackTrace();
+                // e.printStackTrace();
                 obj.getClass()
                     .getMethod("toolTipFinisher", String[].class)
                     .invoke(obj, new Object[] { new String[] { str } });
@@ -170,7 +170,7 @@ public class Config {
                 MyMod.LOG.fatal("????");
                 ee.printStackTrace();
             }
-            e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 

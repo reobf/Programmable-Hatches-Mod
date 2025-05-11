@@ -75,8 +75,6 @@ import appeng.me.helpers.IGridProxyable;
 import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
-import gregtech.api.enums.Materials;
-import gregtech.api.enums.OrePrefixes;
 import gregtech.api.enums.Textures;
 import gregtech.api.gui.modularui.GTUIInfos;
 import gregtech.api.gui.modularui.GTUITextures;
@@ -86,7 +84,6 @@ import gregtech.api.interfaces.modularui.IAddUIWidgets;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTETieredMachineBlock;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import mcp.mobius.waila.api.IWailaConfigHandler;
@@ -97,7 +94,6 @@ import reobf.proghatches.gt.metatileentity.PatternDualInputHatch.DA;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
-import reobf.proghatches.gt.metatileentity.util.IPHDual;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
@@ -114,8 +110,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
     public int masterX, masterY, masterZ;
     public boolean masterSet = false; // indicate if values of masterX,
                                       // masterY, masterZ are valid
-    
-    
+
     public PatternDualInputHatchInventoryMappingSlave(int aID, String aName, String aNameRegional, int aTier) {
         super(
             aID,
@@ -163,8 +158,8 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
             masterNBT.setInteger("z", masterZ);
             aNBT.setTag("master", masterNBT);
         }
-        
-    	aNBT.setIntArray("multiplier", multiplier);
+
+        aNBT.setIntArray("multiplier", multiplier);
 
     }
 
@@ -191,11 +186,11 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
             masterZ = masterNBT.getInteger("z");
             masterSet = true;
         }
-        multiplier=aNBT.getIntArray("multiplier" );
-		if(multiplier.length<36)multiplier=new int[36];
-		for(int i=0;i<multiplier.length;i++){
-			multiplier[i]=Math.max(multiplier[i], 1);
-		}
+        multiplier = aNBT.getIntArray("multiplier");
+        if (multiplier.length < 36) multiplier = new int[36];
+        for (int i = 0; i < multiplier.length; i++) {
+            multiplier[i] = Math.max(multiplier[i], 1);
+        }
     }
 
     @Override
@@ -255,9 +250,9 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         if (!(tileEntity instanceof IGregTechTileEntity)) return null;
         IMetaTileEntity metaTileEntity = ((IGregTechTileEntity) tileEntity).getMetaTileEntity();
         if (!(metaTileEntity instanceof IDualInputHatch)) return null;
-       // if (!(metaTileEntity instanceof IPHDual)){}
+        // if (!(metaTileEntity instanceof IPHDual)){}
         if (!(metaTileEntity instanceof reobf.proghatches.gt.metatileentity.DualInputHatch)) return null;
-        
+
         masterX = x;
         masterY = y;
         masterZ = z;
@@ -637,8 +632,9 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         if (m instanceof IInterfaceViewable) {
             masterName = ((IInterfaceViewable) m).getName();
         } else {
-            masterName = Optional.ofNullable(m.getMachineCraftingIcon()).map(ItemStack::getDisplayName)
-                .orElse(m.getLocalName()==null?getLocalName():m.getLocalName());
+            masterName = Optional.ofNullable(m.getMachineCraftingIcon())
+                .map(ItemStack::getDisplayName)
+                .orElse(m.getLocalName() == null ? getLocalName() : m.getLocalName());
         }
         name.append(masterName);
         name.append("(Mapped)");
@@ -670,7 +666,8 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
         return true;
     }
-int n;
+
+    int n;
     ItemStack[] pattern = new ItemStack[36];
     IInventory patternMapper = new IInventory() {
 
@@ -904,8 +901,10 @@ int n;
                 BufferedDualInputHatch m = (BufferedDualInputHatch) master;
 
                 DualInvBuffer theBuffer = ((BufferedDualInputHatch) master).classifyForce();
-                if(theBuffer!=null){
-                ((BufferedDualInputHatch) master).recordRecipe(theBuffer);theBuffer.onChange();}
+                if (theBuffer != null) {
+                    ((BufferedDualInputHatch) master).recordRecipe(theBuffer);
+                    theBuffer.onChange();
+                }
                 // ((BufferedDualInputHatch) master).classifyForce();
             }
             return true;// hoo ray
@@ -979,244 +978,305 @@ int n;
                 continue;
             }
             patternItemCache[index] = pattern[index];
-            patternDetailCache[index] = multiplier[index]==1?details:new DA(details, multiplier[index]);
-            craftingTracker.addCraftingOption(this,  patternDetailCache[index] );
+            patternDetailCache[index] = multiplier[index] == 1 ? details : new DA(details, multiplier[index]);
+            craftingTracker.addCraftingOption(this, patternDetailCache[index]);
         }
 
     }
-	int[] multiplier = new int[36];
-	{Arrays.fill(multiplier, 1);}
-public void refresh(){
-	for(int i=0;i<patternItemCache.length;i++){
-		patternItemCache[i]=null;
-	}
-	postMEPatternChange();
-	
-	
-}
-    protected ModularWindow createPatternWindow(final EntityPlayer player) {
-    	final int WIDTH = 18 * 4 + 6;
-		final int HEIGHT = 18 * 9 + 6;
-		final int PARENT_WIDTH = getGUIWidth();
-		final int PARENT_HEIGHT = getGUIHeight();
-		ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-		IDrawable tab1 = new ItemDrawable(  Api.INSTANCE.definitions().items().encodedPattern().maybeStack(1).get())
-				.withFixedSize(18, 18, 4, 4);
-		IDrawable tab2 = GTUITextures.OVERLAY_BUTTON_BATCH_MODE_OFF.withFixedSize(18, 18, 4, 4);;
-		
-		/*new ItemDrawable(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Iron, 1))
-				.withFixedSize(18, 18, 4, 4);*/
-		IDrawable tab3 = GTUITextures.OVERLAY_BUTTON_BATCH_MODE_ON.withFixedSize(18, 18, 4, 4);;/*new ItemDrawable(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Gold, 1))
-				.withFixedSize(18, 18, 4, 4);*/
-		
-		
-		
-		
-		
-		
-		
-		TabContainer tab;
-		builder.widget(tab = new TabContainer().setButtonSize(28, 32)
-				.addTabButton(new TabButton(0)
-						.setBackground(true,
-								ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 0f, 1f, 1 / 3f).getSubArea(0, 0,
-										0.5f, 1f),
-								tab1)
-						.setBackground(false,
-								ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 0f, 1f, 1 / 3f).getSubArea(0.5f, 0,
-										1f, 1f),
-								tab1)
-						.setPos(WIDTH - 3, -1).addTooltip("Patterns"))
-				.addTabButton(new TabButton(1)
-						.setBackground(true,
-								ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f).getSubArea(0, 0,
-										0.5f, 1f),
-								tab2)
-						.setBackground(false,
-								ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f).getSubArea(0.5f,
-										0, 1f, 1f),
-								tab2)
-						.setPos(WIDTH - 3, 28 - 1).addTooltip("Individual Multiplier Op."))
-				.addTabButton(new TabButton(2)
-						.setBackground(true,
-								ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f).getSubArea(0, 0,
-										0.5f, 1f),
-								tab3)
-						.setBackground(false, ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
-								.getSubArea(0.5f, 0, 1f, 1f), tab3)
-						.setPos(WIDTH - 3, 56 - 1).addTooltip("Batch Multiplier Op.")));
 
-		builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
-		builder.setGuiTint(getGUIColorization());
-		builder.setDraggable(true);
-		builder.setPos((a, b) -> new Pos2d(PARENT_WIDTH + b.getPos().getX(), PARENT_HEIGHT * 0 + b.getPos().getY()));
-		MultiChildWidget page1 = new MultiChildWidget();
-		tab.addPage(page1);
-		MultiChildWidget page2 = new MultiChildWidget();
-		tab.addPage(page2);
-		MultiChildWidget page3 = new MultiChildWidget();
-		tab.addPage(page3);
-		
-		page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick)->{
-			for(int i=0;i<36;i++)
-			{multiplier[i]*=2;
-			multiplier[i]=Math.max(multiplier[i], 1);
-			}
-			refresh();
-		}) .setSize(16, 16).setPos(3,3).setBackground(GTUITextures.BUTTON_STANDARD).addTooltip("x2")
-		);
-		page3.addChild(TextWidget.dynamicString(()->"x2").setPos(3+3, 3));
-		page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick)->{
-			for(int i=0;i<36;i++)
-			multiplier[i]=1;
-			refresh();
-		}) .setSize(16, 16).setPos(3+16,3).setBackground(GTUITextures.BUTTON_STANDARD).addTooltip("=1")
-		);
-		page3.addChild(TextWidget.dynamicString(()->"=2").setPos(3+3+16,3));
-		page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick)->{
-			for(int i=0;i<36;i++)
-			{multiplier[i]*=n;
-			multiplier[i]=Math.max(multiplier[i], 1);
-			}
-			refresh();
-		}) .setSize(16, 16).setPos(3,3+32).setBackground(GTUITextures.BUTTON_STANDARD).addTooltip("xN")
-		);
-		page3.addChild(TextWidget.dynamicString(()->"x"+n).setPos(3+3,3+32));
-		page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick)->{
-			for(int i=0;i<36;i++)
-			multiplier[i]=n;
-			refresh();
-		}) .setSize(16, 16).setPos(3+16,3+32).setBackground(GTUITextures.BUTTON_STANDARD).addTooltip("=N")
-		);
-		page3.addChild(TextWidget.dynamicString(()->"="+n).setPos(3+3+16,3+32));
-		TextFieldWidget text_n;
-		page3.addChild((text_n= new TextFieldWidget()).setValidator(s->{
-			try{
-			Integer.valueOf(s);}catch(Exception e){return "1";}
-			return s;
-		}).setSetter(s -> {
-			
-			n = Integer.valueOf(s);
-		
-		refresh();})
-				
-				.setGetter(() -> n+"")
-				
-               .setTextAlignment(Alignment.Center)
-                .setTextColor(Color.WHITE.normal).addTooltip("N=")
-                .setSize(60, 18)
-                .setPos(3, 3+32+18)
-                .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
-		
-		page3.addChild(
-				new TextWidget().setStringSupplier(()->{
-					if(text_n==text_n.getContext().getCursor().getFocused()){return "Enter <Space> to update value";}
-					return "";
-				}).setPos(3, 3+32+18+18)
-				
-				
-				/*
-				TextWidget.dynamicString(()->{
-					//if(text_n.isFocused()){return "Enter <Space> to update value";}
-					System.out.println(text_n.getContext().getCursor().getFocused());
-					System.out.println(text_n);
-					return "";}).setPos(3, 3+32+18+18)*/
-				);
-		
-		
-		MappingItemHandler shared_handler = new MappingItemHandler(pattern, 0, 36);
-		// use shared handler
-		// or shift clicking a pattern in pattern slot will just transfer it to
-		// another pattern slot
-		// instead of player inventory!
-		for (int i = 0; i < 36; i++) {
-			final int ii = i;
-			
-			page2.addChild(new SlotWidget(new BaseSlot(shared_handler, i)) {
-				@Override
-				protected ItemStack getItemStackForRendering(Slot slotIn) {
-					ItemStack stack = slotIn.getStack();
-					if (stack == null || !(stack.getItem() instanceof ItemEncodedPattern)) {
-						return stack;
-					}
-					ItemStack output = ((ItemEncodedPattern) stack.getItem()).getOutput(stack);
-					return output != null ? output : stack;
-
-				}
-			}.disableInteraction().setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3).setBackground(GTUITextures.SLOT_DARK_GRAY,
-					GTUITextures.OVERLAY_SLOT_PATTERN_ME));
-
-			page2.addChild(new TextFieldWidget()
-					
-					.setValidator(s->{
-				try{
-				Integer.valueOf(s);}catch(Exception e){return "1";}
-				return s;
-			}).setSetter(s -> {
-				
-				multiplier[ii] = Integer.valueOf(s);
-			
-			refresh();})
-					
-					.setGetter(() -> multiplier[ii]+"").setTextColor(Color.RED.bright(0))
-					.setMaxLength(999)
-				
-					.setScrollBar()
-					
-					
-					.setPos((i % 4) * 18 + 3, (i / 4) * 18 + 1)
-					
-					
-					
-					.setSize(18, 16)
-					.setBackground());
-			page1.addChild(new SlotWidget(new BaseSlot(shared_handler, i)
-
-			) {
-
-				@Override
-				protected ItemStack getItemStackForRendering(Slot slotIn) {
-					ItemStack stack = slotIn.getStack();
-					if (stack == null || !(stack.getItem() instanceof ItemEncodedPattern)) {
-						return stack;
-					}
-					ItemStack output = ((ItemEncodedPattern) stack.getItem()).getOutput(stack);
-					return output != null ? output : stack;
-
-				}
-			}.setShiftClickPriority(-1).setFilter(itemStack -> itemStack.getItem() instanceof ICraftingPatternItem)
-					.setChangeListener(() -> {
-						onPatternChange();
-					}).setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
-					.setBackground(getGUITextureSet().getItemSlot(), GTUITextures.OVERLAY_SLOT_PATTERN_ME));
-				
-			page1.addChild(TextWidget
-					.dynamicString(() -> 
-					{
-						
-						String s=multiplier[ii]==1?"":(ps(multiplier[ii])+"");
-						if(pattern[ii]==null)return s="§7"+s;
-						
-					return s;
-					}
-							)
-					.setTextAlignment(Alignment.TopLeft)
-					.setDefaultColor(Color.WHITE.normal)
-					.setPos((i % 4) * 18 + 3, (i / 4) * 18 + 2)
-					
-					
-					
-					.setSize(36, 16)
-					.setBackground());
-		}
-
-		return builder.build();
+    int[] multiplier = new int[36];
+    {
+        Arrays.fill(multiplier, 1);
     }
-    private static String ps(int amount){
-		return numberFormatx.formatWithSuffix(amount);
-		
-	}
-	  private static final NumberFormatMUI numberFormatx = new NumberFormatMUI();
+
+    public void refresh() {
+        for (int i = 0; i < patternItemCache.length; i++) {
+            patternItemCache[i] = null;
+        }
+        postMEPatternChange();
+
+    }
+
+    protected ModularWindow createPatternWindow(final EntityPlayer player) {
+        final int WIDTH = 18 * 4 + 6;
+        final int HEIGHT = 18 * 9 + 6;
+        final int PARENT_WIDTH = getGUIWidth();
+        final int PARENT_HEIGHT = getGUIHeight();
+        ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
+        IDrawable tab1 = new ItemDrawable(
+            Api.INSTANCE.definitions()
+                .items()
+                .encodedPattern()
+                .maybeStack(1)
+                .get()).withFixedSize(18, 18, 4, 4);
+        IDrawable tab2 = GTUITextures.OVERLAY_BUTTON_BATCH_MODE_OFF.withFixedSize(18, 18, 4, 4);;
+
+        /*
+         * new ItemDrawable(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Iron, 1))
+         * .withFixedSize(18, 18, 4, 4);
+         */
+        IDrawable tab3 = GTUITextures.OVERLAY_BUTTON_BATCH_MODE_ON.withFixedSize(
+            18,
+            18,
+            4,
+            4);;/*
+                 * new ItemDrawable(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Gold, 1))
+                 * .withFixedSize(18, 18, 4, 4);
+                 */
+
+        TabContainer tab;
+        builder.widget(
+            tab = new TabContainer().setButtonSize(28, 32)
+                .addTabButton(
+                    new TabButton(0)
+                        .setBackground(
+                            true,
+                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 0f, 1f, 1 / 3f)
+                                .getSubArea(0, 0, 0.5f, 1f),
+                            tab1)
+                        .setBackground(
+                            false,
+                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 0f, 1f, 1 / 3f)
+                                .getSubArea(0.5f, 0, 1f, 1f),
+                            tab1)
+                        .setPos(WIDTH - 3, -1)
+                        .addTooltip("Patterns"))
+                .addTabButton(
+                    new TabButton(1)
+                        .setBackground(
+                            true,
+                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
+                                .getSubArea(0, 0, 0.5f, 1f),
+                            tab2)
+                        .setBackground(
+                            false,
+                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
+                                .getSubArea(0.5f, 0, 1f, 1f),
+                            tab2)
+                        .setPos(WIDTH - 3, 28 - 1)
+                        .addTooltip("Individual Multiplier Op."))
+                .addTabButton(
+                    new TabButton(2)
+                        .setBackground(
+                            true,
+                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
+                                .getSubArea(0, 0, 0.5f, 1f),
+                            tab3)
+                        .setBackground(
+                            false,
+                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
+                                .getSubArea(0.5f, 0, 1f, 1f),
+                            tab3)
+                        .setPos(WIDTH - 3, 56 - 1)
+                        .addTooltip("Batch Multiplier Op.")));
+
+        builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+        builder.setGuiTint(getGUIColorization());
+        builder.setDraggable(true);
+        builder.setPos(
+            (a, b) -> new Pos2d(
+                PARENT_WIDTH + b.getPos()
+                    .getX(),
+                PARENT_HEIGHT * 0 + b.getPos()
+                    .getY()));
+        MultiChildWidget page1 = new MultiChildWidget();
+        tab.addPage(page1);
+        MultiChildWidget page2 = new MultiChildWidget();
+        tab.addPage(page2);
+        MultiChildWidget page3 = new MultiChildWidget();
+        tab.addPage(page3);
+
+        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
+            for (int i = 0; i < 36; i++) {
+                multiplier[i] *= 2;
+                multiplier[i] = Math.max(multiplier[i], 1);
+            }
+            refresh();
+        })
+            .setSize(16, 16)
+            .setPos(3, 3)
+            .setBackground(GTUITextures.BUTTON_STANDARD)
+            .addTooltip("x2"));
+        page3.addChild(
+            TextWidget.dynamicString(() -> "x2")
+                .setPos(3 + 3, 3));
+        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
+            for (int i = 0; i < 36; i++) multiplier[i] = 1;
+            refresh();
+        })
+            .setSize(16, 16)
+            .setPos(3 + 16, 3)
+            .setBackground(GTUITextures.BUTTON_STANDARD)
+            .addTooltip("=1"));
+        page3.addChild(
+            TextWidget.dynamicString(() -> "=2")
+                .setPos(3 + 3 + 16, 3));
+        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
+            for (int i = 0; i < 36; i++) {
+                multiplier[i] *= n;
+                multiplier[i] = Math.max(multiplier[i], 1);
+            }
+            refresh();
+        })
+            .setSize(16, 16)
+            .setPos(3, 3 + 32)
+            .setBackground(GTUITextures.BUTTON_STANDARD)
+            .addTooltip("xN"));
+        page3.addChild(
+            TextWidget.dynamicString(() -> "x" + n)
+                .setPos(3 + 3, 3 + 32));
+        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
+            for (int i = 0; i < 36; i++) multiplier[i] = n;
+            refresh();
+        })
+            .setSize(16, 16)
+            .setPos(3 + 16, 3 + 32)
+            .setBackground(GTUITextures.BUTTON_STANDARD)
+            .addTooltip("=N"));
+        page3.addChild(
+            TextWidget.dynamicString(() -> "=" + n)
+                .setPos(3 + 3 + 16, 3 + 32));
+        TextFieldWidget text_n;
+        page3.addChild((text_n = new TextFieldWidget()).setValidator(s -> {
+            try {
+                Integer.valueOf(s);
+            } catch (Exception e) {
+                return "1";
+            }
+            return s;
+        })
+            .setSetter(s -> {
+
+                n = Integer.valueOf(s);
+
+                refresh();
+            })
+
+            .setGetter(() -> n + "")
+
+            .setTextAlignment(Alignment.Center)
+            .setTextColor(Color.WHITE.normal)
+            .addTooltip("N=")
+            .setSize(60, 18)
+            .setPos(3, 3 + 32 + 18)
+            .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
+
+        page3.addChild(new TextWidget().setStringSupplier(() -> {
+            if (text_n == text_n.getContext()
+                .getCursor()
+                .getFocused()) {
+                return "Enter <Space> to update value";
+            }
+            return "";
+        })
+            .setPos(3, 3 + 32 + 18 + 18)
+
+        /*
+         * TextWidget.dynamicString(()->{
+         * //if(text_n.isFocused()){return "Enter <Space> to update value";}
+         * System.out.println(text_n.getContext().getCursor().getFocused());
+         * System.out.println(text_n);
+         * return "";}).setPos(3, 3+32+18+18)
+         */
+        );
+
+        MappingItemHandler shared_handler = new MappingItemHandler(pattern, 0, 36);
+        // use shared handler
+        // or shift clicking a pattern in pattern slot will just transfer it to
+        // another pattern slot
+        // instead of player inventory!
+        for (int i = 0; i < 36; i++) {
+            final int ii = i;
+
+            page2.addChild(new SlotWidget(new BaseSlot(shared_handler, i)) {
+
+                @Override
+                protected ItemStack getItemStackForRendering(Slot slotIn) {
+                    ItemStack stack = slotIn.getStack();
+                    if (stack == null || !(stack.getItem() instanceof ItemEncodedPattern)) {
+                        return stack;
+                    }
+                    ItemStack output = ((ItemEncodedPattern) stack.getItem()).getOutput(stack);
+                    return output != null ? output : stack;
+
+                }
+            }.disableInteraction()
+                .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
+                .setBackground(GTUITextures.SLOT_DARK_GRAY, GTUITextures.OVERLAY_SLOT_PATTERN_ME));
+
+            page2.addChild(
+                new TextFieldWidget()
+
+                    .setValidator(s -> {
+                        try {
+                            Integer.valueOf(s);
+                        } catch (Exception e) {
+                            return "1";
+                        }
+                        return s;
+                    })
+                    .setSetter(s -> {
+
+                        multiplier[ii] = Integer.valueOf(s);
+
+                        refresh();
+                    })
+
+                    .setGetter(() -> multiplier[ii] + "")
+                    .setTextColor(Color.RED.bright(0))
+                    .setMaxLength(999)
+
+                    .setScrollBar()
+
+                    .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 1)
+
+                    .setSize(18, 16)
+                    .setBackground());
+            page1.addChild(new SlotWidget(new BaseSlot(shared_handler, i)
+
+            ) {
+
+                @Override
+                protected ItemStack getItemStackForRendering(Slot slotIn) {
+                    ItemStack stack = slotIn.getStack();
+                    if (stack == null || !(stack.getItem() instanceof ItemEncodedPattern)) {
+                        return stack;
+                    }
+                    ItemStack output = ((ItemEncodedPattern) stack.getItem()).getOutput(stack);
+                    return output != null ? output : stack;
+
+                }
+            }.setShiftClickPriority(-1)
+                .setFilter(itemStack -> itemStack.getItem() instanceof ICraftingPatternItem)
+                .setChangeListener(() -> { onPatternChange(); })
+                .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
+                .setBackground(getGUITextureSet().getItemSlot(), GTUITextures.OVERLAY_SLOT_PATTERN_ME));
+
+            page1.addChild(TextWidget.dynamicString(() -> {
+
+                String s = multiplier[ii] == 1 ? "" : (ps(multiplier[ii]) + "");
+                if (pattern[ii] == null) return s = "§7" + s;
+
+                return s;
+            })
+                .setTextAlignment(Alignment.TopLeft)
+                .setDefaultColor(Color.WHITE.normal)
+                .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 2)
+
+                .setSize(36, 16)
+                .setBackground());
+        }
+
+        return builder.build();
+    }
+
+    private static String ps(int amount) {
+        return numberFormatx.formatWithSuffix(amount);
+
+    }
+
+    private static final NumberFormatMUI numberFormatx = new NumberFormatMUI();
+
     @Override
     public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {
         super.onFirstTick(aBaseMetaTileEntity);
@@ -1247,14 +1307,16 @@ public void refresh(){
 
     @Override
     public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
-        float aX, float aY, float aZ) {
+        float aX, float aY, float aZ, ItemStack is) {
         additionalConnection = !additionalConnection;
         updateValidGridProxySides();
         aPlayer.addChatComponentMessage(
             new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
         return true;
     }
-    static int[] AZERO={0};
+
+    static int[] AZERO = { 0 };
+
     @Override
     public int[] pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
         if (Config.fastPatternDualInput == false) return AZERO;
@@ -1271,7 +1333,7 @@ public void refresh(){
         int suc = 0;
         if (master != null) {
             if (!isInputEmpty(master)) {
-            	return AZERO;
+                return AZERO;
             }
 
             int i = 0;
@@ -1338,8 +1400,7 @@ public void refresh(){
                  */
 
                 DualInvBuffer theBuffer = ((BufferedDualInputHatch) master).classifyForce();
-                if(theBuffer!=null)
-                m.recordRecipe(theBuffer);
+                if (theBuffer != null) m.recordRecipe(theBuffer);
                 // DualInvBuffer theBuffer=((BufferedDualInputHatch) master).classifyForce();
 
                 if (theBuffer != null) {
@@ -1349,24 +1410,26 @@ public void refresh(){
                         for (int ix = 0; ix < theBuffer.i; ix++) {
                             if (theBuffer.mStoredItemInternalSingle[ix] != null) {
                                 if (theBuffer.mStoredItemInternal[ix] == null) {
-                                    theBuffer.mStoredItemInternal[ix] = ItemStackG.neo(theBuffer.mStoredItemInternalSingle[ix].copy());
-                                    theBuffer.mStoredItemInternal[ix].stackSize (0);// circuit?
+                                    theBuffer.mStoredItemInternal[ix] = ItemStackG
+                                        .neo(theBuffer.mStoredItemInternalSingle[ix].copy());
+                                    theBuffer.mStoredItemInternal[ix].stackSize(0);// circuit?
                                 }
-                                theBuffer.mStoredItemInternal[ix].stackSizeInc(  theBuffer.mStoredItemInternalSingle[ix].stackSize
-                                    * todo);
+                                theBuffer.mStoredItemInternal[ix]
+                                    .stackSizeInc(theBuffer.mStoredItemInternalSingle[ix].stackSize * todo);
                             }
                         }
 
                         for (int ix = 0; ix < theBuffer.f; ix++) {
                             if (theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount() > 0) {
                                 if (theBuffer.mStoredFluidInternal[ix].getFluidAmount() <= 0) {
-                                	FluidStack zerof = theBuffer.mStoredFluidInternalSingle[ix].getFluid().copy();
-        							zerof.amount = 0;
-        							theBuffer.mStoredFluidInternal[ix].setFluid(zerof);
+                                    FluidStack zerof = theBuffer.mStoredFluidInternalSingle[ix].getFluid()
+                                        .copy();
+                                    zerof.amount = 0;
+                                    theBuffer.mStoredFluidInternal[ix].setFluid(zerof);
 
                                 }
-                                theBuffer.mStoredFluidInternal[ix].amountAcc ( theBuffer.mStoredFluidInternalSingle[ix]
-        								.getFluidAmount() *1l* todo);
+                                theBuffer.mStoredFluidInternal[ix]
+                                    .amountAcc(theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount() * 1l * todo);
                             }
                         }
 
@@ -1381,13 +1444,12 @@ public void refresh(){
                 ((BufferedDualInputHatch) master).justHadNewItems = true;
             }
             if (master instanceof PatternDualInputHatch) {
-                ((PatternDualInputHatch) master).saved+=suc;
+                ((PatternDualInputHatch) master).saved += suc;
             }
-            
-            
+
         }
 
-        return new int[]{suc};
+        return new int[] { suc };
 
     }
 

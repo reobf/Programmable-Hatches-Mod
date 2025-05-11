@@ -3,9 +3,7 @@ package reobf.proghatches.util;
 import static gregtech.api.util.GTUtility.*;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,6 +34,7 @@ import appeng.items.tools.ToolPriorityCard;
 import gregtech.api.GregTechAPI;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.util.GTUtility;
+import gregtech.common.covers.CoverPosition;
 import gregtech.common.covers.redstone.CoverAdvancedRedstoneReceiverBase;
 import reobf.proghatches.main.MyMod;
 
@@ -44,8 +43,9 @@ import reobf.proghatches.main.MyMod;
  */
 public class ProghatchesUtil {
 
-    public static void removeAllSignalAt(UUID uuid, long hash) {
-        Map<Integer, Map<Long, Byte>> frequencies = GregTechAPI.sAdvancedWirelessRedstone.get(String.valueOf(uuid));
+    public static void removeAllSignalAt(UUID uuid, CoverPosition hash) {
+        Map<String, Map<CoverPosition, Byte>> frequencies = GregTechAPI.sAdvancedWirelessRedstone
+            .get(String.valueOf(uuid));
         if (frequencies == null) return;
         frequencies.keySet()
             .forEach(frequency ->
@@ -57,19 +57,25 @@ public class ProghatchesUtil {
             }));
     }
 
-    public static void removeSignalAt(UUID uuid, int frequency, long hash) {
-        Map<Integer, Map<Long, Byte>> frequencies = GregTechAPI.sAdvancedWirelessRedstone.get(String.valueOf(uuid));
+    public static void removeSignalAt(UUID uuid, int frequency, CoverPosition hash) {
+        Map<String, Map<CoverPosition, Byte>> frequencies = GregTechAPI.sAdvancedWirelessRedstone
+            .get(String.valueOf(uuid));
         if (frequencies == null) return;
-        frequencies.computeIfPresent(frequency, (freq, longByteMap) -> {
+        frequencies.computeIfPresent(frequency + "", (freq, longByteMap) -> {
             longByteMap.remove(hash);
             return longByteMap.isEmpty() ? null : longByteMap;
         });
-    }
+    }/*
+      * public static CoverPosition getCoverKey(@NotNull ICoverable tile, @NotNull ForgeDirection side) {
+      * return new CoverPosition(tile.getCoords(), "ph_redstone_card", tile.getWorld().provider.dimensionId,
+      * side.ordinal());
+      * }
+      */
 
-    public static void setSignalAt(UUID uuid, int frequency, long hash, byte value) {
-        Map<Integer, Map<Long, Byte>> frequencies = GregTechAPI.sAdvancedWirelessRedstone
+    public static void setSignalAt(UUID uuid, int frequency, CoverPosition hash, byte value) {
+        Map<String, Map<CoverPosition, Byte>> frequencies = GregTechAPI.sAdvancedWirelessRedstone
             .computeIfAbsent(String.valueOf(uuid), k -> new ConcurrentHashMap<>());
-        Map<Long, Byte> signals = frequencies.computeIfAbsent(frequency, k -> new ConcurrentHashMap<>());
+        Map<CoverPosition, Byte> signals = frequencies.computeIfAbsent(frequency + "", k -> new ConcurrentHashMap<>());
         signals.put(hash, value);
     }
 
@@ -79,13 +85,14 @@ public class ProghatchesUtil {
 
     public static Byte getSignalAt(UUID uuid, int frequency, CoverAdvancedRedstoneReceiverBase.GateMode mode,
         boolean missingAsFalse) {
-        Map<Integer, Map<Long, Byte>> frequencies = GregTechAPI.sAdvancedWirelessRedstone.get(String.valueOf(uuid));
-        Map<Long, Byte> signals;
+        Map<String, Map<CoverPosition, Byte>> frequencies = GregTechAPI.sAdvancedWirelessRedstone
+            .get(String.valueOf(uuid));
+        Map<CoverPosition, Byte> signals;
         if (frequencies == null) {
             if (missingAsFalse) return 0;
             signals = ImmutableMap.of();
         } else {
-            signals = frequencies.get(frequency);
+            signals = frequencies.get(frequency + "");
         }
 
         if (signals == null) signals = new ConcurrentHashMap<>();
@@ -341,26 +348,28 @@ public class ProghatchesUtil {
 
     }
 
-    static  List<ItemStack> allc=null;
-    public static List<ItemStack> allCircuits(){
-    	
-    	if(allc==null){
-    		try {
-				allc=(List<ItemStack>) GTUtility.class.getDeclaredMethod("getAllIntegratedCircuits").invoke(null);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-    		}  
-    	if(allc==null){
-    			try {
-    		allc=(List<ItemStack>) GregTechAPI.class.getDeclaredMethod("getConfigurationCircuitList",int.class).invoke(null,100); 
-    			} catch (Exception e) {
-    				e.printStackTrace();
-    			}    
-    		}
-    	
-    	
-		return allc;
-    	
+    static List<ItemStack> allc = null;
+
+    public static List<ItemStack> allCircuits() {
+
+        if (allc == null) {
+            try {
+                allc = (List<ItemStack>) GTUtility.class.getDeclaredMethod("getAllIntegratedCircuits")
+                    .invoke(null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (allc == null) {
+            try {
+                allc = (List<ItemStack>) GregTechAPI.class.getDeclaredMethod("getConfigurationCircuitList", int.class)
+                    .invoke(null, 100);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return allc;
+
     }
 }

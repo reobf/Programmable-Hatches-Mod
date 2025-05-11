@@ -36,7 +36,8 @@ import appeng.tile.inventory.AppEngInternalInventory;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.interfaces.tileentity.ICoverable;
-import gregtech.common.covers.CoverInfo;
+import gregtech.common.covers.Cover;
+import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.InterfaceData;
 import reobf.proghatches.net.PriorityMessage;
 import reobf.proghatches.net.RenameMessage;
@@ -45,10 +46,10 @@ public class GuiHandler implements IDefaultGuiHandler {
 
     public IInterfaceHost getHost(int ID, World world, int x, int y, int z) {
         try {
-            CoverInfo info = ((ICoverable) world.getTileEntity(x, y, z))
-                .getCoverInfoAtSide(ForgeDirection.getOrientation(ID & 0b111));
+            Cover info = ((ICoverable) world.getTileEntity(x, y, z))
+                .getCoverAtSide(ForgeDirection.getOrientation(ID & 0b111));
 
-            return new FakeHost(world.getTileEntity(x, y, z), (IInterfaceHost) info.getCoverData());
+            return new FakeHost(world.getTileEntity(x, y, z), (IInterfaceHost) ((AECover) info).coverData);
         } catch (Exception e) {
             return null;
         }

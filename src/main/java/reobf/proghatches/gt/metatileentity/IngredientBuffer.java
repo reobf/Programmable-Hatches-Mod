@@ -677,7 +677,8 @@ public class IngredientBuffer extends MTETieredMachineBlock implements IAddUIWid
     }
 
     @Override
-    public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ) {
+    public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
+        ItemStack is) {
         if (side == getBaseMetaTileEntity().getFrontFacing() || side == mMainFacing) {
             if (aPlayer.isSneaking()) {
                 /*

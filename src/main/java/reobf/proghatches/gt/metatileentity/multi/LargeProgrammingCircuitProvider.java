@@ -95,7 +95,6 @@ import gregtech.api.interfaces.IHatchElement;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEEnhancedMultiBlockBase;
 import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
@@ -159,7 +158,7 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
     }
 
     public List<ICircuitProvider> providers = new ArrayList<>();
-
+    private boolean chip;
     protected static final int CASING_INDEX = 49;
     private static final IStructureDefinition<LargeProgrammingCircuitProvider> STRUCTURE_DEFINITION;
     protected static final String STRUCTURE_PIECE_BASE = "base";
@@ -441,9 +440,9 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
         // if(succ){forceUpdatePattern=true ;}
         multiply = Math.min(multiply, totalAcc + 1);
         multiply = Math.max(multiply, 1);
-        
-        if(mEnergyHatches.size()==0)return false;
-        
+
+        if (mEnergyHatches.size() == 0) return false;
+
         return succ;
     }
 
@@ -657,6 +656,7 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
     @Override
     public void saveNBTData(NBTTagCompound aNBT) {
         aNBT.setBoolean("removeStorageCircuit", removeStorageCircuit);
+        aNBT.setBoolean("chip", chip);
         aNBT.setInteger("multiply", multiply);
         getProxy().writeToNBT(aNBT);
         int[] count = new int[1];
@@ -706,8 +706,15 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
     }
 
     @Override
+    public void setItemNBT(NBTTagCompound nbt) {
+        if (chip) nbt.setBoolean("chip", chip);
+
+    }
+
+    @Override
     public void loadNBTData(NBTTagCompound aNBT) {
         removeStorageCircuit = aNBT.getBoolean("removeStorageCircuit");
+        chip = aNBT.getBoolean("chip");
         multiply = aNBT.getInteger("multiply");
         if (multiply <= 0) multiply = 1;
         getProxy().readFromNBT(aNBT);
@@ -862,6 +869,17 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
         super.onPostTick(aBaseMetaTileEntity, aTick);
         returnItems();
         if (aBaseMetaTileEntity.getWorld().isRemote) return;
+
+        if (mInventory[1] != null) {
+
+            if (chip == false && mInventory[1].getItem() == MyMod.chip) {
+                chip = true;
+                mInventory[1].stackSize--;
+                if (mInventory[1].stackSize == 0) mInventory[1] = null;
+            }
+
+        }
+
         if (getBaseMetaTileEntity().isActive()) {
             if (removeStorageCircuit && (aTick % 50 == 0)) {
                 try {
@@ -1348,23 +1366,24 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
 
         return false;
     }
-   // boolean instant=true;
+
+    // boolean instant=true;
     @Override
     public int[] pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
 
         if (maxTodo <= 0) {
-            return new int[]{0};
+            return new int[] { 0 };
         }
-        if (!getBaseMetaTileEntity().isActive()) return new int[]{0};
+        if (!getBaseMetaTileEntity().isActive()) return new int[] { 0 };
         try {
             if (!(patternDetails instanceof ProgrammingCircuitProvider.CircuitProviderPatternDetial)) {
-                return new int[]{0};
+                return new int[] { 0 };
             }
             if (ItemProgrammingCircuit.getCircuit(((CircuitProviderPatternDetial) patternDetails).out)
                 .map(ItemStack::getItem)
                 .orElse(null) == MyMod.progcircuit) {
                 shut(this, null);
-                return new int[]{0};
+                return new int[] { 0 };
             }
 
         } catch (Exception e) {}
@@ -1385,10 +1404,17 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
         AEItemStack ais = AEItemStack.create(circuitItem);
         if (ais != null) ais.setStackSize(ais.getStackSize() * maxTodo);
         ret.add(ais);
-      /*  if(instant){
-        	return new int[]{maxTodo,0};
-        }*/
-        return new int[]{maxTodo};
+        /*
+         * if(instant){
+         * return new int[]{maxTodo,0};
+         * }
+         */
+        return new int[] { maxTodo };
     }
- 
+
+    public boolean instant() {
+
+        return chip;
+    }
+
 }

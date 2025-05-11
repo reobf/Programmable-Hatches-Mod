@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -16,9 +17,17 @@ import net.minecraft.world.World;
 
 import com.gtnewhorizons.modularui.api.UIInfos;
 
+import appeng.api.config.Actionable;
+import appeng.api.networking.security.MachineSource;
+import appeng.api.networking.security.PlayerSource;
+import appeng.crafting.v2.CraftingJobV2;
+import appeng.crafting.v2.resolvers.CraftingTask;
+import appeng.me.GridAccessException;
+import appeng.util.item.AEItemStack;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.common.blocks.MaterialMachines;
+
 import reobf.proghatches.block.INameAndTooltips;
 import reobf.proghatches.lang.LangManager;
 
@@ -84,6 +93,39 @@ public class BlockStorageProxy extends BlockContainer implements INameAndTooltip
     public boolean onBlockActivated(World worldIn, int x, int y, int z, EntityPlayer player, int side, float subX,
         float subY, float subZ) {
 
+    	/*if(!worldIn.isRemote)
+    	try {
+    	CraftingJobV2 cj;
+		
+			cj = new CraftingJobV2(worldIn,
+					
+					((TileStorageProxy)worldIn.getTileEntity(x, y, z) ).getProxy().getGrid()
+					
+					
+					, new PlayerSource(player, ((TileStorageProxy)worldIn.getTileEntity(x, y, z) )), AEItemStack.create(new ItemStack(Blocks.dirt)), null);
+		cj.get();
+    	if(cj.isDone()&&!cj.isCancelled()){
+    		((TileStorageProxy)worldIn.getTileEntity(x, y, z) ).getProxy().getStorage().getItemInventory()
+    		
+    		.extractItems( AEItemStack.create(new ItemStack(Blocks.bookshelf,1000)), Actionable.MODULATE, new PlayerSource(player, ((TileStorageProxy)worldIn.getTileEntity(x, y, z) )));
+    		TaskReviver.revive(cj,((TileStorageProxy)worldIn.getTileEntity(x, y, z) ).getProxy().getGrid(), false);
+    		cj.get();
+    		
+    		
+    		((TileStorageProxy)worldIn.getTileEntity(x, y, z) ).getProxy().getCrafting().submitJob(cj, null, null, false, new PlayerSource(player, ((TileStorageProxy)worldIn.getTileEntity(x, y, z) )));
+    		
+    	}
+    	
+    	
+    	
+    	
+    	} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+    	
+    	
+    	if(!worldIn.isRemote)
         UIInfos.TILE_MODULAR_UI.open(player, worldIn, x, y, z);
 
         return true;

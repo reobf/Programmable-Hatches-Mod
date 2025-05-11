@@ -1,13 +1,13 @@
 package reobf.proghatches.gt.metatileentity.util;
 
-import net.minecraft.item.ItemStack;
-import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
-
 import java.util.Optional;
+
+import net.minecraft.item.ItemStack;
 
 import com.gtnewhorizons.modularui.api.forge.ItemHandlerHelper;
 
 import gregtech.api.util.GTUtility;
+import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 
 public class MappingItemHandlerG
     implements com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable, IInterhandlerGroup {
@@ -20,9 +20,7 @@ public class MappingItemHandlerG
         this.num = num;
     }
 
-  
-
-	boolean phantom;
+    boolean phantom;
 
     public MappingItemHandlerG phantom() {
         phantom = true;
@@ -41,7 +39,9 @@ public class MappingItemHandlerG
     @Override
     public ItemStack getStackInSlot(int var1) {
 
-        return Optional.ofNullable(is[var1 - index]).map(s->s.getZero()).orElse(null);
+        return Optional.ofNullable(is[var1 - index])
+            .map(s -> s.getZero())
+            .orElse(null);
     }
 
     protected int getStackLimit(int slot, ItemStack stack) {
@@ -71,8 +71,8 @@ public class MappingItemHandlerG
                     boolean reachedLimit = stack.stackSize > limit;
                     if (!simulate) {
                         if (existing == null) {
-                            is[slot - index] =ItemStackG.neo(reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, limit)
-                                : stack);
+                            is[slot - index] = ItemStackG
+                                .neo(reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, limit) : stack);
 
                         } else {
                             existing.stackSize += reachedLimit ? limit : stack.stackSize;
@@ -110,8 +110,9 @@ public class MappingItemHandlerG
                         return existing;
                     } else {
                         if (!simulate) {
-                            is[slot - index] =ItemStackG.setZero(is[slot - index],ItemHandlerHelper
-                                .copyStackWithSize(existing, existing.stackSize - toExtract));
+                            is[slot - index] = ItemStackG.setZero(
+                                is[slot - index],
+                                ItemHandlerHelper.copyStackWithSize(existing, existing.stackSize - toExtract));
                             // this.onContentsChanged(slot);
                         }
 
@@ -133,9 +134,9 @@ public class MappingItemHandlerG
     public void setStackInSlot(int var1, ItemStack var2) {
         try {
             if (phantom) {
-                is[var1 - index] =ItemStackG.neo(GTUtility.copyAmount(0, var2));
+                is[var1 - index] = ItemStackG.neo(GTUtility.copyAmount(0, var2));
 
-            } else is[var1 - index] =ItemStackG.setZero(is[var1 - index],var2);
+            } else is[var1 - index] = ItemStackG.setZero(is[var1 - index], var2);
         } finally {
             update.run();
         }

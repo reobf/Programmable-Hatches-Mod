@@ -10,7 +10,7 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import reobf.proghatches.eucrafting.IIdleStateProvider;
-
+@Deprecated
 @Mixin(value = MTEMultiBlockBase.class, remap = false)
 public class MixinMachineIdle implements IIdleStateProvider {
 

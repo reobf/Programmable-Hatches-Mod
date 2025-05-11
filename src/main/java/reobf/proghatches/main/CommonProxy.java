@@ -5,7 +5,9 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.StatCollector;
 
 import appeng.block.AEBaseItemBlock;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -66,6 +68,7 @@ import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemDedicatedCover;
 import reobf.proghatches.item.ItemFakePattern;
 import reobf.proghatches.item.ItemFixer;
+import reobf.proghatches.item.ItemFixer2;
 import reobf.proghatches.item.ItemMEPlunger;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.item.ItemProgrammingToolkit;
@@ -128,7 +131,10 @@ public class CommonProxy {
             MyMod.fixer = new ItemFixer().setUnlocalizedName("proghatch_circuit_fixer")
                 .setTextureName("ic2:itemToolWrench"),
             "proghatch_circuit_fixer");
-
+        GameRegistry.registerItem(
+            MyMod.fixer2 = new ItemFixer2().setUnlocalizedName("proghatch_circuit_fixer2")
+                .setTextureName("ic2:itemToolWrench"),
+            "proghatch_circuit_fixer2");
         GameRegistry.registerItem(
             MyMod.toolkit = new ItemProgrammingToolkit().setUnlocalizedName("prog_toolkit")
                 .setTextureName("?"),
@@ -182,7 +188,8 @@ public class CommonProxy {
             "proghatches.proxy",
             new Object[] { "tile.proghatches.proxy.tooltip" });
 
-        MyMod.iohub = (BlockIOHub) GameRegistry.registerBlock(new BlockIOHub(), ItemBlockIOHub.class, "proghatches.iohub");
+        MyMod.iohub = (BlockIOHub) GameRegistry
+            .registerBlock(new BlockIOHub(), ItemBlockIOHub.class, "proghatches.iohub");
         MyMod.alert = GameRegistry.registerBlock(
             new BlockAnchorAlert(Material.rock),
             ItemBlockAnchorAlert.class,
@@ -238,9 +245,9 @@ public class CommonProxy {
                 .setTextureName("?"),
             "proghatches.part.tunnel");
         GameRegistry.registerItem(
-                MyMod.part_cow = new ItemPartCoW().setUnlocalizedName("proghatches.part.cow")
-                    .setTextureName("?"),
-                "proghatches.part.cow");
+            MyMod.part_cow = new ItemPartCoW().setUnlocalizedName("proghatches.part.cow")
+                .setTextureName("?"),
+            "proghatches.part.cow");
         GameRegistry.registerItem(
             MyMod.euinterface_p2p = new ItemPartEUP2PInterface().setUnlocalizedName("proghatches.euinterface.p2p")
                 .setTextureName("?"),
@@ -277,10 +284,10 @@ public class CommonProxy {
             "autofillerMKII",
             new Object[] { "" });
         GameRegistry.registerBlock(
-                MyMod.orbswitcher = new BlockOrbSwitcher(),
-                ItemBlockTooltip.class,
-                "orbswitcher",
-                new Object[] { "" });
+            MyMod.orbswitcher = new BlockOrbSwitcher(),
+            ItemBlockTooltip.class,
+            "orbswitcher",
+            new Object[] { "" });
         GameRegistry.registerTileEntity(TileCraftingCondenser.class, "proghatches.craftingdumper");
         GameRegistry.registerBlock(MyMod.ma_iface = new BlockMolecularAssemblerInterface(), ItemBlockTooltip.class
 
@@ -293,6 +300,15 @@ public class CommonProxy {
         GameRegistry.registerBlock(MyMod.request_tunnel = new BlockRequestTunnel(), ItemBlockTooltip.class
 
             , "request_tunnel", new Object[] { "" });
+
+        GameRegistry.registerItem(MyMod.chip = new Item() {
+
+            public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_,
+                boolean p_77624_4_) {
+                p_77624_3_.add(StatCollector.translateToLocal("proghatches.chip.tooltips"));
+            };
+        }.setUnlocalizedName("proghatches.chip")
+            .setTextureName("proghatches:chip"), "proghatches.chip");
 
     }
 

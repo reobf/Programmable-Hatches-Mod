@@ -151,16 +151,17 @@ public class TileWirelessPeripheralStation extends TileEntity implements li.cil.
 
         IIcon a, b, c;
         IIcon d;
+
         @Override
         @SideOnly(value = Side.CLIENT)
         public IIcon getIcon(int side, int meta) {
-          
+
             if (meta == 0) {
-            	 if(side == 1)return d;
-            	return b;
-            	
-            }  
-            
+                if (side == 1) return d;
+                return b;
+
+            }
+
             if (side <= 1) return a;// top bottom
             else return c;
         }

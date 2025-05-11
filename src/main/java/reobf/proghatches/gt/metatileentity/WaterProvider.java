@@ -1,17 +1,9 @@
 package reobf.proghatches.gt.metatileentity;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
@@ -19,8 +11,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.StatCollector;
-import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -65,38 +55,23 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTUtility;
-
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
-import mcp.mobius.waila.api.IWailaConfigHandler;
-import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.block.BlockIOHub;
-import reobf.proghatches.eucrafting.IInputMightBeEmptyPattern;
 import reobf.proghatches.eucrafting.IInstantCompletable;
-import reobf.proghatches.gt.metatileentity.util.ICircuitProvider;
-import reobf.proghatches.gt.metatileentity.util.IDisallowOptimize;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
-public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChannelState,
-    ICraftingProvider, IGridProxyable, IInstantCompletable, ICustomNameObject, IInterfaceViewable {
+public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChannelState, ICraftingProvider,
+    IGridProxyable, IInstantCompletable, ICustomNameObject, IInterfaceViewable {
 
-   
-
-    public WaterProvider(int aID, String aName, String aNameRegional, int aTier
-       ) {
-        super(
-            aID,
-            aName,
-            aNameRegional,
-            aTier,
-           0,
-            reobf.proghatches.main.Config.get("WP", ImmutableMap.of())
+    public WaterProvider(int aID, String aName, String aNameRegional, int aTier) {
+        super(aID, aName, aNameRegional, aTier, 0, reobf.proghatches.main.Config.get("WP", ImmutableMap.of())
 
         );
         Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
-    
+
     }
 
     private void updateValidGridProxySides() {
@@ -119,10 +94,9 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
         updateValidGridProxySides();
     }
 
-    public WaterProvider(String aName, int aTier, String[] aDescription,
-        ITexture[][][] aTextures) {
+    public WaterProvider(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures) {
         super(aName, aTier, 0, aDescription, aTextures);
-       
+
     }
 
     // item returned in ae tick will not be recognized, delay to the next
@@ -340,19 +314,18 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
 
     @Override
     public void provideCrafting(ICraftingProviderHelper craftingTracker) {
-      
+
         doSnapshot();
-       {
-          craftingTracker.addCraftingOption(this, new ProgrammingCircuitProvider.CircuitProviderPatternDetial(
-        		  
-        		  ItemFluidDrop.newStack(new FluidStack(FluidRegistry.WATER, 0+100_000_000))
-        		  ));
+        {
+            craftingTracker.addCraftingOption(
+                this,
+                new ProgrammingCircuitProvider.CircuitProviderPatternDetial(
+
+                    ItemFluidDrop.newStack(new FluidStack(FluidRegistry.WATER, 0 + 100_000_000))));
 
         }
 
     }
-
-    
 
     @Override
     public boolean isPowered() {
@@ -381,20 +354,20 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
     public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirection side, ForgeDirection aFacing,
         int colorIndex, boolean aActive, boolean redstoneLevel) {
 
-    	ITexture[] tex= super.getTexture(aBaseMetaTileEntity, side, aFacing, colorIndex, aActive, redstoneLevel);
-    	
-    	ITexture[] texn=null;
-    	
-    	if(side==aFacing){texn=tex;
-    	
-    		}else{
-    		texn=new ITexture[tex.length+1];
-    	System.arraycopy(tex, 0, texn, 0, tex.length);
-    	texn[texn.length-1]=TextureFactory.of(TexturesGtBlock.Overlay_Water);
-    	}
-    	
-    	
-    	return texn;
+        ITexture[] tex = super.getTexture(aBaseMetaTileEntity, side, aFacing, colorIndex, aActive, redstoneLevel);
+
+        ITexture[] texn = null;
+
+        if (side == aFacing) {
+            texn = tex;
+
+        } else {
+            texn = new ITexture[tex.length + 1];
+            System.arraycopy(tex, 0, texn, 0, tex.length);
+            texn[texn.length - 1] = TextureFactory.of(TexturesGtBlock.Overlay_Water);
+        }
+
+        return texn;
 
     }
 
@@ -498,7 +471,7 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
         // aNBT.setString("customName",customName);
         aNBT.setBoolean("disabled", disabled);
         aNBT.setBoolean("legacy", legacy);
-      
+
     }
 
     @Override
@@ -513,7 +486,7 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
         customName = aNBT.getString("customName");
         disabled = aNBT.getBoolean("disabled");
         legacy = false;// aNBT.getBoolean("legacy");
-     
+
     }
 
     @Override
@@ -522,42 +495,40 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
         return new ItemStack(GregTechAPI.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID());
     }
 
-   /* @Override
-    public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
-        int z) {
-        tag.setBoolean("disabled", disabled);
-        for (int i = 0; i < ((IInventory) tile).getSizeInventory(); i++) {
-            ItemStack is = ((IInventory) tile).getStackInSlot(i);
-            if (is != null) tag.setTag("#" + i, is.writeToNBT(new NBTTagCompound()));;
-        }
-        super.getWailaNBTData(player, tile, tag, world, x, y, z);
-    }*/
+    /*
+     * @Override
+     * public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int
+     * y,
+     * int z) {
+     * tag.setBoolean("disabled", disabled);
+     * for (int i = 0; i < ((IInventory) tile).getSizeInventory(); i++) {
+     * ItemStack is = ((IInventory) tile).getStackInSlot(i);
+     * if (is != null) tag.setTag("#" + i, is.writeToNBT(new NBTTagCompound()));;
+     * }
+     * super.getWailaNBTData(player, tile, tag, world, x, y, z);
+     * }
+     */
 
-   /* @Override
-    public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
-        IWailaConfigHandler config) {
-
-        for (int i = 0; i < ((IInventory) accessor.getTileEntity()).getSizeInventory(); i++) currenttip.add(
-            StatCollector.translateToLocal("proghatches.provider.waila") + Optional
-                .ofNullable(
-                    ItemStack.loadItemStackFromNBT(
-                        accessor.getNBTData()
-                            .getCompoundTag("#" + i)))
-                .map(s -> s.getDisplayName() + "@" + s.getItemDamage())
-                .orElse("<empty>")
-
-        );
-
-        if (accessor.getNBTData()
-            .getBoolean("disabled")) {
-
-            currenttip.add(StatCollector.translateToLocal("proghatches.provider.waila.disabled"));
-
-        } ;
-
-        super.getWailaBody(itemStack, currenttip, accessor, config);
-    }
-*/
+    /*
+     * @Override
+     * public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+     * IWailaConfigHandler config) {
+     * for (int i = 0; i < ((IInventory) accessor.getTileEntity()).getSizeInventory(); i++) currenttip.add(
+     * StatCollector.translateToLocal("proghatches.provider.waila") + Optional
+     * .ofNullable(
+     * ItemStack.loadItemStackFromNBT(
+     * accessor.getNBTData()
+     * .getCompoundTag("#" + i)))
+     * .map(s -> s.getDisplayName() + "@" + s.getItemDamage())
+     * .orElse("<empty>")
+     * );
+     * if (accessor.getNBTData()
+     * .getBoolean("disabled")) {
+     * currenttip.add(StatCollector.translateToLocal("proghatches.provider.waila.disabled"));
+     * } ;
+     * super.getWailaBody(itemStack, currenttip, accessor, config);
+     * }
+     */
     boolean disabled;
 
     public void disable() {
@@ -580,7 +551,6 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
         super.receiveClientEvent(aEventID, aValue);
     }
 
-    
     @Override
     public void complete() {
         // returnItems();

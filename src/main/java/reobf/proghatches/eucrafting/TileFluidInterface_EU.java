@@ -63,7 +63,6 @@ import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IEnergyConnected;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.util.GTUtility;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import ic2.api.energy.tile.IEnergySink;
 import mcp.mobius.waila.api.IWailaConfigHandler;
@@ -1261,8 +1260,10 @@ public class TileFluidInterface_EU extends TileFluidInterface
                             int tY = te.yCoord;
                             int tZ = te.zCoord;
                             World tWorld = te.getWorldObj();
-                            /*GTUtility
-                                .sendSoundToPlayers(tWorld, GregTechAPI.sSoundList.get(209), 1.0F, -1.0F, tX, tY, tZ);*/
+                            /*
+                             * GTUtility
+                             * .sendSoundToPlayers(tWorld, GregTechAPI.sSoundList.get(209), 1.0F, -1.0F, tX, tY, tZ);
+                             */
                             tWorld.setBlock(tX, tY, tZ, Blocks.air);
                             if (GregTechAPI.sMachineExplosions) {
                                 tWorld.createExplosion(

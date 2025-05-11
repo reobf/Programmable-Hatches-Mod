@@ -41,6 +41,7 @@ import reobf.proghatches.main.MyMod;
  * , in case CraftFromPatternTask will throw an Exception and terminates further pattern search
  * */
 //spotless:on
+@Deprecated
 @Mixin(value = CraftingContext.class, remap = false, priority = 0)
 public class MixinCraftingRecursiveWorkaround {
 

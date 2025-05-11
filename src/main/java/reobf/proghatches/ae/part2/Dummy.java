@@ -15,7 +15,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,16 +30,11 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
-import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
-
-import javax.management.RuntimeErrorException;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -52,7 +46,6 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.logging.log4j.Level;
@@ -64,9 +57,6 @@ import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.config.CraftingMode;
 import appeng.api.config.FuzzyMode;
-import appeng.api.config.PowerMultiplier;
-import appeng.api.config.Upgrades;
-import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
@@ -77,7 +67,6 @@ import appeng.api.networking.crafting.ICraftingJob;
 import appeng.api.networking.crafting.ICraftingLink;
 import appeng.api.networking.crafting.ICraftingMedium;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
-import appeng.api.networking.crafting.ICraftingProvider;
 import appeng.api.networking.crafting.ICraftingRequester;
 import appeng.api.networking.energy.IEnergyGrid;
 import appeng.api.networking.events.MENetworkCraftingCpuChange;
@@ -94,10 +83,7 @@ import appeng.api.util.CraftCancelListener;
 import appeng.api.util.CraftCompleteListener;
 import appeng.api.util.CraftUpdateListener;
 import appeng.api.util.DimensionalCoord;
-import appeng.api.util.IInterfaceViewable;
 import appeng.api.util.WorldCoord;
-import appeng.container.ContainerNull;
-import appeng.container.implementations.ContainerCraftingCPU;
 import appeng.core.AELog;
 import appeng.core.localization.GuiText;
 import appeng.core.localization.PlayerMessages;
@@ -105,20 +91,16 @@ import appeng.crafting.CraftBranchFailure;
 import appeng.crafting.CraftingLink;
 import appeng.crafting.CraftingWatcher;
 import appeng.crafting.MECraftingInventory;
-import appeng.helpers.DualityInterface;
 import appeng.me.cache.CraftingGridCache;
 import appeng.me.cluster.IAECluster;
-import appeng.tile.AEBaseTile;
 import appeng.tile.crafting.TileCraftingMonitorTile;
 import appeng.tile.crafting.TileCraftingTile;
-import appeng.util.IterationCounter;
-import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 
-public  class Dummy implements IAECluster, ICraftingCPU {
+public class Dummy implements IAECluster, ICraftingCPU {
 
     private static final String LOG_MARK_AS_COMPLETE = "Completed job for %s.";
 
@@ -126,7 +108,8 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     private final WorldCoord max;
     private final int[] usedOps = new int[3];
     private final Comparator<ICraftingPatternDetails> priorityComparator = Comparator
-            .comparing(ICraftingPatternDetails::getPriority).thenComparing(ICraftingPatternDetails::hashCode);
+        .comparing(ICraftingPatternDetails::getPriority)
+        .thenComparing(ICraftingPatternDetails::hashCode);
     private final Map<ICraftingPatternDetails, TaskProgress> tasks = new TreeMap<>(priorityComparator);
     private Map<ICraftingPatternDetails, TaskProgress> workableTasks = new TreeMap<>(priorityComparator);
     private HashSet<ICraftingMedium> knownBusyMediums = new HashSet<>();
@@ -146,8 +129,12 @@ public  class Dummy implements IAECluster, ICraftingCPU {
 
     private IAEItemStack finalOutput;
     private boolean waiting = false;
-    private IItemList<IAEItemStack> waitingFor = AEApi.instance().storage().createItemList();
-    private IItemList<IAEItemStack> waitingForMissing = AEApi.instance().storage().createItemList();
+    private IItemList<IAEItemStack> waitingFor = AEApi.instance()
+        .storage()
+        .createItemList();
+    private IItemList<IAEItemStack> waitingForMissing = AEApi.instance()
+        .storage()
+        .createItemList();
     private long availableStorage = 0;
     private long usedStorage = 0;
     private MachineSource machineSrc = null;
@@ -168,28 +155,25 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     private final Map<String, List<CraftNotification>> unreadNotifications = new HashMap<>();
 
     private final List<CraftCompleteListener> defaultOnComplete = Arrays
-            .asList((finalOutput, numsOfOutput, elapsedTime) -> {
-                if (!this.playersFollowingCurrentCraft.isEmpty()) {
-                    final CraftNotification notification = new CraftNotification(
-                            finalOutput,
-                            numsOfOutput,
-                            elapsedTime);
-                    final IChatComponent messageToSend = notification.createMessage();
+        .asList((finalOutput, numsOfOutput, elapsedTime) -> {
+            if (!this.playersFollowingCurrentCraft.isEmpty()) {
+                final CraftNotification notification = new CraftNotification(finalOutput, numsOfOutput, elapsedTime);
+                final IChatComponent messageToSend = notification.createMessage();
 
-                    for (String playerName : this.playersFollowingCurrentCraft) {
-                        // Get each EntityPlayer
-                        EntityPlayer player = getPlayerByName(playerName);
-                        if (player != null) {
-                            // Send message to player
-                            player.addChatMessage(messageToSend);
-                            player.worldObj.playSoundAtEntity(player, "random.levelup", 1f, 1f);
-                        } else {
-                            this.unreadNotifications.computeIfAbsent(playerName, name -> new ArrayList<>())
-                                    .add(notification);
-                        }
+                for (String playerName : this.playersFollowingCurrentCraft) {
+                    // Get each EntityPlayer
+                    EntityPlayer player = getPlayerByName(playerName);
+                    if (player != null) {
+                        // Send message to player
+                        player.addChatMessage(messageToSend);
+                        player.worldObj.playSoundAtEntity(player, "random.levelup", 1f, 1f);
+                    } else {
+                        this.unreadNotifications.computeIfAbsent(playerName, name -> new ArrayList<>())
+                            .add(notification);
                     }
                 }
-            });
+            }
+        });
 
     private List<CraftCompleteListener> craftCompleteListeners = initializeDefaultOnCompleteListener();
     private final List<CraftUpdateListener> craftUpdateListeners = new ArrayList<>();
@@ -281,7 +265,9 @@ public  class Dummy implements IAECluster, ICraftingCPU {
         }
         this.isDestroyed = true;
 
-        FMLCommonHandler.instance().bus().unregister(this);
+        FMLCommonHandler.instance()
+            .bus()
+            .unregister(this);
 
         boolean posted = false;
 
@@ -478,7 +464,8 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     }
 
     private void markDirty() {
-        this.getCore().markDirty();
+        this.getCore()
+            .markDirty();
     }
 
     private void postCraftingStatusChange(final IAEItemStack diff) {
@@ -486,15 +473,19 @@ public  class Dummy implements IAECluster, ICraftingCPU {
             return;
         }
 
-        final CraftingGridCache sg = this.getGrid().getCache(ICraftingGrid.class);
+        final CraftingGridCache sg = this.getGrid()
+            .getCache(ICraftingGrid.class);
 
-        if (sg.getInterestManager().containsKey(diff)) {
-            final Collection<CraftingWatcher> list = sg.getInterestManager().get(diff);
+        if (sg.getInterestManager()
+            .containsKey(diff)) {
+            final Collection<CraftingWatcher> list = sg.getInterestManager()
+                .get(diff);
 
             if (!list.isEmpty()) {
                 for (final CraftingWatcher iw : list) {
 
-                    iw.getHost().onRequestChange(sg, diff);
+                    iw.getHost()
+                        .onRequestChange(sg, diff);
                 }
             }
         }
@@ -529,7 +520,9 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     }
 
     private EntityPlayerMP getPlayerByName(String playerName) {
-        return MinecraftServer.getServer().getConfigurationManager().func_152612_a(playerName);
+        return MinecraftServer.getServer()
+            .getConfigurationManager()
+            .func_152612_a(playerName);
     }
 
     private void updateCPU() {
@@ -545,7 +538,8 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     }
 
     private Iterator<Entry<IMEMonitorHandlerReceiver<IAEItemStack>, Object>> getListeners() {
-        return this.listeners.entrySet().iterator();
+        return this.listeners.entrySet()
+            .iterator();
     }
 
     private TileCraftingTile getCore() {
@@ -558,7 +552,8 @@ public  class Dummy implements IAECluster, ICraftingCPU {
             if (gn != null) {
                 final IGrid g = gn.getGrid();
                 if (g != null) {
-                    return r.getActionableNode().getGrid();
+                    return r.getActionableNode()
+                        .getGrid();
                 }
             }
         }
@@ -569,15 +564,17 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     private ArrayList<IAEItemStack> getExtractItems(IAEItemStack ingredient, ICraftingPatternDetails patternDetails) {
         ArrayList<IAEItemStack> list = new ArrayList<>();
         if (patternDetails.canSubstitute()) {
-            for (IAEItemStack fuzz : this.inventory.getItemList().findFuzzy(ingredient, FuzzyMode.IGNORE_ALL)) {
+            for (IAEItemStack fuzz : this.inventory.getItemList()
+                .findFuzzy(ingredient, FuzzyMode.IGNORE_ALL)) {
                 if (!patternDetails.isCraftable() && fuzz.getStackSize() <= 0) continue;
                 if (patternDetails.isCraftable()) {
                     final IAEItemStack[] inputSlots = patternDetails.getInputs();
                     final IAEItemStack finalIngredient = ingredient; // have to copy because of Java lambda capture
                                                                      // rules here
                     final int matchingSlot = IntStream.range(0, inputSlots.length)
-                            .filter(idx -> inputSlots[idx] != null && Objects.equals(inputSlots[idx], finalIngredient))
-                            .findFirst().orElse(-1);
+                        .filter(idx -> inputSlots[idx] != null && Objects.equals(inputSlots[idx], finalIngredient))
+                        .findFirst()
+                        .orElse(-1);
                     if (matchingSlot < 0) {
                         continue;
                     }
@@ -602,7 +599,7 @@ public  class Dummy implements IAECluster, ICraftingCPU {
             }
         } else {
             final IAEItemStack extractItems = this.inventory
-                    .extractItems(ingredient, Actionable.SIMULATE, this.machineSrc);
+                .extractItems(ingredient, Actionable.SIMULATE, this.machineSrc);
             final ItemStack is = extractItems == null ? null : extractItems.getItemStack();
             if (is != null && is.stackSize == ingredient.getStackSize()) {
                 list.add(extractItems);
@@ -627,7 +624,11 @@ public  class Dummy implements IAECluster, ICraftingCPU {
         }
 
         final IItemList<IAEItemStack> list;
-        this.getListOfItem(list = AEApi.instance().storage().createItemList(), CraftingItemList.ALL);
+        this.getListOfItem(
+            list = AEApi.instance()
+                .storage()
+                .createItemList(),
+            CraftingItemList.ALL);
         for (final IAEItemStack is : list) {
             this.postChange(is, this.machineSrc);
         }
@@ -658,7 +659,8 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     }
 
     public void updateCraftingLogic(final IGrid grid, final IEnergyGrid eg, final CraftingGridCache cc) {
-        if (!this.getCore().isActive()) {
+        if (!this.getCore()
+            .isActive()) {
             return;
         }
 
@@ -670,7 +672,8 @@ public  class Dummy implements IAECluster, ICraftingCPU {
         }
 
         if (this.isComplete) {
-            if (this.inventory.getItemList().isEmpty()) {
+            if (this.inventory.getItemList()
+                .isEmpty()) {
                 return;
             }
 
@@ -724,7 +727,7 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     }
 
     private void executeCrafting(final IEnergyGrid eg, final CraftingGridCache cc) {
-    	throw new RuntimeException();
+        throw new RuntimeException();
     }
 
     private void storeItems() {
@@ -750,7 +753,8 @@ public  class Dummy implements IAECluster, ICraftingCPU {
             }
         }
 
-        if (this.inventory.getItemList().isEmpty()) {
+        if (this.inventory.getItemList()
+            .isEmpty()) {
             this.inventory = new MECraftingInventory();
         }
 
@@ -762,10 +766,10 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     }
 
     public ICraftingLink submitJob(final IGrid g, final ICraftingJob job, final BaseActionSource src,
-            final ICraftingRequester requestingMachine) {
+        final ICraftingRequester requestingMachine) {
         if (this.myLastLink != null && this.isBusy()
-                && this.finalOutput.isSameType(job.getOutput())
-                && this.availableStorage >= this.usedStorage + job.getByteTotal()) {
+            && this.finalOutput.isSameType(job.getOutput())
+            && this.availableStorage >= this.usedStorage + job.getByteTotal()) {
             return mergeJob(g, job, src);
         }
 
@@ -807,7 +811,8 @@ public  class Dummy implements IAECluster, ICraftingCPU {
                     this.waiting = false;
                     this.isComplete = false;
                     this.usedStorage = job.getByteTotal();
-                    this.numsOfOutput = job.getOutput().getStackSize();
+                    this.numsOfOutput = job.getOutput()
+                        .getStackSize();
                     for (IAEItemStack fte : ci.getExtractFailedList()) {
                         this.waitingForMissing.add(fte);
                     }
@@ -820,8 +825,8 @@ public  class Dummy implements IAECluster, ICraftingCPU {
                     final String craftID = this.generateCraftingID();
 
                     this.myLastLink = new CraftingLink(
-                            this.generateLinkData(craftID, requestingMachine == null, false),
-                            this);
+                        this.generateLinkData(craftID, requestingMachine == null, false),
+                        this);
 
                     this.prepareElapsedTime();
                     this.prepareStepCount();
@@ -831,13 +836,15 @@ public  class Dummy implements IAECluster, ICraftingCPU {
                     }
 
                     final ICraftingLink whatLink = new CraftingLink(
-                            this.generateLinkData(craftID, false, true),
-                            requestingMachine);
+                        this.generateLinkData(craftID, false, true),
+                        requestingMachine);
 
                     this.submitLink(this.myLastLink);
                     this.submitLink(whatLink);
 
-                    final IItemList<IAEItemStack> list = AEApi.instance().storage().createItemList();
+                    final IItemList<IAEItemStack> list = AEApi.instance()
+                        .storage()
+                        .createItemList();
                     this.getListOfItem(list, CraftingItemList.ALL);
                     for (final IAEItemStack ge : list) {
                         this.postChange(ge, this.machineSrc);
@@ -849,14 +856,16 @@ public  class Dummy implements IAECluster, ICraftingCPU {
                 this.waitingForMissing.resetStatus();
                 this.tasks.clear();
                 this.providers.clear();
-                this.inventory.getItemList().resetStatus();
+                this.inventory.getItemList()
+                    .resetStatus();
             }
         } catch (final CraftBranchFailure e) {
             handleCraftBranchFailure(e, src);
 
             this.tasks.clear();
             this.providers.clear();
-            this.inventory.getItemList().resetStatus();
+            this.inventory.getItemList()
+                .resetStatus();
         }
 
         return null;
@@ -875,19 +884,26 @@ public  class Dummy implements IAECluster, ICraftingCPU {
                 IChatComponent missingDisplayName = new ChatComponentText("?");
                 long missingCount = -1;
                 if (missingStack != null && missingStack.getItem() != null) {
-                    missingName = missingStack.getItemStack().getUnlocalizedName();
+                    missingName = missingStack.getItemStack()
+                        .getUnlocalizedName();
                     if (StatCollector.canTranslate(missingName + ".name")
-                            && StatCollector.translateToLocal(missingName + ".name")
-                                    .equals(missingStack.getItemStack().getDisplayName()))
+                        && StatCollector.translateToLocal(missingName + ".name")
+                            .equals(
+                                missingStack.getItemStack()
+                                    .getDisplayName()))
                         missingDisplayName = new ChatComponentTranslation(missingName + ".name");
-                    else missingDisplayName = new ChatComponentText(missingStack.getItemStack().getDisplayName());
+                    else missingDisplayName = new ChatComponentText(
+                        missingStack.getItemStack()
+                            .getDisplayName());
                     missingCount = missingStack.getStackSize();
                 }
                 player.addChatMessage(
-                        new ChatComponentTranslation(
-                                PlayerMessages.CraftingItemsWentMissing.getName(),
-                                missingCount,
-                                missingName).appendText(" (").appendSibling(missingDisplayName).appendText(")"));
+                    new ChatComponentTranslation(
+                        PlayerMessages.CraftingItemsWentMissing.getName(),
+                        missingCount,
+                        missingName).appendText(" (")
+                            .appendSibling(missingDisplayName)
+                            .appendText(")"));
             }
         } catch (Exception ex) {
             AELog.error(ex, "Could not notify player of crafting failure");
@@ -904,7 +920,8 @@ public  class Dummy implements IAECluster, ICraftingCPU {
             if (ci.commit(src)) {
                 this.finalOutput.add(job.getOutput());
                 this.usedStorage += job.getByteTotal();
-                this.numsOfOutput += job.getOutput().getStackSize();
+                this.numsOfOutput += job.getOutput()
+                    .getStackSize();
                 this.isMissingMode = job.getCraftingMode() == CraftingMode.IGNORE_MISSING;
 
                 this.prepareStepCount();
@@ -922,9 +939,10 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     @Override
     public boolean isBusy() {
 
-        this.tasks.entrySet().removeIf(
+        this.tasks.entrySet()
+            .removeIf(
                 iCraftingPatternDetailsTaskProgressEntry -> iCraftingPatternDetailsTaskProgressEntry.getValue().value
-                        <= 0);
+                    <= 0);
 
         return !this.tasks.isEmpty() || !this.waitingFor.isEmpty();
     }
@@ -975,9 +993,9 @@ public  class Dummy implements IAECluster, ICraftingCPU {
         final int hmm = this.finalOutput == null ? 0 : this.finalOutput.hashCode();
 
         return Long.toString(now, Character.MAX_RADIX) + '-'
-                + Integer.toString(hash, Character.MAX_RADIX)
-                + '-'
-                + Integer.toString(hmm, Character.MAX_RADIX);
+            + Integer.toString(hash, Character.MAX_RADIX)
+            + '-'
+            + Integer.toString(hmm, Character.MAX_RADIX);
     }
 
     private NBTTagCompound generateLinkData(final String craftingID, final boolean standalone, final boolean req) {
@@ -994,13 +1012,14 @@ public  class Dummy implements IAECluster, ICraftingCPU {
 
     private void submitLink(final ICraftingLink myLastLink2) {
         if (this.getGrid() != null) {
-            final CraftingGridCache cc = this.getGrid().getCache(ICraftingGrid.class);
+            final CraftingGridCache cc = this.getGrid()
+                .getCache(ICraftingGrid.class);
             cc.addLink((CraftingLink) myLastLink2);
         }
     }
 
     public void getListOfItem(final IItemList<IAEItemStack> list, final CraftingItemList whichList) {
-    	throw new RuntimeException();
+        throw new RuntimeException();
     }
 
     public void addStorage(final IAEItemStack extractItems) {
@@ -1023,7 +1042,7 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     }
 
     public IAEItemStack getItemStack(final IAEItemStack what, final CraftingItemList storage2) {
-    	throw new RuntimeException();
+        throw new RuntimeException();
     }
 
     private NBTTagCompound persistListeners(int from, List<?> listeners) throws IOException {
@@ -1087,7 +1106,10 @@ public  class Dummy implements IAECluster, ICraftingCPU {
 
         NBTTagList list = new NBTTagList();
         for (final Entry<ICraftingPatternDetails, TaskProgress> e : this.tasks.entrySet()) {
-            final NBTTagCompound item = this.writeItem(AEItemStack.create(e.getKey().getPattern()));
+            final NBTTagCompound item = this.writeItem(
+                AEItemStack.create(
+                    e.getKey()
+                        .getPattern()));
             item.setLong("craftingProgress", e.getValue().value);
             list.appendTag(item);
         }
@@ -1146,7 +1168,7 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     }
 
     private <T> void unpersistListeners(int from, List<T> toAdd, NBTTagCompound tagCompound)
-            throws IOException, ClassNotFoundException {
+        throws IOException, ClassNotFoundException {
         if (tagCompound != null) {
             int i = from;
             byte[] r;
@@ -1158,7 +1180,7 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     }
 
     public void readFromNBT(final NBTTagCompound data) {
-    	throw new RuntimeException();
+        throw new RuntimeException();
     }
 
     public void updateName() {
@@ -1176,7 +1198,9 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     }
 
     private IItemList<IAEItemStack> readList(final NBTTagList tag) {
-        final IItemList<IAEItemStack> out = AEApi.instance().storage().createItemList();
+        final IItemList<IAEItemStack> out = AEApi.instance()
+            .storage()
+            .createItemList();
 
         if (tag == null) {
             return out;
@@ -1193,7 +1217,8 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     }
 
     private World getWorld() {
-        return this.getCore().getWorldObj();
+        return this.getCore()
+            .getWorldObj();
     }
 
     public boolean isMaking(final IAEItemStack what) {
@@ -1215,7 +1240,9 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     }
 
     private void prepareStepCount() {
-        final IItemList<IAEItemStack> list = AEApi.instance().storage().createItemList();
+        final IItemList<IAEItemStack> list = AEApi.instance()
+            .storage()
+            .createItemList();
 
         this.getListOfItem(list, CraftingItemList.ACTIVE);
         this.getListOfItem(list, CraftingItemList.PENDING);
@@ -1261,7 +1288,7 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     }
 
     public void togglePlayerFollowStatus(final String name) {
-    	throw new RuntimeException();
+        throw new RuntimeException();
     }
 
     @SuppressWarnings("unchecked")
@@ -1270,7 +1297,7 @@ public  class Dummy implements IAECluster, ICraftingCPU {
     }
 
     private TileEntity getTile(ICraftingMedium craftingProvider) {
-    	throw new RuntimeException();
+        throw new RuntimeException();
     }
 
     public int getRemainingOperations() {
@@ -1291,13 +1318,13 @@ public  class Dummy implements IAECluster, ICraftingCPU {
                     final IStorageGrid pg = grid.getCache(IStorageGrid.class);
                     if (pg != null) {
                         IAEItemStack extractedItems = pg.getItemInventory()
-                                .extractItems(waitingForItem, Actionable.MODULATE, this.machineSrc);
+                            .extractItems(waitingForItem, Actionable.MODULATE, this.machineSrc);
                         if (extractedItems != null) {
                             IAEStack notInjected = injectItems(extractedItems, Actionable.MODULATE, this.machineSrc);
                             if (notInjected != null) { // not sure if this even need, but still
                                 AELog.logSimple(Level.INFO, "MISSING MODE OVERFLOW! TELL DEVS ASAP!");
                                 pg.getItemInventory()
-                                        .injectItems((IAEItemStack) notInjected, Actionable.MODULATE, this.machineSrc);
+                                    .injectItems((IAEItemStack) notInjected, Actionable.MODULATE, this.machineSrc);
                             }
                         }
                     }
@@ -1333,12 +1360,12 @@ public  class Dummy implements IAECluster, ICraftingCPU {
 
         public IChatComponent createMessage() {
             final String elapsedTimeText = DurationFormatUtils.formatDuration(
-                    TimeUnit.MILLISECONDS.convert(this.elapsedTime, TimeUnit.NANOSECONDS),
-                    GuiText.ETAFormat.getLocal());
+                TimeUnit.MILLISECONDS.convert(this.elapsedTime, TimeUnit.NANOSECONDS),
+                GuiText.ETAFormat.getLocal());
             return PlayerMessages.FinishCraftingRemind.get(
-                    new ChatComponentText(EnumChatFormatting.GREEN + String.valueOf(this.outputsCount)),
-                    this.finalOutput.func_151000_E(),
-                    new ChatComponentText(EnumChatFormatting.GREEN + elapsedTimeText));
+                new ChatComponentText(EnumChatFormatting.GREEN + String.valueOf(this.outputsCount)),
+                this.finalOutput.func_151000_E(),
+                new ChatComponentText(EnumChatFormatting.GREEN + elapsedTimeText));
         }
 
         public void readFromNBT(NBTTagCompound tag) {

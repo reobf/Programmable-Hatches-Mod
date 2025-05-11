@@ -6,16 +6,22 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import ggfab.mte.MTELinkedInputBus;
+import gregtech.api.covers.CoverContext;
+import gregtech.api.covers.CoverPlacer;
+import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.util.CoverBehavior;
-import gregtech.api.util.CoverBehaviorBase;
+import gregtech.common.covers.Cover;
 
-public class LinkedBusSlaveCover extends CoverBehavior implements IProgrammer {
+public class LinkedBusSlaveCover extends Cover implements IProgrammer {
+
+    public LinkedBusSlaveCover(CoverContext context, ITexture tex) {
+        super(context, tex);
+    }
 
     @Override
-    public int getTickRate(ForgeDirection side, int aCoverID, int aCoverVariable, ICoverable aTileEntity) {
+    public int getDefaultTickRate() {
 
         return 1;
     }
@@ -38,28 +44,34 @@ public class LinkedBusSlaveCover extends CoverBehavior implements IProgrammer {
 
     }
 
-    @Override
-    public boolean isCoverPlaceable(ForgeDirection side, ItemStack aStack, ICoverable aTileEntity) {
+    public static CoverPlacer placer() {
+        return CoverPlacer.builder()
+
+            .onlyPlaceIf(LinkedBusSlaveCover::isCoverPlaceable)
+            .build();
+
+    }
+
+    public static boolean isCoverPlaceable(ForgeDirection side, ItemStack aStack, ICoverable aTileEntity) {
         if (!Optional.of(aTileEntity)
             .filter(s -> s instanceof IGregTechTileEntity)
             .map(s -> ((IGregTechTileEntity) s).getMetaTileEntity())
             .filter(s -> s instanceof MTELinkedInputBus)
             .isPresent()) return false;
         for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS) {
-            CoverBehaviorBase<?> beh = aTileEntity.getCoverInfoAtSide(d).getCoverBehavior();
+            Cover beh = aTileEntity.getCoverAtSide(d);
             if (beh != null && beh.getClass() == ProgrammingCover.class) {
                 return false;
             }
         }
-        return super.isCoverPlaceable(side, aStack, aTileEntity);
+        return true;
     }
 
     @Override
-    public int doCoverThings(ForgeDirection side, byte aInputRedstone, int aCoverID, int aCoverVariable,
-        ICoverable aTileEntity, long aTimer) {
-        impl(aTileEntity);
+    public void doCoverThings(byte x, long aTimer) {
+        impl(getTile());
 
-        return aCoverVariable;
+        /* return */ super.doCoverThings(x, aTimer);
     }
 
 }

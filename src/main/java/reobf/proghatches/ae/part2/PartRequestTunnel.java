@@ -56,7 +56,7 @@ import reobf.proghatches.eucrafting.IGuiProvidingPart;
 import reobf.proghatches.fmp.ICraftingMachinePart;
 
 public class PartRequestTunnel extends PartBasicState
-    implements ICraftingMachinePart, ISidedInventory, IFluidHandler, IGridTickable ,IGuiProvidingPart{
+    implements ICraftingMachinePart, ISidedInventory, IFluidHandler, IGridTickable, IGuiProvidingPart {
 
     public static class WailaDataProvider extends appeng.integration.modules.waila.part.BasePartWailaDataProvider {
 
@@ -512,19 +512,21 @@ public class PartRequestTunnel extends PartBasicState
         rh.renderBlock(x, y, z, renderer);
 
         // this.renderLights(x, y, z, rh, renderer);
-    }@Override
+    }
+
+    @Override
     public boolean onPartActivate(EntityPlayer player, Vec3 pos) {
         if (player.isSneaking()) return false;
         TileEntity t = this.getTile();
         // System.out.println(getSide());
         EUUtil.open(player, player.getEntityWorld(), t.xCoord, t.yCoord, t.zCoord, getSide());
-    	return true;
+        return true;
     }
 
-	@Override
-	public ModularWindow createWindow(UIBuildContext buildContext) {
-		// TODO Auto-generated method stub
-		return internal.createWindow(buildContext);
-	}
+    @Override
+    public ModularWindow createWindow(UIBuildContext buildContext) {
+        // TODO Auto-generated method stub
+        return internal.createWindow(buildContext);
+    }
 
 }

@@ -98,11 +98,11 @@ public class ItemPartCoW extends Item implements IPartItem {
     @SideOnly(value = Side.CLIENT)
     @Override
     public void addInformation(ItemStack p_77624_1_, EntityPlayer p_77624_2_, List p_77624_3_, boolean p_77624_4_) {
-         p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.part.cow.tooltips.0"));
-         p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.part.cow.tooltips.1"));
-         p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.part.cow.tooltips.2"));
-         p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.part.cow.tooltips.3"));
-         p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.part.cow.tooltips.4"));
+        p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.part.cow.tooltips.0"));
+        p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.part.cow.tooltips.1"));
+        p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.part.cow.tooltips.2"));
+        p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.part.cow.tooltips.3"));
+        p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.part.cow.tooltips.4"));
         // p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.part.ma.p2p.tooltips.1"));
         // p_77624_3_.add(StatCollector.translateToLocal("item.proghatches.part.ma.p2p.tooltips.2"));
         //

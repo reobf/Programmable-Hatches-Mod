@@ -1,26 +1,30 @@
 package reobf.proghatches.gt.metatileentity;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.spongepowered.asm.mixin.Unique;
-
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+
+import org.spongepowered.asm.mixin.Unique;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
+import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.events.MENetworkCellArrayUpdate;
@@ -47,7 +51,6 @@ import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.interfaces.ITexture;
-import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.util.GTUtility;
@@ -57,7 +60,8 @@ import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.main.registration.Registration;
 import tectech.util.TTUtility;
 
-public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContainer, IGridProxyable,IStoageCellUpdate {
+public class StorageOutputBus extends MTEHatchOutputBusME
+    implements ICellContainer, IGridProxyable, IStoageCellUpdate, IPowerChannelState {
 
     public StorageOutputBus(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional);
@@ -82,13 +86,14 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
 
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-    	if (getBaseMetaTileEntity().isServerSide()) {
-            tickCounter = aTick;}
-    	
-    	boolean active = this.getProxy()
+        if (getBaseMetaTileEntity().isServerSide()) {
+            tickCounter = aTick;
+        }
+
+        boolean active = this.getProxy()
             .isActive();
         if (!aBaseMetaTileEntity.getWorld().isRemote) {
-        	if (facingJustChanged) {
+            if (facingJustChanged) {
                 facingJustChanged = false;
                 try {
                     this.getProxy()
@@ -114,11 +119,11 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
     }
 
     private void post() {
-		// TODO Auto-generated method stub
-		
-	}
+        // TODO Auto-generated method stub
 
-	boolean additionalConnection;
+    }
+
+    boolean additionalConnection;
 
     public void updateValidGridProxySides() {
 
@@ -179,11 +184,14 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
                 AEItemStack is = AEItemStack.create(stack);
                 is = (AEItemStack) ((CraftingGridCache) getProxy().getCrafting())
                     .injectItems(is, Actionable.MODULATE, new MachineSource(this));
-                if(is!=null){
-                this.getProxy()
-                    .getStorage()
-                    .postAlterationOfStoredItems(StorageChannel.ITEMS, ImmutableList.of(is), new MachineSource(this));
-                itemCache.addStorage(is);
+                if (is != null) {
+                    this.getProxy()
+                        .getStorage()
+                        .postAlterationOfStoredItems(
+                            StorageChannel.ITEMS,
+                            ImmutableList.of(is),
+                            new MachineSource(this));
+                    itemCache.addStorage(is);
                 }
             } catch (GridAccessException e) {
 
@@ -217,16 +225,17 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
 
         @Override
         public AEItemStack injectItems(AEItemStack input, Actionable type, BaseActionSource src) {
-        
-        	if(IngredientDistributor.flag){	
-        		if(type==Actionable.SIMULATE){
-        			return null;
-        			}
-        		AEItemStack ret = (AEItemStack) input.copy().setStackSize(store(input.getItemStack()));
-        		if(ret.getStackSize()<=0)ret=null;
-        		return  ret;
-        	}
-        	return input;
+
+            if (IngredientDistributor.flag) {
+                if (type == Actionable.SIMULATE) {
+                    return null;
+                }
+                AEItemStack ret = (AEItemStack) input.copy()
+                    .setStackSize(store(input.getItemStack()));
+                if (ret.getStackSize() <= 0) ret = null;
+                return ret;
+            }
+            return input;
         }
 
         @Override
@@ -260,7 +269,7 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
     };
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-	IMEInventoryHandler<AEItemStack> handler = new MEInventoryHandler(cache, StorageChannel.ITEMS);
+    IMEInventoryHandler<AEItemStack> handler = new MEInventoryHandler(cache, StorageChannel.ITEMS);
 
     @Override
     public List<IMEInventoryHandler> getCellArray(StorageChannel channel) {
@@ -304,7 +313,7 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
             tag.setLong("size", s.getStackSize());
             items.appendTag(tag);
         }
-
+        aNBT.setBoolean("additionalConnectionPH", additionalConnection);
         aNBT.setTag("cachedItemsPH", items);
         super.saveNBTData(aNBT);
     }
@@ -330,6 +339,7 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
                 }
             }
         }
+        additionalConnection = aNBT.getBoolean("additionalConnectionPH");
         super.loadNBTData(aNBT);
     }/*
       * @Override
@@ -338,13 +348,16 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
       * return super.onRightclick(aBaseMetaTileEntity, aPlayer);
       * }
       */
+
     boolean facingJustChanged;
+
     @Override
     public void onFacingChange() {
         updateValidGridProxySides();
-        facingJustChanged=true;
-        		
+        facingJustChanged = true;
+
     }
+
     @Override
     public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
         int z) {
@@ -374,27 +387,104 @@ public class StorageOutputBus extends MTEHatchOutputBusME implements ICellContai
         }
     }
 
-	@Override
-	public void cellUpdate() {
-		 try {
-			this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
-		} catch (GridAccessException e) {
-		}
-		
-	}
+    @Override
+    public void cellUpdate() {
+        try {
+            this.getProxy()
+                .getGrid()
+                .postEvent(new MENetworkCellArrayUpdate());
+        } catch (GridAccessException e) {}
+
+    }
 
     @MENetworkEventSubscribe
     @Unique
     public void powerRender(final MENetworkPowerStatusChange w) {
 
         cellUpdate();
-        
+
     }
 
     @MENetworkEventSubscribe
     @Unique
     public void updateChannels(final MENetworkChannelsChanged w) {
-       cellUpdate();
-        
+        cellUpdate();
+
+    }
+
+    @Override
+    public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
+        float aX, float aY, float aZ, ItemStack is) {
+        additionalConnection = !additionalConnection;
+        updateValidGridProxySides();
+        aPlayer.addChatComponentMessage(
+            new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
+        return true;
+    }
+
+    static Field f1;
+    static {
+
+        try {
+            f1 = MTEHatchOutputBusME.class.getDeclaredField("lockedItems");
+            f1.setAccessible(true);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    public List<ItemStack> get() {
+        try {
+            return (List<ItemStack>) f1.get(this);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+
+    }
+
+    @Override
+    public boolean storePartial(ItemStack stack, boolean simulate) {
+        if (!get().isEmpty()) {
+            boolean isOk = false;
+
+            for (ItemStack lockedItem : get()) {
+                if (lockedItem.isItemEqual(stack)) {
+                    isOk = true;
+
+                    break;
+                }
+            }
+
+            if (!isOk) {
+                return false;
+            }
+        }
+
+        // Always allow insertion on the same tick so we can output the entire recipe
+        if (canAcceptItem() || (lastInputTick == tickCounter)) {
+            if (!simulate) {
+                itemCache.add(
+                    AEApi.instance()
+                        .storage()
+                        .createItemStack(stack));
+                lastInputTick = tickCounter;
+            }
+            stack.stackSize = 0;
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean isPowered() {
+
+        return getProxy().isPowered();
+    }
+
+    @Override
+    public boolean isActive() {
+
+        return getProxy().isActive();
     }
 }

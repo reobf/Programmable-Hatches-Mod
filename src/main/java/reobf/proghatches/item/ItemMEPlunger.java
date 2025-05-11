@@ -138,8 +138,7 @@ public class ItemMEPlunger extends DummySuper implements INetworkEncodable {
         for (IGridNode node : grid.getMachines(TileWireless.class)) {
             IWirelessAccessPoint accessPoint = (IWirelessAccessPoint) node.getMachine();
 
-            if (stack.getItemDamage() == 0) 
-            	if (accessPoint.isActive() && accessPoint.getLocation()
+            if (stack.getItemDamage() == 0) if (accessPoint.isActive() && accessPoint.getLocation()
                 .getDimension() == player.dimension) {
                     WorldCoord distance = accessPoint.getLocation()
                         .subtract((int) player.posX, (int) player.posY, (int) player.posZ);
@@ -148,10 +147,10 @@ public class ItemMEPlunger extends DummySuper implements INetworkEncodable {
                         return true;
 
                     }
-                } 
-            
+                }
+
             if (stack.getItemDamage() == 1) {
-            	return accessPoint.isActive();
+                return accessPoint.isActive();
             }
 
         }
@@ -217,10 +216,10 @@ public class ItemMEPlunger extends DummySuper implements INetworkEncodable {
                 IStorageGrid storage = getWirelessGrid(aStack).getGrid()
                     .getCache(IStorageGrid.class);
                 IDualInputHatch dual = (IDualInputHatch) mTileEntity;
-                if(dual instanceof IRecipeProcessingAwareDualHatch){
-                	IRecipeProcessingAwareDualHatch d=(IRecipeProcessingAwareDualHatch) dual;
-                	d.trunOffME();
-                	}
+                if (dual instanceof IRecipeProcessingAwareDualHatch) {
+                    IRecipeProcessingAwareDualHatch d = (IRecipeProcessingAwareDualHatch) dual;
+                    d.trunOffME();
+                }
                 for (IDualInputInventory inv : (Iterable<IDualInputInventory>) (Iterable) (() -> dual.inventories())) {
                     if ((aPlayer.capabilities.isCreativeMode) || damage(aStack)) {} else {
                         continue;
@@ -254,12 +253,12 @@ public class ItemMEPlunger extends DummySuper implements INetworkEncodable {
                     GTUtility
                         .sendSoundToPlayers(aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE, 1.0F, -1.0F, aX, aY, aZ);
                 }
-                if(dual instanceof IRecipeProcessingAwareDualHatch){
-                	IRecipeProcessingAwareDualHatch d=(IRecipeProcessingAwareDualHatch) dual;
-                	d.trunOffME();
-                	}
-                if(mTileEntity instanceof MTEHatchInputBus){
-               ( (MTEHatchInputBus)mTileEntity).updateSlots();
+                if (dual instanceof IRecipeProcessingAwareDualHatch) {
+                    IRecipeProcessingAwareDualHatch d = (IRecipeProcessingAwareDualHatch) dual;
+                    d.trunONME();
+                }
+                if (mTileEntity instanceof MTEHatchInputBus) {
+                    ((MTEHatchInputBus) mTileEntity).updateSlots();
                 }
                 return true;
             }

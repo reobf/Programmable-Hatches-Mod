@@ -10,13 +10,13 @@ import java.util.function.IntUnaryOperator;
 import java.util.stream.Stream;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
-import net.minecraftforge.common.util.ForgeDirection;
+
+import org.jetbrains.annotations.NotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteArrayDataInput;
@@ -34,15 +34,19 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.BaseTextFieldWidget;
 import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
+import gregtech.api.covers.CoverContext;
 import gregtech.api.gui.modularui.CoverUIBuildContext;
 import gregtech.api.gui.modularui.GTUITextures;
+import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.util.CoverBehaviorBase;
-import gregtech.api.util.ISerializableObject;
+import gregtech.common.covers.Cover;
 import gregtech.common.covers.redstone.CoverAdvancedRedstoneReceiverBase.GateMode;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
+import gregtech.common.gui.mui1.cover.CoverUIFactory;
 import io.netty.buffer.ByteBuf;
+import reobf.proghatches.eucrafting.CoverBehaviorBase;
+import reobf.proghatches.eucrafting.ISer;
 import reobf.proghatches.gt.cover.parser.SimpleParser;
 import reobf.proghatches.gt.cover.parser.SimpleParser.Context;
 import reobf.proghatches.gt.cover.parser.SimpleParser.Expression;
@@ -52,14 +56,14 @@ import reobf.proghatches.util.ProghatchesUtil;
 
 public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
 
-    public SmartArmCover(int tier) {
-        super(Data.class);
+    public SmartArmCover(int tier, CoverContext context, ITexture t) {
+        super(context, SmartArmCover.Data.class, t);
         this.mtier = tier;
     }
 
     int mtier;
 
-    static public class Data implements ISerializableObject {
+    static public class Data implements ISer {
 
         boolean io;
         int mode;
@@ -78,7 +82,7 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
         SimpleParser.Expression e;
 
         @Override
-        public ISerializableObject copy() {
+        public ISer copy() {
             Data d = new Data();
             d.io = io;
             d.formula = formula;
@@ -206,7 +210,7 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
         }
 
         @Override
-        public ISerializableObject readFromPacket(ByteArrayDataInput aBuf, EntityPlayerMP aPlayer) {
+        public void readFromPacket(ByteArrayDataInput aBuf) {
             probe = aBuf.readInt();
             io = aBuf.readBoolean();
             byte[] b = new byte[aBuf.readInt()];
@@ -240,16 +244,29 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
             }
 
             dyn = aBuf.readBoolean();
-            return this;
+
         }
 
     }
 
     public static final UITexture PROBE = UITexture.fullImage(GregTech.ID, "items/gt.metaitem.01/762");
 
-    private class ArmUIFactory extends UIFactory {
+    private class ArmUIFactory extends CoverUIFactory<SmartArmCover> {
 
-        protected ModularWindow createWindow(final EntityPlayer player) {
+        private Data getCoverData() {
+
+            return getCover().coverData;
+        }
+
+        @Override
+        protected SmartArmCover adaptCover(Cover cover) {
+            if (cover instanceof SmartArmCover) {
+                return (SmartArmCover) cover;
+            }
+            return null;
+        }
+
+        public ModularWindow createWindow(final EntityPlayer player) {
 
             final int WIDTH = 16 * 8;
             final int HEIGHT = 16 * 2;
@@ -304,13 +321,13 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
 
         // private int maxSlot;
 
-        protected ArmUIFactory(CoverUIBuildContext buildContext) {
+        public ArmUIFactory(CoverUIBuildContext buildContext) {
             super(buildContext);
 
         }
 
         @Override
-        protected void addUIWidgets(ModularWindow.Builder builder) {
+        public void addUIWidgets(ModularWindow.Builder builder) {
             // maxSlot = getMaxSlot();
             // CoverDataControllerWidget<Data> o = new
             // CoverDataControllerWidget<>(this::getCoverData,
@@ -499,7 +516,8 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
 
             builder.widget(new DrawableWidget().setDrawable(() ->
 
-            UITexture.fullImage(new ResourceLocation("proghatches", "textures/gui/formula" + getCoverData().mode + ".png"))
+            UITexture
+                .fullImage(new ResourceLocation("proghatches", "textures/gui/formula" + getCoverData().mode + ".png"))
 
             )
                 .addTooltip(LangManager.translateToLocal("programmable_hatches.cover.smart.tips.0"))
@@ -561,11 +579,10 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
     }
 
     @Override
-    protected boolean onCoverRightClickImpl(ForgeDirection side, int aCoverID, Data d, ICoverable aTileEntity,
-        EntityPlayer aPlayer, float aX, float aY, float aZ) {
+    public boolean onCoverRightClick(EntityPlayer aPlayer, float aX, float aY, float aZ) {
 
         // if (1 > 0)
-        return super.onCoverRightClickImpl(side, aCoverID, d, aTileEntity, aPlayer, aX, aY, aZ);
+        return super.onCoverRightClick(aPlayer, aX, aY, aZ);
         // not used
         /*
          * if (d.dyn) {
@@ -601,21 +618,15 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
     }
 
     @Override
-    public Data createDataObject(int aLegacyData) {
-
-        throw new RuntimeException("not legacy");
-    }
-
-    @Override
-    public Data createDataObject() {
+    public Data initializeDataSer() {
 
         return new Data();
     }
 
     @Override
-    protected int getTickRateImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity) {
+    public int getDefaultTickRate() {
 
-        return Math.max(tier[mtier][0], aCoverVariable.dyn ? 5 : 1);
+        return Math.max(tier[mtier][0], coverData.dyn ? 5 : 1);
     }
 
     @Override
@@ -631,14 +642,15 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
     };
 
     @Override
-    protected Data doCoverThingsImpl(ForgeDirection side, byte aInputRedstone, int aCoverID, Data d,
-        ICoverable aTileEntity, long aTimer) {
-        aTileEntity.markDirty();
-        if (aTileEntity.getWorld().isRemote == false) stop: {
+    public void doCoverThings(byte v, long aTimer) {
+        @NotNull
+        Data d = coverData;
+        getTile().markDirty();
+        if (getTile().getWorld().isRemote == false) stop: {
             if (d.formula.isEmpty()) {
                 d.detail = info("idle");
                 d.value = d.key = empty;
-                return d;
+                return;
             }
             boolean diff = (Objects.equals(d.formulaprev, d.formula) == false);
 
@@ -659,13 +671,13 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
 
             if (d.mode == 0) {
                 try {
-                    argsize = ((IInventory) aTileEntity.getTileEntityAtSide(side)).getSizeInventory();
+                    argsize = ((IInventory) getTile().getTileEntityAtSide(coverSide)).getSizeInventory();
                 } catch (RuntimeException e) {
                     d.state = -1;
                     d.detail = info("not.inventory");
                 }
             } else {
-                argsize = aTileEntity.getSizeInventory();
+                argsize = getTile().getSizeInventory();
 
             }
 
@@ -752,8 +764,8 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
                 if (d.state != 0) {
                     break abort;
                 }
-                IInventory thiz = aTileEntity;
-                IInventory that = aTileEntity.getIInventoryAtSide(side);
+                IInventory thiz = getTile();
+                IInventory that = getTile().getIInventoryAtSide(coverSide);
                 if (that == null) break abort;
                 if (d.dyn == false) {
                     int[] out = d.mode == 0 ? d.key : (d.value);
@@ -796,10 +808,8 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
                         try {
                             return (int) Math.round(
                                 ((Number) d.e.evaluate(
-                                    addDyn(
-                                        new Context(publicContext).add(d.mode == 1 ? "i" : "o", ii),
-                                        d,
-                                        aTileEntity))).doubleValue());
+                                    addDyn(new Context(publicContext).add(d.mode == 1 ? "i" : "o", ii), d, getTile())))
+                                        .doubleValue());
                         } catch (Exception e) {
                             return Integer.MIN_VALUE;
                         }
@@ -848,7 +858,7 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
             } // end moveitem
         }
 
-        return super.doCoverThingsImpl(side, aInputRedstone, aCoverID, d, aTileEntity, aTimer);
+        /* return (Data) */ super.doCoverThings(v, aTimer);
     }
 
     private Context addDyn(Context add, Data d, ICoverable aTileEntity) {

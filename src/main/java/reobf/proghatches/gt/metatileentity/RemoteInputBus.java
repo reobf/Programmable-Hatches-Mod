@@ -22,11 +22,11 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.FluidStack;
 
+import com.cleanroommc.modularui.utils.item.IItemHandlerModifiable;
+import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
-import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.widget.Widget;
@@ -265,14 +265,14 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
                 if (count-- <= 0) {
                     count = 100;
                 } else return;
-              
+
                 Optional<TileEntity> opt = getTile();
                 if (opt.isPresent()) {
-                	 arr=null;
+                    arr = null;
                     List<ItemStack> list = opt.map(e -> filterTakable(e))
                         .get();
-                    arr=null;
-                    
+                    arr = null;
+
                     for (int i = 0; i < is.getSlots() - 1; i++) {
                         is.setStackInSlot(i, list.size() > i ? list.get(i) : null);
                     }
@@ -350,13 +350,15 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
             return Optional.empty();
         }
     }
+
     ArrayList<ItemStack> arr;
+
     public List<ItemStack> filterTakable(TileEntity e) {
-    	 // if (processingRecipe == false) return new ArrayList<ItemStack>();
+        // if (processingRecipe == false) return new ArrayList<ItemStack>();
         if (e == null || (e instanceof IInventory == false)) return new ArrayList<ItemStack>();
         IInventory inv = (IInventory) e;
-        if(arr!=null)return arr;
-         arr = new ArrayList<ItemStack>();
+        if (arr != null) return arr;
+        arr = new ArrayList<ItemStack>();
         // boolean b=e instanceof ISidedInventory;
 
         int size = inv.getSizeInventory();
@@ -627,13 +629,14 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
             using.remove(new DimensionalCoord((TileEntity) this.getBaseMetaTileEntity()));
         }
         processingRecipe = false;
-        blocked = false;arr=null;
+        blocked = false;
+        arr = null;
         removePhantom();
         return CheckRecipeResultRegistry.SUCCESSFUL;
     }
 
     @Override
-    public ItemStackHandler getInventoryHandler() {
+    public IItemHandlerModifiable getInventoryHandler() {
 
         return new ItemStackHandler(0) {
 

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTEBasicMachine;
 import reobf.proghatches.eucrafting.IIdleStateProvider;
-
+@Deprecated
 @Mixin(value = MTEBasicMachine.class, remap = false)
 public abstract class MixinMachineIdle2 implements IIdleStateProvider {
 

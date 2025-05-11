@@ -11,6 +11,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import reobf.proghatches.item.ItemProgrammingToolkit;
+import reobf.proghatches.main.MyMod;
 
 public class SwitchModeMessage implements IMessage {
 
@@ -21,16 +22,19 @@ public class SwitchModeMessage implements IMessage {
         @Override
         public SwitchModeMessage onMessage(SwitchModeMessage message, MessageContext ctx) {
 
-            IInventory[] invs = { // TPlayerStats.get(((NetHandlerPlayServer)ctx.netHandler).playerEntity).armor,
-                BaublesApi.getBaubles(((NetHandlerPlayServer) ctx.netHandler).playerEntity) };
-
-            for (IInventory inv : invs) for (int i = 0; i < inv.getSizeInventory(); i++) {
+            IInventory inv = BaublesApi.getBaubles(((NetHandlerPlayServer) ctx.netHandler).playerEntity);
+            for (int i = 0; i < inv.getSizeInventory(); i++) {
                 ItemStack is = inv.getStackInSlot(i);
                 if (is != null && is.getItem() instanceof ItemProgrammingToolkit) {
+
                     is.setItemDamage((is.getItemDamage() + 1) % ItemProgrammingToolkit.maxModes);
                     ((NetHandlerPlayServer) ctx.netHandler).playerEntity.addChatMessage(new
 
                     ChatComponentTranslation("proghatch.keybinding.kit.switch.mode." + (is.getItemDamage())));
+                    MyMod.net.sendTo(
+                        new ModeSwitchedMessage(i, is.getItemDamage()),
+                        ((NetHandlerPlayServer) ctx.netHandler).playerEntity);
+
                     break;
                     // ((ItemProgrammingToolkit)is.getItem()).onItemRightClick(is, null, null);
                 }

@@ -1,7 +1,6 @@
 package reobf.proghatches.gt.metatileentity.util;
 
 import net.minecraft.item.ItemStack;
-import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 
 import com.gtnewhorizons.modularui.api.forge.ItemHandlerHelper;
 
@@ -18,9 +17,7 @@ public class MappingItemHandler
         this.num = num;
     }
 
-  
-
-	boolean phantom;
+    boolean phantom;
 
     public MappingItemHandler phantom() {
         phantom = true;

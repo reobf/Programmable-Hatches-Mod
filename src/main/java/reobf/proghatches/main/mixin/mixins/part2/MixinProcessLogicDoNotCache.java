@@ -17,7 +17,7 @@ import reobf.proghatches.gt.metatileentity.util.IDoNotCacheThisPattern;
 
 @Mixin(value = ProcessingLogic.class, remap = false)
 public class MixinProcessLogicDoNotCache {
-
+/*
     @Shadow
     protected Map<IDualInputInventory, Set<GTRecipe>> craftingPatternRecipeCache = new HashMap<>();
     @Shadow
@@ -29,17 +29,17 @@ public class MixinProcessLogicDoNotCache {
     public void process(CallbackInfoReturnable x) {
         if (craftingPattern instanceof IDoNotCacheThisPattern) {
             IDoNotCacheThisPattern p = (IDoNotCacheThisPattern) craftingPattern;
-            if (p.areYouSerious()) {
+            //if (p.areYouSerious()) {//true
                 Set<GTRecipe> removed = craftingPatternRecipeCache.remove(craftingPattern);
                 craftingPattern = null;
                 IDualInputInventory instead = p.butYouCanCacheThisInstead();
                 if (instead != null) {
                     craftingPatternRecipeCache.put(instead, removed);
                 }
-            }
+            //}
         }
 
-    }
+    }*/
 
     /*
      * public boolean craftingPatternHandler(IDualInputInventory slot) {

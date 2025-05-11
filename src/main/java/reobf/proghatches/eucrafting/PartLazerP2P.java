@@ -39,7 +39,6 @@ import gregtech.api.metatileentity.implementations.MTETieredMachineBlock;
 import reobf.proghatches.main.Config;
 import tectech.mechanics.pipe.IConnectsToEnergyTunnel;
 
-
 public class PartLazerP2P<S extends MetaTileEntity & IConnectsToEnergyTunnel, D extends MetaTileEntity & IConnectsToEnergyTunnel>
 
     extends PartP2PTunnelStatic<PartLazerP2P> implements ILazer, IGridTickable {
@@ -48,46 +47,54 @@ public class PartLazerP2P<S extends MetaTileEntity & IConnectsToEnergyTunnel, D 
         super(is);
 
     }
-    
+
     static Class c;
-    static Function<Object,Integer> getConn;
+    static Function<Object, Integer> getConn;
     static Consumer<Object> mark;
-    
-    static{
-    	if(c==null){try {
-			c=Class.forName("tectech.thing.metaTileEntity.pipe.MTEPipeEnergy");
-		} catch (ClassNotFoundException e) {
-		}}
-    	
-    	if(c==null){try {
-			c=Class.forName("tectech.thing.metaTileEntity.pipe.MTEPipeLaser");
-		} catch (ClassNotFoundException e) {
-		}}
-    	if(c==null){throw new AssertionError("no lazer class found");}
-    	
-    	
-		try {  
-			Method f = c.getMethod("markUsed");
-			mark=s->{
-    		
-    		try {
-				f .invoke(s);
-			} catch (Exception e) {
-				throw new AssertionError(e);
-			}
-    	};
-		} catch (Exception e1) {	throw new AssertionError(e1);
-		}	
-			
-		
-    	
-    	
+
+    static {
+        if (c == null) {
+            try {
+                c = Class.forName("tectech.thing.metaTileEntity.pipe.MTEPipeEnergy");
+            } catch (ClassNotFoundException e) {}
+        }
+
+        if (c == null) {
+            try {
+                c = Class.forName("tectech.thing.metaTileEntity.pipe.MTEPipeLaser");
+            } catch (ClassNotFoundException e) {}
+        }
+        if (c == null) {
+            throw new AssertionError("no lazer class found");
+        }
+
+        try {
+            Method f = c.getMethod("markUsed");
+            mark = s -> {
+
+                try {
+                    f.invoke(s);
+                } catch (Exception e) {
+                    throw new AssertionError(e);
+                }
+            };
+
+            Field f2 = c.getDeclaredField("connectionCount");
+            getConn = sp -> {
+
+                try {
+                    return ((Byte) f2.get(sp)).intValue();
+                } catch (Exception e) {
+                    throw new AssertionError(e);
+                }
+
+            };
+        } catch (Exception e1) {
+            throw new AssertionError(e1);
+        }
+
     }
-    
-    
-    
-    
-    
+
     @Override
     public boolean canConnect(ForgeDirection side) {
 
@@ -228,11 +235,11 @@ public class PartLazerP2P<S extends MetaTileEntity & IConnectsToEnergyTunnel, D 
                         ) {
 
                             return (S) (aMetaTileEntity);
-                        } else if (c.isInstance(aMetaTileEntity)/*aMetaTileEntity instanceof MTEPipeEnergy*/) {
+                        } else if (c.isInstance(aMetaTileEntity)/* aMetaTileEntity instanceof MTEPipeEnergy */) {
                             if (getConn.apply(aMetaTileEntity) < 2) {
                                 return null;
                             } else {
-                               mark.accept(getConn);
+                                mark.accept(aMetaTileEntity);
                             }
                             continue;
                         }
@@ -283,7 +290,7 @@ public class PartLazerP2P<S extends MetaTileEntity & IConnectsToEnergyTunnel, D 
                             if (getConn.apply(aMetaTileEntity) < 2) {
                                 return null;
                             } else {
-                            	 mark.accept(getConn);
+                                mark.accept(aMetaTileEntity);
                             }
                             continue;
                         }

@@ -1,5 +1,7 @@
 package reobf.proghatches.ae;
 
+import java.util.List;
+
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -9,8 +11,6 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidHandler;
-
-import java.util.List;
 
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
@@ -336,9 +336,11 @@ public class PartStockingFluidExportBus extends PartBasicState implements
         EUUtil.open(player, player.getEntityWorld(), t.xCoord, t.yCoord, t.zCoord, getSide());
 
         return true;
-    }  @Override
+    }
+
+    @Override
     public void getDrops(final List<ItemStack> drops, final boolean wrenched) {
         if (inv[0] != null) drops.add(inv[0]);
-      
+
     }
 }

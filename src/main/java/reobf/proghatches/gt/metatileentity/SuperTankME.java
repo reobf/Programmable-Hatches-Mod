@@ -10,8 +10,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-import org.spongepowered.asm.mixin.Unique;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -27,6 +25,10 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidContainerItem;
 
+import org.spongepowered.asm.mixin.Unique;
+
+import com.cleanroommc.modularui.utils.item.IItemHandlerModifiable;
+import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.glodblock.github.client.textures.FCPartsTexture;
 import com.glodblock.github.common.item.ItemFluidPacket;
 import com.google.common.collect.ImmutableList;
@@ -34,7 +36,6 @@ import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
-import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.math.Color;
 import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
@@ -51,6 +52,7 @@ import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
+import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.events.MENetworkCellArrayUpdate;
@@ -97,7 +99,8 @@ import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.IIconTexture;
 import reobf.proghatches.util.ProghatchesUtil;
 
-public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxyable, IPriorityHost, IStoageCellUpdate {
+public class SuperTankME extends MTEHatch
+    implements ICellContainer, IGridProxyable, IPriorityHost, IStoageCellUpdate, IPowerChannelState {
 
     public SuperTankME(String aName, int aTier, int aInvSlotCount, String[] aDescription, ITexture[][][] aTextures) {
         super(aName, aTier, aInvSlotCount, aDescription, aTextures);
@@ -388,7 +391,7 @@ public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxya
 
         @Override
         public IAEFluidStack injectItems(IAEFluidStack input, Actionable type, BaseActionSource src) {
-        	 if (type != Actionable.SIMULATE)post();
+            if (type != Actionable.SIMULATE) post();
             try {
                 int acc = content.fill(input.getFluidStack(), type == Actionable.MODULATE);
                 IAEFluidStack ret = input.copy();
@@ -620,7 +623,7 @@ public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxya
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 
         if (!aBaseMetaTileEntity.getWorld().isRemote) {
-        	if (facingJustChanged) {
+            if (facingJustChanged) {
                 facingJustChanged = false;
                 try {
                     this.getProxy()
@@ -839,7 +842,7 @@ public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxya
     private int capOverride;
 
     @Override
-    public ItemStackHandler getInventoryHandler() {
+    public IItemHandlerModifiable getInventoryHandler() {
 
         return uihandler;
     }
@@ -991,12 +994,14 @@ public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxya
                 .setSize(18, 18));;
 
     }
-boolean facingJustChanged;
+
+    boolean facingJustChanged;
+
     @Override
     public void onFacingChange() {
         updateValidGridProxySides();
-        facingJustChanged=true;
-        		
+        facingJustChanged = true;
+
     }
 
     private Widget createButton(Supplier<Boolean> getter, Consumer<Boolean> setter, IDrawable picture,
@@ -1204,24 +1209,38 @@ boolean facingJustChanged;
 
     @Override
     public void cellUpdate() {
-    	 try {
- 			this.getProxy().getGrid().postEvent(new MENetworkCellArrayUpdate());
- 		} catch (GridAccessException e) {
- 		}
+        try {
+            this.getProxy()
+                .getGrid()
+                .postEvent(new MENetworkCellArrayUpdate());
+        } catch (GridAccessException e) {}
 
     }
+
     @MENetworkEventSubscribe
     @Unique
     public void powerRender(final MENetworkPowerStatusChange w) {
 
         cellUpdate();
-        
+
     }
 
     @MENetworkEventSubscribe
     @Unique
     public void updateChannels(final MENetworkChannelsChanged w) {
-       cellUpdate();
-        
+        cellUpdate();
+
+    }
+
+    @Override
+    public boolean isPowered() {
+
+        return getProxy().isPowered();
+    }
+
+    @Override
+    public boolean isActive() {
+
+        return getProxy().isActive();
     }
 }

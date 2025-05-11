@@ -41,6 +41,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 
+import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
@@ -51,7 +52,6 @@ import com.gtnewhorizons.modularui.api.drawable.SizedDrawable;
 import com.gtnewhorizons.modularui.api.drawable.Text;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
-import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
@@ -107,7 +107,9 @@ import gregtech.api.util.GTUtility;
 import gregtech.api.util.GTUtility.ItemId;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.common.tileentities.machines.IDualInputHatch;
+import gregtech.common.tileentities.machines.IDualInputHatchWithPattern;
 import gregtech.common.tileentities.machines.IDualInputInventory;
+import gregtech.common.tileentities.machines.IDualInputInventoryWithPattern;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.IOnFillCallback;
@@ -129,9 +131,10 @@ import reobf.proghatches.net.UpgradesMessage;
  *
  */
 public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCircuitSupport, IAddGregtechLogo,
-    IAddUIWidgets, IDualInputHatch, IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch, ISkipStackSizeCheck,
-    IOnFillCallback,IPHDual/* ,IMultiCircuitSupport */ {
-static int[] AZERO={0};
+    IAddUIWidgets, IDualInputHatchWithPattern, IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch, ISkipStackSizeCheck,
+    IOnFillCallback, IPHDual/* ,IMultiCircuitSupport */ {
+
+    static int[] AZERO = { 0 };
     static java.text.DecimalFormat format = new java.text.DecimalFormat("#,###");
     public boolean mMultiFluid;
 
@@ -443,6 +446,7 @@ static int[] AZERO={0};
     public ItemStackHandler getInventoryHandler() {
 
         if (bridge == null) bridge = new InventoryItemHandler(mInventory, this).id(1);
+
         return bridge;
     }
 
@@ -685,7 +689,7 @@ static int[] AZERO={0};
                         newCircuit = null;
                     }
                 } else {
-                    final List<ItemStack> tCircuits = DualInputHatch.this.getConfigurationCircuits();
+                    final List<ItemStack> tCircuits = GTUtility.getAllIntegratedCircuits();
                     final int index = GTUtility.findMatchingStackInList(tCircuits, cursorStack);
                     if (index < 0) {
                         int curIndex = GTUtility.findMatchingStackInList(tCircuits, inventory.getStackInSlot(slot)) + 1;
@@ -932,7 +936,7 @@ static int[] AZERO={0};
 
     @SuppressWarnings("unchecked")
     @Override
-    public Iterator<? extends IDualInputInventory> inventories() {
+    public Iterator<? extends IDualInputInventoryWithPattern> inventories() {
         if (!this.isValid()) return emptyItr;
         if (theInv.isEmpty()) return emptyItr;
         return Arrays.asList(theInv)
@@ -1197,10 +1201,6 @@ static int[] AZERO={0};
     }
 
     ///////////
-    @Override
-    public boolean displaysStackSize() {
-        return true;
-    }
 
     public FluidStack[] getStoredFluid() {
         return asFluidStack.apply(mStoredFluid);
@@ -1443,7 +1443,7 @@ static int[] AZERO={0};
 
     public void onFill() {}
 
-    int fluidLimit = 1;
+    public int fluidLimit = 1;
 
     @Override
     public int fill(FluidStack aFluid, boolean doFill) {
@@ -2406,7 +2406,7 @@ static int[] AZERO={0};
                         + ("w:" + getBaseMetaTileEntity().getWorld().provider.dimensionId));
 
             }
-            
+
             MyMod.LOG.fatal(shadowFluid.toString());
             MyMod.LOG.fatal(shadowItems.toString());
             MyMod.LOG.fatal(cachedFluid.toString());
@@ -2415,14 +2415,15 @@ static int[] AZERO={0};
         }
 
         public ItemStack[] getItems() {
-        	
-        	if(off){return new ItemStack[0];}
+
+            if (off) {
+                return new ItemStack[0];
+            }
             ArrayList<ItemStack> all = new ArrayList<>();
             all.addAll(circuitInv);
             all.add(mInventory[getCircuitSlot()]);
             if (recipe == false) {
-                if(!broken)
-            	broken();
+                if (!broken) broken();
                 // Thread.dumpStack();
                 broken = true;
                 all.removeIf(Objects::isNull);
@@ -2434,10 +2435,11 @@ static int[] AZERO={0};
         }
 
         public FluidStack[] getFluid() {
-        	if(off){return new FluidStack[0];}
+            if (off) {
+                return new FluidStack[0];
+            }
             if (recipe == false) {
-            	if(!broken)
-            		broken();
+                if (!broken) broken();
                 // Thread.dumpStack();
                 broken = true;
                 return new FluidStack[0];
@@ -2676,10 +2678,11 @@ static int[] AZERO={0};
         }
 
         if (g == null) {
-            Object optCover = this.getBaseMetaTileEntity()
-                .getCoverInfoAtSide( this.getBaseMetaTileEntity()
-                        .getFrontFacing()).getCoverData()
-                   ;
+            Object optCover = AECover.getCoverData(
+                this.getBaseMetaTileEntity()
+                    .getCoverAtSide(
+                        this.getBaseMetaTileEntity()
+                            .getFrontFacing()));
             if (optCover instanceof AECover.Data) {
 
                 IInterfaceHost iface = ((AECover.Data) optCover).getInterfaceOrNull();
@@ -2718,8 +2721,12 @@ static int[] AZERO={0};
 
     public boolean hasBuffer() {
         return false;
-    }
-
+    }/*
+public void setProcessingLogics(List<ProcessingLogic> processingLogics) {
+	this.processingLogics = processingLogics;
+}public List<ProcessingLogic> getProcessingLogics() {
+	return processingLogics;
+}*/
     @Override
     public void setProcessingLogic(ProcessingLogic pl) {
         if (!hasBuffer()) return;
@@ -2739,23 +2746,25 @@ static int[] AZERO={0};
       * }
       * }
       */
-   
-@Override
-	public ItemStack getMachineCraftingIcon() {
-		// TODO Auto-generated method stub
-		return super.getMachineCraftingIcon();
-	}
+
+    @Override
+    public ItemStack getMachineCraftingIcon() {
+        // TODO Auto-generated method stub
+        return super.getMachineCraftingIcon();
+    }
+
     public List<ProcessingLogic> processingLogics = new ArrayList<>();
 
     boolean off;
-	@Override
-	public void trunOffME() {
-		off=true;
+
+    @Override
+    public void trunOffME() {
+        off = true;
     }
 
-	@Override
-	public void trunONME() {
-		
-		off=false;
-	}
+    @Override
+    public void trunONME() {
+
+        off = false;
+    }
 }

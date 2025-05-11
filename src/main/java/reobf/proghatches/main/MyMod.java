@@ -1,11 +1,7 @@
 package reobf.proghatches.main;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -21,6 +17,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -46,13 +43,16 @@ import org.apache.logging.log4j.Logger;
 
 import com.glodblock.github.common.parts.PartFluidP2PInterface;
 import com.glodblock.github.inventory.FluidConvertingInventoryAdaptor;
+import com.projecturanus.betterp2p.BetterP2P;
 
 import appeng.api.AEApi;
 import appeng.api.config.Upgrades;
+import appeng.api.definitions.IItemDefinition;
+import appeng.core.features.ActivityState;
+import appeng.core.features.ItemDefinition;
 import appeng.core.features.registries.InterfaceTerminalRegistry;
 import appeng.items.tools.ToolMemoryCard;
-import bartworks.API.BorosilicateGlass;
-import codechicken.nei.api.API;
+import codechicken.multipart.MultiPartRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -76,16 +76,17 @@ import crazypants.enderio.conduit.geom.Offsets.OffsetKey;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.GTValues;
 import gregtech.api.interfaces.tileentity.ICoverable;
-import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.net.GTPacketSendCoverData;
-import gregtech.api.objects.GTDualInputs;
+
 import gregtech.common.blocks.BlockMachines;
+import kotlin.jvm.functions.Function1;
 import li.cil.oc.api.Driver;
 import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockAutoFillerMKII;
 import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
 import reobf.proghatches.ae.BlockOrbSwitcher;
 import reobf.proghatches.ae.BlockRequestTunnel;
+import reobf.proghatches.ae.PartMAP2P;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.block.ChunkTrackingGridCahce;
 import reobf.proghatches.block.TileIOHub;
@@ -97,20 +98,23 @@ import reobf.proghatches.eucrafting.AECover.IMemoryCardSensitive;
 import reobf.proghatches.eucrafting.BlockEUInterface;
 import reobf.proghatches.eucrafting.InterfaceData;
 import reobf.proghatches.eucrafting.PartEUP2PInterface;
+import reobf.proghatches.eucrafting.PartLazerP2P;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
+import reobf.proghatches.fmp.PH_FMP;
 import reobf.proghatches.gt.metatileentity.DualInputHachOC;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatchInventoryMappingSlave;
+import reobf.proghatches.gt.metatileentity.PatternHousing;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
 import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.keybinding.KeyBindings;
 import reobf.proghatches.lang.LangManager;
-import reobf.proghatches.main.asm.repack.objectwebasm.ClassWriter;
 import reobf.proghatches.main.mixin.MixinPlugin;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.net.ConnectionModeMessage;
 import reobf.proghatches.net.MAFXMessage;
 import reobf.proghatches.net.MasterSetMessage;
+import reobf.proghatches.net.ModeSwitchedMessage;
 import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
 import reobf.proghatches.net.RenameMessage;
@@ -129,8 +133,8 @@ import reobf.proghatches.util.ProghatchesUtil;
     version = Tags.VERSION,
     name = MyMod.MODNAME,
     acceptedMinecraftVersions = "[1.7.10]",
-    dependencies = "required-after:appliedenergistics2;required-after:gregtech;"//,
-    //acceptableRemoteVersions = "*"
+    dependencies = "required-after:appliedenergistics2;required-after:gregtech;"// ,
+// acceptableRemoteVersions = "*"
 /*
  * ,dependencies= "required-after:neenergistics;"
  */
@@ -143,22 +147,22 @@ public class MyMod {
 
     public static MyMod instance;
     {
-    	
+
         // System.out.println("cccccccccccccccc");
-    	
-        try {
+
+        /*try {
             new GTDualInputs();
         } catch (Throwable t) {
             t.printStackTrace();
             LOG.fatal("Add polyfill jar to mods.");
             FMLCommonHandler.instance()
                 .exitJava(1, false);
-        }
-        /*if ((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")) {
-
-            ProcessingLogic.class.getDeclaredFields();
-          
         }*/
+        /*
+         * if ((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")) {
+         * ProcessingLogic.class.getDeclaredFields();
+         * }
+         */
 
         instance = this;
     }
@@ -166,17 +170,17 @@ public class MyMod {
     static {
 
         //
-    	if(MixinPlugin.loaded==false){
-    		   LOG.fatal("!!!ERROR!!!");
-    		   LOG.fatal("Mixins fails to load.");
-    		   LOG.fatal("Will stop the game since it's impossible to proceed.");
-    		   
-    		   throw new AssertionError("abort");
-    		   
-    	}else{
-    		 LOG.fatal("Mixins loaded, sounds good!");
-    		
-    	}
+        if (MixinPlugin.loaded == false) {
+            LOG.fatal("!!!ERROR!!!");
+            LOG.fatal("Mixins fails to load.");
+            LOG.fatal("Will stop the game since it's impossible to proceed.");
+
+            throw new AssertionError("abort");
+
+        } else {
+            LOG.fatal("Mixins loaded, sounds good!");
+
+        }
         class test extends Item {
 
             @Override
@@ -241,6 +245,7 @@ public class MyMod {
     public static Block submitter;
     public static Item cpu;
     public static Block reader;
+    public static Item chip;
     {
         FMLCommonHandler.instance()
             .bus()
@@ -263,6 +268,7 @@ public class MyMod {
         net.registerMessage(new ConnectionModeMessage.Handler(), ConnectionModeMessage.class, 7, Side.SERVER);
         net.registerMessage(new MAFXMessage.Handler(), MAFXMessage.class, 8, Side.CLIENT);
         net.registerMessage(new SwitchModeMessage.Handler(), SwitchModeMessage.class, 9, Side.SERVER);
+        net.registerMessage(new ModeSwitchedMessage.Handler(), ModeSwitchedMessage.class, 10, Side.CLIENT);
         proxy.preInit(event);
     }
 
@@ -275,11 +281,12 @@ public class MyMod {
 
     public void init(FMLInitializationEvent event) {
         proxy.init(event);
-        
-      /*  for(int i=0;i<GTValues.V.length;i++)
-        BorosilicateGlass.registerGlass(block, i, i);*/
+
+        /*
+         * for(int i=0;i<GTValues.V.length;i++)
+         * BorosilicateGlass.registerGlass(block, i, i);
+         */
         new KeyBindings();
-        
 
         AEApi.instance()
             .partHelper()
@@ -290,10 +297,8 @@ public class MyMod {
                 "reobf.proghatches.fmp.LayerCraftingMachine",
                 "appeng.api.implementations.tiles.ICraftingMachine");
         AEApi.instance()
-        .partHelper()
-        .registerNewLayer(
-            "reobf.proghatches.fmp.LayerUpdatable",
-            "reobf.proghatches.fmp.IUpdatable");
+            .partHelper()
+            .registerNewLayer("reobf.proghatches.fmp.LayerUpdatable", "reobf.proghatches.fmp.IUpdatable");
         OCApi.put(iohub, TileIOHub.OCApi.class);
         OCApi.put(oc_api, ItemAPICard.APIEnv.class);
         OCApi.put(oc_redstone, ItemGTRedstoneCard.RedstoneEnv.class);
@@ -322,6 +327,16 @@ public class MyMod {
                 return null;
             }
         }));
+        
+        
+       /* PH_FMP fmp=new PH_FMP();
+        MultiPartRegistry.registerConverter(fmp);
+        MultiPartRegistry.registerParts(fmp, new String[]{"a"});
+        */
+        
+        
+        
+        
     }
 
     @SubscribeEvent
@@ -396,13 +411,12 @@ public class MyMod {
 
     public static Achievement achievement;
 
- 
     @Mod.EventHandler
 
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
-      // API.addRecipeCatalyst(new ItemStack(Items.glowstone_dust), "smelting");
-OreDictionary.registerOre("ph:circuit", new ItemStack( progcircuit,1,OreDictionary.WILDCARD_VALUE));
+        // API.addRecipeCatalyst(new ItemStack(Items.glowstone_dust), "smelting");
+        OreDictionary.registerOre("ph:circuit", new ItemStack(progcircuit, 1, OreDictionary.WILDCARD_VALUE));
         {
             AchievementPage page = new AchievementPage(
                 MODID,
@@ -445,6 +459,8 @@ OreDictionary.registerOre("ph:circuit", new ItemStack( progcircuit,1,OreDictiona
 
             Upgrades.ADVANCED_BLOCKING.registerItem(s, 1);
         }
+        InterfaceTerminalRegistry.instance()
+            .register(PatternHousing.pattern.class);
         InterfaceTerminalRegistry.instance()
             .register(InterfaceData.class);
         InterfaceTerminalRegistry.instance()
@@ -491,6 +507,66 @@ OreDictionary.registerOre("ph:circuit", new ItemStack( progcircuit,1,OreDictiona
         OFFSETS.put(Offsets.key(ICraftingMachineConduit.class, Axis.Y), Offset.SOUTH_EAST);
         OFFSETS.put(Offsets.key(ICraftingMachineConduit.class, Axis.Z), Offset.EAST_DOWN);
 
+        bp2p.reg();
+    }
+
+    public static class bp2p {
+
+        static void reg() {
+            com.projecturanus.betterp2p.CommonProxy p = BetterP2P.proxy;
+            if (p.getClass() == com.projecturanus.betterp2p.CommonProxy.class) try {
+                Method m = p.getClass()
+                    .getDeclaredMethod("registerTunnel", IItemDefinition.class, int.class, Class.class);
+                m.setAccessible(true);
+                m.invoke(p, new ItemDefinition(lazer_p2p_part, ActivityState.Enabled), 101, PartLazerP2P.class);
+                m.invoke(p, new ItemDefinition(ma_p2p_part, ActivityState.Enabled), 102, PartMAP2P.class);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (p instanceof com.projecturanus.betterp2p.ClientProxy) try {
+                Method m = p.getClass()
+                    .getDeclaredMethod(
+                        "registerTunnel",
+                        IItemDefinition.class,
+                        int.class,
+                        Class.class,
+                        Function1.class);
+                m.setAccessible(true);
+                m.invoke(
+                    p,
+                    new ItemDefinition(lazer_p2p_part, ActivityState.Enabled),
+                    101,
+                    PartLazerP2P.class,
+                    new Function1() {
+
+                        @Override
+                        public Object invoke(Object arg0) {
+
+                            return Blocks.stone.getIcon(0, 0);
+                        }
+                    });
+
+                m.invoke(
+                    p,
+                    new ItemDefinition(ma_p2p_part, ActivityState.Enabled),
+                    102,
+                    PartMAP2P.class,
+                    new Function1() {
+
+                        @Override
+                        public Object invoke(Object arg0) {
+
+                            return MyMod.iohub.getIcon(0, BlockIOHub.magicNO_ma);
+                        }
+                    });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
@@ -508,12 +584,8 @@ OreDictionary.registerOre("ph:circuit", new ItemStack( progcircuit,1,OreDictiona
             ICoverable tileEntity = (ICoverable) te;
 
             for (ForgeDirection side : ForgeDirection.VALID_DIRECTIONS) {
-                if (tileEntity.getCoverInfoAtSide(side).getCoverBehavior() instanceof AECover) GTValues.NW.sendToPlayer(
-                    new GTPacketSendCoverData(
-                        side,
-                        tileEntity.getCoverIDAtSide(side),
-                        tileEntity.getCoverInfoAtSide(side).getCoverData(),
-                        tileEntity),
+                if (tileEntity.getCoverAtSide(side) instanceof AECover) GTValues.NW.sendToPlayer(
+                    new GTPacketSendCoverData(tileEntity.getCoverAtSide(side), tileEntity, side),
                     (EntityPlayerMP) event.entityPlayer);
 
             }
@@ -527,7 +599,7 @@ OreDictionary.registerOre("ph:circuit", new ItemStack( progcircuit,1,OreDictiona
                 .isPresent()) {
                 IMemoryCardSensitive cv = Optional.ofNullable(event.world.getTileEntity(event.x, event.y, event.z))
                     .map(s -> s instanceof ICoverable ? (ICoverable) s : null)
-                    .map(s -> s .getCoverInfoAtSide(ForgeDirection.getOrientation(event.face)).getCoverData())
+                    .map(s -> AECover.getCoverData(s.getCoverAtSide(ForgeDirection.getOrientation(event.face))))
                     .map(s -> s instanceof AECover.IMemoryCardSensitive ? (AECover.IMemoryCardSensitive) s : null)
                     .orElse(null);
 
@@ -622,7 +694,7 @@ OreDictionary.registerOre("ph:circuit", new ItemStack( progcircuit,1,OreDictiona
             if (te instanceof ICoverable) {
                 ICoverable c = (ICoverable) te;
                 for (ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
-                    Optional.ofNullable(c .getCoverInfoAtSide( dir).getCoverData())
+                    Optional.ofNullable(AECover.getCoverData(c.getCoverAtSide(dir)))
                         .ifPresent(s -> {
                             if (s instanceof AECover.Data) {
                                 ((AECover.Data) s).destroy();
@@ -787,12 +859,13 @@ OreDictionary.registerOre("ph:circuit", new ItemStack( progcircuit,1,OreDictiona
     public static Item emitterpattern;
     public static boolean newGTCache;
     public static Item part_tunnel;
-	public static BlockOrbSwitcher orbswitcher;
-	public static Item part_cow;
+    public static BlockOrbSwitcher orbswitcher;
+    public static Item part_cow;
+    public static Item fixer2;
 
     @SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
     public void pretick(final TickEvent.ServerTickEvent event) {
-        if (event.phase == Phase.START && event.side == Side.SERVER&&event.type==TickEvent.Type.SERVER) {
+        if (event.phase == Phase.START && event.side == Side.SERVER && event.type == TickEvent.Type.SERVER) {
             callbacks.forEach((a, b) -> b.run());
         }
     }

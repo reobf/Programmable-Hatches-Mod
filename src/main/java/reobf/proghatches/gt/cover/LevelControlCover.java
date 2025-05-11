@@ -3,8 +3,6 @@ package reobf.proghatches.gt.cover;
 import java.io.IOException;
 import java.util.Arrays;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTBase;
@@ -15,6 +13,8 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+
+import org.jetbrains.annotations.NotNull;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
@@ -35,24 +35,27 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
+import gregtech.api.covers.CoverContext;
 import gregtech.api.gui.modularui.CoverUIBuildContext;
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IMachineProgress;
-import gregtech.api.util.CoverBehaviorBase;
 import gregtech.api.util.GTUtility;
-import gregtech.api.util.ISerializableObject;
+import gregtech.common.covers.Cover;
+import gregtech.common.gui.mui1.cover.CoverUIFactory;
 import io.netty.buffer.ByteBuf;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.AECover.Data;
+import reobf.proghatches.eucrafting.CoverBehaviorBase;
+import reobf.proghatches.eucrafting.ISer;
 import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 
 public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data> {
 
-    public LevelControlCover() {
-        super(Data.class);
+    public LevelControlCover(CoverContext context, gregtech.api.interfaces.ITexture t) {
+        super(context, Data.class, t);
 
     }
 
@@ -69,23 +72,18 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
     }
 
     @Override
-    protected boolean onCoverShiftRightClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
-        ICoverable aTileEntity, EntityPlayer aPlayer) {
-        // TODO Auto-generated method stub
-        return super.onCoverShiftRightClickImpl(side, aCoverID, aCoverVariable, aTileEntity, aPlayer);
-    }
-
-    @Override
-    protected boolean onCoverRightClickImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
-        ICoverable aTileEntity, EntityPlayer aPlayer, float aX, float aY, float aZ) {
-        // TODO Auto-generated method stub
-        return super.onCoverRightClickImpl(side, aCoverID, aCoverVariable, aTileEntity, aPlayer, aX, aY, aZ);
-    }
-
-    @Override
     public ModularWindow createWindow(CoverUIBuildContext buildContext) {
 
-        return new UIFactory(buildContext) {
+        return new CoverUIFactory<LevelControlCover>(buildContext) {
+
+            protected LevelControlCover adaptCover(Cover cover) {
+                return (LevelControlCover) cover;
+            };
+
+            private Data getCoverData() {
+
+                return getCover().coverData;
+            }
 
             private ItemStack tryConvertToFluid(ItemStack is) {
 
@@ -97,7 +95,7 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
                 return null;
             }
 
-            protected void addUIWidgets(ModularWindow.Builder builder) {
+            public void addUIWidgets(ModularWindow.Builder builder) {
 
                 builder.widget(TextWidget.dynamicString(() -> {
 
@@ -115,7 +113,7 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
                 builder.widget(new SlotWidget(new BaseSlot(iss, 0, true)) {
 
                     @Override
-                    protected void phantomClick(ClickData clickData, ItemStack cursorStack) {
+                    public void phantomClick(ClickData clickData, ItemStack cursorStack) {
                         if (cursorStack == null) {
                             getCoverData().filter[0] = null;
 
@@ -192,7 +190,7 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
         }.createWindow();
     }
 
-    public static class Data implements ISerializableObject {
+    public static class Data implements ISer {
 
         public AEFluidStack maybeFluid() {
             if (filter[0] == null) return null;
@@ -217,7 +215,7 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
             return null;
         }
 
-        protected int mode;
+        public int mode;
         ItemStack filter[] = new ItemStack[1];
         long amount = 1;
         boolean invert;
@@ -231,7 +229,7 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
         public Data() {}
 
         @Override
-        public ISerializableObject copy() {
+        public ISer copy() {
 
             return new Data(filter[0], amount, invert);
         }
@@ -300,7 +298,7 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
         }
 
         @Override
-        public ISerializableObject readFromPacket(ByteArrayDataInput aBuf, EntityPlayerMP aPlayer) {
+        public void readFromPacket(ByteArrayDataInput aBuf) {
             Data d = new Data();
             try {
                 byte b[] = new byte[aBuf.readInt()];
@@ -312,33 +310,27 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
                 e.printStackTrace();
             }
 
-            return d;
         }
 
     }
 
     @Override
-    public Data createDataObject(int aLegacyData) {
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Data createDataObject() {
+    public Data initializeDataSer() {
 
         return new Data();
     }
 
     @Override
-    protected int getTickRateImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity) {
+    public int getDefaultTickRate() {
 
         return 10;
     }
 
     @Override
-    protected Data doCoverThingsImpl(ForgeDirection side, byte aInputRedstone, int aCoverID, Data aCoverVariable,
-        ICoverable aTileEntity, long aTimer) {
-
+    public void doCoverThings(byte x, long aTimer) {
+        ICoverable aTileEntity = this.coveredTile.get();
+        @NotNull
+        Data aCoverVariable = coverData;
         long amount = 0;
         if (aTileEntity instanceof IGregTechTileEntity/* &&aTileEntity instanceof IActionHost */) {
             IMetaTileEntity mte = ((IGregTechTileEntity) aTileEntity).getMetaTileEntity();
@@ -349,7 +341,7 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
             }
             if (grid == null) {
                 for (ForgeDirection fd : ForgeDirection.VALID_DIRECTIONS) {
-                    ISerializableObject dat = aTileEntity.getCoverInfoAtSide(fd).getCoverData();
+                    ISer dat = coverData;// getCoverData(aTileEntity.getCoverAtSide(fd));
                     if (dat instanceof AECover.Data) {
                         AECover.Data ae = (reobf.proghatches.eucrafting.AECover.Data) dat;
                         grid = ae.getProxy();
@@ -383,62 +375,55 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
         boolean ok = (aCoverVariable.invert ? amount <= aCoverVariable.amount : amount >= aCoverVariable.amount);
 
         if (aTileEntity instanceof IMachineProgress) {
-          
+
             boolean allowedToWork = ok;
             if (allowedToWork) {
-            	 ((IMachineProgress) aTileEntity).enableWorking();
-             } else {
-            	 ((IMachineProgress) aTileEntity).disableWorking();
-             }
+                ((IMachineProgress) aTileEntity).enableWorking();
+            } else {
+                ((IMachineProgress) aTileEntity).disableWorking();
+            }
 
         }
-        return aCoverVariable;
+        return;// aCoverVariable;
     }
 
     @Override
-    protected boolean letsEnergyInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity) {
+    public boolean letsEnergyIn() {
         return true;
     }
 
     @Override
-    protected boolean letsEnergyOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
-        ICoverable aTileEntity) {
+    public boolean letsEnergyOut() {
         return true;
     }
 
     @Override
-    protected boolean letsFluidInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, Fluid aFluid,
-        ICoverable aTileEntity) {
+    public boolean letsFluidIn(Fluid aFluid) {
         return true;
     }
 
     @Override
-    protected boolean letsFluidOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, Fluid aFluid,
-        ICoverable aTileEntity) {
+    public boolean letsFluidOut(Fluid aFluid) {
         return true;
     }
 
     @Override
-    protected boolean letsItemsInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, int aSlot,
-        ICoverable aTileEntity) {
+    public boolean letsItemsIn(int aSlot) {
         return true;
     }
 
     @Override
-    protected boolean letsItemsOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable, int aSlot,
-        ICoverable aTileEntity) {
+    public boolean letsItemsOut(int aSlot) {
         return true;
     }
 
     @Override
-    protected boolean letsRedstoneGoInImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
-        ICoverable aTileEntity) {
+    public boolean letsRedstoneGoIn() {
         return true;
     }
 
     @Override
-    protected boolean letsRedstoneGoOutImpl(ForgeDirection side, int aCoverID, Data aCoverVariable,
-        ICoverable aTileEntity) {
+    public boolean letsRedstoneGoOut() {
         return true;
     }
 

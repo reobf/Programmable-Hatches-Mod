@@ -15,9 +15,9 @@ import com.llamalad7.mixinextras.sugar.Local;
 
 import appeng.util.InventoryAdaptor;
 import gregtech.api.interfaces.tileentity.ICoverable;
-import gregtech.api.util.ISerializableObject;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.CoverToMachineAdaptor;
+import reobf.proghatches.eucrafting.ISer;
 
 @Mixin(FluidConvertingInventoryAdaptor.class)
 public class MixinAE2FCCompat {
@@ -73,7 +73,7 @@ public class MixinAE2FCCompat {
 
         if (te instanceof ICoverable) {
             ICoverable c = (ICoverable) te;
-            ISerializableObject data = c.getCoverInfoAtSide( face).getCoverData();
+            ISer data = (ISer) AECover.getCoverData(c.getCoverAtSide(face));
             if (data instanceof AECover.Data) {
                 return ((AECover.Data) data).supportFluid();
             }

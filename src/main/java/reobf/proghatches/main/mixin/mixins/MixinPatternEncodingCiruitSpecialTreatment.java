@@ -13,7 +13,7 @@ import com.glodblock.github.network.CPacketTransferRecipe;
 
 import io.netty.buffer.ByteBuf;
 import reobf.proghatches.main.mixin.MixinCallback;
-
+@Deprecated
 @Mixin(value = CPacketTransferRecipe.class, remap = false)
 public class MixinPatternEncodingCiruitSpecialTreatment {
 

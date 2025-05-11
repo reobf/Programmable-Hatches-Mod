@@ -628,6 +628,7 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
     @Override
     public void loadNBTData(NBTTagCompound aNBT) {
         if (aNBT.hasKey("x") == false) return;
+        additionalConnection = aNBT.getBoolean("additionalConnection");
         super.loadNBTData(aNBT);
         this.ret = this.readList((NBTTagList) aNBT.getTag("ret"));
         int[] count = new int[1];
@@ -639,8 +640,7 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         legacy = false;// aNBT.getBoolean("legacy");
         if (aNBT.hasKey("tech")) tech = aNBT.getInteger("tech");
         else tech = 1;
-        
-        additionalConnection = aNBT.getBoolean("additionalConnection");
+
     }
 
     @Override
@@ -896,19 +896,17 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
     public boolean allowsPatternOptimization() {
 
         return false;
-    }  
- 
+    }
 
-  
-    
     boolean additionalConnection;
+
     @Override
     public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
-            float aX, float aY, float aZ) {
-            additionalConnection = !additionalConnection;
-            updateValidGridProxySides();
-            aPlayer.addChatComponentMessage(
-                new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
-            return true;
-        }
+        float aX, float aY, float aZ, ItemStack is) {
+        additionalConnection = !additionalConnection;
+        updateValidGridProxySides();
+        aPlayer.addChatComponentMessage(
+            new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
+        return true;
+    }
 }

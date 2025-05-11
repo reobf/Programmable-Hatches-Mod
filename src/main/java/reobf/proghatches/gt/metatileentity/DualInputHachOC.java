@@ -773,14 +773,14 @@ public class DualInputHachOC extends DualInputHatch
         int colorIndex, boolean aActive, boolean redstoneLevel) {
         int texturePointer = (byte) (getUpdateData() & 0x7F);
 
-        int textureIndex = texturePointer | (getTexturePage() << 7);
+        int textureIndex = texturePointer | (ReflectionsPH.getTexturePage(this) << 7);
 
         Block b = /* Blocks.cactus; */GameRegistry.findBlock("OpenComputers", "raid");
         ITexture tex = TextureFactory.of(b, 0, ForgeDirection.UP);
 
         if (textureIndex > 0) {
 
-            tex = Textures.BlockIcons.casingTexturePages[getTexturePage()][texturePointer];
+            tex = Textures.BlockIcons.casingTexturePages[ReflectionsPH.getTexturePage(this)][texturePointer];
 
         }
         if (side == aFacing) {

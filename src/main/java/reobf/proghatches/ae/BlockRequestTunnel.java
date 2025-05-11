@@ -2,9 +2,6 @@ package reobf.proghatches.ae;
 
 import java.util.List;
 
-import com.gtnewhorizons.modularui.api.UIInfos;
-import com.gtnewhorizons.modularui.common.internal.network.NetworkUtils;
-
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -17,6 +14,9 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+
+import com.gtnewhorizons.modularui.api.UIInfos;
+import com.gtnewhorizons.modularui.common.internal.network.NetworkUtils;
 
 import appeng.api.util.IOrientable;
 import appeng.api.util.IOrientableBlock;
@@ -47,10 +47,10 @@ public class BlockRequestTunnel extends BlockContainer implements IOrientableBlo
          * TileRequestTunnel te=(TileRequestTunnel) worldIn.getTileEntity(x, y, z);
          * te.injectCraftedItems(null, AEItemStack.create(new ItemStack(Items.apple)), null);
          * }
-         */   b: {
-        if (NetworkUtils.isClient()) break b;
-        UIInfos.TILE_MODULAR_UI.open(player, worldIn, x, y, z);
-    }
+         */ b: {
+            if (NetworkUtils.isClient()) break b;
+            UIInfos.TILE_MODULAR_UI.open(player, worldIn, x, y, z);
+        }
         return super.onBlockActivated(worldIn, x, y, z, player, side, subX, subY, subZ);
     }
 

@@ -11,12 +11,14 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 
 import com.gtnewhorizon.structurelib.util.XSTR;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.common.covers.CoverPosition;
 import gregtech.common.covers.redstone.CoverAdvancedRedstoneReceiverBase.GateMode;
 import li.cil.oc.api.Network;
 import li.cil.oc.api.machine.Arguments;
@@ -249,13 +251,17 @@ public class ItemGTRedstoneCard extends Item implements li.cil.oc.api.driver.ite
 
     }
 
-    public long signalSource(ItemStack stack) {
+    public CoverPosition signalSource(ItemStack stack) {
 
         Optional.of(getOrCreateTag(stack))
             .filter(s -> s.hasKey("signalSource") == false)
             .ifPresent(s -> s.setLong("signalSource", XSTR.XSTR_INSTANCE.nextLong()));
 
-        return getOrCreateTag(stack).getLong("signalSource");
+        return new CoverPosition(
+            new ChunkCoordinates(0, 0, 0),
+            "ph_redstone_card",
+            1000 + (int) getOrCreateTag(stack).getLong("signalSource"),
+            0);
 
     }
 

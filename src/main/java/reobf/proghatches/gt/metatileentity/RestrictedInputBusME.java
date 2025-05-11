@@ -130,7 +130,7 @@ public class RestrictedInputBusME extends MTEHatchInputBusME implements IDataCop
         }
         if (s == null) return null;
         if (aIndex == getCircuitSlot()) return s;
-        if (aIndex == getManualSlot()) return s;
+        if (aIndex == 16 * 2 + 1) return s;
         if (getBaseMetaTileEntity().isAllowedToWork() == false) {
             this.shadowInventory()[aIndex] = null;
             this.savedStackSizes()[aIndex] = 0;

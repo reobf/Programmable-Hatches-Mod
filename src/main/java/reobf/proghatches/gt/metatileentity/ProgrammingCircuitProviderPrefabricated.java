@@ -29,7 +29,6 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTOreDictUnificator;
-import gregtech.api.util.GTUtility;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.gt.metatileentity.util.ICircuitProvider;
 import reobf.proghatches.item.ItemProgrammingCircuit;
@@ -125,16 +124,10 @@ public class ProgrammingCircuitProviderPrefabricated extends MTEHatch implements
         if (init == true) return;
         init = true;
         System.out.println("init!!!!");
-        
-        
-        
-        
-        
-List<ItemStack> allc= ProghatchesUtil.allCircuits(); 
 
+        List<ItemStack> allc = ProghatchesUtil.allCircuits();
 
-
-reg(0,allc );
+        reg(0, allc);
         ItemList[][] all = new ItemList[][] { { Shape_Mold_Bottle, Shape_Mold_Plate, Shape_Mold_Ingot,
             Shape_Mold_Casing, Shape_Mold_Gear, Shape_Mold_Gear_Small, Shape_Mold_Credit, Shape_Mold_Nugget,
             Shape_Mold_Block, Shape_Mold_Ball, Shape_Mold_Bun, Shape_Mold_Bread, Shape_Mold_Baguette,

@@ -12,12 +12,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 import com.gtnewhorizons.modularui.api.UIInfos;
 import com.gtnewhorizons.modularui.common.internal.network.NetworkUtils;
 
-import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -49,21 +47,22 @@ public class BlockCardReader extends BlockContainer {
 
     @SideOnly(Side.CLIENT)
     IIcon icon;
-    
+
     @Override
     @SideOnly(Side.CLIENT)
     protected String getTextureName() {
         return this.textureName = "proghatches:cardreader";
     }
 
-    
-   /* @SideOnly(Side.CLIENT)
-    @Override
-    public IIcon getIcon(int side, int meta) {
-        if (icon != null) return icon;
-        Block b = GameRegistry.findBlock("OpenComputers", "raid");
-        return icon = b.getIcon(ForgeDirection.UP.ordinal(), 0);
-    }*/
+    /*
+     * @SideOnly(Side.CLIENT)
+     * @Override
+     * public IIcon getIcon(int side, int meta) {
+     * if (icon != null) return icon;
+     * Block b = GameRegistry.findBlock("OpenComputers", "raid");
+     * return icon = b.getIcon(ForgeDirection.UP.ordinal(), 0);
+     * }
+     */
 
     Random field_149955_b = new Random();
 

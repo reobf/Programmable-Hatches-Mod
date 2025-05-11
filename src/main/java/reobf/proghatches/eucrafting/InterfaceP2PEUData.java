@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
@@ -72,7 +71,6 @@ import cpw.mods.fml.relauncher.Side;
 import gregtech.api.gui.modularui.CoverUIBuildContext;
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.tileentity.ICoverable;
-import gregtech.api.util.ISerializableObject;
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import io.netty.buffer.ByteBuf;
 import reobf.proghatches.eucrafting.AECover.Data;
@@ -103,9 +101,9 @@ public class InterfaceP2PEUData implements AECover.IMemoryCardSensitive, Data, I
     };
 
     @Override
-    public ISerializableObject readFromPacket(ByteArrayDataInput aBuf, EntityPlayerMP aPlayer) {
+    public void readFromPacket(ByteArrayDataInput aBuf) {
         tmpout = aBuf.readBoolean();
-        return Data.super.readFromPacket(aBuf, aPlayer);
+        Data.super.readFromPacket(aBuf);
     }
 
     boolean tmpout;// tell client if this is output side, nested interface

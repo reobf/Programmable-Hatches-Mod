@@ -1,13 +1,12 @@
 package reobf.proghatches.gt.metatileentity;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.function.Function;
+import java.util.Map;
 import java.util.function.Predicate;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,7 +28,6 @@ import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.storage.IBaseMonitor;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.IMEMonitorHandlerReceiver;
-import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.DimensionalCoord;
 import appeng.me.GridAccessException;
@@ -47,14 +45,14 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatchDataAccess;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.AssemblyLineUtils;
-import gregtech.api.util.GTUtility;
 import gregtech.api.util.GTRecipe.RecipeAssemblyLine;
-import reobf.proghatches.gt.metatileentity.util.IMEStorageChangeAwareness;
+import gregtech.api.util.GTUtility;
 import reobf.proghatches.main.registration.Registration;
 import tectech.thing.casing.BlockGTCasingsTT;
 
-public class DataHatchME extends MTEHatchDataAccess
-    implements IPowerChannelState, IGridProxyable {
+public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelState, IGridProxyable {
+
+    Map<Object, Object> h;
 
     public DataHatchME(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional, 8);
@@ -71,51 +69,56 @@ public class DataHatchME extends MTEHatchDataAccess
         super.onFirstTick(aBaseMetaTileEntity);
         getProxy().onReady();
         updateCache();
-      
+
     }
+
     public void gridChanged() {
-    	super.gridChanged();
-    	IMEMonitor<IAEItemStack> fluidGrid;
-		try {
-			fluidGrid = getProxy().getStorage().getItemInventory();
-		 if (fluidGrid != null) {
-            fluidGrid.addListener(new IMEMonitorHandlerReceiver<IAEItemStack>() {
-				
-				@Override
-				public void postChange(IBaseMonitor<IAEItemStack> monitor, Iterable<IAEItemStack> change,
-						BaseActionSource actionSource) {
-				
-					 updateCache();
-				}
-				
-				@Override
-				public void onListUpdate() {
-					 updateCache();
-					
-				}
-				
-				@Override
-				public boolean isValid(Object verificationToken) {
-					
-					try {
-						IMEMonitor<IAEItemStack> a = getProxy().getStorage().getItemInventory();
-			            return  a== verificationToken;
-			        } catch (final GridAccessException e) {
-			            return false;
-			        }
-				}
-			}, fluidGrid);
-            
-		}} catch (GridAccessException e) {
-		}
-       
-        
+        super.gridChanged();
+        IMEMonitor<IAEItemStack> fluidGrid;
+        try {
+            fluidGrid = getProxy().getStorage()
+                .getItemInventory();
+            if (fluidGrid != null) {
+                fluidGrid.addListener(new IMEMonitorHandlerReceiver<IAEItemStack>() {
+
+                    @Override
+                    public void postChange(IBaseMonitor<IAEItemStack> monitor, Iterable<IAEItemStack> change,
+                        BaseActionSource actionSource) {
+
+                        updateCache();
+                    }
+
+                    @Override
+                    public void onListUpdate() {
+                        updateCache();
+
+                    }
+
+                    @Override
+                    public boolean isValid(Object verificationToken) {
+
+                        try {
+                            IMEMonitor<IAEItemStack> a = getProxy().getStorage()
+                                .getItemInventory();
+                            return a == verificationToken;
+                        } catch (final GridAccessException e) {
+                            return false;
+                        }
+                    }
+                }, fluidGrid);
+
+            }
+        } catch (GridAccessException e) {}
+
     };
+
     String[] descCache;
+
     @Override
     public String[] getDescription() {
 
-        return descCache==null?(descCache=reobf.proghatches.main.Config.get("DHME", ImmutableMap.of())):descCache;
+        return descCache == null ? (descCache = reobf.proghatches.main.Config.get("DHME", ImmutableMap.of()))
+            : descCache;
     }
 
     @Override
@@ -154,7 +157,7 @@ public class DataHatchME extends MTEHatchDataAccess
         if (gridProxy == null) {
             if (getBaseMetaTileEntity() instanceof IGridProxyable) {
                 gridProxy = new AENetworkProxy(
-                   this,
+                    this,
                     "proxy",
                     new ItemStack(GregTechAPI.sBlockMachines, 1, getBaseMetaTileEntity().getMetaTileID()),
                     true);
@@ -198,7 +201,7 @@ public class DataHatchME extends MTEHatchDataAccess
     }
 
     private void updateCache() {
-    		cachedRecipes=null;
+        cachedRecipes = null;
         if ((!getProxy().isPowered()) || (!getProxy().isActive())) {
             inv = new ItemStack[] {};
             return;
@@ -318,7 +321,7 @@ public class DataHatchME extends MTEHatchDataAccess
         int colorIndex, boolean aActive, boolean redstoneLevel) {
 
         int texturePointer = getUpdateData(); // just to be sure, from my testing the 8th bit cannot be
-        int mTexturePage = getTexturePage(); // set clientside
+        int mTexturePage = ReflectionsPH.getTexturePage(this); // set clientside
         int textureIndex = texturePointer | (mTexturePage << 7); // Shift seven since one page is 128 textures!
         try {
             if (side != aFacing) {
@@ -361,7 +364,7 @@ public class DataHatchME extends MTEHatchDataAccess
 
     private long lastupdate = -99999;
 
-    //@Override
+    // @Override
     public List<ItemStack> getInventoryItems(Predicate<ItemStack> filter) {
         long thistick = ((BaseMetaTileEntity) this.getBaseMetaTileEntity()).mTickTimer;
         if (Math.abs(lastupdate - thistick) > 100) {
@@ -370,57 +373,54 @@ public class DataHatchME extends MTEHatchDataAccess
         }
         return super_getInventoryItems(filter);
     }
+
     public List super_getInventoryItems(Predicate filter) {
         ArrayList items = new ArrayList();
         IGregTechTileEntity te = this.getBaseMetaTileEntity();
 
-        for(int i = 0; i < te.getSizeInventory(); ++i) {
-           ItemStack slot = te.getStackInSlot(i);
-           if (slot != null && filter != null && filter.test(slot)) {
-              items.add(slot);
-           }
+        for (int i = 0; i < te.getSizeInventory(); ++i) {
+            ItemStack slot = te.getStackInSlot(i);
+            if (slot != null && filter != null && filter.test(slot)) {
+                items.add(slot);
+            }
         }
 
         return items;
-     }
-    
-    
+    }
+
     List<RecipeAssemblyLine> cachedRecipes;
+
     public List<RecipeAssemblyLine> getAssemblyLineRecipes() {
-    	 long thistick = ((BaseMetaTileEntity) this.getBaseMetaTileEntity()).mTickTimer;
-    	 if (Math.abs(lastupdate - thistick) > 100) {
-             updateCache();
-             lastupdate = thistick;
-         }
-    	 if (cachedRecipes == null) {
-             cachedRecipes = new ArrayList<>();
-             Method f=null;
+        long thistick = ((BaseMetaTileEntity) this.getBaseMetaTileEntity()).mTickTimer;
+        if (Math.abs(lastupdate - thistick) > 100) {
+            updateCache();
+            lastupdate = thistick;
+        }
+        if (cachedRecipes == null) {
+            cachedRecipes = new ArrayList<>();
+            Method f = null;
             try {
-			f=AssemblyLineUtils.class.getDeclaredMethod("findALRecipeFromDataStick", ItemStack.class);
-			} catch (Exception e) {}
+                f = AssemblyLineUtils.class.getDeclaredMethod("findALRecipeFromDataStick", ItemStack.class);
+            } catch (Exception e) {}
             try {
-    			f=AssemblyLineUtils.class.getDeclaredMethod("findAssemblyLineRecipeFromDataStick", ItemStack.class);
-    			} catch (Exception e) {}
-			
-             if(f==null)throw new AssertionError();
-             for (int i = 0; i < getSizeInventory(); i++) {
-                 try {
-					cachedRecipes.addAll(
-							 
-							 (Collection<? extends RecipeAssemblyLine>) f.invoke(null, getStackInSlot(i))
-						
-							 
-							 
-							 );
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-             }
-         }
+                f = AssemblyLineUtils.class.getDeclaredMethod("findAssemblyLineRecipeFromDataStick", ItemStack.class);
+            } catch (Exception e) {}
 
-        
-		return cachedRecipes;
+            if (f == null) throw new AssertionError();
+            for (int i = 0; i < getSizeInventory(); i++) {
+                try {
+                    cachedRecipes.addAll(
 
- 
+                        (Collection<? extends RecipeAssemblyLine>) f.invoke(null, getStackInSlot(i))
+
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return cachedRecipes;
+
     }
 }

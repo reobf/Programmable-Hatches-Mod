@@ -4,7 +4,6 @@ import java.lang.ref.WeakReference;
 import java.util.HashSet;
 
 import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -210,8 +209,8 @@ public class PartMAP2P extends PartP2PTunnelStatic<PartMAP2P> implements ICrafti
     @Override
     @SideOnly(Side.CLIENT)
     public void renderInventory(final IPartRenderHelper rh, final RenderBlocks renderer) {
-      
-    	rh.setTexture(MyMod.iohub.getIcon(0, BlockIOHub.magicNO_ma));
+
+        rh.setTexture(MyMod.iohub.getIcon(0, BlockIOHub.magicNO_ma));
 
         rh.setBounds(2, 2, 14, 14, 14, 16);
         rh.renderInventoryBox(renderer);

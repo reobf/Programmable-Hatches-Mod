@@ -12,9 +12,9 @@ import java.util.function.Supplier;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.cleanroommc.modularui.utils.item.IItemHandlerModifiable;
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
-import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
@@ -40,7 +40,7 @@ import reobf.proghatches.util.ProghatchesUtil;
 public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCircuitSupport {
 
     @Override
-    public ItemStackHandler getInventoryHandler() {
+    public IItemHandlerModifiable getInventoryHandler() {
         // TODO Auto-generated method stub
         return super.getInventoryHandler();
     }

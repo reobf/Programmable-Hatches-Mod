@@ -37,7 +37,9 @@ import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
 import gregtech.common.tileentities.machines.IDualInputHatch;
+import gregtech.common.tileentities.machines.IDualInputHatchWithPattern;
 import gregtech.common.tileentities.machines.IDualInputInventory;
+import gregtech.common.tileentities.machines.IDualInputInventoryWithPattern;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
@@ -45,8 +47,8 @@ import reobf.proghatches.gt.metatileentity.util.IPHDual;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.main.registration.Registration;
 
-public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch & IMetaTileEntity> extends MTEHatchInputBus
-    implements IDualInputHatch, IRecipeProcessingAwareDualHatch, IDataCopyablePlaceHolder {
+public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatchWithPattern & IMetaTileEntity> extends MTEHatchInputBus
+    implements IDualInputHatchWithPattern, IRecipeProcessingAwareDualHatch, IDataCopyablePlaceHolder {
 
     private T master; // use getMaster() to access
     private int masterX, masterY, masterZ;
@@ -158,7 +160,7 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch & IM
     }
 
     @Override
-    public Iterator<? extends IDualInputInventory> inventories() {
+    public Iterator<? extends IDualInputInventoryWithPattern> inventories() {
         if (!this.isValid()) return DualInputHatch.emptyItr;
         return getMaster() != null ? getMaster().inventories() : Collections.emptyIterator();
     }
@@ -351,18 +353,29 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch & IM
     public void setProcessingLogic(ProcessingLogic pl) {
         if (getMaster() != null) getMaster().setProcessingLogic(pl);
     }
-  
- 	@Override
- 	public void trunOffME() {
- 		T master = getMaster();
- 		if(master instanceof IRecipeProcessingAwareDualHatch)
- 			((IRecipeProcessingAwareDualHatch) master).trunOffME();
-     }
+    /*public void setProcessingLogics(List<ProcessingLogic> processingLogics) {
+    
+    	// if (getMaster() != null) getMaster().setProcessingLogics(processingLogics);
+    }public List<ProcessingLogic> getProcessingLogics() {
+    	// if (getMaster() != null) getMaster().getProcessingLogics();
+    }*/
+    @Override
+    public void trunOffME() {
+        T master = getMaster();
+        if (master instanceof IRecipeProcessingAwareDualHatch) ((IRecipeProcessingAwareDualHatch) master).trunOffME();
+    }
 
- 	@Override
- 	public void trunONME() {
- 		T master = getMaster();
- 		if(master instanceof IRecipeProcessingAwareDualHatch)
- 			((IRecipeProcessingAwareDualHatch) master).trunONME();
- 	}
+    @Override
+    public void trunONME() {
+        T master = getMaster();
+        if (master instanceof IRecipeProcessingAwareDualHatch) ((IRecipeProcessingAwareDualHatch) master).trunONME();
+    }
+
+
+
+	/*@Override
+	public void setProcessingLogic(ProcessingLogic arg0) {
+		// TODO Auto-generated method stub
+		
+	}*/
 }

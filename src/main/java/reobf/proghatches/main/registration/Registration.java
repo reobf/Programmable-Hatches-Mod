@@ -2,9 +2,9 @@ package reobf.proghatches.main.registration;
 
 import static gregtech.api.enums.Textures.BlockIcons.MACHINE_CASINGS;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import net.minecraft.block.Block;
@@ -16,13 +16,14 @@ import net.minecraftforge.common.util.ForgeDirection;
 import com.glodblock.github.loader.ItemAndBlockHolder;
 
 import appeng.api.AEApi;
-import gregtech.api.GregTechAPI;
+import gregtech.api.covers.CoverPlacer;
+import gregtech.api.covers.CoverRegistry;
 import gregtech.api.enums.Dyes;
 import gregtech.api.enums.GTValues;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.CoverBehaviorBase;
 import gregtech.api.util.LightingHelper;
+import gregtech.common.covers.Cover;
 import gregtech.common.render.GTCopiedBlockTextureRender;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.BridgingData;
@@ -31,7 +32,6 @@ import reobf.proghatches.eucrafting.InterfaceP2PData;
 import reobf.proghatches.eucrafting.InterfaceP2PEUData;
 import reobf.proghatches.eucrafting.InterfaceP2PNoFluidData;
 import reobf.proghatches.gt.cover.CircuitHolderCover;
-import reobf.proghatches.gt.cover.LastWorktimeCover;
 import reobf.proghatches.gt.cover.LevelControlCover;
 import reobf.proghatches.gt.cover.LinkedBusSlaveCover;
 import reobf.proghatches.gt.cover.ProgrammingCover;
@@ -105,10 +105,11 @@ public class Registration implements Runnable {
     public final static int MEFocusOffset = 82;
     public final static int DataOrbOffset = 83;
     public final static int MECatalystOffset = 84;
-    public final static int StockingDualInputOffset=85;//-86
-    public final static int PhantomInputBusOffset=87;
-    
-    
+    public final static int StockingDualInputOffset = 85;// -86
+    public final static int PhantomInputBusOffset = 87;
+    // public static final int MBProxyOffset = 88;
+    // public static final int PatternHousingOffset = 89;
+
     public final static int BufferedQuadDualInputHatchOffset = 100;// -115
     public final static int LargeProviderOffset = 116;
     public final static int ChainerOffset = 117;
@@ -217,31 +218,37 @@ public class Registration implements Runnable {
             5,
             4,
             1);
-        
+
         registerCover(
             new ItemStack(MyMod.cover, 1, 100),
             TextureFactory.of(
                 MACHINE_CASINGS[1][0],
                 TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
-            new LevelControlCover());
+            (s, tex) -> new LevelControlCover(s, tex),
+            null
+
+        );
         registerCover(
             new ItemStack(MyMod.cover, 1, 0),
             TextureFactory.of(
                 MACHINE_CASINGS[1][0],
                 TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
-            new ProgrammingCover());
+            (s, tex) -> new ProgrammingCover(s, tex),
+            ProgrammingCover.placer());
         registerCover(
             new ItemStack(MyMod.cover, 1, 1),
             TextureFactory.of(
                 MACHINE_CASINGS[1][0],
                 TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
-            new WirelessControlCover());
+            (s, tex) -> new WirelessControlCover(s, tex),
+            null);
         registerCover(
             new ItemStack(MyMod.cover, 1, 4),
             TextureFactory.of(
                 MACHINE_CASINGS[1][0],
                 TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
-            new LinkedBusSlaveCover());
+            (s, tex) -> new LinkedBusSlaveCover(s, tex),
+            LinkedBusSlaveCover.placer());
         // WIP
         /*
          * registerCover(
@@ -259,21 +266,23 @@ public class Registration implements Runnable {
          * TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
          * new RecipeCheckResultCover());
          */
-        registerCover(
-            new ItemStack(MyMod.cover, 1, 3),
-            TextureFactory.of(
-                MACHINE_CASINGS[1][0],
-                TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
-
-            new LastWorktimeCover());
-
+        /*
+         * registerCover(
+         * new ItemStack(MyMod.cover, 1, 3),
+         * TextureFactory.of(
+         * MACHINE_CASINGS[1][0],
+         * TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
+         * s->new LastWorktimeCover());
+         */
+        ITexture arm = TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_ARM);
+        ITexture scre = TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW);
         for (int i = 0; i < 15; i++) {
-            ;
+            int ii = i;
             registerCover(
                 new ItemStack(MyMod.smartarm, 1, i),
-                TextureFactory
-                    .of(MACHINE_CASINGS[i][0], TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_ARM)),
-                new SmartArmCover(i));
+                TextureFactory.of(MACHINE_CASINGS[i][0], arm),
+                (s, tex) -> new SmartArmCover(ii, s, arm),
+                null);
         }
 
         registerCover(
@@ -282,30 +291,35 @@ public class Registration implements Runnable {
                 AEApi.instance()
                     .blocks().blockInterface.block()),
 
-            new AECover(InterfaceData.class));
+            (s, tex) -> new AECover(s, InterfaceData.class, tex),
+            AECover.placer());
 
         registerCover(
             new ItemStack(MyMod.cover, 1, 33),
             TextureFactory.of(ItemAndBlockHolder.INTERFACE),
 
-            new AECover(InterfaceData.FluidInterfaceData_TileFluidInterface.class));
+            (s, tex) -> new AECover(s, InterfaceData.FluidInterfaceData_TileFluidInterface.class, tex),
+            AECover.placer());
         registerCover(
             new ItemStack(MyMod.cover, 1, 34),
             TextureFactory.of(
                 AEApi.instance()
                     .blocks().blockInterface.block()),
 
-            new AECover(InterfaceP2PNoFluidData.class));
+            (s, tex) -> new AECover(s, InterfaceP2PNoFluidData.class, tex),
+            AECover.placer());
         registerCover(
             new ItemStack(MyMod.cover, 1, 35),
             TextureFactory.of(ItemAndBlockHolder.INTERFACE),
 
-            new AECover(InterfaceP2PData.class));
+            (s, tex) -> new AECover(s, InterfaceP2PData.class, tex),
+            AECover.placer());
         registerCover(
             new ItemStack(MyMod.cover, 1, 36),
             new DeferredGetterTexture(() -> MyMod.block_euinterface, ForgeDirection.UP, 0, Dyes._NULL.mRGBa, false),
 
-            new AECover(InterfaceP2PEUData.class));
+            (s, tex) -> new AECover(s, InterfaceP2PEUData.class, tex),
+            AECover.placer());
         registerCover(
             new ItemStack(MyMod.cover, 1, 37),
 
@@ -313,7 +327,8 @@ public class Registration implements Runnable {
 
             ,
 
-            new AECover(BridgingData.class));
+            (s, tex) -> new AECover(s, BridgingData.class, tex),
+            null);
 
         for (int i = 0; i <= 4; i++) {
             registerCover(
@@ -321,7 +336,8 @@ public class Registration implements Runnable {
                 TextureFactory.of(
                     MACHINE_CASINGS[1][0],
                     TextureFactory.of(gregtech.api.enums.Textures.BlockIcons.OVERLAY_SCREEN_GLOW)),
-                new CircuitHolderCover());
+                (s, tex) -> new CircuitHolderCover(s, scre),
+                null);
         } ;
 
         new DualInputHatchSlave<>(
@@ -411,6 +427,12 @@ public class Registration implements Runnable {
             i[1],
             new String[] {});
 
+        /*
+         * new MultiblockProxy(
+         * Config.metaTileEntityOffset + MBProxyOffset,
+         * "multimachine.mbproxy",
+         * LangManager.translateToLocalFormatted("multimachine.mbproxy.name"));
+         */
         new LargeProgrammingCircuitProvider(
             Config.metaTileEntityOffset + LargeProviderOffset,
             "multimachine.largeprogrammingcircuit",
@@ -564,36 +586,43 @@ public class Registration implements Runnable {
         );
 
         new WaterProvider(
-                Config.metaTileEntityOffset + WaterProviderOffset,
+            Config.metaTileEntityOffset + WaterProviderOffset,
 
-                "provider.water",
-                LangManager.translateToLocalFormatted("provider.water.name"), 6
+            "provider.water",
+            LangManager.translateToLocalFormatted("provider.water.name"),
+            6
 
-            );
+        );
         new NBTHatchMECatalyst(
-                Config.metaTileEntityOffset + MECatalystOffset,
-                "input.catalyst.me",
-                LangManager.translateToLocal("input.catalyst.me.name"));
+            Config.metaTileEntityOffset + MECatalystOffset,
+            "input.catalyst.me",
+            LangManager.translateToLocal("input.catalyst.me.name"));
         new NBTHatchMEFocus(
-                Config.metaTileEntityOffset + MEFocusOffset,
-                "input.focus.me",
-                LangManager.translateToLocal("input.focus.me.name"));
+            Config.metaTileEntityOffset + MEFocusOffset,
+            "input.focus.me",
+            LangManager.translateToLocal("input.focus.me.name"));
         new AutoDataOrbHatch(
-                Config.metaTileEntityOffset + DataOrbOffset,
-                "input.dataorb",
-                LangManager.translateToLocal("input.dataorb.name"), 10);
+            Config.metaTileEntityOffset + DataOrbOffset,
+            "input.dataorb",
+            LangManager.translateToLocal("input.dataorb.name"),
+            10);
         new StockingDualInputHatchME(
-                Config.metaTileEntityOffset + StockingDualInputOffset,
-                "hatch.dualinput.stocking.me",
-                LangManager.translateToLocal("hatch.dualinput.stocking.me.name"), 8, false);
+            Config.metaTileEntityOffset + StockingDualInputOffset,
+            "hatch.dualinput.stocking.me",
+            LangManager.translateToLocal("hatch.dualinput.stocking.me.name"),
+            8,
+            false);
         new StockingDualInputHatchME(
-                Config.metaTileEntityOffset + StockingDualInputOffset+1,
-                "hatch.dualinput.stocking.autopull.me",
-                LangManager.translateToLocal("hatch.dualinput.stocking.autopull.me.name"), 10, true);
+            Config.metaTileEntityOffset + StockingDualInputOffset + 1,
+            "hatch.dualinput.stocking.autopull.me",
+            LangManager.translateToLocal("hatch.dualinput.stocking.autopull.me.name"),
+            10,
+            true);
         new PhantomInputBus(
-                Config.metaTileEntityOffset + PhantomInputBusOffset,
-                "phantom.bus",
-                LangManager.translateToLocal("phantom.bus.name"), 10);
+            Config.metaTileEntityOffset + PhantomInputBusOffset,
+            "phantom.bus",
+            LangManager.translateToLocal("phantom.bus.name"),
+            10);
         /*
          * for (int i = 0; i < 4; i++) {
          * new DualInputHatch(
@@ -613,33 +642,27 @@ public class Registration implements Runnable {
          * true,true);
          * }
          */
+        /*
+         * new PatternHousing(
+         * Config.metaTileEntityOffset + PatternHousingOffset,
+         * "hatch.patternhousing",
+         * LangManager.translateToLocalFormatted("hatch.patternhousing.name"), 0);
+         */
     }
 
-    
-    
     private Method registerCover;
-    private void registerCover(ItemStack itemStack, ITexture of, CoverBehaviorBase<?> circuitHolderCover) {
-		
-    	if(registerCover==null){
-    		try {
-    			registerCover=GregTechAPI.class.getDeclaredMethod("registerCover", ItemStack.class,ITexture.class,CoverBehaviorBase.class);
-			} catch (NoSuchMethodException e) {}
-		}	
-    		
-    	if(registerCover==null){
-    		try {
-    			registerCover=Class.forName("gregtech.api.covers.CoverRegistry").getDeclaredMethod("registerCover", ItemStack.class,ITexture.class,CoverBehaviorBase.class);
-			} catch (Exception e) {}
-		}	
-    	if(registerCover==null)throw new AssertionError("ERROR");
-    	try {
-			registerCover.invoke(null,itemStack, of,circuitHolderCover);
-		} catch (Exception e) {
-			throw new AssertionError(e);
-		}
-	}
 
-	public class DeferredGetterTexture extends GTCopiedBlockTextureRender {
+    private void registerCover(ItemStack itemStack, ITexture of,
+        BiFunction<gregtech.api.covers.CoverContext, ITexture, Cover> cv,
+
+        CoverPlacer x) {
+
+        if (x == null) CoverRegistry.registerCover(itemStack, of, s -> { return cv.apply(s, of); });
+        if (x != null) CoverRegistry.registerCover(itemStack, of, s -> { return cv.apply(s, of); }, x);
+
+    }
+
+    public class DeferredGetterTexture extends GTCopiedBlockTextureRender {
 
         private IIcon getIcon(int ordinalSide) {
 

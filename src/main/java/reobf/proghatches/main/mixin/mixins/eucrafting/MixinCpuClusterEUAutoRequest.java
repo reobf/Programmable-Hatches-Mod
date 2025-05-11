@@ -26,7 +26,7 @@ import appeng.util.item.AEItemStack;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU.WrappedPatternDetail;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.mixin.MixinCallback;
-
+@Deprecated
 @Mixin(value = CraftingCPUCluster.class, remap = false, priority = 0)
 public abstract class MixinCpuClusterEUAutoRequest {
 

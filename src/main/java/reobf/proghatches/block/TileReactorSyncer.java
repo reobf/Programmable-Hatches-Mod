@@ -39,8 +39,8 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI 
 
     @Override
     public void validate() {
-      
-        if(this.worldObj.isRemote==false) MyMod.callbacks.put(this, this::pretick); 
+
+        if (this.worldObj.isRemote == false) MyMod.callbacks.put(this, this::pretick);
         super.validate();
     }
 
@@ -48,26 +48,27 @@ public class TileReactorSyncer extends TileEntity implements ITileWithModularUI 
 
     public void pretick() {
         if ((!isDead) && (!isInvalid())) {
-        	if(this.worldObj.getTileEntity(xCoord, yCoord, zCoord)==this){
-            TileEntityNuclearReactorElectric reactor = findTarget();
+            if (this.worldObj.getTileEntity(xCoord, yCoord, zCoord) == this) {
+                TileEntityNuclearReactorElectric reactor = findTarget();
 
-            if (reactor != null) tick = reactor.updateTicker % 20;
-            else tick = -1;
+                if (reactor != null) tick = reactor.updateTicker % 20;
+                else tick = -1;
 
-            int new_power = tick != -1 ? values[tick] : 0;
-            if (cycles == 0 && skipCycleZero) {
-                new_power = 0;
+                int new_power = tick != -1 ? values[tick] : 0;
+                if (cycles == 0 && skipCycleZero) {
+                    new_power = 0;
+                }
+                if (tick == 0) cycles++;
+                if (power != new_power) {
+
+                    worldObj.scheduleBlockUpdate(xCoord, yCoord, zCoord, getBlockType(), 0);
+                    // schedule it, update it in World#tick, just in case something magic happens...
+                }
+
+                power = new_power;
+
             }
-            if (tick == 0) cycles++;
-            if (power != new_power) {
-
-                worldObj.scheduleBlockUpdate(xCoord, yCoord, zCoord, getBlockType(), 0);
-                // schedule it, update it in World#tick, just in case something magic happens...
-            }
-
-            power = new_power;
-
-        }}
+        }
     }
 
     public int power() {

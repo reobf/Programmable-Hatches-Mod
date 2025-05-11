@@ -52,10 +52,8 @@ import org.lwjgl.input.Keyboard;
 import org.spongepowered.include.com.google.common.collect.HashBiMap;
 
 import com.glodblock.github.common.item.ItemFluidPacket;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimap;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
@@ -95,12 +93,13 @@ import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.metatileentity.CoverableTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
-import gregtech.api.objects.GTDualInputs;
+import gregtech.api.objects.GTDualInputPattern;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.util.GTModHandler;
 import gregtech.api.util.GTTooltipDataCache.TooltipData;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IDualInputInventory;
+import gregtech.common.tileentities.machines.IDualInputInventoryWithPattern;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.Recipe;
@@ -112,7 +111,6 @@ import reobf.proghatches.gt.metatileentity.util.ICraftingV2;
 import reobf.proghatches.gt.metatileentity.util.IInputStateProvider;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.gt.metatileentity.util.ListeningFluidTank;
-import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandlerG;
 import reobf.proghatches.gt.metatileentity.util.polyfill.INeoDualInputInventory;
 import reobf.proghatches.item.ItemProgrammingCircuit;
@@ -241,6 +239,11 @@ public class BufferedDualInputHatch extends DualInputHatch
     // public FluidStack[] dualFluid(){return
     // asFluidStack.apply(inv0.mStoredFluidInternal);}
     final public ArrayList<DualInvBuffer> inv0 = new ArrayList<DualInvBuffer>();
+    boolean limitToIntMax;
+
+    public long singleSlotLimit() {
+        return limitToIntMax ? Integer.MAX_VALUE : Long.MAX_VALUE;
+    }
 
     // private long mask=new Random().nextLong()&(~0b1111_1111_1111_1111);//65536 buffers
     // private short count;
@@ -258,8 +261,9 @@ public class BufferedDualInputHatch extends DualInputHatch
          * }
          */
         public long tickFirstClassify = -1;
-        public void onChange(){}
-       
+
+        public void onChange() {}
+
         protected FluidTankG[] mStoredFluidInternal;
         protected ItemStackG[] mStoredItemInternal;
         protected FluidTank[] mStoredFluidInternalSingle;
@@ -280,7 +284,7 @@ public class BufferedDualInputHatch extends DualInputHatch
                 ItemStackG i = mStoredItemInternal[index];
                 ItemStack si = mStoredItemInternalSingle[index];
                 if (i != null) {
-                    if (si != null && Long.MAX_VALUE - i.stackSize() < si.stackSize) {
+                    if (si != null && singleSlotLimit() - i.stackSize() < si.stackSize) {
                         return true;// over flow! count as full
                     }
 
@@ -293,7 +297,7 @@ public class BufferedDualInputHatch extends DualInputHatch
             for (int index = 0; index < mStoredFluidInternalSingle.length; index++) {
                 FluidTankG i = mStoredFluidInternal[index];
                 FluidTank si = mStoredFluidInternalSingle[index];
-                if (si != null && Long.MAX_VALUE - i.getFluidAmount() < si.getFluidAmount()) {
+                if (si != null && singleSlotLimit() - i.getFluidAmount() < si.getFluidAmount()) {
                     return true;// over flow! count as full
                 }
                 if (i.getFluidAmount() >= fluidLimit()) {
@@ -350,7 +354,7 @@ public class BufferedDualInputHatch extends DualInputHatch
         }
 
         public void fromTag(NBTTagCompound tag) {
-        	
+
             PID = tag.getInteger("PID");
             if (mStoredFluidInternal != null) {
                 for (int i = 0; i < mStoredFluidInternal.length; i++) {
@@ -407,12 +411,14 @@ public class BufferedDualInputHatch extends DualInputHatch
             }
             return t;
         }
+
         private FluidTankG[] initFluidTack(FluidTankG[] t) {
             for (int i = 0; i < t.length; i++) {
                 t[i] = new FluidTankG();
             }
             return t;
         }
+
         public boolean isAccessibleForMulti() {
 
             /*
@@ -505,6 +511,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
             return true;
         }
+
         private boolean fluidEqualsIngoreAmount(FluidTankG a, FluidTank b) {
 
             if (a.getFluid() == null && a.getFluid() == null) return true;
@@ -513,6 +520,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
             return true;
         }
+
         public boolean areItemStacksEqualIngoreAmount(ItemStack p_77989_0_, ItemStack p_77989_1_) {
             return p_77989_0_ == null && p_77989_1_ == null ? true
                 : (p_77989_0_ != null && p_77989_1_ != null ? isItemStackEqualIngoreAmount(p_77989_0_, p_77989_1_)
@@ -546,9 +554,10 @@ public class BufferedDualInputHatch extends DualInputHatch
 
             }
             for (int ix = 0; ix < i; ix++) {
-                mStoredItemInternal[ix] =ItemStackG.neo( Optional.ofNullable(iin[ix])
-                    .map(ItemStack::copy)
-                    .orElse(null));
+                mStoredItemInternal[ix] = ItemStackG.neo(
+                    Optional.ofNullable(iin[ix])
+                        .map(ItemStack::copy)
+                        .orElse(null));
                 iin[ix] = null;
             }
             /*
@@ -639,9 +648,9 @@ public class BufferedDualInputHatch extends DualInputHatch
 
             }
             for (int ix = 0; ix < i; ix++) {
-                if (mStoredItemInternalSingle[ix] != null)
-                    if (mStoredItemInternal[ix] == null) mStoredItemInternal[ix] = ItemStackG.neo(mStoredItemInternalSingle[ix].copy());
-                    else mStoredItemInternal[ix].stackSizeInc(  mStoredItemInternalSingle[ix].stackSize);
+                if (mStoredItemInternalSingle[ix] != null) if (mStoredItemInternal[ix] == null)
+                    mStoredItemInternal[ix] = ItemStackG.neo(mStoredItemInternalSingle[ix].copy());
+                else mStoredItemInternal[ix].stackSizeInc(mStoredItemInternalSingle[ix].stackSize);
                 if (removeInputOnSuccess) iin[ix] = null;
                 else if (iin[ix] != null) iin[ix] = iin[ix].copy();
             }
@@ -712,9 +721,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
         }
 
-       
-
-		@Override
+        @Override
         public FluidStack[] getFluidInputs() {
             FluidStack[] condensed = asFluidStack.apply(flat(mStoredFluidInternal), shared.getFluid());
             // if(!trunOffEnsure){condensed=ensureIntMax(condensed);}
@@ -1460,27 +1467,27 @@ public class BufferedDualInputHatch extends DualInputHatch
 
         // ProghatchesUtil.removeMultiCache(builder, this);
         ProghatchesUtil.attachZeroSizedStackRemover(builder, buildContext);
-       
+
         builder.widget(new SyncedWidget() {
 
-            
-			Consumer<Widget> ticker = ss -> {
-            	
-            	for(int i=0;i<inv0.size();i++){
-            		DualInvBuffer inv=inv0.get(i);
-            		if(getContext().isWindowOpen(BUFFER_0 + i))
-            		for(ItemStackG items:inv.mStoredItemInternal){
-            			if(items!=null){items.adjust();}
-            		}
-            	}
-           };
+            Consumer<Widget> ticker = ss -> {
+
+                for (int i = 0; i < inv0.size(); i++) {
+                    DualInvBuffer inv = inv0.get(i);
+                    if (getContext().isWindowOpen(BUFFER_0 + i)) for (ItemStackG items : inv.mStoredItemInternal) {
+                        if (items != null) {
+                            items.adjust();
+                        }
+                    }
+                }
+            };
 
             {
                 this.setTicker(ticker);
             }
 
             public void detectAndSendChanges(boolean init) {
-              
+
                 ticker.accept(this);
             };
 
@@ -1490,8 +1497,7 @@ public class BufferedDualInputHatch extends DualInputHatch
             @Override
             public void readOnServer(int id, PacketBuffer buf) throws IOException {}
         });
-        
-        
+
         super.addUIWidgets(builder, buildContext);
         // builder.widget(widget);
 
@@ -1513,21 +1519,21 @@ public class BufferedDualInputHatch extends DualInputHatch
         if (aNBT.hasKey("x") == false) return;
         dirty = aNBT.getBoolean("dirty");
         int iex = aNBT.getInteger("exinvlen");
-        boolean warn=false;
-        for (int i = 0; i < bufferNum + iex; i++) {final int ii = i;
-          NBTTagCompound tag = (NBTTagCompound) aNBT.getTag("BUFFER_" + ii);
-        	
-        	if(tag==null){
-        		if(warn==false){
-        			warn=true;
-        			MyMod.LOG.error("Tag broken:"+ii);
-        			MyMod.LOG.error(aNBT.toString());
-        		}
-        		
-        		continue;
-        	}
-        	
-        	
+        boolean warn = false;
+        for (int i = 0; i < bufferNum + iex; i++) {
+            final int ii = i;
+            NBTTagCompound tag = (NBTTagCompound) aNBT.getTag("BUFFER_" + ii);
+
+            if (tag == null) {
+                if (warn == false) {
+                    warn = true;
+                    MyMod.LOG.error("Tag broken:" + ii);
+                    MyMod.LOG.error(aNBT.toString());
+                }
+
+                continue;
+            }
+
             if (i < bufferNum) inv0.get(i)
                 .fromTag(tag);
             else {
@@ -1631,19 +1637,19 @@ public class BufferedDualInputHatch extends DualInputHatch
 
         @Override
         public int getFluidAmount() {
-int ret=(int) Math.min(inner.getFluidAmount(),Integer.MAX_VALUE);
+            int ret = (int) Math.min(inner.getFluidAmount(), Integer.MAX_VALUE);
 
-if(ret>64){
-	
-	//System.out.println(ret);
-}
+            if (ret > 64) {
+
+                // System.out.println(ret);
+            }
             return ret;
         }
 
         @Override
         public int getCapacity() {
 
-            return (int) Math.min(fluidLimit(),Integer.MAX_VALUE);
+            return (int) Math.min(fluidLimit(), Integer.MAX_VALUE);
         }
 
         @Override
@@ -1693,7 +1699,7 @@ if(ret>64){
         @Override
         public int compareTo(PiorityBuffer o) {
 
-            return Long.compare(piority , o.piority);
+            return Long.compare(piority, o.piority);
         }
 
     }
@@ -1736,15 +1742,16 @@ if(ret>64){
     }
 
     @Override
-    public Iterator<? extends IDualInputInventory> inventories() {
+    public Iterator<? extends IDualInputInventoryWithPattern> inventories() {
         if (!this.isValid()) return emptyItr;
         markDirty();
         dirty = true;
 
-        /*if (merge) {
-            return mergeSame();
-
-        }*/
+        /*
+         * if (merge) {
+         * return mergeSame();
+         * }
+         */
 
         if (Config.experimentalOptimize) {
 
@@ -1766,7 +1773,7 @@ if(ret>64){
 
     boolean useNewGTPatternCache = false;
 
-    private IDualInputInventory wrap(DualInvBuffer to) {
+    private IDualInputInventoryWithPattern wrap(DualInvBuffer to) {
         if (to.PID > 0 && useNewGTPatternCache) {
 
             return new PatternDualInv(to);
@@ -1774,7 +1781,8 @@ if(ret>64){
 
         return to;
     }
-    static Random ran=new Random();
+
+    static Random ran = new Random();
     final int mask = ran.nextInt();
 
     public static class Recipe {
@@ -1867,7 +1875,7 @@ if(ret>64){
 
     LinkedList<PatternDualInv> toDisconnect = new LinkedList<PatternDualInv>();
 
-    public class PatternDualInv implements IDualInputInventory {
+    public class PatternDualInv implements IDualInputInventoryWithPattern {
 
         public BufferedDualInputHatch parent() {
             return BufferedDualInputHatch.this;
@@ -1921,7 +1929,7 @@ if(ret>64){
         }
 
         @Override
-        public GTDualInputs getPatternInputs() {
+        public GTDualInputPattern getPatternInputs() {
 
             return wrapped.getPatternInputs();
         }
@@ -2305,7 +2313,7 @@ if(ret>64){
                     aY + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
                     aZ + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
                     tItem.getStack());
-               
+
                 tItemEntity.motionX = (XSTR_INSTANCE.nextGaussian() * 0.05D);
                 tItemEntity.motionY = (XSTR_INSTANCE.nextGaussian() * 0.25D);
                 tItemEntity.motionZ = (XSTR_INSTANCE.nextGaussian() * 0.05D);
@@ -2340,211 +2348,187 @@ if(ret>64){
      * return super.onRightclick(aBaseMetaTileEntity, aPlayer, side, aX, aY,
      * aZ); }
      */
-    /*@SuppressWarnings("unchecked")
-    public Iterator<? extends IDualInputInventory> mergeSame() {
-
-        class Wrapper {
-
-            DualInvBuffer d;
-
-            public Wrapper(DualInvBuffer s) {
-                d = s;
-            }
-
-            boolean fast = true;;
-
-            private int sft(int i, int t) {
-              return i ^ t;
-            }
-
-            @Override
-            public int hashCode() {
-                if (fast) {
-                    int c = 0;
-                    int hash = 0;
-                    for (int i = 0; i < d.mStoredFluidInternalSingle.length; i++) {
-                        FluidStack f = d.mStoredFluidInternalSingle[i].getFluid();
-                        if (f != null) {
-                            hash = hash ^ sft(f.getFluidID(), c);
-                        }
-                        c++;
-                    }
-                    for (int i = 0; i < d.mStoredItemInternalSingle.length; i++) {
-                        ItemStack f = d.mStoredItemInternalSingle[i];
-                        if (f != null) {
-                            {
-                                hash = hash ^ sft(Item.getIdFromItem(f.getItem()) | f.getItemDamage()
-
-                                    , c);
-                            }
-                            c++;
-                        }
-                    }
-                    return hash;
-                }
-
-                int hash = 0;
-                for (int i = 0; i < d.mStoredFluidInternalSingle.length; i++) {
-                    FluidStack f = d.mStoredFluidInternalSingle[i].getFluid();
-                    if (f != null) hash ^= f.hashCode();
-                    int a = hash & 1;
-                    hash = hash >>> 1;
-                    if (a != 0) hash |= 0x80000000;
-                }
-                for (int i = 0; i < d.mStoredItemInternalSingle.length; i++) {
-                    ItemStack f = d.mStoredItemInternalSingle[i];
-                    if (f != null) {
-                        hash ^= f.stackSize * 31 + +Item.getIdFromItem(f.getItem());
-                        if (f.getTagCompound() != null) {
-                            hash ^= f.getTagCompound()
-                                .hashCode();
-                        }
-                    }
-                    int a = hash & 1;
-                    hash = hash >>> 1;
-                    if (a != 0) hash |= 0x80000000;
-                }
-
-                return hash;
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                if (obj == this) {
-                    return true;
-                }
-                boolean empty = true;
-                DualInvBuffer a = d;
-                DualInvBuffer b = ((Wrapper) obj).d;
-                for (int i = 0; i < a.mStoredFluidInternalSingle.length; i++) {
-                    if (!fluidEquals(a.mStoredFluidInternalSingle[i], b.mStoredFluidInternalSingle[i])) {
-                        return false;
-                    }
-                    if (a.mStoredFluidInternalSingle[i].getFluidAmount() > 0) empty = false;
-
-                }
-                for (int i = 0; i < a.mStoredItemInternalSingle.length; i++) {
-                    if (!ItemStack.areItemStacksEqual(a.mStoredItemInternalSingle[i], b.mStoredItemInternalSingle[i])) {
-                        return false;
-                    }
-                    if (a.mStoredItemInternalSingle[i] != null) empty = false;
-
-                }
-                if (empty) return false;
-                return true;
-            }
-
-        }
-
-        Multimap<Wrapper, DualInvBuffer> a = HashMultimap.create();
-        inv0.stream()
-            .filter((DualInvBuffer::isAccessibleForMulti))
-            .forEach(s -> { a.put(new Wrapper(s), s); });
-        return (Iterator<? extends IDualInputInventory>) a.asMap()
-            .values()
-            .stream()
-            .map(s -> {
-                if (s.size() == 1) {
-                    return s.iterator()
-                        .next();
-                }
-
-                int sharedID = 0;
-                int hashCode = 0;
-                for (DualInvBuffer ss : s) {
-                    hashCode = ss.hashCode();
-                    if (sharedID == 0) sharedID = ss.PID;
-                    else {
-                        if (sharedID != ss.PID) {
-                            sharedID = 0;
-                            break;
-                        }
-                    }
-                }
-
-                int hashCodef = hashCode;
-                int PID = sharedID;
-                return new INeoDualInputInventory() {
-
-                    @Override
-                    public boolean areYouSerious() {
-                        return true;
-                    }
-
-                    @Override
-                    public IDualInputInventory butYouCanCacheThisInstead() {
-                        if (PID == 0) return null;
-                        return s.iterator()
-                            .next();
-                    }
-
-                    @Override
-                    public int hashCode() {
-                        return hashCodef;
-                    }
-
-                    @Override
-                    public boolean equals(Object obj) {
-                        if (obj instanceof DualInvBuffer) {
-                            return PID == ((DualInvBuffer) obj).PID && hashCodef == obj.hashCode();
-                        }
-                        return super.equals(obj);
-                    }
-
-                    void init() {
-                        Iterator<DualInvBuffer> itr = s.iterator();
-                        int icount = 0;
-                        ItemStack[][] idata = new ItemStack[s.size()][];
-                        int fcount = 0;
-                        FluidStack[][] fdata = new FluidStack[s.size()][];
-                        for (int i = 0; i < s.size(); i++) {
-                            DualInvBuffer e = itr.next();
-                            idata[i] = filterStack.apply(e.mStoredItemInternal);
-                            icount += idata[i].length;
-                            fdata[i] = asFluidStack.apply(e.mStoredFluidInternal);
-                            fcount += fdata[i].length;
-                        }
-                        i = new ItemStack[icount];
-                        f = new FluidStack[fcount];
-                        int ic = 0;
-                        for (ItemStack[] ii : idata) {
-                            for (ItemStack iii : ii) {
-                                i[ic] = iii;
-                                ic++;
-                            }
-                        }
-                        ic = 0;
-                        for (FluidStack[] ii : fdata) {
-                            for (FluidStack iii : ii) {
-                                f[ic] = iii;
-                                ic++;
-                            }
-                        }
-                        i = filterStack.apply(i, shared.getItems());
-                        if (!shared.isDummy())// dummy->no extra fluid
-                            f = asFluidStack.apply(f, shared.getFluid());
-                    }
-
-                    ItemStack[] i;
-                    FluidStack[] f;
-
-                    @Override
-                    public ItemStack[] getItemInputs() {
-                        if (i == null) init();
-
-                        return i;
-                    }
-
-                    @Override
-                    public FluidStack[] getFluidInputs() {
-                        if (f == null) init();
-                        return f;
-                    }
-                };
-            })
-            .iterator();
-    }
-*/
+    /*
+     * @SuppressWarnings("unchecked")
+     * public Iterator<? extends IDualInputInventory> mergeSame() {
+     * class Wrapper {
+     * DualInvBuffer d;
+     * public Wrapper(DualInvBuffer s) {
+     * d = s;
+     * }
+     * boolean fast = true;;
+     * private int sft(int i, int t) {
+     * return i ^ t;
+     * }
+     * @Override
+     * public int hashCode() {
+     * if (fast) {
+     * int c = 0;
+     * int hash = 0;
+     * for (int i = 0; i < d.mStoredFluidInternalSingle.length; i++) {
+     * FluidStack f = d.mStoredFluidInternalSingle[i].getFluid();
+     * if (f != null) {
+     * hash = hash ^ sft(f.getFluidID(), c);
+     * }
+     * c++;
+     * }
+     * for (int i = 0; i < d.mStoredItemInternalSingle.length; i++) {
+     * ItemStack f = d.mStoredItemInternalSingle[i];
+     * if (f != null) {
+     * {
+     * hash = hash ^ sft(Item.getIdFromItem(f.getItem()) | f.getItemDamage()
+     * , c);
+     * }
+     * c++;
+     * }
+     * }
+     * return hash;
+     * }
+     * int hash = 0;
+     * for (int i = 0; i < d.mStoredFluidInternalSingle.length; i++) {
+     * FluidStack f = d.mStoredFluidInternalSingle[i].getFluid();
+     * if (f != null) hash ^= f.hashCode();
+     * int a = hash & 1;
+     * hash = hash >>> 1;
+     * if (a != 0) hash |= 0x80000000;
+     * }
+     * for (int i = 0; i < d.mStoredItemInternalSingle.length; i++) {
+     * ItemStack f = d.mStoredItemInternalSingle[i];
+     * if (f != null) {
+     * hash ^= f.stackSize * 31 + +Item.getIdFromItem(f.getItem());
+     * if (f.getTagCompound() != null) {
+     * hash ^= f.getTagCompound()
+     * .hashCode();
+     * }
+     * }
+     * int a = hash & 1;
+     * hash = hash >>> 1;
+     * if (a != 0) hash |= 0x80000000;
+     * }
+     * return hash;
+     * }
+     * @Override
+     * public boolean equals(Object obj) {
+     * if (obj == this) {
+     * return true;
+     * }
+     * boolean empty = true;
+     * DualInvBuffer a = d;
+     * DualInvBuffer b = ((Wrapper) obj).d;
+     * for (int i = 0; i < a.mStoredFluidInternalSingle.length; i++) {
+     * if (!fluidEquals(a.mStoredFluidInternalSingle[i], b.mStoredFluidInternalSingle[i])) {
+     * return false;
+     * }
+     * if (a.mStoredFluidInternalSingle[i].getFluidAmount() > 0) empty = false;
+     * }
+     * for (int i = 0; i < a.mStoredItemInternalSingle.length; i++) {
+     * if (!ItemStack.areItemStacksEqual(a.mStoredItemInternalSingle[i], b.mStoredItemInternalSingle[i])) {
+     * return false;
+     * }
+     * if (a.mStoredItemInternalSingle[i] != null) empty = false;
+     * }
+     * if (empty) return false;
+     * return true;
+     * }
+     * }
+     * Multimap<Wrapper, DualInvBuffer> a = HashMultimap.create();
+     * inv0.stream()
+     * .filter((DualInvBuffer::isAccessibleForMulti))
+     * .forEach(s -> { a.put(new Wrapper(s), s); });
+     * return (Iterator<? extends IDualInputInventory>) a.asMap()
+     * .values()
+     * .stream()
+     * .map(s -> {
+     * if (s.size() == 1) {
+     * return s.iterator()
+     * .next();
+     * }
+     * int sharedID = 0;
+     * int hashCode = 0;
+     * for (DualInvBuffer ss : s) {
+     * hashCode = ss.hashCode();
+     * if (sharedID == 0) sharedID = ss.PID;
+     * else {
+     * if (sharedID != ss.PID) {
+     * sharedID = 0;
+     * break;
+     * }
+     * }
+     * }
+     * int hashCodef = hashCode;
+     * int PID = sharedID;
+     * return new INeoDualInputInventory() {
+     * @Override
+     * public boolean areYouSerious() {
+     * return true;
+     * }
+     * @Override
+     * public IDualInputInventory butYouCanCacheThisInstead() {
+     * if (PID == 0) return null;
+     * return s.iterator()
+     * .next();
+     * }
+     * @Override
+     * public int hashCode() {
+     * return hashCodef;
+     * }
+     * @Override
+     * public boolean equals(Object obj) {
+     * if (obj instanceof DualInvBuffer) {
+     * return PID == ((DualInvBuffer) obj).PID && hashCodef == obj.hashCode();
+     * }
+     * return super.equals(obj);
+     * }
+     * void init() {
+     * Iterator<DualInvBuffer> itr = s.iterator();
+     * int icount = 0;
+     * ItemStack[][] idata = new ItemStack[s.size()][];
+     * int fcount = 0;
+     * FluidStack[][] fdata = new FluidStack[s.size()][];
+     * for (int i = 0; i < s.size(); i++) {
+     * DualInvBuffer e = itr.next();
+     * idata[i] = filterStack.apply(e.mStoredItemInternal);
+     * icount += idata[i].length;
+     * fdata[i] = asFluidStack.apply(e.mStoredFluidInternal);
+     * fcount += fdata[i].length;
+     * }
+     * i = new ItemStack[icount];
+     * f = new FluidStack[fcount];
+     * int ic = 0;
+     * for (ItemStack[] ii : idata) {
+     * for (ItemStack iii : ii) {
+     * i[ic] = iii;
+     * ic++;
+     * }
+     * }
+     * ic = 0;
+     * for (FluidStack[] ii : fdata) {
+     * for (FluidStack iii : ii) {
+     * f[ic] = iii;
+     * ic++;
+     * }
+     * }
+     * i = filterStack.apply(i, shared.getItems());
+     * if (!shared.isDummy())// dummy->no extra fluid
+     * f = asFluidStack.apply(f, shared.getFluid());
+     * }
+     * ItemStack[] i;
+     * FluidStack[] f;
+     * @Override
+     * public ItemStack[] getItemInputs() {
+     * if (i == null) init();
+     * return i;
+     * }
+     * @Override
+     * public FluidStack[] getFluidInputs() {
+     * if (f == null) init();
+     * return f;
+     * }
+     * };
+     * })
+     * .iterator();
+     * }
+     */
     static public boolean fluidEquals(FluidTank a, FluidTank b) {
         // if(a==b)return false;
         // if(a==null||b==null)return false;
@@ -2630,19 +2614,19 @@ if(ret>64){
             .addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.5"))
             .addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.6")));
 
-        /*builder.widget(new CycleButtonWidget().setToggle(() -> merge, (s) -> {
-            merge = s;
-
-        })
-            .setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-            .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
-            .setTooltipShowUpDelay(TOOLTIP_DELAY)
-            .setPos(3 + 18 * 2, 3 + 18 * 0)
-            .setSize(18, 18)
-            .addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.merge.0"))
-            .addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.merge.1"))
-
-        );*/
+        /*
+         * builder.widget(new CycleButtonWidget().setToggle(() -> merge, (s) -> {
+         * merge = s;
+         * })
+         * .setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+         * .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
+         * .setTooltipShowUpDelay(TOOLTIP_DELAY)
+         * .setPos(3 + 18 * 2, 3 + 18 * 0)
+         * .setSize(18, 18)
+         * .addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.merge.0"))
+         * .addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.merge.1"))
+         * );
+         */
         if (isInfBuffer() || shared.infbufUpgrades > 0)
             builder.widget(new CycleButtonWidget().setToggle(() -> autoAppend, (s) -> {
                 autoAppend = s;
@@ -2858,7 +2842,7 @@ if(ret>64){
     }
 
     public void recordRecipe(DualInvBuffer thiz) {
-    	 if (thiz==null) return;
+        if (thiz == null) return;
         if (thiz.PID > 0) return;
         if (useNewGTPatternCache == false) {
             return;
@@ -2870,10 +2854,11 @@ if(ret>64){
             check = currentID;
         }
         thiz.PID = check;
-    } 
+    }
+
     public static NBTTagCompound writeToNBTG(ItemStackG is, NBTTagCompound tag) {
         is.writeToNBT(tag);
-       // tag.setInteger("ICount", is.stackSize);
+        // tag.setInteger("ICount", is.stackSize);
 
         return tag;
     }
@@ -2881,23 +2866,26 @@ if(ret>64){
     public static ItemStackG loadItemStackFromNBTG(NBTTagCompound tag) {
 
         ItemStackG is = ItemStackG.loadItemStackFromNBT(tag);
-        //is.stackSize = tag.getInteger("ICount");
+        // is.stackSize = tag.getInteger("ICount");
         return is;
     }
+
     public static ItemStack[] flat(ItemStackG[] mStoredItemInternal2) {
-	
-    	return Arrays.asList(mStoredItemInternal2).stream().filter(Objects::nonNull).flatMap(s->Arrays.stream(s.flat())).toArray(ItemStack[]::new);
-    	
-    	
-    	
-		
-	}
+
+        return Arrays.asList(mStoredItemInternal2)
+            .stream()
+            .filter(Objects::nonNull)
+            .flatMap(s -> Arrays.stream(s.flat()))
+            .toArray(ItemStack[]::new);
+
+    }
+
     public static FluidStack[] flat(FluidTankG[] mStoredItemInternal2) {
-    	
-    	return Arrays.asList(mStoredItemInternal2).stream().flatMap(s->Arrays.stream(s.flat())).toArray(FluidStack[]::new);
-    	
-    	
-    	
-		
-	}
+
+        return Arrays.asList(mStoredItemInternal2)
+            .stream()
+            .flatMap(s -> Arrays.stream(s.flat()))
+            .toArray(FluidStack[]::new);
+
+    }
 }

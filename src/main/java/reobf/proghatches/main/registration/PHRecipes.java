@@ -289,7 +289,7 @@ public class PHRecipes implements Runnable {
     /**
      * 
      */
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({ "deprecation", "unchecked" })
     @Override
     public void run() {
 
@@ -2146,6 +2146,16 @@ public class PHRecipes implements Runnable {
             .duration(1 * SECONDS)
             .eut(30)
             .addTo(RecipeMaps.assemblerRecipes);
+        
+        rec = new ShapelessOreRecipe(new ItemStack(MyMod.badge),
+                ItemList.Credit_Greg_Gold.get(1),
+                ItemList.Credit_Greg_Cupronickel.get(1)
+                
+                
+                );
+            CraftingManager.getInstance()
+                .getRecipeList()
+                .add(rec);
 
     }
 

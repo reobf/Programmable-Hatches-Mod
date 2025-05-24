@@ -195,6 +195,8 @@ public static boolean loaded;
         retLate.add("part2.MixinEIOBundle");
         retLate.add("part2.MixinContextNoCircuitCache");
         retLate.add("part2.MixinExtractIntercept");
+        retLate.add("part2.MixinMUI2CircuitSlot");
+        //retLate.add("part2.x");
         //retLate.add("part2.MixinCraftRevive");
         if (FMLLaunchHandler.side()
             .isClient()) {

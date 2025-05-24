@@ -64,6 +64,7 @@ import reobf.proghatches.eucrafting.ItemPartEUP2PInterface;
 import reobf.proghatches.eucrafting.ItemPartEUSource;
 import reobf.proghatches.eucrafting.ItemPartLazerP2P;
 import reobf.proghatches.eucrafting.TileFluidInterface_EU;
+import reobf.proghatches.item.ItemBadge;
 import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemDedicatedCover;
 import reobf.proghatches.item.ItemFakePattern;
@@ -215,6 +216,12 @@ public class CommonProxy {
             new BlockReactorSyncer(Material.rock),
             ItemBlockReactorSyncer.class,
             "proghatches.reactor_syncer");
+        
+        GameRegistry.registerItem(
+                MyMod.badge = new ItemBadge().setUnlocalizedName("proghatch_badge")
+                    .setTextureName("proghatches:badge"),
+                "proghatch_badge");
+        
         li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.oc_redstone);
         li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.oc_api);
         li.cil.oc.server.driver.Registry.add((li.cil.oc.api.driver.Item) MyMod.pitem);

@@ -18,6 +18,11 @@ public class InventoryItemHandler extends ItemStackHandler implements IInterhand
         super(mInventory);
         inv = dualInputHatch;
     }
+@Override
+public void setStackInSlot(int slot, ItemStack stack) {
+	// TODO Auto-generated method stub
+	super.setStackInSlot(slot, stack);
+}
 
     protected int getStackLimit(int slot, ItemStack stack) {
         return inv.getInventoryStackLimit();

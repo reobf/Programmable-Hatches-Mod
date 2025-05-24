@@ -14,6 +14,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.cleanroommc.modularui.widgets.slot.ItemSlot;
 import com.glodblock.github.FluidCraft;
 import com.glodblock.github.inventory.InventoryHandler;
 import com.glodblock.github.inventory.gui.GuiType;
@@ -41,6 +42,7 @@ public class BlockAutoFillerMKII extends BlockContainer implements INameAndToolt
     @Override
     public TileEntity createNewTileEntity(World worldIn, int meta) {
 
+    
         return new TileAutoFillerMKII();
     }
 

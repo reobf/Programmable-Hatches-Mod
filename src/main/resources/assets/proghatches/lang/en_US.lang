@@ -794,3 +794,9 @@ proghatches.chip.tooltips=Instant complete!
 item.proghatch_circuit_fixer2.name=Pattern Programming Circuit Normalization Tool
 multimachine.mbproxy.name=Multiblock Machine IO Proxy
 hatch.patternhousing.name=Pattern Housing
+item.proghatch_badge.name="Pioneer" Badge
+item.proghatch_badge.tooltips.0=Put it in your inventory, and all hatches of this mod
+item.proghatch_badge.tooltips.1=that supports both MUI1 & MUI2 will use the MUI2 version!
+item.proghatch_badge.tooltips.2=MUI2 support is still in progress! Might be incomplete or buggy!
+item.proghatch_badge.tooltips=3
+

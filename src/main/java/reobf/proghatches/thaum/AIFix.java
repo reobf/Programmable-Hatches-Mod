@@ -123,7 +123,7 @@ public class AIFix extends EntityAIBase {
             if (mte instanceof MTEMultiBlockBase) {
                 MTEMultiBlockBase mb = (MTEMultiBlockBase) mte;
                 if (mb.mMachine && (!mb.mWrench || !mb.mScrewdriver
-                    || !mb.mSoftHammer
+                    || !mb.mSoftMallet
                     || !mb.mHardHammer
                     || !mb.mSolderingTool
                     || !mb.mCrowbar)) {
@@ -190,7 +190,7 @@ public class AIFix extends EntityAIBase {
                     .setActive(false);
                 hatch.mWrench = true;
                 hatch.mScrewdriver = true;
-                hatch.mSoftHammer = true;
+                hatch.mSoftMallet = true;
                 hatch.mHardHammer = true;
                 hatch.mSolderingTool = true;
                 hatch.mCrowbar = true;

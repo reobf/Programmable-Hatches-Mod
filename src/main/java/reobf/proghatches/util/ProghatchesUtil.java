@@ -22,6 +22,9 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.value.sync.SyncHandler;
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
@@ -213,7 +216,50 @@ public class ProghatchesUtil {
     /*
      * prevent negative stacksize dupe bug
      */
+    public static void attachZeroSizedStackRemover2(PanelSyncManager syncManager,ModularPanel p) {
+    	Runnable ticker = () -> {
+            // if held stack is 0-sized, remove it
+            Optional.ofNullable(syncManager.getPlayer().inventory.getItemStack())
+                .filter(s -> s.stackSize <= 0)
+                .ifPresent(s -> syncManager.getPlayer().inventory.setItemStack(null));
+            ItemStack[] inv = syncManager.getPlayer().inventory.mainInventory;
+            for (int i = 0; i < inv.length; i++) {
+                if (inv[i] != null && inv[i].stackSize <= 0) {
+                    inv[i] = null;
+                }
 
+            }
+        };
+        p.child(new com.cleanroommc.modularui.widget.Widget(){
+        	
+        	public void onUpdate() {
+        		//Thread.dumpStack();
+        		ticker.run();
+        		super.onUpdate();};
+        }
+        		);
+    	syncManager.syncValue("ZeroSizedStackRemover", new SyncHandler() {
+			
+    		@Override
+    		public void detectAndSendChanges(boolean init) {
+    			
+    			ticker.run();
+    		}
+			@Override
+			public void readOnServer(int id, PacketBuffer buf) throws IOException {
+			
+				
+			}
+			
+			@Override
+			public void readOnClient(int id, PacketBuffer buf) throws IOException {
+			
+				
+			}
+		});
+    	
+    	
+    }
     public static void attachZeroSizedStackRemover(Builder builder, UIBuildContext buildContext) {
         builder.widget(new SyncedWidget() {
 

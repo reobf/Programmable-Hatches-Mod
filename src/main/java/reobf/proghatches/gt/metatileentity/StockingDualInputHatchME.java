@@ -1505,11 +1505,11 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 
         off = false;
     }
-
+/*
     @Override
     public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager) {
         syncManager.panel("x", (a, b) -> new ModularPanel("mainc"), false);
         // syncManager.bindPlayerInventory(player);
         return new ModularPanel("main");
-    }
+    }*/
 }

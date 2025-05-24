@@ -76,6 +76,7 @@ import crazypants.enderio.conduit.geom.Offsets.OffsetKey;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.GTValues;
 import gregtech.api.interfaces.tileentity.ICoverable;
+import gregtech.api.modularui2.GTGuis;
 import gregtech.api.net.GTPacketSendCoverData;
 
 import gregtech.common.blocks.BlockMachines;
@@ -188,8 +189,14 @@ public class MyMod {
                 return 0;
             }
         }
+        
         try {
             Boolean b1 = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
+            if (((b1 != null) && b1)){
+            	
+            }
+            
+            
             boolean b2 = test.class.getDeclaredMethod("getItemStackLimit") != null;
             if (((b1 != null) && b1) == false && b2 == true) {
 
@@ -202,9 +209,7 @@ public class MyMod {
 
                 FMLCommonHandler.instance()
                     .exitJava(1, false);
-                // throw new AssertionError("You are using dev version of
-                // ProgrammableHatches in obfuscated env! Use the one without
-                // '-dev' suffix!");
+            
             }
         } catch (Exception e) {}
     }
@@ -631,6 +636,7 @@ public class MyMod {
         // only useful for intergreted server?
         // event.registerServerCommand(new CommandAnchor());
         // event.registerServerCommand(new CommandAnchor2());
+        event.registerServerCommand(new CommandMUI2());
     }
 
     public static ItemStack tutorial() {
@@ -862,6 +868,7 @@ public class MyMod {
     public static BlockOrbSwitcher orbswitcher;
     public static Item part_cow;
     public static Item fixer2;
+	public static Item badge;
 
     @SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
     public void pretick(final TickEvent.ServerTickEvent event) {

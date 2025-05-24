@@ -1,8 +1,12 @@
 package reobf.proghatches.eio;
 
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.MinecraftForgeClient;
+
+import java.util.List;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -15,6 +19,10 @@ import crazypants.enderio.conduit.render.ItemConduitRenderer;
 
 public class ItemMAConduit extends AbstractItemConduit implements IInit {
 
+public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List) {
+	
+	super.getSubItems(par1, par2CreativeTabs, par3List);
+}
     private static ItemConduitSubtype[] subtypes = new ItemConduitSubtype[] {
         new ItemConduitSubtype("proghatch.ma.conduit", "proghatches:itemMAConduit") };
 

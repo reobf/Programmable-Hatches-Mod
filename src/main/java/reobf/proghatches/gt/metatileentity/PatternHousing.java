@@ -20,9 +20,10 @@ import com.cleanroommc.modularui.screen.ModularScreen;
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.value.sync.SyncHandlers;
-import com.cleanroommc.modularui.widgets.ItemSlot;
+
 import com.cleanroommc.modularui.widgets.SlotGroupWidget;
 import com.cleanroommc.modularui.widgets.TextWidget;
+import com.cleanroommc.modularui.widgets.slot.ItemSlot;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.widget.SlotGroup;

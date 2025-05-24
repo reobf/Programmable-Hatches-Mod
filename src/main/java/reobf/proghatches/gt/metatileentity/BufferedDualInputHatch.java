@@ -123,7 +123,7 @@ public class BufferedDualInputHatch extends DualInputHatch
     implements IRecipeProcessingAwareDualHatch, IInputStateProvider, ICraftingV2
 
 {
-
+	public class MUI2ContainerX extends MUI2Container {}
     public Deque<Long> scheduled = new LinkedList<>();// no randomaccess,
                                                       // LinkedList will work
                                                       // fine

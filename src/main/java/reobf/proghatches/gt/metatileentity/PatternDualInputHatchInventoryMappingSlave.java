@@ -1316,7 +1316,11 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
     }
 
     static int[] AZERO = { 0 };
-
+    @Override
+    public boolean allowsPatternOptimization() {
+       
+        return false;
+    }
     @Override
     public int[] pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
         if (Config.fastPatternDualInput == false) return AZERO;

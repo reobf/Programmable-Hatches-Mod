@@ -1427,8 +1427,8 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 
     @Override
     public boolean allowsPatternOptimization() {
-        // TODO Auto-generated method stub
-        return IInterfaceViewable.super.allowsPatternOptimization();
+       
+        return false;
     }
 
     @Override

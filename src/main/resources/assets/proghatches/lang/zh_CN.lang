@@ -797,3 +797,5 @@ item.proghatch_badge.tooltips.0=把这东西放在物品栏,当你打开本mod�
 item.proghatch_badge.tooltips.1=会优先选择打开MUI2版本的GUI
 item.proghatch_badge.tooltips.2=MUI2适配尚未完成!可能有bug或者缺失功能！
 item.proghatch_badge.tooltips=3
+programmable_hatches.gt.restrictToInt.0=将缓冲容量限制为Integer.MAX
+programmable_hatches.gt.restrictToInt.1=而不是Long.MAX

@@ -799,4 +799,5 @@ item.proghatch_badge.tooltips.0=Put it in your inventory, and all hatches of thi
 item.proghatch_badge.tooltips.1=that supports both MUI1 & MUI2 will use the MUI2 version!
 item.proghatch_badge.tooltips.2=MUI2 support is still in progress! Might be incomplete or buggy!
 item.proghatch_badge.tooltips=3
-
+programmable_hatches.gt.restrictToInt.0=Set buffer capacity to Integer.MAX
+programmable_hatches.gt.restrictToInt.1=instead of Long.MAX

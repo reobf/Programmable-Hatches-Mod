@@ -4,13 +4,19 @@ import java.util.Optional;
 
 import net.minecraft.item.ItemStack;
 
+import com.cleanroommc.modularui.utils.item.IItemHandlerModifiable;
 import com.gtnewhorizons.modularui.api.forge.ItemHandlerHelper;
 
+import appeng.util.item.AEItemStack;
+import gregtech.api.util.GTUtil;
 import gregtech.api.util.GTUtility;
+import gtPlusPlus.core.util.minecraft.ItemUtils;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 
 public class MappingItemHandlerG
-    implements com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable, IInterhandlerGroup {
+    implements com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable, IInterhandlerGroup,
+    IItemHandlerModifiable
+    {
 
     public Runnable update = () -> {};
 
@@ -130,13 +136,29 @@ public class MappingItemHandlerG
         return Integer.MAX_VALUE;
     }
 
+    public boolean cmp(ItemStack a,ItemStack b){
+    	if(a==null||b==null)return false;
+    	if(a.getItem()!=b.getItem())return false;
+    	if(a.getItemDamage()!=b.getItemDamage())return false;
+    	if(!ItemStack.areItemStackTagsEqual(a, b))return false;
+    	
+    	return true;
+    }
+    
+    
     @Override
     public void setStackInSlot(int var1, ItemStack var2) {
         try {
             if (phantom) {
                 is[var1 - index] = ItemStackG.neo(GTUtility.copyAmount(0, var2));
 
-            } else is[var1 - index] = ItemStackG.setZero(is[var1 - index], var2);
+            } else {
+            	ItemStack sis = is[var1 - index]==null?null:is[var1 - index].getZero();
+            	if(!cmp(sis,var2)){
+            		is[var1 - index] =ItemStackG.neo(var2);
+            	}else{
+            	is[var1 - index] = ItemStackG.setZero(is[var1 - index], var2);}
+            }
         } finally {
             update.run();
         }

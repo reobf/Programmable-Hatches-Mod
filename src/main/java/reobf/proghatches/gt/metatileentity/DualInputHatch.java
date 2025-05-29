@@ -74,12 +74,14 @@ import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.screen.viewport.ModularGuiContext;
 import com.cleanroommc.modularui.theme.WidgetTheme;
 import com.cleanroommc.modularui.utils.MouseData;
+import com.cleanroommc.modularui.utils.item.IItemHandler;
 import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.cleanroommc.modularui.value.DynamicValue;
 import com.cleanroommc.modularui.value.EnumValue;
 import com.cleanroommc.modularui.value.IntValue;
 import com.cleanroommc.modularui.value.sync.FluidSlotSyncHandler;
 import com.cleanroommc.modularui.value.sync.IntSyncValue;
+import com.cleanroommc.modularui.value.sync.ItemSlotSH;
 import com.cleanroommc.modularui.value.sync.PanelSyncHandler;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.value.sync.SyncHandler;
@@ -2787,7 +2789,9 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 	@Override
 	public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings) {
-		return mui2ct.buildUI(data, syncManager,  uiSettings);
+		
+		ModularPanel builder = mui2ct.create(data, syncManager, uiSettings);
+		 mui2ct.buildUI(builder,data, syncManager,  uiSettings);return builder;
 	}
 
 	private MUI2Container mui2ct= initMUI2();
@@ -2812,7 +2816,14 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
                       .stateOverlay(1, back)
 					.pos(7 + offset * 18, 62).size(18, 18).tooltip(s->{s.add(tool);});
 		}
-		public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings) {
+		
+		
+		public ModularPanel create(PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings){
+			ModularPanel builder = GTGuis.mteTemplatePanelBuilder(DualInputHatch.this, data, syncManager,uiSettings)
+					.doesAddGregTechLogo(false).doesAddGhostCircuitSlot(allowSelectCircuit()).build();
+			return builder;
+		}
+		public void buildUI(ModularPanel builder,PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings) {
 			
 			
 			ItemStackHandler inventoryHandler = getInventoryHandler();
@@ -2820,11 +2831,11 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 					"item_inv", 1, true);
 
 			syncManager.registerSlotGroup(sg);
-			ModularPanel builder = GTGuis.mteTemplatePanelBuilder(DualInputHatch.this, data, syncManager,uiSettings)
-					.doesAddGregTechLogo(false).doesAddGhostCircuitSlot(allowSelectCircuit()).build();
+			//ModularPanel builder = GTGuis.mteTemplatePanelBuilder(DualInputHatch.this, data, syncManager,uiSettings)
+			//		.doesAddGregTechLogo(false).doesAddGhostCircuitSlot(allowSelectCircuit()).build();
 			ProghatchesUtil.attachZeroSizedStackRemover2(syncManager, builder);
 			IPanelHandler shared_panel = syncManager.panel("shared_panel",
-					(manager, handler) -> createSharedItemWindow2(syncManager), true);
+					(manager, handler) -> createSharedItemWindow2(manager), true);
 
 			builder.child(new ItemSlot().disabled().slot(ModularSlot(inventoryHandler, getCircuitSlot())));// sync
 																											// the
@@ -2918,7 +2929,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			builder.bindPlayerInventory();
 
 			IPanelHandler popupPanel = syncManager.panel("popup",
-					(manager, handler) -> createInsertionWindow2(syncManager), true);
+					(manager, handler) -> createInsertionWindow2(manager), true);
 
 			if (createInsertion())
 				builder.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>().onMousePressed(mouseButton -> {
@@ -2935,7 +2946,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			
 			
 			buttons(builder, syncManager);
-			return builder;
+			//return builder;
 
 		}
 		private int b2i(boolean b){return b?1:0;}
@@ -3012,7 +3023,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 								.setPos(7 + 1 * 18, 62 - 18 - moveButtons() * 18));*/
 		}
-		public ModularSlot ModularSlot(ItemStackHandler inventoryHandler, int index) {
+		public ModularSlot ModularSlot(IItemHandler  inventoryHandler, int index) {
 
 			com.cleanroommc.modularui.widgets.slot.ModularSlot slot = new ModularSlot(inventoryHandler, index) {
 
@@ -3271,24 +3282,37 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 				}
 			};
 			builder.size(WIDTH, HEIGHT);
+			com.cleanroommc.modularui.widgets.slot.SlotGroup sg=new com.cleanroommc.modularui.widgets.slot.SlotGroup("temp", 1);
+			syncManager.registerSlotGroup(sg);
 			final ItemStackHandler inventoryHandler = new ItemStackHandler(mInventory.length - (1));
+			
+			List<ModularSlot> slots=new ArrayList<>();
 			builder.child(new Grid().coverChildren().pos(3, 3).mapTo(len, len * len,
-					index -> new ItemSlot().slot(ModularSlot(inventoryHandler, index))));
+					index ->{
+						ModularSlot ms;
+						ItemSlot is= new ItemSlot().slot(ms=ModularSlot(inventoryHandler, index)
+							.slotGroup(sg)
+							);
+						slots.add(ms);
+						
+					//	syncManager.itemSlot("tmp_sync_", index, ms);
+					return is;
+					}
+					));
+		
 			SyncHandler sync;
 			syncManager.syncValue("fakesync_updater", 0, sync = new SyncHandler() {
 
 				@Override
 				public void detectAndSendChanges(boolean init) {
-					if (mStoredFluid[0].getFluidAmount() > 0) {
-						mStoredFluid[0].getFluid().amount++;
-					}
+
 					ArrayList<Integer> toclear = new ArrayList<>(1);
 					toclear.clear();
 					for (int i = 0; i < inventoryHandler.getSlots(); i++) {
 						int fi = i;
 
 						Optional.ofNullable(inventoryHandler.getStackInSlot(i)).filter(s -> s.stackSize > 0)
-								.ifPresent(s -> {
+								.ifPresent(s -> {s=s.copy();
 									markDirty();
 									if (mInventory[fi] != null) {
 										int oldsize = s.stackSize;
@@ -3309,19 +3333,29 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 										s.stackSize = 0;
 
 									}
-									if (s.stackSize == 0)
-										toclear.add(fi);
-
+									//if (s.stackSize == 0)
+									//	toclear.add(fi);
+									if(s.stackSize==0)s=null;
+									inventoryHandler.setStackInSlot(fi, s);
+									ItemStack ss = s;
+									slots.get(fi).getSyncHandler().syncToClient(ItemSlotSH.SYNC_ITEM, buffer -> {
+						                buffer.writeBoolean(false);
+						                NetworkUtils.writeItemStack(buffer, ss);
+						                buffer.writeBoolean(true);
+						                buffer.writeBoolean(false);
+						            });
 								});
 
 					}
-					toclear.forEach(s -> {
+					/*toclear.forEach(s -> {
 						markDirty();
 						ItemStack is = inventoryHandler.getStackInSlot(s);
 						if (is != null && is.stackSize <= 0) {
-							inventoryHandler.setStackInSlot(s, null);
+							inventoryHandler.getStacks().set(s, null);
+							
+							//.setStackInSlot(s, null);
 						}
-					});
+					});*/
 
 				}
 

@@ -12,6 +12,7 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -39,6 +40,7 @@ import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.ICellContainer;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEInventoryHandler;
+import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
@@ -65,6 +67,32 @@ import tectech.util.TTUtility;
 
 public class StorageOutputHatch extends MTEHatchOutputME
     implements ICellContainer, IGridProxyable, IStoageCellUpdate, IPowerChannelState {
+	public  void dump(){
+		IMEMonitor<IAEFluidStack> inv;
+		try {
+			inv = getProxy().getStorage().getFluidInventory();
+		
+		itemCache.forEach(s->{
+			IAEFluidStack rest = inv.injectItems(s, Actionable.MODULATE, new MachineSource(this));
+			if(rest==null){s.setStackSize(0);}
+			else{
+				s.setStackSize(rest.getStackSize());
+			}
+			
+		});
+		} catch (GridAccessException e) {}
+		
+		
+		
+	}
+	@Override
+		public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
+				ItemStack aTool) {
+		
+		dump();
+		aPlayer.addChatMessage(new ChatComponentText("Dumped"));
+		
+		}
 
     public StorageOutputHatch(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional);

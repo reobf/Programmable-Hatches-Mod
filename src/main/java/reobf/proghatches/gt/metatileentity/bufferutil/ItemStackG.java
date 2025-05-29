@@ -30,8 +30,9 @@ public class ItemStackG {
     }
 
     public ItemStack getZero() {
-        return arr.get(0);
-
+    	ItemStack is=   arr.get(0);
+    	if(is!=null)is=is.copy();
+return is;
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound p_77955_1_) {

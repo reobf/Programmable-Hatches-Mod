@@ -9,7 +9,7 @@ public class StackTraceUtil {
 
     public static String getCallerMethod(int index) {
 
-        // if(un!=null)return un.apply(index);
+         if(un!=null)return un.apply(index);
         return getMethodFallback(index);
     }
 

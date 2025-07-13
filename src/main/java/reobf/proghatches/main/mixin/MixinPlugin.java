@@ -2,6 +2,7 @@ package reobf.proghatches.main.mixin;
 
 import static java.nio.file.Files.walk;
 
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,6 +23,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.chunk.storage.RegionFile;
+import net.minecraft.world.chunk.storage.RegionFileCache;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,7 +40,12 @@ import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import reobf.proghatches.main.MyMod;
 
 public class MixinPlugin implements IMixinConfigPlugin {
-
+static{
+	
+	
+	
+      
+}
     public MixinPlugin() {
         System.out.println("xx");
 
@@ -196,6 +206,7 @@ public static boolean loaded;
         retLate.add("part2.MixinContextNoCircuitCache");
         retLate.add("part2.MixinExtractIntercept");
         retLate.add("part2.MixinMUI2CircuitSlot");
+        retLate.add("part2.MixinCountPassthrough");
         //retLate.add("part2.x");
         //retLate.add("part2.MixinCraftRevive");
         if (FMLLaunchHandler.side()

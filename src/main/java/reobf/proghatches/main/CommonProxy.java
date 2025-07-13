@@ -24,6 +24,7 @@ import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockAutoFillerMKII;
 import reobf.proghatches.ae.BlockCraftingCondenser;
 import reobf.proghatches.ae.BlockCyclicPatternSubmitter;
+import reobf.proghatches.ae.BlockFluidDiscretizerMKII;
 import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
 import reobf.proghatches.ae.BlockOrbSwitcher;
 import reobf.proghatches.ae.BlockRequestTunnel;
@@ -38,6 +39,7 @@ import reobf.proghatches.ae.ItemPartSubnetExciter;
 import reobf.proghatches.ae.TileAutoFillerMKII;
 import reobf.proghatches.ae.TileCraftingCondenser;
 import reobf.proghatches.ae.TileCyclicPatternSubmitter;
+import reobf.proghatches.ae.TileFluidDiscretizerMKII;
 import reobf.proghatches.ae.TileMolecularAssemblerInterface;
 import reobf.proghatches.ae.TileOrbSwitcher;
 import reobf.proghatches.ae.TileRequestTunnel;
@@ -110,6 +112,7 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(TileMolecularAssemblerInterface.class, "proghatches.ma_inface");
         GameRegistry.registerTileEntity(TileStockingCircuitRequestInterceptor.class, "proghatches.circuit_interceptor");
         GameRegistry.registerTileEntity(TileAutoFillerMKII.class, "proghatches.autofillerMKII");
+        GameRegistry.registerTileEntity(TileFluidDiscretizerMKII.class, "proghatches.fluidDiscretizerMKII");
         GameRegistry.registerTileEntity(TileGTHatchConfigurator.class, "proghatches.configurator");
         GameRegistry.registerTileEntity(TileRequestTunnel.class, "proghatches.request_tunnel");
         GameRegistry.registerTileEntity(TileOrbSwitcher.class, "proghatches.orb_switcher");
@@ -290,6 +293,11 @@ public class CommonProxy {
             ItemBlockTooltip.class,
             "autofillerMKII",
             new Object[] { "" });
+        /*GameRegistry.registerBlock(
+                MyMod.fd = new BlockFluidDiscretizerMKII(),
+                ItemBlockTooltip.class,
+                "fluidDiscretizerMKII",
+                new Object[] { "" });*/
         GameRegistry.registerBlock(
             MyMod.orbswitcher = new BlockOrbSwitcher(),
             ItemBlockTooltip.class,

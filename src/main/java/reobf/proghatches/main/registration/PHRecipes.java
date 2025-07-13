@@ -21,6 +21,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -2157,6 +2158,9 @@ public class PHRecipes implements Runnable {
                 .getRecipeList()
                 .add(rec);
 
+            
+            FurnaceRecipes.smelting().func_151394_a(new ItemStack(ItemAndBlockHolder.DISCRETIZER), new ItemStack(MyMod.fd), 10);
+         
     }
 
 }

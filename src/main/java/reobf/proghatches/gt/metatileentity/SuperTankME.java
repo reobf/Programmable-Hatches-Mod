@@ -334,7 +334,7 @@ public class SuperTankME extends MTEHatch
             updateFilter = s -> this.setPartitionList(new PrecisePriorityList(s));
         }
     };
-    IMEMonitor handler0x = new MEMonitorHandler(handler);
+    //IMEMonitor handler0x = new MEMonitorHandler(handler);
 
     boolean sticky;
     int piority;

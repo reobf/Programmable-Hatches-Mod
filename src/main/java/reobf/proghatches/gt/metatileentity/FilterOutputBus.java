@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 
+import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -77,7 +78,7 @@ public class FilterOutputBus extends MTEHatchOutputBus {
 
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-        if (aBaseMetaTileEntity.isClientSide() && GTClient.changeDetected == 4) {
+        if (aBaseMetaTileEntity.isClientSide() && ((GTClient) GTMod.proxy).changeDetected() == 4) {
             aBaseMetaTileEntity.issueTextureUpdate();
         }
         if (aBaseMetaTileEntity.isServerSide() && aBaseMetaTileEntity.isAllowedToWork() && (aTick & 0x7) == 0) {

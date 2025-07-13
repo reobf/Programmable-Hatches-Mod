@@ -801,3 +801,7 @@ item.proghatch_badge.tooltips.2=MUI2 support is still in progress! Might be inco
 item.proghatch_badge.tooltips=3
 programmable_hatches.gt.restrictToInt.0=Set buffer capacity to Integer.MAX
 programmable_hatches.gt.restrictToInt.1=instead of Long.MAX
+tile.proghatches.fluidDiscretizerMKII.name=Fluid Discretizer MK.II
+tile.proghatches.fluidDiscretizerMKII.tooltip.0=The fluid drops discretized by this device
+tile.proghatches.fluidDiscretizerMKII.tooltip.1=is only accessible to devices in the SAME network!
+tile.proghatches.fluidDiscretizerMKII.tooltip.2=That's to say, ME Interface + Storage Bus will not passthrough the drops.

@@ -31,7 +31,9 @@ public class TileStockingCircuitRequestInterceptor extends AENetworkTile {
         if (type == 1 && mark[0] != null) {
             return !stack.equals(mark[0]);
         }
-
+        if (type == 2) {
+            return true;
+        }
         return true;
     }
 

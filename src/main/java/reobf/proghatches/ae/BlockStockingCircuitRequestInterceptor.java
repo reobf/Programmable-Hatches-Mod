@@ -29,6 +29,7 @@ public class BlockStockingCircuitRequestInterceptor extends BlockContainer imple
     @Override
     public void getSubBlocks(Item itemIn, CreativeTabs tab, List list) {
         list.add(new ItemStack(itemIn, 1, 1));
+        //list.add(new ItemStack(itemIn, 1, 2));
         super.getSubBlocks(itemIn, tab, list);
     }
 
@@ -80,9 +81,12 @@ public class BlockStockingCircuitRequestInterceptor extends BlockContainer imple
             l.add(StatCollector.translateToLocal("proghatch.circuit_interceptor.tooltip.1.0"));
             l.add(StatCollector.translateToLocal("proghatch.circuit_interceptor.tooltip.1.1"));
 
-        } else {
+        } else  if (p_77624_1_.getItemDamage() == 0){
             l.add(StatCollector.translateToLocal("proghatch.circuit_interceptor.tooltip.0"));
             l.add(StatCollector.translateToLocal("proghatch.circuit_interceptor.tooltip.1"));
+        } else  if (p_77624_1_.getItemDamage() == 2){
+        	
+        	
         }
 
     }
@@ -91,6 +95,9 @@ public class BlockStockingCircuitRequestInterceptor extends BlockContainer imple
     public String getName(ItemStack p_77624_1_) {
         if (p_77624_1_.getItemDamage() == 1) {
             return "tile.proghatches.circuit_interceptor.1";
+        }
+        if (p_77624_1_.getItemDamage() == 2) {
+            return "tile.proghatches.circuit_interceptor.2";
         }
         return null;
     }

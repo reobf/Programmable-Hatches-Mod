@@ -1,5 +1,10 @@
 package reobf.proghatches.main;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
@@ -9,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
+import java.util.zip.GZIPInputStream;
 
 import javax.annotation.Nullable;
 
@@ -22,10 +28,13 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.Achievement;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.storage.RegionFile;
+import net.minecraft.world.chunk.storage.RegionFileCache;
 import net.minecraftforge.common.AchievementPage;
 import net.minecraftforge.common.IExtendedEntityProperties;
 import net.minecraftforge.common.MinecraftForge;
@@ -84,10 +93,12 @@ import kotlin.jvm.functions.Function1;
 import li.cil.oc.api.Driver;
 import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockAutoFillerMKII;
+import reobf.proghatches.ae.BlockFluidDiscretizerMKII;
 import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
 import reobf.proghatches.ae.BlockOrbSwitcher;
 import reobf.proghatches.ae.BlockRequestTunnel;
 import reobf.proghatches.ae.PartMAP2P;
+import reobf.proghatches.ae.part2.ICacheFD;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.block.ChunkTrackingGridCahce;
 import reobf.proghatches.block.TileIOHub;
@@ -169,7 +180,24 @@ public class MyMod {
     }
 
     static {
+    	
+    	
+    	/*DataInputStream datainputstream = RegionFileCache.getChunkInputStream(new File("C:\\Users\\zyf\\Documents\\Tencent Files\\2215595288\\FileRecv\\a"), 0, -1);
 
+        
+
+        try {
+    		NBTTagCompound nbttagcompound = CompressedStreamTools.read(datainputstream);
+    		System.out.println(nbttagcompound);
+    	} catch (IOException e1) {
+    	
+    		e1.printStackTrace();
+    	}
+
+     */
+          
+          
+          
         //
         if (MixinPlugin.loaded == false) {
             LOG.fatal("!!!ERROR!!!");
@@ -262,7 +290,7 @@ public class MyMod {
     @Mod.EventHandler
 
     public void preInit(FMLPreInitializationEvent event) {
-        FluidConvertingInventoryAdaptor.class.getFields();
+       // FluidConvertingInventoryAdaptor.class.getFields();
         net.registerMessage(new OpenPartGuiMessage.Handler(), OpenPartGuiMessage.class, 0, Side.CLIENT);
         net.registerMessage(new PriorityMessage.Handler(), PriorityMessage.class, 1, Side.SERVER);
         net.registerMessage(new RenameMessage.Handler(), RenameMessage.class, 2, Side.SERVER);
@@ -356,7 +384,7 @@ public class MyMod {
                 ev.setCanceled(true);
                 if (ev.world.isRemote) {
                     ev.entityPlayer.displayGUIBook(
-                        tutorial(
+                        tutorialD(
                             Items.written_book,
                             ev.entityPlayer.getHeldItem()
                                 .getTagCompound()
@@ -420,6 +448,9 @@ public class MyMod {
 
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
+        appeng.core.Api.INSTANCE.registries().gridCache().registerGridCache
+        (ICacheFD.class, ICacheFD.CacheFD.class);
+        
         // API.addRecipeCatalyst(new ItemStack(Items.glowstone_dust), "smelting");
         OreDictionary.registerOre("ph:circuit", new ItemStack(progcircuit, 1, OreDictionary.WILDCARD_VALUE));
         {
@@ -638,7 +669,42 @@ public class MyMod {
         // event.registerServerCommand(new CommandAnchor2());
         event.registerServerCommand(new CommandMUI2());
     }
+    public static ItemStack tutorialD() {
+        return tutorial(book, "programmable_hatches.tutorial");
+    }
 
+    public static ItemStack tutorialD(Item it) {
+        return tutorial(book, "programmable_hatches.tutorial");
+
+    }
+
+    public static ItemStack tutorialD(String key) {
+        return tutorial(book, key);
+    }
+
+    public static ItemStack tutorialD(Item it, String key) {
+
+        ArrayList<String> pages = new ArrayList<>();
+        int size = Integer.valueOf(LangManager.translateToLocalFormatted(key + ".pages"));
+        for (int i = 0; i < size; i++) {
+            /* System.out.println(LangManager.translateToLocalFormatted(key +
+             ".pages." + i));*/
+            pages.add(
+                LangManager.translateToLocalFormatted(key + ".pages." + i)
+                    .replace("\\n", "\n"));
+        }
+        ItemStack is = ProghatchesUtil.getWrittenBook(
+            it,
+            "ProgrammableHatchesTutorial",
+            key,
+            "programmable_hatches",
+            pages.toArray(new String[0])
+            );if(is.stackTagCompound==null)
+        is.stackTagCompound=new NBTTagCompound();
+        is.stackTagCompound.setString("proghatchesSpecialTag", "true");
+        return is;
+
+    }
     public static ItemStack tutorial() {
         return tutorial(book, "programmable_hatches.tutorial");
     }
@@ -668,7 +734,9 @@ public class MyMod {
             "ProgrammableHatchesTutorial",
             key,
             "programmable_hatches",
-            pages.toArray(new String[0]));
+            new String[0]//pages.toArray(new String[0])
+            );if(is.stackTagCompound==null)
+        is.stackTagCompound=new NBTTagCompound();
         is.stackTagCompound.setString("proghatchesSpecialTag", "true");
         return is;
 
@@ -869,6 +937,8 @@ public class MyMod {
     public static Item part_cow;
     public static Item fixer2;
 	public static Item badge;
+
+	public static BlockFluidDiscretizerMKII fd;
 
     @SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
     public void pretick(final TickEvent.ServerTickEvent event) {

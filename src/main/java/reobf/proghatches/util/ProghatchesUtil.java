@@ -168,7 +168,7 @@ public class ProghatchesUtil {
         if (isStringInvalid(aMapping)) return null;
         ItemStack rStack = null;// GregTechAPI.sBookList.get(aMapping);
         if (rStack != null) return copyAmount(1, rStack);
-        if (isStringInvalid(aTitle) || isStringInvalid(aAuthor) || aPages.length == 0) return null;
+       // if (isStringInvalid(aTitle) || isStringInvalid(aAuthor) || aPages.length == 0) return null;
         // sBookCount++;
         rStack = new ItemStack(it, 1);
         NBTTagCompound tNBT = new NBTTagCompound();

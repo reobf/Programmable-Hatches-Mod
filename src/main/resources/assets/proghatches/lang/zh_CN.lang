@@ -799,3 +799,7 @@ item.proghatch_badge.tooltips.2=MUI2适配尚未完成!可能有bug或者缺失�
 item.proghatch_badge.tooltips=3
 programmable_hatches.gt.restrictToInt.0=将缓冲容量限制为Integer.MAX
 programmable_hatches.gt.restrictToInt.1=而不是Long.MAX
+tile.proghatches.fluidDiscretizerMKII.name=流体离散器  MK.II
+tile.proghatches.fluidDiscretizerMKII.tooltip.0=由这个设备离散化的液滴只能被
+tile.proghatches.fluidDiscretizerMKII.tooltip.1=同网络的其他设备所访问
+tile.proghatches.fluidDiscretizerMKII.tooltip.2=换而言之,液滴不会通过ME接口+存储总线的途径被其他子网访问

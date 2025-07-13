@@ -151,8 +151,8 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
         private final AppEngInternalAEInventory config = new Disabled0(this, NUMBER_OF_CONFIG_SLOTS);
         private final AppEngInternalInventory storage = new Disabled1(this, NUMBER_OF_CONFIG_SLOTS);
 
-        public IInventory getStorage() {
-            return config;
+        public AppEngInternalInventory getStorage() {
+            return storage;
         };
 
         public AppEngInternalAEInventory getConfig() {

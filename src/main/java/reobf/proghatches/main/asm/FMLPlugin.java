@@ -11,12 +11,14 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 @IFMLLoadingPlugin.MCVersion("1.7.10")
 @IFMLLoadingPlugin.Name("PHCoreMod")
-public class FMLPlugin implements IEarlyMixinLoader, IFMLLoadingPlugin {
+public class FMLPlugin implements /*IEarlyMixinLoader,*/ IFMLLoadingPlugin {
 
     @Override
     public String[] getASMTransformerClass() {
         System.out.println("xxxxxxxxxxxxxxxx");
-        return new String[] { EUInterfaceTransformer.class.getName(), AEItemTransformer.class.getName(),
+        return new String[] {
+        		
+        		EUInterfaceTransformer.class.getName(), AEItemTransformer.class.getName(),
             AEItemTransformer2.class.getName(), MUITransformer.class.getName(),
             // DataCopyableTransformer.class.getName(),
             MFUTransformer.class.getName()
@@ -48,13 +50,13 @@ public class FMLPlugin implements IEarlyMixinLoader, IFMLLoadingPlugin {
         return null;
     }
 
-    @Override
+    //@Override
     public String getMixinConfig() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    @Override
+    //@Override
     public List<String> getMixins(Set<String> loadedCoreMods) {
 
         return new ArrayList<>();

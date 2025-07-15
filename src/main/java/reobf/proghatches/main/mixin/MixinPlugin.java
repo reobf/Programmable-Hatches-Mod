@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -23,10 +23,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import net.minecraft.launchwrapper.Launch;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.chunk.storage.RegionFile;
-import net.minecraft.world.chunk.storage.RegionFileCache;
+
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,10 +31,10 @@ import org.spongepowered.asm.lib.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
-import com.gtnewhorizon.gtnhmixins.MinecraftURLClassPath;
+//import com.gtnewhorizon.gtnhmixins.MinecraftURLClassPath;
 
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
-import reobf.proghatches.main.MyMod;
+
 
 public class MixinPlugin implements IMixinConfigPlugin {
 static{
@@ -241,86 +238,9 @@ public static boolean loaded;
 
     }
 
-    public static boolean hasTrait(Path p, Map<String, String> classTrait) {
-        
-        try (ZipInputStream zs = new ZipInputStream(Files.newInputStream(p))) {
+    
 
-            ZipEntry entry = null;
-            while ((entry = zs.getNextEntry()) != null) {
-                String entryName = entry.getName();
-
-                
-                boolean bingo = false;
-                if (classTrait.remove(entryName) != null) {
-
-                    bingo = true;
-                }
-
-                zs.closeEntry();
-                if (bingo) {
-                    return bingo;
-                }
-
-            }
-
-        } catch (Exception e) {
-            return false;
-        }
-        return false;
-
-    }
-
-    private boolean loadJarOf(Map<String, String> classTrait) {
-        if (classTrait.isEmpty()) return true;
-        try {
-            List<File> jarl = findJarOf(classTrait);
-
-            classTrait.forEach((a, b) -> {
-                LOG.info("Jar not found for " + b + ", are you in dev environment?");
-
-            });
-
-            List<URL> url = Arrays.asList(Launch.classLoader.getURLs());
-            for (File jar : jarl) {
-
-                LOG.info("Attempting to add " + jar + " to the URL Class Path");
-
-                if (!jar.exists()) {
-                    throw new FileNotFoundException(jar.toString());
-                }
-
-                if (/*
-                     * !MinecraftURLClassPath.findJarInClassPath(
-                     * com.google.common.io.Files.getNameWithoutExtension(jar.getName()))&&
-                     */
-                !url.contains(
-                    jar.toURI()
-                        .toURL())) {
-                    MinecraftURLClassPath.addJar(jar);
-                    LOG.info("Not in URL Class Path, adding now.");
-                } else {
-                    LOG.info("Already in URL Class Path ... pass.");
-                }
-            }
-
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public static final Logger LOG = LogManager.getLogger(MyMod.MODID + "Mixin");
-    private static final Path MODS_DIRECTORY_PATH = new File(Launch.minecraftHome, "mods/").toPath();
-
-    public static List<File> findJarOf(final Map<String, String> classTrait) {
-        try {
-            return walk(MODS_DIRECTORY_PATH).filter(s -> { return hasTrait(s, classTrait); })
-                .map(Path::toFile)
-                .collect(Collectors.toList());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+    public static final Logger LOG = LogManager.getLogger("PHMixin");
+    
+ 
 }

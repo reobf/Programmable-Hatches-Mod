@@ -938,7 +938,7 @@ public class MyMod {
     public static Item fixer2;
 	public static Item badge;
 
-	public static BlockFluidDiscretizerMKII fd;
+	//public static BlockFluidDiscretizerMKII fd;
 
     @SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
     public void pretick(final TickEvent.ServerTickEvent event) {

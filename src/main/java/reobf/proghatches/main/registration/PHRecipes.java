@@ -2159,7 +2159,7 @@ public class PHRecipes implements Runnable {
                 .add(rec);
 
             
-            FurnaceRecipes.smelting().func_151394_a(new ItemStack(ItemAndBlockHolder.DISCRETIZER), new ItemStack(MyMod.fd), 10);
+           // FurnaceRecipes.smelting().func_151394_a(new ItemStack(ItemAndBlockHolder.DISCRETIZER), new ItemStack(MyMod.fd), 10);
          
     }
 

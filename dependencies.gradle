@@ -36,7 +36,7 @@
 
 dependencies {
 
-  api('com.github.GTNewHorizons:GT5-Unofficial:5.09.51.382:dev')
+  api('com.github.GTNewHorizons:GT5-Unofficial:5.09.51.389:dev')
   
   api("com.github.GTNewHorizons:StructureLib:1.4.0:dev")
     api("net.industrial-craft:industrialcraft-2:2.2.828-experimental:dev")
@@ -49,9 +49,9 @@ dependencies {
     
     
     api("com.github.GTNewHorizons:waila:1.8.2:dev")
-    api("com.github.GTNewHorizons:Applied-Energistics-2-Unofficial:rv3-beta-649-GTNH:dev")
+    api("com.github.GTNewHorizons:Applied-Energistics-2-Unofficial:rv3-beta-658-GTNH:dev")
     //api("com.github.GTNewHorizons:AE2FluidCraft-Rework:1.4.42-gtnh:dev")
-    api("com.github.GTNewHorizons:AE2FluidCraft-Rework:1.4.99-gtnh:dev")
+    api("com.github.GTNewHorizons:AE2FluidCraft-Rework:1.4.100-gtnh:dev")
    api("com.github.GTNewHorizons:ae2stuff:0.9.5-GTNH:dev")
     api('com.github.GTNewHorizons:Yamcl:0.6.0:dev')
     api("com.github.GTNewHorizons:Postea:1.0.13:dev")

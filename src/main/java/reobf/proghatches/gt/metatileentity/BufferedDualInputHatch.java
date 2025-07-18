@@ -1834,7 +1834,11 @@ public class BufferedDualInputHatch extends DualInputHatch
 	LinkedList<PatternDualInv> toDisconnect = new LinkedList<PatternDualInv>();
 
 	public class PatternDualInv implements IDualInputInventoryWithPattern {
-
+		@Override
+		public boolean shouldBeCached() {
+		
+			return useNewGTPatternCache;
+		}
 		public BufferedDualInputHatch parent() {
 			return BufferedDualInputHatch.this;
 		}
@@ -2640,10 +2644,13 @@ public class BufferedDualInputHatch extends DualInputHatch
 			for (int i : detailmap.values()) {
 
 				try {
-					if (m == null)
+					/*if (m == null)
 						m = ProcessingLogic.class.getDeclaredMethod("clearCraftingPatternRecipeCache",
-								IDualInputInventory.class);
-					m.invoke(pl, new PatternDualInv(i));
+								IDualInputInventory.class);*/
+					pl.removeInventoryRecipeCache(new PatternDualInv(i));
+					
+				//	m.invoke(pl, new PatternDualInv(i));
+					
 				} catch (Exception e) {
 					fail = true;
 				}

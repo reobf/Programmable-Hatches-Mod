@@ -448,8 +448,8 @@ public class MyMod {
 
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
-        appeng.core.Api.INSTANCE.registries().gridCache().registerGridCache
-        (ICacheFD.class, ICacheFD.CacheFD.class);
+        /*appeng.core.Api.INSTANCE.registries().gridCache().registerGridCache
+        (ICacheFD.class, ICacheFD.CacheFD.class);*/
         
         // API.addRecipeCatalyst(new ItemStack(Items.glowstone_dust), "smelting");
         OreDictionary.registerOre("ph:circuit", new ItemStack(progcircuit, 1, OreDictionary.WILDCARD_VALUE));

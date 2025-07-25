@@ -1,4 +1,4 @@
-package reobf.proghatches.gt.metatileentity;
+package reobf.proghatches.gt.metatileentity.meinput;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -129,12 +129,18 @@ public class PriorityFilterInputBusME extends MTEHatchInputBusME
                 // if(all.findPrecise(currItem)!=null){continue;}
                 if (currItem.getStackSize() >= minPull) {
                     ItemStack itemstack = GTUtility.copyAmount(1, currItem.getItemStack());
-                    this.mInventory[index] = itemstack;
+                    
+                    
+                    MEHatchRefactor.setConfigItem(this, index, itemstack,currItem.getItemStack());
+                    
+                    
+                    //this.mInventory[index] = itemstack;
                     index++;
                 }
             }
             for (int i = index; i < 16; i++) {
-                mInventory[i] = null;
+            	MEHatchRefactor.setConfigItem(this, i, null,null);
+            	//mInventory[i] = null;
             }
 
         } catch (final GridAccessException ignored) {}
@@ -305,7 +311,8 @@ public class PriorityFilterInputBusME extends MTEHatchInputBusME
                 if (!widget.isClient()) {
 
                     for (int index = 0; index < 16; index++) {
-                        updateInformationSlot(index, mInventory[index]);
+                    	MEHatchRefactor.updateInformationSlot(this, index);
+                        //updateInformationSlot(index, mInventory[index]);
                     }
                 }
             }

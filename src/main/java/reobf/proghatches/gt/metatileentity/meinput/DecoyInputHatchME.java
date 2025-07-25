@@ -1,4 +1,4 @@
-package reobf.proghatches.gt.metatileentity;
+package reobf.proghatches.gt.metatileentity.meinput;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -39,6 +39,7 @@ import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.me.GridAccessException;
+import appeng.me.cache.CraftingGridCache;
 import appeng.me.cache.GridStorageCache;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.util.item.AEFluidStack;
@@ -133,7 +134,7 @@ public class DecoyInputHatchME extends MTEHatchInputME implements IMEHatchOverri
                      * if((hh.getInternal() instanceof MEPassThrough)) continue;
                      * }
                      */
-
+                	if(!(l instanceof CraftingGridCache))
                     orderMap.put(cc.getPriority(), l);
                 }
 
@@ -322,7 +323,8 @@ public class DecoyInputHatchME extends MTEHatchInputME implements IMEHatchOverri
             }
             int index = 0;
             if (keepFirstEmpty) {
-                this.storedFluids[0] = null;
+            	MEHatchRefactor.setConfigFluid(this, index, null,null);
+                //this.storedFluids[0] = null;
                 index++;
 
             }
@@ -332,12 +334,14 @@ public class DecoyInputHatchME extends MTEHatchInputME implements IMEHatchOverri
                 // if(all.findPrecise(currItem)!=null){continue;}
                 if (currItem.getStackSize() >= minPull) {
                     FluidStack itemstack = GTUtility.copyAmount(1, currItem.getFluidStack());
-                    this.storedFluids[index] = itemstack;
+                	MEHatchRefactor.setConfigFluid(this, index, itemstack, currItem.getFluidStack());
+                    //this.storedFluids[index] = itemstack;
                     index++;
                 }
             }
             for (int i = index; i < 16; i++) {
-                storedFluids[i] = null;
+            	MEHatchRefactor.setConfigFluid(this, i, null,null);
+                //storedFluids[i] = null;
             }
 
         } catch (final GridAccessException ignored) {}
@@ -401,7 +405,12 @@ public class DecoyInputHatchME extends MTEHatchInputME implements IMEHatchOverri
                 if (!widget.isClient()) {
 
                     for (int index = 0; index < 16; index++) {
-                        updateInformationSlot(index);
+                        try {
+							updateInformationSlot(index);
+						} catch (Throwable e) {
+						
+							//e.printStackTrace();
+						}
                     }
                 }
             }

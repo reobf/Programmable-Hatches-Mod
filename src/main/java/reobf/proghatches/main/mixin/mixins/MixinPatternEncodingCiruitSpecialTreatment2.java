@@ -52,7 +52,12 @@ public class MixinPatternEncodingCiruitSpecialTreatment2 {
     }
 
     private static List process(List<PositionedStack> c) {
-
+c.stream().forEach(s->{
+	
+	/*System.out.println(s.item);
+	System.out.println(s.relx);
+	System.out.println(s.rely);*/
+});
         AtomicBoolean circuit = new AtomicBoolean(false);
         if (ItemProgrammingToolkit.holding() == false) {
             return c;

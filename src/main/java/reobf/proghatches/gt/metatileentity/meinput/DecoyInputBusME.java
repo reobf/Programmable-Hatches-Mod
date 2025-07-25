@@ -1,4 +1,4 @@
-package reobf.proghatches.gt.metatileentity;
+package reobf.proghatches.gt.metatileentity.meinput;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -38,6 +38,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.me.GridAccessException;
+import appeng.me.cache.CraftingGridCache;
 import appeng.me.cache.GridStorageCache;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.util.item.AEItemStack;
@@ -68,7 +69,7 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 
     @Override
     public String[] getDescription() {
-
+    	
         return desc;
     }
 
@@ -134,12 +135,12 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
                      * if((hh.getInternal() instanceof MEPassThrough)) continue;
                      * }
                      */
-
+                	if(!(l instanceof CraftingGridCache))
                     orderMap.put(cc.getPriority(), l);
                 }
 
             }
-
+            
             boolean keepFirstEmpty = false;
             if (reserveFirst && orderMap.isEmpty() == false) {
                 if (orderMap.get(
@@ -326,7 +327,8 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
             }
             int index = 0;
             if (keepFirstEmpty) {
-                this.mInventory[0] = null;
+            	MEHatchRefactor.setConfigItem(this, 0, null,null);
+               // this.mInventory[0] = null;
                 index++;
 
             }
@@ -336,12 +338,14 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
                 // if(all.findPrecise(currItem)!=null){continue;}
                 if (currItem.getStackSize() >= minPull) {
                     ItemStack itemstack = GTUtility.copyAmount(1, currItem.getItemStack());
-                    this.mInventory[index] = itemstack;
+                    MEHatchRefactor.setConfigItem(this, index, itemstack,currItem.getItemStack());
+                    //this.mInventory[index] = itemstack;
                     index++;
                 }
             }
             for (int i = index; i < 16; i++) {
-                mInventory[i] = null;
+            	MEHatchRefactor.setConfigItem(this, i, null,null);
+            	//mInventory[i] = null;
             }
 
         } catch (final GridAccessException ignored) {}
@@ -383,7 +387,8 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
                 if (!widget.isClient()) {
 
                     for (int index = 0; index < 16; index++) {
-                        updateInformationSlot(index, mInventory[index]);
+                    	MEHatchRefactor.updateInformationSlot(this, index);
+                    	//updateInformationSlot(index, mInventory[index]);
                     }
                 }
             }
@@ -692,4 +697,6 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 
         return super.pasteCopiedData(player, nbt);
     }
+
+
 }

@@ -1421,6 +1421,26 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
             return TankWorldControl$class.drain(this, arg0, arg1);
         }
 
+	
+
+		@Override
+		public int fluidTransferRate() {
+		
+			return 1;
+		}
+
+		@Override
+		public Object[] getFluidTransferRate(Context arg0, Arguments arg1) {
+		
+			return InventoryTransfer$class.getFluidTransferRate(this, arg0, arg1);
+		}
+
+		@Override
+		public Object[] getItemInNetwork(Context arg0, Arguments arg1) {
+			// TODO Auto-generated method stub
+			return NetworkControl$class.getItemInNetwork(this, arg0, arg1);
+		}
+
         // end of oc
 
     }

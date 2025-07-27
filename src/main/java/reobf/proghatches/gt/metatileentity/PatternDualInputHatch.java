@@ -289,7 +289,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
     }
 
     public int fluidSlots() {
-        return 16;
+        return supportsFluids()?16:0;
 
     }
 

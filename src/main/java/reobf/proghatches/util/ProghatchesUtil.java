@@ -163,7 +163,9 @@ public class ProghatchesUtil {
             aMinMoveAtOnce);
 
     }
-
+    public static boolean isStringInvalid(String aString) {
+        return aString == null || aString.isEmpty();
+    }
     public static ItemStack getWrittenBook(Item it, String aMapping, String aTitle, String aAuthor, String... aPages) {
         if (isStringInvalid(aMapping)) return null;
         ItemStack rStack = null;// GregTechAPI.sBookList.get(aMapping);

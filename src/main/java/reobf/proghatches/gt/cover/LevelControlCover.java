@@ -341,13 +341,15 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
             }
             if (grid == null) {
                 for (ForgeDirection fd : ForgeDirection.VALID_DIRECTIONS) {
-                    ISer dat = coverData;// getCoverData(aTileEntity.getCoverAtSide(fd));
-                    if (dat instanceof AECover.Data) {
+                    @NotNull Cover cv = aTileEntity.getCoverAtSide(fd);//coverData;// getCoverData(aTileEntity.getCoverAtSide(fd));
+                    if (cv instanceof AECover)
+                    {AECover.Data dat = ((AECover)cv).coverData;
+                    	if(dat instanceof AECover.Data) {
                         AECover.Data ae = (reobf.proghatches.eucrafting.AECover.Data) dat;
                         grid = ae.getProxy();
                         if (grid != null) break;
                     }
-
+                    }
                 }
 
             }

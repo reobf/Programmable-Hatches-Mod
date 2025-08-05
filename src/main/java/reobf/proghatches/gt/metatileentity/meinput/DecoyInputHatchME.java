@@ -617,4 +617,9 @@ public class DecoyInputHatchME extends MTEHatchInputME implements IMEHatchOverri
 
         return super.pasteCopiedData(player, nbt);
     }
+    @Override
+    public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src) {
+    	
+    	return  thiz.extractItems(request, mode, src);
+    }
 }

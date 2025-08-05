@@ -16,10 +16,11 @@ public interface IMEHatchOverrided {
     	
     	return  thiz.extractItems(request, mode, src);
     }
-
-	default public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src){
+    public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src)
+    	;
+	/*default public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src){
 		return  this.overridedExtract(thiz,request, mode, src);
 		
 		
-	};
+	};*/
 }

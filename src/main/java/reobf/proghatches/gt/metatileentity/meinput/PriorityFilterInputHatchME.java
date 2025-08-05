@@ -413,5 +413,9 @@ public class PriorityFilterInputHatchME extends MTEHatchInputME
         return this.getProxy()
             .getNode();
     }
-
+    public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src){
+		return  this.overridedExtract(thiz,request, mode, src);
+		
+		
+	}
 }

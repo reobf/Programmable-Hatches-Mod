@@ -670,6 +670,31 @@ public class PHRecipes implements Runnable {
                     GTUtility.getIntegratedCircuit(13))
                 .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
                 .itemOutputs(
+                	new ItemStack(
+                        GregTechAPI.sBlockMachines,
+                        1,
+                        Config.metaTileEntityOffset + Registration.SlaveOffset)
+                    ,new ItemStack(Items.paper).setStackDisplayName("legacy recipe, consider using the cheaper one!")
+                		)
+                .duration(20 * SECONDS)
+                .eut(GTValues.VP[7])
+                .addTo(RecipeMaps.assemblerRecipes);
+
+        });
+        pc0.forEach((s) -> {
+            GTValues.RA.stdBuilder()
+                .itemInputs(
+                		s,
+                		 new ItemStack(
+                                 GregTechAPI.sBlockMachines,
+                                 1,
+                                 Config.metaTileEntityOffset + Registration.BufferedQuadDualInputHatchMKIIOffset+6),
+                		new ItemStack(ItemAndBlockHolder.INTERFACE),
+                		 new ItemStack(GameRegistry.findItem("RIO", "tile.remote_interface")),
+                         new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 0),
+                    GTUtility.getIntegratedCircuit(13))
+                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+                .itemOutputs(
                     new ItemStack(
                         GregTechAPI.sBlockMachines,
                         1,
@@ -679,7 +704,6 @@ public class PHRecipes implements Runnable {
                 .addTo(RecipeMaps.assemblerRecipes);
 
         });
-
         GTValues.RA.stdBuilder()
             .itemInputs(
                 new ItemStack(GameRegistry.findItem("RIO", "tile.remote_interface")),
@@ -1277,7 +1301,26 @@ public class PHRecipes implements Runnable {
             .duration(20 * SECONDS)
             .eut(GTValues.VP[3])
             .addTo(RecipeMaps.assemblerRecipes);
+        
+        GTValues.RA.stdBuilder()
+        .itemInputs(
+            //new ItemStack(GregTechAPI.sBlockMachines, 0, Config.metaTileEntityOffset + 1Registration.SlaveOffset),
+        		Hatch_CraftingInput_Bus_ME.get(0),
+            
+            new ItemStack(GameRegistry.findItem("RIO", "tile.remote_interface")),
+            new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 0),
+            new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 1)
 
+        )
+        .fluidInputs(new FluidStack(TinkerSmeltery.moltenEnderFluid, 1000))
+        .itemOutputs(
+            new ItemStack(
+                GregTechAPI.sBlockMachines,
+                1,
+                Config.metaTileEntityOffset + Registration.MappingSlaveOffset))
+        .duration(20 * SECONDS)
+        .eut(GTValues.VP[3])
+        .addTo(RecipeMaps.assemblerRecipes);
         setScan(GTValues.RA.stdBuilder(), 1 * HOURS).metadata(
             RESEARCH_ITEM,
             new ItemStack(GregTechAPI.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.MappingSlaveOffset))

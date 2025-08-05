@@ -175,9 +175,13 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
                     final IAEItemStack st = this.records.get(option);
 
                     if (st != null) {
-                        if (st.getStackSize() == 0) {
-                            added.add(option.copy());
-                        }
+                        //if (st.getStackSize() == 0) {
+                            //added.add(option.copy());
+                            added.stream().filter(s->s.equals(option)).findAny().ifPresent(s->{
+                            	s.add(option.copy());
+                            	
+                            });;
+                        //}
                         st.add(option);
                         return;
                     }
@@ -218,9 +222,13 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
                     final IAEItemStack st = this.records.get(option);
 
                     if (st != null) {
-                        if (st.getStackSize() == 0) {
+                        /*if (st.getStackSize() == 0) {
                             added.add(option.copy());
-                        }
+                        }*/
+                    	 added.stream().filter(s->s.equals(option)).findAny().ifPresent(s->{
+                         	s.add(option.copy());
+                         	
+                         });;
                         st.incStackSize(option.getStackSize());
                         return;
                     }
@@ -697,10 +705,14 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 
         return super.pasteCopiedData(player, nbt);
     }
+@SuppressWarnings("unchecked")
 @Override
 public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src) {
 	
 	return  thiz.extractItems(request, mode, src);
 }
-
+@Override
+public ItemStack getFirstValidStack(boolean slotsMustMatch) {
+	return super.getFirstValidStack(false);
+}
 }

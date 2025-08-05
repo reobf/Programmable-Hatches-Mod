@@ -692,6 +692,7 @@ public class PHRecipes implements Runnable {
                 		new ItemStack(ItemAndBlockHolder.INTERFACE),
                 		 new ItemStack(GameRegistry.findItem("RIO", "tile.remote_interface")),
                          new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 0),
+                         new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 1),
                     GTUtility.getIntegratedCircuit(13))
                 .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
                 .itemOutputs(

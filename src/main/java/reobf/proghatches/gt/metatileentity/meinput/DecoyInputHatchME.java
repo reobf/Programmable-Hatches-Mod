@@ -1,6 +1,8 @@
 package reobf.proghatches.gt.metatileentity.meinput;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -633,5 +635,21 @@ public class DecoyInputHatchME extends MTEHatchInputME implements IMEHatchOverri
     @Override
     public FluidStack getFirstValidStack(boolean slotsMustMatch) {
     	return super.getFirstValidStack(false);
+    }
+    
+    
+    static Method m;{try {
+		m=MTEHatchInputME.class.getDeclaredMethod("refreshFluidList");
+		m.setAccessible(true);
+	} catch (Exception e) {
+		throw new AssertionError(e);
+	}}
+    @Override
+    public void startRecipeProcessing() {
+    	try {if(autoPullFluidList)
+			m.invoke(this);
+		} catch (Exception e) {throw new AssertionError(e);
+		}
+    	super.startRecipeProcessing();
     }
 }

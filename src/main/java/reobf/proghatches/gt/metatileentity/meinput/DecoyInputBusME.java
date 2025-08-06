@@ -715,4 +715,10 @@ public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode,
 public ItemStack getFirstValidStack(boolean slotsMustMatch) {
 	return super.getFirstValidStack(false);
 }
+@Override
+public void startRecipeProcessing() {
+	if(autoPullItemList)
+	refreshItemList();
+	super.startRecipeProcessing();
+}
 }

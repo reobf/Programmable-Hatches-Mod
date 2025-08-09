@@ -1,5 +1,6 @@
 package reobf.proghatches.gt.metatileentity;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +34,7 @@ import appeng.api.util.DimensionalCoord;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
+import appeng.util.IterationCounter;
 import appeng.util.item.AEItemStack;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
@@ -68,7 +70,7 @@ public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelStat
     public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {
         super.onFirstTick(aBaseMetaTileEntity);
         getProxy().onReady();
-        updateCache();
+        updateCache(null, null);
 
     }
 
@@ -85,12 +87,12 @@ public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelStat
                     public void postChange(IBaseMonitor<IAEItemStack> monitor, Iterable<IAEItemStack> change,
                         BaseActionSource actionSource) {
 
-                        updateCache();
+                        updateCache(monitor,change);
                     }
 
                     @Override
                     public void onListUpdate() {
-                        updateCache();
+                       // updateCache(null, null);
 
                     }
 
@@ -191,7 +193,7 @@ public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelStat
             // System.out.println("power check");
             if (aTick % 400 == 20 || ok != prevOk) {
                 // System.out.println("force update");
-                updateCache();
+                updateCache(null, null);
                 updateValidGridProxySides();
             }
             prevOk = ok;
@@ -200,12 +202,86 @@ public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelStat
         super.onPostTick(aBaseMetaTileEntity, aTick);
     }
 
-    private void updateCache() {
+    private void updateCache(IBaseMonitor<IAEItemStack> monitor, Iterable<IAEItemStack> change) {
         cachedRecipes = null;
         if ((!getProxy().isPowered()) || (!getProxy().isActive())) {
             inv = new ItemStack[] {};
             return;
         }
+        
+        
+        if(change!=null){
+        	List<IAEItemStack> all=new ArrayList<>() ;
+        	List<IAEItemStack> all_r=new ArrayList<>() ;
+        	change.forEach(s->{
+        		
+        		if(s.getStackSize()>0){
+        		    ItemStack is = ItemList.Tool_DataStick.get(1);
+                    if (is.getItem()==s.getItem()&& is.getItemDamage() == s.getItemDamage()) {
+                    	
+                    	try {
+							IAEItemStack get = this.getProxy().getStorage().getItemInventory().getAvailableItem(s, IterationCounter.fetchNewId());
+							if(get.getStackSize()==s.getStackSize())
+							all.add(s);
+                    	} catch (Exception e) {
+						
+						}
+                    	
+                    }
+        			
+        		}else if(s.getStackSize()<0){
+        			
+        			ItemStack is = ItemList.Tool_DataStick.get(1);
+                    if (is.getItem()==s.getItem()&& is.getItemDamage() == s.getItemDamage()) {
+                    	
+                    	try {
+							IAEItemStack get = this.getProxy().getStorage().getItemInventory().getAvailableItem(s);
+							if(get==null||get.getStackSize()==0)
+							all_r.add(s);
+                    	} catch (Exception e) {
+						
+						}
+                    	
+                    }
+        			
+        			
+        			
+        		}
+        		
+        		
+        		
+        	});
+        	if(all_r.isEmpty()&&all.isEmpty()){return;}
+        		ArrayList<ItemStack> neo=new ArrayList<>();
+        		neo.addAll(Arrays.asList(inv));
+        		neo.removeIf(
+        				ele->{
+        					
+        					for(IAEItemStack torem:all_r){
+        						if(torem.equals(ele))return true;
+        					}
+        					return false;
+        				}
+        				);
+        		all.removeIf(
+        				ele->{
+        					
+        					for(ItemStack torem:neo){
+        						if(ele.equals(torem))return true;
+        					}
+        					return false;
+        				});
+        		all.stream().map(sp->sp.getItemStack()).forEach(sp->{
+        			sp.stackSize=1;
+        			neo.add(sp);
+        		});
+        		inv=neo.toArray(new ItemStack[0]);
+        	return;
+        }
+        
+        
+        
+        
         try {
             ArrayList<ItemStack> list = new ArrayList<>(
                 getProxy().getStorage()
@@ -306,7 +382,7 @@ public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelStat
 
     @MENetworkEventSubscribe
     public void storageChange(MENetworkStorageEvent w) {
-        updateCache();
+        //updateCache();
 
     }
 
@@ -368,7 +444,7 @@ public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelStat
     public List<ItemStack> getInventoryItems(Predicate<ItemStack> filter) {
         long thistick = ((BaseMetaTileEntity) this.getBaseMetaTileEntity()).mTickTimer;
         if (Math.abs(lastupdate - thistick) > 100) {
-            updateCache();
+            //updateCache();
             lastupdate = thistick;
         }
         return super_getInventoryItems(filter);
@@ -393,7 +469,7 @@ public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelStat
     public List<RecipeAssemblyLine> getAssemblyLineRecipes() {
         long thistick = ((BaseMetaTileEntity) this.getBaseMetaTileEntity()).mTickTimer;
         if (Math.abs(lastupdate - thistick) > 100) {
-            updateCache();
+            //updateCache();
             lastupdate = thistick;
         }
         if (cachedRecipes == null) {

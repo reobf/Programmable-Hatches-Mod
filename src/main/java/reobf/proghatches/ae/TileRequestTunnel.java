@@ -58,7 +58,7 @@ import reobf.proghatches.ae.part2.RequestTunnel;
 public class TileRequestTunnel extends AENetworkTile
     implements ICraftingMachine, ICraftingRequester, IOrientable, ISidedInventory, IFluidHandler, ITileWithModularUI {
 
-    RequestTunnel internal = new RequestTunnel() {
+    RequestTunnel internal = new RequestTunnel(this) {
 
         public TileRequestTunnel getThis() {
             return TileRequestTunnel.this;

@@ -58,9 +58,9 @@ import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.util.GTUtility;
 
 public abstract class RequestTunnel implements ICraftingMachine, ICraftingRequester, ISidedInventory, IFluidHandler {
-	IActionHost parent;
+	final IActionHost parent;final private BaseActionSource source ;
     public RequestTunnel(IActionHost parent) {
-this.parent=parent;
+this.parent=parent;source = new MachineSource(this.parent);
     }
 
     public ArrayList<ItemStack> cache = new ArrayList<>();
@@ -312,7 +312,7 @@ boolean returnAll=true;
     HashMap<StorageChannel, IMEInventory> inv = new HashMap();
     HashMap<StorageChannel, Integer> handlerHash = new HashMap();
     public ItemStack[] mark = new ItemStack[1];
-    private BaseActionSource source = new MachineSource(this.parent);
+    
 
     ForgeDirection prevDir;
 

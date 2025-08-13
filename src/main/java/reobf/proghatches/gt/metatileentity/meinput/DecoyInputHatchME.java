@@ -1,5 +1,8 @@
 package reobf.proghatches.gt.metatileentity.meinput;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -632,9 +635,44 @@ public class DecoyInputHatchME extends MTEHatchInputME implements IMEHatchOverri
     	
     	return  thiz.extractItems(request, mode, src);
     }
-    @Override
-    public FluidStack getFirstValidStack(boolean slotsMustMatch) {
-    	return super.getFirstValidStack(false);
+	 
+    
+    static MethodHandle getFirstXXXStack;
+    
+    static{
+    	try {
+			getFirstXXXStack=MethodHandles.lookup().findSpecial(
+			        DecoyInputHatchME.class.getSuperclass(),
+			        "getFirstValidStack",
+			        MethodType.methodType(FluidStack.class,boolean.class),
+			        DecoyInputHatchME.class
+			    );
+		} catch (Exception e) {
+		}
+    	try {
+    		if(getFirstXXXStack==null)getFirstXXXStack=MethodHandles.lookup().findSpecial(
+		        DecoyInputHatchME.class.getSuperclass(),
+		        "getFirstShadowFluidStack",
+		        MethodType.methodType(FluidStack.class,boolean.class),
+		        DecoyInputHatchME.class
+		    );
+		
+		} catch (Exception e) {
+		}
+    }
+
+	public FluidStack getFirstValidStack(boolean slotsMustMatch) {
+	
+		try {
+			return (FluidStack) getFirstXXXStack.invoke(false);
+		} catch (Throwable e) {throw new AssertionError(e);
+		}
+	}
+    public FluidStack getFirstShadowFluidStack(boolean slotsMustMatch) {
+    	try {
+			return (FluidStack) getFirstXXXStack.invoke(false);
+		} catch (Throwable e) {throw new AssertionError(e);
+		}
     }
     
     

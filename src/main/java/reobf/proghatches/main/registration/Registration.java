@@ -314,12 +314,12 @@ public class Registration implements Runnable {
 
             (s, tex) -> new AECover(s, InterfaceP2PData.class, tex),
             AECover.placer());
-        registerCover(
+        /*registerCover(
             new ItemStack(MyMod.cover, 1, 36),
             new DeferredGetterTexture(() -> MyMod.block_euinterface, ForgeDirection.UP, 0, Dyes._NULL.mRGBa, false),
 
             (s, tex) -> new AECover(s, InterfaceP2PEUData.class, tex),
-            AECover.placer());
+            AECover.placer());*/
         registerCover(
             new ItemStack(MyMod.cover, 1, 37),
 
@@ -662,7 +662,7 @@ public class Registration implements Runnable {
 
     }
 
-    public class DeferredGetterTexture extends GTCopiedBlockTextureRender {
+    /*public class DeferredGetterTexture extends GTCopiedBlockTextureRender {
 
         private IIcon getIcon(int ordinalSide) {
 
@@ -751,5 +751,5 @@ public class Registration implements Runnable {
             return block.get();
         }
 
-    }
+    }*/
 }

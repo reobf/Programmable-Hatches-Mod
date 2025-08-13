@@ -58,7 +58,7 @@ import reobf.proghatches.ae.part2.RequestTunnel;
 public class TileRequestTunnel extends AENetworkTile
     implements ICraftingMachine, ICraftingRequester, IOrientable, ISidedInventory, IFluidHandler, ITileWithModularUI {
 
-    RequestTunnel internal = new RequestTunnel(this) {
+    RequestTunnel internal = new RequestTunnel(TileRequestTunnel.this) {
 
         public TileRequestTunnel getThis() {
             return TileRequestTunnel.this;
@@ -343,11 +343,32 @@ public class TileRequestTunnel extends AENetworkTile
         internal.jobStateChange(link);
 
     }
-
+    @Override
+    public void invalidate() {
+        super.invalidate();
+        this.getProxy().invalidate();
+    }@Override
+    public void onChunkLoad() {
+    	
+    	super.onChunkLoad();
+    }
+   @Override
+public void onChunkUnload() {
+	   this.getProxy().onChunkUnload();
+	super.onChunkUnload();
+}
+    @Override
+    public void validate() {
+        super.validate();
+        this.getProxy().validate();
+    }
+boolean init;
     @TileEvent(TileEventType.TICK)
     public void update() {
+    	if(!init){init=true;getProxy().onReady();}
+    	
         internal.update();
-
+    	
     }
 
     int mode;
@@ -521,6 +542,11 @@ public class TileRequestTunnel extends AENetworkTile
     public ModularWindow createWindow(UIBuildContext buildContext) {
         // TODO Auto-generated method stub
         return internal.createWindow(buildContext);
+    }
+    @Override
+    public IGridNode getActionableNode() {
+    	// TODO Auto-generated method stub
+    	return super.getActionableNode();
     }
 
 }

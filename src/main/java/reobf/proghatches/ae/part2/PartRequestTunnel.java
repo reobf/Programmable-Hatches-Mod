@@ -180,7 +180,7 @@ public class PartRequestTunnel extends PartBasicState
 
     }
 
-    RequestTunnel internal = new RequestTunnel(this) {
+    RequestTunnel internal = new RequestTunnel(PartRequestTunnel.this) {
 
         public PartRequestTunnel getThis() {
             return PartRequestTunnel.this;

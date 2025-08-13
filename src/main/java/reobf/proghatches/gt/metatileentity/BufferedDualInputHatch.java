@@ -1505,7 +1505,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 				append.init(this.mInventory.length - 1, this.mStoredFluid.length);
 				inv0.get(i).fromTag(tag);
 			}
-		}
+		}autoAppend=aNBT.getBoolean("autoAppend");
 		CMMode = aNBT.getBoolean("CMMode");
 		merge = aNBT.getBoolean("merge");
 		justHadNewItems = aNBT.getBoolean("justHadNewItems");
@@ -1548,7 +1548,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		aNBT.setBoolean("justHadNewItems", justHadNewItems);
 		aNBT.setBoolean("updateEveryTick", updateEveryTick);
 		aNBT.setBoolean("useNewGTPatternCache", useNewGTPatternCache);
-
+		aNBT.setBoolean("autoAppend", autoAppend);
 		aNBT.setInteger("preventSleep", preventSleep);
 		aNBT.setInteger("currentID", currentID);
 		int i = 0;

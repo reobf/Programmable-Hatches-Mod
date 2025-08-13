@@ -1,5 +1,8 @@
 package reobf.proghatches.gt.metatileentity.meinput;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +21,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidStack;
 
 import com.glodblock.github.common.item.ItemFluidDrop;
 import com.google.common.collect.ImmutableMap;
@@ -705,15 +709,50 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 
         return super.pasteCopiedData(player, nbt);
     }
+    
+    static MethodHandle getFirstXXXStack;
+    
+    static{
+    	try {
+			getFirstXXXStack=MethodHandles.lookup().findSpecial(
+			        DecoyInputBusME.class.getSuperclass(),
+			        "getFirstValidStack",
+			        MethodType.methodType(ItemStack.class,boolean.class),
+			        DecoyInputBusME.class
+			    );
+		} catch (Exception e) {
+		}
+    	try {
+    		if(getFirstXXXStack==null)getFirstXXXStack=MethodHandles.lookup().findSpecial(
+    				DecoyInputBusME.class.getSuperclass(),
+		        "getFirstShadowItemStack",
+		        MethodType.methodType(ItemStack.class,boolean.class),
+		        DecoyInputBusME.class
+		    );
+		
+		} catch (Exception e) {
+		}
+    }
 @SuppressWarnings("unchecked")
 @Override
 public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src) {
 	
 	return  thiz.extractItems(request, mode, src);
 }
-@Override
+
 public ItemStack getFirstValidStack(boolean slotsMustMatch) {
-	return super.getFirstValidStack(false);
+	
+	try {
+		return (ItemStack) getFirstXXXStack.invoke(false);
+	} catch (Throwable e) {throw new AssertionError(e);
+	}
+}
+
+public ItemStack getFirstShadowItemStack(boolean slotsMustMatch) {
+	try {
+		return (ItemStack) getFirstXXXStack.invoke(false);
+	} catch (Throwable e) {throw new AssertionError(e);
+	}
 }
 @Override
 public void startRecipeProcessing() {

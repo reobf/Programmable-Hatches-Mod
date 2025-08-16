@@ -49,6 +49,7 @@ import com.gtnewhorizons.modularui.api.widget.IWidgetBuilder;
 import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.MultiChildWidget;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.TabButton;
@@ -280,7 +281,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 	}
 
 	public int fluidSlots() {
-		return 16;
+		return supportsFluids()?16:0;
 
 	}
 
@@ -714,7 +715,7 @@ public void refresh(){
 		if(multiplier.length<36)multiplier=new int[36];
 		for(int i=0;i<multiplier.length;i++){
 			multiplier[i]=Math.max(multiplier[i], 1);
-		}
+		} restrictToInt=aNBT.getBoolean("restrictToInt" );
 		updateValidGridProxySides();
 	}
 
@@ -733,6 +734,7 @@ public void refresh(){
 		getProxy().writeToNBT(aNBT);
 		aNBT.setLong("saved", saved);
 		aNBT.setIntArray("multiplier", multiplier);
+		aNBT.setBoolean("restrictToInt", restrictToInt);
 		super.saveNBTData(aNBT);
 	}
 
@@ -1238,15 +1240,17 @@ int m){
 		}
 	}
 
-	public long fluidLimit() {
+	 public boolean restrictToInt;
 
-		return Long.MAX_VALUE;
-	}
+	    public long fluidLimit() {
 
-	public long itemLimit() {
+	        return restrictToInt?Integer.MAX_VALUE:Long.MAX_VALUE;
+	    }
 
-		return Long.MAX_VALUE;
-	}
+	    public long itemLimit() {
+
+	        return restrictToInt?Integer.MAX_VALUE:Long.MAX_VALUE;
+	    }
 
 	boolean createInsertion() {
 		return false;
@@ -1444,5 +1448,20 @@ try{
 
 		return true;
 	}
+	@Override
+	protected Builder createWindowEx(EntityPlayer player) {
+		
+		Builder builder = super.createWindowEx(player);
+		
+		builder.widget(new CycleButtonWidget().setToggle(() -> restrictToInt, (s) -> {
+			restrictToInt = s;
 
+		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(/*TOOLTIP_DELAY*/5)
+				.setPos(3 + 18 * 0, 3 + 18 * 1).setSize(18, 18)
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.restrictToInt.0"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.restrictToInt.1"))
+			);
+		return builder;
+	}
 }

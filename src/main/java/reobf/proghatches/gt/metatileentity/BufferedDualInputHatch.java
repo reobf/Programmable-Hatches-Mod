@@ -1429,7 +1429,7 @@ public long singleSlotLimit(){
             sc.widget(createButtonBuffer(i, 0, 0));
         }
 
-        buildContext.addSyncedWindow(EX_CONFIG, (s) -> createWindowEx(s));
+        buildContext.addSyncedWindow(EX_CONFIG, (s) -> createWindowEx(s).build());
 
         // .setPos(new Pos2d(getGUIWidth() - 18 - 3, 5)).setSize(16, 16)
         builder.widget(
@@ -1540,7 +1540,7 @@ public long singleSlotLimit(){
                 inv0.get(i)
                     .fromTag(tag);
             }
-        }
+        }autoAppend=aNBT.getBoolean("autoAppend");
         CMMode = aNBT.getBoolean("CMMode");
         merge = aNBT.getBoolean("merge");
         justHadNewItems = aNBT.getBoolean("justHadNewItems");
@@ -1584,7 +1584,7 @@ public long singleSlotLimit(){
         aNBT.setBoolean("justHadNewItems", justHadNewItems);
         aNBT.setBoolean("updateEveryTick", updateEveryTick);
         aNBT.setBoolean("useNewGTPatternCache", useNewGTPatternCache);
-
+        aNBT.setBoolean("autoAppend", autoAppend);
         aNBT.setInteger("preventSleep", preventSleep);
         aNBT.setInteger("currentID", currentID);
         int i = 0;
@@ -2574,7 +2574,7 @@ if(ret>64){
         return true;
     }
 
-    protected ModularWindow createWindowEx(final EntityPlayer player) {
+    protected Builder createWindowEx(final EntityPlayer player) {
 
         final int WIDTH = 18 * 6 + 6;
         final int HEIGHT = 18 * 4 + 6;
@@ -2696,7 +2696,7 @@ if(ret>64){
 
         ;
 
-        return builder.build();
+        return builder;
 
     }
 

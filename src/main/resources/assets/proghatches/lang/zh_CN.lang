@@ -790,3 +790,5 @@ proghatches.requesttunnel.stock=仅库存
 item.proghatches.chip.name=提供器升级芯片
 proghatches.chip.tooltips=瞬间完成!
 item.proghatch_circuit_fixer2.name=样板编程器电路标准化工具
+programmable_hatches.gt.restrictToInt.0=将缓冲容量限制为Integer.MAX
+programmable_hatches.gt.restrictToInt.1=而不是Long.MAX

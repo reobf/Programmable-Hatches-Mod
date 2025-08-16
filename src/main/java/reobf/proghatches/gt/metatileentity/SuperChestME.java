@@ -317,15 +317,15 @@ public class SuperChestME extends MTEHatch implements ICellContainer, IGridProxy
 	@Override
 	public ITexture[] getTexturesActive(ITexture aBaseTexture) {
 
-		return new ITexture[] { aBaseTexture, new IIconTexture(ExtraBlockTextures.MEChest.getIcon(), 0xD7BBEC),
-				new IIconTexture(ExtraBlockTextures.BlockMEChestItems_Light.getIcon(), 0xffffff)
+		return new ITexture[] { aBaseTexture,  IIconTexture.genFuckingBridge(ExtraBlockTextures.MEChest.getIcon(), 0xD7BBEC),
+				IIconTexture.genFuckingBridge(ExtraBlockTextures.BlockMEChestItems_Light.getIcon(), 0xffffff)
 
 		};
 	}
 
 	@Override
 	public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
-		return new ITexture[] { aBaseTexture, new IIconTexture(ExtraBlockTextures.MEChest.getIcon(), 0xD7BBEC)
+		return new ITexture[] { aBaseTexture, IIconTexture.genFuckingBridge(ExtraBlockTextures.MEChest.getIcon(), 0xD7BBEC)
 				/*
 				 * , new IIconTexture
 				 * (ExtraBlockTextures.BlockMEChestItems_Light.getIcon(),

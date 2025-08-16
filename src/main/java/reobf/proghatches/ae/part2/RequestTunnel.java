@@ -42,6 +42,7 @@ import appeng.api.networking.crafting.ICraftingLink;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.crafting.ICraftingRequester;
 import appeng.api.networking.security.BaseActionSource;
+import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEMonitor;
@@ -57,9 +58,10 @@ import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.util.GTUtility;
 
 public abstract class RequestTunnel implements ICraftingMachine, ICraftingRequester, ISidedInventory, IFluidHandler {
-
-    public RequestTunnel() {
-
+	final IActionHost parent;
+	final private BaseActionSource source ;
+    public RequestTunnel(IActionHost parent) {
+this.parent=parent;source= new MachineSource(this.parent);
     }
 
     public ArrayList<ItemStack> cache = new ArrayList<>();
@@ -216,7 +218,7 @@ public abstract class RequestTunnel implements ICraftingMachine, ICraftingReques
             IMEMonitor<IAEItemStack> i = getProxy().getStorage()
                 .getItemInventory();
             cache.removeIf(s -> {
-                IAEItemStack left = i.injectItems(AEItemStack.create(s), Actionable.MODULATE, new MachineSource(this));
+                IAEItemStack left = i.injectItems(AEItemStack.create(s), Actionable.MODULATE, new MachineSource(this.parent));
                 if (left == null || left.getStackSize() <= 0) {
                     return true;
                 }
@@ -232,7 +234,7 @@ public abstract class RequestTunnel implements ICraftingMachine, ICraftingReques
                 .getFluidInventory();
             cacheF.removeIf(s -> {
                 IAEFluidStack left = i
-                    .injectItems(AEFluidStack.create(s), Actionable.MODULATE, new MachineSource(this));
+                    .injectItems(AEFluidStack.create(s), Actionable.MODULATE, new MachineSource(this.parent));
                 if (left == null || left.getStackSize() <= 0) {
                     return true;
                 }
@@ -311,7 +313,7 @@ boolean returnAll=true;
     HashMap<StorageChannel, IMEInventory> inv = new HashMap();
     HashMap<StorageChannel, Integer> handlerHash = new HashMap();
     public ItemStack[] mark = new ItemStack[1];
-    private BaseActionSource source = new MachineSource(this);
+    
 
     ForgeDirection prevDir;
 
@@ -409,7 +411,7 @@ boolean returnAll=true;
                                 .beginCraftingJob(
                                     getWorldObj(),
                                     getProxy().getGrid(),
-                                    new MachineSource(this),
+                                    new MachineSource(this.parent),
                                     req,
                                     null);
                             cd += 20;
@@ -417,7 +419,7 @@ boolean returnAll=true;
                     }
                 } else if (job.isDone() && !job.isCancelled()) {
                     last = getProxy().getCrafting()
-                        .submitJob(job.get(), this, null, false, new MachineSource(this));
+                        .submitJob(job.get(), this, null, false, new MachineSource(this.parent));
                     job = null;
                 } else if (job.isCancelled()) {
                     last = null;
@@ -426,7 +428,7 @@ boolean returnAll=true;
             } else {
 
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {e.printStackTrace();}
 
     }
 

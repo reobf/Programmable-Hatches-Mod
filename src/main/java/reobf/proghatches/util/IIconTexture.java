@@ -1,16 +1,96 @@
 package reobf.proghatches.util;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.HashMap;
+
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.util.LightingHelper;
+import gregtech.common.render.GTCopiedBlockTextureRender;
 import gregtech.common.render.GTTextureBase;
 
-public class IIconTexture extends GTTextureBase implements ITexture {
+public class IIconTexture extends GTTextureBaseLegacy implements ITextureLegacy {
+	
+	
+	static ThreadLocal<Integer> captured=new ThreadLocal();
 
+	public static boolean isNew;
+	static{try {
+		Class.forName("gregtech.api.render.SBRContextBase");
+		isNew=true;
+	} catch (ClassNotFoundException e) {
+	}}
+	public static  HashMap<String,Method> mmap=new HashMap();
+	public  static ITexture genFuckingBridge(IIcon aBlock, int rgb){
+		IIconTexture wrapped =new IIconTexture(aBlock, rgb);
+		InvocationHandler handler=new InvocationHandler(){
+			@Override
+			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+				
+				String call=method.getName();
+				if(call.equals("isValidTexture"))return wrapped.isValidTexture();
+				if(call.equals("isOldTexture"))return wrapped.isOldTexture();
+				if(call.equals("startDrawingQuads")){ wrapped.startDrawingQuads((RenderBlocks)args[0], (float)args[1],  (float)args[2],  (float)args[3]);
+				return null;}
+				if(call.equals("draw")){ wrapped.draw((RenderBlocks)args[0]);
+				return null;}
+				
+				if(call.startsWith("render")){
+					Block  b;
+					RenderBlocks r;
+					int x,y,z;
+					if(isNew){
+					Class c=args[0].getClass();
+					 r=(RenderBlocks) c.getField("renderer").get(args[0]);
+					  b=(Block ) c.getField("block").get(args[0]);
+					  x=(int ) c.getField("x").get(args[0]);
+					  y=(int ) c.getField("y").get(args[0]);
+					  z=(int ) c.getField("z").get(args[0]);
+					
+					}else{
+						r=(RenderBlocks) args[0];
+						b=(Block) args[1];
+						x=(int) args[2];
+						y=(int) args[3];
+						z=(int) args[4];
+					}
+					
+					
+					if(call.equals("renderXNeg"))wrapped.renderXNeg(r, b, x, y, z);
+					else if(call.equals("renderYNeg"))wrapped.renderYNeg(r, b, x, y, z);
+					else if(call.equals("renderZNeg"))wrapped.renderZNeg(r, b, x, y, z);
+					else if(call.equals("renderXPos"))wrapped.renderXPos(r, b, x, y, z);
+					else if(call.equals("renderYPos"))wrapped.renderYPos(r, b, x, y, z);
+					else if(call.equals("renderZPos"))wrapped.renderZPos(r, b, x, y, z);
+					
+					
+					
+					return null;
+				}
+				
+				
+				
+				System.out.println(method);
+				throw new AssertionError("bruh");
+			}};
+		
+		
+		
+		Object ret=Proxy.newProxyInstance(IIconTexture.class.getClassLoader(), new Class[]{ITexture.class}, handler);
+				
+		
+		
+		return (ITexture) ret;
+		
+		
+	}
     private final IIcon mBlock;
     // private final byte mSide, mMeta;
     private int rgb;

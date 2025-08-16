@@ -792,3 +792,5 @@ proghatches.requesttunnel.stock=Stocking Only
 item.proghatches.chip.name=Circuit Provider Upgrade Chip
 proghatches.chip.tooltips=Instant complete! 
 item.proghatch_circuit_fixer2.name=Pattern Programming Circuit Normalization Tool
+programmable_hatches.gt.restrictToInt.0=Set buffer capacity to Integer.MAX
+programmable_hatches.gt.restrictToInt.1=instead of Long.MAX

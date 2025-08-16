@@ -222,7 +222,7 @@ public static boolean loaded;
             }
 
         } ;
-
+        retLate.add("part2.MixinFixSolidfier");
         return ret;
 
     }

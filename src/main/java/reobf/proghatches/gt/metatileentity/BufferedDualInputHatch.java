@@ -619,13 +619,16 @@ public class BufferedDualInputHatch extends DualInputHatch
 		}
 
 		public boolean classify(ListeningFluidTank[] fin, ItemStack[] iin, boolean removeInputOnSuccess) {
-
+			boolean enableOpt=true;
+			int indexItem=-1;
+			int indexFluid=-1;
 			boolean hasJob = false;
 			for (int ix = 0; ix < f; ix++) {
 				if (fin[ix].getFluidAmount() > 0) {
 					hasJob = true;
 				}
-				if (fluidEquals(mStoredFluidInternalSingle[ix], fin[ix])) {
+				int result;
+				if (0!=(result=fluidEquals(mStoredFluidInternalSingle[ix], fin[ix]))) {
 					if ((fin[ix].getFluidAmount() > 0 && mStoredFluidInternal[ix].getFluidAmount() > 0)
 							&& !fluidEqualsIngoreAmount(mStoredFluidInternal[ix], fin[ix])) {
 						return false;
@@ -633,6 +636,11 @@ public class BufferedDualInputHatch extends DualInputHatch
 				} else {
 					return false;
 				}
+				//result is not 0 here, 
+				//if result==1 this is a non-empty slot (and might be the last non-empty slot), record it for further optimization
+				//if result==2 this is an empty slot, so ignore it
+
+				if(result==1)indexItem=ix;
 
 			}
 			for (int ix = 0; ix < i; ix++) {
@@ -647,13 +655,18 @@ public class BufferedDualInputHatch extends DualInputHatch
 				} else {
 					return false;
 				}
+				//recorded fluid equals current fluid here
+				//so they are both empty or non-empty, so check one of them will work
+				//if check passes 
+				//this is a non-empty slot (and might be the last non-empty slot), record it for further optimization
+				if(mStoredItemInternalSingle[ix]!=null)indexFluid=ix;
 
 			}
 			if (!hasJob) {
 				return false;
 			}
 
-			for (int ix = 0; ix < f; ix++) {
+			for (int ix = 0; ix < (enableOpt?indexFluid+1:f); ix++) {
 				mStoredFluidInternal[ix].fill(mStoredFluidInternalSingle[ix].getFluid(), true);
 				if (removeInputOnSuccess)
 					fin[ix].setFluidDirect(null);
@@ -661,7 +674,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 					fin[ix].setFluidDirect(fin[ix].getFluid().copy());
 
 			}
-			for (int ix = 0; ix < i; ix++) {
+			for (int ix = 0; ix < (enableOpt?indexItem+1:i); ix++) {
 				if (mStoredItemInternalSingle[ix] != null)
 					if (mStoredItemInternal[ix] == null)
 						mStoredItemInternal[ix] = ItemStackG.neo(mStoredItemInternalSingle[ix].copy());
@@ -1138,18 +1151,23 @@ public class BufferedDualInputHatch extends DualInputHatch
 				.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset + 8).background(background)
 				.build().setPos(3, 3));
 	}
-
+	
 	public void add4by4Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
 		final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
-				offset, 16).id(1);
+				offset, 16*page()).id(1);
 		if (background.length == 0) {
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
-		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 4).startFromSlot(offset)
-				.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset + 15).background(background)
-				.build().setPos(3, 3)
+		final Scrollable scrollable = new Scrollable().setVerticalScroll();
+		scrollable.setSize(18*4, 18*4);
+		scrollable.widget(SlotGroup.ofItemHandler(inventoryHandler, 4).startFromSlot(offset)
+				.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset + 16*page()-1).background(background)
+				.build()
 
 		);
+		builder.widget(scrollable.setPos(3, 3));
+		
+		
 	}
 
 	private Widget createButtonBuffer(int id, int xoffset, int yoffset) {
@@ -2353,17 +2371,25 @@ public class BufferedDualInputHatch extends DualInputHatch
 	 * @Override public FluidStack[] getFluidInputs() { if (f == null) init();
 	 * return f; } }; }) .iterator(); }
 	 */
-	static public boolean fluidEquals(FluidTank a, FluidTank b) {
+	
+	
+	/**
+	 * 2 both null
+	 * 0 not same
+	 * 1 same 
+	 * */
+	static public int fluidEquals(FluidTank a, FluidTank b) {
 		// if(a==b)return false;
 		// if(a==null||b==null)return false;
-		if (a.getFluidAmount() != b.getFluidAmount())
-			return false;
 		if (a.getFluid() == null && b.getFluid() == null)
-			return true;
+			return 2;
+		if (a.getFluidAmount() != b.getFluidAmount())
+			return 0;
+		
 		if (a.getFluid() != null && (!a.getFluid().equals(b.getFluid())))
-			return false;
+			return 0;
 
-		return true;
+		return 1;
 	}
 
 	static public boolean fluidEquals(FluidStack a, FluidStack b) {
@@ -2809,8 +2835,10 @@ public class BufferedDualInputHatch extends DualInputHatch
 			Supplier<com.cleanroommc.modularui.widgets.layout.Grid> genSlots;
 			String sg="slot_group_buffer_"+ind;
 			syncManager.registerSlotGroup(sg, 1);
+			int x=Math.min(3, slotTierOverride(mTier))+1;
+			
 			final MappingItemHandlerG inventoryHandler = new MappingItemHandlerG(inv0.get(ind).mStoredItemInternal,
-					0, slotTierOverride(mTier)*slotTierOverride(mTier)).id(1);
+					0, x*x*page()).id(1);
 			switch (slotTierOverride(mTier)) {
 			case 0:
 				genSlots = () -> gridTemplate1by1(
@@ -2828,7 +2856,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 				fluidslot_pos_index = 2;
 				break;
 			default:
-				genSlots = () -> gridTemplate4by4(
+				genSlots = () -> gridTemplate4by4X(
 						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(3, 3);
 				fluidslot_pos_index = 3;
 			}

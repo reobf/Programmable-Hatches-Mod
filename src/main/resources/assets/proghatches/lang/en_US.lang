@@ -805,3 +805,4 @@ tile.proghatches.fluidDiscretizerMKII.name=Fluid Discretizer MK.II
 tile.proghatches.fluidDiscretizerMKII.tooltip.0=The fluid drops discretized by this device
 tile.proghatches.fluidDiscretizerMKII.tooltip.1=is only accessible to devices in the SAME network!
 tile.proghatches.fluidDiscretizerMKII.tooltip.2=That's to say, ME Interface + Storage Bus will not passthrough the drops.
+hatch.input.buffered.me.name.2=Programmable Crafting Input Buffer MK.II

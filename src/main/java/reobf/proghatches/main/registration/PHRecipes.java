@@ -5,6 +5,7 @@ import static gregtech.api.enums.Materials.*;
 import static gregtech.api.enums.Mods.GTPlusPlus;
 import static gregtech.api.util.GTRecipeBuilder.HOURS;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
+import static gregtech.api.util.GTRecipeConstants.ADDITIVE_AMOUNT;
 import static gregtech.api.util.GTRecipeConstants.FUEL_VALUE;
 import static gregtech.api.util.GTRecipeConstants.RESEARCH_ITEM;
 
@@ -2204,7 +2205,19 @@ public class PHRecipes implements Runnable {
 
             
            // FurnaceRecipes.smelting().func_151394_a(new ItemStack(ItemAndBlockHolder.DISCRETIZER), new ItemStack(MyMod.fd), 10);
-         
+            GTValues.RA.stdBuilder()
+            .itemInputs(
+            		 new ItemStack(
+                             GregTechAPI.sBlockMachines,
+                             2,
+                             Config.metaTileEntityOffset + Registration.PatternOffset))
+            .itemOutputs( new ItemStack(
+                    GregTechAPI.sBlockMachines,
+                    1,
+                    Config.metaTileEntityOffset + Registration.ExPatternOffset))
+            .duration(1)
+            .eut(30*4*4*4*4*4*4).metadata(ADDITIVE_AMOUNT, 64)
+            .addTo(RecipeMaps.implosionRecipes);
     }
 
 }

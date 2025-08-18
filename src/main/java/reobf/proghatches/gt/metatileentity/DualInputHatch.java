@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -1953,7 +1954,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 				SlotGroup.ofItemHandler(inventoryHandler, 3).slotCreator(BaseSlotPatched.newInst(inventoryHandler))
 						.startFromSlot(0).endAtSlot(8).background(background).build().setPos(61, 16));
 	}
-
+	public int page(){return 1;}
 	public void add4by4Slots(ModularWindow.Builder builder, IDrawable... background) {
 		final ItemStackHandler inventoryHandler = getInventoryHandler();
 		if (inventoryHandler == null)
@@ -1962,9 +1963,15 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		if (background.length == 0) {
 			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 		}
-		builder.widget(
+		final Scrollable scrollable = new Scrollable().setVerticalScroll();
+		scrollable.setSize(18*4, 18*4);
+		scrollable.widget(
 				SlotGroup.ofItemHandler(inventoryHandler, 4).slotCreator(BaseSlotPatched.newInst(inventoryHandler))
-						.startFromSlot(0).endAtSlot(15).background(background).build().setPos(52, 7));
+						.startFromSlot(0).endAtSlot(page()*16-1).background(background).build());
+		builder.widget(scrollable.setPos(52, 7));
+	
+	
+	
 	}
 
 	// insertion
@@ -2800,6 +2807,14 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		return  new MUI2Container();
 	}
 	public class MUI2Container {
+		  public  Grid gridTemplate4by4X(IntFunction<IWidget> widgetCreator) {
+		        
+			  
+			  
+			  return new Grid().coverChildren()
+		            .pos(52, 7)
+		            .mapTo(4, 16*page(), widgetCreator);
+		    }
 		public com.cleanroommc.modularui.widgets.CycleButtonWidget createButton2(PanelSyncManager syncManager,String key,IntSupplier getter, IntConsumer setter, com.cleanroommc.modularui.drawable.UITexture back,
 				String tool, int offset,int count) {
 			
@@ -2889,7 +2904,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 				}
 			});*/
 
-			Supplier<com.cleanroommc.modularui.widgets.layout.Grid> genSlots;
+			Supplier<com.cleanroommc.modularui.api.widget.IWidget> genSlots;
 			Supplier<com.cleanroommc.modularui.widgets.layout.Grid> genSlotsFluid;
 
 			Pos2d[] fluidslot_pos_table = new Pos2d[] { new Pos2d(52 + 18 * 1, 7), new Pos2d(52 + 18 * 2, 7),
@@ -2898,22 +2913,22 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			switch (slotTierOverride(mTier)) {
 			case 0:
 				genSlots = () -> gridTemplate1by1(
-						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(52, 7);
+						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
 				fluidslot_pos_index = 0;
 				break;
 			case 1:
 				genSlots = () -> gridTemplate2by2(
-						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(52, 7);
+						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
 				fluidslot_pos_index = 1;
 				break;
 			case 2:
 				genSlots = () -> gridTemplate3by3(
-						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(52, 7);
+						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
 				fluidslot_pos_index = 2;
 				break;
 			default:
-				genSlots = () -> gridTemplate4by4(
-						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(52, 7);
+				genSlots = () -> gridTemplate4by4X(
+						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
 				fluidslot_pos_index = 3;
 			}
 			genSlotsFluid = () -> new Grid().coverChildren().pos(0, 0).mapTo(1, mStoredFluid.length,
@@ -2925,7 +2940,22 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			list.child(genSlotsFluid.get());
 			list.pos(fluidslot_pos_table[fluidslot_pos_index].x, fluidslot_pos_table[fluidslot_pos_index].y);
 			builder.child(list);
-			builder.child(genSlots.get());
+			
+			
+			ScrollWidget<?> listX = new ScrollWidget<>(new VerticalScrollData()).size(18);
+			listX.getScrollArea().getScrollY().setScrollSize(18 * 4*page());
+			listX.size(18*4, 18 * 4);
+			listX.child(genSlots.get());
+			listX.pos(52, 7);
+			builder.child(listX);
+			
+			//builder.child(genSlots.get());
+			
+			
+			
+			
+			
+			
 			builder.bindPlayerInventory();
 
 			IPanelHandler popupPanel = syncManager.panel("popup",

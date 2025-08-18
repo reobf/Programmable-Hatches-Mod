@@ -541,11 +541,12 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
         buildPiece(STRUCTURE_PIECE_TOP_HINT, stackSize, hintsOnly, 1, 1, -(tTotalHeight - 1));
     }
 
-    @Override
+   
+	@Override
     public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBuildEnvironment env) {
         if (mMachine) return -1;
         mHeight = 0;
-        int built = survivialBuildPiece(STRUCTURE_PIECE_BASE, stackSize, 1, 1, 0, elementBudget, env, false, true);
+        int built = survivalBuildPiece(STRUCTURE_PIECE_BASE, stackSize, 1, 1, 0, elementBudget, env, false, true);
         if (built >= 0) return built;
         int tTotalHeight = Math.min(12, stackSize.stackSize + 2); // min 2
                                                                   // output
@@ -555,7 +556,7 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
                                                                   // height
         for (int i = 1; i < tTotalHeight - 1; i++) {
             mHeight = i;
-            built = survivialBuildPiece(
+            built = survivalBuildPiece(
                 STRUCTURE_PIECE_LAYER_HINT,
                 stackSize,
                 1,
@@ -568,7 +569,7 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
             if (built >= 0) return built;
         }
         mHeight = tTotalHeight - 1;
-        return survivialBuildPiece(
+        return survivalBuildPiece(
             STRUCTURE_PIECE_TOP_HINT,
             stackSize,
             1,

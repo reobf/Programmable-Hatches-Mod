@@ -114,7 +114,18 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
         super(mName, mTier, mDescriptionArray, mTextures, mMultiFluid, bufferNum);
 
     }
+    public PatternDualInputHatch(String mName, byte mTier,int slots, String[] mDescriptionArray, ITexture[][][] mTextures,
+            boolean mMultiFluid, int bufferNum) {
+            super(mName, mTier,slots, mDescriptionArray, mTextures, mMultiFluid, bufferNum);
 
+        }
+    
+  
+    @Override
+    public int page() {
+    	
+    	return 1;
+    }
     @Override
     public int rows() {
         return 4;
@@ -252,7 +263,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
     }
 
     public PatternDualInputHatch(int id, String name, String nameRegional, int tier, boolean mMultiFluid, int bufferNum,
-        boolean sf, String... optional) {
+        boolean sf,int page, String... optional) {
 
         super(
             id,
@@ -268,7 +279,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
                         "bufferNum",
                         bufferNum,
                         "fluidSlots",
-                        16/* fluidSlots() */, /*
+                        page*16/* fluidSlots() */, /*
                                                * "cap", format.format((int)
                                                * (4000 * Math.pow(4, tier) /
                                                * (mMultiFluid ? 4 : 1))),
@@ -276,7 +287,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
                         "mMultiFluid",
                         mMultiFluid,
                         "slots",
-                        Math.min(16, (1 + tier) * (tier + 1))/*
+                        page*16/*
                                                               * , "stacksize", (int) (64 *
                                                               * Math.pow(2, Math.max(tier - 3, 0)))
                                                               */))
@@ -289,7 +300,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
     }
 
     public int fluidSlots() {
-        return supportsFluids()?16:0;
+        return supportsFluids()?16*page():0;
 
     }
 
@@ -776,18 +787,25 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
             int bufferNum) {
             super(mName, mTier, mDescriptionArray, mTextures, mMultiFluid, bufferNum);
         }
-
+        public Inst(String mName, byte mTier,int slots, String[] mDescriptionArray, ITexture[][][] mTextures, boolean mMultiFluid,
+                int bufferNum) {
+                super(mName, mTier,slots, mDescriptionArray, mTextures, mMultiFluid, bufferNum);
+            }
         @Override
         public boolean supportsFluids() {
             return PatternDualInputHatch.this.supportsFluids();
         }
+@Override
+public int page() {
 
+	return PatternDualInputHatch.this.page();
+}
     }
 
     @Override
     public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
 
-        return new Inst(mName, mTier, mDescriptionArray, mTextures, mMultiFluid, bufferNum);
+        return new Inst(mName, mTier,16*page()+1, mDescriptionArray, mTextures, mMultiFluid, bufferNum);
     }
 
     @Override
@@ -842,7 +860,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 
     private void clearInv() {
 
-        for (int i = 0; i < 16; i++) mInventory[i] = null;
+        for (int i = 0; i < page()*16; i++) mInventory[i] = null;
         for (int i = 0; i < this.fluidSlots(); i++) mStoredFluid[i].setFluid(null);;
 
     }
@@ -914,7 +932,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 
             } else {
                 items++;
-                if (items > 16) {
+                if (items > page()*16) {
                     clearInv();
                     return false;
                 }
@@ -1467,7 +1485,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 
             } else {
                 items++;
-                if (items > 16) {
+                if (items > page()*16) {
                     clearInv();
                     return AZERO;
                 }

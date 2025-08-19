@@ -1239,7 +1239,9 @@ int m){
 			}
 		}
 	}
-
+	public long singleSlotLimit() {
+		return restrictToInt?Integer.MAX_VALUE:Long.MAX_VALUE;//limitToIntMax ? Integer.MAX_VALUE : Long.MAX_VALUE;
+	}
 	 public boolean restrictToInt;
 
 	    public long fluidLimit() {

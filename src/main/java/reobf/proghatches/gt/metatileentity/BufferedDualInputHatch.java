@@ -241,9 +241,9 @@ public class BufferedDualInputHatch extends DualInputHatch
     // public FluidStack[] dualFluid(){return
     // asFluidStack.apply(inv0.mStoredFluidInternal);}
     final public ArrayList<DualInvBuffer> inv0 = new ArrayList<DualInvBuffer>();
-boolean limitToIntMax;
+
 public long singleSlotLimit(){
-	return limitToIntMax?Integer.MAX_VALUE:Long.MAX_VALUE;
+	return Integer.MAX_VALUE;
 }
     // private long mask=new Random().nextLong()&(~0b1111_1111_1111_1111);//65536 buffers
     // private short count;

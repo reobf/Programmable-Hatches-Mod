@@ -1392,7 +1392,9 @@ public int page() {
         }
     }
     public boolean restrictToInt;
-
+	public long singleSlotLimit() {
+		return restrictToInt?Integer.MAX_VALUE:Long.MAX_VALUE;//limitToIntMax ? Integer.MAX_VALUE : Long.MAX_VALUE;
+	}
     public long fluidLimit() {
 
         return restrictToInt?Integer.MAX_VALUE:Long.MAX_VALUE;

@@ -433,12 +433,13 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
                 .setSize(16, 16)
                 // .setPos(10 + 16 * 9, 3 + 16 * 2)
                 .setPos(new Pos2d(getGUIWidth() - 18 - 3, 5 + 16 + 2 + 16 + 2)));
-
+        final boolean e=PatternDualInputHatchInventoryMappingSlave.enclose;
         builder.widget(new Widget() {}.setTicker(new Consumer() {
 
             int init;
 
             public void accept(Object x) {
+            	if(e)return;
                 init++;
                 if (init == 1) {
                     b.syncToServer(1, Widget.ClickData.create(1, false)::writeToPacket);
@@ -1615,5 +1616,10 @@ protected Builder createWindowEx(EntityPlayer player) {
 			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.restrictToInt.1"))
 		);
 	return builder;
+}
+@Override
+public int getCircuitSlot() {
+	
+	return getSlots(slotTierOverride(mTier))*page();
 }
 }

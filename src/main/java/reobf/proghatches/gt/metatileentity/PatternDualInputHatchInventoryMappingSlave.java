@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -39,6 +40,7 @@ import com.gtnewhorizons.modularui.api.math.Color;
 import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
@@ -447,7 +449,8 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
         return false;
     }
-
+    
+    public static boolean enclose;
     @Override
     public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
         /*
@@ -455,7 +458,8 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
          * T o = getMaster();
          * if(o!=null)o.resetMulti();
          * });
-         */
+         */enclose=true;
+         ButtonWidget b = null;
         if (masterSet) trySetMasterFromCoord(masterX, masterY, masterZ);
         if (getMaster() instanceof IAddUIWidgets) {
             builder.widget(new SyncedWidget() {
@@ -483,7 +487,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
             buildContext.addSyncedWindow(989898, this::createPatternWindow);
 
             builder.widget(
-                new ButtonWidget().setOnClick(
+                (b=new ButtonWidget()).setOnClick(
                     (clickData, widget) -> {
                         if (widget.getContext()
                             .isClient() == false)
@@ -508,7 +512,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
             buildContext.addSyncedWindow(989898, this::createPatternWindow);
 
             builder.widget(
-                new ButtonWidget().setOnClick(
+            		(b=new ButtonWidget()).setOnClick(
                     (clickData, widget) -> {
                         if (widget.getContext()
                             .isClient() == false)
@@ -524,7 +528,19 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                     // .setPos(10 + 16 * 9, 3 + 16 * 2)
                     .setPos(new Pos2d(getGUIWidth() - 18 - 3, 5 + 16 + 2 + 16 + 2 + 18 + 24)));
         }
+        ButtonWidget fb=b;
+        enclose=false;
+        builder.widget(new Widget() {}.setTicker(new Consumer() {
 
+            int init;
+
+            public void accept(Object x) {
+                init++;
+                if (init == 1) {
+                    if(fb!=null)fb.syncToServer(1, Widget.ClickData.create(1, false)::writeToPacket);
+                }
+            }
+        }));
     }
 
     // @Override

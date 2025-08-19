@@ -1,5 +1,6 @@
 package reobf.proghatches.gt.metatileentity.multi;
 
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.lazy;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofChain;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
@@ -86,6 +87,7 @@ import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.item.AEItemStack;
+import blockrenderer6343.client.world.DummyWorld;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.SoundResource;
@@ -102,10 +104,12 @@ import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
 import gregtech.api.render.TextureFactory;
+import gregtech.api.util.GTStructureUtility;
 import gregtech.api.util.IGTHatchAdder;
 import gregtech.api.util.MultiblockTooltipBuilder;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.api.util.shutdown.SimpleShutDownReason;
+import gregtech.common.tileentities.machines.multi.purification.MTEPurificationUnitClarifier;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.eucrafting.IInstantCompletable;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
@@ -160,12 +164,12 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
     public List<ICircuitProvider> providers = new ArrayList<>();
     private boolean chip;
     protected static final int CASING_INDEX = 49;
-    private static final IStructureDefinition<LargeProgrammingCircuitProvider> STRUCTURE_DEFINITION;
+    private static  IStructureDefinition<LargeProgrammingCircuitProvider> STRUCTURE_DEFINITION;
     protected static final String STRUCTURE_PIECE_BASE = "base";
     protected static final String STRUCTURE_PIECE_LAYER = "layer";
     protected static final String STRUCTURE_PIECE_LAYER_HINT = "layerHint";
     protected static final String STRUCTURE_PIECE_TOP_HINT = "topHint";
-    static {
+    public static void init() {
         Function<IGTHatchAdder<? super LargeProgrammingCircuitProvider>, IHatchElement<LargeProgrammingCircuitProvider>> provider = s -> new IHatchElement<LargeProgrammingCircuitProvider>() {
 
             @Override
@@ -253,7 +257,74 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
                     .maybeBlock()
                     .get(),
                 3));
-
+        IStructureElement<LargeProgrammingCircuitProvider> accHintWQ = ofChain(
+                ofBlock(
+                    Api.INSTANCE.definitions()
+                        .blocks()
+                        .craftingAccelerator()
+                        .maybeBlock()
+                        .get(),
+                    0),
+                ofBlock(
+                    Api.INSTANCE.definitions()
+                        .blocks()
+                        .craftingAccelerator()
+                        .maybeBlock()
+                        .get(),
+                    1),
+                ofBlock(
+                    Api.INSTANCE.definitions()
+                        .blocks()
+                        .craftingAccelerator()
+                        .maybeBlock()
+                        .get(),
+                    2),
+                ofBlock(
+                    Api.INSTANCE.definitions()
+                        .blocks()
+                        .craftingAccelerator()
+                        .maybeBlock()
+                        .get(),
+                    3),
+                ofBlock(
+                    Api.INSTANCE.definitions()
+                        .blocks()
+                        .craftingAccelerator64x()
+                        .maybeBlock()
+                        .get(),
+                    0),
+                ofBlock(
+                    Api.INSTANCE.definitions()
+                        .blocks()
+                        .craftingAccelerator64x()
+                        .maybeBlock()
+                        .get(),
+                    1),
+                ofBlock(
+                    Api.INSTANCE.definitions()
+                        .blocks()
+                        .craftingAccelerator64x()
+                        .maybeBlock()
+                        .get(),
+                    2),
+                ofBlock(
+                    Api.INSTANCE.definitions()
+                        .blocks()
+                        .craftingAccelerator64x()
+                        .maybeBlock()
+                        .get(),
+                    3),
+                ofBlock(
+                		 Api.INSTANCE.definitions()
+                	        .blocks()
+                	        .fluix()
+                	        .maybeBlock()
+                	        .get(),
+                	    0)
+        		
+        		
+        		);
+       
         IHatchElement<LargeProgrammingCircuitProvider> providerSide = provider
             .apply(LargeProgrammingCircuitProvider::addProvider);
         IHatchElement<LargeProgrammingCircuitProvider> providerTop = provider
@@ -302,8 +373,8 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
 
             )
             .addElement(
-                'X',
-                ofChain(
+                'X',accHintWQ
+                /*ofChain(
                     accHint,
                     ofBlock(
                         Api.INSTANCE.definitions()
@@ -311,18 +382,28 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
                             .fluix()
                             .maybeBlock()
                             .get(),
-                        0)))
+                        0))*/)
             .addElement(
                 'h',
+                
+                ofChain(
+                        lazy(
+                            t -> GTStructureUtility.<LargeProgrammingCircuitProvider>buildHatchAdder()
+                                .anyOf(providerSide)
+                                .casingIndex(CASING_INDEX)
+                                .dot(2)
+                                .build()),
+                      
+                        ofBlock(GregTechAPI.sBlockCasings4, 1)))
+                
+            /* ofChain(
+    		StructureUtility.lazy(t->buildHatchAdder(LargeProgrammingCircuitProvider.class).atLeast(providerSide)
+        .casingIndex(CASING_INDEX)
+        .dot(2)))
+        
+        .buildAndChain(GregTechAPI.sBlockCasings4, 1)*/
 
-                buildHatchAdder(LargeProgrammingCircuitProvider.class).atLeast(providerSide)
-                    .casingIndex(CASING_INDEX)
-                    .dot(2)
-                    // .disallowOnly(ForgeDirection.UP,
-                    // ForgeDirection.DOWN)
-                    .buildAndChain(GregTechAPI.sBlockCasings4, 1)
-
-            )
+            
 
             .build();
     }
@@ -401,11 +482,12 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
 
     @Override
     public IStructureDefinition<LargeProgrammingCircuitProvider> getStructureDefinition() {
-        return STRUCTURE_DEFINITION;
+        if(STRUCTURE_DEFINITION==null)init();
+    	return STRUCTURE_DEFINITION;
     }
 
     int mHeight;
-
+int off=0;
     @Override
     public boolean checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack) {
         // reset
@@ -415,12 +497,12 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
         mCasing = 0;
         totalAcc = 0;
         // check base
-        if (!checkPiece(STRUCTURE_PIECE_BASE, 1, 1, 0)) return false;
+        if (!checkPiece(STRUCTURE_PIECE_BASE, 1+off, 1, 0)) return false;
 
         // check each layer
         while (mHeight < 12) {
             providerFoundThisLayer = false;
-            if (!checkPiece(STRUCTURE_PIECE_LAYER, 1, 1, -mHeight)) {
+            if (!checkPiece(STRUCTURE_PIECE_LAYER, 1+off, 1, -mHeight)) {
                 return false;
             }
 
@@ -442,7 +524,7 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
         multiply = Math.max(multiply, 1);
 
         if (mEnergyHatches.size() == 0) return false;
-
+        if(this.getBaseMetaTileEntity().getWorld()instanceof DummyWorld){return false;}
         return succ;
     }
 
@@ -528,7 +610,7 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
 
     @Override
     public void construct(ItemStack stackSize, boolean hintsOnly) {
-        buildPiece(STRUCTURE_PIECE_BASE, stackSize, hintsOnly, 1, 1, 0);
+        buildPiece(STRUCTURE_PIECE_BASE, stackSize, hintsOnly, 1+off, 1, 0);
         int tTotalHeight = Math.min(12, stackSize.stackSize + 2); // min 2
                                                                   // output
                                                                   // layer, so
@@ -536,9 +618,9 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
                                                                   // 1 + 2
                                                                   // height
         for (int i = 1; i < tTotalHeight - 1; i++) {
-            buildPiece(STRUCTURE_PIECE_LAYER_HINT, stackSize, hintsOnly, 1, 1, -i);
+            buildPiece(STRUCTURE_PIECE_LAYER_HINT, stackSize, hintsOnly, 1+off, 1, -i);
         }
-        buildPiece(STRUCTURE_PIECE_TOP_HINT, stackSize, hintsOnly, 1, 1, -(tTotalHeight - 1));
+        buildPiece(STRUCTURE_PIECE_TOP_HINT, stackSize, hintsOnly, 1+off, 1, -(tTotalHeight - 1));
     }
 
    
@@ -546,7 +628,7 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
     public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBuildEnvironment env) {
         if (mMachine) return -1;
         mHeight = 0;
-        int built = survivalBuildPiece(STRUCTURE_PIECE_BASE, stackSize, 1, 1, 0, elementBudget, env, false, true);
+        int built = survivalBuildPiece(STRUCTURE_PIECE_BASE, stackSize, 1+off, 1, 0, elementBudget, env, false, true);
         if (built >= 0) return built;
         int tTotalHeight = Math.min(12, stackSize.stackSize + 2); // min 2
                                                                   // output
@@ -559,7 +641,7 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
             built = survivalBuildPiece(
                 STRUCTURE_PIECE_LAYER_HINT,
                 stackSize,
-                1,
+                1+off,
                 1,
                 -i,
                 elementBudget,
@@ -572,7 +654,7 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
         return survivalBuildPiece(
             STRUCTURE_PIECE_TOP_HINT,
             stackSize,
-            1,
+            1+off,
             1,
             -(tTotalHeight - 1),
 

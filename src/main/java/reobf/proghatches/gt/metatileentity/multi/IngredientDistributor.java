@@ -789,9 +789,16 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
         ItemStack[] i = opt.getItemInputs();
         FluidStack[] f = opt.getFluidInputs();
 
-        if (i.length > mOutputBusses.size()) return false;
-        if (f.length > mOutputHatches.size()) return false;
-
+        //if (i.length > mOutputBusses.size()) return false;
+        //if (f.length > mOutputHatches.size()) return false;
+        if (i.length > mOutputBusses.size()) {
+            lastfail = TransferCheckResult.ofFail("insufficient.length.bus", i.length, mOutputBusses.size());
+            return false;
+        }
+        if (f.length > mOutputHatches.size()) {
+            lastfail = TransferCheckResult.ofFail("insufficient.length.hatch", f.length, mOutputHatches.size());
+            return false;
+        }
         for (int index = 0; index < mOutputBusses.size(); ++index) {
             if (!(mOutputBusses.get(index) instanceof MTEHatchOutputBusME)) {
                 return false;

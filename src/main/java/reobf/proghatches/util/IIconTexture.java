@@ -16,10 +16,10 @@ import gregtech.api.util.LightingHelper;
 import gregtech.common.render.GTCopiedBlockTextureRender;
 import gregtech.common.render.GTTextureBase;
 
-public class IIconTexture extends GTTextureBaseLegacy implements ITextureLegacy {
+public class IIconTexture extends GTTextureBaseLegacy /*implements ITextureLegacy*/ {
 	
 	
-	static ThreadLocal<Integer> captured=new ThreadLocal();
+	static ThreadLocal<Object> helper=new ThreadLocal();
 
 	public static boolean isNew;
 	static{try {
@@ -55,6 +55,7 @@ public class IIconTexture extends GTTextureBaseLegacy implements ITextureLegacy 
 					Block  b;
 					RenderBlocks r;
 					int x,y,z;
+					
 					if(isNew){
 					Class c=args[0].getClass();
 					 r=(RenderBlocks) c.getField("renderer").get(args[0]);
@@ -62,7 +63,7 @@ public class IIconTexture extends GTTextureBaseLegacy implements ITextureLegacy 
 					  x=(int ) c.getField("x").get(args[0]);
 					  y=(int ) c.getField("y").get(args[0]);
 					  z=(int ) c.getField("z").get(args[0]);
-					
+					  helper.set(args[0]);
 					}else{
 						r=(RenderBlocks) args[0];
 						b=(Block) args[1];
@@ -79,7 +80,7 @@ public class IIconTexture extends GTTextureBaseLegacy implements ITextureLegacy 
 					else if(call.equals("renderYPos"))wrapped.renderYPos(r, b, x, y, z);
 					else if(call.equals("renderZPos"))wrapped.renderZPos(r, b, x, y, z);
 					
-					
+					 helper.set(null);
 					
 					return null;
 				}
@@ -125,9 +126,20 @@ public class IIconTexture extends GTTextureBaseLegacy implements ITextureLegacy 
         final IIcon aIcon = getIcon(ForgeDirection.EAST.ordinal());
         aRenderer.field_152631_f = true;
         startDrawingQuads(aRenderer, 1.0f, 0.0f, 0.0f);
-        new LightingHelper(aRenderer).setupLightingXPos(aBlock, aX, aY, aZ)
+       if(helper.get()==null){
+        new LightingHelperLegacy(aRenderer).setupLightingXPos(aBlock, aX, aY, aZ)
             .setupColor(ForgeDirection.EAST, rgb);
         aRenderer.renderFaceXPos(aBlock, aX, aY, aZ, aIcon);
+       }else{
+    	   
+    	  Object o= helper.get();
+    	  
+    	  
+    	  
+    	  
+       }
+        
+        
         draw(aRenderer);
         aRenderer.field_152631_f = false;
     }
@@ -136,7 +148,7 @@ public class IIconTexture extends GTTextureBaseLegacy implements ITextureLegacy 
     public void renderXNeg(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
         startDrawingQuads(aRenderer, -1.0f, 0.0f, 0.0f);
         final IIcon aIcon = getIcon(ForgeDirection.WEST.ordinal());
-        new LightingHelper(aRenderer).setupLightingXNeg(aBlock, aX, aY, aZ)
+        new LightingHelperLegacy(aRenderer).setupLightingXNeg(aBlock, aX, aY, aZ)
             .setupColor(ForgeDirection.WEST, rgb);
         aRenderer.renderFaceXNeg(aBlock, aX, aY, aZ, aIcon);
         draw(aRenderer);
@@ -146,7 +158,7 @@ public class IIconTexture extends GTTextureBaseLegacy implements ITextureLegacy 
     public void renderYPos(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
         startDrawingQuads(aRenderer, 0.0f, 1.0f, 0.0f);
         final IIcon aIcon = getIcon(ForgeDirection.UP.ordinal());
-        new LightingHelper(aRenderer).setupLightingYPos(aBlock, aX, aY, aZ)
+        new LightingHelperLegacy(aRenderer).setupLightingYPos(aBlock, aX, aY, aZ)
             .setupColor(ForgeDirection.UP, rgb);
         aRenderer.renderFaceYPos(aBlock, aX, aY, aZ, aIcon);
         draw(aRenderer);
@@ -156,7 +168,7 @@ public class IIconTexture extends GTTextureBaseLegacy implements ITextureLegacy 
     public void renderYNeg(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
         startDrawingQuads(aRenderer, 0.0f, -1.0f, 0.0f);
         final IIcon aIcon = getIcon(ForgeDirection.DOWN.ordinal());
-        new LightingHelper(aRenderer).setupLightingYNeg(aBlock, aX, aY, aZ)
+        new LightingHelperLegacy(aRenderer).setupLightingYNeg(aBlock, aX, aY, aZ)
             .setupColor(ForgeDirection.DOWN, rgb);
         aRenderer.renderFaceYNeg(aBlock, aX, aY, aZ, aIcon);
         draw(aRenderer);
@@ -166,7 +178,7 @@ public class IIconTexture extends GTTextureBaseLegacy implements ITextureLegacy 
     public void renderZPos(RenderBlocks aRenderer, Block aBlock, int aX, int aY, int aZ) {
         startDrawingQuads(aRenderer, 0.0f, 0.0f, 1.0f);
         final IIcon aIcon = getIcon(ForgeDirection.SOUTH.ordinal());
-        new LightingHelper(aRenderer).setupLightingZPos(aBlock, aX, aY, aZ)
+        new LightingHelperLegacy(aRenderer).setupLightingZPos(aBlock, aX, aY, aZ)
             .setupColor(ForgeDirection.SOUTH, rgb);
         aRenderer.renderFaceZPos(aBlock, aX, aY, aZ, aIcon);
         draw(aRenderer);
@@ -177,7 +189,7 @@ public class IIconTexture extends GTTextureBaseLegacy implements ITextureLegacy 
         startDrawingQuads(aRenderer, 0.0f, 0.0f, -1.0f);
         final IIcon aIcon = getIcon(ForgeDirection.NORTH.ordinal());
         aRenderer.field_152631_f = true;
-        new LightingHelper(aRenderer).setupLightingZNeg(aBlock, aX, aY, aZ)
+        new LightingHelperLegacy(aRenderer).setupLightingZNeg(aBlock, aX, aY, aZ)
             .setupColor(ForgeDirection.NORTH, rgb);
         aRenderer.renderFaceZNeg(aBlock, aX, aY, aZ, aIcon);
         draw(aRenderer);

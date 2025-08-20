@@ -96,6 +96,7 @@ import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.gt.metatileentity.util.MappingFluidTank;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
+import reobf.proghatches.util.CTexture;
 import reobf.proghatches.util.IIconTexture;
 import reobf.proghatches.util.ProghatchesUtil;
 
@@ -283,15 +284,15 @@ public class SuperTankME extends MTEHatch
     @Override
     public ITexture[] getTexturesActive(ITexture aBaseTexture) {
 
-        return new ITexture[] { aBaseTexture, IIconTexture.genFuckingBridge(ExtraBlockTextures.MEChest.getIcon(), 0xD7BBEC),
-             IIconTexture.genFuckingBridge(FCPartsTexture.PartFluidTerminal_Bright.getIcon(), 0xffffff)
+        return new ITexture[] { aBaseTexture, new CTexture(ExtraBlockTextures.MEChest.getIcon(), 0xD7BBEC),
+             new CTexture(FCPartsTexture.PartFluidTerminal_Bright.getIcon(), 0xffffff)
 
         };
     }
 
     @Override
     public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
-        return new ITexture[] { aBaseTexture, IIconTexture.genFuckingBridge(ExtraBlockTextures.MEChest.getIcon(), 0xD7BBEC)
+        return new ITexture[] { aBaseTexture, new CTexture(ExtraBlockTextures.MEChest.getIcon(), 0xD7BBEC)
             /*
              * , new IIconTexture
              * (ExtraBlockTextures.BlockMEChestItems_Light.getIcon(),

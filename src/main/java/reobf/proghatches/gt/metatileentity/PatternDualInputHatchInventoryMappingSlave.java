@@ -1,5 +1,6 @@
 package reobf.proghatches.gt.metatileentity;
 
+import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -40,10 +42,13 @@ import com.gtnewhorizons.modularui.api.math.Color;
 import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+import com.gtnewhorizons.modularui.api.widget.IWidgetBuilder;
 import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.MultiChildWidget;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
@@ -77,6 +82,7 @@ import appeng.me.helpers.IGridProxyable;
 import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
+import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.Textures;
 import gregtech.api.gui.modularui.GTUIInfos;
 import gregtech.api.gui.modularui.GTUITextures;
@@ -162,7 +168,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         }
 
         aNBT.setIntArray("multiplier", multiplier);
-
+        aNBT.setBoolean("allowopt", allowopt);
     }
 
     @Override
@@ -193,6 +199,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         for (int i = 0; i < multiplier.length; i++) {
             multiplier[i] = Math.max(multiplier[i], 1);
         }
+        allowopt=aNBT.getBoolean("allowopt");
     }
 
     @Override
@@ -449,11 +456,54 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
         return false;
     }
-    
+	static int EX_CONFIG = 985211;
     public static boolean enclose;
+    ButtonWidget createPowerSwitchButton(IWidgetBuilder<?> builder) {
+		IGregTechTileEntity thiz = this.getBaseMetaTileEntity();
+		Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
+			if (clickData.shift == true) {
+				if (widget.getContext().isClient() == false)
+					widget.getContext().openSyncedWindow(EX_CONFIG);
+				return;
+
+			}
+			/*if (thiz.isAllowedToWork()) {
+				thiz.disableWorking();
+			} else {
+				thiz.enableWorking();
+				// BufferedDualInputHatch bff =(BufferedDualInputHatch)
+				// (thiz).getMetaTileEntity();
+				
+			}*/
+		}).setPlayClickSoundResource(() -> thiz.isAllowedToWork() ? SoundResource.GUI_BUTTON_UP.resourceLocation
+				: SoundResource.GUI_BUTTON_DOWN.resourceLocation).setBackground(() -> {
+					if (thiz.isAllowedToWork()) {
+						return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
+								GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_ON };
+					} else {
+						return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
+								GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
+					}
+				}).attachSyncer(new FakeSyncWidget.BooleanSyncer(thiz::isAllowedToWork, val -> {
+					if (val)
+						thiz.enableWorking();
+					else
+						thiz.disableWorking();
+				}), builder).addTooltip(LangManager.translateToLocal("GT5U.gui.button.power_switch"))
+				.addTooltip(LangManager.translateToLocal("proghatch.gui.button.power_switch.ex"))
+				.setTooltipShowUpDelay(TOOLTIP_DELAY)
+				 .setPos(new Pos2d(getGUIWidth() - 18 - 3-18, 5 + 16 + 2 + 16 + 2 + 18 + 24))
+				//.setPos(new Pos2d(getGUIWidth() - 18 - 3, 5))
+				
+				.setSize(16, 16);
+		return (ButtonWidget) button;
+	}
     @Override
     public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-        /*
+    	buildContext.addSyncedWindow(EX_CONFIG, (s) -> createWindowEx(s).build());
+    	builder.widget(createPowerSwitchButton(builder));
+    	
+    	/*
          * ProghatchesUtil.removeMultiCache(builder, ()->{
          * T o = getMaster();
          * if(o!=null)o.resetMulti();
@@ -1181,7 +1231,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
             if (text_n == text_n.getContext()
                 .getCursor()
                 .getFocused()) {
-                return "Enter <Space> to update value";
+                return "Press <Enter> to update value";
             }
             return "";
         })
@@ -1335,8 +1385,9 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
     @Override
     public boolean allowsPatternOptimization() {
        
-        return false;
+        return allowopt;
     }
+boolean allowopt;
     @Override
     public int[] pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
         if (Config.fastPatternDualInput == false) return AZERO;
@@ -1530,5 +1581,33 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                 pattern[i] = null;
             }
         }
+    }
+    protected Builder createWindowEx(EntityPlayer player) {
+    	
+    	final int WIDTH = 18 * 6 + 6;
+		final int HEIGHT = 18 * 4 + 6;
+		final int PARENT_WIDTH = getGUIWidth();
+		final int PARENT_HEIGHT = getGUIHeight();
+		ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
+		builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+		builder.setGuiTint(getGUIColorization());
+		builder.setDraggable(true);
+    	
+
+    	
+    	builder.widget(new CycleButtonWidget().setToggle(() -> allowopt, (s) -> {
+    		allowopt = s;
+
+    	}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+    			.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+    			.setPos(3 + 18 * 1, 3 + 18 * 1).setSize(18, 18)
+    			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.0"))
+    			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.1"))
+    		);	
+    	
+    	
+    	
+    	
+    	return builder;
     }
 }

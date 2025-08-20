@@ -804,3 +804,5 @@ tile.proghatches.fluidDiscretizerMKII.tooltip.0=由这个设备离散化的液�
 tile.proghatches.fluidDiscretizerMKII.tooltip.1=同网络的其他设备所访问
 tile.proghatches.fluidDiscretizerMKII.tooltip.2=换而言之,液滴不会通过ME接口+存储总线的途径被其他子网访问
 hatch.input.buffered.me.name.2=编程样板输入总成 MK.II
+programmable_hatches.gt.allowopt.0=允许样板优化
+programmable_hatches.gt.allowopt.1=注意:倍增必须是1才能被优化

@@ -835,6 +835,7 @@ public int page() {
             multiplier[i] = Math.max(multiplier[i], 1);
         }
         restrictToInt=aNBT.getBoolean("restrictToInt" );
+        allowopt=aNBT.getBoolean("allowopt");
         updateValidGridProxySides();
     }
 
@@ -855,7 +856,8 @@ public int page() {
         getProxy().writeToNBT(aNBT);
         aNBT.setLong("saved", saved);
         aNBT.setIntArray("multiplier", multiplier);
-        aNBT.setBoolean("restrictToInt", restrictToInt);
+        aNBT.setBoolean("restrictToInt", restrictToInt); 
+        aNBT.setBoolean("allowopt", allowopt);
         super.saveNBTData(aNBT);
     }
 
@@ -1454,9 +1456,9 @@ public int page() {
     @Override
     public boolean allowsPatternOptimization() {
        
-        return false;
+        return allowopt;
     }
-
+boolean allowopt;
     @Override
     public int[] pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
         if (Config.fastPatternDualInput == false) return AZERO;
@@ -1615,6 +1617,20 @@ protected Builder createWindowEx(EntityPlayer player) {
 			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.restrictToInt.0"))
 			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.restrictToInt.1"))
 		);
+	
+	builder.widget(new CycleButtonWidget().setToggle(() -> allowopt, (s) -> {
+		allowopt = s;
+
+	}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+			.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+			.setPos(3 + 18 * 1, 3 + 18 * 1).setSize(18, 18)
+			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.0"))
+			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.1"))
+		);	
+	
+	
+	
+	
 	return builder;
 }
 @Override

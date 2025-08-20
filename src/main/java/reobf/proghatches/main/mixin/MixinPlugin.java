@@ -218,9 +218,13 @@ public static boolean loaded;
             	//  wo/ fluid
                 retLate.add("MixinPatternEncodingCiruitSpecialTreatment2"); 
                 //  with fluid
-                retLate.add("MixinPatternEncodingCiruitSpecialTreatmentNeo");
+                retLate.add("part2.MixinGTCopiedBlockTextureRender");
+                
+                
+                
+                
             }
-
+            
         } ;
         retLate.add("part2.MixinFixSolidfier");
         return ret;

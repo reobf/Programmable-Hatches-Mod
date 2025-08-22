@@ -562,15 +562,15 @@ public class BufferedDualInputHatch extends DualInputHatch
 		/**
 		 * classify() with less check, for better performance
 		 */
-		public void firstClassify(ListeningFluidTank[] fin, ItemStack[] iin) {
+		public void firstClassify(ListeningFluidTank[] fin, ItemStack[] iin,int hintf,int hinti) {
 			tickFirstClassify = currentTick();
-			for (int ix = 0; ix < f; ix++) {
+			for (int ix = 0; ix < Math.min(f,hintf); ix++) {
 				mStoredFluidInternal[ix]
 						.setFluid(Optional.ofNullable(fin[ix].getFluid()).map(FluidStack::copy).orElse(null));
 				fin[ix].setFluidDirect(null);
 
 			}
-			for (int ix = 0; ix < i; ix++) {
+			for (int ix = 0; ix < Math.min(i,hinti); ix++) {
 				mStoredItemInternal[ix] = ItemStackG
 						.neo(Optional.ofNullable(iin[ix]).map(ItemStack::copy).orElse(null));
 				iin[ix] = null;
@@ -640,7 +640,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 				//if result==1 this is a non-empty slot (and might be the last non-empty slot), record it for further optimization
 				//if result==2 this is an empty slot, so ignore it
 
-				if(result==1)indexItem=ix;
+				if(result==1)indexFluid=ix;
 
 			}
 			for (int ix = 0; ix < i; ix++) {
@@ -659,13 +659,13 @@ public class BufferedDualInputHatch extends DualInputHatch
 				//so they are both empty or non-empty, so check one of them will work
 				//if check passes 
 				//this is a non-empty slot (and might be the last non-empty slot), record it for further optimization
-				if(mStoredItemInternalSingle[ix]!=null)indexFluid=ix;
+				if(mStoredItemInternalSingle[ix]!=null)indexItem=ix;
 
 			}
 			if (!hasJob) {
 				return false;
 			}
-
+//System.out.println(indexItem+" "+indexFluid);
 			for (int ix = 0; ix < (enableOpt?indexFluid+1:f); ix++) {
 				mStoredFluidInternal[ix].fill(mStoredFluidInternalSingle[ix].getFluid(), true);
 				if (removeInputOnSuccess)
@@ -708,24 +708,28 @@ public class BufferedDualInputHatch extends DualInputHatch
 			if (readyToRecord == 2) {
 				return false;
 			}
+			int indexi=-1;
+			int indexf=-1;
 			// clearRecipeIfNeeded();
 			if (recipeLocked == false && readyToRecord == 1) {
 				boolean actuallyFound = false;
 				for (int ix = 0; ix < f; ix++) {
 					if (fin[ix].getFluidAmount() > 0) {
+						indexf=ix;
 						actuallyFound = true;
 						mStoredFluidInternalSingle[ix].setFluid(fin[ix].getFluid());
 					}
 				}
 				for (int ix = 0; ix < i; ix++) {
 					if (iin[ix] != null) {
+						indexi=ix;
 						actuallyFound = true;
 						mStoredItemInternalSingle[ix] = iin[ix].copy();
 					}
 				}
 				recipeLocked = actuallyFound;
 				if (actuallyFound)
-					firstClassify(fin, iin);
+					firstClassify(fin, iin,indexf+1,indexi+1);
 				return actuallyFound;
 			}
 			return false;

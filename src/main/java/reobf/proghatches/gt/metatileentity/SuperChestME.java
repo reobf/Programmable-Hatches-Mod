@@ -90,7 +90,6 @@ import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.CTexture;
-import reobf.proghatches.util.IIconTexture;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class SuperChestME extends MTEHatch
@@ -351,15 +350,15 @@ public class SuperChestME extends MTEHatch
     @Override
     public ITexture[] getTexturesActive(ITexture aBaseTexture) {
 
-        return new ITexture[] { aBaseTexture, new CTexture(ExtraBlockTextures.MEChest.getIcon(), 0xD7BBEC),
-        		new CTexture(ExtraBlockTextures.BlockMEChestItems_Light.getIcon(), 0xffffff)
+        return new ITexture[] { aBaseTexture, CTexture.CTexture(ExtraBlockTextures.MEChest.getIcon(), 0xD7BBEC),
+        		CTexture. CTexture(ExtraBlockTextures.BlockMEChestItems_Light.getIcon(), 0xffffff)
 
         };
     }
 
     @Override
     public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
-        return new ITexture[] { aBaseTexture, new CTexture(ExtraBlockTextures.MEChest.getIcon(), 0xD7BBEC)
+        return new ITexture[] { aBaseTexture, CTexture. CTexture(ExtraBlockTextures.MEChest.getIcon(), 0xD7BBEC)
             /*
              * , new IIconTexture
              * (ExtraBlockTextures.BlockMEChestItems_Light.getIcon(),

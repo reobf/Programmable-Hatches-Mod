@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -79,6 +81,8 @@ import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
+import appeng.tile.misc.TileInterface;
+import codechicken.nei.ItemStackMap;
 import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
@@ -102,6 +106,7 @@ import reobf.proghatches.gt.metatileentity.PatternDualInputHatch.DA;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
+import reobf.proghatches.gt.metatileentity.util.ISpecialOptimize;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
@@ -112,7 +117,7 @@ import reobf.proghatches.net.MasterSetMessage;
 public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch & IDualInputHatch & IMetaTileEntity>
     extends MTETieredMachineBlock
     implements IAddUIWidgets, ICraftingMedium, ICustomNameObject, IGridProxyable, IInterfaceViewable,
-    IPowerChannelState, IActionHost, ICraftingProvider, IMultiplePatternPushable, IDataCopyablePlaceHolder {
+    IPowerChannelState, IActionHost, ICraftingProvider, IMultiplePatternPushable, IDataCopyablePlaceHolder,ISpecialOptimize {
 
     private T master; // use getMaster() to access
     public int masterX, masterY, masterZ;
@@ -456,7 +461,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
         return false;
     }
-	static int EX_CONFIG = 985211;
+	static int EX_CONFIG = 0x985211;
     public static boolean enclose;
     ButtonWidget createPowerSwitchButton(IWidgetBuilder<?> builder) {
 		IGregTechTileEntity thiz = this.getBaseMetaTileEntity();
@@ -1592,7 +1597,7 @@ boolean allowopt;
 		builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
 		builder.setGuiTint(getGUIColorization());
 		builder.setDraggable(true);
-    	
+		
 
     	
     	builder.widget(new CycleButtonWidget().setToggle(() -> allowopt, (s) -> {
@@ -1609,5 +1614,58 @@ boolean allowopt;
     	
     	
     	return builder;
-    }
+    }@Override
+	public void optimize(ItemStackMap<Pair<Object, Integer>> lookupMap) {
+		IInventory patternInv = this.getPatterns();
+
+		for (int i = 0; i < patternInv.getSizeInventory(); i++) {
+			ItemStack stack = patternInv.getStackInSlot(i);
+
+			if (stack == null) {
+				continue;
+			}
+			if(multiplier[i]>1){
+				stack=new PatternDualInputHatch.DA(
+						((ICraftingPatternItem)stack.getItem()).getPatternForItem(stack,this.getBaseMetaTileEntity().getWorld())
+						, multiplier[i]).getPattern();
+			}
+			/*if ((stack.getItem() instanceof ItemFakePattern) && (stack.hasTagCompound() == true)
+					&& (3 == stack.getTagCompound().getInteger("type"))) {
+				PatternDualInputHatch.DA parent = (DA) ((ItemFakePattern) stack.getItem()).getPatternForItem(stack,
+						null);
+				ICraftingPatternDetails wrapped = parent.p;
+
+				stack = wrapped.getPattern();
+			}*/
+			
+			
+
+			Pair<Object, Integer> pair = lookupMap.get(stack);
+			if (pair == null)
+				continue;
+			Integer bitMultiplier = pair.getValue();
+			if (bitMultiplier == 0)
+				return;
+			boolean isDividing = false;
+			if (bitMultiplier < 0) {
+				isDividing = true;
+				bitMultiplier = -bitMultiplier;
+			}
+			multiplier[i] = isDividing ? multiplier[i] >> bitMultiplier : multiplier[i] << bitMultiplier;
+			if (multiplier[i] <= 0) {
+				multiplier[i] = 1;
+			}
+			markDirty();
+			onPatternChange(); 
+			refresh();
+			/*
+			 * ItemStack sCopy = sdtack.copy();
+			 * pair.getKey().applyModification(sCopy, pair.getValue());
+			 * patternInv.setInventorySlotContents(i, sCopy);
+			 */
+
+		}
+
+	}
+
 }

@@ -27,6 +27,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.input.Keyboard;
 
 import com.glodblock.github.common.item.ItemFluidPacket;
@@ -73,6 +74,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IInterfaceViewable;
+
 import appeng.core.Api;
 import appeng.core.AppEng;
 import appeng.core.sync.GuiBridge;
@@ -83,6 +85,7 @@ import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.Platform;
+import codechicken.nei.ItemStackMap;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.GTMod;
@@ -101,13 +104,15 @@ import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch.DA;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
+import reobf.proghatches.gt.metatileentity.util.ISpecialOptimize;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
+import reobf.proghatches.item.ItemFakePattern;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 
 public class PatternDualInputHatch extends BufferedDualInputHatch implements ICraftingProvider, IGridProxyable,
-    ICustomNameObject, IInterfaceViewable, IPowerChannelState, IActionHost, IMultiplePatternPushable {
+    ICustomNameObject, IInterfaceViewable, IPowerChannelState, IActionHost, IMultiplePatternPushable,ISpecialOptimize {
 
     public PatternDualInputHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
         boolean mMultiFluid, int bufferNum) {
@@ -1638,4 +1643,62 @@ public int getCircuitSlot() {
 	
 	return getSlots(slotTierOverride(mTier))*page();
 }
+
+	@Override
+	public void optimize(ItemStackMap<Pair<Object, Integer>> lookupMap) {
+		IInventory patternInv = this.getPatterns();
+
+		for (int i = 0; i < patternInv.getSizeInventory(); i++) {
+			ItemStack stack = patternInv.getStackInSlot(i);
+
+			if (stack == null) {
+				continue;
+			}
+			if(multiplier[i]>1){
+				stack=new PatternDualInputHatch.DA(
+						((ICraftingPatternItem)stack.getItem()).getPatternForItem(stack,this.getBaseMetaTileEntity().getWorld())
+						, multiplier[i]).getPattern();
+			}
+			/*if ((stack.getItem() instanceof ItemFakePattern) && (stack.hasTagCompound() == true)
+					&& (3 == stack.getTagCompound().getInteger("type"))) {
+				PatternDualInputHatch.DA parent = (DA) ((ItemFakePattern) stack.getItem()).getPatternForItem(stack,
+						null);
+				ICraftingPatternDetails wrapped = parent.p;
+
+				stack = wrapped.getPattern();
+			}*/
+			
+			
+
+			Pair<Object, Integer> pair = lookupMap.get(stack);
+			if (pair == null)
+				continue;
+			Integer bitMultiplier = pair.getValue();
+			if (bitMultiplier == 0)
+				return;
+			boolean isDividing = false;
+			if (bitMultiplier < 0) {
+				isDividing = true;
+				bitMultiplier = -bitMultiplier;
+			}
+			multiplier[i] = isDividing ? multiplier[i] >> bitMultiplier : multiplier[i] << bitMultiplier;
+			if (multiplier[i] <= 0) {
+				multiplier[i] = 1;
+			}
+			markDirty();
+			onPatternChange(); 
+			refresh();
+			/*
+			 * ItemStack sCopy = sdtack.copy();
+			 * pair.getKey().applyModification(sCopy, pair.getValue());
+			 * patternInv.setInventorySlotContents(i, sCopy);
+			 */
+
+		}
+
+	}
+
+
+
+
 }

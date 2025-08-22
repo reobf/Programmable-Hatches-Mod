@@ -51,4 +51,6 @@ import codechicken.nei.ItemStackSet;
 
 public interface ISpecialOptimize {
 public void optimize(ItemStackMap<Pair<Object, Integer>>map);
+
+public void blacklist(ItemStackSet black);
 }

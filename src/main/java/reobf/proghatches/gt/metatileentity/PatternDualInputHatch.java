@@ -86,6 +86,7 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.Platform;
 import codechicken.nei.ItemStackMap;
+import codechicken.nei.ItemStackSet;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.GTMod;
@@ -417,7 +418,8 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
         buildContext.addSyncedWindow(88, this::createPatternWindow);
 
@@ -446,7 +448,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
             public void accept(Object x) {
             	if(e)return;
                 init++;
-                if (init == 1) {
+                if (init == 2) {
                     b.syncToServer(1, Widget.ClickData.create(1, false)::writeToPacket);
                 }
             }
@@ -1696,6 +1698,12 @@ public int getCircuitSlot() {
 
 		}
 
+	}
+	@Override
+	public void blacklist(ItemStackSet black) {
+		for(ICraftingPatternDetails a:patternDetailCache){
+			if(a!=null)black.add(a.getPattern());
+		}
 	}
 
 

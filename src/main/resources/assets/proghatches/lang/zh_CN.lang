@@ -806,3 +806,5 @@ tile.proghatches.fluidDiscretizerMKII.tooltip.2=换而言之,液滴不会通过M
 hatch.input.buffered.me.name.2=编程样板输入总成 MK.II
 programmable_hatches.gt.allowopt.0=允许样板优化
 programmable_hatches.gt.allowopt.1=注意:倍增必须是1才能被优化
+programmable_hatches.gt.inherit.0=继承绑定主机的"允许样板优化"配置
+programmable_hatches.gt.inherit.1=注意:如果主机存在 那么将会无视本地的配置

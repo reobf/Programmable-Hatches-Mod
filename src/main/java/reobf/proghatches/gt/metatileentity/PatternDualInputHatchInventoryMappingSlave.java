@@ -83,6 +83,7 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.tile.misc.TileInterface;
 import codechicken.nei.ItemStackMap;
+import codechicken.nei.ItemStackSet;
 import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
@@ -174,6 +175,9 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
         aNBT.setIntArray("multiplier", multiplier);
         aNBT.setBoolean("allowopt", allowopt);
+        aNBT.setBoolean("inherit", inherit);
+        
+        
     }
 
     @Override
@@ -205,6 +209,9 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
             multiplier[i] = Math.max(multiplier[i], 1);
         }
         allowopt=aNBT.getBoolean("allowopt");
+        if(!aNBT.hasKey("inherit"))aNBT.setBoolean("inherit", true);
+        inherit=aNBT.getBoolean("inherit");
+       
     }
 
     @Override
@@ -503,7 +510,8 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 				.setSize(16, 16);
 		return (ButtonWidget) button;
 	}
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
     	buildContext.addSyncedWindow(EX_CONFIG, (s) -> createWindowEx(s).build());
     	builder.widget(createPowerSwitchButton(builder));
@@ -591,7 +599,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
             public void accept(Object x) {
                 init++;
-                if (init == 1) {
+                if (init == 2) {
                     if(fb!=null)fb.syncToServer(1, Widget.ClickData.create(1, false)::writeToPacket);
                 }
             }
@@ -1389,9 +1397,13 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
     static int[] AZERO = { 0 };
     @Override
     public boolean allowsPatternOptimization() {
-       
+       if(getMaster() instanceof IInterfaceViewable){
+    	   IInterfaceViewable mast=(IInterfaceViewable) getMaster();
+    	   if(inherit)return mast.allowsPatternOptimization();
+       }
         return allowopt;
     }
+    boolean inherit;
 boolean allowopt;
     @Override
     public int[] pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
@@ -1607,10 +1619,18 @@ boolean allowopt;
     			.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
     			.setPos(3 + 18 * 1, 3 + 18 * 1).setSize(18, 18)
     			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.0"))
-    			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.1"))
+    			//.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.1"))
     		);	
     	
-    	
+     	builder.widget(new CycleButtonWidget().setToggle(() -> inherit, (s) -> {
+     		inherit = s;
+
+    	}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+    			.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+    			.setPos(3 + 18 * 2, 3 + 18 * 1).setSize(18, 18)
+    			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.inherit.0"))
+    			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.inherit.1"))
+    		);	
     	
     	
     	return builder;
@@ -1667,5 +1687,10 @@ boolean allowopt;
 		}
 
 	}
-
+    @Override
+	public void blacklist(ItemStackSet black) {
+		for(ICraftingPatternDetails a:patternDetailCache){
+			if(a!=null)black.add(a.getPattern());
+		}
+	}
 }

@@ -36,8 +36,8 @@
 
 dependencies {
 
- // api('com.github.GTNewHorizons:GT5-Unofficial:5.09.51.418:dev')//beta-2
-  api('com.github.GTNewHorizons:GT5-Unofficial:5.09.51.426:dev')//daily
+
+  api('com.github.GTNewHorizons:GT5-Unofficial:5.09.51.430:dev')//daily
    //api('com.github.GTNewHorizons:GT5-Unofficial:5.09.51.417-pre:dev')//experimental shit
     api("curse.maven:thaumcraft-nei-plugin-225095:2241913") 
   
@@ -158,7 +158,7 @@ dependencies {
 	 
 	 
 	  api("com.github.GTNewHorizons:ironchest:6.0.87:dev")
-    api("com.github.GTNewHorizons:RemoteIO:2.7.1:dev")
+    api("com.github.GTNewHorizons:RemoteIO:2.7.6:dev")
     
     
    api("com.github.GTNewHorizons:ForgeRelocation:0.3.3:dev")

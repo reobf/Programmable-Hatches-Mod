@@ -13,17 +13,23 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
@@ -54,7 +60,7 @@ import net.minecraftforge.oredict.OreDictionary;
 
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
-import org.spongepowered.include.com.google.common.collect.HashBiMap;
+import com.google.common.collect.HashBiMap;
 
 import com.cleanroommc.modularui.api.IPanelHandler;
 import com.cleanroommc.modularui.api.drawable.IKey;
@@ -104,6 +110,7 @@ import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import appeng.api.networking.crafting.ICraftingPatternDetails;
+import appeng.api.util.DimensionalCoord;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -269,7 +276,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 	// private short count;
 	public int currentID = 1;
 	public HashBiMap<Recipe, Integer> detailmap = HashBiMap.create();
-
+	public HashMap<Integer, Integer> detailmapUsage = new HashMap();
 	public class DualInvBuffer implements INeoDualInputInventory {
 
 		public int PID;
@@ -1123,239 +1130,10 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 	final int offset = 0;
 
-	public void add1by1Slot(ModularWindow.Builder builder, int index, IDrawable... background) {
-		final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
-				offset, 1).id(1);
-		if (background.length == 0) {
-			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
-		}
-		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 1).startFromSlot(offset)
-				.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset).background(background).build()
-				.setPos(3, 3));
-	}
-
-	public void add2by2Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
-		final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
-				offset, 4).id(1);
-		if (background.length == 0) {
-			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
-		}
-		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 2).startFromSlot(offset)
-				.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset + 3).background(background)
-				.build().setPos(3, 3));
-	}
-
-	public void add3by3Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
-		final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
-				offset, 9).id(1);
-		if (background.length == 0) {
-			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
-		}
-		builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 3).startFromSlot(offset)
-				.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset + 8).background(background)
-				.build().setPos(3, 3));
-	}
 	
-	public void add4by4Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
-		final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
-				offset, 16*page()).id(1);
-		if (background.length == 0) {
-			background = new IDrawable[] { getGUITextureSet().getItemSlot() };
-		}
-		final Scrollable scrollable = new Scrollable().setVerticalScroll();
-		scrollable.setSize(18*4, 18*4);
-		scrollable.widget(SlotGroup.ofItemHandler(inventoryHandler, 4).startFromSlot(offset)
-				.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset + 16*page()-1).background(background)
-				.build()
-
-		);
-		builder.widget(scrollable.setPos(3, 3));
-		
-		
-	}
-
-	private Widget createButtonBuffer(int id, int xoffset, int yoffset) {
-		// for(int i=0;i<bufferNum;i++)
-		return new ButtonWidget().setOnClick((clickData, widget) -> {
-			if (clickData.mouseButton == 0) {
-				if (!widget.isClient())
-					widget.getContext().openSyncedWindow(BUFFER_0 + id);
-			}
-		}).setPlayClickSound(true).setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
-				.addTooltips(ImmutableList
-						.of(LangManager.translateToLocalFormatted("programmable_hatches.gt.buffer", "" + id)))
-				.setSize(16, 16).setPos(xoffset + 16 * (id % 3), yoffset + 16 * (id / 3));
-
-		/*
-		 * return new ButtonWidget().setOnClick((clickData, widget) -> { if
-		 * (clickData.mouseButton == 0) { widget.getContext()
-		 * .openSyncedWindow(BUFFER_0); } }) .setPlayClickSound(true)
-		 * .setBackground(GTUITextures.BUTTON_STANDARD,
-		 * GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
-		 * .addTooltips(ImmutableList.of("Place manual items")) .setSize(18, 18)
-		 * .setPos(7 + offset*18, 62-18*2);
-		 */
-
-		/*
-		 * return new CycleButtonWidget().setToggle(getter, setter)
-		 * .setStaticTexture(picture)
-		 * .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
-		 * .setTooltipShowUpDelay(TOOLTIP_DELAY) .setPos(7 + offset*18, 62-18*2)
-		 * .setSize(18, 18) .setGTTooltip(tooltipDataSupplier);
-		 */
-	}
-
 	static private final int BUFFER_0 = 1001;
 
-	protected ModularWindow createWindow(final EntityPlayer player, int index) {
-		// DualInvBuffer inv0 = this.inv0.get(index);
-		final int WIDTH = 18 * 6 + 6;
-		final int HEIGHT = 18 * 4 + 6;
-		final int PARENT_WIDTH = getGUIWidth();
-		final int PARENT_HEIGHT = getGUIHeight();
-		ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-		builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
-		builder.setGuiTint(getGUIColorization());
-		builder.setDraggable(true);
-		// make sure the manual window is within the parent window
-		// otherwise picking up manual items would toss them
-		// See GuiContainer.java flag1
-
-		builder.setPos((size, window) -> Alignment.Center.getAlignedPos(size, new Size(PARENT_WIDTH, PARENT_HEIGHT))
-				.add(Alignment.TopRight.getAlignedPos(new Size(PARENT_WIDTH, PARENT_HEIGHT), new Size(WIDTH, HEIGHT))));
-		switch (slotTierOverride(mTier)) {
-		case 0:
-			add1by1Slot(builder, index);
-			break;
-		case 1:
-			add2by2Slots(builder, index);
-			break;
-		case 2:
-			add3by3Slots(builder, index);
-			break;
-		default:
-			add4by4Slots(builder, index);
-			break;
-		}
-
-		Pos2d[] p = new Pos2d[] { new Pos2d(3 + 18 * 1, 7 - 4), new Pos2d(3 + 18 * 2, 7 - 4),
-				new Pos2d(3 + 18 * 3, 7 - 4), new Pos2d(3 + 18 * 4, 7 - 4) };
-		Pos2d position = p[Math.min(3, slotTierOverride(this.mTier))];
-
-		Scrollable sc = new Scrollable().setVerticalScroll();
-
-		final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal, 0,
-				inv0.get(index).mStoredItemInternal.length).phantom();
-		for (int i = 0; i < inv0.get(index).v; i++)
-
-			sc.widget((i == 0 ? circuitSlot(inventoryHandler, inv0.get(index).i + i)
-					: new SlotWidget(new BaseSlot(inventoryHandler, inv0.get(index).i + i) {
-
-						public int getSlotStackLimit() {
-							return 0;
-						};
-
-					}
-
-					) {
-
-						@Override
-						public List<String> getExtraTooltip() {
-							return Arrays
-									.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1"));
-						}
-					}.disableShiftInsert().setHandlePhantomActionClient(true).setGTTooltip(() -> new TooltipData(
-							Arrays.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.0"),
-									LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1")),
-							Arrays.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.0"),
-									LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1"))))).setPos(0,
-											18 * i)
-
-			);
-
-		builder.widget(sc.setSize(18, 18 * 2).setPos(3 + 18 * 5, 3));
-
-		{
-			Pos2d position0 = new Pos2d(0, 0);
-
-			final Scrollable scrollable = new Scrollable().setVerticalScroll();
-			for (int i = 0; i < inv0.get(index).mStoredFluidInternal.length; i++) {
-				position0 = new Pos2d((i % fluidSlotsPerRow()) * 18, (i / fluidSlotsPerRow()) * 18);
-				scrollable.widget(new FluidSlotWidget(new LimitedFluidTank(inv0.get(index).mStoredFluidInternal[i]))
-						.setBackground(ModularUITextures.FLUID_SLOT).setPos(position0));
-
-			}
-
-			builder.widget(scrollable
-					.setSize(18 * fluidSlotsPerRow(), 18 * Math.min(4, inv0.get(index).mStoredFluidInternal.length)
-
-					).setPos(position));
-		}
-
-		/*
-		 * for (int i = 0; i < inv0.mStoredFluidInternal.length; i++) {
-		 * builder.widget( new FluidSlotWidget(new
-		 * LimitedFluidTank(inv0.mStoredFluidInternal[i])).setBackground(
-		 * ModularUITextures.FLUID_SLOT) .setPos(position)); position=new
-		 * Pos2d(position.getX(),position.getY()).add(0, 18); }
-		 */
-
-		builder.widget(TextWidget.dynamicString(() -> inv0.get(index).recipeLocked ? "§4Lock" : "§aIdle")
-				.setSynced(true).setPos(3 + 18 * 5, 3 + 18 * 2));
-
-		builder.widget(new CycleButtonWidget().setToggle(() -> !inv0.get(index).lock, (s) -> {
-			inv0.get(index).lock = !s;
-			inv0.get(index).clearRecipeIfNeeded();
-		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_RECIPE_LOCKED_DISABLED)
-				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
-				.setPos(3 + 18 * 5, 3 + 18 * 3).setSize(18, 18)
-				.setGTTooltip(() -> mTooltipCache.getData("programmable_hatches.gt.lockbuffer"))
-
-		);
-		/*
-		 * builder.widget(new FakeSyncWidget.BooleanSyncer(()->
-		 * inv0.recipeLocked, s->inv0.recipeLocked=s ));
-		 */
-		builder.widget(new FakeSyncWidget.StringSyncer(() -> inv0.get(index).toTag().toString(),
-				s -> inv0.get(index).fromTag(cv(s))));
-		ModularWindow wd = builder.build();
-
-		wd.addInteractionListener(new Interactable() {
-
-			@SideOnly(Side.CLIENT)
-			public boolean onKeyPressed(char character, int keyCode) {
-				if (!wd.isClientOnly()) {
-
-					if ((keyCode == Keyboard.KEY_ESCAPE
-							|| Minecraft.getMinecraft().gameSettings.keyBindInventory.getKeyCode() == keyCode)
-							&& Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-						ArrayList<ModularWindow> tmp = new ArrayList<>();
-
-						wd.getContext().getMainWindow().getContext().getOpenWindows().forEach(tmp::add);
-						// return true will not prevent further check(not
-						// properly implemented to me)
-						// so close all other sync windows
-						// and let it proceed, it will close this window
-						tmp.forEach(wdd -> {
-							if (wdd == wd)
-								return;
-							if (wdd == wd.getContext().getMainWindow())
-								return;
-							wdd.getContext().sendClientPacket(ModularUIContext.DataCodes.CLOSE_WINDOW, null, wdd,
-									NetworkUtils.EMPTY_PACKET);
-							wdd.tryClose();
-						});
-
-						return false;
-					}
-				}
-
-				return false;
-			}
-
-		});
-		return wd;
-	}
+	
 
 	static int EX_CONFIG = 985211;
 
@@ -1367,8 +1145,127 @@ public class BufferedDualInputHatch extends DualInputHatch
 		}
 	}
 
-	ButtonWidget createPowerSwitchButton(IWidgetBuilder<?> builder) {
-		IGregTechTileEntity thiz = this.getBaseMetaTileEntity();
+
+	public class MUI1ContainerX extends MUI1Container{
+		@Override
+		public BufferedDualInputHatch this$() {
+			
+			return BufferedDualInputHatch.this;
+		}
+		protected Builder createWindowEx(final EntityPlayer player) {
+
+			final int WIDTH = 18 * 6 + 6;
+			final int HEIGHT = 18 * 4 + 6;
+			final int PARENT_WIDTH = getGUIWidth();
+			final int PARENT_HEIGHT = getGUIHeight();
+			ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
+			builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+			builder.setGuiTint(getGUIColorization());
+			builder.setDraggable(true);
+
+			builder.setPos((size, window) -> Alignment.Center.getAlignedPos(size, new Size(PARENT_WIDTH, PARENT_HEIGHT))
+					.add(Alignment.TopRight.getAlignedPos(new Size(PARENT_WIDTH, PARENT_HEIGHT), new Size(WIDTH, HEIGHT))));
+
+			builder.widget(new CycleButtonWidget().setToggle(() -> updateEveryTick, (s) -> {
+				updateEveryTick = s;
+
+			}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+					.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+					.setPos(3 + 18 * 0, 3 + 18 * 0).setSize(18, 18)
+					.setGTTooltip(() -> mTooltipCache.getData("programmable_hatches.gt.forcecheck"))
+
+			);
+			/*
+			 * builder.widget(new CycleButtonWidget().setToggle(() ->!trunOffEnsure
+			 * , (s) -> { trunOffEnsure =! s;
+			 * }).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+			 * .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).
+			 * setTooltipShowUpDelay(TOOLTIP_DELAY) .setPos(3 + 18 * 1, 3 + 18 *
+			 * 0).setSize(18, 18) .addTooltip(StatCollector.translateToLocal(
+			 * "programmable_hatches.gt.ensureintmax.0"))
+			 * .addTooltip(StatCollector.translateToLocal(
+			 * "programmable_hatches.gt.ensureintmax.1"))
+			 * .addTooltip(StatCollector.translateToLocal(
+			 * "programmable_hatches.gt.ensureintmax.2"))
+			 * .addTooltip(StatCollector.translateToLocal(
+			 * "programmable_hatches.gt.ensureintmax.3")) );
+			 */
+			builder.widget(new CycleButtonWidget().setToggle(() -> CMMode, (s) -> {
+				CMMode = s;
+
+			}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+					.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+					.setPos(3 + 18 * 1, 3 + 18 * 0).setSize(18, 18)
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.0"))
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.1"))
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.2"))
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.3"))
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.4"))
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.5"))
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.6")));
+
+			/*
+			 * builder.widget(new CycleButtonWidget().setToggle(() -> merge, (s) ->
+			 * { merge = s; })
+			 * .setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+			 * .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
+			 * .setTooltipShowUpDelay(TOOLTIP_DELAY) .setPos(3 + 18 * 2, 3 + 18 * 0)
+			 * .setSize(18, 18) .addTooltip(StatCollector.translateToLocal(
+			 * "programmable_hatches.gt.merge.0"))
+			 * .addTooltip(StatCollector.translateToLocal(
+			 * "programmable_hatches.gt.merge.1")) );
+			 */
+			if (isInfBuffer() || shared.infbufUpgrades > 0)
+				builder.widget(new CycleButtonWidget().setToggle(() -> autoAppend, (s) -> {
+					autoAppend = s;
+
+				}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+						.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+						.setPos(3 + 18 * 3, 3 + 18 * 0).setSize(18, 18)
+						.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.0"))
+						.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.1"))
+						.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.2"))
+						.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.3"))
+
+				);
+
+			builder.widget(new CycleButtonWidget().setToggle(() -> useNewGTPatternCache, (s) -> {
+				{
+					if (MyMod.newGTCache) {
+						useNewGTPatternCache = s;
+						if (useNewGTPatternCache == false) {
+							resetMulti();
+							detailmap.clear();
+							detailmapUsage.clear();
+							inv0.forEach(sX -> sX.PID = 0);
+
+						}
+					}
+
+				}
+
+			}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+					.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+					.setPos(3 + 18 * 4, 3 + 18 * 0).setSize(18, 18)
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.0"))
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.1"))
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.2"))
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.3"))
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.4"))
+					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.5"))
+					.addTooltip((MyMod.newGTCache) ? ""
+							: StatCollector.translateToLocal("programmable_hatches.gt.newcrib.nosupport"))
+
+			)
+
+			;
+			
+			return builder;
+
+		}
+		
+		ButtonWidget createPowerSwitchButton(IWidgetBuilder<?> builder) {
+		IGregTechTileEntity thiz = this$().getBaseMetaTileEntity();
 		Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
 			if (clickData.shift == true) {
 				if (widget.getContext().isClient() == false)
@@ -1403,87 +1300,327 @@ public class BufferedDualInputHatch extends DualInputHatch
 				.setTooltipShowUpDelay(TOOLTIP_DELAY).setPos(new Pos2d(getGUIWidth() - 18 - 3, 5)).setSize(16, 16);
 		return (ButtonWidget) button;
 	}
+		public void add1by1Slot(ModularWindow.Builder builder, int index, IDrawable... background) {
+			final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
+					offset, 1).id(1);
+			if (background.length == 0) {
+				background = new IDrawable[] { getGUITextureSet().getItemSlot() };
+			}
+			builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 1).startFromSlot(offset)
+					.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset).background(background).build()
+					.setPos(3, 3));
+		}
 
+		public void add2by2Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
+			final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
+					offset, 4).id(1);
+			if (background.length == 0) {
+				background = new IDrawable[] { getGUITextureSet().getItemSlot() };
+			}
+			builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 2).startFromSlot(offset)
+					.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset + 3).background(background)
+					.build().setPos(3, 3));
+		}
+
+		public void add3by3Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
+			final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
+					offset, 9).id(1);
+			if (background.length == 0) {
+				background = new IDrawable[] { getGUITextureSet().getItemSlot() };
+			}
+			builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 3).startFromSlot(offset)
+					.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset + 8).background(background)
+					.build().setPos(3, 3));
+		}
+		
+		public void add4by4Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
+			final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
+					offset, 16*page()).id(1);
+			if (background.length == 0) {
+				background = new IDrawable[] { getGUITextureSet().getItemSlot() };
+			}
+			final Scrollable scrollable = new Scrollable().setVerticalScroll();
+			scrollable.setSize(18*4, 18*4);
+			scrollable.widget(SlotGroup.ofItemHandler(inventoryHandler, 4).startFromSlot(offset)
+					.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset + 16*page()-1).background(background)
+					.build()
+
+			);
+			builder.widget(scrollable.setPos(3, 3));
+			
+			
+		}
+
+		private Widget createButtonBuffer(int id, int xoffset, int yoffset) {
+			// for(int i=0;i<bufferNum;i++)
+			return new ButtonWidget().setOnClick((clickData, widget) -> {
+				if (clickData.mouseButton == 0) {
+					if (!widget.isClient())
+						widget.getContext().openSyncedWindow(BUFFER_0 + id);
+				}
+			}).setPlayClickSound(true).setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
+					.addTooltips(ImmutableList
+							.of(LangManager.translateToLocalFormatted("programmable_hatches.gt.buffer", "" + id)))
+					.setSize(16, 16).setPos(xoffset + 16 * (id % 3), yoffset + 16 * (id / 3));
+
+			/*
+			 * return new ButtonWidget().setOnClick((clickData, widget) -> { if
+			 * (clickData.mouseButton == 0) { widget.getContext()
+			 * .openSyncedWindow(BUFFER_0); } }) .setPlayClickSound(true)
+			 * .setBackground(GTUITextures.BUTTON_STANDARD,
+			 * GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
+			 * .addTooltips(ImmutableList.of("Place manual items")) .setSize(18, 18)
+			 * .setPos(7 + offset*18, 62-18*2);
+			 */
+
+			/*
+			 * return new CycleButtonWidget().setToggle(getter, setter)
+			 * .setStaticTexture(picture)
+			 * .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
+			 * .setTooltipShowUpDelay(TOOLTIP_DELAY) .setPos(7 + offset*18, 62-18*2)
+			 * .setSize(18, 18) .setGTTooltip(tooltipDataSupplier);
+			 */
+		}
+protected ModularWindow createWindow(final EntityPlayer player, int index) {
+			// DualInvBuffer inv0 = this.inv0.get(index);
+			final int WIDTH = 18 * 6 + 6;
+			final int HEIGHT = 18 * 4 + 6;
+			final int PARENT_WIDTH = getGUIWidth();
+			final int PARENT_HEIGHT = getGUIHeight();
+			ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
+			builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+			builder.setGuiTint(getGUIColorization());
+			builder.setDraggable(true);
+			// make sure the manual window is within the parent window
+			// otherwise picking up manual items would toss them
+			// See GuiContainer.java flag1
+
+			builder.setPos((size, window) -> Alignment.Center.getAlignedPos(size, new Size(PARENT_WIDTH, PARENT_HEIGHT))
+					.add(Alignment.TopRight.getAlignedPos(new Size(PARENT_WIDTH, PARENT_HEIGHT), new Size(WIDTH, HEIGHT))));
+			switch (slotTierOverride(mTier)) {
+			case 0:
+				add1by1Slot(builder, index);
+				break;
+			case 1:
+				add2by2Slots(builder, index);
+				break;
+			case 2:
+				add3by3Slots(builder, index);
+				break;
+			default:
+				add4by4Slots(builder, index);
+				break;
+			}
+
+			Pos2d[] p = new Pos2d[] { new Pos2d(3 + 18 * 1, 7 - 4), new Pos2d(3 + 18 * 2, 7 - 4),
+					new Pos2d(3 + 18 * 3, 7 - 4), new Pos2d(3 + 18 * 4, 7 - 4) };
+			Pos2d position = p[Math.min(3, slotTierOverride(this$().mTier))];
+
+			Scrollable sc = new Scrollable().setVerticalScroll();
+
+			final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal, 0,
+					inv0.get(index).mStoredItemInternal.length).phantom();
+			for (int i = 0; i < inv0.get(index).v; i++)
+
+				sc.widget((i == 0 ? circuitSlot(inventoryHandler, inv0.get(index).i + i)
+						: new SlotWidget(new BaseSlot(inventoryHandler, inv0.get(index).i + i) {
+
+							public int getSlotStackLimit() {
+								return 0;
+							};
+
+						}
+
+						) {
+
+							@Override
+							public List<String> getExtraTooltip() {
+								return Arrays
+										.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1"));
+							}
+						}.disableShiftInsert().setHandlePhantomActionClient(true).setGTTooltip(() -> new TooltipData(
+								Arrays.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.0"),
+										LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1")),
+								Arrays.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.0"),
+										LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1"))))).setPos(0,
+												18 * i)
+
+				);
+
+			builder.widget(sc.setSize(18, 18 * 2).setPos(3 + 18 * 5, 3));
+
+			{
+				Pos2d position0 = new Pos2d(0, 0);
+
+				final Scrollable scrollable = new Scrollable().setVerticalScroll();
+				for (int i = 0; i < inv0.get(index).mStoredFluidInternal.length; i++) {
+					position0 = new Pos2d((i % fluidSlotsPerRow()) * 18, (i / fluidSlotsPerRow()) * 18);
+					scrollable.widget(new FluidSlotWidget(new LimitedFluidTank(inv0.get(index).mStoredFluidInternal[i]))
+							.setBackground(ModularUITextures.FLUID_SLOT).setPos(position0));
+
+				}
+
+				builder.widget(scrollable
+						.setSize(18 * fluidSlotsPerRow(), 18 * Math.min(4, inv0.get(index).mStoredFluidInternal.length)
+
+						).setPos(position));
+			}
+
+			/*
+			 * for (int i = 0; i < inv0.mStoredFluidInternal.length; i++) {
+			 * builder.widget( new FluidSlotWidget(new
+			 * LimitedFluidTank(inv0.mStoredFluidInternal[i])).setBackground(
+			 * ModularUITextures.FLUID_SLOT) .setPos(position)); position=new
+			 * Pos2d(position.getX(),position.getY()).add(0, 18); }
+			 */
+
+			builder.widget(TextWidget.dynamicString(() -> inv0.get(index).recipeLocked ? "§4Lock" : "§aIdle")
+					.setSynced(true).setPos(3 + 18 * 5, 3 + 18 * 2));
+
+			builder.widget(new CycleButtonWidget().setToggle(() -> !inv0.get(index).lock, (s) -> {
+				inv0.get(index).lock = !s;
+				inv0.get(index).clearRecipeIfNeeded();
+			}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_RECIPE_LOCKED_DISABLED)
+					.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+					.setPos(3 + 18 * 5, 3 + 18 * 3).setSize(18, 18)
+					.setGTTooltip(() -> mTooltipCache.getData("programmable_hatches.gt.lockbuffer"))
+
+			);
+			/*
+			 * builder.widget(new FakeSyncWidget.BooleanSyncer(()->
+			 * inv0.recipeLocked, s->inv0.recipeLocked=s ));
+			 */
+			builder.widget(new FakeSyncWidget.StringSyncer(() -> inv0.get(index).toTag().toString(),
+					s -> inv0.get(index).fromTag(cv(s))));
+			ModularWindow wd = builder.build();
+
+			wd.addInteractionListener(new Interactable() {
+
+				@SideOnly(Side.CLIENT)
+				public boolean onKeyPressed(char character, int keyCode) {
+					if (!wd.isClientOnly()) {
+
+						if ((keyCode == Keyboard.KEY_ESCAPE
+								|| Minecraft.getMinecraft().gameSettings.keyBindInventory.getKeyCode() == keyCode)
+								&& Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+							ArrayList<ModularWindow> tmp = new ArrayList<>();
+
+							wd.getContext().getMainWindow().getContext().getOpenWindows().forEach(tmp::add);
+							// return true will not prevent further check(not
+							// properly implemented to me)
+							// so close all other sync windows
+							// and let it proceed, it will close this window
+							tmp.forEach(wdd -> {
+								if (wdd == wd)
+									return;
+								if (wdd == wd.getContext().getMainWindow())
+									return;
+								wdd.getContext().sendClientPacket(ModularUIContext.DataCodes.CLOSE_WINDOW, null, wdd,
+										NetworkUtils.EMPTY_PACKET);
+								wdd.tryClose();
+							});
+
+							return false;
+						}
+					}
+
+					return false;
+				}
+
+			});
+			return wd;
+		}
+		@Override
+		public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
+			Scrollable sc = new Scrollable().setVerticalScroll();
+			for (int i = 0; i < bufferNum; i++) {
+				final int ii = i;
+				buildContext.addSyncedWindow(BUFFER_0 + i, (s) -> createWindow(s, ii));
+				sc.widget(createButtonBuffer(i, 0, 0));
+			}
+
+			buildContext.addSyncedWindow(EX_CONFIG, (s) -> createWindowEx(s).build());
+
+			// .setPos(new Pos2d(getGUIWidth() - 18 - 3, 5)).setSize(16, 16)
+			builder.widget(sc.setSize(16 * 3, 16 * 2).setPos(3, 3));
+
+			builder.widget(createPowerSwitchButton(builder));
+			builder.widget(new SyncedWidget() {
+
+				@SuppressWarnings("unchecked")
+				public void detectAndSendChanges(boolean init) {
+					// player operation is more complicated, always set to true when
+					// GUI open
+					BufferedDualInputHatch.this.dirty = true;
+					markDirty();
+					// flush changes to client
+					// sometimes vanilla detection will fail so sync it manually
+					// System.out.println(last-getBaseMetaTileEntity().getTimer());
+					if (getBaseMetaTileEntity() != null)
+						if (last >= getBaseMetaTileEntity().getTimer())
+							getWindow().getContext().getContainer().inventorySlots.forEach(s -> ((Slot) s).onSlotChanged());
+
+				};
+
+				@Override
+				public void readOnClient(int id, PacketBuffer buf) throws IOException {
+				}
+
+				@Override
+				public void readOnServer(int id, PacketBuffer buf) throws IOException {
+				}
+			});
+
+			// ProghatchesUtil.removeMultiCache(builder, this);
+			ProghatchesUtil.attachZeroSizedStackRemover(builder, buildContext);
+
+			builder.widget(new SyncedWidget() {
+
+				Consumer<Widget> ticker = ss -> {
+
+					for (int i = 0; i < inv0.size(); i++) {
+						DualInvBuffer inv = inv0.get(i);
+						if (getContext().isWindowOpen(BUFFER_0 + i))
+							for (ItemStackG items : inv.mStoredItemInternal) {
+								if (items != null) {
+									items.adjust();
+								}
+							}
+					}
+				};
+
+				{
+					this.setTicker(ticker);
+				}
+
+				public void detectAndSendChanges(boolean init) {
+
+					ticker.accept(this);
+				};
+
+				@Override
+				public void readOnClient(int id, PacketBuffer buf) throws IOException {
+				}
+
+				@Override
+				public void readOnServer(int id, PacketBuffer buf) throws IOException {
+				}
+			});
+
+			super.addUIWidgets(builder, buildContext);
+		}
+		
+	}
+ public MUI1Container initMUI1() {
+	
+	
+	return new MUI1ContainerX();
+};
 	@Override
 	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 
-		Scrollable sc = new Scrollable().setVerticalScroll();
-		for (int i = 0; i < bufferNum; i++) {
-			final int ii = i;
-			buildContext.addSyncedWindow(BUFFER_0 + i, (s) -> createWindow(s, ii));
-			sc.widget(createButtonBuffer(i, 0, 0));
-		}
-
-		buildContext.addSyncedWindow(EX_CONFIG, (s) -> createWindowEx(s).build());
-
-		// .setPos(new Pos2d(getGUIWidth() - 18 - 3, 5)).setSize(16, 16)
-		builder.widget(sc.setSize(16 * 3, 16 * 2).setPos(3, 3));
-
-		builder.widget(createPowerSwitchButton(builder));
-		builder.widget(new SyncedWidget() {
-
-			@SuppressWarnings("unchecked")
-			public void detectAndSendChanges(boolean init) {
-				// player operation is more complicated, always set to true when
-				// GUI open
-				BufferedDualInputHatch.this.dirty = true;
-				markDirty();
-				// flush changes to client
-				// sometimes vanilla detection will fail so sync it manually
-				// System.out.println(last-getBaseMetaTileEntity().getTimer());
-				if (getBaseMetaTileEntity() != null)
-					if (last >= getBaseMetaTileEntity().getTimer())
-						getWindow().getContext().getContainer().inventorySlots.forEach(s -> ((Slot) s).onSlotChanged());
-
-			};
-
-			@Override
-			public void readOnClient(int id, PacketBuffer buf) throws IOException {
-			}
-
-			@Override
-			public void readOnServer(int id, PacketBuffer buf) throws IOException {
-			}
-		});
-
-		// ProghatchesUtil.removeMultiCache(builder, this);
-		ProghatchesUtil.attachZeroSizedStackRemover(builder, buildContext);
-
-		builder.widget(new SyncedWidget() {
-
-			Consumer<Widget> ticker = ss -> {
-
-				for (int i = 0; i < inv0.size(); i++) {
-					DualInvBuffer inv = inv0.get(i);
-					if (getContext().isWindowOpen(BUFFER_0 + i))
-						for (ItemStackG items : inv.mStoredItemInternal) {
-							if (items != null) {
-								items.adjust();
-							}
-						}
-				}
-			};
-
-			{
-				this.setTicker(ticker);
-			}
-
-			public void detectAndSendChanges(boolean init) {
-
-				ticker.accept(this);
-			};
-
-			@Override
-			public void readOnClient(int id, PacketBuffer buf) throws IOException {
-			}
-
-			@Override
-			public void readOnServer(int id, PacketBuffer buf) throws IOException {
-			}
-		});
-
+	
 		super.addUIWidgets(builder, buildContext);
-		// builder.widget(widget);
 
 	}
 
@@ -1502,6 +1639,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 	public void loadNBTData(NBTTagCompound aNBT) {
 		if (aNBT.hasKey("x") == false)
 			return;
+		order=aNBT.getInteger("order");
 		dirty = aNBT.getBoolean("dirty");
 		int iex = aNBT.getInteger("exinvlen");
 		boolean warn = false;
@@ -1554,12 +1692,29 @@ public class BufferedDualInputHatch extends DualInputHatch
 			}
 			i++;
 		}
+		detailmapUsage.clear();
+		 i = 0;
+		while (true) {
 
+			int value = aNBT.getInteger("detailmapUsage_v" + i);
+			if (value > 0) {
+				int key =  aNBT.getInteger("detailmapUsage_k" + i);
+				// ItemStack is = ItemStack.loadItemStackFromNBT(key);
+				detailmapUsage.put((key)
+				// ((ICraftingPatternItem)is.getItem()).getPatternForItem(is,
+				// getBaseMetaTileEntity().getWorld())
+						, value);
+			} else {
+				break;
+			}
+			i++;
+		}
 		super.loadNBTData(aNBT);
 	}
 
 	@Override
 	public void saveNBTData(NBTTagCompound aNBT) {
+		aNBT.setInteger("order", order);
 		aNBT.setBoolean("dirty", dirty);
 		for (int i = 0; i < inv0.size(); i++)
 
@@ -1580,6 +1735,15 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 			aNBT.setInteger("detailmap_v" + i, value);
 			aNBT.setTag("detailmap_k" + i, key);
+			i++;
+		}
+	 i = 0;
+		for (Entry<Integer, Integer> e : detailmapUsage.entrySet()) {
+			int key = e.getKey();
+			int value = e.getValue();
+
+			aNBT.setInteger("detailmapUsage_v" + i, value);
+			aNBT.setInteger("detailmapUsage_k" + i, key);
 			i++;
 		}
 
@@ -1758,39 +1922,42 @@ public class BufferedDualInputHatch extends DualInputHatch
 	static Random ran = new Random();
 	final int mask = ran.nextInt();
 
-	public static class Recipe {
+	public static class Recipe extends GTDualInputPattern{
 
-		ItemStack[] i;
-		FluidStack[] f;
+		//ItemStack[] i;
+		//FluidStack[] f;
 
 		public static Recipe fromBuffer(DualInvBuffer buf, boolean copy) {
 			Recipe r = new Recipe();
-			r.i = buf.mStoredItemInternalSingle;
+			r.inputItems = buf.mStoredItemInternalSingle;
 			if (copy)
-				r.i = r.i.clone();
-			for (int i = 0; i < r.i.length; i++) {
+				r.inputItems = r.inputItems.clone();
+			for (int i = 0; i < r.inputItems.length; i++) {
 				if (copy)
-					r.i[i] = r.i[i] == null ? null : r.i[i].copy();
+					r.inputItems[i] = r.inputItems[i] == null ? null : r.inputItems[i].copy();
 			}
-			r.f = new FluidStack[buf.mStoredFluidInternalSingle.length];
-			for (int i = 0; i < r.f.length; i++) {
+			r.inputFluid = new FluidStack[buf.mStoredFluidInternalSingle.length];
+			for (int i = 0; i < r.inputFluid.length; i++) {
 				FluidStack fs = buf.mStoredFluidInternalSingle[i].getFluid();
 				if (copy && fs != null)
 					fs = fs.copy();
-				r.f[i] = fs;
+				r.inputFluid[i] = fs;
 			}
 
 			return r;
 		}
-
+		private Integer hashcache;
 		@Override
 		public int hashCode() {
+			if(hashcache==null){
 			int hashCode = 1;
-			for (ItemStack e : i)
+			for (ItemStack e : inputItems)
 				hashCode = 31 * hashCode + (e == null ? 0 : hashCode(e));
-			for (FluidStack e : f)
-				hashCode = 31 * hashCode + (e == null ? 0 : e.hashCode());
-			return hashCode;
+			for (FluidStack e : inputFluid)
+				hashCode = 31 * hashCode + (e == null ? 0 : hashCode(e));
+			hashcache= hashCode;
+			}
+			return hashcache;
 		}
 
 		private int hashCode(ItemStack e) {
@@ -1800,16 +1967,22 @@ public class BufferedDualInputHatch extends DualInputHatch
 			hashCode = 31 * hashCode + (e.stackTagCompound == null ? 0 : e.stackTagCompound.hashCode());
 			return hashCode;
 		}
-
+		private int hashCode(FluidStack e) {
+			int hashCode = 1;
+			hashCode = 31 * hashCode + e.amount;
+			hashCode = 31 * hashCode + e.getFluidID();
+			hashCode = 31 * hashCode + (e.tag == null ? 0 : e.tag.hashCode());
+			return hashCode;
+		}
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof Recipe) {
 				Recipe p = (Recipe) obj;
-				for (int j = 0; j < f.length; j++) {
-					if (!ItemStack.areItemStacksEqual(i[j], p.i[j])) {
+				for (int j = 0; j < inputFluid.length; j++) {
+					if (!ItemStack.areItemStacksEqual(inputItems[j], p.inputItems[j])) {
 						return false;
 					}
-					if (!fluidEquals(f[j], p.f[j])) {
+					if (!fluidEquals(inputFluid[j], p.inputFluid[j])) {
 						return false;
 					}
 				}
@@ -1821,31 +1994,31 @@ public class BufferedDualInputHatch extends DualInputHatch
 		public NBTTagCompound ser() {
 			NBTTagCompound tag = new NBTTagCompound();
 
-			for (int i = 0; i < f.length; i++) {
-				if (f[i] != null)
-					tag.setTag("f" + i, f[i].writeToNBT(new NBTTagCompound()));
+			for (int i = 0; i < inputFluid.length; i++) {
+				if (inputFluid[i] != null)
+					tag.setTag("f" + i, inputFluid[i].writeToNBT(new NBTTagCompound()));
 			}
-			tag.setInteger("ff", f.length);
-			for (int ii = 0; ii < i.length; ii++) {
-				if (i[ii] != null)
-					tag.setTag("i" + ii, writeToNBT(i[ii], new NBTTagCompound()));
+			tag.setInteger("ff", inputFluid.length);
+			for (int ii = 0; ii < inputItems.length; ii++) {
+				if (inputItems[ii] != null)
+					tag.setTag("i" + ii, writeToNBT(inputItems[ii], new NBTTagCompound()));
 			}
-			tag.setInteger("ii", i.length);
+			tag.setInteger("ii", inputItems.length);
 			return tag;
 		}
 
 		public static Recipe deser(NBTTagCompound tag) {
 			Recipe r = new Recipe();
-			r.f = new FluidStack[tag.getInteger("ff")];
-			r.i = new ItemStack[tag.getInteger("ii")];
-			for (int i = 0; i < r.f.length; i++) {
+			r.inputFluid = new FluidStack[tag.getInteger("ff")];
+			r.inputItems = new ItemStack[tag.getInteger("ii")];
+			for (int i = 0; i < r.inputFluid.length; i++) {
 				if (tag.hasKey("f" + i)) {
-					r.f[i] = FluidStack.loadFluidStackFromNBT(tag.getCompoundTag("f" + i));
+					r.inputFluid[i] = FluidStack.loadFluidStackFromNBT(tag.getCompoundTag("f" + i));
 				}
 			}
-			for (int i = 0; i < r.i.length; i++) {
+			for (int i = 0; i < r.inputItems.length; i++) {
 				if (tag.hasKey("i" + i)) {
-					r.i[i] = loadItemStackFromNBT(tag.getCompoundTag("i" + i));
+					r.inputItems[i] = loadItemStackFromNBT(tag.getCompoundTag("i" + i));
 				}
 			}
 
@@ -1859,7 +2032,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		@Override
 		public boolean shouldBeCached() {
 		
-			return useNewGTPatternCache;
+			return useNewGTPatternCache&&ID!=0;
 		}
 		public BufferedDualInputHatch parent() {
 			return BufferedDualInputHatch.this;
@@ -1868,7 +2041,8 @@ public class BufferedDualInputHatch extends DualInputHatch
 		@Nullable
 		DualInvBuffer wrapped;
 		final int ID;
-
+		
+        public int reset;
 		public PatternDualInv(DualInvBuffer to) {
 			toDisconnect.add(this);
 			wrapped = to;
@@ -1915,6 +2089,14 @@ public class BufferedDualInputHatch extends DualInputHatch
 		@Override
 		public GTDualInputPattern getPatternInputs() {
 
+			/*Recipe opt = (detailmap.inverse().get(this.ID));
+			if(opt!=null){
+				return opt;
+			}
+				*/
+				
+				
+			
 			return wrapped.getPatternInputs();
 		}
 
@@ -2413,116 +2595,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		return true;
 	}
 
-	protected Builder createWindowEx(final EntityPlayer player) {
-
-		final int WIDTH = 18 * 6 + 6;
-		final int HEIGHT = 18 * 4 + 6;
-		final int PARENT_WIDTH = getGUIWidth();
-		final int PARENT_HEIGHT = getGUIHeight();
-		ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-		builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
-		builder.setGuiTint(getGUIColorization());
-		builder.setDraggable(true);
-
-		builder.setPos((size, window) -> Alignment.Center.getAlignedPos(size, new Size(PARENT_WIDTH, PARENT_HEIGHT))
-				.add(Alignment.TopRight.getAlignedPos(new Size(PARENT_WIDTH, PARENT_HEIGHT), new Size(WIDTH, HEIGHT))));
-
-		builder.widget(new CycleButtonWidget().setToggle(() -> updateEveryTick, (s) -> {
-			updateEveryTick = s;
-
-		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
-				.setPos(3 + 18 * 0, 3 + 18 * 0).setSize(18, 18)
-				.setGTTooltip(() -> mTooltipCache.getData("programmable_hatches.gt.forcecheck"))
-
-		);
-		/*
-		 * builder.widget(new CycleButtonWidget().setToggle(() ->!trunOffEnsure
-		 * , (s) -> { trunOffEnsure =! s;
-		 * }).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-		 * .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).
-		 * setTooltipShowUpDelay(TOOLTIP_DELAY) .setPos(3 + 18 * 1, 3 + 18 *
-		 * 0).setSize(18, 18) .addTooltip(StatCollector.translateToLocal(
-		 * "programmable_hatches.gt.ensureintmax.0"))
-		 * .addTooltip(StatCollector.translateToLocal(
-		 * "programmable_hatches.gt.ensureintmax.1"))
-		 * .addTooltip(StatCollector.translateToLocal(
-		 * "programmable_hatches.gt.ensureintmax.2"))
-		 * .addTooltip(StatCollector.translateToLocal(
-		 * "programmable_hatches.gt.ensureintmax.3")) );
-		 */
-		builder.widget(new CycleButtonWidget().setToggle(() -> CMMode, (s) -> {
-			CMMode = s;
-
-		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
-				.setPos(3 + 18 * 1, 3 + 18 * 0).setSize(18, 18)
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.0"))
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.1"))
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.2"))
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.3"))
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.4"))
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.5"))
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.6")));
-
-		/*
-		 * builder.widget(new CycleButtonWidget().setToggle(() -> merge, (s) ->
-		 * { merge = s; })
-		 * .setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-		 * .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
-		 * .setTooltipShowUpDelay(TOOLTIP_DELAY) .setPos(3 + 18 * 2, 3 + 18 * 0)
-		 * .setSize(18, 18) .addTooltip(StatCollector.translateToLocal(
-		 * "programmable_hatches.gt.merge.0"))
-		 * .addTooltip(StatCollector.translateToLocal(
-		 * "programmable_hatches.gt.merge.1")) );
-		 */
-		if (isInfBuffer() || shared.infbufUpgrades > 0)
-			builder.widget(new CycleButtonWidget().setToggle(() -> autoAppend, (s) -> {
-				autoAppend = s;
-
-			}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-					.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
-					.setPos(3 + 18 * 3, 3 + 18 * 0).setSize(18, 18)
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.0"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.1"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.2"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.3"))
-
-			);
-
-		builder.widget(new CycleButtonWidget().setToggle(() -> useNewGTPatternCache, (s) -> {
-			{
-				if (MyMod.newGTCache) {
-					useNewGTPatternCache = s;
-					if (useNewGTPatternCache == false) {
-						resetMulti();
-						detailmap.clear();
-						inv0.forEach(sX -> sX.PID = 0);
-
-					}
-				}
-
-			}
-
-		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
-				.setPos(3 + 18 * 4, 3 + 18 * 0).setSize(18, 18)
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.0"))
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.1"))
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.2"))
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.3"))
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.4"))
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.5"))
-				.addTooltip((MyMod.newGTCache) ? ""
-						: StatCollector.translateToLocal("programmable_hatches.gt.newcrib.nosupport"))
-
-		)
-
-		;
-		
-		return builder;
-
-	}
+	
 
 	public boolean isInfBuffer() {
 		return false;
@@ -2639,10 +2712,10 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		return false;
 	}
-
+  
 	@Override
 	public boolean acceptsPlansCM() {
-
+ 
 		return CMMode;
 	}
 
@@ -2698,15 +2771,88 @@ public class BufferedDualInputHatch extends DualInputHatch
 		if (useNewGTPatternCache == false) {
 			return;
 		}
+		
+		int osize;
+		if((osize=detailmap.size())>512){
+			Set<Integer> inuse=inv0.stream().map(s->s.PID).collect(Collectors.toSet());
+			List<Integer> topKeys = detailmapUsage.entrySet().stream()
+	                .sorted((e1, e2) -> -e2.getValue().compareTo(e1.getValue()))
+	                .filter(s->!inuse.contains(s.getKey()))
+	                .limit(64)
+	                .map(Map.Entry::getKey)
+	                .collect(Collectors.toList());
+			for(int i:topKeys){
+				detailmap.inverse().remove(i);
+				detailmapUsage.remove(i);
+				for (ProcessingLogic pl : processingLogics) {
+					for (int ix : topKeys) {
+
+						try {
+							pl.removeInventoryRecipeCache(new PatternDualInv(ix));
+						} catch (Exception e) {
+							fail = true;
+						}
+
+					}
+
+				}
+			}
+			MyMod.LOG.warn(osize+"->"+(detailmap.size()));
+			MyMod.LOG.warn(
+					new DimensionalCoord((TileEntity) this.getBaseMetaTileEntity()).toString()
+					+
+					" now has more than 512 recipe cache! Now freeing some of them to avoid potential OOME."
+					);
+			MyMod.LOG.warn(
+
+					"Consider turning off recipe cache, since cache is not likely to help in this condition."
+					);			
+			
+			
+			
+		}
+		
+		
+		
+		
 		Integer check = detailmap.getOrDefault(Recipe.fromBuffer(thiz, false), null);
 		if (check == null) {
 			currentID++;
 			detailmap.put(Recipe.fromBuffer(thiz, true), currentID);
 			check = currentID;
 		}
-		thiz.PID = check;
-	}
-
+		thiz.PID = check;			
+		int thisorder = detailmapUsage.getOrDefault(check, -1);
+		if(thisorder!=order)order=order+1;//if current_order=this_order, do not accumulate current_order
+		detailmapUsage.put(check, order);
+		
+		if(order>detailmapUsage.size()*2+128){
+			
+			compressValues();
+		}
+		
+	} 
+	 public  void compressValues(/*Map<Integer, Integer> originalMap*/) {
+	       
+	        List<Integer> sortedValues = new ArrayList<>(detailmapUsage.values());
+	        Collections.sort(sortedValues);
+	        
+	      
+	        Map<Integer, Integer> valueToIndex = new HashMap<>();
+	        for (int i = 0; i < sortedValues.size(); i++) {
+	            valueToIndex.put(sortedValues.get(i), i);
+	        }
+	        
+	      
+	        HashMap<Integer, Integer> compressedMap = new HashMap<>();
+	        for (Map.Entry<Integer, Integer> entry : detailmapUsage.entrySet()) {
+	            compressedMap.put(entry.getKey(), valueToIndex.get(entry.getValue()));
+	        }
+	        
+	        detailmapUsage= compressedMap;
+	        order=sortedValues.size()+1;
+	    }
+	int order;
 	public static NBTTagCompound writeToNBTG(ItemStackG is, NBTTagCompound tag) {
 		is.writeToNBT(tag);
 		// tag.setInteger("ICount", is.stackSize);
@@ -2736,7 +2882,31 @@ public class BufferedDualInputHatch extends DualInputHatch
 	}
 
 	public class MUI2ContainerX extends MUI2Container implements IMUITexture {
+		ItemSlot circuitSlotInBuffer2(int pos,int indexPhantom, MappingItemHandlerG inventoryHandlerPhantom) {
+			
 
+			ItemSlot is = new ItemSlot() {
+				public Result onMousePressed(int mouseButton) {
+					//if (getSlot().getHasStack())
+					//	getSlot().putStack(null);
+					return super.onMousePressed(mouseButton);
+				};
+				
+			}
+			
+			.slot(new ModularSlot(inventoryHandlerPhantom, indexPhantom){
+				public int getSlotStackLimit() {return 0;};
+				public int getItemStackLimit(ItemStack stack) {return 0;};
+			}
+					).pos(0, pos*18);
+	
+			return is;
+
+		
+
+		
+	
+	}
 		@Override
 		public void buildUI(ModularPanel builder, PosGuiData data, PanelSyncManager syncManager,
 				UISettings uiSettings) {
@@ -2928,31 +3098,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			return builder;
 		}
 	}
-	ItemSlot circuitSlotInBuffer2(int pos,int indexPhantom, MappingItemHandlerG inventoryHandlerPhantom) {
-		
-
-			ItemSlot is = new ItemSlot() {
-				public Result onMousePressed(int mouseButton) {
-					//if (getSlot().getHasStack())
-					//	getSlot().putStack(null);
-					return super.onMousePressed(mouseButton);
-				};
-				
-			}
-			
-			.slot(new ModularSlot(inventoryHandlerPhantom, indexPhantom){
-				public int getSlotStackLimit() {return 0;};
-				public int getItemStackLimit(ItemStack stack) {return 0;};
-			}
-					).pos(0, pos*18);
 	
-			return is;
-
-		
-
-		
-	
-	}
 	@Override
 	public MUI2Container initMUI2() {
 		return new MUI2ContainerX();

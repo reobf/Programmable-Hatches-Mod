@@ -101,6 +101,8 @@ import gregtech.api.util.GTUtility;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
+import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.MUI1ContainerX;
+import reobf.proghatches.gt.metatileentity.DualInputHatch.MUI1Container;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch.DA;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
@@ -312,27 +314,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 
     ItemStack[] pattern = new ItemStack[36];
 
-    ButtonWidget createRefundButton(IWidgetBuilder<?> builder) {
-
-        Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
-
-            PatternDualInputHatch.this.dirty = true;
-            try {
-                PatternDualInputHatch.this.refundAll();
-            } catch (Exception e) {
-
-                // e.printStackTrace();
-            }
-        })
-            .setPlayClickSound(true)
-            .setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_EXPORT)
-
-            .addTooltips(ImmutableList.of("Return all internally stored items back to AE"))
-
-            .setPos(new Pos2d(getGUIWidth() - 18 - 3, 5 + 16 + 2))
-            .setSize(16, 16);
-        return (ButtonWidget) button;
-    }
+   
 
     MachineSource requestSource;
 
@@ -418,44 +400,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 
     }
 
-    @SuppressWarnings("unchecked")
-	@Override
-    public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-        buildContext.addSyncedWindow(88, this::createPatternWindow);
-
-        builder.widget(createRefundButton(builder));
-        ButtonWidget b;
-        builder.widget(
-            (b = new ButtonWidget()).setOnClick(
-                (clickData, widget) -> {
-                    if (widget.getContext()
-                        .isClient() == false)
-                        widget.getContext()
-                            .openSyncedWindow(88);
-                })
-                .setPlayClickSound(true)
-                .setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
-                .addTooltips(ImmutableList.of(LangManager.translateToLocalFormatted("programmable_hatches.gt.pattern")))
-
-                .setSize(16, 16)
-                // .setPos(10 + 16 * 9, 3 + 16 * 2)
-                .setPos(new Pos2d(getGUIWidth() - 18 - 3, 5 + 16 + 2 + 16 + 2)));
-        final boolean e=PatternDualInputHatchInventoryMappingSlave.enclose;
-        builder.widget(new Widget() {}.setTicker(new Consumer() {
-
-            int init;
-
-            public void accept(Object x) {
-            	if(e)return;
-                init++;
-                if (init == 2) {
-                    b.syncToServer(1, Widget.ClickData.create(1, false)::writeToPacket);
-                }
-            }
-        }));
-
-        super.addUIWidgets(builder, buildContext);
-    }
+   
 
     static AdaptableUITexture mode0 = AdaptableUITexture.of("proghatches", "gui/restrict_mode0", 18, 18, 1);
 
@@ -472,279 +417,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 
     }
 
-    protected ModularWindow createPatternWindow(final EntityPlayer player) {
-        final int WIDTH = 18 * 4 + 6;
-        final int HEIGHT = 18 * 9 + 6;
-        final int PARENT_WIDTH = getGUIWidth();
-        final int PARENT_HEIGHT = getGUIHeight();
-        ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-        IDrawable tab1 = new ItemDrawable(
-            Api.INSTANCE.definitions()
-                .items()
-                .encodedPattern()
-                .maybeStack(1)
-                .get()).withFixedSize(18, 18, 4, 4);
-        IDrawable tab2 = GTUITextures.OVERLAY_BUTTON_BATCH_MODE_OFF.withFixedSize(18, 18, 4, 4);;
-
-        /*
-         * new ItemDrawable(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Iron, 1))
-         * .withFixedSize(18, 18, 4, 4);
-         */
-        IDrawable tab3 = GTUITextures.OVERLAY_BUTTON_BATCH_MODE_ON.withFixedSize(
-            18,
-            18,
-            4,
-            4);;/*
-                 * new ItemDrawable(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Gold, 1))
-                 * .withFixedSize(18, 18, 4, 4);
-                 */
-
-        TabContainer tab;
-        builder.widget(
-            tab = new TabContainer().setButtonSize(28, 32)
-                .addTabButton(
-                    new TabButton(0)
-                        .setBackground(
-                            true,
-                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 0f, 1f, 1 / 3f)
-                                .getSubArea(0, 0, 0.5f, 1f),
-                            tab1)
-                        .setBackground(
-                            false,
-                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 0f, 1f, 1 / 3f)
-                                .getSubArea(0.5f, 0, 1f, 1f),
-                            tab1)
-                        .setPos(WIDTH - 3, -1)
-                        .addTooltip("Patterns"))
-                .addTabButton(
-                    new TabButton(1)
-                        .setBackground(
-                            true,
-                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
-                                .getSubArea(0, 0, 0.5f, 1f),
-                            tab2)
-                        .setBackground(
-                            false,
-                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
-                                .getSubArea(0.5f, 0, 1f, 1f),
-                            tab2)
-                        .setPos(WIDTH - 3, 28 - 1)
-                        .addTooltip("Individual Multiplier Op."))
-                .addTabButton(
-                    new TabButton(2)
-                        .setBackground(
-                            true,
-                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
-                                .getSubArea(0, 0, 0.5f, 1f),
-                            tab3)
-                        .setBackground(
-                            false,
-                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
-                                .getSubArea(0.5f, 0, 1f, 1f),
-                            tab3)
-                        .setPos(WIDTH - 3, 56 - 1)
-                        .addTooltip("Batch Multiplier Op.")));
-
-        builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
-        builder.setGuiTint(getGUIColorization());
-        builder.setDraggable(true);
-        builder.setPos(
-            (a, b) -> new Pos2d(
-                PARENT_WIDTH + b.getPos()
-                    .getX(),
-                PARENT_HEIGHT * 0 + b.getPos()
-                    .getY()));
-        MultiChildWidget page1 = new MultiChildWidget();
-        tab.addPage(page1);
-        MultiChildWidget page2 = new MultiChildWidget();
-        tab.addPage(page2);
-        MultiChildWidget page3 = new MultiChildWidget();
-        tab.addPage(page3);
-
-        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
-            for (int i = 0; i < 36; i++) {
-                multiplier[i] *= 2;
-                multiplier[i] = Math.max(multiplier[i], 1);
-            }
-            refresh();
-        })
-            .setSize(16, 16)
-            .setPos(3, 3)
-            .setBackground(GTUITextures.BUTTON_STANDARD)
-            .addTooltip("x2"));
-        page3.addChild(
-            TextWidget.dynamicString(() -> "x2")
-                .setPos(3 + 3, 3));
-        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
-            for (int i = 0; i < 36; i++) multiplier[i] = 1;
-            refresh();
-        })
-            .setSize(16, 16)
-            .setPos(3 + 16, 3)
-            .setBackground(GTUITextures.BUTTON_STANDARD)
-            .addTooltip("=1"));
-        page3.addChild(
-            TextWidget.dynamicString(() -> "=2")
-                .setPos(3 + 3 + 16, 3));
-        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
-            for (int i = 0; i < 36; i++) {
-                multiplier[i] *= n;
-                multiplier[i] = Math.max(multiplier[i], 1);
-            }
-            refresh();
-        })
-            .setSize(16, 16)
-            .setPos(3, 3 + 32)
-            .setBackground(GTUITextures.BUTTON_STANDARD)
-            .addTooltip("xN"));
-        page3.addChild(
-            TextWidget.dynamicString(() -> "x" + n)
-                .setPos(3 + 3, 3 + 32));
-        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
-            for (int i = 0; i < 36; i++) multiplier[i] = n;
-            refresh();
-        })
-            .setSize(16, 16)
-            .setPos(3 + 16, 3 + 32)
-            .setBackground(GTUITextures.BUTTON_STANDARD)
-            .addTooltip("=N"));
-        page3.addChild(
-            TextWidget.dynamicString(() -> "=" + n)
-                .setPos(3 + 3 + 16, 3 + 32));
-        TextFieldWidget text_n;
-        page3.addChild((text_n = new TextFieldWidget()).setValidator(s -> {
-            try {
-                Integer.valueOf(s);
-            } catch (Exception e) {
-                return "1";
-            }
-            return s;
-        })
-            .setSetter(s -> {
-
-                n = Integer.valueOf(s);
-
-                refresh();
-            })
-
-            .setGetter(() -> n + "")
-
-            .setTextAlignment(Alignment.Center)
-            .setTextColor(Color.WHITE.normal)
-            .addTooltip("N=")
-            .setSize(60, 18)
-            .setPos(3, 3 + 32 + 18)
-            .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
-
-        page3.addChild(new TextWidget().setStringSupplier(() -> {
-            if (text_n == text_n.getContext()
-                .getCursor()
-                .getFocused()) {
-                return "Enter <Space> to update value";
-            }
-            return "";
-        })
-            .setPos(3, 3 + 32 + 18 + 18)
-
-        /*
-         * TextWidget.dynamicString(()->{
-         * //if(text_n.isFocused()){return "Enter <Space> to update value";}
-         * System.out.println(text_n.getContext().getCursor().getFocused());
-         * System.out.println(text_n);
-         * return "";}).setPos(3, 3+32+18+18)
-         */
-        );
-
-        MappingItemHandler shared_handler = new MappingItemHandler(pattern, 0, 36);
-        // use shared handler
-        // or shift clicking a pattern in pattern slot will just transfer it to
-        // another pattern slot
-        // instead of player inventory!
-        for (int i = 0; i < 36; i++) {
-            final int ii = i;
-
-            page2.addChild(new SlotWidget(new BaseSlot(shared_handler, i)) {
-
-                @Override
-                protected ItemStack getItemStackForRendering(Slot slotIn) {
-                    ItemStack stack = slotIn.getStack();
-                    if (stack == null || !(stack.getItem() instanceof ItemEncodedPattern)) {
-                        return stack;
-                    }
-                    ItemStack output = ((ItemEncodedPattern) stack.getItem()).getOutput(stack);
-                    return output != null ? output : stack;
-
-                }
-            }.disableInteraction()
-                .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
-                .setBackground(GTUITextures.SLOT_DARK_GRAY, GTUITextures.OVERLAY_SLOT_PATTERN_ME));
-
-            page2.addChild(
-                new TextFieldWidget()
-
-                    .setValidator(s -> {
-                        try {
-                            Integer.valueOf(s);
-                        } catch (Exception e) {
-                            return "1";
-                        }
-                        return s;
-                    })
-                    .setSetter(s -> {
-
-                        multiplier[ii] = Integer.valueOf(s);
-
-                        refresh();
-                    })
-
-                    .setGetter(() -> multiplier[ii] + "")
-                    .setTextColor(Color.RED.bright(0))
-                    .setMaxLength(999)
-
-                    .setScrollBar()
-
-                    .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 1)
-
-                    .setSize(18, 16)
-                    .setBackground());
-            page1.addChild(new SlotWidget(new BaseSlot(shared_handler, i)
-
-            ) {
-
-                @Override
-                protected ItemStack getItemStackForRendering(Slot slotIn) {
-                    ItemStack stack = slotIn.getStack();
-                    if (stack == null || !(stack.getItem() instanceof ItemEncodedPattern)) {
-                        return stack;
-                    }
-                    ItemStack output = ((ItemEncodedPattern) stack.getItem()).getOutput(stack);
-                    return output != null ? output : stack;
-
-                }
-            }.setShiftClickPriority(-1)
-                .setFilter(itemStack -> itemStack.getItem() instanceof ICraftingPatternItem)
-                .setChangeListener(() -> { onPatternChange(); })
-                .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
-                .setBackground(getGUITextureSet().getItemSlot(), GTUITextures.OVERLAY_SLOT_PATTERN_ME));
-
-            page1.addChild(TextWidget.dynamicString(() -> {
-
-                String s = multiplier[ii] == 1 ? "" : (ps(multiplier[ii]) + "");
-                if (pattern[ii] == null) return s = "§7" + s;
-
-                return s;
-            })
-                .setTextAlignment(Alignment.TopLeft)
-                .setDefaultColor(Color.WHITE.normal)
-                .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 2)
-
-                .setSize(36, 16)
-                .setBackground());
-        }
-
-        return builder.build();
-    }
-
+    
     private static String ps(int amount) {
         return numberFormatx.formatWithSuffix(amount);
 
@@ -1610,36 +1283,7 @@ boolean allowopt;
 
         return true;
     }*/
-@Override
-protected Builder createWindowEx(EntityPlayer player) {
-	
-	Builder builder = super.createWindowEx(player);
-	
-	builder.widget(new CycleButtonWidget().setToggle(() -> restrictToInt, (s) -> {
-		restrictToInt = s;
 
-	}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-			.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
-			.setPos(3 + 18 * 0, 3 + 18 * 1).setSize(18, 18)
-			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.restrictToInt.0"))
-			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.restrictToInt.1"))
-		);
-	
-	builder.widget(new CycleButtonWidget().setToggle(() -> allowopt, (s) -> {
-		allowopt = s;
-
-	}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-			.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
-			.setPos(3 + 18 * 1, 3 + 18 * 1).setSize(18, 18)
-			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.0"))
-			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.1"))
-		);	
-	
-	
-	
-	
-	return builder;
-}
 @Override
 public int getCircuitSlot() {
 	
@@ -1705,8 +1349,378 @@ public int getCircuitSlot() {
 			if(a!=null)black.add(a.getPattern());
 		}
 	}
+	 public MUI1Container initMUI1() {
+			
+			
+			return new MUI1ContainerXX();
+		};
+		@Override
+		public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
+		
+			super.addUIWidgets(builder, buildContext);
+		}
+	public class MUI1ContainerXX extends MUI1ContainerX{
+		 ButtonWidget createRefundButton(IWidgetBuilder<?> builder) {
 
+		        Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
 
+		            PatternDualInputHatch.this.dirty = true;
+		            try {
+		                PatternDualInputHatch.this.refundAll();
+		            } catch (Exception e) {
+
+		                // e.printStackTrace();
+		            }
+		        })
+		            .setPlayClickSound(true)
+		            .setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_EXPORT)
+
+		            .addTooltips(ImmutableList.of("Return all internally stored items back to AE"))
+
+		            .setPos(new Pos2d(getGUIWidth() - 18 - 3, 5 + 16 + 2))
+		            .setSize(16, 16);
+		        return (ButtonWidget) button;
+		    }
+		public PatternDualInputHatch this$(){
+			return PatternDualInputHatch.this;}
+		protected ModularWindow createPatternWindow(final EntityPlayer player) {
+	        final int WIDTH = 18 * 4 + 6;
+	        final int HEIGHT = 18 * 9 + 6;
+	        final int PARENT_WIDTH = getGUIWidth();
+	        final int PARENT_HEIGHT = getGUIHeight();
+	        ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
+	        IDrawable tab1 = new ItemDrawable(
+	            Api.INSTANCE.definitions()
+	                .items()
+	                .encodedPattern()
+	                .maybeStack(1)
+	                .get()).withFixedSize(18, 18, 4, 4);
+	        IDrawable tab2 = GTUITextures.OVERLAY_BUTTON_BATCH_MODE_OFF.withFixedSize(18, 18, 4, 4);;
+
+	        /*
+	         * new ItemDrawable(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Iron, 1))
+	         * .withFixedSize(18, 18, 4, 4);
+	         */
+	        IDrawable tab3 = GTUITextures.OVERLAY_BUTTON_BATCH_MODE_ON.withFixedSize(
+	            18,
+	            18,
+	            4,
+	            4);;/*
+	                 * new ItemDrawable(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Gold, 1))
+	                 * .withFixedSize(18, 18, 4, 4);
+	                 */
+
+	        TabContainer tab;
+	        builder.widget(
+	            tab = new TabContainer().setButtonSize(28, 32)
+	                .addTabButton(
+	                    new TabButton(0)
+	                        .setBackground(
+	                            true,
+	                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 0f, 1f, 1 / 3f)
+	                                .getSubArea(0, 0, 0.5f, 1f),
+	                            tab1)
+	                        .setBackground(
+	                            false,
+	                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 0f, 1f, 1 / 3f)
+	                                .getSubArea(0.5f, 0, 1f, 1f),
+	                            tab1)
+	                        .setPos(WIDTH - 3, -1)
+	                        .addTooltip("Patterns"))
+	                .addTabButton(
+	                    new TabButton(1)
+	                        .setBackground(
+	                            true,
+	                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
+	                                .getSubArea(0, 0, 0.5f, 1f),
+	                            tab2)
+	                        .setBackground(
+	                            false,
+	                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
+	                                .getSubArea(0.5f, 0, 1f, 1f),
+	                            tab2)
+	                        .setPos(WIDTH - 3, 28 - 1)
+	                        .addTooltip("Individual Multiplier Op."))
+	                .addTabButton(
+	                    new TabButton(2)
+	                        .setBackground(
+	                            true,
+	                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
+	                                .getSubArea(0, 0, 0.5f, 1f),
+	                            tab3)
+	                        .setBackground(
+	                            false,
+	                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
+	                                .getSubArea(0.5f, 0, 1f, 1f),
+	                            tab3)
+	                        .setPos(WIDTH - 3, 56 - 1)
+	                        .addTooltip("Batch Multiplier Op.")));
+
+	        builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+	        builder.setGuiTint(getGUIColorization());
+	        builder.setDraggable(true);
+	        builder.setPos(
+	            (a, b) -> new Pos2d(
+	                PARENT_WIDTH + b.getPos()
+	                    .getX(),
+	                PARENT_HEIGHT * 0 + b.getPos()
+	                    .getY()));
+	        MultiChildWidget page1 = new MultiChildWidget();
+	        tab.addPage(page1);
+	        MultiChildWidget page2 = new MultiChildWidget();
+	        tab.addPage(page2);
+	        MultiChildWidget page3 = new MultiChildWidget();
+	        tab.addPage(page3);
+
+	        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
+	            for (int i = 0; i < 36; i++) {
+	                multiplier[i] *= 2;
+	                multiplier[i] = Math.max(multiplier[i], 1);
+	            }
+	            refresh();
+	        })
+	            .setSize(16, 16)
+	            .setPos(3, 3)
+	            .setBackground(GTUITextures.BUTTON_STANDARD)
+	            .addTooltip("x2"));
+	        page3.addChild(
+	            TextWidget.dynamicString(() -> "x2")
+	                .setPos(3 + 3, 3));
+	        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
+	            for (int i = 0; i < 36; i++) multiplier[i] = 1;
+	            refresh();
+	        })
+	            .setSize(16, 16)
+	            .setPos(3 + 16, 3)
+	            .setBackground(GTUITextures.BUTTON_STANDARD)
+	            .addTooltip("=1"));
+	        page3.addChild(
+	            TextWidget.dynamicString(() -> "=2")
+	                .setPos(3 + 3 + 16, 3));
+	        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
+	            for (int i = 0; i < 36; i++) {
+	                multiplier[i] *= n;
+	                multiplier[i] = Math.max(multiplier[i], 1);
+	            }
+	            refresh();
+	        })
+	            .setSize(16, 16)
+	            .setPos(3, 3 + 32)
+	            .setBackground(GTUITextures.BUTTON_STANDARD)
+	            .addTooltip("xN"));
+	        page3.addChild(
+	            TextWidget.dynamicString(() -> "x" + n)
+	                .setPos(3 + 3, 3 + 32));
+	        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
+	            for (int i = 0; i < 36; i++) multiplier[i] = n;
+	            refresh();
+	        })
+	            .setSize(16, 16)
+	            .setPos(3 + 16, 3 + 32)
+	            .setBackground(GTUITextures.BUTTON_STANDARD)
+	            .addTooltip("=N"));
+	        page3.addChild(
+	            TextWidget.dynamicString(() -> "=" + n)
+	                .setPos(3 + 3 + 16, 3 + 32));
+	        TextFieldWidget text_n;
+	        page3.addChild((text_n = new TextFieldWidget()).setValidator(s -> {
+	            try {
+	                Integer.valueOf(s);
+	            } catch (Exception e) {
+	                return "1";
+	            }
+	            return s;
+	        })
+	            .setSetter(s -> {
+
+	                n = Integer.valueOf(s);
+
+	                refresh();
+	            })
+
+	            .setGetter(() -> n + "")
+
+	            .setTextAlignment(Alignment.Center)
+	            .setTextColor(Color.WHITE.normal)
+	            .addTooltip("N=")
+	            .setSize(60, 18)
+	            .setPos(3, 3 + 32 + 18)
+	            .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
+
+	        page3.addChild(new TextWidget().setStringSupplier(() -> {
+	            if (text_n == text_n.getContext()
+	                .getCursor()
+	                .getFocused()) {
+	                return "Enter <Space> to update value";
+	            }
+	            return "";
+	        })
+	            .setPos(3, 3 + 32 + 18 + 18)
+
+	        /*
+	         * TextWidget.dynamicString(()->{
+	         * //if(text_n.isFocused()){return "Enter <Space> to update value";}
+	         * System.out.println(text_n.getContext().getCursor().getFocused());
+	         * System.out.println(text_n);
+	         * return "";}).setPos(3, 3+32+18+18)
+	         */
+	        );
+
+	        MappingItemHandler shared_handler = new MappingItemHandler(pattern, 0, 36);
+	        // use shared handler
+	        // or shift clicking a pattern in pattern slot will just transfer it to
+	        // another pattern slot
+	        // instead of player inventory!
+	        for (int i = 0; i < 36; i++) {
+	            final int ii = i;
+
+	            page2.addChild(new SlotWidget(new BaseSlot(shared_handler, i)) {
+
+	                @Override
+	                protected ItemStack getItemStackForRendering(Slot slotIn) {
+	                    ItemStack stack = slotIn.getStack();
+	                    if (stack == null || !(stack.getItem() instanceof ItemEncodedPattern)) {
+	                        return stack;
+	                    }
+	                    ItemStack output = ((ItemEncodedPattern) stack.getItem()).getOutput(stack);
+	                    return output != null ? output : stack;
+
+	                }
+	            }.disableInteraction()
+	                .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
+	                .setBackground(GTUITextures.SLOT_DARK_GRAY, GTUITextures.OVERLAY_SLOT_PATTERN_ME));
+
+	            page2.addChild(
+	                new TextFieldWidget()
+
+	                    .setValidator(s -> {
+	                        try {
+	                            Integer.valueOf(s);
+	                        } catch (Exception e) {
+	                            return "1";
+	                        }
+	                        return s;
+	                    })
+	                    .setSetter(s -> {
+
+	                        multiplier[ii] = Integer.valueOf(s);
+
+	                        refresh();
+	                    })
+
+	                    .setGetter(() -> multiplier[ii] + "")
+	                    .setTextColor(Color.RED.bright(0))
+	                    .setMaxLength(999)
+
+	                    .setScrollBar()
+
+	                    .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 1)
+
+	                    .setSize(18, 16)
+	                    .setBackground());
+	            page1.addChild(new SlotWidget(new BaseSlot(shared_handler, i)
+
+	            ) {
+
+	                @Override
+	                protected ItemStack getItemStackForRendering(Slot slotIn) {
+	                    ItemStack stack = slotIn.getStack();
+	                    if (stack == null || !(stack.getItem() instanceof ItemEncodedPattern)) {
+	                        return stack;
+	                    }
+	                    ItemStack output = ((ItemEncodedPattern) stack.getItem()).getOutput(stack);
+	                    return output != null ? output : stack;
+
+	                }
+	            }.setShiftClickPriority(-1)
+	                .setFilter(itemStack -> itemStack.getItem() instanceof ICraftingPatternItem)
+	                .setChangeListener(() -> { onPatternChange(); })
+	                .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
+	                .setBackground(getGUITextureSet().getItemSlot(), GTUITextures.OVERLAY_SLOT_PATTERN_ME));
+
+	            page1.addChild(TextWidget.dynamicString(() -> {
+
+	                String s = multiplier[ii] == 1 ? "" : (ps(multiplier[ii]) + "");
+	                if (pattern[ii] == null) return s = "§7" + s;
+
+	                return s;
+	            })
+	                .setTextAlignment(Alignment.TopLeft)
+	                .setDefaultColor(Color.WHITE.normal)
+	                .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 2)
+
+	                .setSize(36, 16)
+	                .setBackground());
+	        }
+
+	        return builder.build();
+	    }
+
+		@Override
+		    public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
+		        buildContext.addSyncedWindow(88, this::createPatternWindow);
+
+		        builder.widget(createRefundButton(builder));
+		        ButtonWidget b;
+		        builder.widget(
+		            (b = new ButtonWidget()).setOnClick(
+		                (clickData, widget) -> {
+		                    if (widget.getContext()
+		                        .isClient() == false)
+		                        widget.getContext()
+		                            .openSyncedWindow(88);
+		                })
+		                .setPlayClickSound(true)
+		                .setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
+		                .addTooltips(ImmutableList.of(LangManager.translateToLocalFormatted("programmable_hatches.gt.pattern")))
+
+		                .setSize(16, 16)
+		                // .setPos(10 + 16 * 9, 3 + 16 * 2)
+		                .setPos(new Pos2d(getGUIWidth() - 18 - 3, 5 + 16 + 2 + 16 + 2)));
+		        final boolean e=PatternDualInputHatchInventoryMappingSlave.enclose;
+		        builder.widget(new Widget() {}.setTicker(new Consumer() {
+
+		            int init;
+
+		            public void accept(Object x) {
+		            	if(e)return;
+		                init++;
+		                if (init == 2) {
+		                    b.syncToServer(1, Widget.ClickData.create(1, false)::writeToPacket);
+		                }
+		            }
+		        }));
+
+		        super.addUIWidgets(builder, buildContext);
+		    }protected Builder createWindowEx(EntityPlayer player) {
+		
+		Builder builder = super.createWindowEx(player);
+		
+		builder.widget(new CycleButtonWidget().setToggle(() -> restrictToInt, (s) -> {
+			restrictToInt = s;
+
+		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+				.setPos(3 + 18 * 0, 3 + 18 * 1).setSize(18, 18)
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.restrictToInt.0"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.restrictToInt.1"))
+			);
+		
+		builder.widget(new CycleButtonWidget().setToggle(() -> allowopt, (s) -> {
+			allowopt = s;
+
+		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+				.setPos(3 + 18 * 1, 3 + 18 * 1).setSize(18, 18)
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.0"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.1"))
+			);	
+		
+		
+		
+		
+		return builder;
+	}}
 
 
 }

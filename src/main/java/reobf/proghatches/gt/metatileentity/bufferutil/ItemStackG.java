@@ -31,8 +31,7 @@ public class ItemStackG {
 
     public ItemStack getZero() {
     	ItemStack is=   arr.get(0);
-    	if(is!=null)is=is.copy();
-return is;
+    	return is;
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound p_77955_1_) {

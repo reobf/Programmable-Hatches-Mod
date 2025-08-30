@@ -22,7 +22,7 @@ import gregtech.api.enums.Dyes;
 import gregtech.api.enums.GTValues;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.LightingHelper;
+
 import gregtech.common.covers.Cover;
 import gregtech.common.render.GTCopiedBlockTextureRender;
 import reobf.proghatches.eucrafting.AECover;

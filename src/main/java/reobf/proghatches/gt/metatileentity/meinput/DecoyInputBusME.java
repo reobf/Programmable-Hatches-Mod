@@ -743,14 +743,14 @@ public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode,
 public ItemStack getFirstValidStack(boolean slotsMustMatch) {
 	
 	try {
-		return (ItemStack) getFirstXXXStack.invoke(false);
+		return (ItemStack) getFirstXXXStack.invoke(this,false);
 	} catch (Throwable e) {throw new AssertionError(e);
 	}
 }
 
 public ItemStack getFirstShadowItemStack(boolean slotsMustMatch) {
 	try {
-		return (ItemStack) getFirstXXXStack.invoke(false);
+		return (ItemStack) getFirstXXXStack.invoke(this,false);
 	} catch (Throwable e) {throw new AssertionError(e);
 	}
 }

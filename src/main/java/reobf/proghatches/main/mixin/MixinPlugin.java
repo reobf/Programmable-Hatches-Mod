@@ -226,6 +226,7 @@ public static boolean loaded;
         } ; 
         retLate.add("part2.MixinFixSolidfier");
         retLate.add("part2.MixinOptimize");
+        retLate.add("part2.MixinProcessLogicReset");
         return ret;
 
     }

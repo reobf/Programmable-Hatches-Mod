@@ -220,7 +220,7 @@ static Field f3,f4;
 			if(mStoredFluids==null){
 				
 				try {
-				mStoredFluids=MTEHatchInputME.class.getDeclaredField("mStoredFluids");
+				mStoredFluids=MTEHatchInputME.class.getDeclaredField("storedFluids");
 				mStoredFluids.setAccessible(true);
 				} catch (Exception e) {throw new AssertionError(e);
 				}

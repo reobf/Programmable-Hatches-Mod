@@ -24,7 +24,7 @@ public class LateMixinPlugin implements ILateMixinLoader {
 
         // if(mixinClassName.equals("reobf.proghatches.main.mixin.mixins.part2.MixinProcessLogicDoNotCache")){
 
-        String str = (Loader.instance()
+       /* String str = (Loader.instance()
             .getIndexedModList()
             .get("galacticgreg")
             .getVersion());
@@ -45,7 +45,11 @@ public class LateMixinPlugin implements ILateMixinLoader {
             }
         }
 
-        // }
+        // }*/
+        
+        
+        MixinPlugin.retLate.add("part2.MixinProcessLogicDoNotCache");
+        MyMod.newGTCache = true;
         return MixinPlugin.retLate;
     }
 

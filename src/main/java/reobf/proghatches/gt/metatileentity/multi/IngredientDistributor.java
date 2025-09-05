@@ -259,7 +259,7 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
                         .withCount(s -> s.hasBusThisLayer ? 1 : 0),
                     HatchElement.OutputHatch.withAdder(IngredientDistributor::addHatch)
                         .withCount(s -> s.hasHatchThisLayer ? 1 : 0))
-                // .shouldSkip((a,b)->a.hasBusThisLayer)
+                 //.shouldSkip((a,b)->a.hasBusThisLayer)
                 .casingIndex(CASING_INDEX)
                 .dot(1)
                 .buildAndChain(GregTechAPI.sBlockCasings4, 0))

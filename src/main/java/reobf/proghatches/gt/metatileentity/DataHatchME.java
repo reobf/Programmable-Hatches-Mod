@@ -396,7 +396,7 @@ public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelStat
     public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirection side, ForgeDirection aFacing,
         int colorIndex, boolean aActive, boolean redstoneLevel) {
 
-        int texturePointer = getUpdateData(); // just to be sure, from my testing the 8th bit cannot be
+       /* int texturePointer = getUpdateData(); // just to be sure, from my testing the 8th bit cannot be
         int mTexturePage = ReflectionsPH.getTexturePage(this); // set clientside
         int textureIndex = texturePointer | (mTexturePage << 7); // Shift seven since one page is 128 textures!
         try {
@@ -419,7 +419,34 @@ public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelStat
             }
         } catch (NullPointerException npe) {
             return new ITexture[] { Textures.BlockIcons.MACHINE_CASINGS[0][0] };
-        }
+        }*/
+    	
+    	  try {
+              ITexture background;
+              int texturePage = ReflectionsPH.getTexturePage(this);
+              int textureIndex = ReflectionsPH.getTextureIndex(this);
+              if (texturePage > 0 || textureIndex > 0) {
+                  background = Textures.BlockIcons.casingTexturePages[texturePage][textureIndex];
+              } else {
+                  background = Textures.BlockIcons.casingTexturePages[BlockGTCasingsTT.texturePage][1];
+              }
+
+              if (side != aFacing) {
+                  return new ITexture[] { background };
+              } else {
+                  if (aActive) {
+                      return getTexturesActive(background);
+                  } else {
+                      return getTexturesInactive(background);
+                  }
+              }
+          } catch (NullPointerException npe) {
+              return new ITexture[] { Textures.BlockIcons.MACHINE_CASINGS[0][0] };
+          }
+    	
+    	
+    	
+    	
     }
 
     @Override

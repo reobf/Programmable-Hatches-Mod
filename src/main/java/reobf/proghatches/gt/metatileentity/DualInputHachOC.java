@@ -75,6 +75,7 @@ import li.cil.oc.server.component.UpgradeDatabase;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.main.Config;
+import tectech.thing.casing.BlockGTCasingsTT;
 
 public class DualInputHachOC extends DualInputHatch
     implements reobf.proghatches.oc.IActualEnvironment, Environment, SidedEnvironment, IGridProxyable, IActionHost {
@@ -771,11 +772,11 @@ public class DualInputHachOC extends DualInputHatch
     @Override
     public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirection side, ForgeDirection aFacing,
         int colorIndex, boolean aActive, boolean redstoneLevel) {
-        int texturePointer = (byte) (getUpdateData() & 0x7F);
+        /*int texturePointer = (byte) (getUpdateData() & 0x7F);
 
         int textureIndex = texturePointer | (ReflectionsPH.getTexturePage(this) << 7);
 
-        Block b = /* Blocks.cactus; */GameRegistry.findBlock("OpenComputers", "raid");
+        Block b = GameRegistry.findBlock("OpenComputers", "raid");
         ITexture tex = TextureFactory.of(b, 0, ForgeDirection.UP);
 
         if (textureIndex > 0) {
@@ -786,7 +787,31 @@ public class DualInputHachOC extends DualInputHatch
         if (side == aFacing) {
             return new ITexture[] { tex, TextureFactory.of(BlockIcons.OVERLAY_ME_CRAFTING_INPUT_BUFFER) };
         }
-        return new ITexture[] { tex };
+        return new ITexture[] { tex };*/
+    	  try {
+    		  Block b = GameRegistry.findBlock("OpenComputers", "raid");
+    	        ITexture tex = TextureFactory.of(b, 0, ForgeDirection.UP);
+              ITexture background;
+              int texturePage = ReflectionsPH.getTexturePage(this);
+              int textureIndex = ReflectionsPH.getTextureIndex(this);
+              if (texturePage > 0 || textureIndex > 0) {
+                  background = Textures.BlockIcons.casingTexturePages[texturePage][textureIndex];
+              } else {
+                  background =tex;// Textures.BlockIcons.casingTexturePages[BlockGTCasingsTT.texturePage][1];
+              }
+
+              if (side != aFacing) {
+                  return new ITexture[] { background };
+              } else {
+                  if (aActive) {
+                      return getTexturesActive(background);
+                  } else {
+                      return getTexturesInactive(background);
+                  }
+              }
+          } catch (NullPointerException npe) {
+              return new ITexture[] { Textures.BlockIcons.MACHINE_CASINGS[0][0] };
+          }
 
     }
 

@@ -29,4 +29,28 @@ public class ReflectionsPH {
         return 0;
 
     }
+    static Field f1;
+
+    static {
+
+        try {
+            f1 = MTEHatch.class.getDeclaredField("textureIndex");
+            f1.setAccessible(true);
+        } catch (Exception e) {
+            throw new AssertionError();
+        }
+
+    }
+
+    static public int getTextureIndex(Object o) {
+
+        try {
+            return f1.getInt(o);
+        } catch (Exception e) {
+
+        }
+        return 0;
+
+    }
+
 }

@@ -25,6 +25,7 @@ import gregtech.api.render.TextureFactory;
 
 import gregtech.common.covers.Cover;
 import gregtech.common.render.GTCopiedBlockTextureRender;
+import reobf.proghatches.ae.cpu.TileCPU;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.BridgingData;
 import reobf.proghatches.eucrafting.InterfaceData;
@@ -109,7 +110,7 @@ public class Registration implements Runnable {
     public final static int PhantomInputBusOffset = 87;
     // public static final int MBProxyOffset = 88;
     // public static final int PatternHousingOffset = 89;
-
+    public final static int CPU = 90;
     public final static int BufferedQuadDualInputHatchOffset = 100;// -115
     public final static int LargeProviderOffset = 116;
     public final static int ChainerOffset = 117;
@@ -441,6 +442,11 @@ public class Registration implements Runnable {
          * "multimachine.mbproxy",
          * LangManager.translateToLocalFormatted("multimachine.mbproxy.name"));
          */
+        new TileCPU(
+                Config.metaTileEntityOffset + CPU,
+                "multimachine.CPU",
+                LangManager.translateToLocalFormatted("multimachine.CPU.name"));
+        
         new LargeProgrammingCircuitProvider(
             Config.metaTileEntityOffset + LargeProviderOffset,
             "multimachine.largeprogrammingcircuit",

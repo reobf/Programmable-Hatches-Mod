@@ -36,6 +36,7 @@ import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.tile.crafting.TileCraftingTile;
 import appeng.util.item.AEItemStack;
 import reobf.proghatches.ae.ICondenser;
+import reobf.proghatches.ae.cpu.IExternalManagerHolder;
 import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.main.mixin.MixinCallback;
@@ -385,6 +386,12 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
      * return !skip; }
      */
     private long getMaxSkips() {
+    	if(((IExternalManagerHolder)this).getIExternalManager()!=null){
+    		
+    		return ((IExternalManagerHolder)this).getIExternalManager().getCondenser();
+    		
+    		
+    	}
         return maxSkips;
     }
 

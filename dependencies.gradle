@@ -36,8 +36,8 @@
 
 dependencies {
 
-
-  api('com.github.GTNewHorizons:GT5-Unofficial:5.09.51.435:dev')//daily
+//435
+  api('com.github.GTNewHorizons:GT5-Unofficial:5.09.51.418:dev')//daily
    //api('com.github.GTNewHorizons:GT5-Unofficial:5.09.51.417-pre:dev')//experimental shit
     api("curse.maven:thaumcraft-nei-plugin-225095:2241913") 
   
@@ -173,6 +173,7 @@ dependencies {
  configurations.configureEach {
     exclude group: 'com.github.GTNewHorizons', module: 'CodeChickenLib'
     exclude group: 'com.github.GTNewHorizons', module: 'Baubles'
+    exclude group: 'com.github.GTNewHorizons', module: 'Hodgepodge'
     //this is out-dated and crashes the game, so exclude it. 
     //CCCore is enough
 }

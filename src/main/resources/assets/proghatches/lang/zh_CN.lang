@@ -808,3 +808,4 @@ programmable_hatches.gt.allowopt.0=允许样板优化
 programmable_hatches.gt.allowopt.1=注意:倍增必须是1才能被优化
 programmable_hatches.gt.inherit.0=继承绑定主机的"允许样板优化"配置
 programmable_hatches.gt.inherit.1=注意:如果主机存在 那么将会无视本地的配置
+multimachine.CPU.name=合成CPU

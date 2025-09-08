@@ -810,3 +810,4 @@ programmable_hatches.gt.allowopt.0=Allow Pattern Optimization
 programmable_hatches.gt.allowopt.1=Note: set multiplier to 1 to allow optimize
 programmable_hatches.gt.inherit.0=Inherit master's 'Allow Pattern Optimization' config
 programmable_hatches.gt.inherit.1=Note: will ignore local setting if master is present
+multimachine.CPU.name=Crafting CPU

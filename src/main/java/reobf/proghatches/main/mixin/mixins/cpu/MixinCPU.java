@@ -126,5 +126,17 @@ public class MixinCPU implements IExternalManagerHolder{
 		
 	 }
 	
+	@Inject(at = { @At("HEAD") },method="getName",cancellable=true)
 	
+	  public void getName(CallbackInfoReturnable r) {
+	  if(ex!=null)
+		r.setReturnValue(
+				
+				ex.getName()+
+				
+				(((CraftingCPUCluster)(Object)this).isBusy()?"(Allocated)":"(Submit to allocate)")
+				
+				
+				);
+	  }
 }

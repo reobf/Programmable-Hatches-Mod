@@ -2218,6 +2218,25 @@ public class PHRecipes implements Runnable {
             .duration(1)
             .eut(30*4*4*4*4*4*4).metadata(ADDITIVE_AMOUNT, 64)
             .addTo(RecipeMaps.implosionRecipes);
+            
+            
+            GTValues.RA.stdBuilder()
+            .itemInputs(
+            		 new ItemStack(
+                             GregTechAPI.sBlockReinforced,
+                             16,2
+                             ),
+            		 OreDictionary.getOres("oc:cpu1").get(0)
+            		
+            		
+            		)
+            .itemOutputs( new ItemStack(
+                    GregTechAPI.sBlockMachines,
+                    1,
+                    Config.metaTileEntityOffset + Registration.CPU))
+            .duration(1)
+            .eut(30*4*4*4*4)
+            .addTo(RecipeMaps.assemblerRecipes);
     }
 
 }

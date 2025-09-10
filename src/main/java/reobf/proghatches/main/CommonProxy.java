@@ -45,6 +45,7 @@ import reobf.proghatches.ae.TileOrbSwitcher;
 import reobf.proghatches.ae.TileRequestTunnel;
 import reobf.proghatches.ae.TileStockingCircuitRequestInterceptor;
 import reobf.proghatches.ae.TileStorageProxy;
+import reobf.proghatches.ae.cpu.TileCPU;
 import reobf.proghatches.ae.part2.ItemPartCoW;
 import reobf.proghatches.ae.part2.ItemPartRequestTunnel;
 import reobf.proghatches.block.BlockAnchorAlert;
@@ -77,6 +78,7 @@ import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.item.ItemProgrammingToolkit;
 import reobf.proghatches.item.ItemSmartArm;
 import reobf.proghatches.item.ItemUpgrades;
+import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.PHRecipes;
 import reobf.proghatches.main.registration.ProgHatchCreativeTab;
 import reobf.proghatches.main.registration.Registration;
@@ -324,7 +326,7 @@ public class CommonProxy {
             };
         }.setUnlocalizedName("proghatches.chip")
             .setTextureName("proghatches:chip"), "proghatches.chip");
-
+       
     }
 
     static public class ToolTipAEBaseItemBlock extends AEBaseItemBlock {

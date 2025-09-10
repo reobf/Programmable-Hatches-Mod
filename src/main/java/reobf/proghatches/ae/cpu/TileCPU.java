@@ -1,5 +1,5 @@
 package reobf.proghatches.ae.cpu;
-
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.lazy;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.lazy;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofChain;
@@ -26,10 +26,12 @@ import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
 
 import com.google.common.collect.HashMultimap;
 import com.gtnewhorizon.structurelib.alignment.IAlignment;
+import com.gtnewhorizon.structurelib.alignment.IAlignmentLimits;
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
 import com.gtnewhorizon.structurelib.alignment.enumerable.Flip;
 import com.gtnewhorizon.structurelib.alignment.enumerable.Rotation;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
+import com.gtnewhorizon.structurelib.structure.IStructureElement;
 import com.gtnewhorizon.structurelib.structure.IStructureElementChain;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
@@ -43,6 +45,7 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import appeng.api.AEApi;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
+import appeng.api.networking.crafting.CraftingItemList;
 import appeng.api.networking.events.MENetworkCraftingCpuChange;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.storage.data.IAEItemStack;
@@ -50,6 +53,10 @@ import appeng.api.storage.data.IItemList;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.WorldCoord;
 import appeng.core.Api;
+import appeng.core.AppEng;
+import appeng.core.sync.GuiBridge;
+import appeng.helpers.ICustomNameObject;
+import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import appeng.me.GridAccessException;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.me.helpers.AENetworkProxy;
@@ -68,6 +75,7 @@ import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.implementations.MTECubicMultiBlockBase;
 import gregtech.api.metatileentity.implementations.MTEEnhancedMultiBlockBase;
 import gregtech.api.objects.GTItemStack;
 import gregtech.api.render.TextureFactory;
@@ -81,6 +89,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.event.ForgeEventFactory;
 import reobf.proghatches.gt.metatileentity.multi.IngredientDistributor;
 import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
 import reobf.proghatches.main.Config;
@@ -89,7 +98,7 @@ import reobf.proghatches.main.registration.Registration;
 
 @SuppressWarnings("deprecation")
 public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
-		implements ISurvivalConstructable, IExternalManager, IGridProxyable, IActionHost {
+		implements ISurvivalConstructable, IExternalManager, IGridProxyable, IActionHost,ICustomNameObject {
 	private AENetworkProxy gridProxy;
 
 	public TileCPU(String aName) {
@@ -167,6 +176,7 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
         aNBT.setTag("refunds", writeList(refunds));;
         aNBT.setTag("acc", writeList(acc));;
         aNBT.setTag("accCondenser", writeList(accCondenser));;
+        aNBT.setString("myName", myName);
 		super.saveNBTData(aNBT);
 	};
 
@@ -195,6 +205,7 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 		accCondenser=readList((NBTTagList) aNBT.getTag("accCondenser"));
 		updateAccCache();
 		updateCondenserCache();
+		myName=aNBT.getString("myName");
 		super.loadNBTData(aNBT);
 
 	};
@@ -217,11 +228,11 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 		return cluster;
 	}
 
-	@Override
+	/*@Override
 	public boolean isNewExtendedFacingValid(ForgeDirection direction, Rotation rotation, Flip flip) {
 
 		return true;
-	}
+	}*/
 
 	@Override
 	public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
@@ -239,7 +250,7 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 				: getTexturesInactive(BlockIcons.getCasingTextureForId(CASING_INDEX));
 	}
 
-	protected static final int CASING_INDEX = 48+6;
+	protected static final int CASING_INDEX = 210;
 
 	@Override
 	protected MultiblockTooltipBuilder createTooltip() {
@@ -251,14 +262,14 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 
 	@Override
 	public boolean checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack) {
-
+		mCasingAmount=0;
 		return checkPiece("M", 1, 1, 0);
 	}
 	  private static final IIconContainer textureFont = new Textures.BlockIcons.CustomIcon("icons/YOTTAHatch");
 	  
 	public ITexture[] getTexturesActive(ITexture aBaseTexture) {
 		return new ITexture[] { aBaseTexture,
-				TextureFactory.of(textureFont)
+				TextureFactory.builder().addIcon((textureFont)).extFacing().build()
 				// TextureFactory.builder()
 				// .setFromBlock(MyMod.iohub,
 				// BlockIOHub.magicNO_provider_active_overlay).glow().build()
@@ -267,38 +278,70 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 
 	public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
 		return new ITexture[] { aBaseTexture,
-				TextureFactory.of(textureFont)
+				TextureFactory.builder().addIcon((textureFont)).extFacing().build()
 
 		};
 	}
+	private static IStructureDefinition<TileCPU> STRUCTURE_DEFINITION(){
+		if(STRUCTURE_DEFINITION==null)STRUCTURE_DEFINITION = StructureDefinition.<TileCPU> builder()
+				.addShape("M", /* transpose */
+						
+						
+						
+						(new String[][] { { "bbb", "b~b", "bbb" },{ "bbb", "b b", "bbb" },{ "bbb", "bbb", "bbb" } }))
+						
+						/*transpose(
+		                        new String[][] { { "hhh", "hhh", "hhh" }, { "h~h", "h-h", "hhh" }, { "hhh", "hhh", "hhh" }})
+						
+						)*/
+				
+				  .addElement(
+		                    'b',
+		                    ofChain(
+		                        lazy(
+		                            t -> GTStructureUtility.<TileCPU>buildHatchAdder()
+		                                .atLeast(Energy, Maintenance, HatchElement.InputBus, HatchElement.OutputBus)
+		                                .casingIndex(CASING_INDEX)
+		                                .dot(1)
+		                                .build()),
+		                        onElementPass(
+		                        		TileCPU ::onCorrectCasingAdded,
+		                            lazy(TileCPU::getCasingElement))))
+				
+				/*.addElement('h',
+						ofChain(buildHatchAdder(TileCPU.class)
+								.atLeast(Energy, Maintenance, HatchElement.InputBus, HatchElement.OutputBus)
+								.casingIndex(CASING_INDEX).dot(1)
 
-	private static IStructureDefinition<TileCPU> STRUCTURE_DEFINITION = StructureDefinition.<TileCPU> builder()
-			.addShape("M", /* transpose */(new String[][] { { "bbb", "b~b", "bbb" }, }))
-			.addElement('b',
-					ofChain(buildHatchAdder(TileCPU.class)
-							.atLeast(Energy, Maintenance, HatchElement.InputBus, HatchElement.OutputBus)
-							.casingIndex(CASING_INDEX).dot(1)
+								.build(),
 
-							.build(),
+								onElementPass(s -> {
+								}, ofBlock(GregTechAPI.sBlockReinforced, 2)
 
-							onElementPass(s -> {
-							}, ofBlock(GregTechAPI.sBlockCasings4, 6)
+						))
 
-					))
-
-			).build();
+				)*/
+			
+				
+				
+				.build();
+		
+		return STRUCTURE_DEFINITION;
+	}
+	private static IStructureDefinition<TileCPU> STRUCTURE_DEFINITION;
 
 	@Override
 	public IStructureDefinition<TileCPU> getStructureDefinition() {
-
-		return STRUCTURE_DEFINITION;
+		
+		return STRUCTURE_DEFINITION();
 	}
+	
 @Override
 public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBuildEnvironment env) {
 	 if (mMachine) return -1;
 	 
 	 
-	 
+	
 	 return survivalBuildPiece(
 	            "M",
 	            stackSize,
@@ -311,6 +354,7 @@ public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBu
 	            false,
 	            true);
 }
+
 	@Override
 	public void construct(ItemStack stackSize, boolean hintsOnly) {
 
@@ -324,7 +368,7 @@ public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBu
 			gridProxy = new AENetworkProxy(this, "proxy", ItemList.Hatch_CraftingInput_Bus_ME.get(1), true);
 			gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
 			gridProxy.setValidSides(EnumSet.allOf(ForgeDirection.class));
-			// updateValidGridProxySides();
+			updateValidGridProxySides();
 			if (getBaseMetaTileEntity().getWorld() != null)
 				gridProxy.setOwner(getBaseMetaTileEntity().getWorld()
 						.getPlayerEntityByName(getBaseMetaTileEntity().getOwnerName()));
@@ -332,7 +376,20 @@ public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBu
 		}
 
 		return this.gridProxy;
-	}
+	}   
+	
+	private void updateValidGridProxySides() {
+       
+            getProxy().setValidSides(EnumSet.of(getBaseMetaTileEntity().getFrontFacing()));
+        
+    }
+
+    @Override
+    public void onFacingChange() {
+     
+        super.onFacingChange();  
+        updateValidGridProxySides();
+    }
 
 	@Override
 	public IGridNode getGridNode(ForgeDirection dir) {
@@ -811,4 +868,84 @@ public long getCondenser() {
 	
 	return accCacheCondenser;
 }
+
+
+
+String myName="";
+public String getName() {
+	return myName;
+}
+
+
+@Override
+public String getCustomName() {
+	
+	return myName;
+}
+
+@Override
+public boolean hasCustomName() {
+	
+	return !myName.isEmpty();
+}
+
+@Override
+public void setCustomName(String name) {
+	myName=name;
+	
+}
+
+@Override
+public void onBlockDestroyed() {
+
+	cluster.forEach(s->{
+		 final IItemList<IAEItemStack> list;
+	        s.getListOfItem(list = AEApi.instance().storage().createItemList(), CraftingItemList.ALL);
+	      
+		
+	        list.forEach(ss->{drop(ss);});
+	});	
+	
+	
+	
+	super.onBlockDestroyed();
+}
+
+
+private void drop(IAEItemStack ss) {
+
+	
+}
+@Override
+    public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer, ForgeDirection side,
+        float aX, float aY, float aZ) {
+        final ItemStack is = aPlayer.inventory.getCurrentItem();
+        if (is != null && is.getItem() instanceof ToolQuartzCuttingKnife) {
+            if (ForgeEventFactory.onItemUseStart(aPlayer, is, 1) <= 0) return false;
+            IGregTechTileEntity te = getBaseMetaTileEntity();
+            aPlayer.openGui(
+                AppEng.instance(),
+                GuiBridge.GUI_RENAMER.ordinal() << 5 | (side.ordinal()),
+                te.getWorld(),
+                te.getXCoord(),
+                te.getYCoord(),
+                te.getZCoord());
+            return true;
+        }
+        return super.onRightclick(aBaseMetaTileEntity, aPlayer, side, aX, aY, aZ);
+    } 
+@Override
+    protected IAlignmentLimits getInitialAlignmentLimits() {
+       
+        return (d, r, f) -> d.offsetY == 0 && r.isNotRotated() && !f.isVerticallyFliped();
+    }
+
+
+protected void onCorrectCasingAdded() {
+        
+		mCasingAmount++;
+    }int mCasingAmount;   
+    protected IStructureElement getCasingElement() {
+		return ofBlock(GregTechAPI.sBlockReinforced, 2);
+	}
 }

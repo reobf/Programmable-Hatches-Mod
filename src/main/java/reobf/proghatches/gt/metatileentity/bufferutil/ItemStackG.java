@@ -16,7 +16,9 @@ import appeng.api.storage.data.IAEItemStack;
 public class ItemStackG {
 
     public ArrayList<ItemStack> arr = new ArrayList<>();
-
+    public boolean isEmpty(){
+    	return !arr.stream().filter(s->s.stackSize>0).findFirst().isPresent();
+    }
     public static ItemStackG neo(ItemStack is) {
         if (is == null) return null;
         return new ItemStackG(is);

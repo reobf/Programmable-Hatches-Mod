@@ -138,6 +138,7 @@ import gregtech.common.tileentities.machines.IDualInputInventory;
 import gregtech.common.tileentities.machines.IDualInputInventoryWithPattern;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
+import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.Recipe;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.MUI2Compat;
 import reobf.proghatches.gt.metatileentity.bufferutil.FluidTankG;
@@ -464,13 +465,13 @@ public class BufferedDualInputHatch extends DualInputHatch
 		public boolean isEmpty() {
 
 			for (FluidTankG f : mStoredFluidInternal) {
-				if (f.getFluidAmount() > 0) {
+				if (f.isEmpty()==false) {
 					return false;
 				}
 			}
 			for (ItemStackG i : mStoredItemInternal) {
 
-				if (i != null && i.stackSize() > 0) {
+				if (i != null && i.isEmpty()==false) {
 					return false;
 				}
 			}
@@ -892,14 +893,15 @@ public class BufferedDualInputHatch extends DualInputHatch
 	public void startRecipeProcessingImpl() {
 
 		if (isInputEmpty() == false && getBaseMetaTileEntity().isAllowedToWork())
-			for (DualInvBuffer inv0 : this.sortByEmpty()) {
+			for (DualInvBuffer inv0 : this.sortByEmptyItr()) {
 
 				if (inv0.full() == false) {
-					if (!inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)) {
-						if (inv0.classify(this.mStoredFluid, mInventory, true))
+					if (inv0.classify(this.mStoredFluid, mInventory, true)
+							||inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory) 
+						)
 							break;
-						;
-					}
+						
+					
 				}
 
 				// inv0.clearRecipeIfNeeded();
@@ -984,11 +986,12 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		// if(inputEmpty==null)inputEmpty=isInputEmpty();
 		if (!sleep || updateEveryTick())
-			for (DualInvBuffer inv0 : this.sortByEmpty()) {
+			for (DualInvBuffer inv0 : this.sortByEmptyItr()) {
 				if (on && !inputEmpty.get()) {
 					if (inv0.full() == false) {
-						if (inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)
-								|| inv0.classify(this.mStoredFluid, mInventory, true))
+						if (inv0.classify(this.mStoredFluid, mInventory, true)
+								||inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)
+								 )
 							break;
 						;
 
@@ -1071,7 +1074,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		inv0.forEach(s -> {
 			(s.isEmpty()
 					&& (!s.recipeLocked/*
-										 * non-locked is considered not 'empty'
+										 * locked is considered not 'empty'
 										 */) ? empty : non_empty).add(s);
 		});
 
@@ -1084,11 +1087,93 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		return non_empty;
 	}
+	public Iterable<DualInvBuffer> sortByEmptyItr() {
+		Iterator<DualInvBuffer> all = inv0.iterator();
+		return new Iterable<BufferedDualInputHatch.DualInvBuffer>() {
+			
+			@Override
+			public Iterator<DualInvBuffer> iterator() {
+				
+				return new Iterator<BufferedDualInputHatch.DualInvBuffer>(){
+					
+				
+				    private DualInvBuffer nextElement;
+				    private DualInvBuffer firstEmpty;
+				    private boolean foundFirstEmpty;
+				    private Boolean hasNextResult; 
+				    private boolean hasNextComputed;
+
+				   
+
+				    @Override
+				    public boolean hasNext() {
+				       
+				        if (hasNextComputed) {
+				            return hasNextResult;
+				        }
+				        
+				        
+				        hasNextComputed = true;
+				        
+				        if (nextElement != null) {
+				            hasNextResult = true;
+				            return true;
+				        }
+				        
+				        while (all.hasNext()) {
+				            DualInvBuffer item = all.next();
+				            if (!item.isEmpty()) {
+				                nextElement = item;
+				                hasNextResult = true;
+				                return true;
+				            } else {
+				                if (!foundFirstEmpty) {
+				                    firstEmpty = item;
+				                    foundFirstEmpty = true;
+				                }
+				            }
+				        }
+				        
+				        if (firstEmpty != null) {
+				            nextElement = firstEmpty;
+				            firstEmpty = null;
+				            hasNextResult = true;
+				            return true;
+				        }
+				        
+				        hasNextResult = false;
+				        if(!foundFirstEmpty){allFull=true;}
+				        return false;
+				    }
+
+				    @Override
+				    public DualInvBuffer next() {
+				        if (!hasNext()) {
+				            throw new java.util.NoSuchElementException();
+				        }
+				        
+				        
+				        hasNextComputed = false;
+				        hasNextResult = null;
+				        
+				        DualInvBuffer result = nextElement;
+				        nextElement = null;
+				        return result;
+				    }
+					
+					
+				};
+			}
+		};
+		
+	}
+	
+	
 
 	public void classify() {
 		if (isRemote())
 			return;
-		for (DualInvBuffer inv0 : this.sortByEmpty()) {
+		for (DualInvBuffer inv0 : this.sortByEmptyItr()) {
 			if (inv0.full() == false)
 				if (inv0.classify(this.mStoredFluid, mInventory, true))
 					break;
@@ -1099,7 +1184,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 	public DualInvBuffer classifyForce() {
 		if (isRemote())
 			return null;
-		for (DualInvBuffer inv0 : this.sortByEmpty()) {
+		for (DualInvBuffer inv0 : this.sortByEmptyItr()) {
 			if (inv0.full() == false)
 				if (inv0.classify(this.mStoredFluid, mInventory, true)
 						|| inv0.recordRecipeOrClassify(mStoredFluid, mInventory))

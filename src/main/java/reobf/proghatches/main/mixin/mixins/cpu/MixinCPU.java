@@ -134,9 +134,9 @@ public class MixinCPU implements IExternalManagerHolder{
 				
 				ex.getName()+
 				
-				(((CraftingCPUCluster)(Object)this).isBusy()?"(Allocated)":"(Submit to allocate)")
-				
-				
+				//(((CraftingCPUCluster)(Object)this).isBusy()?"(Allocated)":"(Submit to allocate)")
+				//⧗⏳ ⏳
+				(((CraftingCPUCluster)(Object)this).isBusy()?"(⌛)":"(+)")
 				);
 	  }
 }

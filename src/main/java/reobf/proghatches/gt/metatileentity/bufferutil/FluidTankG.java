@@ -17,7 +17,9 @@ import appeng.api.storage.data.IAEFluidStack;
 public class FluidTankG {
 
     ArrayList<FluidStack> arr = new ArrayList<FluidStack>();
-
+    public boolean isEmpty(){
+    	return !arr.stream().filter(s->s.amount>0).findFirst().isPresent();
+    }
     public long getFluidAmount() {
 
         return arr.stream()

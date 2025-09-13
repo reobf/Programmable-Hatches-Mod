@@ -11,6 +11,7 @@ import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_VACUUM_FREEZE
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,6 +65,7 @@ import appeng.me.helpers.IGridProxyable;
 import appeng.tile.crafting.TileCraftingStorageTile;
 import appeng.tile.crafting.TileCraftingTile;
 import appeng.tile.grid.AENetworkTile;
+import appeng.util.Platform;
 import appeng.util.item.AEItemDef;
 import appeng.util.item.AEItemStack;
 import gregtech.api.GregTechAPI;
@@ -81,13 +83,17 @@ import gregtech.api.objects.GTItemStack;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTStructureUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.ForgeEventFactory;
 import reobf.proghatches.gt.metatileentity.multi.IngredientDistributor;
@@ -711,12 +717,12 @@ public boolean  useStorage(CraftingCPUCluster craftingCPUCluster, long given, lo
 	}	
 	
 	
+	long get=result.entrySet().stream()
+			.mapToLong(s->s.getKey()*s.getValue()).sum();
 	
-	
-	((IExternalManagerHolder)(Object)craftingCPUCluster).setStorage(result.entrySet().stream()
-			.mapToLong(s->s.getKey()*s.getValue()).sum()
+	((IExternalManagerHolder)(Object)craftingCPUCluster).setStorage(get
 			);
-	
+	clusterData.get(craftingCPUCluster).storage=get;
 	endRecipeProcessing();	
 	updateSlots();
 	
@@ -871,7 +877,7 @@ public long getCondenser() {
 
 
 
-String myName="";
+String myName="Auto CPU";
 public String getName() {
 	return myName;
 }
@@ -948,4 +954,74 @@ protected void onCorrectCasingAdded() {
     protected IStructureElement getCasingElement() {
 		return ofBlock(GregTechAPI.sBlockReinforced, 2);
 	}
+    @Override
+    public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
+    		int z) {
+    	
+    	NBTTagList l=new NBTTagList(); 
+    	tag.setTag("cpu", l);
+    	for(Entry<CraftingCPUCluster, Data> a:clusterData.entrySet()){
+    		NBTTagCompound neo=new NBTTagCompound();
+    		neo.setLong("storage", a.getValue().storage);
+    		neo.setInteger("isFree", a.getValue().state);
+    		
+    		if(a.getKey().getFinalOutput()!=null){
+	    		NBTTagCompound t;
+	    		a.getKey().getFinalOutput().writeToNBT(t=new NBTTagCompound());
+	    		neo.setTag("item",t );
+    		}
+    		CraftingCPUCluster cpu = a.getKey();
+    		 double craftingPercentage = (double) (cpu.getStartItemCount() - Math.max(cpu.getRemainingItemCount(), 0))
+                     / (double) cpu.getStartItemCount();
+    		neo.setDouble("percentage", craftingPercentage);
+    		
+    		
+    		
+    		//neo.setLong("t", a.getKey().getElapsedTime());
+    		//neo.setLong("s", a.getKey().getStartItemCount());
+    		//neo.setLong("r", a.getKey().getRemainingItemCount());
+    		l.appendTag(neo);
+    	}
+    	
+    	
+    	super.getWailaNBTData(player, tile, tag, world, x, y, z);
+    } static DecimalFormat df = new DecimalFormat("0.0%");
+    @Override
+    public void getWailaBody(ItemStack itemStack, List<String> currentTip, IWailaDataAccessor accessor,
+    		IWailaConfigHandler config) {
+ 
+    	
+    	NBTTagList l=(NBTTagList) accessor.getNBTData().getTag("cpu");
+    	if(l!=null){
+	    	int index=0;
+	    	for(int i=0;i<l.tagCount();i++){
+	    		NBTTagCompound get=l.getCompoundTagAt(i);
+	    		if(get.getInteger("isFree")==0)
+	    	currentTip.add("Free"+":"+Platform.formatByteDouble(get.getLong("storage")));
+	    		
+	    			else
+	    			{index++;
+	    		IAEItemStack is = AEItemStack.loadItemStackFromNBT(
+	    		get.getCompoundTag("item"));
+	    		String ex=is==null?"":" crafting:"+is.getItemStack().getDisplayName()+(is.getStackSize()==1?"":("x"+is.getStackSize()+""));	
+	    		
+	    		String ex2=" "+df.format(get.getDouble("percentage"));
+	    		
+	    		currentTip.add("CPU"+index+":"+Platform.formatByteDouble(get.getLong("storage"))+" "+ex+ex2);
+	    			
+	    		
+	    				
+	    		
+	    			
+	    			
+	    			
+	    			}
+	    	}
+    	}
+    	
+    	
+    	
+    	
+    	super.getWailaBody(itemStack, currentTip, accessor, config);
+    }
 }

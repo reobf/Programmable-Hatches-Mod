@@ -152,23 +152,23 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 
             IAEItemStack[] input = is.toArray(EMPTY);
 
-            int[] nums = new int[input.length];
+            long[] nums = new long[input.length];
             for (int x = 0; x < input.length; x++) {
                 IAEItemStack tmp = input[x].copy()
-                    .setStackSize(Integer.MAX_VALUE);
+                    .setStackSize(Long.MAX_VALUE);
                 final IAEItemStack ais = this.inventory.extractItems(tmp, Actionable.MODULATE, this.machineSrc);
                 if (ais != null) {
-                    nums[x] = (int) ais.getStackSize();
+                    nums[x] =  ais.getStackSize();
                     this.postChange(ais, this.machineSrc);
                 }
             }
             try {
 
-                int best = Integer.MAX_VALUE;
+            	long best = Long.MAX_VALUE;
                 boolean any = false;
                 for (int x = 0; x < input.length; x++) {
                     if (input[x].getStackSize() > 0) {
-                        int num = (int) (nums[x] / input[x].getStackSize());
+                        long num =  (nums[x] / input[x].getStackSize());
                         if (num < best) best = num;
                         any = true;
                     }
@@ -183,12 +183,14 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
                     max = Integer.MAX_VALUE - 1;
                 }
 
-                int maxtry = Math.min(
+                int maxtry = (int) Math.min(
                     Math.min(
                         (int) (num > (Integer.MAX_VALUE - 1) ? (Integer.MAX_VALUE - 1) : num) - 1,
                         (int) (remainingOperations + max)),
 
-                    best);
+                         best
+                    
+                		);
 
                 if (maxtry <= 0) {
                     return;

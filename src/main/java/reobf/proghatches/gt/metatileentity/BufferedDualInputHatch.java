@@ -433,13 +433,13 @@ public long singleSlotLimit(){
         public boolean isEmpty() {
 
             for (FluidTankG f : mStoredFluidInternal) {
-                if (f.getFluidAmount() > 0) {
+                if (!f.isEmpty()) {
                     return false;
                 }
             }
             for (ItemStackG i : mStoredItemInternal) {
 
-                if (i != null && i.stackSize() > 0) {
+                if (i != null && i.isEmpty()==false) {
                     return false;
                 }
             }

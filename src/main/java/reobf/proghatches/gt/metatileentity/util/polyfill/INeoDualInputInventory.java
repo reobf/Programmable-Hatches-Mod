@@ -2,13 +2,13 @@ package reobf.proghatches.gt.metatileentity.util.polyfill;
 
 import net.minecraft.item.ItemStack;
 
-import gregtech.api.objects.GTDualInputs;
+
 import gregtech.common.tileentities.machines.IDualInputInventory;
 import reobf.proghatches.gt.metatileentity.util.IDoNotCacheThisPattern;
 
 public interface INeoDualInputInventory extends IDualInputInventory, IDoNotCacheThisPattern {
 
-    @Override
+   
     default boolean isEmpty() {
         boolean empty = true;
         for (ItemStack is : getItemInputs()) {
@@ -17,13 +17,13 @@ public interface INeoDualInputInventory extends IDualInputInventory, IDoNotCache
         return getFluidInputs().length == 0 && empty;
     }
 
-    @Override
+   /* @Override
     default GTDualInputs getPatternInputs() {
         GTDualInputs in = new GTDualInputs();
         in.inputFluid = getFluidInputs();
         in.inputItems = getItemInputs();
         return in;
-    }
+    }*/
 
     @Override
     default boolean areYouSerious() {

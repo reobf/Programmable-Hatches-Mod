@@ -86,7 +86,7 @@ import gregtech.api.enums.GTValues;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.net.GTPacketSendCoverData;
-import gregtech.api.objects.GTDualInputs;
+
 import gregtech.common.blocks.BlockMachines;
 import kotlin.jvm.functions.Function1;
 import li.cil.oc.api.Driver;
@@ -161,14 +161,14 @@ public class MyMod {
     	
         // System.out.println("cccccccccccccccc");
     	
-        try {
+       /* try {
             new GTDualInputs();
         } catch (Throwable t) {
             t.printStackTrace();
             LOG.fatal("Add polyfill jar to mods.");
             FMLCommonHandler.instance()
                 .exitJava(1, false);
-        }
+        }*/
         /*if ((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")) {
 
             ProcessingLogic.class.getDeclaredFields();

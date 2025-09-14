@@ -106,7 +106,7 @@ import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
-import gregtech.api.objects.GTDualInputs;
+
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
@@ -1100,7 +1100,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 
 		IDualInputInventory xx = new x() {
 
-			@Override
+			//@Override
 			public boolean isEmpty() {
 				return false;
 			}
@@ -1116,7 +1116,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 				return DualInputHatch.asFluidStack.apply(BufferedDualInputHatch.flat(f_shadow));
 			}
 
-			@Override
+			/*@Override
 			public GTDualInputs getPatternInputs() {
 				return new GTDualInputs() {
 					{
@@ -1126,7 +1126,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 						inputFluid = getFluidInputs();
 					}
 				};
-			}
+			}*/
 		};
 
 		return ImmutableSet.of(xx).iterator();
@@ -1148,15 +1148,13 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 		return true;
 	}
 
-	@Override
+	//@Override
 	public ItemStack[] getSharedItems() {
 
 		return new ItemStack[0];
 	}
 
-	@Override
-	public void setProcessingLogic(ProcessingLogic pl) {
-	}
+
 
 	AENetworkProxy gridProxy;
 

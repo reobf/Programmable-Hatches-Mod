@@ -2711,7 +2711,7 @@ static int[] AZERO={0};
         return true;
     }
 
-    @Override
+    //@Override
     public ItemStack[] getSharedItems() {
 
         return new ItemStack[0];
@@ -2720,8 +2720,10 @@ static int[] AZERO={0};
     public boolean hasBuffer() {
         return false;
     }
-
-    @Override
+	public void setProcessingLogics(List<ProcessingLogic> processingLogics) {
+		this.processingLogics = processingLogics;
+	}
+   // @Override
     public void setProcessingLogic(ProcessingLogic pl) {
         if (!hasBuffer()) return;
         if (!processingLogics.contains(pl)) {

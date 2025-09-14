@@ -95,7 +95,7 @@ import gregtech.api.metatileentity.BaseMetaTileEntity;
 import gregtech.api.metatileentity.CoverableTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
-import gregtech.api.objects.GTDualInputs;
+
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.util.GTModHandler;
 import gregtech.api.util.GTTooltipDataCache.TooltipData;
@@ -1905,7 +1905,7 @@ if(ret>64){
             return super.equals(obj);
         }
 
-        @Override
+       //@Override
         public boolean isEmpty() {
 
             return wrapped.isEmpty();
@@ -1923,11 +1923,11 @@ if(ret>64){
             return wrapped.getFluidInputs();
         }
 
-        @Override
+       /* @Override
         public GTDualInputs getPatternInputs() {
 
             return wrapped.getPatternInputs();
-        }
+        }*/
 
     }
 
@@ -2747,7 +2747,7 @@ if(ret>64){
                 return dih.pushPattern(patternDetails, table);
             } finally {
                 dih.skipActiveCheck = false;
-            }
+            }//super.setProcessingLogics(processingLogics);
         }
         if (master != null) {
             if (!isInputEmpty(master)) {

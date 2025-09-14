@@ -342,15 +342,16 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatch & IM
         return true;
     }
 
-    @Override
-    public ItemStack[] getSharedItems() {
-        return getMaster() != null ? getMaster().getSharedItems() : new ItemStack[0];
-    }
+  //  @Override
+   // public ItemStack[] getSharedItems() {
+   //     return getMaster() != null ? getMaster().getSharedItems() : new ItemStack[0];
+   // }
 
-    @Override
-    public void setProcessingLogic(ProcessingLogic pl) {
-        if (getMaster() != null) getMaster().setProcessingLogic(pl);
-    }
+    
+    //@Override
+    //public void setProcessingLogic(ProcessingLogic pl) {
+    //    if (getMaster() != null) getMaster().setProcessingLogic(pl);
+   // }
   
  	@Override
  	public void trunOffME() {

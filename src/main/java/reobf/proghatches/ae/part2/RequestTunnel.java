@@ -74,7 +74,7 @@ this.parent=parent;source = new MachineSource(this.parent);
         ForgeDirection ejectionDirection) {
     	
     	 try {
-			PatternCraftingJob job = new PatternCraftingJob(patternDetails, getProxy().getStorage());
+			PatternCraftingJob job = new PatternCraftingJob(patternDetails, getProxy().getStorage(),this.source);
 		getProxy().getCrafting().getCraftingPatterns();
     	 } catch (GridAccessException e) {
 		}

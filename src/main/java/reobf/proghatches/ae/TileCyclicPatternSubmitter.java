@@ -318,7 +318,7 @@ public class TileCyclicPatternSubmitter extends TileEntity
                     }
 
                     if (pat == null) break end;
-                    PatternCraftingJob job = new PatternCraftingJob(pat, getProxy().getStorage());
+                    PatternCraftingJob job = new PatternCraftingJob(pat, getProxy().getStorage(), source);
 
                     int howmany;
                     if ((howmany = job.canBeDone(getProxy(), source)) > 0) {

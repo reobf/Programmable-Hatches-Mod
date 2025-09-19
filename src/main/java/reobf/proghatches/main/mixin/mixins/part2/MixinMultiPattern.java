@@ -186,7 +186,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
                 int maxtry = (int) Math.min(
                     Math.min(
                         (int) (num > (Integer.MAX_VALUE - 1) ? (Integer.MAX_VALUE - 1) : num) - 1,
-                        (int) (remainingOperations + max)),
+                        /*(int) */(remainingOperations + max)),
 
                          best
                     

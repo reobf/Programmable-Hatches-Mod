@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -90,7 +91,17 @@ public class BlockStockingCircuitRequestInterceptor extends BlockContainer imple
         }
 
     }
-
+    @Override
+    public void onBlockPlacedBy(World worldIn, int x, int y, int z, EntityLivingBase placer, ItemStack itemIn) {
+        // TODO Auto-generated method stub
+        super.onBlockPlacedBy(worldIn, x, y, z, placer, itemIn);
+        try {
+            ((TileStockingCircuitRequestInterceptor) worldIn.getTileEntity(x, y, z)).getProxy()
+                .setOwner((EntityPlayer) placer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     @Override
     public String getName(ItemStack p_77624_1_) {
         if (p_77624_1_.getItemDamage() == 1) {

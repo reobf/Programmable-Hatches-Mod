@@ -92,7 +92,7 @@ dependencies {
     api("com.github.GTNewHorizons:Translocators:1.2.1:dev") { transitive = false }
     api rfg.deobf("curse.maven:cofh-core-69162:2388751")
     api("com.github.GTNewHorizons:Nuclear-Control:2.6.7:dev") { transitive = false }
-    api("thaumcraft:Thaumcraft:1.7.10-4.2.3.5a:dev") { transitive = false }
+    api("thaumcraft:Thaumcraft:1.7.10-4.2.3.5:dev") { transitive = false }
     //implementation("com.github.GTNewHorizons:Hodgepodge:2.6.0:dev")
     api('com.github.GTNewHorizons:Botania:1.12.1-GTNH:dev') { transitive = false }
     api('com.github.GTNewHorizons:HoloInventory:2.5.4-GTNH:dev') { transitive = false }

@@ -21,11 +21,17 @@ import appeng.me.helpers.AENetworkProxy;
 
 public class PatternCraftingJob implements ICraftingJob {
 
-    public PatternCraftingJob(ICraftingPatternDetails a, IStorageGrid b) {
+    public PatternCraftingJob(ICraftingPatternDetails a, IStorageGrid b, BaseActionSource source) {
         target = a;
         context = b;
+        st=new MECraftingInventory( b.getItemInventory(),source,false,false,false);
     }
-
+    MECraftingInventory st;
+    public MECraftingInventory getStorageAtBeginning(){
+    	
+    	return st;
+    	
+    };
     public boolean supportsCPUCluster(final ICraftingCPU cluster) {
         return true;
     }

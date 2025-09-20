@@ -58,7 +58,7 @@ public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCirc
             .setGTTooltip(tooltipDataSupplier);
     }
 
-    private void addSortStacksButton(ModularWindow.Builder builder) {
+    public void addSortStacksButton(ModularWindow.Builder builder) {
         builder.widget(
             createToggleButton(
                 () -> !disableSort,
@@ -67,7 +67,7 @@ public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCirc
                 () -> mTooltipCache.getData(SORTING_MODE_TOOLTIP)));
     }
 
-    private void addOneStackLimitButton(ModularWindow.Builder builder) {
+    public void addOneStackLimitButton(ModularWindow.Builder builder) {
         builder.widget(createToggleButton(() -> !disableLimited, val -> {
             disableLimited = !val;
             updateSlots();

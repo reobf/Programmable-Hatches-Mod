@@ -61,6 +61,7 @@ import appeng.core.features.ActivityState;
 import appeng.core.features.ItemDefinition;
 import appeng.core.features.registries.InterfaceTerminalRegistry;
 import appeng.items.tools.ToolMemoryCard;
+import bartworks.API.SideReference;
 import codechicken.multipart.MultiPartRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -98,9 +99,10 @@ import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
 import reobf.proghatches.ae.BlockOrbSwitcher;
 import reobf.proghatches.ae.BlockRequestTunnel;
 import reobf.proghatches.ae.PartMAP2P;
-
+import reobf.proghatches.ae.cpu.TileCPU;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.block.ChunkTrackingGridCahce;
+import reobf.proghatches.block.IChunkTrackingGridCahce;
 import reobf.proghatches.block.TileIOHub;
 import reobf.proghatches.eio.ICraftingMachineConduit;
 import reobf.proghatches.eio.ItemMAConduit;
@@ -124,6 +126,7 @@ import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.mixin.MixinPlugin;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.net.ConnectionModeMessage;
+import reobf.proghatches.net.JoinMessage;
 import reobf.proghatches.net.MAFXMessage;
 import reobf.proghatches.net.MasterSetMessage;
 import reobf.proghatches.net.ModeSwitchedMessage;
@@ -302,6 +305,7 @@ public class MyMod {
         net.registerMessage(new MAFXMessage.Handler(), MAFXMessage.class, 8, Side.CLIENT);
         net.registerMessage(new SwitchModeMessage.Handler(), SwitchModeMessage.class, 9, Side.SERVER);
         net.registerMessage(new ModeSwitchedMessage.Handler(), ModeSwitchedMessage.class, 10, Side.CLIENT);
+        net.registerMessage(new JoinMessage.Handler(), JoinMessage.class, 11, Side.CLIENT);
         proxy.preInit(event);
     }
 
@@ -668,7 +672,25 @@ public class MyMod {
         // event.registerServerCommand(new CommandAnchor());
         // event.registerServerCommand(new CommandAnchor2());
         event.registerServerCommand(new CommandMUI2());
+        
+        //TileCPU.init();
     }
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void EntityJoinWorldEvent(net.minecraftforge.event.entity.EntityJoinWorldEvent event) {
+       // if (event == null || !(event.entity instanceof EntityPlayerMP) || !SideReference.Side.Server) return;
+       if(event.entity instanceof EntityPlayerMP)
+            MyMod.net.sendTo(
+            new JoinMessage(),
+            (EntityPlayerMP) event.entity);
+        
+    }
+    
+
+    
+    
+    
+    
+    
     public static ItemStack tutorialD() {
         return tutorial(book, "programmable_hatches.tutorial");
     }

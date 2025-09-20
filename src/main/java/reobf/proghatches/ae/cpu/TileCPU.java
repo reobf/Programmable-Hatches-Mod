@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
 
@@ -79,7 +80,6 @@ import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTECubicMultiBlockBase;
 import gregtech.api.metatileentity.implementations.MTEEnhancedMultiBlockBase;
-import gregtech.api.objects.GTItemStack;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTStructureUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
@@ -101,8 +101,9 @@ import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
+import reobf.proghatches.util.SIDItemStack;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({ "deprecation", "unchecked" })
 public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 		implements ISurvivalConstructable, IExternalManager, IGridProxyable, IActionHost,ICustomNameObject {
 	private AENetworkProxy gridProxy;
@@ -111,7 +112,7 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 		super(aName);
 
 	}
-
+	
 	public  CraftingCPUCluster newCCC(){
 		
 		CraftingCPUCluster c = new CraftingCPUCluster(new WorldCoord(0, 0, 0), new WorldCoord(0, 0, 0));
@@ -457,7 +458,7 @@ private void updateAccCache(){
 	accCache=0;
 	acc.forEach(s->{
 		
-		Long get = accMap0.get(new GTItemStack(s.getItemStack()));
+		Long get = accMap0.get(new SIDItemStack(s.getItemStack()));
 		if(get!=null){
 			accCache=accCache+get*s.getStackSize();
 		}
@@ -470,7 +471,7 @@ private void updateCondenserCache(){
 	accCacheCondenser=0;
 	accCondenser.forEach(s->{
 		
-		Long get = accMap1.get(new GTItemStack(s.getItemStack()));
+		Long get = accMap1.get(new SIDItemStack(s.getItemStack()));
 		if(get!=null){
 			accCacheCondenser=accCacheCondenser+get*s.getStackSize();
 		}
@@ -478,35 +479,12 @@ private void updateCondenserCache(){
 	
 	
 }
-public static Map<GTItemStack,Long> accMap0=new HashMap<>();
+public static Map<SIDItemStack,Long> accMap0=new HashMap<>();
 
-static{
-	
-	accMap0.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingAccelerator().maybeStack(1).get()), 1*1L);
-	accMap0.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingAccelerator4x().maybeStack(1).get()), 4*1L);
-	accMap0.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingAccelerator16x().maybeStack(1).get()), 16*1L);
 
-	accMap0.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingAccelerator64x().maybeStack(1).get()), 64*1L);
-	accMap0.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingAccelerator256x().maybeStack(1).get()), 256*1L);
-	accMap0.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingAccelerator1024x().maybeStack(1).get()), 1024*1L);
-	accMap0.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingAccelerator4096x().maybeStack(1).get()), 4096*1L);
-	
-}
-public static Map<GTItemStack,Long> accMap1=new HashMap<>();
+public static Map<SIDItemStack,Long> accMap1=new HashMap<>();
 
-static{
-	
-	accMap1.put(new GTItemStack(new ItemStack(MyMod.condensers[0])), 1*1L);
-	accMap1.put(new GTItemStack(new ItemStack(MyMod.condensers[1])), 4*1L);
-	accMap1.put(new GTItemStack(new ItemStack(MyMod.condensers[2])), 16*1L);
-	accMap1.put(new GTItemStack(new ItemStack(MyMod.condensers[3])), 64*1L);
-	accMap1.put(new GTItemStack(new ItemStack(MyMod.condensers[4])), 256*1L);
-	accMap1.put(new GTItemStack(new ItemStack(MyMod.condensers[5])), 1024*1L);
-	accMap1.put(new GTItemStack(new ItemStack(MyMod.condensers[6])), 4096*1L);
-	accMap1.put(new GTItemStack(new ItemStack(MyMod.condensers[7])), 16384*1L);
-	accMap1.put(new GTItemStack(new ItemStack(MyMod.condensers[8])), Integer.MAX_VALUE *1L);
 
-}
 private long totalAcc() {
 	
 	return 1+accCache;
@@ -528,14 +506,14 @@ public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 	startRecipeProcessing();
 	for(ItemStack is:getStoredInputs()){
 		
-		if(accMap0.get(new GTItemStack(is))!=null){
+		if(accMap0.get(new SIDItemStack(is))!=null){
 			acc.add(AEItemStack.create(is));
 			is.stackSize=0;
 			updateAccCache();
 			updateSlots();
 		}
 		
-		if(accMap1.get(new GTItemStack(is))!=null){
+		if(accMap1.get(new SIDItemStack(is))!=null){
 			accCondenser.add(AEItemStack.create(is));
 			is.stackSize=0;
 			updateCondenserCache();
@@ -638,20 +616,37 @@ private void refund(appeng.util.item.ItemList usedStorage) {
 }
 
 
-public static Map<GTItemStack,Long> accMap=new HashMap<>();
-
-static{
-	
-	accMap.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingStorage1k().maybeStack(1).get()), 1024l);
-	accMap.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingStorage4k().maybeStack(1).get()), 4096l);
-	accMap.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingStorage16k().maybeStack(1).get()), 4096*4l);
-	accMap.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingStorage64k().maybeStack(1).get()), 4096*4*4l);
-	accMap.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingStorage256k().maybeStack(1).get()), 4096*4*4*4l);
-	accMap.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingStorage1024k().maybeStack(1).get()), 4096*4*4*4*4l);
-	accMap.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingStorage4096k().maybeStack(1).get()), 4096*4*4*4*4*4l);
-	accMap.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingStorage16384k().maybeStack(1).get()), 4096*4*4*4*4*4*4l);
-	accMap.put(new GTItemStack(AEApi.instance().definitions().blocks().craftingStorageSingularity().maybeStack(1).get()), Integer.MAX_VALUE*1l);
-	
+public static Map<SIDItemStack,Long> accMap=new HashMap<>();
+static {init();}
+public static synchronized void init(){
+	accMap.clear();
+	accMap0.clear();
+	accMap1.clear();
+	accMap.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingStorage1k().maybeStack(1).get()), 1024l);
+	accMap.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingStorage4k().maybeStack(1).get()), 4096l);
+	accMap.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingStorage16k().maybeStack(1).get()), 4096*4l);
+	accMap.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingStorage64k().maybeStack(1).get()), 4096*4*4l);
+	accMap.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingStorage256k().maybeStack(1).get()), 4096*4*4*4l);
+	accMap.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingStorage1024k().maybeStack(1).get()), 4096*4*4*4*4l);
+	accMap.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingStorage4096k().maybeStack(1).get()), 4096*4*4*4*4*4l);
+	accMap.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingStorage16384k().maybeStack(1).get()), 4096*4*4*4*4*4*4l);
+	accMap.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingStorageSingularity().maybeStack(1).get()), Integer.MAX_VALUE*1l);
+	accMap0.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingAccelerator().maybeStack(1).get()), 1*1L);
+	accMap0.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingAccelerator4x().maybeStack(1).get()), 4*1L);
+	accMap0.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingAccelerator16x().maybeStack(1).get()), 16*1L);
+	accMap0.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingAccelerator64x().maybeStack(1).get()), 64*1L);
+	accMap0.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingAccelerator256x().maybeStack(1).get()), 256*1L);
+	accMap0.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingAccelerator1024x().maybeStack(1).get()), 1024*1L);
+	accMap0.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingAccelerator4096x().maybeStack(1).get()), 4096*1L);
+	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[0])), 1*1L);
+	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[1])), 4*1L);
+	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[2])), 16*1L);
+	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[3])), 64*1L);
+	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[4])), 256*1L);
+	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[5])), 1024*1L);
+	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[6])), 4096*1L);
+	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[7])), 16384*1L);
+	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[8])), Integer.MAX_VALUE *1L);
 }
 
 public long qureyStorage() {
@@ -662,7 +657,7 @@ public long qureyStorage() {
 	
 	for(ItemStack item:in){
 		
-		Long acc=accMap.get(new GTItemStack(item));
+		Long acc=accMap.get(new SIDItemStack(item));
 		if(acc!=null)all+=acc*item.stackSize;
 	}
 	endRecipeProcessing();
@@ -678,7 +673,7 @@ public boolean  useStorage(CraftingCPUCluster craftingCPUCluster, long given, lo
 	HashMultimap<Long,ItemStack> m=HashMultimap.create();
 	Map<Long,Integer> mm=new HashMap<>();
 	for(ItemStack item:in){
-		Long acc=accMap.get(new GTItemStack(item));
+		Long acc=accMap.get(new reobf.proghatches.util.SIDItemStack(item));
 		if(acc!=null){
 			m.put(acc, item);
 			mm.put(acc, item.stackSize+mm.getOrDefault(acc, 0));

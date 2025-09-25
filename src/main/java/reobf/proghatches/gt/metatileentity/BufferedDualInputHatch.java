@@ -1088,6 +1088,8 @@ public class BufferedDualInputHatch extends DualInputHatch
 		return non_empty;
 	}
 	public Iterable<DualInvBuffer> sortByEmptyItr() {
+		if(true)
+		return sortByEmpty();
 		Iterator<DualInvBuffer> all = inv0.iterator();
 		return new Iterable<BufferedDualInputHatch.DualInvBuffer>() {
 			

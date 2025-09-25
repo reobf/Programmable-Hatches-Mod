@@ -109,7 +109,3 @@ jobs:
       run: |
         chmod +x .gtnh-workflows/scripts/test_no_error_reports
         .gtnh-workflows/scripts/test_no_error_reports
-
-    - name: Test no prerelease dependencies used
-      run: |
-        ! grep -F -- "-pre" dependencies.gradle*

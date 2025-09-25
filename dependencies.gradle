@@ -37,13 +37,13 @@
 dependencies {
 
 //435
-  api('com.github.GTNewHorizons:GT5-Unofficial:5.09.51.449:dev')//daily
+  api('com.github.GTNewHorizons:GT5-Unofficial:5.09.51.459:dev')//daily
    //api('com.github.GTNewHorizons:GT5-Unofficial:5.09.51.417-pre:dev')//experimental shit
     api("curse.maven:thaumcraft-nei-plugin-225095:2241913") 
   
   //api("com.github.GTNewHorizons:StructureLib:1.4.15:dev")
     api("net.industrial-craft:industrialcraft-2:2.2.828-experimental:dev")
-    api("com.github.GTNewHorizons:NotEnoughItems:2.7.81-GTNH:dev")
+    api("com.github.GTNewHorizons:NotEnoughItems:2.7.87-GTNH:dev")
     api("com.github.GTNewHorizons:NotEnoughIds:2.1.10:dev")
     api("com.github.GTNewHorizons:GTNHLib:0.6.39:dev")
 
@@ -51,19 +51,19 @@ dependencies {
     compileOnly rfg.deobf("curse.maven:neverenoughanimation-1062347:6552319")
     
     
-    api("com.github.GTNewHorizons:waila:1.8.12:dev")
-    api("com.github.GTNewHorizons:Applied-Energistics-2-Unofficial:rv3-beta-684-GTNH:dev")
+    api("com.github.GTNewHorizons:waila:1.8.14:dev")
+    api("com.github.GTNewHorizons:Applied-Energistics-2-Unofficial:rv3-beta-688-GTNH:dev")
     //api("com.github.GTNewHorizons:AE2FluidCraft-Rework:1.4.42-gtnh:dev")
-    api("com.github.GTNewHorizons:AE2FluidCraft-Rework:1.4.113-gtnh:dev")
+    api("com.github.GTNewHorizons:AE2FluidCraft-Rework:1.4.114-gtnh:dev")
    api("com.github.GTNewHorizons:ae2stuff:0.9.7-GTNH:dev")
     api('com.github.GTNewHorizons:Yamcl:0.7.1:dev')
     api("com.github.GTNewHorizons:Postea:1.1.3:dev")
 
-    compileOnlyApi('com.github.GTNewHorizons:ThaumicTinkerer:2.11.20:dev')
+    compileOnlyApi('com.github.GTNewHorizons:ThaumicTinkerer:2.11.23:dev')
     compileOnlyApi("com.github.GTNewHorizons:Mobs-Info:0.5.4-GTNH:dev")
     api("com.github.GTNewHorizons:Navigator:1.0.17:dev")
     //api('com.github.GTNewHorizons:Baubles:1.0.4:dev') {transitive=false}
-	api('com.github.GTNewHorizons:Baubles-Expanded:2.1.13-GTNH:dev') {transitive=false}
+	api('com.github.GTNewHorizons:Baubles-Expanded:2.1.15-GTNH:dev') {transitive=false}
     // Required to prevent an older bauble api from Extra Utilities from loading first in the javac classpath
    // compileOnly('com.github.GTNewHorizons:Baubles:1.0.4:dev') {transitive=false}
 
@@ -86,7 +86,7 @@ dependencies {
    // api("com.github.GTNewHorizons:Galaxy-Space-GTNH:1.1.100-GTNH:dev") { transitive = false }
 
     api("com.github.GTNewHorizons:Galacticraft:3.3.12-GTNH:dev") { transitive = false }
-    api("com.github.GTNewHorizons:TinkersConstruct:1.13.51-GTNH:dev")
+    api("com.github.GTNewHorizons:TinkersConstruct:1.13.54-GTNH:dev")
 
     api("com.github.GTNewHorizons:Chisel:2.16.12-GTNH:dev") { transitive = false }
     api("com.github.GTNewHorizons:Translocators:1.3.1:dev") { transitive = false }
@@ -98,14 +98,14 @@ dependencies {
     api('com.github.GTNewHorizons:HoloInventory:2.5.5-GTNH:dev') { transitive = false }
     api rfg.deobf("curse.maven:extra-utilities-225561:2264384")
     compileOnly rfg.deobf('curse.maven:minefactory-reloaded-66672:2366150')
-    api("com.github.GTNewHorizons:OpenComputers:1.11.18-GTNH:dev") {transitive = false}
+    api("com.github.GTNewHorizons:OpenComputers:1.11.19-GTNH:dev") {transitive = false}
      api("com.github.GTNewHorizons:Computronics:1.9.3-GTNH:dev") 
     // https://www.curseforge.com/minecraft/mc-mods/advancedsolarpanels
     api rfg.deobf('curse.maven:advsolar-362768:2885953')
     //api('com.github.GTNewHorizons:ThaumicEnergistics:1.6.27-GTNH:dev') {transitive =  false}
-    api("com.github.GTNewHorizons:BloodMagic:1.7.49:dev") { transitive = false }
+    api("com.github.GTNewHorizons:BloodMagic:1.7.51:dev") { transitive = false }
     api("com.github.GTNewHorizons:CraftTweaker:3.4.2:dev") { transitive = false }
-    compileOnly("com.github.GTNewHorizons:BetterLoadingScreen:1.7.0-GTNH:dev") { transitive = false }
+    compileOnly("com.github.GTNewHorizons:BetterLoadingScreen:1.7.2-GTNH:dev") { transitive = false }
     compileOnly rfg.deobf("curse.maven:biomes-o-plenty-220318:2499612")
 
     compileOnly('com.github.GTNewHorizons:SC2:2.3.12:dev') {transitive=false}
@@ -142,14 +142,14 @@ dependencies {
    // runtimeOnlyNonPublishable(rfg.deobf("CoreTweaks:CoreTweaks:0.3.3.2"))
  
 
- api("com.github.GTNewHorizons:NotEnoughEnergistics:1.7.12:dev")
+ api("com.github.GTNewHorizons:NotEnoughEnergistics:1.7.14:dev")
  
 	
 	api("com.github.GTNewHorizons:ForgeMultipart:1.6.8:dev") { transitive = false }
 
 
 	
-	  api('com.github.GTNewHorizons:ThaumicEnergistics:1.7.13-GTNH:dev')
+	  api('com.github.GTNewHorizons:ThaumicEnergistics:1.7.14-GTNH:dev')
 
 	api("com.github.GTNewHorizons:MrTJPCore:1.3.4:dev")
 	

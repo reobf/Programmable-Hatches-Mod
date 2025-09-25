@@ -228,7 +228,7 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 		public appeng.util.item.ItemList usedStorage=new appeng.util.item.ItemList();
 		public long storage;
 	}
-	public IActionHost fakeCPU;
+	public TileCraftingTile fakeCPU;
 	
 	private Consumer<AENetworkProxy> setter=s->{};
 	public Collection<CraftingCPUCluster> getClusters() {
@@ -422,16 +422,27 @@ public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBu
 @Override
 public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {
 	getProxy().onReady();
+	fakeCPU().getWorldObj();
 	super.onFirstTick(aBaseMetaTileEntity);
 }
 
-public IActionHost fakeCPU() {
+public TileCraftingTile fakeCPU() {
 	if(fakeCPU==null)
 	fakeCPU=new TileCraftingTile(){
 		AENetworkProxy proxy;
 		{
 		if(gridProxy!=null)proxy=gridProxy;//if ready, set it now
-		setter=s->proxy=s;//if not, set when ready
+		setter=s->{proxy=s;
+		//setWorldObj(((TileCPU)s.getMachine()).getBaseMetaTileEntity().getWorld());
+		};//if not, set when ready
+		//setWorldObj(TileCPU.this.getBaseMetaTileEntity().getWorld());
+		}
+		@Override
+		public World getWorldObj() {
+			if(worldObj==null){
+				worldObj=TileCPU.this.getBaseMetaTileEntity().getWorld();
+			}
+			return worldObj;
 		}
 		public AENetworkProxy getProxy() {if(proxy!=null)return proxy;return super.getProxy();};
 		public boolean isActive() {return getProxy().isActive();};

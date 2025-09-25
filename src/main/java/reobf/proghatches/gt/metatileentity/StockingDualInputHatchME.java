@@ -1505,6 +1505,10 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 
         off = false;
     }
+    @Override
+    public void onFacingChange() {
+        updateValidGridProxySides();
+    }
 /*
     @Override
     public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager) {

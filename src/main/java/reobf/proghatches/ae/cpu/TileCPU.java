@@ -571,10 +571,16 @@ public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 				Entry<CraftingCPUCluster, Data> set = it.next();
 
 					if (set.getValue().state == 0) {
+						
 						if (set.getKey().isBusy()) {
 							set.getValue().state = 1;
 						} else
-							{
+						{
+							if(set.getValue().usedStorage.isEmpty()==false){
+								refund(set.getValue().usedStorage);
+								set.getValue().usedStorage.clear();
+							}
+							
 							long siz=qureyStorage();
 							if(set.getValue().storage!=siz){
 								

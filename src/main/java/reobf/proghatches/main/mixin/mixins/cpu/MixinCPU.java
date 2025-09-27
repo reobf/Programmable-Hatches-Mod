@@ -102,7 +102,10 @@ public class MixinCPU implements IExternalManagerHolder{
 	  prev.set(availableStorage);
 	  }
 	  
-	@Inject(at = { @At(shift = Shift.BEFORE,value="FIELD",opcode=Opcodes.GETFIELD, target = "Lappeng/me/cluster/implementations/CraftingCPUCluster;providers:Ljava/util/HashMap;") }
+	@Inject(at = { @At(
+			ordinal=0,
+			
+			shift = Shift.BEFORE,value="FIELD",opcode=Opcodes.GETFIELD, target = "Lappeng/me/cluster/implementations/CraftingCPUCluster;providers:Ljava/util/HashMap;") }
 	
 	,method="submitJob",cancellable=true)
 	
@@ -111,6 +114,7 @@ public class MixinCPU implements IExternalManagerHolder{
 	  if(ex!=null)
 		if(!ex.useStorage((CraftingCPUCluster)(Object)this,prev.get(),job.getByteTotal())){c.setReturnValue(null);};
 	  }
+	
 	
 	
 	@Inject(at = { @At("HEAD") },method="updateCraftingLogic",cancellable=true)

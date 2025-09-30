@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CancellationException;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
@@ -21,8 +22,10 @@ import appeng.api.networking.energy.IEnergyGrid;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
+import appeng.me.GridAccessException;
 import appeng.me.cache.CraftingGridCache;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
+import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.ae.cpu.IExternalManager;
 import reobf.proghatches.ae.cpu.IExternalManagerHolder;
 import reobf.proghatches.ae.cpu.TileCPU;
@@ -63,6 +66,41 @@ public class MixinCPU implements IExternalManagerHolder{
 		if(ex!=null){
 			
 			ex.repRemOP(remainingOperations,prev.get());
+			
+			
+		}
+		
+	 }
+	/*@Override
+    public int getCoProcessors() {
+        return this.accelerator;
+    }*/
+	
+	 
+	 @Inject(at = { @At("HEAD") },method="getGrid",cancellable=true)
+	 public void getGrid(CallbackInfoReturnable<IGrid> ci) 
+	{
+		
+		if(ex!=null){
+			
+		try {
+			ci.setReturnValue(ex.getProxy().getGrid());
+		} catch (Exception e) {
+		
+		}
+			
+			
+		}
+		
+	 }
+	 
+	@Inject(at = { @At("HEAD") },method="getCoProcessors",cancellable=true)
+	 public void getCoProcessors(CallbackInfoReturnable<Integer> ci) 
+	{
+		
+		if(ex!=null){
+			
+		ci.setReturnValue((int) Math.min(ex.totalAcc()-1,Integer.MAX_VALUE));
 			
 			
 		}

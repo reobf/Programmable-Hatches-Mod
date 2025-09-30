@@ -496,7 +496,7 @@ public static Map<SIDItemStack,Long> accMap0=new HashMap<>();
 public static Map<SIDItemStack,Long> accMap1=new HashMap<>();
 
 
-private long totalAcc() {
+public long totalAcc() {
 	
 	return 1+accCache;
 }

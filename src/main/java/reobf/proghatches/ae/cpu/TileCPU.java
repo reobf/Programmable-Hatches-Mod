@@ -11,6 +11,9 @@ import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_VACUUM_FREEZE
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,9 +21,11 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -69,6 +74,7 @@ import appeng.tile.grid.AENetworkTile;
 import appeng.util.Platform;
 import appeng.util.item.AEItemDef;
 import appeng.util.item.AEItemStack;
+import cpw.mods.fml.common.FMLCommonHandler;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.HatchElement;
 import gregtech.api.enums.ItemList;
@@ -80,6 +86,7 @@ import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTECubicMultiBlockBase;
 import gregtech.api.metatileentity.implementations.MTEEnhancedMultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTStructureUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
@@ -116,9 +123,9 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 	public  CraftingCPUCluster newCCC(){
 		
 		CraftingCPUCluster c = new CraftingCPUCluster(new WorldCoord(0, 0, 0), new WorldCoord(0, 0, 0));
-		
+		FMLCommonHandler.instance().bus().register(c);
 		((IExternalManagerHolder) (Object) c).acceptIExternalManager(this);
-		cluster.add(c);
+		//cluster.add(c);
 		clusterData.put(c, new  Data());
 	return c;
 		
@@ -168,13 +175,13 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
     }
 	public void saveNBTData(net.minecraft.nbt.NBTTagCompound aNBT) {
 		NBTTagList clusters = new NBTTagList();
-		cluster.forEach(s -> {
+		clusterData.entrySet().forEach(s -> {
 			NBTTagCompound a = new NBTTagCompound();
-			s.writeToNBT(a);
-			a.setInteger("state",clusterData.get(s).state);
-			a.setLong("storage", clusterData.get(s).storage);
+			s.getKey().writeToNBT(a);
+			a.setInteger("state",(s).getValue().state);
+			a.setLong("storage", (s).getValue().storage);
 			
-			a.setTag("list",writeList(clusterData.get(s).usedStorage));
+			a.setTag("list",writeList((s).getValue().usedStorage));
 			clusters.appendTag(a);
 		});
 
@@ -188,7 +195,7 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 	};
 
 	public void loadNBTData(net.minecraft.nbt.NBTTagCompound aNBT) {
-		cluster.clear();
+		//cluster.clear();
 		clusterData.clear();
 		NBTTagList clusters = (NBTTagList) aNBT.getTag("clusters");
 		for (int i = 0; i < clusters.tagCount(); i++) {
@@ -217,8 +224,8 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 
 	};
 
-	List<CraftingCPUCluster> cluster = new ArrayList<>();
-	Map<CraftingCPUCluster,Data> clusterData=new HashMap<>();
+	//List<CraftingCPUCluster> cluster = new ArrayList<>();
+	LinkedHashMap<CraftingCPUCluster,Data> clusterData=new LinkedHashMap<>();
 	public class Data{
 		
 		
@@ -232,7 +239,7 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 	
 	private Consumer<AENetworkProxy> setter=s->{};
 	public Collection<CraftingCPUCluster> getClusters() {
-		return cluster;
+		return clusterData.keySet();
 	}
 
 	/*@Override
@@ -507,6 +514,33 @@ public void repRemOP(int remainingOperations, int old) {
 	used[0]+=usedt;
 	
 }
+static public Method addOutputPartial;
+static public BiConsumer<TileCPU,ItemStack> addOutputPartialX;
+static{
+try{
+	addOutputPartial=MTEMultiBlockBase.class.getMethod("addOutputPartial", ItemStack.class,boolean.class);
+
+		addOutputPartialX=(a,b)->{try {
+			addOutputPartial.invoke(a, b,false);
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}};
+	
+}catch(Exception e){}
+
+try{
+addOutputPartial=MTEMultiBlockBase.class.getMethod("addOutputPartial", ItemStack.class);
+addOutputPartialX=(a,b)->{try {
+	addOutputPartial.invoke(a, b);
+} catch (Exception e) {
+	
+	e.printStackTrace();
+}};
+}catch(Exception e){}
+}
+
+
 
 @Override
 public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
@@ -539,7 +573,11 @@ public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 	refunds.forEach(s->{
 		ItemStack get = s.getItemStack();
 		int old=get.stackSize;
-		this.addOutputPartial(get, false);
+		//this.addOutputPartial(get, false);
+		addOutputPartialX.accept(this, get);
+		
+		
+		
 		int eaten=old-get.stackSize;
 		s.decStackSize(eaten);
 		
@@ -595,10 +633,11 @@ public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 				
 				if(set.getValue().state==1){
 					if(!set.getKey().isBusy()){
-						cluster.remove(set.getKey());
+						//cluster.remove(set.getKey());
 						refund(set.getValue().usedStorage);
 						set.getValue().usedStorage.clear();
 						it.remove();
+						set.getKey().destroy();
 						this.getProxy().getGrid().postEvent(new MENetworkCraftingCpuChange(this.getProxy().getNode()));
 						
 					}
@@ -811,7 +850,7 @@ public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, f
 		ItemStack aTool) {
 	
 	
-	if(cluster.size()==1&&cluster.get(0).isBusy()==false){
+	if(clusterData.size()==1&&clusterData.keySet().iterator().next().isBusy()==false){
 		
 		
 		boolean any=false;
@@ -916,7 +955,7 @@ public void setCustomName(String name) {
 @Override
 public void onBlockDestroyed() {
 
-	cluster.forEach(s->{
+	clusterData.keySet().forEach(s->{
 		 final IItemList<IAEItemStack> list;
 	        s.getListOfItem(list = AEApi.instance().storage().createItemList(), CraftingItemList.ALL);
 	      

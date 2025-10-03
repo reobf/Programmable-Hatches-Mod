@@ -73,12 +73,21 @@ public class StorageOutputHatch extends MTEHatchOutputME
 			inv = getProxy().getStorage().getFluidInventory();
 		
 		itemCache.forEach(s->{
+			long old=s.getStackSize();
 			IAEFluidStack rest = inv.injectItems(s, Actionable.MODULATE, new MachineSource(this));
 			if(rest==null){s.setStackSize(0);}
 			else{
 				s.setStackSize(rest.getStackSize());
 			}
-			
+			long neo=s.getStackSize();
+			 try {
+					this.getProxy()
+					.getStorage()
+					.postAlterationOfStoredItems(
+					    StorageChannel.FLUIDS,
+					    ImmutableList.of(s.copy().setStackSize(neo-old)),
+					    new MachineSource(this));
+				} catch (GridAccessException e) {}
 		});
 		} catch (GridAccessException e) {}
 		
@@ -230,12 +239,7 @@ public class StorageOutputHatch extends MTEHatchOutputME
                     (IAEItemStack) ((CraftingGridCache) getProxy().getCrafting())
                         .injectItems(ItemFluidDrop.newAeStack(is), Actionable.MODULATE, new MachineSource(this)));
                 if (is != null) {
-                    this.getProxy()
-                        .getStorage()
-                        .postAlterationOfStoredItems(
-                            StorageChannel.FLUIDS,
-                            ImmutableList.of(is),
-                            new MachineSource(this));
+                  
                     itemCache.addStorage(is);
                 }
             } catch (GridAccessException e) {

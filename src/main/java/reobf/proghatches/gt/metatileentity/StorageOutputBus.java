@@ -70,11 +70,24 @@ public  void dump(){
 		inv = getProxy().getStorage().getItemInventory();
 	
 	itemCache.forEach(s->{
+		long old=s.getStackSize();
 		IAEItemStack rest = inv.injectItems(s, Actionable.MODULATE, new MachineSource(this));
 		if(rest==null){s.setStackSize(0);}
 		else{
 			s.setStackSize(rest.getStackSize());
 		}
+		long neo=s.getStackSize();
+		 try {
+				this.getProxy()
+				.getStorage()
+				.postAlterationOfStoredItems(
+				    StorageChannel.ITEMS,
+				    ImmutableList.of(s.copy().setStackSize(neo-old)),
+				    new MachineSource(this));
+			} catch (GridAccessException e) {}
+		
+		
+		
 		
 	});
 	} catch (GridAccessException e) {}
@@ -214,12 +227,12 @@ public  void dump(){
                 is = (AEItemStack) ((CraftingGridCache) getProxy().getCrafting())
                     .injectItems(is, Actionable.MODULATE, new MachineSource(this));
                 if (is != null) {
-                    this.getProxy()
+                    /*this.getProxy()
                         .getStorage()
                         .postAlterationOfStoredItems(
                             StorageChannel.ITEMS,
                             ImmutableList.of(is),
-                            new MachineSource(this));
+                            new MachineSource(this));*/
                     itemCache.addStorage(is);
                 }
             } catch (GridAccessException e) {
@@ -496,6 +509,16 @@ public  void dump(){
                     AEApi.instance()
                         .storage()
                         .createItemStack(stack));
+                try {
+					this.getProxy()
+					.getStorage()
+					.postAlterationOfStoredItems(
+					    StorageChannel.ITEMS,
+					    ImmutableList.of(AEItemStack.create(stack)),
+					    new MachineSource(this));
+				} catch (GridAccessException e) {}
+					
+				
                 lastInputTick = tickCounter;
             }
             stack.stackSize = 0;

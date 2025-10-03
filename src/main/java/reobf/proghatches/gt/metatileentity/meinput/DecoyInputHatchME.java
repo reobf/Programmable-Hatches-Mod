@@ -670,7 +670,7 @@ public class DecoyInputHatchME extends MTEHatchInputME implements IMEHatchOverri
 	}
     public FluidStack getFirstShadowFluidStack(boolean slotsMustMatch) {
     	try {
-			return (FluidStack) getFirstXXXStack.invoke(this,false);
+			return (FluidStack) getFirstXXXStack.invoke(this,true);
 		} catch (Throwable e) {throw new AssertionError(e);
 		}
     }

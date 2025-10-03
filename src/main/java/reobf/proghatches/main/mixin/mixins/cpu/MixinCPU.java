@@ -33,6 +33,24 @@ import reobf.proghatches.main.asm.repack.objectwebasm.Opcodes;
 
 @Mixin(value=CraftingCPUCluster.class,remap=false)
 public class MixinCPU implements IExternalManagerHolder{
+	
+	
+	
+	@Inject(at = { @At("HEAD") },method="isDestroyed")
+	 public void isDestroyed(CallbackInfoReturnable<Boolean> ci) 
+	{
+		
+		if(ex!=null){
+			
+			if(!ex.getClusters().contains(this)){ci.setReturnValue(true);}
+			
+			
+		}
+		
+	 }
+	
+	
+	
 	@Unique
 	private TileCPU ex;
 	

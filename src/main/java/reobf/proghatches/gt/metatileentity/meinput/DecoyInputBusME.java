@@ -748,9 +748,10 @@ public ItemStack getFirstValidStack(boolean slotsMustMatch) {
 	}
 }
 
+
 public ItemStack getFirstShadowItemStack(boolean slotsMustMatch) {
 	try {
-		return (ItemStack) getFirstXXXStack.invoke(this,false);
+		return (ItemStack) getFirstXXXStack.invoke(this,true);
 	} catch (Throwable e) {throw new AssertionError(e);
 	}
 }

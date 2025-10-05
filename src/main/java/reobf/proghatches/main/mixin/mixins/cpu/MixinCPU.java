@@ -36,7 +36,7 @@ public class MixinCPU implements IExternalManagerHolder{
 	
 	
 	
-	@Inject(at = { @At("HEAD") },method="isDestroyed")
+	@Inject(at = { @At("HEAD") },method="isDestroyed",cancellable=true)
 	 public void isDestroyed(CallbackInfoReturnable<Boolean> ci) 
 	{
 		

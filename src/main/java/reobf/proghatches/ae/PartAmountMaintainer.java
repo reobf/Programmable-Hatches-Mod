@@ -818,6 +818,7 @@ public class PartAmountMaintainer extends PartBasicState
                 break exit;
             }
             fs = new FluidStack(f, fs.amount);
+            mark[0]=GTUtility.getFluidDisplayStack(f);
         }
 
         upgrade[0] = ItemStack.loadItemStackFromNBT(data.getCompoundTag("upgrade"));

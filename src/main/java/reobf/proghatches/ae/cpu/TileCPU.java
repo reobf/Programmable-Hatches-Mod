@@ -687,7 +687,7 @@ public static synchronized void init(){
 	accMap.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingStorage1024k().maybeStack(1).get()), 4096*4*4*4*4l);
 	accMap.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingStorage4096k().maybeStack(1).get()), 4096*4*4*4*4*4l);
 	accMap.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingStorage16384k().maybeStack(1).get()), 4096*4*4*4*4*4*4l);
-	accMap.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingStorageSingularity().maybeStack(1).get()), Integer.MAX_VALUE*1l);
+	accMap.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingStorageSingularity().maybeStack(1).get()), Long.MAX_VALUE*1l-1);
 	accMap0.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingAccelerator().maybeStack(1).get()), 1*1L);
 	accMap0.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingAccelerator4x().maybeStack(1).get()), 4*1L);
 	accMap0.put(new SIDItemStack(AEApi.instance().definitions().blocks().craftingAccelerator16x().maybeStack(1).get()), 16*1L);
@@ -703,9 +703,19 @@ public static synchronized void init(){
 	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[5])), 1024*1L);
 	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[6])), 4096*1L);
 	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[7])), 16384*1L);
-	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[8])), Integer.MAX_VALUE *1L);
+	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[8])), Long.MAX_VALUE *1L-1);
 }
-
+public static long safeFMA(long original,long a,long b){
+	
+	try {
+        long add= Math.multiplyExact(a, b);
+        
+        return Math.min(Math.addExact(add, original),Long.MAX_VALUE-1);
+    } catch (ArithmeticException e) {
+        return Long.MAX_VALUE-1;
+    }
+	
+}
 public long qureyStorage() {
 	long all=0;
 	startRecipeProcessing();
@@ -715,7 +725,10 @@ public long qureyStorage() {
 	for(ItemStack item:in){
 		
 		Long acc=accMap.get(new SIDItemStack(item));
-		if(acc!=null)all+=acc*item.stackSize;
+		if(acc!=null){
+			//all+=acc*item.stackSize;
+			all=safeFMA(all,acc,item.stackSize);
+		}
 	}
 	endRecipeProcessing();
 	
@@ -726,12 +739,13 @@ public long qureyStorage() {
 public boolean  useStorage(CraftingCPUCluster craftingCPUCluster, long given, long job) {
 	startRecipeProcessing();
 	ArrayList<ItemStack> in = getStoredInputs();
-
+	boolean hasSingular=false;
 	HashMultimap<Long,ItemStack> m=HashMultimap.create();
 	Map<Long,Integer> mm=new HashMap<>();
 	for(ItemStack item:in){
 		Long acc=accMap.get(new reobf.proghatches.util.SIDItemStack(item));
 		if(acc!=null){
+			if(acc>=Long.MAX_VALUE-1)hasSingular=true;
 			m.put(acc, item);
 			mm.put(acc, item.stackSize+mm.getOrDefault(acc, 0));
 		}
@@ -746,13 +760,14 @@ public boolean  useStorage(CraftingCPUCluster craftingCPUCluster, long given, lo
 		for(ItemStack is:m.get(used.getKey())){
 			int toremove_thistime=Math.min(is.stackSize, toremove);
 			
-			
+			if(!hasSingular)
 			clusterData.get(craftingCPUCluster).usedStorage.add(AEItemStack.create(
 					is
 					).setStackSize(toremove_thistime)
 					);
 			
 			toremove-=toremove_thistime;
+			if(!hasSingular)
 			is.stackSize-=toremove_thistime;
 			if(toremove<=0)break;
 		}
@@ -957,11 +972,11 @@ public void setCustomName(String name) {
 public void onBlockDestroyed() {
 
 	clusterData.keySet().forEach(s->{
-		 final IItemList<IAEItemStack> list;
+		 final IItemList list;
 	        s.getListOfItem(list = AEApi.instance().storage().createItemList(), CraftingItemList.ALL);
 	      
 		
-	        list.forEach(ss->{drop(ss);});
+	        list.forEach(ss->{drop((IAEItemStack) ss);});
 	});	
 	
 	

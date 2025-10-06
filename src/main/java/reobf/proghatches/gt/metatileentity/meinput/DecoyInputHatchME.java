@@ -162,7 +162,11 @@ public class DecoyInputHatchME extends MTEHatchInputME implements IMEHatchOverri
 
             ArrayList<IAEFluidStack> added = new ArrayList<>();
             IItemList<IAEFluidStack> all = new IItemList<IAEFluidStack>() {
-
+            	@Override
+				public byte getStackType() {
+					// TODO Auto-generated method stub
+					return LIST_FLUID;
+				}
                 private final NavigableMap<IAEFluidStack, IAEFluidStack> records = new ConcurrentSkipListMap<>();
 
                 @Override

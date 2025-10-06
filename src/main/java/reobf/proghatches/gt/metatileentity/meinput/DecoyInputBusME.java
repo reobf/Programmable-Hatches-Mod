@@ -323,11 +323,16 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
                 private IAEItemStack putItemRecord(final IAEItemStack itemStack) {
                     return this.records.put(itemStack, itemStack);
                 }
-
                 private Collection<IAEItemStack> findFuzzyDamage(final AEItemStack filter, final FuzzyMode fuzzy,
                     final boolean ignoreMeta) {
                     throw new Error();
                 }
+
+				@Override
+				public byte getStackType() {
+					// TODO Auto-generated method stub
+					return LIST_ITEM;
+				}
             };
 
             for (Entry<Integer, IMEInventoryHandler<IAEItemStack>> ent : orderMap.entries()) {

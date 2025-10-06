@@ -12,8 +12,7 @@ import appeng.integration.modules.waila.PartWailaDataProvider;
 import appeng.integration.modules.waila.part.IPartWailaDataProvider;
 import reobf.proghatches.ae.part2.PartCoW;
 import reobf.proghatches.ae.part2.PartRequestTunnel;
-import reobf.proghatches.eucrafting.PartEUP2PInterface;
-import reobf.proghatches.eucrafting.PartEUSource;
+
 
 @Mixin(value = PartWailaDataProvider.class, remap = false, priority = 1)
 public class MixinWailaProvider {
@@ -24,8 +23,8 @@ public class MixinWailaProvider {
     @Inject(method = "<init>", at = @At(value = "RETURN"), require = 1)
     public void constructor(CallbackInfo a) {
 
-        providers.add(new PartEUP2PInterface.WailaDataProvider());
-        providers.add(new PartEUSource.WailaDataProvider());
+     
+       
         providers.add(new PartRequestTunnel.WailaDataProvider());
         providers.add(new PartCoW.WailaDataProvider());
     }

@@ -24,7 +24,7 @@ public class PatternCraftingJob implements ICraftingJob {
     public PatternCraftingJob(ICraftingPatternDetails a, IStorageGrid b, BaseActionSource source) {
         target = a;
         context = b;
-        st=new MECraftingInventory( b.getItemInventory(),source,false,false,false);
+        st=new MECraftingInventory( b,source,false,false,false);
     }
     MECraftingInventory st;
     public MECraftingInventory getStorageAtBeginning(){
@@ -52,7 +52,7 @@ public class PatternCraftingJob implements ICraftingJob {
     }
 
     @Override
-    public void populatePlan(IItemList<IAEItemStack> plan) {
+    public void populatePlan(IItemList plan) {
 
     }
 

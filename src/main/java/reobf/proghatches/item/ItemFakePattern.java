@@ -11,7 +11,7 @@ import net.minecraft.world.World;
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.items.misc.ItemEncodedPattern;
-import reobf.proghatches.eucrafting.TileFluidInterface_EU;
+
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
 
@@ -39,7 +39,7 @@ public class ItemFakePattern extends Item implements ICraftingPatternItem {
                 ItemStack o = ItemStack.loadItemStackFromNBT(
                     (NBTTagCompound) is.getTagCompound()
                         .getTag("o"));
-                return new TileFluidInterface_EU.SISOPatternDetail(i, o);
+                return null;//new TileFluidInterface_EU.SISOPatternDetail(i, o);
             }
 
             if (is.getTagCompound()
@@ -54,12 +54,12 @@ public class ItemFakePattern extends Item implements ICraftingPatternItem {
                     (NBTTagCompound) is.getTagCompound()
                         .getTag("p"));
 
-                return new TileFluidInterface_EU.WrappedPatternDetail(
+                return null;/*new TileFluidInterface_EU.WrappedPatternDetail(
                     ((ItemEncodedPattern) p.getItem()).getPatternForItem(p, w),
                     i,
                     o,
                     is.getTagCompound()
-                        .getInteger("pr"));
+                        .getInteger("pr"));*/
             }
 
             if (is.getTagCompound()

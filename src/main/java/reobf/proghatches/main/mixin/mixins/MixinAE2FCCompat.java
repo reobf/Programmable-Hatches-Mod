@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import com.glodblock.github.inventory.FluidConvertingInventoryAdaptor;
+//import com.glodblock.github.inventory.FluidConvertingInventoryAdaptor;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import appeng.util.InventoryAdaptor;
@@ -19,7 +19,7 @@ import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.CoverToMachineAdaptor;
 import reobf.proghatches.eucrafting.ISer;
 
-@Mixin(FluidConvertingInventoryAdaptor.class)
+//@Mixin(FluidConvertingInventoryAdaptor.class)
 public class MixinAE2FCCompat {
 
     /*
@@ -29,7 +29,7 @@ public class MixinAE2FCCompat {
      */
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Inject(
+    /*@Inject(
         method = "wrap",
         remap = true,
         at = { @At(
@@ -38,7 +38,7 @@ public class MixinAE2FCCompat {
         locals = LocalCapture.CAPTURE_FAILHARD,
         cancellable = true,
 
-        require = 1)
+        require = 1)*/
     private static void wrap(TileEntity capProvider, ForgeDirection face, CallbackInfoReturnable<InventoryAdaptor> ret,
         @Local(ordinal = 1) TileEntity inter) {
 

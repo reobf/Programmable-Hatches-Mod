@@ -30,7 +30,7 @@ import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.BridgingData;
 import reobf.proghatches.eucrafting.InterfaceData;
 import reobf.proghatches.eucrafting.InterfaceP2PData;
-import reobf.proghatches.eucrafting.InterfaceP2PEUData;
+
 import reobf.proghatches.eucrafting.InterfaceP2PNoFluidData;
 import reobf.proghatches.gt.cover.CircuitHolderCover;
 import reobf.proghatches.gt.cover.LevelControlCover;

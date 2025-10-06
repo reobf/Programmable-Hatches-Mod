@@ -38,7 +38,6 @@ import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import reobf.proghatches.eucrafting.IEUManager;
 import reobf.proghatches.eucrafting.IEUManager.EUManager;
 import reobf.proghatches.eucrafting.IEUManager.IDrain;
-import reobf.proghatches.eucrafting.TileFluidInterface_EU.SISOPatternDetail;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.item.ItemProgrammingToolkit;
@@ -131,136 +130,7 @@ public class MixinCallback {
 
     private static AEItemStack type = AEItemStack.create(new ItemStack(MyMod.eu_token, 1, 1));
 
-    public static void cb(final IEnergyGrid eg, final CraftingGridCache cc, CallbackInfo RE,
-        Map<IAEItemStack, Long> needed, Map<IAEItemStack, Long> storage, MECraftingInventory inventory,
-        Map<ICraftingPatternDetails, Object> tasks, LinkedList<TileCraftingTile> tiles, MachineSource machineSrc) {
-        try {
-            if (needed.isEmpty()) {
-                storage.clear();
-                return;
-            }
-
-            inventory.getItemList()
-                .findFuzzy(type, FuzzyMode.IGNORE_ALL)
-                .forEach(s -> {
-
-                    if (s.getItem() == MyMod.eu_token) {
-                        if (s.getItemDamage() == 1) {
-
-                            IAEItemStack u = s.copy()
-                                .setStackSize(1);
-
-                            storage.merge(u, s.getStackSize(), Long::sum);
-                        }
-
-                    }
-
-                });
-            // System.out.println(storage);
-            tasks.entrySet()
-                .forEach(s -> {
-                    // TODO remove
-
-                    if (s.getKey() instanceof SISOPatternDetail) {
-                        SISOPatternDetail d = (SISOPatternDetail) s.getKey();
-                        if (d.out.getItemDamage() == 1) {
-                            IAEItemStack key = d.o[0].copy()
-                                .setStackSize(1);
-
-                            storage.merge(key, MixinCallback.getter.apply(s.getValue()), Long::sum);
-
-                        }
-
-                    }
-
-                });
-            // System.out.println(storage);
-            // System.out.println(needed);
-
-            needed.entrySet()
-                .forEach(s -> {
-
-                    long num = Optional.ofNullable(storage.get(s.getKey()))
-                        .orElse(0l);
-                    long missing = s.getValue() - num;
-                    if (missing <= 0) return;
-                    // Object o=this;
-                    // CraftingCPUCluster thiz=(CraftingCPUCluster) o;
-                    // System.out.println(s.getValue()+" "+num);
-                    // System.out.println(missing);
-
-                    if (tiles.isEmpty()) {
-                        return;
-                    }
-                    a: try {
-                        EUManager man = tiles.get(0)
-                            .getProxy()
-                            .getGrid()
-                            .getCache(IEUManager.class);
-                        Optional<IDrain> opt = man.cache.get(
-                            s.getKey()
-                                .getTagCompound()
-                                .getNBTTagCompoundCopy()
-                                .getLong("voltage"))
-                            .stream()
-                            .filter(
-                                sp -> sp.getUUID()
-                                    .equals(
-                                        ProghatchesUtil.deser(
-                                            s.getKey()
-                                                .getTagCompound()
-                                                .getNBTTagCompoundCopy(),
-                                            "EUFI")))
-                            .findFirst();
-                        if (!opt.isPresent()) break a;
-                        if ((!opt.get()
-                            .allowOvercommit()) && opt.get()
-                                .getAmp() > 0) {
-                            break a;
-                        }
-                        long get = man.request(
-                            s.getKey()
-                                .getTagCompound()
-                                .getNBTTagCompoundCopy()
-                                .getLong("voltage"),
-                            missing);
-                        if (get > 0) {
-
-                            inventory.injectItems(
-                                s.getKey()
-                                    .copy()
-                                    .setStackSize(get),
-                                Actionable.MODULATE,
-                                machineSrc);
-                            opt.get()
-                                .refund(-get);;
-                            MyMod.LOG.info(
-                                "Auto Request:" + get
-                                    + "*"
-                                    + s.getKey()
-                                        .getTagCompound()
-                                        .getNBTTagCompoundCopy());
-                            MyMod.LOG.info(
-                                MinecraftServer.getServer()
-                                    .getTickCounter());
-                            // MyMod.LOG.info(MinecraftServer.getServer().getTickCounter());
-                        }
-                    } catch (Exception e) {
-
-                        e.printStackTrace();
-                    }
-
-                    /*	
-                    	*/
-
-                });
-
-            storage.clear();
-            needed.clear();
-        } catch (Exception e) {
-            MyMod.LOG.error("caught error in mixin", e);
-        }
-    }
+    
 
     public static List<OrderStack<?>> encodeCallback(List<OrderStack<?>> inputs) {
 

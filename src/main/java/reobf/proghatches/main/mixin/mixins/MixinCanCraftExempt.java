@@ -1,5 +1,7 @@
 package reobf.proghatches.main.mixin.mixins;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryCrafting;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,9 +15,12 @@ import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
+import appeng.util.inv.MEInventoryCrafting;
 import codechicken.nei.InventoryCraftingDummy;
 import reobf.proghatches.eucrafting.IInputMightBeEmptyPattern;
+import reobf.proghatches.main.mixin.MEInvDummy;
 
 @SuppressWarnings("unused")
 @Mixin(value = CraftingCPUCluster.class, remap = false, priority = 1)
@@ -37,14 +42,14 @@ public class MixinCanCraftExempt {
     }
 
     @ModifyVariable(method = "executeCrafting", at = @At(value = "INVOKE", target = "isBusy()Z"), require = 1)
-    private InventoryCrafting executeCrafting0(InventoryCrafting x, @Share("arg") LocalBooleanRef shouldExempt) {
+    private MEInventoryCrafting executeCrafting0(MEInventoryCrafting x, @Share("arg") LocalBooleanRef shouldExempt) {
 
-        return shouldExempt.get() ? (new InventoryCraftingDummy()) : x;
+        return (MEInventoryCrafting)(shouldExempt.get() ? new MEInvDummy() : x);
 
     }
 
     @Inject(method = "canCraft", at = @At("RETURN"), cancellable = true, require = 1)
-    private void canCraft(final ICraftingPatternDetails details, final IAEItemStack[] condensedInputs,
+    private void canCraft(final ICraftingPatternDetails details, final IAEStack[] condensedInputs,
         CallbackInfoReturnable<Boolean> ci) {
         if ((details instanceof IInputMightBeEmptyPattern)) {
             ci.setReturnValue(true);

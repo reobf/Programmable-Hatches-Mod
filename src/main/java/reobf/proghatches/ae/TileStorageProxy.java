@@ -45,6 +45,7 @@ import appeng.api.storage.IStorageMonitorable;
 import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
@@ -270,26 +271,26 @@ public class TileStorageProxy extends TileEntity
 
                 }
 
-                @SuppressWarnings({ "deprecation", "rawtypes" })
+                @SuppressWarnings({ "deprecation", "rawtypes", "unchecked" })
                 @Override
                 public IItemList<IAEItemStack> getAvailableItems(IItemList out) {
 
-                    items.getAvailableItems(new IItemList<IAEItemStack>() {
+                    items.getAvailableItems(new IItemList() {
 
                         @Override
-                        public void add(IAEItemStack option) {
-                            if (!itemFilter().test(option)) return;
+                        public void add(IAEStack option) {
+                            if (!itemFilter().test((IAEItemStack) option)) return;
                             out.add(option);
                         }
 
                         @Override
-                        public IAEItemStack findPrecise(IAEItemStack i) {
+                        public IAEItemStack findPrecise(IAEStack i) {
 
                             return (IAEItemStack) out.findPrecise(i);
                         }
 
                         @Override
-                        public Collection<IAEItemStack> findFuzzy(IAEItemStack input, FuzzyMode fuzzy) {
+                        public Collection<IAEItemStack> findFuzzy(IAEStack input, FuzzyMode fuzzy) {
 
                             return out.findFuzzy(input, fuzzy);
                         }
@@ -301,18 +302,18 @@ public class TileStorageProxy extends TileEntity
                         }
 
                         @Override
-                        public void addStorage(IAEItemStack option) {
-                            if (!itemFilter().test(option)) return;
+                        public void addStorage(IAEStack option) {
+                            if (!itemFilter().test((IAEItemStack) option)) return;
                             out.addStorage(option);
                         }
 
                         @Override
-                        public void addCrafting(IAEItemStack option) {
+                        public void addCrafting(IAEStack option) {
                             out.addCrafting(option);
                         }
 
                         @Override
-                        public void addRequestable(IAEItemStack option) {
+                        public void addRequestable(IAEStack option) {
 
                             out.addRequestable(option);
                         }
@@ -340,31 +341,39 @@ public class TileStorageProxy extends TileEntity
                             out.resetStatus();
 
                         }
+
+						@Override
+						public byte getStackType() {
+							
+							return LIST_ITEM;
+						}
                     });
 
                     return out;
                 }
 
-                @Override
+                @SuppressWarnings("unchecked")
+				@Override
                 public IItemList<IAEItemStack> getStorageList() {
-                    IItemList<IAEItemStack> ls = items.getStorageList();
-                    return new IItemList<IAEItemStack>() {
+                    @SuppressWarnings("rawtypes")
+					IItemList ls = items.getStorageList();
+                    return new IItemList() {
 
                         @Override
-                        public void add(IAEItemStack option) {
+                        public void add(IAEStack option) {
                             ls.add(option);
 
                         }
 
                         @Override
-                        public IAEItemStack findPrecise(IAEItemStack i) {
-                            IAEItemStack ret = ls.findPrecise(i);
+                        public IAEItemStack findPrecise(IAEStack i) {
+                            IAEItemStack ret = (IAEItemStack) ls.findPrecise(i);
                             if (!itemFilter().test(ret)) return null;
                             return ret;
                         }
 
                         @Override
-                        public Collection<IAEItemStack> findFuzzy(IAEItemStack input, FuzzyMode fuzzy) {
+                        public Collection<IAEItemStack> findFuzzy(IAEStack input, FuzzyMode fuzzy) {
 
                             Collection<IAEItemStack> ret = ls.findFuzzy(input, fuzzy);
                             ret.removeIf(itemFilter().negate());
@@ -378,19 +387,19 @@ public class TileStorageProxy extends TileEntity
                         }
 
                         @Override
-                        public void addStorage(IAEItemStack option) {
+                        public void addStorage(IAEStack option) {
                             ls.addStorage(option);
 
                         }
 
                         @Override
-                        public void addCrafting(IAEItemStack option) {
+                        public void addCrafting(IAEStack option) {
                             ls.addCrafting(option);
 
                         }
 
                         @Override
-                        public void addRequestable(IAEItemStack option) {
+                        public void addRequestable(IAEStack option) {
                             ls.addRequestable(option);
 
                         }
@@ -463,6 +472,12 @@ public class TileStorageProxy extends TileEntity
                             ls.resetStatus();
 
                         }
+
+						@Override
+						public byte getStackType() {
+						
+							return LIST_ITEM;
+						}
                     };
                 }
 
@@ -540,26 +555,26 @@ public class TileStorageProxy extends TileEntity
 
                 }
 
-                @SuppressWarnings({ "deprecation", "rawtypes" })
+                @SuppressWarnings({ "deprecation", "rawtypes", "unchecked" })
                 @Override
                 public IItemList<IAEFluidStack> getAvailableItems(IItemList out) {
 
-                    fluids.getAvailableItems(new IItemList<IAEFluidStack>() {
+                    fluids.getAvailableItems(new IItemList() {
 
                         @Override
-                        public void add(IAEFluidStack option) {
-                            if (!fluidFilter().test(option)) return;
+                        public void add(IAEStack option) {
+                            if (!fluidFilter().test((IAEFluidStack) option)) return;
                             out.add(option);
                         }
 
                         @Override
-                        public IAEFluidStack findPrecise(IAEFluidStack i) {
+                        public IAEFluidStack findPrecise(IAEStack i) {
 
                             return (IAEFluidStack) out.findPrecise(i);
                         }
 
                         @Override
-                        public Collection<IAEFluidStack> findFuzzy(IAEFluidStack input, FuzzyMode fuzzy) {
+                        public Collection<IAEFluidStack> findFuzzy(IAEStack input, FuzzyMode fuzzy) {
 
                             return out.findFuzzy(input, fuzzy);
                         }
@@ -571,18 +586,18 @@ public class TileStorageProxy extends TileEntity
                         }
 
                         @Override
-                        public void addStorage(IAEFluidStack option) {
-                            if (!fluidFilter().test(option)) return;
+                        public void addStorage(IAEStack option) {
+                            if (!fluidFilter().test((IAEFluidStack) option)) return;
                             out.addStorage(option);
                         }
 
                         @Override
-                        public void addCrafting(IAEFluidStack option) {
+                        public void addCrafting(IAEStack option) {
                             out.addCrafting(option);
                         }
 
                         @Override
-                        public void addRequestable(IAEFluidStack option) {
+                        public void addRequestable(IAEStack option) {
 
                             out.addRequestable(option);
                         }
@@ -610,31 +625,38 @@ public class TileStorageProxy extends TileEntity
                             out.resetStatus();
 
                         }
+
+						@Override
+						public byte getStackType() {
+							
+							return LIST_FLUID;
+						}
                     });
 
                     return out;
                 }
 
-                @Override
+                @SuppressWarnings("unchecked")
+				@Override
                 public IItemList<IAEFluidStack> getStorageList() {
-                    IItemList<IAEFluidStack> ls = fluids.getStorageList();
-                    return new IItemList<IAEFluidStack>() {
+                    IItemList ls = fluids.getStorageList();
+                    return new IItemList() {
 
                         @Override
-                        public void add(IAEFluidStack option) {
+                        public void add(IAEStack option) {
                             ls.add(option);
 
                         }
 
                         @Override
-                        public IAEFluidStack findPrecise(IAEFluidStack i) {
-                            IAEFluidStack ret = ls.findPrecise(i);
+                        public IAEFluidStack findPrecise(IAEStack i) {
+                            IAEFluidStack ret = (IAEFluidStack) ls.findPrecise((IAEFluidStack) i);
                             if (!fluidFilter().test(ret)) return null;
                             return ret;
                         }
 
                         @Override
-                        public Collection<IAEFluidStack> findFuzzy(IAEFluidStack input, FuzzyMode fuzzy) {
+                        public Collection<IAEFluidStack> findFuzzy(IAEStack input, FuzzyMode fuzzy) {
 
                             Collection<IAEFluidStack> ret = ls.findFuzzy(input, fuzzy);
                             ret.removeIf(fluidFilter().negate());
@@ -648,19 +670,19 @@ public class TileStorageProxy extends TileEntity
                         }
 
                         @Override
-                        public void addStorage(IAEFluidStack option) {
+                        public void addStorage(IAEStack option) {
                             ls.addStorage(option);
 
                         }
 
                         @Override
-                        public void addCrafting(IAEFluidStack option) {
+                        public void addCrafting(IAEStack option) {
                             ls.addCrafting(option);
 
                         }
 
                         @Override
-                        public void addRequestable(IAEFluidStack option) {
+                        public void addRequestable(IAEStack option) {
                             ls.addRequestable(option);
 
                         }
@@ -733,6 +755,12 @@ public class TileStorageProxy extends TileEntity
                             ls.resetStatus();
 
                         }
+
+						@Override
+						public byte getStackType() {
+							
+							return LIST_FLUID;
+						}
                     };
                 }
 

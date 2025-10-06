@@ -51,7 +51,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.glodblock.github.common.parts.PartFluidP2PInterface;
-import com.glodblock.github.inventory.FluidConvertingInventoryAdaptor;
+
 import com.projecturanus.betterp2p.BetterP2P;
 
 import appeng.api.AEApi;
@@ -94,7 +94,7 @@ import kotlin.jvm.functions.Function1;
 import li.cil.oc.api.Driver;
 import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockAutoFillerMKII;
-import reobf.proghatches.ae.BlockFluidDiscretizerMKII;
+//import reobf.proghatches.ae.BlockFluidDiscretizerMKII;
 import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
 import reobf.proghatches.ae.BlockOrbSwitcher;
 import reobf.proghatches.ae.BlockRequestTunnel;
@@ -109,11 +109,11 @@ import reobf.proghatches.eio.ItemMAConduit;
 import reobf.proghatches.eio.MASettings;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.eucrafting.AECover.IMemoryCardSensitive;
-import reobf.proghatches.eucrafting.BlockEUInterface;
+
 import reobf.proghatches.eucrafting.InterfaceData;
-import reobf.proghatches.eucrafting.PartEUP2PInterface;
+
 import reobf.proghatches.eucrafting.PartLazerP2P;
-import reobf.proghatches.eucrafting.TileFluidInterface_EU;
+
 import reobf.proghatches.fmp.PH_FMP;
 import reobf.proghatches.gt.metatileentity.DualInputHachOC;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
@@ -268,8 +268,8 @@ public class MyMod {
 
     public static Item eu_token;
     public static Item eu_source_part;
-    public static BlockEUInterface block_euinterface;
-    public static Item euinterface_p2p;
+   // public static BlockEUInterface block_euinterface;
+   // public static Item euinterface_p2p;
     public static Item book;
     public static Item fixer;
     // public static Item eu_tool;
@@ -488,7 +488,7 @@ public class MyMod {
         // Api.INSTANCE.registries().p2pTunnel().addNewAttunement(null, null);
         // ShutDownReasonRegistry.register(ACCESS_LOOP);
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
-        for (ItemStack s : new ItemStack[] { new ItemStack(block_euinterface), new ItemStack(euinterface_p2p) })
+        /*for (ItemStack s : new ItemStack[] { new ItemStack(block_euinterface), new ItemStack(euinterface_p2p) })
 
         {
             Upgrades.CRAFTING.registerItem(s, 1);
@@ -498,19 +498,19 @@ public class MyMod {
             // Upgrades.CRAFTING.registerItem(s, 1);
 
             Upgrades.ADVANCED_BLOCKING.registerItem(s, 1);
-        }
+        }*/
         InterfaceTerminalRegistry.instance()
             .register(PatternHousing.pattern.class);
         InterfaceTerminalRegistry.instance()
             .register(InterfaceData.class);
         InterfaceTerminalRegistry.instance()
             .register(InterfaceData.FluidInterfaceData_TileFluidInterface.class);
-        InterfaceTerminalRegistry.instance()
-            .register(PartEUP2PInterface.class);
+       /* InterfaceTerminalRegistry.instance()
+            .register(PartEUP2PInterface.class);*/
         InterfaceTerminalRegistry.instance()
             .register(PartFluidP2PInterface.class);
-        InterfaceTerminalRegistry.instance()
-            .register(TileFluidInterface_EU.class);
+      /*  InterfaceTerminalRegistry.instance()
+            .register(TileFluidInterface_EU.class);*/
         InterfaceTerminalRegistry.instance()
             .register(PatternDualInputHatch.Inst.class);
         InterfaceTerminalRegistry.instance()

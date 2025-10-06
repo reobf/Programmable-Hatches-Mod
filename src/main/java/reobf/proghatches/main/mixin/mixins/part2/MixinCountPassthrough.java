@@ -8,12 +8,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import appeng.api.storage.data.IItemList;
 import appeng.me.storage.MEMonitorPassThrough;
 import appeng.util.inv.ItemListIgnoreCrafting;
-import reobf.proghatches.ae.TileFluidDiscretizerMKII;
+//import reobf.proghatches.ae.TileFluidDiscretizerMKII;
+
 
 @Mixin(remap=false,value=MEMonitorPassThrough.class)
 public class MixinCountPassthrough {
 
-	
+	/*
 @Inject(method="getAvailableItems", at = { @At("HEAD") })
 	    public void getAvailableItemsH(final IItemList out, int iterator,CallbackInfoReturnable _) {
 	TileFluidDiscretizerMKII.count++;
@@ -23,7 +24,7 @@ public class MixinCountPassthrough {
 public void getAvailableItemsR(final IItemList out, int iterator,CallbackInfoReturnable _) {
 	TileFluidDiscretizerMKII.count--;
 } 
-	 
+	 */
 	 
 	 
 	 

@@ -148,7 +148,7 @@ public static boolean loaded;
         ArrayList<String> ret = new ArrayList<>();
         retLate.add("eucrafting." + "MixinWailaProvider");
         retLate.add("eucrafting." + "MixinInstantComplete");
-        if ("true".equals(pp.get("addEUCraftingMixins"))) {
+        if (/*"true".equals(pp.get("addEUCraftingMixins")*/false) {
             retLate.add("eucrafting." + "MixinMachineIdle");
             retLate.add("eucrafting." + "MixinMachineIdle2");
             retLate.add("eucrafting." + "MixinCpuClusterEUAutoRequest");
@@ -168,7 +168,7 @@ public static boolean loaded;
         retLate.add("eucrafting." + "MixinInvTracker");
         retLate.add("MixinAEAdaptorSkipStackSizeCheck");
         retLate.add("MixinAwarenessForDualHatch");
-        retLate.add("MixinAE2FCCompat");
+        //retLate.add("MixinAE2FCCompat");
 
         if (!"true".equals(pp.get("noRecipeFilterForDualHatch"))) {
             retLate.add("MixinGTRecipeFilter");
@@ -204,6 +204,7 @@ public static boolean loaded;
         retLate.add("part2.MixinExtractIntercept");
         retLate.add("part2.MixinMUI2CircuitSlot");
         retLate.add("part2.MixinCountPassthrough");
+        retLate.add("part2.MixinNewDualInterface");
         //retLate.add("part2.x");
         //retLate.add("part2.MixinCraftRevive");
         if (FMLLaunchHandler.side()

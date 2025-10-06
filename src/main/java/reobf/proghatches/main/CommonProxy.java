@@ -24,7 +24,7 @@ import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockAutoFillerMKII;
 import reobf.proghatches.ae.BlockCraftingCondenser;
 import reobf.proghatches.ae.BlockCyclicPatternSubmitter;
-import reobf.proghatches.ae.BlockFluidDiscretizerMKII;
+//import reobf.proghatches.ae.BlockFluidDiscretizerMKII;
 import reobf.proghatches.ae.BlockMolecularAssemblerInterface;
 import reobf.proghatches.ae.BlockOrbSwitcher;
 import reobf.proghatches.ae.BlockRequestTunnel;
@@ -39,7 +39,7 @@ import reobf.proghatches.ae.ItemPartSubnetExciter;
 import reobf.proghatches.ae.TileAutoFillerMKII;
 import reobf.proghatches.ae.TileCraftingCondenser;
 import reobf.proghatches.ae.TileCyclicPatternSubmitter;
-import reobf.proghatches.ae.TileFluidDiscretizerMKII;
+//import reobf.proghatches.ae.TileFluidDiscretizerMKII;
 import reobf.proghatches.ae.TileMolecularAssemblerInterface;
 import reobf.proghatches.ae.TileOrbSwitcher;
 import reobf.proghatches.ae.TileRequestTunnel;
@@ -59,14 +59,11 @@ import reobf.proghatches.block.TileAnchorAlert;
 import reobf.proghatches.block.TileIOHub;
 import reobf.proghatches.block.TileReactorSyncer;
 import reobf.proghatches.eio.ItemMAConduit;
-import reobf.proghatches.eucrafting.BlockEUInterface;
 import reobf.proghatches.eucrafting.EUUtil;
 import reobf.proghatches.eucrafting.ItemBlockEUInterface;
 import reobf.proghatches.eucrafting.ItemEUToken;
-import reobf.proghatches.eucrafting.ItemPartEUP2PInterface;
-import reobf.proghatches.eucrafting.ItemPartEUSource;
+
 import reobf.proghatches.eucrafting.ItemPartLazerP2P;
-import reobf.proghatches.eucrafting.TileFluidInterface_EU;
 import reobf.proghatches.item.ItemBadge;
 import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemDedicatedCover;
@@ -106,7 +103,7 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(TileCoprocessor.class, "proghatches.coprocessor");
         GameRegistry.registerTileEntity(TileAnchorAlert.class, "proghatches.chunk_loading_alert");
 
-        GameRegistry.registerTileEntity(TileFluidInterface_EU.class, "proghatches.euinterface");
+        //GameRegistry.registerTileEntity(TileFluidInterface_EU.class, "proghatches.euinterface");
         GameRegistry.registerTileEntity(TileCyclicPatternSubmitter.class, "proghatches.submitter");
         GameRegistry.registerTileEntity(TileCardReader.class, "proghatches.card_reader");
         GameRegistry.registerTileEntity(TileReactorSyncer.class, "proghatches.reactor_syncer");
@@ -114,7 +111,7 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(TileMolecularAssemblerInterface.class, "proghatches.ma_inface");
         GameRegistry.registerTileEntity(TileStockingCircuitRequestInterceptor.class, "proghatches.circuit_interceptor");
         GameRegistry.registerTileEntity(TileAutoFillerMKII.class, "proghatches.autofillerMKII");
-        GameRegistry.registerTileEntity(TileFluidDiscretizerMKII.class, "proghatches.fluidDiscretizerMKII");
+       // GameRegistry.registerTileEntity(TileFluidDiscretizerMKII.class, "proghatches.fluidDiscretizerMKII");
         GameRegistry.registerTileEntity(TileGTHatchConfigurator.class, "proghatches.configurator");
         GameRegistry.registerTileEntity(TileRequestTunnel.class, "proghatches.request_tunnel");
         GameRegistry.registerTileEntity(TileOrbSwitcher.class, "proghatches.orb_switcher");
@@ -236,14 +233,14 @@ public class CommonProxy {
         FMLInterModComms.sendMessage("Waila", "register", "reobf.proghatches.main.CommonProxy.callbackRegister");
         // System.out.println(AEConfig.instance);
         // System.out.println("xxxxxxxxxxxxxxxx");
-        GameRegistry.registerBlock(
+       /* GameRegistry.registerBlock(
             MyMod.block_euinterface = new BlockEUInterface(Material.iron, "proghatches.euinterface"),
             ItemBlockEUInterface.class,
-            "proghatches.euinterface");
-        GameRegistry.registerItem(
+            "proghatches.euinterface");*/
+      /*  GameRegistry.registerItem(
             MyMod.eu_source_part = new ItemPartEUSource().setUnlocalizedName("proghatches.part.eu.source")
                 .setTextureName("?"),
-            "proghatches.part.eu.source");
+            "proghatches.part.eu.source");*/
         GameRegistry.registerItem(
             MyMod.lazer_p2p_part = new ItemPartLazerP2P().setUnlocalizedName("proghatches.part.lazer.p2p")
                 .setTextureName("?"),
@@ -260,10 +257,10 @@ public class CommonProxy {
             MyMod.part_cow = new ItemPartCoW().setUnlocalizedName("proghatches.part.cow")
                 .setTextureName("?"),
             "proghatches.part.cow");
-        GameRegistry.registerItem(
+      /*  GameRegistry.registerItem(
             MyMod.euinterface_p2p = new ItemPartEUP2PInterface().setUnlocalizedName("proghatches.euinterface.p2p")
                 .setTextureName("?"),
-            "proghatches.euinterface.p2p");
+            "proghatches.euinterface.p2p");*/
         GameRegistry.registerItem(
             MyMod.amountmaintainer = new ItemPartAmountMaintainer().setUnlocalizedName("proghatches.amountmaintainer")
                 .setTextureName("?"),
@@ -381,8 +378,8 @@ public class CommonProxy {
     public static void callbackRegister(IWailaRegistrar registrar) {
         registrar.registerBodyProvider(TileWirelessPeripheralStation.provider, MyMod.pstation.getClass());
         registrar.registerNBTProvider(TileWirelessPeripheralStation.provider, MyMod.pstation.getClass());
-        registrar.registerBodyProvider(TileFluidInterface_EU.provider, BlockEUInterface.class);
-        registrar.registerNBTProvider(TileFluidInterface_EU.provider, BlockEUInterface.class);
+        //registrar.registerBodyProvider(TileFluidInterface_EU.provider, BlockEUInterface.class);
+        //registrar.registerNBTProvider(TileFluidInterface_EU.provider, BlockEUInterface.class);
         registrar.registerBodyProvider(TileAnchorAlert.provider, BlockAnchorAlert.class);
         registrar.registerNBTProvider(TileAnchorAlert.provider, BlockAnchorAlert.class);
         registrar.registerBodyProvider(TileCyclicPatternSubmitter.provider, BlockCyclicPatternSubmitter.class);

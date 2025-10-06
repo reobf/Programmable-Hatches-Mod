@@ -12,6 +12,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.crafting.v2.resolvers.CraftableItemResolver.CraftFromPatternTask;
 import reobf.proghatches.eucrafting.IInputMightBeEmptyPattern;
 
@@ -36,7 +37,7 @@ public class MixinCraftFromPatternTaskPatch {
      * }
      */
     @Shadow(remap = false)
-    protected IAEItemStack[] patternInputs;
+    protected IAEStack[] patternInputs;
 
     @Inject(method = "<init>", at = { @At("RETURN") }, remap = false, require = 1)
     // public void calculateOneStep(CraftingRequest<IAEItemStack> request, ICraftingPatternDetails pattern,
@@ -48,7 +49,7 @@ public class MixinCraftFromPatternTaskPatch {
 
             patternInputs = Arrays.stream(patternInputs)
                 .filter(s -> s.getStackSize() > 0)
-                .toArray(IAEItemStack[]::new);
+                .toArray(IAEStack[]::new);
 
         }
 

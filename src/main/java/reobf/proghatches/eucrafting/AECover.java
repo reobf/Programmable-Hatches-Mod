@@ -747,7 +747,11 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
 
         return 1;
     }
-
+	@Override
+	public int getDefaultTickRate() {
+	
+		return 1;
+	}
     @Override
     public void onCoverRemoval() {
         this.coverData.destroy();

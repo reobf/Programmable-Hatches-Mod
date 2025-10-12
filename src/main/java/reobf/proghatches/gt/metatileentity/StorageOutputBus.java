@@ -505,6 +505,12 @@ public  void dump(){
         // Always allow insertion on the same tick so we can output the entire recipe
         if (canAcceptItem() || (lastInputTick == tickCounter)) {
             if (!simulate) {
+            	try {
+      				AEItemStack rem = (AEItemStack) ((CraftingGridCache) getProxy().getCrafting())
+      				        .injectItems(AEItemStack.create(stack), Actionable.MODULATE, new MachineSource(StorageOutputBus.this));
+      				stack.stackSize=(int) (rem==null?0:rem.getStackSize());
+                  } catch (GridAccessException e1) {
+      			}
                 itemCache.add(
                     AEApi.instance()
                         .storage()

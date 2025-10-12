@@ -7,6 +7,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraftforge.common.DimensionManager;
 
 import com.google.common.collect.ImmutableList;
 
@@ -41,10 +42,10 @@ public class CommandMUI2 extends CommandBase {
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
-      
-    	GTGuis.GLOBAL_SWITCH_MUI2=!GTGuis.GLOBAL_SWITCH_MUI2;
+    	DimensionManager.unloadWorld(1);
+    	//GTGuis.GLOBAL_SWITCH_MUI2=!GTGuis.GLOBAL_SWITCH_MUI2;
     	
-    	sender.addChatMessage(new ChatComponentText(""+GTGuis.GLOBAL_SWITCH_MUI2));
+    	//sender.addChatMessage(new ChatComponentText(""+GTGuis.GLOBAL_SWITCH_MUI2));
 
     }
 

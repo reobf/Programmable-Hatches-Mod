@@ -38,7 +38,10 @@ public class ProgrammingCover extends Cover implements IProgrammer {
     public int getDefaultTickRate() {
         return 1;
     }
-
+	@Override
+	public int getMinimumTickRate() {
+		return 1;
+	}
     public void impl(ICoverable aTileEntity) {
 
         /*

@@ -3,7 +3,10 @@ package reobf.proghatches.main.mixin.mixins.part2;
 import java.lang.reflect.Field;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Desc;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -18,12 +21,13 @@ import appeng.api.storage.data.IAEStack;
 import appeng.util.Platform;
 import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import gregtech.common.tileentities.machines.MTEHatchInputME;
+import net.minecraft.inventory.IInventory;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 
-@Mixin(remap = false, value = { MTEHatchInputBusME.class, MTEHatchInputME.class,
+@Mixin(remap = true, value = { MTEHatchInputBusME.class, MTEHatchInputME.class,
 
 })
-public class MixinMEBusOverride {
+public abstract class MixinMEBusOverride implements IInventory{
 
     private static Field minAutoPullStackSize;
     private static Field minAutoPullAmount;
@@ -42,7 +46,7 @@ public class MixinMEBusOverride {
 
     }
 
-    @Inject(require = 1, method = { "refreshItemList", "refreshFluidList" }, cancellable = true, at = { @At("HEAD") })
+    @Inject(remap=false,require = 1, method = { "refreshItemList", "refreshFluidList" }, cancellable = true, at = { @At("HEAD") })
     private void refreshItemList(CallbackInfo ci) {
         if (this instanceof IMEHatchOverrided) {
             try {if(((IMEHatchOverrided) this).override()==false){return;}
@@ -58,7 +62,7 @@ public class MixinMEBusOverride {
 
     }
 
-    @Redirect(require = 0,expect=0, method = "endRecipeProcessing"//"/^\\w/"// "endRecipeProcessing"
+    @Redirect(remap=false,require = 0,expect=0, method = "endRecipeProcessing"//"/^\\w/"// "endRecipeProcessing"
         ,at = @At(value = "INVOKE", target = "extractItems", remap = false))
     private IAEStack extractItemsOrOverride(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src) {
         if (this instanceof IMEHatchOverrided) {
@@ -69,7 +73,7 @@ public class MixinMEBusOverride {
 
     }
     @SuppressWarnings("unchecked")
-	@Redirect(require = 0,expect=0, method = "endRecipeProcessing"//"/^\\w/"// "endRecipeProcessing"
+	@Redirect(remap=false,require = 0,expect=0, method = "endRecipeProcessing"//"/^\\w/"// "endRecipeProcessing"
             ,at = @At(value = "INVOKE", target = "poweredExtraction", remap = false))
         private IAEStack extractItemsOrOverrideNeo(IEnergySource xx,IMEInventory thiz, IAEStack request, BaseActionSource src) {
             if (this instanceof IMEHatchOverrided) { 
@@ -83,7 +87,7 @@ public class MixinMEBusOverride {
         }   
     
     @SuppressWarnings("rawtypes")
-	@Redirect(require = 1, method = "updateInformationSlot"// "endRecipeProcessing"
+	@Redirect(remap=false,require = 1, method = "updateInformationSlot"// "endRecipeProcessing"
             ,
 
             at = @At(value = "INVOKE", target = "extractItems", remap = false))
@@ -104,8 +108,12 @@ public class MixinMEBusOverride {
     //ME Hatch has no such behavior in getStoredFluid
     //so it's optional(require = -1)
     @SuppressWarnings("rawtypes")
-	@Redirect(require = 0,expect=0, method = "getStackInSlot"
-            ,at = @At(value = "INVOKE", target = "extractItems", remap = false))
+	@Redirect(require = 0,expect=0
+	
+	,method ={ "getStackInSlot","func_70301_a"}
+	
+	
+            ,at = @At(value = "INVOKE", target = "extractItems", remap = false), remap = false)
     private IAEStack qureyStorageX(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src){
     	
     	   if (this instanceof IMEHatchOverrided) {
@@ -119,4 +127,6 @@ public class MixinMEBusOverride {
     }
     
 
+    
+    
 }

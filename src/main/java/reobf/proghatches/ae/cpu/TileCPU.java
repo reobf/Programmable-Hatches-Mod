@@ -703,7 +703,7 @@ public static synchronized void init(){
 	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[5])), 1024*1L);
 	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[6])), 4096*1L);
 	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[7])), 16384*1L);
-	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[8])), Long.MAX_VALUE *1L-1);
+	accMap1.put(new SIDItemStack(new ItemStack(MyMod.condensers[8])), Integer.MAX_VALUE*1L);
 }
 public static long safeFMA(long original,long a,long b){
 	

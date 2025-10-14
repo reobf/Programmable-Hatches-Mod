@@ -46,7 +46,9 @@ import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.util.GTUtility;
+import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import gregtech.common.tileentities.machines.MTEHatchInputME;
+
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolderSuper;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
@@ -418,4 +420,30 @@ public class PriorityFilterInputHatchME extends MTEHatchInputME
 		
 		
 	}
+    
+    @Override
+    public void setConfigFluid(MTEHatchInputME thiz, int index, FluidStack bruh, FluidStack itemStack2) {
+    	try {
+			thiz.setSlotConfig(index, bruh);
+		
+			if(itemStack2!=null){
+				Slot ww= this.slots[index];
+				ww.extracted=itemStack2;
+				ww.extractedAmount=itemStack2.amount;
+		
+			}} catch (Exception e) {
+			throw new AssertionError(e);
+		}
+    	
+    }
+
+    public  void setConfigItem(MTEHatchInputBusME thiz, int index, ItemStack bruh,
+    		ItemStack itemStack2) {
+    	
+    	
+    }@Override
+    public int minAutoPull() {
+    	
+    	return minAutoPullAmount;
+    }
 }

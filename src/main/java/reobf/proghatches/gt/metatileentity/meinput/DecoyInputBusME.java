@@ -56,6 +56,7 @@ import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.MTEHatchInputBusME;
+import gregtech.common.tileentities.machines.MTEHatchInputME;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolderSuper;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.main.MyMod;
@@ -63,6 +64,12 @@ import reobf.proghatches.main.registration.Registration;
 
 public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverrided, IDataCopyablePlaceHolderSuper {
 
+	
+	
+
+	
+	
+	
     public DecoyInputBusME(int aID, /* boolean autoPullAvailable, */ String aName, String aNameRegional) {
         super(aID, /* autoPullAvailable */true, aName, aNameRegional);
         Registration.items.add(new ItemStack(GregTechAPI.sBlockMachines, 1, aID));
@@ -73,7 +80,7 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 
     @Override
     public String[] getDescription() {
-    	
+
         return desc;
     }
 
@@ -715,29 +722,7 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
         return super.pasteCopiedData(player, nbt);
     }
     
-    static MethodHandle getFirstXXXStack;
     
-    static{
-    	try {
-			getFirstXXXStack=MethodHandles.lookup().findSpecial(
-			        DecoyInputBusME.class.getSuperclass(),
-			        "getFirstValidStack",
-			        MethodType.methodType(ItemStack.class,boolean.class),
-			        DecoyInputBusME.class
-			    );
-		} catch (Exception e) {
-		}
-    	try {
-    		if(getFirstXXXStack==null)getFirstXXXStack=MethodHandles.lookup().findSpecial(
-    				DecoyInputBusME.class.getSuperclass(),
-		        "getFirstShadowItemStack",
-		        MethodType.methodType(ItemStack.class,boolean.class),
-		        DecoyInputBusME.class
-		    );
-		
-		} catch (Exception e) {
-		}
-    }
 @SuppressWarnings("unchecked")
 @Override
 public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src) {
@@ -747,23 +732,48 @@ public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode,
 
 public ItemStack getFirstValidStack(boolean slotsMustMatch) {
 	
-	try {
-		return (ItemStack) getFirstXXXStack.invoke(this,false);
-	} catch (Throwable e) {throw new AssertionError(e);
-	}
+
+		return super.getFirstValidStack(false);
+	
 }
 
 
-public ItemStack getFirstShadowItemStack(boolean slotsMustMatch) {
-	try {
-		return (ItemStack) getFirstXXXStack.invoke(this,true);
-	} catch (Throwable e) {throw new AssertionError(e);
-	}
-}
+
 @Override
 public void startRecipeProcessing() {
 	if(autoPullItemList)
 	refreshItemList();
 	super.startRecipeProcessing();
 }
+
+@Override
+public void setConfigFluid(MTEHatchInputME thiz, int index, FluidStack fs, FluidStack o) {
+	
+	
+}
+
+public  void setConfigItem(MTEHatchInputBusME thiz, int index, ItemStack bruh,
+		ItemStack itemStack2) {
+	try {
+			thiz.setSlotConfig(index, bruh);
+		
+			if(itemStack2!=null){
+				Slot ww= this.slots[index];
+				ww.extracted=itemStack2;
+				ww.extractedAmount=itemStack2.stackSize;
+		
+			}} catch (Exception e) {
+			throw new AssertionError(e);
+		}
+	
+}
+
+@Override
+public int minAutoPull() {
+	
+	return minAutoPullStackSize;
+}
+
+
+
 }

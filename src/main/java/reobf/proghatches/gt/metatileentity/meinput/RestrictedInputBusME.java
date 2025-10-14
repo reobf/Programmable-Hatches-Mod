@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.fluids.FluidStack;
 
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.drawable.AdaptableUITexture;
@@ -44,6 +45,8 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.common.tileentities.machines.MTEHatchInputBusME;
+import gregtech.common.tileentities.machines.MTEHatchInputME;
+
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolderSuper;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
@@ -508,6 +511,30 @@ public class RestrictedInputBusME extends MTEHatchInputBusME implements IDataCop
     @Override
     public String getCopiedDataIdentifier(EntityPlayer player) {
         return IDataCopyablePlaceHolderSuper.super.getCopiedDataIdentifier(player);
+    }@Override
+    public void setConfigFluid(MTEHatchInputME thiz, int index, FluidStack fs, FluidStack o) {
+    	
+    	
+    }
+
+    public  void setConfigItem(MTEHatchInputBusME thiz, int index, ItemStack bruh,
+    		ItemStack itemStack2) {
+    	try {
+    			thiz.setSlotConfig(index, bruh);
+    		
+    			if(itemStack2!=null){
+    				Slot ww= this.slots[index];
+    				ww.extracted=itemStack2;
+    				ww.extractedAmount=itemStack2.stackSize;
+    		
+    			}} catch (Exception e) {
+    			throw new AssertionError(e);
+    		}
+    	
+    }@Override
+    public int minAutoPull() {
+    	
+    	return minAutoPullStackSize;
     }
 
 }

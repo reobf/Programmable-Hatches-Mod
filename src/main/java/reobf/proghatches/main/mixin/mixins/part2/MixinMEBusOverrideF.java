@@ -20,10 +20,10 @@ import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import gregtech.common.tileentities.machines.MTEHatchInputME;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 
-@Mixin(remap = true, value = { MTEHatchInputBusME.class
+@Mixin(remap = true, value = {  MTEHatchInputME.class,
 
 })
-public class MixinMEBusOverride {
+public class MixinMEBusOverrideF {
 
    
 
@@ -32,8 +32,7 @@ public class MixinMEBusOverride {
         if (this instanceof IMEHatchOverrided) {
             try {if(((IMEHatchOverrided) this).override()==false){return;}
                 ((IMEHatchOverrided) this).overridedBehoviour(
-                		((IMEHatchOverrided) this).minAutoPull()
-                		);
+                		((IMEHatchOverrided) this).minAutoPull());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -74,7 +73,7 @@ public class MixinMEBusOverride {
     	
     }
     
-
+  
     
 
 }

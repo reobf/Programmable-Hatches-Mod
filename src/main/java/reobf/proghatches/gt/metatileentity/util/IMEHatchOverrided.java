@@ -4,6 +4,10 @@ import appeng.api.config.Actionable;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEStack;
+import gregtech.common.tileentities.machines.MTEHatchInputBusME;
+import gregtech.common.tileentities.machines.MTEHatchInputME;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
 
 public interface IMEHatchOverrided {
 	 public default boolean override(){return true;}
@@ -16,8 +20,27 @@ public interface IMEHatchOverrided {
     	
     	return  thiz.extractItems(request, mode, src);
     }
-    public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src)
-    	;
+    public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src);
+    
+    
+    
+    public  void setConfigFluid(MTEHatchInputME thiz,int index,FluidStack fs,FluidStack o);
+		
+    
+    
+	public  void setConfigItem(MTEHatchInputBusME thiz, int index, ItemStack bruh,
+			ItemStack itemStack2);
+	public  int minAutoPull();
+		
+    
+    
+    
+    
+    
+    
+    
+    
+    ;
 	/*default public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src){
 		return  this.overridedExtract(thiz,request, mode, src);
 		

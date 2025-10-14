@@ -742,11 +742,18 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
         return false;
     }
 
+  
+
     @Override
     public int getMinimumTickRate() {
 
         return 1;
     }
+	@Override
+	public int getDefaultTickRate() {
+	
+		return 1;
+	}
 
     @Override
     public void onCoverRemoval() {

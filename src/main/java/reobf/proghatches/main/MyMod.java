@@ -36,6 +36,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.storage.RegionFile;
 import net.minecraft.world.chunk.storage.RegionFileCache;
 import net.minecraftforge.common.AchievementPage;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.IExtendedEntityProperties;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -43,6 +44,7 @@ import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.oredict.OreDictionary;
@@ -62,6 +64,7 @@ import appeng.core.features.ItemDefinition;
 import appeng.core.features.registries.InterfaceTerminalRegistry;
 import appeng.items.tools.ToolMemoryCard;
 import bartworks.API.SideReference;
+import codechicken.core.CommonUtils;
 import codechicken.multipart.MultiPartRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -134,6 +137,7 @@ import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
 import reobf.proghatches.net.RenameMessage;
 import reobf.proghatches.net.SwitchModeMessage;
+import reobf.proghatches.net.TryOpenPatternCIRBMessage;
 import reobf.proghatches.net.UpgradesMessage;
 import reobf.proghatches.net.VoidFXMessage;
 import reobf.proghatches.net.WayPointMessage;
@@ -306,6 +310,7 @@ public class MyMod {
         net.registerMessage(new SwitchModeMessage.Handler(), SwitchModeMessage.class, 9, Side.SERVER);
         net.registerMessage(new ModeSwitchedMessage.Handler(), ModeSwitchedMessage.class, 10, Side.CLIENT);
         net.registerMessage(new JoinMessage.Handler(), JoinMessage.class, 11, Side.CLIENT);
+        net.registerMessage(new TryOpenPatternCIRBMessage.Handler(), TryOpenPatternCIRBMessage.class, 12, Side.SERVER);
         proxy.preInit(event);
     }
 
@@ -968,5 +973,10 @@ public class MyMod {
             callbacks.forEach((a, b) -> b.run());
         }
     }
-
+    @SubscribeEvent
+    public void onChunkDataLoad(ChunkDataEvent.Load event) {
+    	/*Object a=DimensionManager.getCurrentSaveRootDirectory();
+    	Object a1=CommonUtils.getSaveLocation(0);
+    	System.out.println(0);*/
+    }
 }

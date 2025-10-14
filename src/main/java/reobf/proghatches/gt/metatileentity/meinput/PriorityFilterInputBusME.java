@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidStack;
 
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
@@ -46,6 +47,8 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.MTEHatchInputBusME;
+import gregtech.common.tileentities.machines.MTEHatchInputME;
+
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolderSuper;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
@@ -418,5 +421,29 @@ public class PriorityFilterInputBusME extends MTEHatchInputBusME
 		return  this.overridedExtract(thiz,request, mode, src);
 		
 		
+	}@Override
+    public void setConfigFluid(MTEHatchInputME thiz, int index, FluidStack fs, FluidStack o) {
+		
+		
+	}
+
+	public  void setConfigItem(MTEHatchInputBusME thiz, int index, ItemStack bruh,
+			ItemStack itemStack2) {
+		try {
+				thiz.setSlotConfig(index, bruh);
+			
+				if(itemStack2!=null){
+					Slot ww= this.slots[index];
+					ww.extracted=itemStack2;
+					ww.extractedAmount=itemStack2.stackSize;
+			
+				}} catch (Exception e) {
+				throw new AssertionError(e);
+			}
+		
+	}@Override
+	public int minAutoPull() {
+		
+		return minAutoPullStackSize;
 	}
 }

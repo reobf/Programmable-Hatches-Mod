@@ -52,11 +52,15 @@ import appeng.util.item.AEItemStack;
 import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
+import gregtech.api.interfaces.IOutputBus;
+import gregtech.api.interfaces.IOutputBusTransaction;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.MTEHatchOutputBusME;
+import it.unimi.dsi.fastutil.objects.Object2LongMaps;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import reobf.proghatches.gt.metatileentity.multi.IngredientDistributor;
 import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.main.registration.Registration;
@@ -505,6 +509,12 @@ public  void dump(){
         // Always allow insertion on the same tick so we can output the entire recipe
         if (canAcceptItem() || (lastInputTick == tickCounter)) {
             if (!simulate) {
+            	  try {
+      				AEItemStack rem = (AEItemStack) ((CraftingGridCache) getProxy().getCrafting())
+      				        .injectItems(AEItemStack.create(stack), Actionable.MODULATE, new MachineSource(StorageOutputBus.this));
+      				stack.stackSize=(int) (rem==null?0:rem.getStackSize());
+                  } catch (GridAccessException e1) {
+      			}
                 itemCache.add(
                     AEApi.instance()
                         .storage()
@@ -539,4 +549,113 @@ public  void dump(){
 
         return getProxy().isActive();
     }
+    
+    
+    @Override
+    	public IOutputBusTransaction createTransaction() {
+    		
+    		return new MEOutputBusTransactionX();
+    	}
+    @Override
+    	protected void flushCachedStack() {
+    		//NO we don't
+    		//super.flushCachedStack();
+    	}
+    
+    class MEOutputBusTransactionX implements IOutputBusTransaction {
+
+        private final Object2LongOpenHashMap<GTUtility.ItemId> pendingItems = new Object2LongOpenHashMap<>();
+        private final long initialStored, capacity, tick;
+        private long currentStored;
+        private boolean active = true;
+
+        public MEOutputBusTransactionX() {
+            initialStored = getCachedAmount();
+            capacity = getCacheCapacity();
+            // We don't want to mutate lastInputTick, so we'll keep a simulated version of it.
+            // This transaction assumes that something will be ejected into this bus, so we can just use the current
+            // tick if this bus still has space.
+            tick = initialStored >= capacity ? lastInputTick : tickCounter;
+        }
+
+        @Override
+        public IOutputBus getBus() {
+            return StorageOutputBus.this;
+        }
+
+        @Override
+        public boolean hasAvailableSpace() {
+            // There's really no reason for the tick counter, it's just more accurate to the real bus's behaviour.
+            // Transactions should never be kept around long enough for it to matter, but in case someone does something
+            // stupid it's here to make sure nothing breaks.
+            // This condition should always return true unless this transaction is kept around for more than one tick.
+            return initialStored + currentStored < capacity || tickCounter == tick;
+        }
+
+        @Override
+        public boolean storePartial(GTUtility.ItemId id, ItemStack stack) {
+            if (!active) throw new IllegalStateException("Cannot add to a transaction after committing it");
+
+            if (!hasAvailableSpace()) return false;
+            if (isFiltered() && !isFilteredToItem(id)) return false;
+            
+            try {
+				AEItemStack rem = (AEItemStack) ((CraftingGridCache) getProxy().getCrafting())
+				        .injectItems(AEItemStack.create(stack), Actionable.MODULATE, new MachineSource(StorageOutputBus.this));
+				stack.stackSize=(int) (rem==null?0:rem.getStackSize());
+            } catch (GridAccessException e1) {
+			}
+            
+            
+            
+            pendingItems.addTo(id, stack.stackSize);
+            currentStored += stack.stackSize;
+            
+            
+            
+            itemCache.add(
+                    AEApi.instance()
+                        .storage()
+                        .createItemStack(stack));
+            
+            
+            try {
+					getProxy()
+					.getStorage()
+					.postAlterationOfStoredItems(
+					    StorageChannel.ITEMS,
+					    ImmutableList.of(AEItemStack.create(stack)),
+					    new MachineSource(StorageOutputBus.this));
+				} catch (GridAccessException e) {}
+					
+				
+                lastInputTick = tickCounter;
+            
+            
+            stack.stackSize = 0;
+
+            return true;
+        }
+
+        @Override
+        public void completeItem(GTUtility.ItemId id) {
+            // Do nothing
+        }
+
+        @Override
+        public void commit() {
+            // spotless:off
+            Object2LongMaps.fastForEach(pendingItems, e -> {
+                itemCache.add(AEItemStack.create(e.getKey().getItemStack()).setStackSize(e.getLongValue()));
+            });
+            // spotless:on
+
+            StorageOutputBus.this.markDirty();
+
+            active = false;
+        }
+    }
+    
+    
+    
 }

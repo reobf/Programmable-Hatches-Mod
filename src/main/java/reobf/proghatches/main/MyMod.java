@@ -134,6 +134,7 @@ import reobf.proghatches.net.OpenPartGuiMessage;
 import reobf.proghatches.net.PriorityMessage;
 import reobf.proghatches.net.RenameMessage;
 import reobf.proghatches.net.SwitchModeMessage;
+import reobf.proghatches.net.TryOpenPatternCIRBMessage;
 import reobf.proghatches.net.UpgradesMessage;
 import reobf.proghatches.net.VoidFXMessage;
 import reobf.proghatches.net.WayPointMessage;
@@ -306,6 +307,7 @@ public class MyMod {
         net.registerMessage(new SwitchModeMessage.Handler(), SwitchModeMessage.class, 9, Side.SERVER);
         net.registerMessage(new ModeSwitchedMessage.Handler(), ModeSwitchedMessage.class, 10, Side.CLIENT);
         net.registerMessage(new JoinMessage.Handler(), JoinMessage.class, 11, Side.CLIENT);
+        net.registerMessage(new TryOpenPatternCIRBMessage.Handler(), TryOpenPatternCIRBMessage.class, 12, Side.SERVER);
         proxy.preInit(event);
     }
 

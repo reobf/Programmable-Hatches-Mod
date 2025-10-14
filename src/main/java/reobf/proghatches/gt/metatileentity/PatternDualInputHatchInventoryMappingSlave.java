@@ -6,8 +6,11 @@ import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -114,6 +117,7 @@ import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.net.MasterSetMessage;
+import reobf.proghatches.net.TryOpenPatternCIRBMessage;
 
 public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch & IDualInputHatch & IMetaTileEntity>
     extends MTETieredMachineBlock
@@ -321,9 +325,9 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
     @Override
     public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer, ForgeDirection side,
         float aX, float aY, float aZ) {
-        if (!(aPlayer instanceof EntityPlayerMP)) {
+       /* if (!(aPlayer instanceof EntityPlayerMP)) {
             return false;
-        }
+        }*/
         final ItemStack is = aPlayer.inventory.getCurrentItem();
         if (is != null && is.getItem() instanceof ToolQuartzCuttingKnife) {
             if (ForgeEventFactory.onItemUseStart(aPlayer, is, 1) <= 0) return false;
@@ -341,34 +345,18 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
             return true;
         }
 
-        if (getMaster() != null) {
-            if (!aBaseMetaTileEntity.isClientSide()) {
-                /*
-                 * TileEntity m= (TileEntity)
-                 * getMaster().getBaseMetaTileEntity(); NBTTagCompound
-                 * nbttagcompound = new NBTTagCompound();
-                 * m.writeToNBT(nbttagcompound); S35PacketUpdateTileEntity pa=
-                 * new S35PacketUpdateTileEntity(m.xCoord, m.yCoord, m.zCoord,
-                 * m.getBlockMetadata() , nbttagcompound);
-                 * ((EntityPlayerMP)
-                 * aPlayer).playerNetServerHandler.sendPacket(pa);
-                 */
-
-                MyMod.net.sendTo(
-                    new MasterSetMessage(
-                        aBaseMetaTileEntity.getXCoord(),
-                        aBaseMetaTileEntity.getYCoord(),
-                        aBaseMetaTileEntity.getZCoord(),
-                        this),
-                    (EntityPlayerMP) aPlayer);
-
-            }
-            GTUIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
-            return true;
-        } else {
-
-            GTUIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
+        //if (getMaster() != null) {
+            if (aBaseMetaTileEntity.isClientSide()) {
+              
+        	 MyMod.net.sendToServer(
+                     new TryOpenPatternCIRBMessage(
+                         aBaseMetaTileEntity.getXCoord(),
+                         aBaseMetaTileEntity.getYCoord(),
+                         aBaseMetaTileEntity.getZCoord(),
+                         this));
+        
         }
+            //}
         return false;
 
     }
@@ -510,9 +498,13 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 				.setSize(16, 16);
 		return (ButtonWidget) button;
 	}
+
     @SuppressWarnings("unchecked")
 	@Override
     public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
+    	
+    	
+    	
     	buildContext.addSyncedWindow(EX_CONFIG, (s) -> createWindowEx(s).build());
     	builder.widget(createPowerSwitchButton(builder));
     	
@@ -524,7 +516,32 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
          */enclose=true;
          ButtonWidget b = null;
         if (masterSet) trySetMasterFromCoord(masterX, masterY, masterZ);
-        if (getMaster() instanceof IAddUIWidgets) {
+        
+        //s
+        T get = getMaster();
+        if(buildContext.getPlayer().getEntityWorld().isRemote){
+        	if(playerConfigClient==false){
+        		//'get' should be null here, since it's the one who ask the server not to add master's widgets
+        		//but... who knows?
+        		get=null;
+        	}
+        	
+        }
+        if(!buildContext.getPlayer().getEntityWorld().isRemote){
+        	if(playerConfig.get(buildContext.getPlayer())==null){
+        		
+        		MyMod.LOG.error("Do not know if client has master. This might cause crash.");
+        	}
+        	
+        	if(playerConfig.getOrDefault(buildContext.getPlayer(), false)==false){
+        		//client says it cannot get the master, so do not add master's widgets, even it's present on server.
+        		get=null;
+        	}
+        	
+        }
+        
+        
+        if (get instanceof IAddUIWidgets) {
             builder.widget(new SyncedWidget() {
 
                 @Override
@@ -546,7 +563,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                 }
 
             });
-            ((IAddUIWidgets) getMaster()).addUIWidgets(builder, buildContext);
+            ((IAddUIWidgets) get).addUIWidgets(builder, buildContext);
             buildContext.addSyncedWindow(989898, this::createPatternWindow);
 
             builder.widget(
@@ -566,7 +583,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                     // .setPos(10 + 16 * 9, 3 + 16 * 2)
                     .setPos(new Pos2d(getGUIWidth() - 18 - 3, 5 + 16 + 2 + 16 + 2 + 18 + 24)));
 
-        } else if (getMaster() == null) {
+        } else if (get == null) {
             builder.widget(
                 TextWidget.localised("hatch.dualinput.slave.inv.mapping.me.missing")
                     .setPos(5, 5)
@@ -1405,6 +1422,14 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
     }
     boolean inherit;
 boolean allowopt;
+public boolean shouldDisplayMaster;
+
+
+
+public Map<EntityPlayer/*EntityPlayer*/,Boolean> playerConfig=new WeakHashMap<>();
+
+public boolean playerConfigClient;
+
     @Override
     public int[] pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
         if (Config.fastPatternDualInput == false) return AZERO;

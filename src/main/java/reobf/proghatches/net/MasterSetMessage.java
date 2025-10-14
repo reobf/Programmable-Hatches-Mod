@@ -22,10 +22,16 @@ public class MasterSetMessage implements IMessage {
         this.x = x;
         this.y = y;
         this.z = z;
+        if(te!=null){
         this.mx = te.masterX;
         this.my = te.masterY;
         this.mz = te.masterZ;
-        this.set = te.masterSet;
+        this.set = te.masterSet;}else{
+        	
+        	my=Integer.MAX_VALUE;
+        	
+        	
+        }
 
     }
 
@@ -39,12 +45,15 @@ public class MasterSetMessage implements IMessage {
                 PatternDualInputHatchInventoryMappingSlave te = ((PatternDualInputHatchInventoryMappingSlave) ((IGregTechTileEntity) Minecraft
                     .getMinecraft().thePlayer.getEntityWorld()
                         .getTileEntity(message.x, message.y, message.z)).getMetaTileEntity());
-
+                if( message.my!=Integer.MAX_VALUE){
                 te.masterSet = message.set;
                 te.masterX = message.mx;
                 te.masterY = message.my;
                 te.masterZ = message.mz;
-
+                }
+                
+                te.shouldDisplayMaster= message.my!=Integer.MAX_VALUE;
+                
                 ;
             } catch (Exception w) {
                 w.printStackTrace();

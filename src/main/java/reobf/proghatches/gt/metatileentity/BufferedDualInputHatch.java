@@ -1836,7 +1836,11 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 
 		super.saveNBTData(aNBT);
 	}
-
+	private int count;
+	public void programLoose() {
+		if(((count++)%20)==1)
+		program();
+		}
 	public void program() {
 
 		for (DualInvBuffer inv0 : this.inv0) {

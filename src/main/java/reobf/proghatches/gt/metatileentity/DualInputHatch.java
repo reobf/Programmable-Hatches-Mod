@@ -937,7 +937,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		 */
 		super.onFirstTick(aBaseMetaTileEntity);
 	}
-
+	public void programLoose(){program();}
 	boolean program = true;// default: ON
 
 	@SuppressWarnings("unchecked")
@@ -948,7 +948,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			return;
 
 		if (program)
-			program();
+			programLoose();
 
 		/*
 		 * IGrid a = getNetwork(); if(a!=null){ IStorageGrid

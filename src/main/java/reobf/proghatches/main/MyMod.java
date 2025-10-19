@@ -970,5 +970,12 @@ public class MyMod {
             callbacks.forEach((a, b) -> b.run());
         }
     }
-
+    
+    public static long ticker;
+    
+    @SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
+    public void tick(final TickEvent.ClientTickEvent event) {
+    	ticker++;
+    }
+    
 }

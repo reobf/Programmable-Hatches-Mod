@@ -567,7 +567,7 @@ public int page() {
         super.onPostTick(aBaseMetaTileEntity, aTimer);
 
         if (getBaseMetaTileEntity().isServerSide()) {
-            if (needPatternSync && aTimer > lastSync + 100) {
+            if (needPatternSync /*&& aTimer > lastSync + 100*/) {
                 needPatternSync = !postMEPatternChange();
                 lastSync = aTimer;
             }

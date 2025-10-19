@@ -14,6 +14,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.StringUtils;
 
 import com.cleanroommc.modularui.api.drawable.IKey;
+import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.factory.PosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.ModularScreen;
@@ -195,7 +196,7 @@ public class PatternHousing extends MTEHatch implements IAddGregtechLogo {
         final ModularPanel panel = ModularPanel.defaultPanel("decayablesChest");
         panel.bindPlayerInventory(0);
         panel.child(
-            new TextWidget(IKey.lang("tile.blockDecayablesChest.name")).top(5)
+            (IWidget) new TextWidget(IKey.lang("tile.blockDecayablesChest.name")).top(5)
                 .left(5));
         panel.child(
             SlotGroupWidget.builder()

@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.net.RenameMessage;
 
-@Mixin(targets = "com.glodblock.github.client.gui.GuiInterfaceWireless$InterfaceWirelessEntry", remap = false)
+@Mixin(targets = "appeng.client.gui.implementations.GuiInterfaceTerminalX$InterfaceWirelessEntry", remap = false)
 public class MixinWirelessRename {
 
     public boolean isCover;

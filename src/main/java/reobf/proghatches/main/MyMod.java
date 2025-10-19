@@ -619,7 +619,16 @@ public class MyMod {
         while (scheduled.isEmpty() == false) scheduled.removeLast()
             .run();
     }
-
+    
+    
+    public static long ticker;
+    
+    @SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
+    public void tick(final TickEvent.ClientTickEvent event) {
+    	ticker++;
+    }
+    
+    
     @SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
     public void playerInteract(final PlayerInteractEvent event) {
 

@@ -62,6 +62,49 @@ import thaumcraft.common.config.ConfigItems;
 // spotless:off
 public class PHRecipes implements Runnable {
 
+    @Deprecated
+    public static Materials Primitive = Materials.ULV;
+    @Deprecated
+    public static Materials Basic = Materials.LV;
+    @Deprecated
+    public static Materials Good = Materials.MV;
+    @Deprecated
+    public static Materials Data = Materials.EV;
+    @Deprecated
+    public static Materials Elite = Materials.IV;
+    @Deprecated
+    public static Materials Master = Materials.LuV;
+    @Deprecated
+    public static Materials Infinite = Materials.UHV;
+    @Deprecated
+    public static Materials Bio = Materials.UEV;
+    @Deprecated
+    public static Materials Optical = Materials.UIV;
+    @Deprecated
+    public static Materials Exotic = Materials.UMV;
+    @Deprecated
+    public static Materials Cosmic = Materials.UXV;
+    @Deprecated
+    public static Materials Transcendent = Materials.MAX;	
+	
+    @Deprecated
+    public static Materials Ultimate = Materials.ZPM;	
+    @Deprecated
+    public static Materials Advanced = Materials.HV;	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
     public static <T extends GTRecipeBuilder> T setScan(T a, int time) {
         try {
             RecipeMetadataKey x = (RecipeMetadataKey) GTRecipeConstants.class.getField("RESEARCH_TIME")

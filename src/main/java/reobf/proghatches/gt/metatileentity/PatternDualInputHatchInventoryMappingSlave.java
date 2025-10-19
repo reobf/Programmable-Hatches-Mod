@@ -256,7 +256,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
             trySetMasterFromCoord(masterX, masterY, masterZ);
         }
         if (getBaseMetaTileEntity().isServerSide()) {
-            if (needPatternSync && aTimer > lastSync + 100) {
+            if (needPatternSync /*&& aTimer > lastSync + 100*/) {
                 needPatternSync = !postMEPatternChange();
                 lastSync = aTimer;
             }
@@ -383,7 +383,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
     public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
         IWailaConfigHandler config) {
         NBTTagCompound tag = accessor.getNBTData();
-        currenttip.add((tag.getBoolean("linked") ? "Linked" : "Not linked"));
+        currenttip.add((tag.getBoolean("linked") ? "Linked" : "Not linked/Not loaded"));
 
         if (tag.hasKey("masterX")) {
             currenttip.add(

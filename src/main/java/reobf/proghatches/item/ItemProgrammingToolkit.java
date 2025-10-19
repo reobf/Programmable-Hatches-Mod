@@ -38,7 +38,7 @@ import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import tconstruct.armor.player.TPlayerStats;
 
-public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, IBauble
+public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, IBauble,IDefaultRunnable
 // ,IAccessory
 
 // ,IBaubleExpanded
@@ -76,7 +76,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
 
     @SideOnly(Side.CLIENT)
     public static boolean holding() {
-        return Math.abs(lastholdingtick - Minecraft.getMinecraft().thePlayer.ticksExisted) <= 2;
+        return Math.abs(lastholdingtick -  MyMod.ticker) <= 10;
     }
 
     @SideOnly(Side.CLIENT)
@@ -89,10 +89,20 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int p_77663_4_, boolean p_77663_5_) {
-        if (stack.getItemDamage() > 0) if (entityIn == Minecraft.getMinecraft().thePlayer)
-            lastholdingtick = Minecraft.getMinecraft().thePlayer.ticksExisted;
+    public void run(ItemStack stack, World worldIn, Entity entityIn, int p_77663_4_, boolean p_77663_5_) {
+    	if (stack.getItemDamage() > 0) 
+    		if (entityIn == Minecraft.getMinecraft().thePlayer)
+            {
+    	lastholdingtick = MyMod.ticker;
         mode = stack.getItemDamage();
+        }
+    }
+    
+    @Override
+    public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int p_77663_4_, boolean p_77663_5_) {
+    	IDefaultRunnable thiz=this;
+    	
+    	thiz.run(stack, worldIn, entityIn, p_77663_4_, p_77663_5_);
 
         if (entityIn instanceof EntityPlayer) {
             if (entityIn.ticksExisted % 80 == 12) {

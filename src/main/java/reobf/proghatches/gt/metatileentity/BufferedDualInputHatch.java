@@ -1836,7 +1836,11 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 
 		super.saveNBTData(aNBT);
 	}
-
+	private int count;
+	public void programLoose() {
+		if(((count++)%20)==1)
+		program();
+		}
 	public void program() {
 
 		for (DualInvBuffer inv0 : this.inv0) {
@@ -2955,16 +2959,64 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 	}
 
 	public static ItemStack[] flat(ItemStackG[] mStoredItemInternal2) {
-
-		return Arrays.asList(mStoredItemInternal2).stream().filter(Objects::nonNull)
-				.flatMap(s -> Arrays.stream(s.flat())).toArray(ItemStack[]::new);
+		ItemStack[][] all=new ItemStack[mStoredItemInternal2.length][];
+		int size=0;
+		for(int i=0;i<all.length;i++){
+			if(mStoredItemInternal2[i]!=null){
+				all[i]=mStoredItemInternal2[i].flat();
+				size=size+all[i].length;
+			}
+		}
+		ItemStack[] ret=new ItemStack[size];
+		int g=0;
+		for (ItemStack[] all1 : all) {
+		    if (all1 != null ) {
+		    	
+		    	if(all1.length==1){
+		    		ret[g]=all1[0];
+		    		g++;
+		    	}else{
+			    	System.arraycopy(all1, 0, ret, g, all1.length);
+			        g += all1.length;
+		        }
+		    }
+		}
+		
+		
+		return ret;
+		/*return Arrays.asList(mStoredItemInternal2).stream().filter(Objects::nonNull)
+				.flatMap(s -> Arrays.stream(s.flat())).toArray(ItemStack[]::new);*/
 
 	}
 
 	public static FluidStack[] flat(FluidTankG[] mStoredItemInternal2) {
 
-		return Arrays.asList(mStoredItemInternal2).stream().flatMap(s -> Arrays.stream(s.flat()))
-				.toArray(FluidStack[]::new);
+		FluidStack[][] all=new FluidStack[mStoredItemInternal2.length][];
+		int size=0;
+		for(int i=0;i<all.length;i++){
+			if(mStoredItemInternal2[i]!=null){
+			all[i]=mStoredItemInternal2[i].flat();
+			size=size+all[i].length;}
+		}
+		FluidStack[] ret=new FluidStack[size];
+		int g=0;
+		for (FluidStack[] all1 : all) {
+		    if (all1 != null ) {
+		    	
+		    	if(all1.length==1){
+		    		ret[g]=all1[0];
+		    		g++;
+		    	}else{
+			    	System.arraycopy(all1, 0, ret, g, all1.length);
+			        g += all1.length;
+		        }
+		    }
+		}
+		
+		
+		return ret;
+		/*return Arrays.asList(mStoredItemInternal2).stream().flatMap(s -> Arrays.stream(s.flat()))
+				.toArray(FluidStack[]::new);*/
 
 	}
 
@@ -3123,7 +3175,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 			}
 			
 			builder.child(genSlots.get());
-			ScrollWidget<?> list = new ScrollWidget<>(new VerticalScrollData()).size(18).keepScrollBarInArea(true);
+			ScrollWidget<?> list = new ScrollWidget<>(new VerticalScrollData()).size(18)/*.keepScrollBarInArea(true)*/;
 			list.getScrollArea().getScrollY().setScrollSize(18 * inv0.get(ind).mStoredFluidInternal.length/fluidSlotsPerRow());
 			list.size(18 * fluidSlotsPerRow(), 18 * Math.min(4, inv0.get(ind).mStoredFluidInternal.length/fluidSlotsPerRow()));
 			list.pos(3+18*4, 3);
@@ -3145,7 +3197,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 			
 			final MappingItemHandlerG inventoryHandlerPhantom = new MappingItemHandlerG(inv0.get(ind).mStoredItemInternal, 0,
 					inv0.get(ind).mStoredItemInternal.length).phantom();
-			ScrollWidget<?> listPhantom = new ScrollWidget<>(new VerticalScrollData()).size(18).keepScrollBarInArea(true);
+			ScrollWidget<?> listPhantom = new ScrollWidget<>(new VerticalScrollData()).size(18)/*.keepScrollBarInArea(true)*/;
 			listPhantom.getScrollArea().getScrollY().setScrollSize(18 * inv0.get(ind).v);
 			
 			

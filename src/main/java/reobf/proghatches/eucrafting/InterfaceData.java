@@ -50,7 +50,11 @@ import reobf.proghatches.main.MyMod;
 
 public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgradeableHost, ICustomNameObject,
     IConfigurableObject, IPriorityHost, IActualSideProvider {
-
+@Override
+public ItemStack getSelfRep() {
+	
+	return new ItemStack(Items.apple);//don't care, but null crashes the server
+}
     public IInterfaceHost getInterfaceOrNull() {
         return this;
     };
@@ -74,6 +78,7 @@ public class InterfaceData implements Data, IInterfaceHost, IGridTickable, IUpgr
         public FluidInterfaceData_TileFluidInterface() {}
 
         public boolean supportFluid() {
+        
             return true;
         }
     }

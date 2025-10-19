@@ -17,7 +17,15 @@ public class ItemStackG {
 
     public ArrayList<ItemStack> arr = new ArrayList<>();
     public boolean isEmpty(){
-    	return !arr.stream().filter(s->s.stackSize>0).findFirst().isPresent();
+    	if(arr.size()==1)return arr.get(0).stackSize>0;
+    	//return !arr.stream().filter(s->s.stackSize>0).findFirst().isPresent();
+    	
+    	int size = arr.size();
+    	for(int i=0;i<size;i++){
+    		if(arr.get(i).stackSize>0)return false;
+    	}	
+    	return true;
+    	
     }
     public static ItemStackG neo(ItemStack is) {
         if (is == null) return null;
@@ -89,9 +97,20 @@ public class ItemStackG {
     }
 
     public long stackSize() {
-        return arr.stream()
+    	if(arr.size()==1)return arr.get(0).stackSize;
+       /* return arr.stream()
             .mapToLong(s -> s.stackSize)
-            .sum();
+            .sum();*/
+    	   long sum=0;
+           
+       	int size = arr.size();
+       	for(int i=0;i<size;i++){
+       		sum=sum+arr.get(i).stackSize;
+       	}	
+       	return sum;
+           
+    	
+    	
     }
 
     public Item getItem() {
@@ -101,6 +120,7 @@ public class ItemStackG {
     }
 
     public ItemStack getStack() {
+    	if(arr.size()==1)return arr.get(0);
         ItemStack ret = arr.get(0)
             .copy();
         ret.stackSize = (int) Math.min(stackSize(), Integer.MAX_VALUE);

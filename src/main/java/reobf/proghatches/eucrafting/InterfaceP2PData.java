@@ -647,11 +647,7 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
                             // IConfigManager config =
                             // duality.getConfigManager();
 
-                            try {
-                                duality.pasteMemoryCardData(duality, data);
-                            } catch (final GridAccessException e) {
-                                // :P
-                            }
+                            duality.applyMemoryCard(player, mc, is);
 
                             /*
                              * config.getSettings().forEach( setting ->

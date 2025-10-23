@@ -160,7 +160,7 @@ public class ItemStackG {
 
     public void stackSize(int i) {
 
-        if (arr.size() > 1) {
+        while (arr.size() > 1) {
             arr.remove(1);
         }
         arr.get(0).stackSize = i;

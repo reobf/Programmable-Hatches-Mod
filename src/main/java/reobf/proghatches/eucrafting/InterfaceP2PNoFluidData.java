@@ -77,7 +77,7 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
 
     public IInterfaceHost getInterfaceOrNull() {
         return duality;
-    };
+    }; 
 
     public NBTTagCompound getTag() {
         return tag;
@@ -645,11 +645,10 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
                             // IConfigManager config =
                             // duality.getConfigManager();
 
-                            try {
-                                duality.pasteMemoryCardData(duality, data);
-                            } catch (final GridAccessException e) {
-                                // :P
-                            }
+                           
+                                duality.applyMemoryCard(player, mc, is);
+                                // duality.pasteMemoryCardData(duality, data);
+                          
 
                             /*
                              * config.getSettings().forEach( setting ->

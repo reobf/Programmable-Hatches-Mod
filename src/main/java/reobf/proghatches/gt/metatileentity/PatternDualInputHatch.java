@@ -863,7 +863,8 @@ public int page() {
             return ret;
         }
 
-        @Override
+        @SuppressWarnings("deprecation")
+		@Override
         public IAEItemStack[] getInputs() {
             if (i == null) {
                 i = mul(p.getInputs());
@@ -905,8 +906,11 @@ public int page() {
         @Override
         public boolean canSubstitute() {
 
-            return p.canBeSubstitute();
+            return p.canSubstitute();
         }
+        public  boolean canBeSubstitute() {  
+        	return p.canBeSubstitute();
+        };
 
         ItemStack so;
 

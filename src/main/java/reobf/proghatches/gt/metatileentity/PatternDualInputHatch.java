@@ -905,8 +905,11 @@ public int page() {
         @Override
         public boolean canSubstitute() {
 
-            return p.canBeSubstitute();
+            return p.canSubstitute();
         }
+        public  boolean canBeSubstitute() {  
+        	return p.canBeSubstitute();
+        };
 
         ItemStack so;
 

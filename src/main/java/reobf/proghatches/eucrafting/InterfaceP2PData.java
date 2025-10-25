@@ -1,6 +1,7 @@
 package reobf.proghatches.eucrafting;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -646,9 +647,21 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
 
                             // IConfigManager config =
                             // duality.getConfigManager();
+                            //duality.pasteMemoryCardData(duality, data);
+                           // duality.applyMemoryCard(player, mc, is);
 
-                            duality.applyMemoryCard(player, mc, is);
-
+                            
+                            try {
+								duality.getClass().getMethod("pasteMemoryCardData", PartP2PTunnel.class, NBTTagCompound.class)
+								.invoke(duality, duality,data);
+							} catch (Exception e) {
+							}
+                            try {
+								duality.getClass().getMethod("applyMemoryCard", EntityPlayer .class, IMemoryCard .class, ItemStack .class)
+								.invoke(duality, player, mc, is);
+							} catch (Exception e) {
+							}
+                            
                             /*
                              * config.getSettings().forEach( setting ->
                              * duality.getConfigManager().putSetting(setting,

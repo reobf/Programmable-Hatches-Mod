@@ -646,10 +646,20 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
                             // duality.getConfigManager();
 
                            
-                                duality.applyMemoryCard(player, mc, is);
+                                //duality.applyMemoryCard(player, mc, is);
                                 // duality.pasteMemoryCardData(duality, data);
                           
-
+                                try {
+    								duality.getClass().getMethod("pasteMemoryCardData", PartP2PTunnel.class, NBTTagCompound.class)
+    								.invoke(duality, duality,data);
+    							} catch (Exception e) {
+    							}
+                                try {
+    								duality.getClass().getMethod("applyMemoryCard", EntityPlayer .class, IMemoryCard .class, ItemStack .class)
+    								.invoke(duality, player, mc, is);
+    							} catch (Exception e) {
+    							}
+                                
                             /*
                              * config.getSettings().forEach( setting ->
                              * duality.getConfigManager().putSetting(setting,

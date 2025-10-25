@@ -1,6 +1,7 @@
 package reobf.proghatches.ae;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -26,6 +27,7 @@ import appeng.api.config.SecurityPermissions;
 import appeng.me.cache.NetworkMonitor;
 import appeng.util.Platform;
 import gregtech.common.tileentities.machines.MTEHatchInputBusME;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import reobf.proghatches.block.INameAndTooltips;
 
 public class BlockAutoFillerMKII extends BlockContainer implements INameAndTooltips {
@@ -38,8 +40,8 @@ public class BlockAutoFillerMKII extends BlockContainer implements INameAndToolt
         this.setHarvestLevel("pickaxe", 0);
         setBlockName("proghatches.autofillerMKII");
         setBlockTextureName(FluidCraft.MODID + ":" + NameConst.BLOCK_FLUID_AUTO_FILLER);
- 
-       
+
+
     }
 
     @Override

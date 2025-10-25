@@ -641,7 +641,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
      */
     @Override
     public void onCoverUnload() {
-        coverData.getProxy()
+       if(coverData.getProxy()!=null) coverData.getProxy()
             .onChunkUnload();
 
     }

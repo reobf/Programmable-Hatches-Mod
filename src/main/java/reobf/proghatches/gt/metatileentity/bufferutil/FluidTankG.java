@@ -18,19 +18,38 @@ public class FluidTankG {
 
     ArrayList<FluidStack> arr = new ArrayList<FluidStack>();
     public boolean isEmpty(){
-    	return !arr.stream().filter(s->s.amount>0).findFirst().isPresent();
+    	if(arr.size()==1)return arr.get(0).amount>0;
+    	
+    	//return !arr.stream().filter(s->s.amount>0).findFirst().isPresent();
+    	int size = arr.size();
+    	for(int i=0;i<size;i++){
+    		if(arr.get(i).amount>0)return false;
+    	}	
+    	return true;
+    	
     }
     public long getFluidAmount() {
-
-        return arr.stream()
+    	if(arr.size()==1)return arr.get(0).amount;
+        /*return arr.stream()
             .mapToLong(s -> s.amount)
-            .sum();
+            .sum();*/
+        long sum=0;
+        
+    	int size = arr.size();
+    	for(int i=0;i<size;i++){
+    		sum=sum+arr.get(i).amount;
+    	}	
+    	return sum;
+        
+        
+        
     }
 
     /**
      * return value is readonly!!!!
      */
     public FluidStack getFluid() {
+    	if(arr.size()==1)return arr.get(0);
         if (arr.size() > 0) {
             FluidStack f = arr.get(0)
                 .copy();

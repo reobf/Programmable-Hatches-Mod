@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,11 +14,12 @@ import net.minecraft.nbt.NBTTagList;
 import appeng.api.storage.data.IAEItemStack;
 
 // G is for group
+// will keep at least one stack in arr, even its size is 0 
 public class ItemStackG {
 
     public ArrayList<ItemStack> arr = new ArrayList<>();
     public boolean isEmpty(){
-    	if(arr.size()==1)return arr.get(0).stackSize>0;
+    	if(arr.size()==1)return arr.get(0).stackSize<=0;
     	//return !arr.stream().filter(s->s.stackSize>0).findFirst().isPresent();
     	
     	int size = arr.size();
@@ -112,13 +114,13 @@ public class ItemStackG {
     	
     	
     }
-
+    @Nonnull
     public Item getItem() {
 
         return arr.get(0)
             .getItem();
     }
-
+    @Nonnull
     public ItemStack getStack() {
     	if(arr.size()==1)return arr.get(0);
         ItemStack ret = arr.get(0)

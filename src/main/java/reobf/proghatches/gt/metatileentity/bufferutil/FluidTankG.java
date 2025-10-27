@@ -1,9 +1,11 @@
 package reobf.proghatches.gt.metatileentity.bufferutil;
 
 import java.util.ArrayList;
+
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,11 +16,12 @@ import net.minecraftforge.fluids.FluidTankInfo;
 
 import appeng.api.storage.data.IAEFluidStack;
 
+//arr might be empty
 public class FluidTankG {
 
     ArrayList<FluidStack> arr = new ArrayList<FluidStack>();
     public boolean isEmpty(){
-    	if(arr.size()==1)return arr.get(0).amount>0;
+    	if(arr.size()==1)return arr.get(0).amount<=0;
     	
     	//return !arr.stream().filter(s->s.amount>0).findFirst().isPresent();
     	int size = arr.size();
@@ -48,6 +51,7 @@ public class FluidTankG {
     /**
      * return value is readonly!!!!
      */
+    @Nullable
     public FluidStack getFluid() {
     	if(arr.size()==1)return arr.get(0);
         if (arr.size() > 0) {
@@ -145,6 +149,7 @@ public class FluidTankG {
         if (getFluidAmount() == 0) {
             return null;
         }
+        if(arr.size()==0)return null;
         FluidStack cp = arr.get(0)
             .copy();
         if (!doDrain) {
@@ -153,7 +158,6 @@ public class FluidTankG {
         }
         cp.amount = maxDrain;
         for (FluidStack fs : arr) {
-
             int todo = Math.min(fs.amount, maxDrain);
             fs.amount -= todo;
             maxDrain -= todo;
@@ -194,6 +198,7 @@ public class FluidTankG {
         if (dirty) {
             Iterator<FluidStack> it = arr.iterator();
             while (it.hasNext()) {
+
                 if (it.next().amount <= 0) {
                     it.remove();
                 }
@@ -231,6 +236,9 @@ public class FluidTankG {
         if (l == 0) {
             return;
         }
+        if(arr.size()==0){
+        	//this should not happed
+        	return;}
         long todo = l;
         for (FluidStack is : arr) {
             long cando = Math.min(

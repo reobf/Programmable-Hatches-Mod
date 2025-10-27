@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,11 +14,20 @@ import net.minecraft.nbt.NBTTagList;
 import appeng.api.storage.data.IAEItemStack;
 
 // G is for group
+// will keep at least one stack in arr, even its size is 0 
 public class ItemStackG {
 
     public ArrayList<ItemStack> arr = new ArrayList<>();
     public boolean isEmpty(){
-    	return !arr.stream().filter(s->s.stackSize>0).findFirst().isPresent();
+    	if(arr.size()==1)return arr.get(0).stackSize<=0;
+    	//return !arr.stream().filter(s->s.stackSize>0).findFirst().isPresent();
+    	
+    	int size = arr.size();
+    	for(int i=0;i<size;i++){
+    		if(arr.get(i).stackSize>0)return false;
+    	}	
+    	return true;
+    	
     }
     public static ItemStackG neo(ItemStack is) {
         if (is == null) return null;
@@ -89,18 +99,30 @@ public class ItemStackG {
     }
 
     public long stackSize() {
-        return arr.stream()
+    	if(arr.size()==1)return arr.get(0).stackSize;
+       /* return arr.stream()
             .mapToLong(s -> s.stackSize)
-            .sum();
+            .sum();*/
+    	   long sum=0;
+           
+       	int size = arr.size();
+       	for(int i=0;i<size;i++){
+       		sum=sum+arr.get(i).stackSize;
+       	}	
+       	return sum;
+           
+    	
+    	
     }
-
+    @Nonnull
     public Item getItem() {
 
         return arr.get(0)
             .getItem();
     }
-
+    @Nonnull
     public ItemStack getStack() {
+    	if(arr.size()==1)return arr.get(0);
         ItemStack ret = arr.get(0)
             .copy();
         ret.stackSize = (int) Math.min(stackSize(), Integer.MAX_VALUE);
@@ -140,7 +162,7 @@ public class ItemStackG {
 
     public void stackSize(int i) {
 
-        if (arr.size() > 1) {
+        while (arr.size() > 1) {
             arr.remove(1);
         }
         arr.get(0).stackSize = i;

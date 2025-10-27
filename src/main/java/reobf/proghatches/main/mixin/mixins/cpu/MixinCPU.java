@@ -48,7 +48,18 @@ public class MixinCPU implements IExternalManagerHolder{
 		}
 		
 	 }
-	
+	@Inject(at = { @At("HEAD") },method="isActive",cancellable=true)
+	 public void isActive(CallbackInfoReturnable<Boolean> ci) 
+	{
+		
+		if(ex!=null){
+			
+			if(!ex.getClusters().contains(this)){ci.setReturnValue(false);}
+			
+			
+		}
+		
+	 }
 	
 	
 	@Unique

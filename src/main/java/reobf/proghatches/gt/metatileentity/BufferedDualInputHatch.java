@@ -1936,7 +1936,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 		@Override
 		public int compareTo(PiorityBuffer o) {
 
-			return Long.compare(piority, o.piority);
+			return -Long.compare(piority, o.piority);
 		}
 
 	}

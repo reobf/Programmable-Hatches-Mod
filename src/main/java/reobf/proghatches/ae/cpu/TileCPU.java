@@ -548,28 +548,31 @@ public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 	super.onPostTick(aBaseMetaTileEntity, aTick);
 	
 	if(aBaseMetaTileEntity.isServerSide()==false)return;
-	
+	boolean changes=false;
 	startRecipeProcessing();
+	
 	for(ItemStack is:getStoredInputs()){
 		
 		if(accMap0.get(new SIDItemStack(is))!=null){
 			acc.add(AEItemStack.create(is));
 			is.stackSize=0;
 			updateAccCache();
-			updateSlots();
+			changes=true;
+			//updateSlots();
 		}
 		
 		if(accMap1.get(new SIDItemStack(is))!=null){
 			accCondenser.add(AEItemStack.create(is));
 			is.stackSize=0;
 			updateCondenserCache();
-			updateSlots();
+			changes=true;
+			//updateSlots();
 		}
 		
 	}
 	
 	endRecipeProcessing();
-	
+	if(changes)updateSlots();
 	
 	refunds.forEach(s->{
 		ItemStack get = s.getItemStack();
@@ -634,13 +637,15 @@ public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 				
 				if(set.getValue().state==1){
 					if(!set.getKey().isBusy()){
+						if(set.getKey().getInventory().getAvailableItems(new appeng.util.item.ItemList()).isEmpty()){
+					
 						//cluster.remove(set.getKey());
 						refund(set.getValue().usedStorage);
 						set.getValue().usedStorage.clear();
 						it.remove();
 						set.getKey().destroy();
 						this.getProxy().getGrid().postEvent(new MENetworkCraftingCpuChange(this.getProxy().getNode()));
-						
+						}
 					}
 					
 				}

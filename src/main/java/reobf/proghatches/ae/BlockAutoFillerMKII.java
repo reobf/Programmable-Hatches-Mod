@@ -29,6 +29,7 @@ import appeng.util.Platform;
 import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import kekztech.common.tileentities.MTEHatchTFFT;
 import reobf.proghatches.block.INameAndTooltips;
 
 public class BlockAutoFillerMKII extends BlockContainer implements INameAndTooltips {

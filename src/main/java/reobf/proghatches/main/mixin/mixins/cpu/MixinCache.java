@@ -14,6 +14,7 @@ import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.energy.IEnergyGrid;
+import appeng.crafting.CraftingLink;
 import appeng.me.cache.CraftingGridCache;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.tile.crafting.TileCraftingStorageTile;
@@ -23,6 +24,8 @@ import reobf.proghatches.ae.cpu.IExternalManager;
 @Mixin(value=CraftingGridCache.class,remap=false)
 public class MixinCache implements ICraftingCacheAccessor {
 	@Shadow
+	 public void addLink(final CraftingLink link){};
+	 @Shadow
 	 private boolean updateList; 
 	@Shadow
 	private  IGrid grid;
@@ -40,7 +43,10 @@ public class MixinCache implements ICraftingCacheAccessor {
 					  
 					  
 					  craftingCPUClusters.addAll(((IExternalManager) machine).getClusters());
-					  
+					 
+					  ((IExternalManager) machine).getClusters().stream().map(
+							  s->s.getLastCraftingLink()
+							  ).forEach(s->{if(s!=null)addLink((CraftingLink)s);});
 				  }
 				  
 				  

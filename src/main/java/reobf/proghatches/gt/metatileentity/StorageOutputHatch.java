@@ -247,9 +247,9 @@ public class StorageOutputHatch extends MTEHatchOutputME
             }
 
             lastInputTick = tickCounter;
-            return 0;
+            return stack.amount;
         }
-        return stack.amount;
+        return 0;
     }
 
     @Override

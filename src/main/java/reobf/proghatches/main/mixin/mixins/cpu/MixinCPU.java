@@ -36,7 +36,7 @@ public class MixinCPU implements IExternalManagerHolder{
 	
 	
 	
-	@Inject(at = { @At("HEAD") },method="isDestroyed",cancellable=true)
+	@Inject(at = { @At("HEAD") },method="isDestroyed",cancellable=true,require=1)
 	 public void isDestroyed(CallbackInfoReturnable<Boolean> ci) 
 	{
 		
@@ -48,7 +48,7 @@ public class MixinCPU implements IExternalManagerHolder{
 		}
 		
 	 }
-	@Inject(at = { @At("HEAD") },method="isActive",cancellable=true)
+	@Inject(at = { @At("HEAD") },method="isActive",cancellable=true,require=1)
 	 public void isActive(CallbackInfoReturnable<Boolean> ci) 
 	{
 		
@@ -88,7 +88,7 @@ public class MixinCPU implements IExternalManagerHolder{
 		return ex;
 	}
 
-	@Inject(at = { @At("TAIL") },method="updateCraftingLogic")
+	@Inject(at = { @At("TAIL") },method="updateCraftingLogic",require=1)
 	 public void endCrafting(final IGrid grid, final IEnergyGrid eg, final CraftingGridCache cc ,CallbackInfo ci,@Share("prev")  LocalRef<Integer> prev) 
 	{
 		
@@ -106,7 +106,7 @@ public class MixinCPU implements IExternalManagerHolder{
     }*/
 	
 	 
-	 @Inject(at = { @At("HEAD") },method="getGrid",cancellable=true)
+	 @Inject(at = { @At("HEAD") },method="getGrid",cancellable=true,require=1)
 	 public void getGrid(CallbackInfoReturnable<IGrid> ci) 
 	{
 		
@@ -123,7 +123,7 @@ public class MixinCPU implements IExternalManagerHolder{
 		
 	 }
 	 
-	@Inject(at = { @At("HEAD") },method="getCoProcessors",cancellable=true)
+	@Inject(at = { @At("HEAD") },method="getCoProcessors",cancellable=true,require=1)
 	 public void getCoProcessors(CallbackInfoReturnable<Integer> ci) 
 	{
 		
@@ -136,7 +136,7 @@ public class MixinCPU implements IExternalManagerHolder{
 		
 	 }
 	
-	@Inject(at = { @At(shift = Shift.AFTER,value="FIELD",opcode=Opcodes.PUTFIELD, target = "Lappeng/me/cluster/implementations/CraftingCPUCluster;remainingOperations:I") },method="updateCraftingLogic")
+	@Inject(at = { @At(shift = Shift.AFTER,value="FIELD",opcode=Opcodes.PUTFIELD, target = "Lappeng/me/cluster/implementations/CraftingCPUCluster;remainingOperations:I") },method="updateCraftingLogic",require=1)
 	 public void startCrafting(final IGrid grid, final IEnergyGrid eg, final CraftingGridCache cc ,CallbackInfo ci,@Share("prev")  LocalRef<Integer> prev) 
 	{
 		
@@ -160,7 +160,7 @@ public class MixinCPU implements IExternalManagerHolder{
 	
 	
 	
-	@Inject(at = { @At("HEAD") },method="submitJob")
+	@Inject(at = { @At("HEAD") },method="submitJob",require=1)
 	
 	  public void submitJobPre(final IGrid g, final ICraftingJob job, final BaseActionSource src,
 	            final ICraftingRequester requestingMachine,CallbackInfoReturnable donotcare,@Share("prevS")  LocalRef<Long> prev) {
@@ -174,7 +174,7 @@ public class MixinCPU implements IExternalManagerHolder{
 			
 			shift = Shift.BEFORE,value="FIELD",opcode=Opcodes.GETFIELD, target = "Lappeng/me/cluster/implementations/CraftingCPUCluster;providers:Ljava/util/HashMap;") }
 	
-	,method="submitJob",cancellable=true)
+	,method="submitJob",cancellable=true,require=1)
 	
 	  public void submitJobPost(final IGrid g, final ICraftingJob job, final BaseActionSource src,
 	            final ICraftingRequester requestingMachine,CallbackInfoReturnable c,@Share("prevS")  LocalRef<Long> prev) {
@@ -184,7 +184,7 @@ public class MixinCPU implements IExternalManagerHolder{
 	
 	
 	
-	@Inject(at = { @At("HEAD") },method="updateCraftingLogic",cancellable=true)
+	@Inject(at = { @At("HEAD") },method="updateCraftingLogic",cancellable=true,require=1)
 	 public void start(final IGrid grid, final IEnergyGrid eg, final CraftingGridCache cc ,CallbackInfo ci) 
 	{
 		
@@ -197,7 +197,7 @@ public class MixinCPU implements IExternalManagerHolder{
 		
 	 }
 	
-	@Inject(at = { @At("HEAD") },method="getName",cancellable=true)
+	@Inject(at = { @At("HEAD") },method="getName",cancellable=true,require=1)
 	
 	  public void getName(CallbackInfoReturnable r) {
 	  if(ex!=null)

@@ -129,7 +129,7 @@ public class ItemStackG {
         return ret;
     }
 
-    public void stackSizeInc(int todo) {
+    public void stackSizeInc(LongWrapper todo) {
 
         for (ItemStack is : arr) {
             int cando = Math.min(
@@ -138,15 +138,18 @@ public class ItemStackG {
                     // 64
 
                     - is.stackSize,
-                todo);
-            todo -= cando;
+                todo.i());
+            todo.val -= cando;
             is.stackSize += cando;
-            if (todo <= 0) return;
+            if (todo.val <= 0) return;
         }
-        ItemStack i = arr.get(0)
-            .copy();
-        i.stackSize = todo;
-        arr.add(i);
+        while(todo.val>0){
+	        ItemStack i = arr.get(0)
+	            .copy();
+	        i.stackSize = todo.i();
+	        arr.add(i); 
+	        todo.val-=todo.i();
+        }
 
     }
 

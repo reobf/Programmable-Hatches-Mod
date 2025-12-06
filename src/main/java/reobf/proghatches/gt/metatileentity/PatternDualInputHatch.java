@@ -106,6 +106,7 @@ import reobf.proghatches.gt.metatileentity.DualInputHatch.MUI1Container;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch.DA;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
+import reobf.proghatches.gt.metatileentity.bufferutil.LongWrapper;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.ISpecialOptimize;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
@@ -1226,7 +1227,7 @@ boolean allowopt;
                             theBuffer.mStoredItemInternal[ix].stackSize(0);// circuit?
                         }
                         theBuffer.mStoredItemInternal[ix]
-                            .stackSizeInc(theBuffer.mStoredItemInternalSingle[ix].stackSize * todo);
+                            .stackSizeInc(new LongWrapper(theBuffer.mStoredItemInternalSingle[ix].stackSize *1L* todo));
                     }
                 }
 

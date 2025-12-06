@@ -108,6 +108,7 @@ import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch.DA;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
+import reobf.proghatches.gt.metatileentity.bufferutil.LongWrapper;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.ISpecialOptimize;
@@ -1528,7 +1529,7 @@ public boolean playerConfigClient;
                                     theBuffer.mStoredItemInternal[ix].stackSize(0);// circuit?
                                 }
                                 theBuffer.mStoredItemInternal[ix]
-                                    .stackSizeInc(theBuffer.mStoredItemInternalSingle[ix].stackSize * todo);
+                                    .stackSizeInc(new LongWrapper( theBuffer.mStoredItemInternalSingle[ix].stackSize *1L* todo));
                             }
                         }
 

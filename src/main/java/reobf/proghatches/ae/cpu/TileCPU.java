@@ -844,6 +844,7 @@ public static Map<Long, Integer> select0(Map<Long, Integer> map, long goal) {
                 result.put(coin, result.getOrDefault(coin, 0) + 1);
                 remaining.put(coin, count - 1);
                 currentTotal += coin;
+                if(currentTotal<0)currentTotal=Long.MAX_VALUE;
                 count--;
                 if (currentTotal >= goal) {
                     break;

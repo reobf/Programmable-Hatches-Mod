@@ -143,6 +143,7 @@ import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.Recipe;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.MUI2Compat;
 import reobf.proghatches.gt.metatileentity.bufferutil.FluidTankG;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
+import reobf.proghatches.gt.metatileentity.bufferutil.LongWrapper;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.FirstObjectHolder;
 import reobf.proghatches.gt.metatileentity.util.ICraftingV2;
@@ -687,7 +688,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 					if (mStoredItemInternal[ix] == null)
 						mStoredItemInternal[ix] = ItemStackG.neo(mStoredItemInternalSingle[ix].copy());
 					else
-						mStoredItemInternal[ix].stackSizeInc(mStoredItemInternalSingle[ix].stackSize);
+						mStoredItemInternal[ix].stackSizeInc(new LongWrapper( mStoredItemInternalSingle[ix].stackSize));
 				if (removeInputOnSuccess)
 					iin[ix] = null;
 				else if (iin[ix] != null)

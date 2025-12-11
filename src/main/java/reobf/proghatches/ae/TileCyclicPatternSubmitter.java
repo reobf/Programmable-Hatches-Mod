@@ -74,7 +74,7 @@ public class TileCyclicPatternSubmitter extends TileEntity
     int SLOT_SIZE = 32;
     ItemStack[] inv = new ItemStack[SLOT_SIZE];
     /**
-     * 
+     *
      */
     public static IWailaDataProvider provider = new IWailaDataProvider() {
 
@@ -318,7 +318,7 @@ public class TileCyclicPatternSubmitter extends TileEntity
                     }
 
                     if (pat == null) break end;
-                    PatternCraftingJob job = new PatternCraftingJob(pat, getProxy().getStorage(), source);
+                    PatternCraftingJob job = new PatternCraftingJob(pat, getProxy().getStorage());
 
                     int howmany;
                     if ((howmany = job.canBeDone(getProxy(), source)) > 0) {

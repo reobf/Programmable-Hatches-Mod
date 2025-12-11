@@ -404,7 +404,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 	private static final String ONE_STACK_LIMIT_TOOLTIP = "GT5U.machines.one_stack_limit.tooltip";
 	private static final int BUTTON_SIZE = 18;
 
-	
+
 	boolean createInsertion() {
 		return true;
 	}
@@ -432,23 +432,23 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 				.location("appliedenergistics2", "guis/states")
 				.uv(3 / 16f, 9 / 16f, 4 / 16f, 10 / 16f)
 				.build();
-	
+
 		t01=com.cleanroommc.modularui.drawable.UITexture.builder()
 				.location("proghatches", "gui/states")
-				
+
 				.build();
 		t02=com.cleanroommc.modularui.drawable.UITexture.builder()
 				.location("appliedenergistics2", "guis/states")
 				.uv(4 / 16f, 9 / 16f, 5 / 16f, 10 / 16f)
 				.build();
-	
+
 	}
 	@Override
 	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
 		mui1ct.addUIWidgets(builder,buildContext);
 	}
 
-	
+
 
 	boolean showFluidLimit() {
 
@@ -743,7 +743,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 	 * @Override public ITexture[] getTexturesActive(ITexture aBaseTexture) {
 	 * return new ITexture[] { aBaseTexture,
 	 * TextureFactory.of(OVERLAY_INPUT_HATCH_2x2) }; }
-	 * 
+	 *
 	 * @Override public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
 	 * return new ITexture[] { aBaseTexture,
 	 * TextureFactory.of(OVERLAY_INPUT_HATCH_2x2) }; }
@@ -1340,12 +1340,12 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		return (int) (4000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1));
 	}
 
-	
+
 	public int page(){return 1;}
 	// insertion
 	public static final int INSERTION = 2001;
 
-	
+
 
 	public final static int SHARED_ITEM = 654321;
 
@@ -1966,7 +1966,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 	/*
 	 * @Override protected boolean forceUseMui2() {
-	 * 
+	 *
 	 * return mui2.contains(this.getClass()); }
 	 */
 	@Override
@@ -1990,14 +1990,14 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 	@Override
 	public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings) {
-		
+
 		ModularPanel builder = mui2ct.create(data, syncManager, uiSettings);
 		 mui2ct.buildUI(builder,data, syncManager,  uiSettings);return builder;
 	}
 
-	
-	
-	
+
+
+
 	public class MUI1Container {
 		public DualInputHatch this$(){
 			return DualInputHatch.this;
@@ -2090,26 +2090,26 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		/*
 			 * private ModularPanel createSharedItemWindow2(PanelSyncManager
 			 * syncManager) {
-			 * 
-			 * 
+			 *
+			 *
 			 * ModularPanel builder =new ModularPanel("ins_window"); builder.size(36
 			 * + 18 * 3, 36 + 18 * 4); final ItemStackHandler inventoryHandler = new
 			 * ItemStackHandler(mInventory.length - (1));
-			 * 
-			 * 
-			 * 
-			 * 
+			 *
+			 *
+			 *
+			 *
 			 * //
 			 * builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
 			 * // builder.setGuiTint(getGUIColorization());
-			 * 
-			 * 
+			 *
+			 *
 			 * builder.widget(circuitSlot(this.getInventoryHandler(),
 			 * getCircuitSlot()).setPos(8 - 1, 8 - 1)); for (int i = 0; i <
 			 * shared.circuitUpgrades; i++) builder.widget(catalystSlot(new
 			 * ItemStackHandler(shared.circuitInv), i).setPos(8 - 1, 8 - 1 + 18 + 18
 			 * * i));
-			 * 
+			 *
 			 * int posoffset = 0; for (int i = 0; i < shared.itemMEUpgrades; i++) {
 			 * final int fi = i; builder.widget( SlotWidget.phantom(new
 			 * ItemStackHandler(shared.markedItems), i) .addTooltips( (this
@@ -2124,18 +2124,18 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			 * "programmable_hatches.gt.item.pull.me.0"),
 			 * StatCollector.translateToLocal(
 			 * "programmable_hatches.gt.item.pull.me.1"))
-			 * 
+			 *
 			 * ) .setPos(8 - 1 + 18 + 4, 8 - 1 + 18 * posoffset)); builder.widget(
 			 * new DrawableWidget().setDrawable(ModularUITextures.ARROW_RIGHT)
-			 * 
+			 *
 			 * .setPos(8 - 1 + 18 * 2 + 4, 8 - 1 + 18 * posoffset) .setSize(18,
 			 * 18)); builder.widget(new SlotWidget(new BaseSlot(new
 			 * ItemStackHandler(1), 0)) {
-			 * 
+			 *
 			 * int cd = 0;
-			 * 
+			 *
 			 * public void detectAndSendChanges(boolean init) {
-			 * 
+			 *
 			 * if (cd-- < 0) { cd = 10; ItemStack is = null; Net net = getNetwork();
 			 * if (net != null) { IStorageGrid cahce =
 			 * net.g.getCache(IStorageGrid.class); if (cahce != null) { IAEItemStack
@@ -2144,48 +2144,48 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			 * (aeis != null) is = aeis.getItemStack(); } } ((ItemStackHandler)
 			 * ((BaseSlot) this.getMcSlot()).getItemHandler()).setStackInSlot(
 			 * this.getMcSlot() .getSlotIndex(),
-			 * 
+			 *
 			 * is); }
-			 * 
+			 *
 			 * super.detectAndSendChanges(init); };
-			 * 
+			 *
 			 * }.disableInteraction() .setPos(8 - 1 + 18 * 3 + 4, 8 - 1 + 18 *
 			 * posoffset)); posoffset++; }
-			 * 
+			 *
 			 * for (int i = 0; i < shared.fluidMEUpgrades; i++) { final int fi = i;
 			 * builder.widget(new FluidSlotWidget(shared.createTankForFluidStack(i,
 			 * 1)) {
-			 * 
+			 *
 			 * { setPhantom(true); }
-			 * 
+			 *
 			 * @Override protected void tryClickPhantom(ClickData clickData,
 			 * ItemStack cursorStack) { if (clickData.mouseButton != 0) return;
-			 * 
+			 *
 			 * FluidStack heldFluid = getFluidForPhantomItem(cursorStack); if
 			 * (cursorStack == null) { shared.markedFluid.set(fi, null); } else {
-			 * 
+			 *
 			 * shared.markedFluid.set(fi, heldFluid); } if
 			 * (getBaseMetaTileEntity().isServerSide()) {
-			 * 
+			 *
 			 * detectAndSendChanges(false); } }
-			 * 
+			 *
 			 * @Override protected void tryScrollPhantom(int direction) {}
-			 * 
+			 *
 			 * }
-			 * 
+			 *
 			 * .addTooltips( ImmutableList.of( StatCollector.translateToLocal(
 			 * "programmable_hatches.gt.item.pull.me.0"),
 			 * StatCollector.translateToLocal(
 			 * "programmable_hatches.gt.item.pull.me.1"))) .setPos(8 - 1 + 18 + 4, 8
 			 * - 1 + 18 * posoffset)); builder.widget( new
 			 * DrawableWidget().setDrawable(ModularUITextures.ARROW_RIGHT)
-			 * 
+			 *
 			 * .setPos(8 - 1 + 18 * 2 + 4, 8 - 1 + 18 * posoffset) .setSize(18,
 			 * 18)); FluidTank ft; builder.widget(new FluidSlotWidget(ft = new
 			 * FluidTank(Integer.MAX_VALUE)) {
-			 * 
+			 *
 			 * int cd = 0; { setPhantom(true); }
-			 * 
+			 *
 			 * @Override public void buildTooltip(List<Text> tooltip) { FluidStack
 			 * fluid = getContent(); if (fluid != null) { addFluidNameInfo(tooltip,
 			 * fluid); tooltip.add(Text.localised("modularui.fluid.phantom.amount",
@@ -2194,14 +2194,14 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			 * tooltip.add(Text.localised("modularui.tooltip.shift")); } } else {
 			 * tooltip.add( Text.localised("modularui.fluid.empty")
 			 * .format(EnumChatFormatting.WHITE)); } }
-			 * 
+			 *
 			 * @Override protected void tryClickPhantom(ClickData clickData,
 			 * ItemStack cursorStack) {}
-			 * 
+			 *
 			 * @Override protected void tryScrollPhantom(int direction) {}
-			 * 
+			 *
 			 * public void detectAndSendChanges(boolean init) {
-			 * 
+			 *
 			 * if (cd-- < 0) { cd = 10; FluidStack is = null; Net net =
 			 * getNetwork(); if (net != null) { IStorageGrid cahce =
 			 * net.g.getCache(IStorageGrid.class); if (cahce != null) {
@@ -2209,23 +2209,23 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			 * .findPrecise(AEFluidStack.create(shared.markedFluid.get(fi))); if
 			 * (aeis != null) is = aeis.getFluidStack(); } } ft.setFluid(is); //
 			 * todo // this.setfl
-			 * 
+			 *
 			 * }
-			 * 
+			 *
 			 * super.detectAndSendChanges(init); };
-			 * 
+			 *
 			 * }
-			 * 
+			 *
 			 * .setPos(8 - 1 + 18 * 3 + 4, 8 - 1 + 18 * posoffset)); posoffset++; }
-			 * 
+			 *
 			 * builder.widget(
 			 * TextWidget.localised("proghatch.dualhatch.optinv.broken")
 			 * .setEnabled((a) -> shared.broken)); builder.widget( new
 			 * FakeSyncWidget.BooleanSyncer(() -> shared.broken, s -> shared.broken
 			 * = s)
-			 * 
+			 *
 			 * .setSynced(true, false));
-			 * 
+			 *
 			 * return builder.build(); }
 			 */	private CycleButtonWidget createButton(Supplier<Integer> getter, IntConsumer setter,
 				Function<Integer, IDrawable> picture, List<String> tooltip, int offset, int len) {
@@ -2266,7 +2266,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 					.setTooltipShowUpDelay(TOOLTIP_DELAY).setPos(7 + offset * 18, 62).setSize(18, 18)
 					.setGTTooltip(tooltipDataSupplier);
 
-			
+
 		}	protected Widget createButtonSharedItem() {
 			return new ButtonWidget() {
 
@@ -2376,9 +2376,9 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 					SlotGroup.ofItemHandler(inventoryHandler, 4).slotCreator(BaseSlotPatched.newInst(inventoryHandler))
 							.startFromSlot(0).endAtSlot(page()*16-1).background(background).build());
 			builder.widget(scrollable.setPos(52, 7));
-		
-		
-		
+
+
+
 		}
 		private Widget createToggleButton(Supplier<Boolean> getter, Consumer<Boolean> setter, UITexture picture,
 				Supplier<GTTooltipDataCache.TooltipData> tooltipDataSupplier, int uiButtonCount) {
@@ -2800,7 +2800,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			 * if(extraCircuit) { for(int i=1;i<4;i++) builder.widget( new
 			 * SlotWidget(new BaseSlot(inventoryHandler, getCircuitSlot()+i) {
 			 * public int getSlotStackLimit() { return 0; }; } ) {
-			 * 
+			 *
 			 * @Override public List<String> getExtraTooltip() { return Arrays
 			 * .asList(LangManager.translateToLocal(
 			 * "programmable_hatches.gt.marking.slot.1")); }
@@ -2814,49 +2814,49 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			 * LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1"
 			 * )))).setPos( getCircuitSlotX()-1,getCircuitSlotY()-18 * i-1) ); }
 			 */
-			
+
 		}
-		
-		
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
+
+
 	}
-	
+
 	private MUI1Container mui1ct= initMUI1();
 	public MUI1Container initMUI1(){
 		return  new MUI1Container();
 	}
-	
-	
-	
-	
+
+
+
+
 	private MUI2Container mui2ct= initMUI2();
-	
+
 	public MUI2Container initMUI2(){
 		return  new MUI2Container();
 	}
 	public class MUI2Container {
 		  public  Grid gridTemplate4by4X(IntFunction<IWidget> widgetCreator) {
-		        
-			  
-			  
+
+
+
 			  return new Grid().coverChildren()
 		            .pos(52, 7)
 		            .mapTo(4, 16*page(), widgetCreator);
 		    }
 		public com.cleanroommc.modularui.widgets.CycleButtonWidget createButton2(PanelSyncManager syncManager,String key,IntSupplier getter, IntConsumer setter, com.cleanroommc.modularui.drawable.UITexture back,
 				String tool, int offset,int count) {
-			
+
 			IntSyncValue g=new IntSyncValue(getter, setter);
 			//syncManager.syncValue(key, g);
 			return new  com.cleanroommc.modularui.widgets.CycleButtonWidget().stateCount(count)
 					.value( (IIntValue<?>) g)
 					//.setToggle(getter, setter)
-				
+
 					//.background(back)
 					.stateBackground(1, GTGuiTextures.BUTTON_STANDARD_PRESSED)
 					.stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
@@ -2864,16 +2864,16 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
                       .stateOverlay(1, back)
 					.pos(7 + offset * 18, 62).size(18, 18).tooltip(s->{s.add(tool);});
 		}
-		
-		
+
+
 		public ModularPanel create(PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings){
 			ModularPanel builder = GTGuis.mteTemplatePanelBuilder(DualInputHatch.this, data, syncManager,uiSettings)
 					.doesAddGregTechLogo(false).doesAddGhostCircuitSlot(allowSelectCircuit()).build();
 			return builder;
 		}
 		public void buildUI(ModularPanel builder,PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings) {
-			
-			
+
+
 			ItemStackHandler inventoryHandler = getInventoryHandler();
 			com.cleanroommc.modularui.widgets.slot.SlotGroup sg = new com.cleanroommc.modularui.widgets.slot.SlotGroup(
 					"item_inv", 1, true);
@@ -2973,22 +2973,22 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			list.child(genSlotsFluid.get());
 			list.pos(fluidslot_pos_table[fluidslot_pos_index].x, fluidslot_pos_table[fluidslot_pos_index].y);
 			builder.child(list);
-			
-			
+
+
 			ScrollWidget<?> listX = new ScrollWidget<>(new VerticalScrollData()).size(18);
 			listX.getScrollArea().getScrollY().setScrollSize(18 * 4*page());
 			listX.size(18*4, 18 * 4);
 			listX.child(genSlots.get());
 			listX.pos(52, 7);
 			builder.child(listX);
-			
+
 			//builder.child(genSlots.get());
-			
-			
-			
-			
-			
-			
+
+
+
+
+
+
 			builder.bindPlayerInventory();
 
 			IPanelHandler popupPanel = syncManager.panel("popup",
@@ -3006,8 +3006,8 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 						.pos(getCircuitSlotX() - 1, getCircuitSlotY() - 18 * 2 - 1).size(18, 18));
 			// shared_panel.openPanel();
 			// shared_panel.closePanel();
-			
-			
+
+
 			buttons(builder, syncManager);
 			//return builder;
 
@@ -3017,8 +3017,8 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 	    public  final com.cleanroommc.modularui.drawable.UITexture OVERLAY_BUTTON_INVERT_FILTER = com.cleanroommc.modularui.drawable.UITexture
 	            .fullImage(GregTech.ID, "gui/overlay_button/invert_filter");
 		public void buttons(ModularPanel builder,PanelSyncManager sync){
-			
-	
+
+
 			builder.child(createButton2(sync,"v0",() -> b2i(!disableFilter), val -> {
 				disableFilter = !i2b(val);
 				updateSlots();
@@ -3030,15 +3030,15 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 				updateSlots();
 			}, GTGuiTextures.OVERLAY_SLOT_INT_CIRCUIT/*.OVERLAY_BUTTON_INVERT_FILTER*/,  StatCollector.translateToLocal("programmable_hatches.gt.program"),
 					0,2).pos(7, 62 - 18 - moveButtons() * 18));
-			
-			
-	
-		
+
+
+
+
 			if (mMultiFluid == true && showFluidLimit())
 			{
-				
-				
-	
+
+
+
 			com.cleanroommc.modularui.widgets.CycleButtonWidget[] b=new com.cleanroommc.modularui.widgets.CycleButtonWidget[1];
 			int[] set=new int[1];
 			builder.child(b[0]=createButton2(sync,"v2",() -> fluidLimit, val -> {
@@ -3046,29 +3046,29 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 				set[0]=val;
 				b[0].markTooltipDirty();
 			},GTGuiTextures.OVERLAY_SLOT_INT_CIRCUIT,"", 0, 3)
-					
+
 					.stateOverlay(0, t00)
 					.stateOverlay(1, t01)
 					.stateOverlay(2, t02)
-					
+
 					.stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
 					.stateBackground(1, GTGuiTextures.BUTTON_STANDARD)
 					.stateBackground(2, GTGuiTextures.BUTTON_STANDARD)
 					.tooltipDynamic(s->{
 						int i=set[0];
-						
+
 						s.addLine(StatCollector.translateToLocal("programmable_hatches.gt.fluidlimit.neo"));
-						
+
 						s.addLine(StatCollector.translateToLocal("programmable_hatches.gt.fluidlimit.neo."+i));
 					}).pos(7 + 1 * 18, 62 - 18 - moveButtons() * 18)
-					
+
 					);
 			}
-					
+
 				/*
 				builder.child(createButton(() -> fluidLimit, val -> {
 					fluidLimit = val;
-				
+
 				}, s -> {
 					if (s == 0)
 						return t0;
@@ -3127,9 +3127,9 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			return slot.ignoreMaxStackSize(true);
 		}
 
-		GhostCircuitSlotWidget circuitSlot2(IMetaTileEntity mte) {
+		GhostCircuitSlotWidget circuitSlot2(IMetaTileEntity mte,PanelSyncManager syncManager) {
 
-			return (GhostCircuitSlotWidget) new GhostCircuitSlotWidget(mte, new IntSyncValue(() -> 1)) {
+			return (GhostCircuitSlotWidget) new GhostCircuitSlotWidget(mte,syncManager ) {
 				@Override
 				public @NotNull Result onMousePressed(int mouseButton) {
 					MouseData mouseData = MouseData.create(mouseButton);
@@ -3163,7 +3163,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 		ItemSlot markSlot(ArrayList<ItemStack> inv, int index) {
 
-			ItemSlot is = new PhantomItemSlot(){ 
+			ItemSlot is = new PhantomItemSlot(){
 				public Result onMousePressed(int mouseButton) {
 					//if (getSlot().getHasStack())
 					//	getSlot().putStack(null);
@@ -3197,11 +3197,11 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		FluidSlot markSlot(List<FluidStack> inv,int index) {
 
 			FluidSlot is = new FluidSlot(){
-				
-				
+
+
 				 @Override
 				    public @NotNull Result onMousePressed(int mouseButton) {
-					 
+
 				        if (!((FluidSlotSyncHandler)this.getSyncHandler()).canFillSlot() && !((FluidSlotSyncHandler)this.getSyncHandler()).canDrainSlot()) {
 				            return Result.ACCEPT;
 				        }
@@ -3212,22 +3212,22 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 				        }
 				        return Result.SUCCESS;
 				    }
-				
+
 				/*@Override
 				public Result onMousePressed(int mouseButton) {
 					return Result.SUCCESS;
 				}*/
-				
+
 				@Override
 				 public Result onMouseTapped(int mouseButton) {
 					//setFluid(null, 0);
-				
+
 				return Result.IGNORE;}
-				
-				
-				
-				
-				
+
+
+
+
+
 			};
 			is.syncHandler(new FluidSlotSyncHandler(new FluidStackTank(()->inv.get(index), s->inv.set(index, s), 1))
 			.phantom(true));
@@ -3238,7 +3238,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 			ModularPanel builder = new ModularPanel("shared_window");
 			builder.size(36 + 18 * 3, 36 + 18 * 4);
-			builder.child(circuitSlot2(DualInputHatch.this).pos(8 - 1, 8 - 1));
+			builder.child(circuitSlot2(DualInputHatch.this,syncManager).pos(8 - 1, 8 - 1));
 			for (int i = 0; i < shared.circuitUpgrades; i++)
 				builder.child(catalystSlot2((shared.circuitInv)).pos(8 - 1, 8 - 1 + 18 + 18 * i));
 			int posoffset = 0;
@@ -3316,21 +3316,21 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 								});
 							}
 						public void detectAndSendChanges(boolean init) {
-							
+
 						};
-						
+
 						}
 						.canDrainSlot(false).canFillSlot(false)
 						)
 						.pos(8 - 1 + 18 * 3 + 4, 8 - 1 + 18 * posoffset));
 				posoffset++;
 			}
-			
-			
+
+
 			return builder;
 
 		}
-		
+
 		protected ModularPanel createInsertionWindow2(PanelSyncManager syncManager) {
 			int len = (int) Math.round(Math.sqrt(mInventory.length - 1));
 			final int WIDTH = 18 * len + 6;
@@ -3348,7 +3348,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			com.cleanroommc.modularui.widgets.slot.SlotGroup sg=new com.cleanroommc.modularui.widgets.slot.SlotGroup("temp", 1);
 			syncManager.registerSlotGroup(sg);
 			final ItemStackHandler inventoryHandler = new ItemStackHandler(mInventory.length - (1));
-			
+
 			List<ModularSlot> slots=new ArrayList<>();
 			builder.child(new Grid().coverChildren().pos(3, 3).mapTo(len, len * len,
 					index ->{
@@ -3357,12 +3357,12 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 							.slotGroup(sg)
 							);
 						slots.add(ms);
-						
+
 					//	syncManager.itemSlot("tmp_sync_", index, ms);
 					return is;
 					}
 					));
-		
+
 			SyncHandler sync;
 			syncManager.syncValue("fakesync_updater", 0, sync = new SyncHandler() {
 
@@ -3415,7 +3415,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 						ItemStack is = inventoryHandler.getStackInSlot(s);
 						if (is != null && is.stackSize <= 0) {
 							inventoryHandler.getStacks().set(s, null);
-							
+
 							//.setStackInSlot(s, null);
 						}
 					});*/
@@ -3478,11 +3478,11 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		}
 
 	}
-	
+
 	private boolean hasBadge(EntityPlayer p){
 		for(ItemStack item:p.inventory.mainInventory){
 			if(item!=null&&item.getItem() instanceof ItemBadge){return true;}
-			
+
 		}
 		return false;}
 	@SuppressWarnings("deprecation")
@@ -3495,7 +3495,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
         } else {
             GTUIInfos.openGTTileEntityUI(getBaseMetaTileEntity(), player);
         }
-        
+
     }
 
 }

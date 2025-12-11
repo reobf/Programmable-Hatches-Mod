@@ -1,7 +1,6 @@
 package reobf.proghatches.gt.metatileentity;
 
-import static gregtech.api.util.GTUtility.moveMultipleItemStacks;
-
+import com.gtnewhorizon.gtnhlib.item.ItemTransfer;
 import java.util.Optional;
 
 import net.minecraft.inventory.IInventory;
@@ -90,18 +89,11 @@ public class FilterOutputBus extends MTEHatchOutputBus {
                     for (int i = 0; i < mInventory.length; i++) if (mInventory[i] != null) mInventory[i].stackSize--;
 
                 }
-                moveMultipleItemStacks(
-                    aBaseMetaTileEntity,
-                    tTileEntity,
-                    aBaseMetaTileEntity.getFrontFacing(),
-                    aBaseMetaTileEntity.getBackFacing(),
-                    null,
-                    false,
-                    (byte) 64,
-                    (byte) 1,
-                    (byte) 64,
-                    (byte) 1,
-                    mInventory.length);
+                ItemTransfer transfer = new ItemTransfer();
+                transfer.push(aBaseMetaTileEntity, aBaseMetaTileEntity.getFrontFacing(), tTileEntity);
+                transfer.setStacksToTransfer(mInventory.length);
+                transfer.setMaxItemsPerTransfer(64);
+                transfer.transfer();
                 if (keepone) {
                     for (int i = 0; i < mInventory.length; i++) if (mInventory[i] != null) mInventory[i].stackSize++;
 

@@ -8,8 +8,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.inventory.InventoryCrafting;
@@ -72,14 +70,14 @@ this.parent=parent;source = new MachineSource(this.parent);
     @Override
     public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table,
         ForgeDirection ejectionDirection) {
-    	
+
     	 try {
-			PatternCraftingJob job = new PatternCraftingJob(patternDetails, getProxy().getStorage(),this.source);
+			PatternCraftingJob job = new PatternCraftingJob(patternDetails, getProxy().getStorage());
 		getProxy().getCrafting().getCraftingPatterns();
     	 } catch (GridAccessException e) {
 		}
 
-    	
+
         for (int i = 0; i < table.getSizeInventory(); i++) {
             ItemStack is = table.getStackInSlot(i);
             if (is != null) {
@@ -265,7 +263,7 @@ boolean returnAll=true;
 
             return null;
         }
-        
+
         AEItemStack left = null;
 
         Long get = waiting.get((items));
@@ -284,10 +282,10 @@ boolean returnAll=true;
             }
 
         } else {
-            /*if ((this.mode & 1) != 0)*/ 
+            /*if ((this.mode & 1) != 0)*/
             	if(!returnAll)
                 return items;// not waiting, just return items as unwanted
-            
+
 
         }
         if(returnAll){
@@ -312,7 +310,7 @@ boolean returnAll=true;
     HashMap<StorageChannel, IMEInventory> inv = new HashMap();
     HashMap<StorageChannel, Integer> handlerHash = new HashMap();
     public ItemStack[] mark = new ItemStack[1];
-    
+
 
     ForgeDirection prevDir;
 
@@ -733,10 +731,10 @@ boolean returnAll=true;
 
 	public ModularWindow createWindow(UIBuildContext buildContext) {
 		 ModularWindow.Builder builder = ModularWindow.builder(176, 107 + 20);
-		 
+
 	        builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
 	        builder.bindPlayerInventory(buildContext.getPlayer());
-	        
+
 	        builder.widget(new CycleButtonWidget().setGetter(() -> mode)
 	                .setSetter(s -> mode = s)
 	                .setLength(3)
@@ -758,7 +756,7 @@ boolean returnAll=true;
 
 	                .setSize(18, 18)
 	                .setPos(120 + 20, 3));
-	   
+
 	      /*  builder.widget(new CycleButtonWidget().setGetter(() -> returnAll?1:0)
 	                .setSetter(s -> returnAll = s==1)
 	                .setLength(2)
@@ -778,9 +776,9 @@ boolean returnAll=true;
 
 	                .setSize(18, 18)
 	                .setPos(  20, 3)); */
-	        
-	        
-	        
+
+
+
 		return builder.build();
 	}
 

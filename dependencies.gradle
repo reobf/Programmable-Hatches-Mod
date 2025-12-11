@@ -38,19 +38,19 @@ dependencies {
 
 
 
-   api('com.github.GTNewHorizons:GT5-Unofficial:5.09.52.67:dev')
-    api("curse.maven:thaumcraft-nei-plugin-225095:2241913") 
-  
+   api('com.github.GTNewHorizons:GT5-Unofficial:5.09.52.138:dev')
+    api("curse.maven:thaumcraft-nei-plugin-225095:2241913")
+
   //api("com.github.GTNewHorizons:StructureLib:1.4.15:dev")
     api("net.industrial-craft:industrialcraft-2:2.2.828-experimental:dev")
-    api("com.github.GTNewHorizons:NotEnoughItems:2.7.91-GTNH:dev")
+    api("com.github.GTNewHorizons:NotEnoughItems:2.8.40-GTNH:dev")
     api("com.github.GTNewHorizons:NotEnoughIds:2.1.10:dev")
-    api("com.github.GTNewHorizons:GTNHLib:0.6.40:dev")
+    api("com.github.GTNewHorizons:GTNHLib:0.8.20:dev")
 
-    api("com.github.GTNewHorizons:ModularUI2:2.2.18-1.7.10:dev")
+    api("com.github.GTNewHorizons:ModularUI2:2.3.21-1.7.10:dev")
     compileOnly rfg.deobf("curse.maven:neverenoughanimation-1062347:6552319")
-    
-    
+
+
     api("com.github.GTNewHorizons:waila:1.8.14:dev")
     api("com.github.GTNewHorizons:Applied-Energistics-2-Unofficial:rv3-beta-719-GTNH:dev")
     //api("com.github.GTNewHorizons:AE2FluidCraft-Rework:1.4.42-gtnh:dev")
@@ -71,7 +71,7 @@ dependencies {
 
     api("com.github.GTNewHorizons:Avaritia:1.75:dev")
 	api("com.github.GTNewHorizons:Avaritiaddons:1.9.1-GTNH:dev")
-    api('com.github.GTNewHorizons:Angelica:1.0.0-beta57:api') { transitive = false }
+    api('com.github.GTNewHorizons:Angelica:1.0.0-beta68:api') { transitive = false }
     //api("com.github.GTNewHorizons:AppleCore:3.3.4:dev") { transitive = false }
     api("com.github.GTNewHorizons:BuildCraft:7.1.44:dev") { transitive = false }
     api("com.github.GTNewHorizons:EnderIO:2.9.26:dev") { transitive = true }
@@ -93,13 +93,13 @@ dependencies {
     api rfg.deobf("curse.maven:cofh-core-69162:2388751")
     api("com.github.GTNewHorizons:Nuclear-Control:2.6.19:dev") { transitive = false }
     api("thaumcraft:Thaumcraft:1.7.10-4.2.3.5:dev") { transitive = false }
-    api("com.github.GTNewHorizons:Hodgepodge:2.6.108:dev")
+    api("com.github.GTNewHorizons:Hodgepodge:2.7.18:dev")
     api('com.github.GTNewHorizons:Botania:1.12.25-GTNH:dev') { transitive = false }
     api('com.github.GTNewHorizons:HoloInventory:2.5.5-GTNH:dev') { transitive = false }
     api rfg.deobf("curse.maven:extra-utilities-225561:2264384")
     compileOnly rfg.deobf('curse.maven:minefactory-reloaded-66672:2366150')
     api("com.github.GTNewHorizons:OpenComputers:1.11.19-GTNH:dev") {transitive = false}
-     api("com.github.GTNewHorizons:Computronics:1.9.3-GTNH:dev") 
+     api("com.github.GTNewHorizons:Computronics:1.9.3-GTNH:dev")
     // https://www.curseforge.com/minecraft/mc-mods/advancedsolarpanels
     api rfg.deobf('curse.maven:advsolar-362768:2885953')
     //api('com.github.GTNewHorizons:ThaumicEnergistics:1.6.27-GTNH:dev') {transitive =  false}
@@ -133,38 +133,38 @@ dependencies {
    // functionalTestImplementation('org.junit.platform:junit-platform-reporting')
 
     //runtimeOnlyNonPublishable("com.github.GTNewHorizons:DuraDisplay:1.3.4:dev")
-   
+
 
     // For testing
     //runtimeOnlyNonPublishable('com.github.GTNewHorizons:TCNEIAdditions:1.4.2:dev')
 
     // Speeds up mod identification and loading in dev
    // runtimeOnlyNonPublishable(rfg.deobf("CoreTweaks:CoreTweaks:0.3.3.2"))
- 
+
 
  api("com.github.GTNewHorizons:NotEnoughEnergistics:1.7.14:dev")
- 
-	
+
+
 	api("com.github.GTNewHorizons:ForgeMultipart:1.6.8:dev") { transitive = false }
 
 
-	
+
 	  api('com.github.GTNewHorizons:ThaumicEnergistics:1.7.14-GTNH:dev')
 
 	api("com.github.GTNewHorizons:MrTJPCore:1.3.4:dev")
-	
+
 	 api('com.github.GTNewHorizons:Navigator:1.0.17:dev')
      runtimeOnlyNonPublishable(rfg.deobf('maven.modrinth:journeymap:5.2.6'))
-	 
-	 
+
+
 	  api("com.github.GTNewHorizons:ironchest:6.1.6:dev")
     api("com.github.GTNewHorizons:RemoteIO:2.7.6:dev")
-    
-    
+
+
    api("com.github.GTNewHorizons:ForgeRelocation:0.3.4:dev")
-   
-   
-  api("com.github.GTNewHorizons:BetterP2P:1.3.1:dev") 
+
+
+  api("com.github.GTNewHorizons:BetterP2P:1.3.1:dev")
   ////////
 
 	  api("com.github.GTNewHorizons:CodeChickenCore:1.4.7:dev")
@@ -174,6 +174,6 @@ dependencies {
     exclude group: 'com.github.GTNewHorizons', module: 'CodeChickenLib'
     exclude group: 'com.github.GTNewHorizons', module: 'Baubles'
 
-    //this is out-dated and crashes the game, so exclude it. 
+    //this is out-dated and crashes the game, so exclude it.
     //CCCore is enough
 }

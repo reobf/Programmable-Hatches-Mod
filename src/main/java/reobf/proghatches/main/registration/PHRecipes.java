@@ -2,6 +2,7 @@ package reobf.proghatches.main.registration;
 
 import static gregtech.api.enums.ItemList.*;
 import static gregtech.api.enums.Materials.*;
+import static gregtech.api.enums.Materials.ZPM;
 import static gregtech.api.enums.Mods.GTPlusPlus;
 import static gregtech.api.util.GTRecipeBuilder.HOURS;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
@@ -22,7 +23,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -61,50 +61,6 @@ import thaumcraft.common.config.ConfigItems;
 
 // spotless:off
 public class PHRecipes implements Runnable {
-
-    @Deprecated
-    public static Materials Primitive = Materials.ULV;
-    @Deprecated
-    public static Materials Basic = Materials.LV;
-    @Deprecated
-    public static Materials Good = Materials.MV;
-    @Deprecated
-    public static Materials Data = Materials.EV;
-    @Deprecated
-    public static Materials Elite = Materials.IV;
-    @Deprecated
-    public static Materials Master = Materials.LuV;
-    @Deprecated
-    public static Materials Infinite = Materials.UHV;
-    @Deprecated
-    public static Materials Bio = Materials.UEV;
-    @Deprecated
-    public static Materials Optical = Materials.UIV;
-    @Deprecated
-    public static Materials Exotic = Materials.UMV;
-    @Deprecated
-    public static Materials Cosmic = Materials.UXV;
-    @Deprecated
-    public static Materials Transcendent = Materials.MAX;	
-	
-    @Deprecated
-    public static Materials Ultimate = Materials.ZPM;	
-    @Deprecated
-    public static Materials Advanced = Materials.HV;	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
     public static <T extends GTRecipeBuilder> T setScan(T a, int time) {
         try {
             RecipeMetadataKey x = (RecipeMetadataKey) GTRecipeConstants.class.getField("RESEARCH_TIME")
@@ -130,15 +86,15 @@ public class PHRecipes implements Runnable {
         Robot_Arm_UIV.get(1), Robot_Arm_UMV.get(1), Robot_Arm_UXV.get(1), Robot_Arm_MAX.get(1) };
     Materials[][] mat = null;
 
-    Supplier<Materials[][]> metget = () -> new Materials[][] { { Primitive }, { Basic }, { Good }, { Advanced },
-        { Data }, { Elite }, { Master }, { Ultimate }, { SuperconductorUHV }, { Infinite }, { Bio },
-        { Optical/* ,Nano, */ }, { Piko/* ,Exotic, */ }, // dreamcraft circuit
+    Supplier<Materials[][]> metget = () -> new Materials[][] { {ULV}, {LV}, {MV}, {HV},
+        {EV}, {IV}, {LuV}, {ZPM}, { UV }, {UHV}, {UEV},
+        {UIV/* ,Nano, */ }, { Piko/* ,Exotic, */ }, // dreamcraft circuit
         { Piko /* Quantum,Cosmic, */ }, { Piko /* Quantum Transcendent */ } };
 
     @SuppressWarnings("deprecation")
-    Materials[][] matNewVersion = { { Primitive }, { Basic }, { Good }, { Advanced }, { Data }, { Elite }, { Master },
-        { Ultimate }, { SuperconductorUHV }, { Infinite }, { Bio }, { Optical }, { Exotic }, { Cosmic },
-        { Cosmic/* Transcendent */ } };
+    Materials[][] matNewVersion = { {ULV}, {LV}, {MV}, {HV}, {EV}, {IV}, {LuV},
+        {ZPM}, { UV }, {UHV}, {UEV}, {UIV}, {UMV}, {UXV},
+        {UXV/* Transcendent */ } };
 
     ///////////////////////////////////
     public void prefab() {
@@ -332,7 +288,7 @@ public class PHRecipes implements Runnable {
         Hatch_Input_Multi_2x2_Humongous };
 
     /**
-     * 
+     *
      */
     @SuppressWarnings({ "deprecation", "unchecked" })
     @Override
@@ -472,7 +428,7 @@ public class PHRecipes implements Runnable {
 
             GTValues.RA.stdBuilder()
                 .itemInputs(multi[i].get(1), single_item[i], new ItemStack(MyMod.cover, 1, 0))
-                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+                .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
                 .itemOutputs(
                     new ItemStack(
                         GregTechAPI.sBlockMachines,
@@ -487,7 +443,7 @@ public class PHRecipes implements Runnable {
 
             GTValues.RA.stdBuilder()
                 .itemInputs(single_fluid[i], single_item[i], new ItemStack(MyMod.cover, 1, 0))
-                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+                .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
                 .itemOutputs(
                     new ItemStack(
                         GregTechAPI.sBlockMachines,
@@ -515,7 +471,7 @@ public class PHRecipes implements Runnable {
              * , new Object[] {circuit,2}
              * ,new ItemStack(MyMod.smartarm,1,i)
              * )
-             * .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+             * .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
              * .itemOutputs(
              * new ItemStack(GregTechAPI.sBlockMachines,1,Config.metaTileEntityOffset+Registration.
              * BufferedDualInputHatchOffset+i)
@@ -546,7 +502,7 @@ public class PHRecipes implements Runnable {
                     ,
                     null// CHANCE
                     ,
-                    new FluidStack[] { Materials.AdvancedGlue.getFluid(4000) }// FI
+                    new FluidStack[] { Materials.GlueAdvanced.getFluid(4000) }// FI
                     ,
                     null// FO
                     ,
@@ -661,7 +617,7 @@ public class PHRecipes implements Runnable {
                             .get())
 
                 )
-                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+                .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
                 .itemOutputs(
                     new ItemStack(
                         GregTechAPI.sBlockMachines,
@@ -694,7 +650,7 @@ public class PHRecipes implements Runnable {
                     Machine_HV_Assembler.get(1)
 
                 )
-                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+                .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
                 .itemOutputs(
                     new ItemStack(
                         GregTechAPI.sBlockMachines,
@@ -712,7 +668,7 @@ public class PHRecipes implements Runnable {
                     Hatch_CraftingInput_Bus_Slave.get(1),
 
                     GTUtility.getIntegratedCircuit(13))
-                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+                .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
                 .itemOutputs(
                 	new ItemStack(
                         GregTechAPI.sBlockMachines,
@@ -738,7 +694,7 @@ public class PHRecipes implements Runnable {
                          new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 0),
                          new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 1),
                     GTUtility.getIntegratedCircuit(13))
-                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+                .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
                 .itemOutputs(
                     new ItemStack(
                         GregTechAPI.sBlockMachines,
@@ -754,7 +710,7 @@ public class PHRecipes implements Runnable {
                 new ItemStack(GameRegistry.findItem("RIO", "tile.remote_interface")),
                 new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 0),
                 single_item[6])
-            .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+            .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
             .itemOutputs(
                 new ItemStack(
                     GregTechAPI.sBlockMachines,
@@ -770,7 +726,7 @@ public class PHRecipes implements Runnable {
                 single_fluid[6]
 
             )
-            .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+            .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
             .itemOutputs(
                 new ItemStack(
                     GregTechAPI.sBlockMachines,
@@ -790,7 +746,7 @@ public class PHRecipes implements Runnable {
                 Quantum_Tank_LV.get(24),
                 Electric_Pump_UV.get(24),
                 Cover_Shutter.get(24))
-            .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+            .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
             .itemOutputs(
                 new ItemStack(
                     GregTechAPI.sBlockMachines,
@@ -807,7 +763,7 @@ public class PHRecipes implements Runnable {
                     GregTechAPI.sBlockMachines,
                     1,
                     Config.metaTileEntityOffset + Registration.BufferedQuadDualInputHatchMKIIOffset + 8))
-            .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+            .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
             .itemOutputs(
                 new ItemStack(GregTechAPI.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.PatternOffset))
             .duration(20 * SECONDS)
@@ -816,7 +772,7 @@ public class PHRecipes implements Runnable {
 
         GTValues.RA.stdBuilder()
             .itemInputs(Hatch_CraftingInput_Bus_ME_ItemOnly.get(1), new ItemStack(MyMod.smartarm, 4, 6))
-            .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+            .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
             .itemOutputs(
                 new ItemStack(
                     GregTechAPI.sBlockMachines,
@@ -831,7 +787,7 @@ public class PHRecipes implements Runnable {
                 .itemInputs(single_item[i], new ItemStack(GameRegistry.findItem("Automagy", "blockTenaciousChest"))
 
                 )
-                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+                .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
                 .itemOutputs(
                     new ItemStack(
                         GregTechAPI.sBlockMachines,
@@ -850,7 +806,7 @@ public class PHRecipes implements Runnable {
                         Config.metaTileEntityOffset + Registration.TenaciousOffset + i)
 
                 )
-                .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+                .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
                 .itemOutputs(
                     new ItemStack(
                         GregTechAPI.sBlockMachines,
@@ -868,7 +824,7 @@ public class PHRecipes implements Runnable {
             .itemInputs(Cover_Controller.get(1), Cover_AdvancedRedstoneReceiverInternal.get(1)
 
             )
-            .fluidInputs(Materials.AdvancedGlue.getFluid(4000))
+            .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
             .itemOutputs(new ItemStack(MyMod.cover, 1, 1)
 
             )
@@ -1270,7 +1226,7 @@ public class PHRecipes implements Runnable {
 
         GTValues.RA.stdBuilder()
             .itemInputs(new ItemStack(ConfigItems.itemGolemCore, 1, 8), ItemList.Duct_Tape.get(64))
-            .fluidInputs(Materials.AdvancedGlue.getFluid(8000))
+            .fluidInputs(Materials.GlueAdvanced.getFluid(8000))
             .itemOutputs(new ItemStack(ConfigItems.itemGolemCore, 1, 120))
             .duration(20 * SECONDS)
             .eut(GTValues.VP[3])
@@ -1346,12 +1302,12 @@ public class PHRecipes implements Runnable {
             .duration(20 * SECONDS)
             .eut(GTValues.VP[3])
             .addTo(RecipeMaps.assemblerRecipes);
-        
+
         GTValues.RA.stdBuilder()
         .itemInputs(
             //new ItemStack(GregTechAPI.sBlockMachines, 0, Config.metaTileEntityOffset + 1Registration.SlaveOffset),
         		Hatch_CraftingInput_Bus_ME.get(0),
-            
+
             new ItemStack(GameRegistry.findItem("RIO", "tile.remote_interface")),
             new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 0),
             new ItemStack(GameRegistry.findItem("RIO", "item.chip.transfer"), 1, 1)
@@ -1384,7 +1340,7 @@ public class PHRecipes implements Runnable {
             .fluidInputs(
                 new FluidStack(TinkerSmeltery.moltenEnderFluid, 1000),
                 Enderium.getMolten(1000),
-                HeeEndium.getMolten(1000),
+                Endium.getMolten(1000),
                 FluidRegistry.getFluid("endergoo") == null ? Water.getFluid(1)
                     : new FluidStack(FluidRegistry.getFluid("endergoo"), 1000))
             .itemOutputs(
@@ -2235,18 +2191,18 @@ public class PHRecipes implements Runnable {
             .duration(1 * SECONDS)
             .eut(30)
             .addTo(RecipeMaps.assemblerRecipes);
-        
+
         rec = new ShapelessOreRecipe(new ItemStack(MyMod.badge),
                 ItemList.Credit_Greg_Gold.get(1),
                 ItemList.Credit_Greg_Cupronickel.get(1)
-                
-                
+
+
                 );
             CraftingManager.getInstance()
                 .getRecipeList()
                 .add(rec);
 
-            
+
            // FurnaceRecipes.smelting().func_151394_a(new ItemStack(ItemAndBlockHolder.DISCRETIZER), new ItemStack(MyMod.fd), 10);
             GTValues.RA.stdBuilder()
             .itemInputs(
@@ -2261,8 +2217,8 @@ public class PHRecipes implements Runnable {
             .duration(1)
             .eut(30*4*4*4*4*4*4).metadata(ADDITIVE_AMOUNT, 64)
             .addTo(RecipeMaps.implosionRecipes);
-            
-            
+
+
             GTValues.RA.stdBuilder()
             .itemInputs(
             		 new ItemStack(
@@ -2270,8 +2226,8 @@ public class PHRecipes implements Runnable {
                              16,2
                              ),
             		 OreDictionary.getOres("oc:cpu1").get(0)
-            		
-            		
+
+
             		)
             .itemOutputs( new ItemStack(
                     GregTechAPI.sBlockMachines,

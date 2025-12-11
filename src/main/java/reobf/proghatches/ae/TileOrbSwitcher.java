@@ -1,7 +1,6 @@
 package reobf.proghatches.ae;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -11,7 +10,6 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
-import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.google.common.base.Objects;
@@ -44,6 +42,7 @@ import gregtech.api.interfaces.IConfigurationCircuitSupport;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import reobf.proghatches.main.MyMod;
+import reobf.proghatches.util.ProghatchesUtil;
 
 public class TileOrbSwitcher extends TileEntity implements IActionHost, IGridProxyable, ITileWithModularUI {
 
@@ -385,16 +384,8 @@ public class TileOrbSwitcher extends TileEntity implements IActionHost, IGridPro
 
     public void sendPacket() {
 
-        sendPacketToAllPlayers(getDescriptionPacket(), this.getWorldObj());
+        ProghatchesUtil.sendPacketToAllPlayers(getDescriptionPacket(), this.getWorldObj());
 
-    }
-
-    private static void sendPacketToAllPlayers(Packet packet, World world) {
-        for (Object player : world.playerEntities) {
-            if (player instanceof EntityPlayerMP) {
-                ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(packet);
-            }
-        }
     }
 
     protected int getGUIWidth() {

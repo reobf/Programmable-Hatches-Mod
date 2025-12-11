@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.gson.Gson;
+import com.gtnewhorizon.gtnhlib.item.ItemTransfer;
 import com.gtnewhorizons.modularui.api.drawable.Text;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
 import com.gtnewhorizons.modularui.api.math.Alignment;
@@ -45,6 +46,7 @@ import gregtech.common.covers.redstone.CoverAdvancedRedstoneReceiverBase.GateMod
 import gregtech.common.gui.modularui.widget.CoverCycleButtonWidget;
 import gregtech.common.gui.mui1.cover.CoverUIFactory;
 import io.netty.buffer.ByteBuf;
+import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.eucrafting.CoverBehaviorBase;
 import reobf.proghatches.eucrafting.ISer;
 import reobf.proghatches.gt.cover.parser.SimpleParser;
@@ -773,33 +775,11 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
 
                     if (d.io) {// I->O
                         for (int i = 0; i < out.length && remain > 0; i++)
-                            /* if(thiz.getStackInSlot(in[i])!=null) */remain -= 0
-                                < ProghatchesUtil.moveFromSlotToSlotSafe(
-                                    thiz,
-                                    that,
-                                    in[i],
-                                    out[i],
-                                    null,
-                                    false,
-                                    (byte) 64,
-                                    (byte) 1,
-                                    (byte) 64,
-                                    (byte) 1) ? 1 : 0;
+                            remain -= 0 < performTransfer(thiz, that, in[i], out[i]) ? 1 : 0;
 
                     } else {
                         for (int i = 0; i < out.length && remain > 0; i++)
-                            /* if(that.getStackInSlot(out[i])!=null) */remain -= 0
-                                < ProghatchesUtil.moveFromSlotToSlotSafe(
-                                    that,
-                                    thiz,
-                                    out[i],
-                                    in[i],
-                                    null,
-                                    false,
-                                    (byte) 64,
-                                    (byte) 1,
-                                    (byte) 64,
-                                    (byte) 1) ? 1 : 0;
+                            remain -= 0 < performTransfer(that, thiz, out[i], in[i]) ? 1 : 0;
 
                     }
                 } else if (d.dyn == true) {
@@ -819,37 +799,13 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
 
                     if (d.io) {// I->O
                         for (int i = 0; i < d.key.length && remain > 0; i++)
-                            /*
-                             * if(thiz.getStackInSlot(in.applyAsInt(i))!=
-                             * null)
-                             */remain -= 0 < ProghatchesUtil.moveFromSlotToSlotSafe(
-                                thiz,
-                                that,
-                                in.applyAsInt(i),
-                                out.applyAsInt(i),
-                                null,
-                                false,
-                                (byte) 64,
-                                (byte) 1,
-                                (byte) 64,
-                                (byte) 1) ? 1 : 0;
+                            remain -= 0
+                                < performTransfer(thiz, that, in.applyAsInt(i), out.applyAsInt(i)) ? 1 : 0;
 
                     } else {
                         for (int i = 0; i < d.key.length && remain > 0; i++)
-                            /*
-                             * if(that.getStackInSlot(out.applyAsInt(i))!=
-                             * null)
-                             */remain -= 0 < ProghatchesUtil.moveFromSlotToSlotSafe(
-                                that,
-                                thiz,
-                                out.applyAsInt(i),
-                                in.applyAsInt(i),
-                                null,
-                                false,
-                                (byte) 64,
-                                (byte) 1,
-                                (byte) 64,
-                                (byte) 1) ? 1 : 0;
+                            remain -= 0
+                                < performTransfer(that, thiz, out.applyAsInt(i), in.applyAsInt(i)) ? 1 : 0;
 
                     }
 
@@ -859,6 +815,25 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
         }
 
         /* return (Data) */ super.doCoverThings(v, aTimer);
+    }
+
+    private int performTransfer(IInventory from, IInventory to, int fromSlot, int toSlot) {
+        ItemTransfer transfer = new ItemTransfer();
+
+        if (from == getTile()) { // Exporting
+            transfer.source(from, coverSide);
+            transfer.sink(to, coverSide.getOpposite());
+        } else { // Importing
+            transfer.source(from, coverSide.getOpposite());
+            transfer.sink(to, coverSide);
+        }
+
+        transfer.setSourceSlots(fromSlot);
+        transfer.setSinkSlots(toSlot);
+        transfer.setStacksToTransfer(1);
+        transfer.setMaxItemsPerTransfer(64);
+
+        return transfer.transfer();
     }
 
     private Context addDyn(Context add, Data d, ICoverable aTileEntity) {

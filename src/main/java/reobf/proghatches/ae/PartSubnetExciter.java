@@ -38,6 +38,7 @@ import appeng.tile.misc.TileCharger;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
+import reobf.proghatches.util.ProghatchesUtil;
 
 public class PartSubnetExciter extends PartBasicState implements IAEPowerStorage
 
@@ -180,7 +181,7 @@ public class PartSubnetExciter extends PartBasicState implements IAEPowerStorage
                 // (double)(getHost().getTile().yCoord + 0.5F), (double)(getHost().getTile().zCoord + 0.5F),
                 // "random.orb", 0.5F, 2.6F + (w.rand.nextFloat() - w.rand.nextFloat()) * 0.8F);
 
-                ChannelLoader.sendPacketToAllPlayers(
+                ProghatchesUtil.sendPacketToAllPlayers(
                     this.host.getTile()
                         .getDescriptionPacket(),
                     this.host.getTile()

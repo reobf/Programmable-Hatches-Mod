@@ -32,7 +32,7 @@ public class MixinVoidingHatch {
 
     @Inject(
         require = 1,
-        method = "addOutput(Lnet/minecraft/item/ItemStack;)Z",
+        method = "addOutputAtomic(Lnet/minecraft/item/ItemStack;)Z",
         at = { @At("HEAD") },
         cancellable = true)
     public void addOutput(ItemStack aStack, CallbackInfoReturnable<Boolean> a) {

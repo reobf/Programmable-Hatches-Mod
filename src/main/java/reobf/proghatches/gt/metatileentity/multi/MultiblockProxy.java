@@ -6,7 +6,6 @@ import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_VACUUM_FREEZER;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_VACUUM_FREEZER_ACTIVE;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
-import static gregtech.api.util.GTUtility.moveMultipleItemStacks;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.gtnewhorizon.gtnhlib.item.ItemTransfer;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -350,12 +350,6 @@ public class MultiblockProxy extends MTEEnhancedMultiBlockBase<MultiblockProxy>
     }
 
     @Override
-    public boolean explodesOnComponentBreak(ItemStack aStack) {
-
-        return false;
-    }
-
-    @Override
     public void construct(ItemStack stackSize, boolean hintsOnly) {
         buildPiece("main", stackSize, hintsOnly, 0, 0, 0);
         for (int i = 1; i < stackSize.stackSize + 1; i++) {
@@ -366,10 +360,10 @@ public class MultiblockProxy extends MTEEnhancedMultiBlockBase<MultiblockProxy>
     @Override
     public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBuildEnvironment env) {
 
-        int built = survivialBuildPiece("main", stackSize, 0, 0, 0, elementBudget, env, false, true);
+        int built = survivalBuildPiece("main", stackSize, 0, 0, 0, elementBudget, env, false, true);
         if (built >= 0) return built;
         for (int i = 1; i < stackSize.stackSize + 1; i++) {
-            built = survivialBuildPiece("piece", stackSize, 0, i, 0, elementBudget, env, false, true);
+            built = survivalBuildPiece("piece", stackSize, 0, i, 0, elementBudget, env, false, true);
             if (built >= 0) return built;
         }
         return built;
@@ -902,20 +896,14 @@ public class MultiblockProxy extends MTEEnhancedMultiBlockBase<MultiblockProxy>
             for (MTEMultiBlockBase get : getTileAsMB()) {
                 // MTEMultiBlockBase get = getTileAsMB().get();
                 for (MTEHatchOutputBus bus : get.mOutputBusses) {
-                    if (bus.isValid() == false) continue;
+                    if (!bus.isValid()) continue;
                     IGregTechTileEntity base = bus.getBaseMetaTileEntity();
-                    int amount = moveMultipleItemStacks(
-                        base,
-                        virtualTarget,
-                        base.getFrontFacing(),
-                        base.getBackFacing(),
-                        null,
-                        false,
-                        (byte) 64,
-                        (byte) 1,
-                        (byte) 64,
-                        (byte) 1,
-                        mInventory.length);
+                    ItemTransfer transfer = new ItemTransfer();
+                    transfer.source(base, base.getFrontFacing());
+                    transfer.sink(virtualTarget, ForgeDirection.UNKNOWN); // Using UNKNOWN for a non-world inventory
+                    transfer.setStacksToTransfer(bus.getSizeInventory()); // Correctly use the bus's inventory size
+                    transfer.setMaxItemsPerTransfer(64);
+                    int amount = transfer.transfer();
                     ItemStack[] mInventory = bus.mInventory;
                     for (int i = 0; i < mInventory.length; i++)
                         if (mInventory[i] != null && mInventory[i].stackSize <= 0) mInventory[i] = null;
@@ -1078,6 +1066,8 @@ public class MultiblockProxy extends MTEEnhancedMultiBlockBase<MultiblockProxy>
             return false;
         }
     }
+
+
 
     public ArrayList<PatternHousing> linkage = new ArrayList<>();
 

@@ -12,14 +12,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.cleanroommc.modularui.screen.ModularPanel;
@@ -140,29 +143,7 @@ public class ProghatchesUtil {
         }
     }
 
-    public static int moveFromSlotToSlotSafe(IInventory fromInv, IInventory toInv, int aGrabFrom, int aPutTo,
-        List<ItemStack> aFilter, boolean aInvertFilter, byte aMaxTargetStackSize, byte aMinTargetStackSize,
-        byte aMaxMoveAtOnce, byte aMinMoveAtOnce) {
 
-        if (fromInv.getSizeInventory() <= aGrabFrom || 0 > aGrabFrom
-            || toInv.getSizeInventory() <= aPutTo
-            || fromInv.getStackInSlot(aGrabFrom) == null) {
-            return 0;
-        }
-
-        return GTUtility.moveFromSlotToSlot(
-            fromInv,
-            toInv,
-            aGrabFrom,
-            aPutTo,
-            aFilter,
-            aInvertFilter,
-            aMaxTargetStackSize,
-            aMinTargetStackSize,
-            aMaxMoveAtOnce,
-            aMinMoveAtOnce);
-
-    }
     public static boolean isStringInvalid(String aString) {
         return aString == null || aString.isEmpty();
     }
@@ -233,7 +214,7 @@ public class ProghatchesUtil {
             }
         };
         p.child(new com.cleanroommc.modularui.widget.Widget(){
-        	
+
         	public void onUpdate() {
         		//Thread.dumpStack();
         		ticker.run();
@@ -241,26 +222,26 @@ public class ProghatchesUtil {
         }
         		);
     	syncManager.syncValue("ZeroSizedStackRemover", new SyncHandler() {
-			
+
     		@Override
     		public void detectAndSendChanges(boolean init) {
-    			
+
     			ticker.run();
     		}
 			@Override
 			public void readOnServer(int id, PacketBuffer buf) throws IOException {
-			
-				
+
+
 			}
-			
+
 			@Override
 			public void readOnClient(int id, PacketBuffer buf) throws IOException {
-			
-				
+
+
 			}
 		});
-    	
-    	
+
+
     }
     public static void attachZeroSizedStackRemover(Builder builder, UIBuildContext buildContext) {
         builder.widget(new SyncedWidget() {
@@ -419,5 +400,13 @@ public class ProghatchesUtil {
 
         return allc;
 
+    }
+
+    public static void sendPacketToAllPlayers(Packet packet, World world) {
+        for (Object player : world.playerEntities) {
+            if (player instanceof EntityPlayerMP) {
+                ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(packet);
+            }
+        }
     }
 }

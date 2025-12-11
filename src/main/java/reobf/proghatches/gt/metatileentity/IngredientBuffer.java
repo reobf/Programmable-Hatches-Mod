@@ -3,10 +3,10 @@ package reobf.proghatches.gt.metatileentity;
 import static gregtech.api.metatileentity.BaseTileEntity.FLUID_TRANSFER_TOOLTIP;
 import static gregtech.api.metatileentity.BaseTileEntity.ITEM_TRANSFER_TOOLTIP;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
-import static gregtech.api.util.GTUtility.moveMultipleItemStacks;
 
 import java.util.Arrays;
 
+import com.gtnewhorizon.gtnhlib.item.ItemTransfer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -460,18 +460,11 @@ public class IngredientBuffer extends MTETieredMachineBlock implements IAddUIWid
             && (aTick & 0x7) == 0) {
             final IInventory tTileEntity = aBaseMetaTileEntity.getIInventoryAtSide(face);
             if (tTileEntity != null) {
-                moveMultipleItemStacks(
-                    aBaseMetaTileEntity,
-                    tTileEntity,
-                    aBaseMetaTileEntity.getFrontFacing(),
-                    aBaseMetaTileEntity.getBackFacing(),
-                    null,
-                    false,
-                    (byte) 64,
-                    (byte) 1,
-                    (byte) 64,
-                    (byte) 1,
-                    mInventory.length);
+                ItemTransfer transfer = new ItemTransfer();
+                transfer.push(aBaseMetaTileEntity, face, tTileEntity);
+                transfer.setStacksToTransfer(mInventory.length);
+                transfer.setMaxItemsPerTransfer(64);
+                transfer.transfer();
                 for (int i = 0; i < mInventory.length; i++)
                     if (mInventory[i] != null && mInventory[i].stackSize <= 0) mInventory[i] = null;
             }

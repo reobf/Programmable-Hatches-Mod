@@ -409,4 +409,12 @@ public class ProghatchesUtil {
             }
         }
     }
+
+	public static int getSlots(int aTier) {
+		
+		if(aTier>=3){return 16;}
+		
+		
+		return   (aTier + 1) * (aTier + 1);
+	}
 }

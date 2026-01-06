@@ -206,7 +206,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 	public BufferedDualInputHatch(int id, String name, String nameRegional, int tier, boolean mMultiFluid,
 			int bufferNum, String... optional) {
-		this(id, name, nameRegional, tier, getSlots(tier) + 1, mMultiFluid, bufferNum, optional);
+		this(id, name, nameRegional, tier, ProghatchesUtil.getSlots(tier) + 1, mMultiFluid, bufferNum, optional);
 
 	}
 
@@ -3243,5 +3243,24 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 	public MUI2Container initMUI2() {
 		return new MUI2ContainerX();
 	}
+@Override
+public int getGUIWidth() {
+	
+	return super.getGUIWidth();
+}
+@Override
+public int getGUIHeight() {
+
+	return super.getGUIHeight();
+}
+
+// No more slots after HV tier
+public int getOffsetX() {
+    return 0;
+}
+
+public int getOffsetY() {
+    return 0;
+}
 
 }

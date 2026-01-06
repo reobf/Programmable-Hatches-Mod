@@ -216,7 +216,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 	public boolean mMultiFluid;
 
 	public DualInputHatch(int id, String name, String nameRegional, int tier, boolean mMultiFluid, String... optional) {
-		this(id, name, nameRegional, tier, getSlots(tier) + 1, mMultiFluid, optional);
+		this(id, name, nameRegional, tier, ProghatchesUtil.getSlots(tier) + 1, mMultiFluid, optional);
 
 	}
 
@@ -858,7 +858,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			// for (int slot :
 			// this.getAccessibleSlotsFromSide(ForgeDirection.UNKNOWN.ordinal()))
 			// {
-			for (int slot : (Iterable<Integer>) () -> IntStream.range(0, getSlots(mTier)).iterator()) {
+			for (int slot : (Iterable<Integer>) () -> IntStream.range(0, ProghatchesUtil.getSlots(mTier)).iterator()) {
 				ItemStack is = getStackInSlot(slot);
 				if (is == null)
 					continue;
@@ -876,7 +876,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		DualInputHatch meta = this;
 		ArrayList<ItemStack> isa = new ArrayList<>();
 		int[] slots = (this).getAccessibleSlotsFromSide(ForgeDirection.UNKNOWN.ordinal());
-		for (int slot : (Iterable<Integer>) () -> IntStream.range(0, getSlots(mTier)).iterator()) {
+		for (int slot : (Iterable<Integer>) () -> IntStream.range(0, ProghatchesUtil.getSlots(mTier)).iterator()) {
 			ItemStack is = this.mInventory[slot];
 			if (is == null)
 				continue;
@@ -927,7 +927,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 	@Override
 	public int getCircuitSlot() {
-		return getSlots(slotTierOverride(mTier));
+		return ProghatchesUtil.getSlots(slotTierOverride(mTier));
 	}
 
 	@Override

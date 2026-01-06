@@ -114,6 +114,7 @@ import reobf.proghatches.item.ItemFakePattern;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
+import reobf.proghatches.util.ProghatchesUtil;
 
 public class PatternDualInputHatch extends BufferedDualInputHatch implements ICraftingProvider, IGridProxyable,
     ICustomNameObject, IInterfaceViewable, IPowerChannelState, IActionHost, IMultiplePatternPushable,ISpecialOptimize {
@@ -549,7 +550,7 @@ public int page() {
 
     }
 
-    private boolean postMEPatternChange() {
+     boolean postMEPatternChange() {
         // don't post until it's active
         if (!getProxy().isActive()) return false;
         try {
@@ -1292,7 +1293,7 @@ boolean allowopt;
 @Override
 public int getCircuitSlot() {
 	
-	return getSlots(slotTierOverride(mTier))*page();
+	return ProghatchesUtil.getSlots(slotTierOverride(mTier))*page();
 }
 
 	@Override
@@ -1661,14 +1662,17 @@ public int getCircuitSlot() {
 	        return builder.build();
 	    }
 
+		@SuppressWarnings("unchecked")
 		@Override
 		    public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-		        buildContext.addSyncedWindow(88, this::createPatternWindow);
+		       if(!disablePatternSlots()) buildContext.addSyncedWindow(88, this::createPatternWindow);
 
 		        builder.widget(createRefundButton(builder));
-		        ButtonWidget b;
-		        builder.widget(
-		            (b = new ButtonWidget()).setOnClick(
+		        ButtonWidget b=new ButtonWidget();
+		        
+		        if(!disablePatternSlots())
+		        	builder.widget(
+		            (b /*= new ButtonWidget()*/).setOnClick(
 		                (clickData, widget) -> {
 		                    if (widget.getContext()
 		                        .isClient() == false)
@@ -1691,7 +1695,7 @@ public int getCircuitSlot() {
 		            	if(e)return;
 		                init++;
 		                if (init == 2) {
-		                    b.syncToServer(1, Widget.ClickData.create(1, false)::writeToPacket);
+		                	if(!disablePatternSlots()) b.syncToServer(1, Widget.ClickData.create(1, false)::writeToPacket);
 		                }
 		            }
 		        }));
@@ -1727,5 +1731,5 @@ public int getCircuitSlot() {
 		return builder;
 	}}
 
-
+	public boolean disablePatternSlots(){return false;}
 }

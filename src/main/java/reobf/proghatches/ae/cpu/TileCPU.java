@@ -1016,7 +1016,7 @@ private void drop(IAEItemStack ss) {
 @Override
     protected IAlignmentLimits getInitialAlignmentLimits() {
        
-        return (d, r, f) -> d.offsetY == 0 && r.isNotRotated() && !f.isVerticallyFliped();
+	  return (d, r, f) -> true;//d.offsetY == 0 && r.isNotRotated() && !f.isVerticallyFliped();
     }
 
 

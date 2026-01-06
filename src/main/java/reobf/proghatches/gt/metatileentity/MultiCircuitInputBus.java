@@ -133,7 +133,7 @@ public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCirc
             name,
             nameRegional,
             tier,
-            getSlots(tier) + 4,
+            ProghatchesUtil.getSlots(tier) + 4,
             (optional.length > 0 ? optional
                 : reobf.proghatches.main.Config.get(
                     "MCIB",
@@ -153,7 +153,7 @@ public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCirc
     }
 
     public MultiCircuitInputBus(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures) {
-        super(mName, mTier, getSlots(mTier) + 4, mDescriptionArray, mTextures);
+        super(mName, mTier, ProghatchesUtil.getSlots(mTier) + 4, mDescriptionArray, mTextures);
     }
 
     @Override

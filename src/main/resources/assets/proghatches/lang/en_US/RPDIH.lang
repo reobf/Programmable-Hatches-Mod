@@ -1,0 +1,14 @@
+Item/Fluid Input for Multiblocks
+Contents are always separated with other bus/hatch
+Programming Cover function integrated
+Blocking mode is always on
+If all pattern inputs cannot be push in one single try, it won't be pushed at all.
+Right click with a Multiblock Controller/Singleblock Machine to auto-generate patterns.
+Screwdriver click to switch modes, if the Multiblock Controller supports multiple recipes.
+Link a Wireless Terminal to remove unwanted patterns.
+Buffer: {bufferNum}
+For each buffer:
+{slots} Slots
+Capacity: 2^63-1 L{mMultiFluid?} x{fluidSlots} types of fluid{mMultiFluid:}{mMultiFluid!}
+Slot maximum stacksize:2^63-1
+§eHas better performance working with large amount of Co-Processing Units.

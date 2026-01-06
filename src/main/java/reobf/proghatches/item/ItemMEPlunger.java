@@ -13,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -40,12 +41,14 @@ import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.enums.GTValues;
 import gregtech.api.enums.SoundResource;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntityItemPipe;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTEBasicTank;
 import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
+import gregtech.api.net.GTPacketSound;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.IDualInputInventory;
@@ -250,8 +253,8 @@ public class ItemMEPlunger extends DummySuper implements INetworkEncodable {
                             .intValue();
                     }
 
-                    GTUtility
-                        .sendSoundToPlayers(aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE, 1.0F, -1.0F, aX, aY, aZ);
+                    /*GTUtility
+                        .*/sendSoundToPlayers(aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE, 1.0F, -1.0F, aX, aY, aZ);
                 }
                 if (dual instanceof IRecipeProcessingAwareDualHatch) {
                     IRecipeProcessingAwareDualHatch d = (IRecipeProcessingAwareDualHatch) dual;
@@ -267,7 +270,16 @@ public class ItemMEPlunger extends DummySuper implements INetworkEncodable {
 
         return false;
     }
-
+    public static boolean sendSoundToPlayers(World aWorld, SoundResource sound, float aSoundStrength,
+            float aSoundModulation, double aX, double aY, double aZ) {
+            if (aWorld == null || aWorld.isRemote) return false;
+            GTValues.NW.sendPacketToAllPlayersInRange(
+                aWorld,
+                new GTPacketSound(sound.resourceLocation.toString(), aSoundStrength, aSoundModulation, aX, aY, aZ),
+                MathHelper.floor_double(aX),
+                MathHelper.floor_double(aZ));
+            return true;
+        }
     public boolean clearFluid(ItemStack aStack, EntityPlayer aPlayer, World aWorld, int aX, int aY, int aZ,
         ForgeDirection side) {
         if (aWorld.isRemote) {

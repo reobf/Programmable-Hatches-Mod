@@ -127,6 +127,7 @@ import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatchInventoryMappingSlave;
 import reobf.proghatches.gt.metatileentity.PatternHousing;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
+import reobf.proghatches.gt.metatileentity.RecipeFilterCRIB;
 import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.keybinding.KeyBindings;
 import reobf.proghatches.lang.LangManager;
@@ -524,6 +525,8 @@ public class MyMod {
             .register(TileFluidInterface_EU.class);*/
         InterfaceTerminalRegistry.instance()
             .register(PatternDualInputHatch.Inst.class);
+        InterfaceTerminalRegistry.instance()
+        .register(RecipeFilterCRIB.Inst2.class);       
         InterfaceTerminalRegistry.instance()
             .register(PatternDualInputHatchInventoryMappingSlave.class);
 
@@ -947,8 +950,10 @@ public class MyMod {
         @Override
         public void loadNBTData(NBTTagCompound compound0) {
             NBTTagCompound compound = compound0.getCompoundTag(GET_PROGHATCHBOOK);
+            if(compound!=null){
             get = compound.getBoolean(GET_PROGHATCHBOOK + "_get");
             alert_mask = compound.getInteger("alert_mask");
+            }
         }
 
         @Override

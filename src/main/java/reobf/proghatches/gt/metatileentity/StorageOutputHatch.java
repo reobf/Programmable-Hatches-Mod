@@ -282,7 +282,7 @@ public class StorageOutputHatch extends MTEHatchOutputME
                     return null;
                 }
                 AEFluidStack ret = (AEFluidStack) input.copy()
-                    .setStackSize(tryFillAE(input.getFluidStack()));
+                    .setStackSize(input.getStackSize()-tryFillAE(input.getFluidStack()));
                 if (ret.getStackSize() <= 0) ret = null;
                 return ret;
             }

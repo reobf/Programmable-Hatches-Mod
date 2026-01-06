@@ -317,7 +317,7 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 		                            t -> GTStructureUtility.<TileCPU>buildHatchAdder()
 		                                .atLeast(Energy, Maintenance, HatchElement.InputBus, HatchElement.OutputBus)
 		                                .casingIndex(CASING_INDEX)
-		                                .dot(1)
+		                               // .dot(1)
 		                                .build()),
 		                        onElementPass(
 		                        		TileCPU ::onCorrectCasingAdded,

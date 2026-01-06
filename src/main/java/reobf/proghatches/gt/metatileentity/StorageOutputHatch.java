@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.Unique;
 
 import com.glodblock.github.common.item.FCBaseItemCell;
 import com.glodblock.github.common.item.ItemFluidDrop;
-import com.glodblock.github.common.storage.IStorageFluidCell;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -204,7 +204,7 @@ public class StorageOutputHatch extends MTEHatchOutputME
 
     private long getCacheCapacity() {
         ItemStack upgradeFluidStack = mInventory[0];
-        if (upgradeFluidStack != null && upgradeFluidStack.getItem() instanceof IStorageFluidCell) {
+        if (upgradeFluidStack != null && upgradeFluidStack.getItem() instanceof FCBaseItemCell) {
             return ((FCBaseItemCell) upgradeFluidStack.getItem()).getBytes(upgradeFluidStack) * 2048;
         }
         return 128_000;

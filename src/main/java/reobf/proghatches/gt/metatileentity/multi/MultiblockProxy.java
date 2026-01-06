@@ -191,7 +191,7 @@ public class MultiblockProxy extends MTEEnhancedMultiBlockBase<MultiblockProxy>
                                          * Muffler
                                          */)
                         .casingIndex(getCasingTextureIndex())
-                        .dot(1)
+                        .hint(1)
                         .buildAndChain(
                             onElementPass(x -> {}/* ++x.mCasing */, ofBlock(getCasingBlock(), getCasingMeta()))))
 

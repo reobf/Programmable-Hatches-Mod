@@ -10,15 +10,17 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.glodblock.github.client.gui.GuiDualInterface;
-import com.glodblock.github.client.gui.container.ContainerDualInterface;
+//import com.glodblock.github.client.gui.GuiDualInterface;
+//import com.glodblock.github.client.gui.container.ContainerDualInterface;
 
 import appeng.api.AEApi;
 import appeng.api.implementations.IUpgradeableHost;
+import appeng.client.gui.implementations.GuiInterface;
 import appeng.client.gui.implementations.GuiPriority;
 import appeng.client.gui.implementations.GuiRenamer;
 import appeng.client.gui.widgets.GuiTabButton;
 import appeng.client.gui.widgets.ITooltip;
+import appeng.container.implementations.ContainerInterface;
 import appeng.container.implementations.ContainerPriority;
 import appeng.container.implementations.ContainerRenamer;
 import appeng.container.slot.AppEngSlot;
@@ -131,7 +133,7 @@ public class GuiHandler implements IDefaultGuiHandler {
             return null;
         }
 
-        return new ContainerDualInterface(player.inventory, host) {
+        return new ContainerInterface(player.inventory, host) {
 
             @Override
             protected Slot addSlotToContainer(Slot newSlot) {
@@ -160,7 +162,7 @@ public class GuiHandler implements IDefaultGuiHandler {
             if (host instanceof ICustomNameObject) return new GuiRenamer(player.inventory, (ICustomNameObject) host);
             return null;
         }
-        return new GuiDualInterface(player.inventory, host) {
+        return new GuiInterface(player.inventory, host) {
             /*
              * @Override
              * protected String getGuiDisplayName(String in) {

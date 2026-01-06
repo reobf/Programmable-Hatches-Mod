@@ -261,7 +261,8 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
                         .withCount(s -> s.hasHatchThisLayer ? 1 : 0))
                  //.shouldSkip((a,b)->a.hasBusThisLayer)
                 .casingIndex(CASING_INDEX)
-                .dot(1)
+                .hint(1)
+               // .hint(1)
                 .buildAndChain(GregTechAPI.sBlockCasings4, 0))
         .addElement(
             '※',
@@ -274,14 +275,14 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
                 .allowOnly(ForgeDirection.DOWN)
                 // .shouldSkip((a,b)->a.hasBusThisLayer)
                 .casingIndex(CASING_INDEX)
-                .dot(1)
+                .hint(1)
                 .buildAndChain(GregTechAPI.sBlockCasings4, 0))
 
         .addElement(
             'm',
             buildHatchAdder(IngredientDistributor.class).atLeast(HatchElement.Maintenance, HatchElement.Energy)
                 .casingIndex(CASING_INDEX)
-                .dot(3)
+                .hint(3)
                 .buildAndChain(
                     buildHatchAdder(IngredientDistributor.class).atLeast(new IHatchElement<IngredientDistributor>() {
 
@@ -326,7 +327,7 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
                             == Registration.CommunicationPortHatchOffset + Config.metaTileEntityOffset))
 
                         .casingIndex(CASING_INDEX)
-                        .dot(3)
+                        .hint(3)
                         .build(),
 
                     ofBlock(GregTechAPI.sBlockCasings4, 12)))
@@ -368,7 +369,7 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
 
                 )
                 .casingIndex(CASING_INDEX)
-                .dot(2)
+                .hint(2)
                 .build()
 
         )

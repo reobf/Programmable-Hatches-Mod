@@ -32,10 +32,10 @@ import reobf.proghatches.main.mixin.MixinCallback;
 @Mixin(value = GregTech5RecipeProcessor.class, remap = false, priority = 1)
 public class MixinPatternEncodingCiruitSpecialTreatment2 {
 
-    @Inject(
+   /* @Inject(
         method = "getRecipeInput",
 
-        at = @At(value = "INVOKE", target = "isEmpty()Z", shift = Shift.BEFORE),
+        at = @At(value = "INVOKE", target = "addAll(Ljava/util/Collection;)Z", shift = Shift.AFTER),
 
         require = 1,
         cancellable = false)
@@ -44,12 +44,12 @@ public class MixinPatternEncodingCiruitSpecialTreatment2 {
 
         @Local(name = "recipeInputs") LocalRef<List<PositionedStack>> inputs) {
 
-        if (GuiUtils.isFluidCraftPatternTermEx(Minecraft.getMinecraft().currentScreen)) {
+        //if (GuiUtils.isFluidCraftPatternTermEx(Minecraft.getMinecraft().currentScreen)) {
             System.out.println("abc");
             inputs.set(process(inputs.get()));
-        }
+       // }
 
-    }
+    }*/
 
     private static List process(List<PositionedStack> c) {
 c.stream().forEach(s->{

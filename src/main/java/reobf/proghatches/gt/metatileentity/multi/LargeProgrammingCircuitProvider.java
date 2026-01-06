@@ -340,7 +340,7 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
                 ofChain(
                     buildHatchAdder(LargeProgrammingCircuitProvider.class).atLeast(Energy, Maintenance)
                         .casingIndex(CASING_INDEX)
-                        .dot(1)
+                        .hint(1)
 
                         .build(),
                     // ofBlock(GregTechAPI.sBlockCasings4, 1),
@@ -353,7 +353,7 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
             .addElement('x', (IStructureElementChain<LargeProgrammingCircuitProvider>) () -> {
                 return buildHatchAdder(LargeProgrammingCircuitProvider.class).atLeast(providerTop)
                     .casingIndex(CASING_INDEX)
-                    .dot(2)
+                    .hint(2)
                     .buildAndChain(
                         acc,
                         ofBlock(
@@ -391,7 +391,7 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
                             t -> GTStructureUtility.<LargeProgrammingCircuitProvider>buildHatchAdder()
                                 .anyOf(providerSide)
                                 .casingIndex(CASING_INDEX)
-                                .dot(2)
+                                .hint(2)
                                 .build()),
                       
                         ofBlock(GregTechAPI.sBlockCasings4, 1)))

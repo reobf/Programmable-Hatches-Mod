@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -84,11 +85,15 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidStack;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch.Inst;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.ISpecialOptimize;
@@ -223,7 +228,7 @@ Deque<IAEItemStack> tonitify=new ArrayDeque<>();
 
 
 private void postChangeInner(StorageChannel c,IAEItemStack is){
-	
+	if(this.getBaseMetaTileEntity().getWorld().isRemote==false)
 	tonitify.push(is);
 	/*
 	 //cannot do it here...
@@ -316,42 +321,83 @@ private void postChangeInner(StorageChannel c,IAEItemStack is){
     	
     	return in;
     }
+    static private AEItemStack[] E=new AEItemStack[0];
     private ItemList assemble(RecipeMap<?> map){
 		ItemList all=new ItemList();
+		if(Platform.isClient())return all;
     	for(GTRecipe xx:map.getAllRecipes()){
     		if(xx.mEUt>eutFilter){continue;}
 		 ItemStack patternStack = new ItemStack(ItemAndBlockHolder.PATTERN);
-         FluidPatternDetails pattern = new FluidPatternDetails(patternStack);
+         //FluidPatternDetails pattern = new FluidPatternDetails(patternStack);
          
-         Stream<IAEItemStack> inputs = Stream.concat(
+        /* Stream<IAEItemStack> inputs = Stream.concat(
          Arrays.stream(xx.mInputs).filter(Objects::nonNull).map(AEItemStack::create).map(RecipeFilterCRIB::zeroToCircuit),
-         Arrays.stream(xx.mFluidInputs).filter(Objects::nonNull).map(s->ItemFluidDrop.newAeStack(s)));
-         boolean inok=pattern.setInputs(inputs.toArray(IAEItemStack[]::new));
-         //xxmChances
-         int[] index=new int[1];
-         Stream<IAEItemStack> outputs = Stream.concat(
-         Arrays.stream(xx.mOutputs).filter(s->xx.mChances==null||xx.mChances[index[0]++]>=10000).filter(Objects::nonNull).map(AEItemStack::create),
-         Arrays.stream(xx.mFluidOutputs).filter(Objects::nonNull).map(s->ItemFluidDrop.newAeStack(s)));
-         boolean outok=pattern.setOutputs(outputs.toArray(IAEItemStack[]::new));         
-         if(inok==false){
-        	 
-        	 pattern.setInputs(new AEItemStack[]{AEItemStack.create(new ItemStack(Items.paper).setStackDisplayName("No inputs"))});
-         }
-         if(outok==false){
-        	 
-        	 pattern.setOutputs(new AEItemStack[]{AEItemStack.create(new ItemStack(Items.paper).setStackDisplayName("No outputs"))});
-         }
-         
-         
-        // pattern.setCanBeSubstitute(beSubstitute);
+         Arrays.stream(xx.mFluidInputs).filter(Objects::nonNull).map(s->ItemFluidDrop.newAeStack(s)));*/
+         List<IAEItemStack> inputsList = new ArrayList<>();
+       
+		for (ItemStack input : xx.mInputs) {
+        	    if (input != null) {
+        	        AEItemStack aeStack = AEItemStack.create(input);
+        	        IAEItemStack processedStack = RecipeFilterCRIB.zeroToCircuit(aeStack);
+        	        inputsList.add(processedStack);
+        	    }
+        	}
+		for (FluidStack fluidInput : xx.mFluidInputs) {
+        	    if (fluidInput != null) {
+        	        IAEItemStack fluidStack = ItemFluidDrop.newAeStack(fluidInput);
+        	        inputsList.add(fluidStack);
+        	    }
+        	}
 
-         patternStack= pattern.writeToStack();
+         
+         List<IAEItemStack> outputsList = new ArrayList<>();
+         int index = 0;
+
+     
+         for (ItemStack output : xx.mOutputs) {
+           
+             boolean condition = xx.mChances == null || (index < xx.mChances.length && xx.mChances[index] >= 10000);
+             if (condition && output != null) {
+                 IAEItemStack aeStack = AEItemStack.create(output);
+                 outputsList.add(aeStack);
+             }
+             index++;
+         }
+
+       
+         for (FluidStack fluidOutput : xx.mFluidOutputs) {
+             if (fluidOutput != null) {
+                 IAEItemStack fluidStack = ItemFluidDrop.newAeStack(fluidOutput);
+                 outputsList.add(fluidStack);
+             }
+         }
+         
+         
+        
+         if(inputsList.isEmpty())inputsList.add(AEItemStack.create(new ItemStack(Items.paper).setStackDisplayName("No inputs")));
+         if(outputsList.isEmpty())outputsList.add(AEItemStack.create(new ItemStack(Items.paper).setStackDisplayName("No outputs")));
+         
+         
+         
+     
+         NBTTagCompound tag = new NBTTagCompound();
+         NBTTagList tag2;
+         tag.setTag("Inputs", tag2=FluidPatternDetails.writeStackArray(inputsList.toArray(E)));
+         tag.setTag("in", tag2.copy());
+        
+         tag.setTag("Outputs", tag2=FluidPatternDetails.writeStackArray(outputsList.toArray(E)));
+         tag.setTag("out",tag2.copy());
+         tag.setInteger("combine", 0);
+         tag.setBoolean("beSubstitute",false);
+        
+         patternStack.setTagCompound(tag);
+   
          
          
          all.add(AEItemStack.create(patternStack));
          
 		}
-    	return all;//.toArray(new ItemStack[all.size()] );
+    	return all;
     }
     
     @Override
@@ -369,7 +415,9 @@ private void postChangeInner(StorageChannel c,IAEItemStack is){
     		ItemStack aTool) {
     	
     	recipeIndex++;
-    	updaterFilter();
+    	/*updaterFilter();
+    	
+    	
     	if(modeHint!=null){
     		aPlayer.addChatMessage(new ChatComponentText("Generated recipes: "+this.genPatternsDetails.length));
 			aPlayer.addChatMessage(new ChatComponentTranslation(modeHint,new ChatComponentTranslation(modeHintLangKey)));
@@ -378,7 +426,67 @@ private void postChangeInner(StorageChannel c,IAEItemStack is){
 			aPlayer.addChatMessage(new ChatComponentText("No recipe."));
 			
 		}
+    	*/
+     
+
+    	b:{
+    		List<RecipeMap<?>> get = getItemStackMachineRecipeMap(filter);
+    		if(stage>0){
+    			aPlayer.addChatMessage(new ChatComponentText("Still generating!"));
+    			break b;
+    		}
+    		
+    		
+    		recipeIndex=recipeIndex%get.size();
+    		modeHint=null;
+    		if(get.size()>1){
+    			modeHint="Machine modes ("+(recipeIndex+1)+"/"+get.size()+"): "+"%s";
+    			modeHintLangKey=get.get(recipeIndex).unlocalizedName;
+    		}
+    		if(getBaseMetaTileEntity().getWorld().isRemote==false)
+    	regJob(get.get(recipeIndex));
+    	return ;
+    	}
+    	
+    	
+    	
+    	
     }
+
+    public static long mean(long[] values, int currentTick, int recentCount) {
+        long sum = 0L;
+        int count = 0;
+        
+     
+        for (int i = 0; i < recentCount; i++) {
+       
+            int index = (currentTick - i - 1) % values.length;
+            if (index < 0) {
+                index += values.length;
+            }
+            
+           
+            if (index >= 0 && index < values.length && values[index] > 0) {
+                sum += values[index];
+                count++;
+            }
+        }
+        
+        return count > 0 ? sum / count : 0;
+    }
+    public static double getWorldTickTimeAll() {
+    	double sum=0;
+    	try{
+    	for(int i:MinecraftServer.getServer().worldTickTimes.keySet())
+    	sum+=mean(MinecraftServer.getServer().worldTickTimes.get(i),MinecraftServer.getServer(). getTickCounter()-1,10)
+                * 1.0E-9D;}catch(Exception e){}
+    	
+    	return sum;
+    	
+    	
+    }
+    
+    
     @Override
     public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer, ForgeDirection side,
     		float aX, float aY, float aZ) {
@@ -411,9 +519,31 @@ private void postChangeInner(StorageChannel c,IAEItemStack is){
     	
     	
     	
-    	
-    	
-    	
+    	ItemStack old = filter;
+    	filter=aPlayer.getHeldItem();
+    	if(filter!=null)filter=filter.copy();
+    	b:{
+    		if(filter==null){break b;}
+    		List<RecipeMap<?>> get = getItemStackMachineRecipeMap(filter);
+    		if(get.size()==0){break b;}
+    		if(stage>0){
+    			aPlayer.addChatMessage(new ChatComponentText("Still generating!"));
+    			break b;
+    		}
+    		
+    		
+    		recipeIndex=recipeIndex%get.size();
+    		modeHint=null;
+    		if(get.size()>1){
+    			modeHint="Machine modes ("+(recipeIndex+1)+"/"+get.size()+"): "+"%s";
+    			modeHintLangKey=get.get(recipeIndex).unlocalizedName;
+    		}
+    		if(getBaseMetaTileEntity().getWorld().isRemote==false)
+    	regJob(get.get(recipeIndex));
+    	return true;
+    	}
+    	filter=old;
+    	/*
      	ItemStack old = filter;
     	filter=aPlayer.getHeldItem();
     	if(filter!=null)filter=filter.copy();
@@ -430,11 +560,176 @@ private void postChangeInner(StorageChannel c,IAEItemStack is){
     		
     		}return true;
     	}
-    	
     	filter=old;
+    	
+    	*/
+    	
+    	
+    	
     	return super.onRightclick(aBaseMetaTileEntity, aPlayer, side, aX, aY, aZ);
     }
+    //0 idle
+    //1 genitem
+    //2 genpat
+    //3 finish
+    int stage=0; 
+    int progress;
+    Iterator<GTRecipe> todo;
+    ArrayList<AEItemStack> pitem;
+    ArrayList<ICraftingPatternDetails> pd;
+    public void step(){
+    	if(stage==0)return;
+    	if(stage==3){
+    		 EntityPlayer aPlayer = getBaseMetaTileEntity().getWorld().getClosestPlayer(
+    				getBaseMetaTileEntity().getXCoord(), getBaseMetaTileEntity().getYCoord(), getBaseMetaTileEntity().getZCoord(), 100);
+    		
     
+    		
+    		for(IAEItemStack get:genPatterns){
+    			IAEItemStack cp = get.copy();
+    			cp.setStackSize(-cp.getStackSize());
+    			postChangeInner(StorageChannel.ITEMS,cp);
+    		}
+    		genPatterns=new ItemList();
+    		for(AEItemStack item:pitem){genPatterns.add(item);};
+    		genPatternsDetails= pd.toArray(new ICraftingPatternDetails[0]);;
+    		
+    		for(IAEItemStack getx:genPatterns){
+    			IAEItemStack cp = getx.copy();
+    			postChangeInner(StorageChannel.ITEMS,cp);
+    		}
+    		 postMEPatternChange();
+    		 if(aPlayer!=null && aPlayer.getEntityWorld().isRemote==false){
+         		aPlayer.addChatMessage(new ChatComponentText("Recipe updated."));
+         		aPlayer.addChatMessage(new ChatComponentText("Generated recipes: "+this.genPatternsDetails.length));
+         		if(modeHint!=null){
+         			aPlayer.addChatMessage(new ChatComponentTranslation(modeHint,new ChatComponentTranslation(modeHintLangKey)));
+         			aPlayer.addChatMessage(new ChatComponentText("Use a screw driver to switch modes."));
+         	}
+     		 }
+         		
+    		stage=0;
+    		pitem=null;
+    		pd=null;
+    		
+    	}
+    	if(stage==2){
+    		
+    		int to=updatesPerTick();
+    		while(to>0){
+    			to--;
+    			if(progress>=pitem.size()){
+    				
+    				stage=3;
+    				return;
+    			}
+    			AEItemStack p = pitem.get(progress++);
+    			pd.add(((ICraftingPatternItem)p.getItem()).getPatternForItem(p.getItemStack(), this.getBaseMetaTileEntity().getWorld()));
+        	}
+    		
+    		/*for(IAEItemStack p:pitem){}
+    		genPatternsDetails=new ICraftingPatternDetails[genPatterns.size()];
+    		int i=0;
+    		for(IAEItemStack p:genPatterns){
+    			
+    			genPatternsDetails[i++]=((ICraftingPatternItem)p.getItem()).getPatternForItem(p.getItemStack(), this.getBaseMetaTileEntity().getWorld());
+    	}*/
+    		
+    		
+    	}
+    	if(stage==1){
+    		int to=updatesPerTick();
+    		while(to>0){
+    			if(todo.hasNext()==false){stage=2;todo=null;return;}
+    		GTRecipe xx = todo.next();
+    		if(xx.mEUt>eutFilter){continue;}
+    		to--;
+    		
+   		 ItemStack patternStack = new ItemStack(ItemAndBlockHolder.PATTERN);
+
+            List<IAEItemStack> inputsList = new ArrayList<>();
+          
+   		for (ItemStack input : xx.mInputs) {
+           	    if (input != null) {
+           	        AEItemStack aeStack = AEItemStack.create(input);
+           	        IAEItemStack processedStack = RecipeFilterCRIB.zeroToCircuit(aeStack);
+           	        inputsList.add(processedStack);
+           	    }
+           	}
+   		for (FluidStack fluidInput : xx.mFluidInputs) {
+           	    if (fluidInput != null) {
+           	        IAEItemStack fluidStack = ItemFluidDrop.newAeStack(fluidInput);
+           	        inputsList.add(fluidStack);
+           	    }
+           	}
+
+            
+            List<IAEItemStack> outputsList = new ArrayList<>();
+            int index = 0;
+
+        
+            for (ItemStack output : xx.mOutputs) {
+              
+                boolean condition = xx.mChances == null || (index < xx.mChances.length && xx.mChances[index] >= 10000);
+                if (condition && output != null) {
+                    IAEItemStack aeStack = AEItemStack.create(output);
+                    outputsList.add(aeStack);
+                }
+                index++;
+            }
+
+          
+            for (FluidStack fluidOutput : xx.mFluidOutputs) {
+                if (fluidOutput != null) {
+                    IAEItemStack fluidStack = ItemFluidDrop.newAeStack(fluidOutput);
+                    outputsList.add(fluidStack);
+                }
+            }
+            
+            
+           
+            if(inputsList.isEmpty())inputsList.add(AEItemStack.create(new ItemStack(Items.paper).setStackDisplayName("No inputs")));
+            if(outputsList.isEmpty())outputsList.add(AEItemStack.create(new ItemStack(Items.paper).setStackDisplayName("No outputs")));
+            
+            
+            
+        
+            NBTTagCompound tag = new NBTTagCompound();
+            NBTTagList tag2;
+            tag.setTag("Inputs", tag2=FluidPatternDetails.writeStackArray(inputsList.toArray(E)));
+            tag.setTag("in", tag2.copy());
+           
+            tag.setTag("Outputs", tag2=FluidPatternDetails.writeStackArray(outputsList.toArray(E)));
+            tag.setTag("out",tag2.copy());
+            tag.setInteger("combine", 0);
+            tag.setBoolean("beSubstitute",false);
+           
+            patternStack.setTagCompound(tag);
+      
+            
+            
+            pitem.add(AEItemStack.create(patternStack));
+    		
+    	}
+    	}
+    	
+    	
+    	
+    }
+    private int updatesPerTick() {
+    	int maxUpdates = 100;
+    	   double get = getWorldTickTimeAll();
+    	    if (get < 0.050) return  maxUpdates;  
+    	    if (get < 0.100) return (int) (maxUpdates - (get - 0.050) / 0.050 * (maxUpdates - 10));
+    	    return 10;
+	}
+	public void regJob(RecipeMap re){
+    	progress=0;
+    	stage=1;
+    	todo=re.getAllRecipes().iterator();
+    	pitem=new ArrayList<>();
+    	pd=new ArrayList<>();
+    }
     @Override
     public AENetworkProxy getProxy() {
     	
@@ -450,8 +745,10 @@ private void postChangeInner(StorageChannel c,IAEItemStack is){
 		e.printStackTrace();
 		}*/
     		
+    	}//System.out.println(getWorldTickTimeAll());
+    	if(getBaseMetaTileEntity().getWorld().isRemote==false){
+    		step();
     	}
-    	
     	while(tonitify.isEmpty()==false){
     		try {
     			fakeNode.getProxy()

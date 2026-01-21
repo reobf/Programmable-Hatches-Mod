@@ -99,7 +99,7 @@ public class NBTHatchMEFocus extends MTEBusInputFocus implements ICellContainer,
             if (input == null) {
                 return input;
             }
-            if (!isItemValidForUsageSlot(input.getItemStack())) {
+            if (!isItemValidForInputSlot(input.getItemStack())) {
                 return input;
             }
 
@@ -394,7 +394,7 @@ public class NBTHatchMEFocus extends MTEBusInputFocus implements ICellContainer,
                 needToSort = true;
             }
         }
-        if (needToSort) fillStacksIntoFirstSlots();
+        if (needToSort) updateSlots();// fillStacksIntoFirstSlots();
 
     }
 

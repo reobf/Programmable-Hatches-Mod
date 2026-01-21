@@ -144,7 +144,7 @@ public class ProgrammingCircuitProviderPrefabricated extends MTEHatch implements
                 Shape_Extruder_Hammer, Shape_Extruder_File, Shape_Extruder_Saw, Shape_Extruder_Gear,
                 Shape_Extruder_Rotor, Shape_Extruder_Turbine_Blade, Shape_Extruder_Small_Gear,
                 Shape_Extruder_ToolHeadDrill, },
-            { White_Dwarf_Shape_Extruder_Bottle, White_Dwarf_Shape_Extruder_Plate, White_Dwarf_Shape_Extruder_Cell,
+            { /*White_Dwarf_Shape_Extruder_Bottle, White_Dwarf_Shape_Extruder_Plate, White_Dwarf_Shape_Extruder_Cell,
                 White_Dwarf_Shape_Extruder_Ring, White_Dwarf_Shape_Extruder_Rod, White_Dwarf_Shape_Extruder_Bolt,
                 White_Dwarf_Shape_Extruder_Ingot, White_Dwarf_Shape_Extruder_Wire, White_Dwarf_Shape_Extruder_Casing,
                 White_Dwarf_Shape_Extruder_Pipe_Tiny, White_Dwarf_Shape_Extruder_Pipe_Small,
@@ -154,7 +154,7 @@ public class ProgrammingCircuitProviderPrefabricated extends MTEHatch implements
                 White_Dwarf_Shape_Extruder_Axe, White_Dwarf_Shape_Extruder_Hoe, White_Dwarf_Shape_Extruder_Hammer,
                 White_Dwarf_Shape_Extruder_File, White_Dwarf_Shape_Extruder_Saw, White_Dwarf_Shape_Extruder_Gear,
                 White_Dwarf_Shape_Extruder_Rotor, White_Dwarf_Shape_Extruder_Turbine_Blade,
-                White_Dwarf_Shape_Extruder_Small_Gear, White_Dwarf_Shape_Extruder_ToolHeadDrill } };
+                White_Dwarf_Shape_Extruder_Small_Gear, White_Dwarf_Shape_Extruder_ToolHeadDrill  */}};
 
         int i = 1;
         for (ItemList[] t : all) {

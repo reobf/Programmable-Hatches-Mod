@@ -225,7 +225,7 @@ public static boolean loaded;
             }
             retLate.add("part2.MixinGTCopiedBlockTextureRender");
         } ; 
-        retLate.add("part2.MixinFixSolidfier");
+        //retLate.add("part2.MixinFixSolidfier");
         retLate.add("part2.MixinOptimize");
         retLate.add("part2.MixinProcessLogicReset");
         retLate.add("cpu.MixinCache");

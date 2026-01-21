@@ -81,9 +81,9 @@ public class CommunicationPortHatch extends MTEHatch {
 
     }
 
-    @Override
-    public void initDefaultModes(NBTTagCompound aNBT) {
-        for (ForgeDirection s : ForgeDirection.values()) this.getBaseMetaTileEntity()
+										    @Override
+										    public void initDefaultModes(NBTTagCompound aNBT) {
+										        for (ForgeDirection s : ForgeDirection.values()) this.getBaseMetaTileEntity()
             .setInternalOutputRedstoneSignal(s, (byte) 0);
     }
 

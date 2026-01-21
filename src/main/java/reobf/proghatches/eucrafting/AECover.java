@@ -53,7 +53,8 @@ import gregtech.api.gui.modularui.GTUIInfos;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.common.covers.Cover;
-import gregtech.crossmod.waila.GregtechWailaDataProvider;
+import gregtech.crossmod.waila.GregtechTEWailaDataProvider;
+//import gregtech.crossmod.waila.GregtechWailaDataProvider;
 import io.netty.buffer.ByteBuf;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
@@ -226,7 +227,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
         }
     }
 
-    static int h0 = GregtechWailaDataProvider.class.getName()
+    static int h0 = GregtechTEWailaDataProvider.class.getName()
         .hashCode();
 
     public static interface Data extends ISer, IGridProxyable {
@@ -258,11 +259,11 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
                     return getNBTData;
                 } else {
                     String s = StackTraceUtil.getCallerMethod(6);
-                    if (s.hashCode() == h0 && s.equals(GregtechWailaDataProvider.class.getName())) {
+                    if (s.hashCode() == h0 && s.equals(GregtechTEWailaDataProvider.class.getName())) {
                         return true;
                     }
                     s = StackTraceUtil.getCallerMethod(5);
-                    if (s.hashCode() == h0 && s.equals(GregtechWailaDataProvider.class.getName())) {
+                    if (s.hashCode() == h0 && s.equals(GregtechTEWailaDataProvider.class.getName())) {
                         return true;
                     }
                 }
@@ -595,7 +596,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
                 }
             } else {
                 String s = StackTraceUtil.getCallerMethod(6);
-                if (s.hashCode() == h0 && s.equals(GregtechWailaDataProvider.class.getName())) {
+                if (s.hashCode() == h0 && s.equals(GregtechTEWailaDataProvider.class.getName())) {
 
                     // do not actually load cover data on client side
                     // or there'll be some performance issue

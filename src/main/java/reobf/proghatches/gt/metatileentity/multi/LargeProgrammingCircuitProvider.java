@@ -1499,5 +1499,9 @@ int off=0;
 
         return chip;
     }
+@Override
+protected boolean useMui2() {
+	return false;
+}
 
 }

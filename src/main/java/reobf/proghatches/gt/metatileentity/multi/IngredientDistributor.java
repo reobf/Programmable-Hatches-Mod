@@ -1745,4 +1745,8 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
         this.mEUt = (int) calculator.getConsumption();
         this.mMaxProgresstime = calculator.getDuration();
     }
+    @Override
+    protected boolean useMui2() {
+    	return false;
+    }
 }

@@ -479,7 +479,10 @@ public class MAConduit extends AbstractConduit implements ICraftingMachineCondui
                 } else {
                     render = false;
                 }
-                if (getOffset == null) for (Method m : ((Object) te).getClass()
+                Object tee=te;
+                // The type mekanism.api.gas.IGasHandler cannot be resolved. 
+                // It is indirectly referenced from required type crazypants.enderio.conduit.IConduitBundle
+                if (getOffset == null) for (Method m :tee.getClass()
                     .getMethods()) {
                         if (m.getName()
                             .equals("getOffset")) {

@@ -10,7 +10,7 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import reobf.proghatches.gt.metatileentity.util.ListeningFluidTank;
-
+@DualInputHatch.MUI2Compat
 public class SuperfluidHatch extends BufferedDualInputHatch {
 
     public SuperfluidHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,

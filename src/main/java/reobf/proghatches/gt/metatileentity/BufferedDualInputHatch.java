@@ -3179,7 +3179,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 			ScrollWidget<?> list = new ScrollWidget<>(new VerticalScrollData()).size(18)/*.keepScrollBarInArea(true)*/;
 			list.getScrollArea().getScrollY().setScrollSize(18 * inv0.get(ind).mStoredFluidInternal.length/fluidSlotsPerRow());
 			list.size(18 * fluidSlotsPerRow(), 18 * Math.min(4, inv0.get(ind).mStoredFluidInternal.length/fluidSlotsPerRow()));
-			list.pos(3+18*4, 3);
+			list.pos(3+18*4-(fluidSlotsPerRow()-1)*18, 3);
 			
 			
 			for (int i = 0; i < inv0.get(ind).mStoredFluidInternal.length; i++) {

@@ -184,14 +184,14 @@ public class MultiblockProxy extends MTEEnhancedMultiBlockBase<MultiblockProxy>
                 .addElement(
                     'b', // ,ofBlock(getCasingBlock(),
                          // getCasingMeta())
-                    buildHatchAdder(MultiblockProxy.class)// .atLeast()
+                    Util.hint( buildHatchAdder(MultiblockProxy.class)// .atLeast()
                         .atLeast(Housing/*
                                          * InputBus, OutputBus,
                                          * Maintenance, Energy,
                                          * Muffler
                                          */)
                         .casingIndex(getCasingTextureIndex())
-                        .hint(1)
+                        ,1)
                         .buildAndChain(
                             onElementPass(x -> {}/* ++x.mCasing */, ofBlock(getCasingBlock(), getCasingMeta()))))
 

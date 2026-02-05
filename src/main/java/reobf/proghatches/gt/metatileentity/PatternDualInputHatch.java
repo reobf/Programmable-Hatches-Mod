@@ -130,10 +130,10 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
 
         }
     
-  
+   
     @Override
     public int page() {
-    	
+  
     	return 1;
     }
     @Override

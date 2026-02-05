@@ -19,7 +19,17 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.eucrafting.AECover;
 
-@Mixin(value = GregtechTEWailaDataProvider.class, remap = false)
+@Mixin(
+		
+		
+		//value = GregtechTEWailaDataProvider.class
+targets={
+		"gregtech.crossmod.waila.GregtechTEWailaDataProvider",
+		"gregtech.crossmod.waila.GregtechWailaDataProvider"//喜欢改名字?
+		
+}
+
+, remap = false)
 public class MixinIsWailaCall {
 
     static {

@@ -337,10 +337,10 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
             .addShape(STRUCTURE_PIECE_TOP_HINT, /* transpose */(new String[][] { { "lll", "lhl", "lll" }, }))
             .addElement(
                 'b',
-                ofChain(
+                ofChain(Util.hint(
                     buildHatchAdder(LargeProgrammingCircuitProvider.class).atLeast(Energy, Maintenance)
                         .casingIndex(CASING_INDEX)
-                        .hint(1)
+                        ,1)
 
                         .build(),
                     // ofBlock(GregTechAPI.sBlockCasings4, 1),
@@ -351,9 +351,12 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
             )
             .addElement('l', ofBlock(GregTechAPI.sBlockCasings4, 1))
             .addElement('x', (IStructureElementChain<LargeProgrammingCircuitProvider>) () -> {
-                return buildHatchAdder(LargeProgrammingCircuitProvider.class).atLeast(providerTop)
+                return Util.hint(buildHatchAdder(
+                		
+                		
+                		LargeProgrammingCircuitProvider.class).atLeast(providerTop)
                     .casingIndex(CASING_INDEX)
-                    .hint(2)
+                    ,2)
                     .buildAndChain(
                         acc,
                         ofBlock(
@@ -388,10 +391,10 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
                 
                 ofChain(
                         lazy(
-                            t -> GTStructureUtility.<LargeProgrammingCircuitProvider>buildHatchAdder()
+                            t -> Util.hint(GTStructureUtility.<LargeProgrammingCircuitProvider>buildHatchAdder()
                                 .anyOf(providerSide)
                                 .casingIndex(CASING_INDEX)
-                                .hint(2)
+                                ,2)
                                 .build()),
                       
                         ofBlock(GregTechAPI.sBlockCasings4, 1)))

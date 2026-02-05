@@ -227,7 +227,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
         }
     }
 
-    static int h0 = GregtechTEWailaDataProvider.class.getName()
+    static int h0 = getProviderClass().getName()
         .hashCode();
 
     public static interface Data extends ISer, IGridProxyable {
@@ -259,11 +259,11 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
                     return getNBTData;
                 } else {
                     String s = StackTraceUtil.getCallerMethod(6);
-                    if (s.hashCode() == h0 && s.equals(GregtechTEWailaDataProvider.class.getName())) {
+                    if (s.hashCode() == h0 && s.equals(getProviderClass().getName())) {
                         return true;
                     }
                     s = StackTraceUtil.getCallerMethod(5);
-                    if (s.hashCode() == h0 && s.equals(GregtechTEWailaDataProvider.class.getName())) {
+                    if (s.hashCode() == h0 && s.equals(getProviderClass().getName())) {
                         return true;
                     }
                 }
@@ -596,7 +596,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
                 }
             } else {
                 String s = StackTraceUtil.getCallerMethod(6);
-                if (s.hashCode() == h0 && s.equals(GregtechTEWailaDataProvider.class.getName())) {
+                if (s.hashCode() == h0 && s.equals(getProviderClass().getName())) {
 
                     // do not actually load cover data on client side
                     // or there'll be some performance issue
@@ -989,5 +989,23 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
         }
         return null;
     }
-
+    
+    
+    private static Class theClass;
+    public static Class getProviderClass() {
+    if(theClass==null) {
+		    	try {
+		    	theClass=Class.forName("gregtech.crossmod.waila.GregtechWailaDataProvider");
+			} catch (ClassNotFoundException e) {}
+		    
+		    try {
+			theClass=Class.forName("gregtech.crossmod.waila.GregtechTEWailaDataProvider");
+			} catch (ClassNotFoundException e) {}
+    }
+    
+    if(theClass==null)throw new AssertionError("null");
+	return theClass;
+    	
+    	
+    }
 }

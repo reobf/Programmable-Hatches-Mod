@@ -3511,5 +3511,24 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
         }
 
     }
+	
+	@Override
+	public int getGUIWidth() {
+		
+		return super.getGUIWidth();
+	}
+	@Override
+	public int getGUIHeight() {
 
+		return super.getGUIHeight();
+	}
+
+	// No more slots after HV tier
+	public int getOffsetX() {
+	    return 0;
+	}
+
+	public int getOffsetY() {
+	    return 0;
+	}
 }

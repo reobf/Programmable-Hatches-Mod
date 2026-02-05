@@ -253,6 +253,8 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
             ))
         .addElement(
             'h',
+            
+            Util.hint(
             buildHatchAdder(IngredientDistributor.class)
                 .atLeast(
                     HatchElement.OutputBus.withAdder(IngredientDistributor::addBus)
@@ -261,11 +263,11 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
                         .withCount(s -> s.hasHatchThisLayer ? 1 : 0))
                  //.shouldSkip((a,b)->a.hasBusThisLayer)
                 .casingIndex(CASING_INDEX)
-                .hint(1)
+                ,1)
                // .hint(1)
                 .buildAndChain(GregTechAPI.sBlockCasings4, 0))
         .addElement(
-            '※',
+            '※', Util.hint(
             buildHatchAdder(IngredientDistributor.class)
                 .atLeast(
                     HatchElement.OutputBus.withAdder(IngredientDistributor::addBus)
@@ -275,15 +277,16 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
                 .allowOnly(ForgeDirection.DOWN)
                 // .shouldSkip((a,b)->a.hasBusThisLayer)
                 .casingIndex(CASING_INDEX)
-                .hint(1)
+                ,1)
                 .buildAndChain(GregTechAPI.sBlockCasings4, 0))
 
         .addElement(
-            'm',
+            'm', Util.hint(
             buildHatchAdder(IngredientDistributor.class).atLeast(HatchElement.Maintenance, HatchElement.Energy)
                 .casingIndex(CASING_INDEX)
-                .hint(3)
+                ,3)
                 .buildAndChain(
+                		Util.hint(
                     buildHatchAdder(IngredientDistributor.class).atLeast(new IHatchElement<IngredientDistributor>() {
 
                         @Override
@@ -327,13 +330,15 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
                             == Registration.CommunicationPortHatchOffset + Config.metaTileEntityOffset))
 
                         .casingIndex(CASING_INDEX)
-                        .hint(3)
+                        ,3)
                         .build(),
 
-                    ofBlock(GregTechAPI.sBlockCasings4, 12)))
+                    ofBlock(GregTechAPI.sBlockCasings4, 12)
+                    )
+                )
 
         .addElement(
-            '◎',
+            '◎',Util.hint(
             buildHatchAdder(IngredientDistributor.class)
 
                 .atLeast(
@@ -369,7 +374,7 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
 
                 )
                 .casingIndex(CASING_INDEX)
-                .hint(2)
+                ,2)
                 .build()
 
         )

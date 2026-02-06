@@ -100,7 +100,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
     @Shadow
     private MachineSource machineSrc;
     @Shadow
-    private IItemList<IAEItemStack> waitingFor;
+    private   IItemList<IAEStack<?>> waitingFor ;
 
     @Shadow
     private void postChange(final IAEStack ais, final BaseActionSource src) {};
@@ -207,7 +207,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
                 MixinCallback.setter.accept(e.getValue(), num - used);
 
                 if (used > 0) {
-                    for (IAEItemStack out : detail.getCondensedOutputs()) {
+                    for (IAEStack<?> out : detail.getCondensedAEOutputs()) {
                         out = out.copy()
                             .setStackSize(used * out.getStackSize());
                         this.postChange(out, this.machineSrc);
@@ -326,7 +326,7 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
                 }
                 if (medium.pushPattern(detail, ic)) {
                     MixinCallback.setter.accept(e.getValue(), MixinCallback.getter.apply(e.getValue()) - 1);
-                    for (IAEItemStack out : detail.getCondensedOutputs()) {
+                    for (IAEStack<?> out : detail.getCondensedAEOutputs()) {
 
                         this.postChange(out, this.machineSrc);
                         this.waitingFor.add(out.copy());

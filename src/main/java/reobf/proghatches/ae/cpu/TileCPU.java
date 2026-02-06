@@ -106,6 +106,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.ForgeEventFactory;
 import reobf.proghatches.gt.metatileentity.multi.IngredientDistributor;
 import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
+import reobf.proghatches.gt.metatileentity.multi.Util;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
@@ -314,10 +315,11 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 		                    'b',
 		                    ofChain(
 		                        lazy(
-		                            t -> GTStructureUtility.<TileCPU>buildHatchAdder()
+		                            t -> Util.hint(
+		                            GTStructureUtility.<TileCPU>buildHatchAdder()
 		                                .atLeast(Energy, Maintenance, HatchElement.InputBus, HatchElement.OutputBus)
 		                                .casingIndex(CASING_INDEX)
-		                               // .dot(1)
+		                               ,1)
 		                                .build()),
 		                        onElementPass(
 		                        		TileCPU ::onCorrectCasingAdded,

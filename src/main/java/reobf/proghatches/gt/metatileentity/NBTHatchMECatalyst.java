@@ -1,5 +1,7 @@
 package reobf.proghatches.gt.metatileentity;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -86,6 +88,21 @@ public class NBTHatchMECatalyst extends MTEHatchCatalysts implements ICellContai
 
     IMEInventoryHandler<AEItemStack> handler = new MEInventoryHandler(new UnlimitedWrapper(), StorageChannel.ITEMS);
 
+    
+    
+    public Method m;
+    {
+    	
+    	try {
+			m=this.getClass().getMethod("isItemValidForUsageSlot", ItemStack.class);
+		} catch (Exception e) {
+		}
+    	
+      	try {
+			m=this.getClass().getMethod("isItemValidForInputSlot", ItemStack.class);
+		} catch (Exception e) {
+		}
+    }
     public class UnlimitedWrapper implements IMEInventory<IAEItemStack> {
 
         public UnlimitedWrapper() {
@@ -99,9 +116,13 @@ public class NBTHatchMECatalyst extends MTEHatchCatalysts implements ICellContai
             if (input == null) {
                 return input;
             }
-            if (!isItemValidForInputSlot(input.getItemStack())) {
-                return input;
-            }
+            //isItemValidForUsageSlot
+            try {
+				if (!(boolean)m.invoke(this,input.getItemStack())) {
+				    return input;
+				}
+			} catch (Exception e) {
+			}
 
             try {
                 long l = input.getStackSize();

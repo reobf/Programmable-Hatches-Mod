@@ -1,5 +1,6 @@
 package reobf.proghatches.gt.metatileentity;
 
+import java.lang.reflect.Method;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -91,7 +92,19 @@ public class NBTHatchMEFocus extends MTEBusInputFocus implements ICellContainer,
         public UnlimitedWrapper() {
 
         }
-
+        public Method m;
+        {
+        	
+        	try {
+    			m=this.getClass().getMethod("isItemValidForUsageSlot", ItemStack.class);
+    		} catch (Exception e) {
+    		}
+        	
+          	try {
+    			m=this.getClass().getMethod("isItemValidForInputSlot", ItemStack.class);
+    		} catch (Exception e) {
+    		}
+        }
         @Override
         public IAEItemStack injectItems(IAEItemStack input, Actionable type, BaseActionSource src) {
             if (type != Actionable.SIMULATE) post();
@@ -99,9 +112,12 @@ public class NBTHatchMEFocus extends MTEBusInputFocus implements ICellContainer,
             if (input == null) {
                 return input;
             }
-            if (!isItemValidForInputSlot(input.getItemStack())) {
-                return input;
-            }
+            try {
+				if (!(boolean)m.invoke(this,input.getItemStack())) {
+				    return input;
+				}
+			} catch (Exception e) {
+			}
 
             try {
                 long l = input.getStackSize();

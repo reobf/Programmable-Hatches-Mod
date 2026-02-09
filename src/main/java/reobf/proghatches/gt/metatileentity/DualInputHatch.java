@@ -291,7 +291,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 	public DualInputHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
 			boolean mMultiFluid) {
-		super(mName, mTier, mDescriptionArray, mTextures);
+		super(mName, mTier, ProghatchesUtil.getSlots(mTier) + 1,mDescriptionArray, mTextures);
 		this.disableSort = true;
 		this.mMultiFluid = mMultiFluid;
 		initTierBasedField();

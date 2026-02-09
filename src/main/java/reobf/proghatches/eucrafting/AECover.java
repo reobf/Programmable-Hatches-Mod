@@ -53,7 +53,7 @@ import gregtech.api.gui.modularui.GTUIInfos;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.common.covers.Cover;
-import gregtech.crossmod.waila.GregtechTEWailaDataProvider;
+//import gregtech.crossmod.waila.GregtechTEWailaDataProvider;
 //import gregtech.crossmod.waila.GregtechWailaDataProvider;
 import io.netty.buffer.ByteBuf;
 import reobf.proghatches.main.Config;

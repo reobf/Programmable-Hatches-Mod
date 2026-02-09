@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import appeng.items.misc.ItemEncodedPattern;
+import appeng.parts.misc.PartInterface;
+import appeng.tile.misc.TileInterface;
+import appeng.tile.networking.TileCableBus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
@@ -13,10 +17,15 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 
 import com.google.common.collect.ImmutableList;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
@@ -62,6 +71,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
         icons[0] = register.registerIcon("proghatches:toolkit0");
         icons[1] = register.registerIcon("proghatches:toolkit1");
         icons[2] = register.registerIcon("proghatches:toolkit2");
+        icons[3] = register.registerIcon("proghatches:toolkit3");
         // super.registerIcons(register);
     }
 
@@ -133,7 +143,10 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
             case 2: {
                 p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.2"));
             }
-
+            case 3: {
+                p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.3.1"));
+                p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.3.2"));
+            }
         }
 
         int i = 0;
@@ -157,7 +170,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
 
     }
 
-    public static int maxModes = 3;
+    public static int maxModes = 4;
 
     @Override
     public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player) {
@@ -173,6 +186,85 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
         return super.onItemRightClick(itemStackIn, worldIn, player);
     }
 
+    @Override
+    public boolean onItemUse(final ItemStack itemStack, final EntityPlayer player, final World world, final int x, final int y,
+                             final int z, final int side, final float hx, final float hy, final float hz)
+    {
+        if(world.isRemote) return true;
+        int itemMode=itemStack.getItemDamage();
+        if(itemMode==3) {
+            TileEntity te = world.getTileEntity(x, y, z);
+            if (te == null) return false;
+
+            IInventory patterns = null;
+            if (te instanceof TileInterface) {
+                patterns = ((TileInterface) te).getPatterns();
+            } else if (te instanceof TileCableBus tileCableBus) {
+                Object part = tileCableBus.getCableBus().getPart(ForgeDirection.getOrientation(side));
+                if (!(part instanceof PartInterface)) {
+                    part = tileCableBus.getCableBus().getPart(findClosestSide(hx, hy, hz));
+                }
+                if (part instanceof PartInterface partInterface) {
+                    patterns = partInterface.getPatterns();
+                }
+            }
+
+            if (patterns == null) return false;
+
+            int count = 0;
+            for (int i = 0; i < patterns.getSizeInventory(); i++) {
+                ItemStack item = patterns.getStackInSlot(i);
+                if (item == null || !(item.getItem() instanceof ItemEncodedPattern)) continue;
+
+                NBTTagCompound tag = item.getTagCompound();
+                if (tag == null) continue;
+
+                NBTTagList inTag = tag.getTagList("in", 10);
+                NBTTagList newInTag = new NBTTagList();
+                boolean changed = false;
+
+                for (int k = 0; k < inTag.tagCount(); k++) {
+                    NBTTagCompound t = inTag.getCompoundTagAt(k);
+                    ItemStack is = ItemStack.loadItemStackFromNBT(t);
+                    if (is != null && is.getItem() instanceof ItemProgrammingCircuit) {
+                        changed = true;
+                    } else {
+                        newInTag.appendTag(t);
+                    }
+                }
+
+                if (changed) {
+                    tag.setTag("in", newInTag);
+                    item.setTagCompound(tag);
+                    patterns.setInventorySlotContents(i, item);
+                    count++;
+                }
+            }
+            if (count > 0) {
+                player.addChatMessage(new net.minecraft.util.ChatComponentTranslation("item.prog_toolkit.chat.pattern_cleaned", count));
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private ForgeDirection findClosestSide(float hx, float hy, float hz) {
+        float[] dists = new float[6];
+        dists[0] = hy;           // DOWN
+        dists[1] = 1.0f - hy;    // UP
+        dists[2] = hz;           // NORTH
+        dists[3] = 1.0f - hz;    // SOUTH
+        dists[4] = hx;           // WEST
+        dists[5] = 1.0f - hx;    // EAST
+
+        int min = 0;
+        for (int i = 1; i < 6; i++) {
+            if (dists[i] < dists[min]) {
+                min = i;
+            }
+        }
+        return ForgeDirection.getOrientation(min);
+    }
     @Override
     public ModularWindow createWindow(UIBuildContext buildContext, ItemStack heldStack) {
 

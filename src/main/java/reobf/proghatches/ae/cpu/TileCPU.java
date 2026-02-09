@@ -315,7 +315,7 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 		                    'b',
 		                    ofChain(
 		                        lazy(
-		                            t -> Util.hint(
+                                    (TileCPU t) -> Util.hint(
 		                            GTStructureUtility.<TileCPU>buildHatchAdder()
 		                                .atLeast(Energy, Maintenance, HatchElement.InputBus, HatchElement.OutputBus)
 		                                .casingIndex(CASING_INDEX)

@@ -479,7 +479,8 @@ public class MAConduit extends AbstractConduit implements ICraftingMachineCondui
                 } else {
                     render = false;
                 }
-                if (getOffset == null) for (Method m : ((Object) te).getClass()
+                Object tee=te;
+                if (getOffset == null) for (Method m : ((Object) tee).getClass()
                     .getMethods()) {
                         if (m.getName()
                             .equals("getOffset")) {

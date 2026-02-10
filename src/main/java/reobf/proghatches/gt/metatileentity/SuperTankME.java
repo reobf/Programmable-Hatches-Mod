@@ -1034,6 +1034,7 @@ public class SuperTankME extends MTEHatch
         voidOverflow = aNBT.getBoolean("voidOverflow");
         last = AEFluidStack.create(content.getFluid());
         capOverride = aNBT.getInteger("capOverride");
+        content.setCapacity(cap());
     }
 
     protected static int commonSizeCompute(int tier) {

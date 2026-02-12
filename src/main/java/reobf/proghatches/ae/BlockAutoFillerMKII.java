@@ -36,7 +36,7 @@ public class BlockAutoFillerMKII extends BlockContainer implements INameAndToolt
         super(Material.rock);
         this.setLightOpacity(255);
         this.setLightLevel(0);
-        this.setHardness(2.2F);
+        this.setHardness(2.3F);
         this.setHarvestLevel("pickaxe", 0);
         setBlockName("proghatches.autofillerMKII");
         setBlockTextureName(FluidCraft.MODID + ":" + NameConst.BLOCK_FLUID_AUTO_FILLER);

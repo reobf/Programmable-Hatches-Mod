@@ -199,12 +199,12 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
             IInventory patterns = null;
             if (te instanceof TileInterface) {
                 patterns = ((TileInterface) te).getPatterns();
-            } else if (te instanceof TileCableBus tileCableBus) {
+            } else if (te instanceof TileCableBus ) {TileCableBus tileCableBus = (TileCableBus) te;
                 Object part = tileCableBus.getCableBus().getPart(ForgeDirection.getOrientation(side));
                 if (!(part instanceof PartInterface)) {
                     part = tileCableBus.getCableBus().getPart(findClosestSide(hx, hy, hz));
                 }
-                if (part instanceof PartInterface partInterface) {
+                if (part instanceof PartInterface ) {PartInterface partInterface=(PartInterface) part;
                     patterns = partInterface.getPatterns();
                 }
             }

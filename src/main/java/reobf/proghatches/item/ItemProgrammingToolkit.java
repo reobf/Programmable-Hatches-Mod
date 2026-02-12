@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import appeng.items.misc.ItemEncodedPattern;
+import appeng.api.implementations.ICraftingPatternItem;
+import appeng.api.networking.crafting.ICraftingPatternDetails;
+import appeng.me.cache.CraftingGridCache;
 import appeng.parts.misc.PartInterface;
 import appeng.tile.misc.TileInterface;
 import appeng.tile.networking.TileCableBus;
@@ -18,6 +20,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -188,19 +191,19 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
 
     @Override
     public boolean onItemUse(final ItemStack itemStack, final EntityPlayer player, final World world, final int x, final int y,
-                             final int z, final int side, final float hx, final float hy, final float hz)
-    {
-        if(world.isRemote) return true;
-        int itemMode=itemStack.getItemDamage();
-        if(itemMode==3) {
+                             final int z, final int side, final float hx, final float hy, final float hz) {
+        if (world.isRemote) return true;
+        int itemMode = itemStack.getItemDamage();
+        if (itemMode == 3) {
             TileEntity te = world.getTileEntity(x, y, z);
             if (te == null) return false;
 
             IInventory patterns = null;
+            Object part;
             if (te instanceof TileInterface) {
                 patterns = ((TileInterface) te).getPatterns();
-            } else if (te instanceof TileCableBus ) {TileCableBus tileCableBus = (TileCableBus) te;
-                Object part = tileCableBus.getCableBus().getPart(ForgeDirection.getOrientation(side));
+            } else if (te instanceof TileCableBus tileCableBus) {
+                part = tileCableBus.getCableBus().getPart(ForgeDirection.getOrientation(side));
                 if (!(part instanceof PartInterface)) {
                     part = tileCableBus.getCableBus().getPart(findClosestSide(hx, hy, hz));
                 }
@@ -210,40 +213,44 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
             }
 
             if (patterns == null) return false;
-
+            CraftingGridCache.pauseRebuilds();
             int count = 0;
             for (int i = 0; i < patterns.getSizeInventory(); i++) {
                 ItemStack item = patterns.getStackInSlot(i);
-                if (item == null || !(item.getItem() instanceof ItemEncodedPattern)) continue;
+                if (item != null && item.getItem() instanceof ICraftingPatternItem cpi) {
+                    ICraftingPatternDetails details = cpi.getPatternForItem(item, te.getWorldObj());
+                    if (details != null && !details.isCraftable()) {
+                        ItemStack copy = item.copy();
+                        NBTTagCompound tag = copy.getTagCompound();
+                        if (tag == null) continue;
+                        NBTTagList inTag = tag.getTagList("in", 10);
+                        NBTTagList newInTag = new NBTTagList();
+                        boolean changed = false;
 
-                NBTTagCompound tag = item.getTagCompound();
-                if (tag == null) continue;
+                        for (int k = 0; k < inTag.tagCount(); k++) {
+                            NBTTagCompound t = inTag.getCompoundTagAt(k);
+                            ItemStack is = ItemStack.loadItemStackFromNBT(t);
+                            if (is != null && is.getItem() instanceof ItemProgrammingCircuit) {
+                                changed = true;
+                            } else {
+                                newInTag.appendTag(t);
+                            }
+                        }
 
-                NBTTagList inTag = tag.getTagList("in", 10);
-                NBTTagList newInTag = new NBTTagList();
-                boolean changed = false;
-
-                for (int k = 0; k < inTag.tagCount(); k++) {
-                    NBTTagCompound t = inTag.getCompoundTagAt(k);
-                    ItemStack is = ItemStack.loadItemStackFromNBT(t);
-                    if (is != null && is.getItem() instanceof ItemProgrammingCircuit) {
-                        changed = true;
-                    } else {
-                        newInTag.appendTag(t);
+                        if (changed) {
+                            tag.setTag("in", newInTag);
+                            copy.setTagCompound(tag);
+                            patterns.setInventorySlotContents(i, copy);
+                            count++;
+                        }
                     }
-                }
-
-                if (changed) {
-                    tag.setTag("in", newInTag);
-                    item.setTagCompound(tag);
-                    patterns.setInventorySlotContents(i, item);
-                    count++;
                 }
             }
             if (count > 0) {
-                player.addChatMessage(new net.minecraft.util.ChatComponentTranslation("item.prog_toolkit.chat.pattern_cleaned", count));
+                player.addChatMessage(new ChatComponentTranslation("item.prog_toolkit.chat.pattern_cleaned", count));
+                CraftingGridCache.unpauseRebuilds();
+                return true;
             }
-            return true;
         }
         return false;
     }

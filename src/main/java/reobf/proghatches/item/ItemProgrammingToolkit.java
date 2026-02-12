@@ -207,7 +207,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
                 if (!(part instanceof PartInterface)) {
                     part = tileCableBus.getCableBus().getPart(findClosestSide(hx, hy, hz));
                 }
-                if (part instanceof PartInterface partInterface) {
+                if (part instanceof PartInterface ) {PartInterface partInterface=(PartInterface) part;
                     patterns = partInterface.getPatterns();
                 }
             }

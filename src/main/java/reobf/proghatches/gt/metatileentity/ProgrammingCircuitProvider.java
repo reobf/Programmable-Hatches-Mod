@@ -530,8 +530,10 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         }
 
         return new ITexture[] { aBaseTexture, TextureFactory.builder()
-            .setFromBlock(MyMod.iohub, BlockIOHub.magicNO_provider_active_overlay)
-            .glow()
+        		
+        		.addIcon(new Block2IIconContainer(MyMod.iohub, BlockIOHub.magicNO_provider_active_overlay))
+        		//.setFromBlock(MyMod.iohub, BlockIOHub.magicNO_provider_active_overlay)
+        		.glow()
             .build() };
     }
 

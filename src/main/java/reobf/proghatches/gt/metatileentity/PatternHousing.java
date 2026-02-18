@@ -181,12 +181,14 @@ public class PatternHousing extends MTEHatch implements IAddGregtechLogo {
 
     }
 
-    @SideOnly(Side.CLIENT)
+    @SuppressWarnings("deprecation")
+	@SideOnly(Side.CLIENT)
     public ModularScreen createScreen(PosGuiData data, ModularPanel mainPanel) {
         return new ModularScreen(mainPanel);
     }
 
-    public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager) {
+    @SuppressWarnings("deprecation")
+	public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager) {
 
         final com.cleanroommc.modularui.widgets.slot.SlotGroup SLOT_GROUP = new com.cleanroommc.modularui.widgets.slot.SlotGroup(
             "decayables",
@@ -212,8 +214,7 @@ public class PatternHousing extends MTEHatch implements IAddGregtechLogo {
                             .slotGroup(SLOT_GROUP)
 
                     ))
-                .build()
-                .flex(
+                .build().flexBuilder(
                     flex -> flex.anchor(Alignment.TopCenter)
                         .marginTop(15)
                         .leftRelAnchor(0.5f, 0.5f)));
@@ -289,14 +290,16 @@ public class PatternHousing extends MTEHatch implements IAddGregtechLogo {
         return new PatternHousing(mName, mTier, mDescriptionArray, mTextures);
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public ITexture[] getTexturesActive(ITexture aBaseTexture) {
 
         return new ITexture[] { aBaseTexture,
             TextureFactory.of(TextureFactory.of(MyMod.iohub, BlockIOHub.magicNO_drive)) };
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
 
         return new ITexture[] { aBaseTexture,

@@ -79,6 +79,7 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.util.item.AEFluidStack;
+import appeng.util.item.AEFluidStackType;
 import appeng.util.item.FluidList;
 import appeng.util.prioitylist.PrecisePriorityList;
 import gregtech.api.GregTechAPI;
@@ -320,7 +321,7 @@ public class SuperTankME extends MTEHatch
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    IMEInventoryHandler<AEFluidStack> handler = new MEInventoryHandler(new UnlimitedWrapper(), StorageChannel.FLUIDS) {
+    IMEInventoryHandler<AEFluidStack> handler = new MEInventoryHandler(new UnlimitedWrapper(), AEFluidStackType.FLUID_STACK_TYPE) {
 
         public boolean getSticky() {
             return sticky && !suppressSticky;

@@ -22,7 +22,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 import com.glodblock.github.common.item.ItemFluidDrop;
-import com.glodblock.github.inventory.MEMonitorIFluidHandler;
+
 import com.glodblock.github.util.BlockPos;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -64,6 +64,7 @@ import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IAEStackType;
 import appeng.api.storage.data.IItemList;
 import appeng.api.util.IConfigManager;
 import appeng.client.texture.CableBusTextures;
@@ -78,7 +79,9 @@ import appeng.parts.p2p.PartP2PRedstone;
 import appeng.parts.p2p.PartP2PTunnel;
 import appeng.util.Platform;
 import appeng.util.item.AEFluidStack;
+import appeng.util.item.AEFluidStackType;
 import appeng.util.item.AEItemStack;
+import appeng.util.item.AEItemStackType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.gui.modularui.GTUITextures;
@@ -273,18 +276,12 @@ public class PartAmountMaintainer extends PartBasicState
         }
 
         if (getProxy().isActive() == false) return TickRateModulation.SAME;
-        for (StorageChannel ch : new StorageChannel[] { StorageChannel.FLUIDS, StorageChannel.ITEMS }) {
+        for (IAEStackType ch : new IAEStackType[] { AEItemStackType.ITEM_STACK_TYPE,AEFluidStackType.FLUID_STACK_TYPE }) {
             IMEInventory inv = getInv(ch);
             if (inv != null) {
 
                 IItemList list;
-                if (inv instanceof MEMonitorIFluidHandler) {
-                    // inv.injectItems(EMPTY.get(ch), Actionable.MODULATE, source);//dirty hack, trigger update
-                    // cache is invalid! just use the deprecated way to get the inv
-                    ((MEMonitorIFluidHandler) inv).onTick();
-                    list = ((MEMonitorIFluidHandler) inv).getAvailableItems(ch.createList());
-
-                } else if (inv instanceof MEMonitorIInventory) {
+                	if (inv instanceof MEMonitorIInventory) {
                     ((MEMonitorIInventory) inv).onTick();
                     list = ((MEMonitorIInventory) inv).getAvailableItems(ch.createList());
 
@@ -866,11 +863,11 @@ public class PartAmountMaintainer extends PartBasicState
 
     long amount = 64;
 
-    HashMap<StorageChannel, IMEInventory> inv = new HashMap();
-    HashMap<StorageChannel, Integer> handlerHash = new HashMap();
+    HashMap<IAEStackType, IMEInventory> inv = new HashMap();
+    HashMap<IAEStackType, Integer> handlerHash = new HashMap();
     public ItemStack[] mark = new ItemStack[1];
 
-    public IMEInventory getInv(StorageChannel ch) {
+    public IMEInventory getInv(IAEStackType ch) {
         final TileEntity self = this.getHost()
             .getTile();
         final TileEntity target = new BlockPos(self).getOffSet(this.getSide())
@@ -908,10 +905,11 @@ public class PartAmountMaintainer extends PartBasicState
 
     }
 
-    public IAEStack maybe(StorageChannel c) {
+    public IAEStack maybe(IAEStackType ch) {
 
-        if (c == StorageChannel.ITEMS) return maybeItem();
-        return maybeFluid();
+        if (ch == AEItemStackType.ITEM_STACK_TYPE) return maybeItem();
+        if (ch == AEFluidStackType.FLUID_STACK_TYPE) return maybeFluid();
+       throw new RuntimeException("What the heck");
     }
 
     public AEItemStack maybeItem() {
@@ -960,9 +958,10 @@ public class PartAmountMaintainer extends PartBasicState
         return null;
     }
 
-    private IMEMonitor getStorage(IStorageGrid g, StorageChannel c) {
-        if (c == StorageChannel.ITEMS) return g.getItemInventory();
-        return g.getFluidInventory();
+    private IMEMonitor getStorage(IStorageGrid g, IAEStackType ch) {
+        if (ch == AEItemStackType.ITEM_STACK_TYPE) return g.getItemInventory();
+        if (ch == AEFluidStackType.FLUID_STACK_TYPE) return g.getFluidInventory();
+           throw new RuntimeException("What the heck");
 
     }
 

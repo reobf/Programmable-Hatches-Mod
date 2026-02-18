@@ -264,7 +264,7 @@ public ItemStack getSelfRep() {
     @Override
     public IAEItemStack injectCraftedItems(ICraftingLink link, IAEItemStack items, Actionable mode) {
         // TODO Auto-generated method stub
-        return this.duality.injectCraftedItems(link, items, mode);
+        return (IAEItemStack) this.duality.injectCraftedItems(link, items, mode);
     }
 
     @Override

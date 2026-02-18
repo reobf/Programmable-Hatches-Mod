@@ -46,6 +46,7 @@ import appeng.me.cache.CraftingGridCache;
 import appeng.me.cache.GridStorageCache;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.util.item.AEItemStack;
+import appeng.util.item.AEItemStackType;
 import appeng.util.item.MeaningfulItemIterator;
 import gregtech.api.GregTechAPI;
 import gregtech.api.gui.modularui.GTUITextures;
@@ -336,9 +337,9 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
                 }
 
 				@Override
-				public byte getStackType() {
+				public AEItemStackType getStackType() {
 					// TODO Auto-generated method stub
-					return LIST_ITEM;
+					return AEItemStackType.ITEM_STACK_TYPE;
 				}
             };
 

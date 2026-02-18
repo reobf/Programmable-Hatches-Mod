@@ -31,6 +31,7 @@ import appeng.me.helpers.IGridProxyable;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
+import appeng.util.item.AEItemStackType;
 import gregtech.api.GregTechAPI;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -85,7 +86,7 @@ public class NBTHatchMEFocus extends MTEBusInputFocus implements ICellContainer,
         return getInputSlotCount();
     }
 
-    IMEInventoryHandler<AEItemStack> handler = new MEInventoryHandler(new UnlimitedWrapper(), StorageChannel.ITEMS);
+    IMEInventoryHandler<AEItemStack> handler = new MEInventoryHandler(new UnlimitedWrapper(), AEItemStackType.ITEM_STACK_TYPE);
 
     public class UnlimitedWrapper implements IMEInventory<IAEItemStack> {
 

@@ -48,6 +48,7 @@ import appeng.me.cache.CraftingGridCache;
 import appeng.me.cache.GridStorageCache;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.util.item.AEFluidStack;
+import appeng.util.item.AEFluidStackType;
 import appeng.util.item.MeaningfulFluidIterator;
 import gregtech.api.GregTechAPI;
 import gregtech.api.gui.modularui.GTUITextures;
@@ -165,9 +166,9 @@ public class DecoyInputHatchME extends MTEHatchInputME implements IMEHatchOverri
             ArrayList<IAEFluidStack> added = new ArrayList<>();
             IItemList<IAEFluidStack> all = new IItemList<IAEFluidStack>() {
             	@Override
-				public byte getStackType() {
+				public AEFluidStackType getStackType() {
 					// TODO Auto-generated method stub
-					return LIST_FLUID;
+					return AEFluidStackType.FLUID_STACK_TYPE;
 				}
                 private final NavigableMap<IAEFluidStack, IAEFluidStack> records = new ConcurrentSkipListMap<>();
 

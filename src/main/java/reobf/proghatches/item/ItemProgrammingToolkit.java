@@ -4,31 +4,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import appeng.api.implementations.ICraftingPatternItem;
-import appeng.api.networking.crafting.ICraftingPatternDetails;
-import appeng.me.cache.CraftingGridCache;
-import appeng.parts.misc.PartInterface;
-import appeng.tile.misc.TileInterface;
-import appeng.tile.networking.TileCableBus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
-
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 
 import com.google.common.collect.ImmutableList;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
@@ -41,7 +30,10 @@ import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 
 import baubles.api.BaubleType;
+import baubles.api.BaublesApi;
 import baubles.api.IBauble;
+import baubles.common.network.PacketHandler;
+import baubles.common.network.PacketSyncBauble;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -74,7 +66,6 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
         icons[0] = register.registerIcon("proghatches:toolkit0");
         icons[1] = register.registerIcon("proghatches:toolkit1");
         icons[2] = register.registerIcon("proghatches:toolkit2");
-        icons[3] = register.registerIcon("proghatches:toolkit3");
         // super.registerIcons(register);
     }
 
@@ -89,11 +80,13 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
 
     @SideOnly(Side.CLIENT)
     public static boolean holding() {
+    	MyMod.LOG.error("holding?:"+lastholdingtick+" "+MyMod.ticker);
         return Math.abs(lastholdingtick -  MyMod.ticker) <= 10;
     }
 
     @SideOnly(Side.CLIENT)
     public static boolean addEmptyProgCiruit() {
+    	MyMod.LOG.error("Add empty?:"+mode);
         return mode == 2;
     }
 
@@ -121,6 +114,19 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
             if (entityIn.ticksExisted % 80 == 12) {
                 EntityPlayer p = (EntityPlayer) entityIn;
                 p.triggerAchievement(MyMod.achievement);
+               if(p instanceof EntityPlayerMP) {
+            	   		int i=0;
+            	   		for(i=0;i<BaublesApi.getBaubles(p).getSizeInventory();i++) {
+            	   		if(BaublesApi.getBaubles(p).getStackInSlot(i)==stack) { 
+            	   			
+            	   			PacketHandler.INSTANCE.sendTo(new PacketSyncBauble(p, i), (EntityPlayerMP) p);
+            	   			break;
+            	   		};
+            	   		}
+            	   		
+            	   		
+               
+                }
             }
         }
 
@@ -146,10 +152,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
             case 2: {
                 p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.2"));
             }
-            case 3: {
-                p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.3.1"));
-                p_77624_3_.add(LangManager.translateToLocal("item.prog_toolkit.name.tooltip.mode.3.2"));
-            }
+
         }
 
         int i = 0;
@@ -173,7 +176,7 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
 
     }
 
-    public static int maxModes = 4;
+    public static int maxModes = 3;
 
     @Override
     public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player) {
@@ -189,89 +192,6 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
         return super.onItemRightClick(itemStackIn, worldIn, player);
     }
 
-    @Override
-    public boolean onItemUse(final ItemStack itemStack, final EntityPlayer player, final World world, final int x, final int y,
-                             final int z, final int side, final float hx, final float hy, final float hz) {
-        if (world.isRemote) return true;
-        int itemMode = itemStack.getItemDamage();
-        if (itemMode == 3) {
-            TileEntity te = world.getTileEntity(x, y, z);
-            if (te == null) return false;
-
-            IInventory patterns = null;
-            Object part;
-            if (te instanceof TileInterface) {
-                patterns = ((TileInterface) te).getPatterns();
-            } else if (te instanceof TileCableBus tileCableBus) {
-                part = tileCableBus.getCableBus().getPart(ForgeDirection.getOrientation(side));
-                if (!(part instanceof PartInterface)) {
-                    part = tileCableBus.getCableBus().getPart(findClosestSide(hx, hy, hz));
-                }
-                if (part instanceof PartInterface ) {PartInterface partInterface=(PartInterface) part;
-                    patterns = partInterface.getPatterns();
-                }
-            }
-
-            if (patterns == null) return false;
-            CraftingGridCache.pauseRebuilds();
-            int count = 0;
-            for (int i = 0; i < patterns.getSizeInventory(); i++) {
-                ItemStack item = patterns.getStackInSlot(i);
-                if (item != null && item.getItem() instanceof ICraftingPatternItem cpi) {
-                    ICraftingPatternDetails details = cpi.getPatternForItem(item, te.getWorldObj());
-                    if (details != null && !details.isCraftable()) {
-                        ItemStack copy = item.copy();
-                        NBTTagCompound tag = copy.getTagCompound();
-                        if (tag == null) continue;
-                        NBTTagList inTag = tag.getTagList("in", 10);
-                        NBTTagList newInTag = new NBTTagList();
-                        boolean changed = false;
-
-                        for (int k = 0; k < inTag.tagCount(); k++) {
-                            NBTTagCompound t = inTag.getCompoundTagAt(k);
-                            ItemStack is = ItemStack.loadItemStackFromNBT(t);
-                            if (is != null && is.getItem() instanceof ItemProgrammingCircuit) {
-                                changed = true;
-                            } else {
-                                newInTag.appendTag(t);
-                            }
-                        }
-
-                        if (changed) {
-                            tag.setTag("in", newInTag);
-                            copy.setTagCompound(tag);
-                            patterns.setInventorySlotContents(i, copy);
-                            count++;
-                        }
-                    }
-                }
-            }
-            if (count > 0) {
-                player.addChatMessage(new ChatComponentTranslation("item.prog_toolkit.chat.pattern_cleaned", count));
-                CraftingGridCache.unpauseRebuilds();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private ForgeDirection findClosestSide(float hx, float hy, float hz) {
-        float[] dists = new float[6];
-        dists[0] = hy;           // DOWN
-        dists[1] = 1.0f - hy;    // UP
-        dists[2] = hz;           // NORTH
-        dists[3] = 1.0f - hz;    // SOUTH
-        dists[4] = hx;           // WEST
-        dists[5] = 1.0f - hx;    // EAST
-
-        int min = 0;
-        for (int i = 1; i < 6; i++) {
-            if (dists[i] < dists[min]) {
-                min = i;
-            }
-        }
-        return ForgeDirection.getOrientation(min);
-    }
     @Override
     public ModularWindow createWindow(UIBuildContext buildContext, ItemStack heldStack) {
 

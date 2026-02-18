@@ -74,6 +74,7 @@ import appeng.me.helpers.IGridProxyable;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
+import appeng.util.item.AEItemStackType;
 import appeng.util.item.ItemList;
 import appeng.util.prioitylist.PrecisePriorityList;
 import gregtech.api.GregTechAPI;
@@ -386,7 +387,7 @@ public class SuperChestME extends MTEHatch
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    IMEInventoryHandler<AEItemStack> handler = new MEInventoryHandler(new UnlimitedWrapper(), StorageChannel.ITEMS) {
+    IMEInventoryHandler<AEItemStack> handler = new MEInventoryHandler(new UnlimitedWrapper(), AEItemStackType.ITEM_STACK_TYPE) {
 
         public boolean getSticky() {
             return sticky && !suppressSticky;

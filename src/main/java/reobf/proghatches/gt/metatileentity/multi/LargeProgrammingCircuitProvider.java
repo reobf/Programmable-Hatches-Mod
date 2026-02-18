@@ -112,6 +112,7 @@ import gregtech.api.util.shutdown.SimpleShutDownReason;
 import gregtech.common.tileentities.machines.multi.purification.MTEPurificationUnitClarifier;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.eucrafting.IInstantCompletable;
+import reobf.proghatches.gt.metatileentity.Block2IIconContainer;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
@@ -441,7 +442,8 @@ public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<L
 
     public ITexture[] getTexturesActive(ITexture aBaseTexture) {
         return new ITexture[] { aBaseTexture, TextureFactory.builder()
-            .setFromBlock(MyMod.iohub, BlockIOHub.magicNO_provider_active_overlay)
+           .addIcon(new Block2IIconContainer(MyMod.iohub, BlockIOHub.magicNO_provider_active_overlay))
+        		//.setFromBlock(MyMod.iohub, BlockIOHub.magicNO_provider_active_overlay)
             .glow()
             .build() };
     }

@@ -3,9 +3,12 @@ package reobf.proghatches.net;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 
 import baubles.api.BaublesApi;
+import baubles.common.network.PacketHandler;
+import baubles.common.network.PacketSyncBauble;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
@@ -21,7 +24,15 @@ public class SwitchModeMessage implements IMessage {
 
         @Override
         public SwitchModeMessage onMessage(SwitchModeMessage message, MessageContext ctx) {
+        	
+        	
+        	
+        	
+        	
 
+        	 
+        	
+             
             IInventory inv = BaublesApi.getBaubles(((NetHandlerPlayServer) ctx.netHandler).playerEntity);
             for (int i = 0; i < inv.getSizeInventory(); i++) {
                 ItemStack is = inv.getStackInSlot(i);
@@ -29,17 +40,21 @@ public class SwitchModeMessage implements IMessage {
 
                     is.setItemDamage((is.getItemDamage() + 1) % ItemProgrammingToolkit.maxModes);
                     ((NetHandlerPlayServer) ctx.netHandler).playerEntity.addChatMessage(new
-
-                    ChatComponentTranslation("proghatch.keybinding.kit.switch.mode." + (is.getItemDamage())));
+                    		ChatComponentText("[Server]"));
+                  
+                    ((NetHandlerPlayServer) ctx.netHandler).playerEntity.addChatMessage(new
+                    		ChatComponentTranslation("proghatch.keybinding.kit.switch.mode." + (is.getItemDamage())));
+                    
+                    PacketHandler.INSTANCE.sendTo(new PacketSyncBauble(ctx.getServerHandler().playerEntity, i), ctx.getServerHandler().playerEntity);
                     MyMod.net.sendTo(
                         new ModeSwitchedMessage(i, is.getItemDamage()),
                         ((NetHandlerPlayServer) ctx.netHandler).playerEntity);
-
                     break;
                     // ((ItemProgrammingToolkit)is.getItem()).onItemRightClick(is, null, null);
                 }
 
             }
+         
             return null;
 
         }

@@ -94,7 +94,8 @@ public class ProgrammingCircuitProviderPrefabricated extends MTEHatch implements
     public ITexture[] getTexturesActive(ITexture aBaseTexture) {
 
         return new ITexture[] { aBaseTexture, TextureFactory.builder()
-            .setFromBlock(MyMod.iohub, BlockIOHub.magicNO_provider_in_active_overlay)
+           // .setFromBlock(MyMod.iohub, BlockIOHub.magicNO_provider_in_active_overlay)
+            .addIcon(new Block2IIconContainer(MyMod.iohub, BlockIOHub.magicNO_provider_in_active_overlay))
             .glow()
             .build() };
     }

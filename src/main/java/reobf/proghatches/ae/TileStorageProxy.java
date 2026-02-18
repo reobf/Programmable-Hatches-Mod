@@ -46,6 +46,7 @@ import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IAEStackType;
 import appeng.api.storage.data.IItemList;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
@@ -55,6 +56,8 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.me.storage.MEMonitorPassThrough;
 import appeng.me.storage.NullInventory;
+import appeng.util.item.AEFluidStackType;
+import appeng.util.item.AEItemStackType;
 import appeng.util.prioitylist.OreFilteredList;
 import gregtech.api.gui.modularui.GTUITextures;
 import reobf.proghatches.gt.metatileentity.util.MappingFluidTank;
@@ -100,12 +103,12 @@ public class TileStorageProxy extends TileEntity
 
     private final MEMonitorPassThrough<IAEItemStack> items = new MEMonitorPassThrough<IAEItemStack>(
         new NullInventory<IAEItemStack>(),
-        StorageChannel.ITEMS) {
+       AEItemStackType.ITEM_STACK_TYPE) {
 
     };
     private final MEMonitorPassThrough<IAEFluidStack> fluids = new MEMonitorPassThrough<IAEFluidStack>(
         new NullInventory<IAEFluidStack>(),
-        StorageChannel.FLUIDS) {
+        AEFluidStackType.FLUID_STACK_TYPE) {
 
     };
     private boolean init;
@@ -343,9 +346,9 @@ public class TileStorageProxy extends TileEntity
                         }
 
 						@Override
-						public byte getStackType() {
+						public IAEStackType getStackType() {
 							
-							return LIST_ITEM;
+							return AEItemStackType.ITEM_STACK_TYPE;
 						}
                     });
 
@@ -474,9 +477,9 @@ public class TileStorageProxy extends TileEntity
                         }
 
 						@Override
-						public byte getStackType() {
+						public AEItemStackType getStackType() {
 						
-							return LIST_ITEM;
+							return AEItemStackType.ITEM_STACK_TYPE;
 						}
                     };
                 }
@@ -627,9 +630,9 @@ public class TileStorageProxy extends TileEntity
                         }
 
 						@Override
-						public byte getStackType() {
+						public AEFluidStackType getStackType() {
 							
-							return LIST_FLUID;
+							return AEFluidStackType.FLUID_STACK_TYPE;
 						}
                     });
 
@@ -757,9 +760,9 @@ public class TileStorageProxy extends TileEntity
                         }
 
 						@Override
-						public byte getStackType() {
+						public AEFluidStackType getStackType() {
 							
-							return LIST_FLUID;
+							return AEFluidStackType.FLUID_STACK_TYPE;
 						}
                     };
                 }

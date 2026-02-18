@@ -29,7 +29,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.glodblock.github.inventory.MEMonitorIFluidHandler;
+
 import com.google.common.collect.ImmutableMap;
 
 import appeng.api.AEApi;
@@ -50,6 +50,7 @@ import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.me.storage.MEIInventoryWrapper;
+import appeng.me.storage.MEMonitorIFluidHandler;
 import appeng.util.Platform;
 import appeng.util.inv.AdaptorIInventory;
 import appeng.util.item.AEFluidStack;

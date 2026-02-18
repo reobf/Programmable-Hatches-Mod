@@ -68,6 +68,9 @@ import appeng.items.tools.ToolMemoryCard;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.FluidList;
 import bartworks.API.SideReference;
+import baubles.api.BaublesApi;
+import baubles.common.network.PacketHandler;
+import baubles.common.network.PacketSyncBauble;
 import codechicken.core.CommonUtils;
 import codechicken.multipart.MultiPartRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -129,6 +132,7 @@ import reobf.proghatches.gt.metatileentity.PatternHousing;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
 import reobf.proghatches.gt.metatileentity.RecipeFilterCRIB;
 import reobf.proghatches.item.ItemBookTutorial;
+import reobf.proghatches.item.ItemProgrammingToolkit;
 import reobf.proghatches.keybinding.KeyBindings;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.mixin.MixinPlugin;
@@ -455,7 +459,15 @@ public class MyMod {
             entityitem.func_145797_a(e.player.getCommandSenderName());
 
         } ;
-
+        for(int i=0;i<BaublesApi.getBaubles(e.player).getSizeInventory();i++) {
+	   		if(BaublesApi.getBaubles(e.player).getStackInSlot(i)!=null) { 
+	   			if(BaublesApi.getBaubles(e.player).getStackInSlot(i).getItem() instanceof ItemProgrammingToolkit) {
+	   			if(e.player instanceof EntityPlayerMP)
+	   				PacketHandler.INSTANCE.sendTo(new PacketSyncBauble(e.player, i), (EntityPlayerMP) e.player);
+	   			break;}
+	   		};
+	   		}
+	   		
     }
 
     public static Achievement achievement;

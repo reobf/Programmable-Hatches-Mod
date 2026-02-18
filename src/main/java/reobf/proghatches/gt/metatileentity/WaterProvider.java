@@ -380,7 +380,8 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
         }
 
         return new ITexture[] { aBaseTexture, TextureFactory.builder()
-            .setFromBlock(MyMod.iohub, BlockIOHub.magicNO_provider_active_overlay)
+            .addIcon(new Block2IIconContainer(MyMod.iohub, BlockIOHub.magicNO_provider_active_overlay))
+        		//.setFromBlock(MyMod.iohub, BlockIOHub.magicNO_provider_active_overlay)
             .glow()
             .build() };
     }

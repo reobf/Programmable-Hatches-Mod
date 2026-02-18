@@ -205,6 +205,8 @@ public static boolean loaded;
         retLate.add("part2.MixinMUI2CircuitSlot");
         retLate.add("part2.MixinCountPassthrough");
         retLate.add("part2.MixinNewDualInterface");
+        retLate.add("part2.MixinMEOutput2CPU");
+        
         //retLate.add("part2.x");
         //retLate.add("part2.MixinCraftRevive");
         if (FMLLaunchHandler.side()

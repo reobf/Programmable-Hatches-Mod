@@ -356,7 +356,7 @@ private void postChangeInner(StorageChannel c,IAEItemStack is){
      
          for (ItemStack output : xx.mOutputs) {
            
-             boolean condition = xx.mChances == null || (index < xx.mChances.length && xx.mChances[index] >= 10000);
+             boolean condition = xx.mOutputChances == null || (index < xx.mOutputChances.length && xx.mOutputChances[index] >= 10000);
              if (condition && output != null) {
                  IAEItemStack aeStack = AEItemStack.create(output);
                  outputsList.add(aeStack);
@@ -670,7 +670,7 @@ private void postChangeInner(StorageChannel c,IAEItemStack is){
         
             for (ItemStack output : xx.mOutputs) {
               
-                boolean condition = xx.mChances == null || (index < xx.mChances.length && xx.mChances[index] >= 10000);
+                boolean condition = xx.mOutputChances == null || (index < xx.mOutputChances.length && xx.mOutputChances[index] >= 10000);
                 if (condition && output != null) {
                     IAEItemStack aeStack = AEItemStack.create(output);
                     outputsList.add(aeStack);

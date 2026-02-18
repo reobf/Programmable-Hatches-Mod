@@ -264,6 +264,12 @@ public class PHRecipes implements Runnable {
                         ,
                         null// CHANCE
                         ,
+                        null// CHANCE
+                        ,
+                        null// CHANCE
+                        ,
+                        null// CHANCE
+                        ,
                         new FluidStack[] { new FluidStack(solderIndalloy, 4000) }// FI
                         ,
                         null// FO
@@ -502,6 +508,12 @@ public class PHRecipes implements Runnable {
                     ,
                     null// CHANCE
                     ,
+                    null// CHANCE
+                    ,
+                    null// CHANCE
+                    ,
+                    null// CHANCE
+                    ,
                     new FluidStack[] { Materials.GlueAdvanced.getFluid(4000) }// FI
                     ,
                     null// FO
@@ -539,6 +551,12 @@ public class PHRecipes implements Runnable {
                     ,
                     null// CHANCE
                     ,
+                    null// CHANCE
+                    ,
+                    null// CHANCE
+                    ,
+                    null// CHANCE
+                    ,
                     new FluidStack[] { Materials.Osmiridium.getMolten(144 * 20) }// FI
                     ,
                     null// FO
@@ -572,6 +590,12 @@ public class PHRecipes implements Runnable {
                     // IO
                     ,
                     null// SP
+                    ,
+                    null// CHANCE
+                    ,
+                    null// CHANCE
+                    ,
+                    null// CHANCE
                     ,
                     null// CHANCE
                     ,

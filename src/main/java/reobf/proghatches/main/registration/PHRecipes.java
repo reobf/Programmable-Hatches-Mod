@@ -423,11 +423,11 @@ public class PHRecipes implements Runnable {
             .map(s -> s.get(1))
             .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 
-        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 30030));// gt++ superbus
-        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 30030));
-        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 30030));
-        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 30030));
-        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 30030));
+        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 2755));//quat bus
+        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 2756));
+        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 2757));
+        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 2758));
+        is.add(new ItemStack(GregTechAPI.sBlockMachines, 1, 2759));
         ItemStack[] single_item = is.toArray(new ItemStack[0]);
 
         for (int i = 4; i < GTValues.VN.length - 1; i++) {

@@ -71,6 +71,7 @@ import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IInterfaceViewable;
@@ -84,6 +85,7 @@ import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
+import appeng.util.PatternMultiplierHelper;
 import appeng.util.Platform;
 import codechicken.nei.ItemStackMap;
 import codechicken.nei.ItemStackSet;
@@ -101,6 +103,7 @@ import gregtech.api.util.GTUtility;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
+import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.ExConfigEntry;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.MUI1ContainerX;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.MUI1Container;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
@@ -517,7 +520,7 @@ public int page() {
             multiplier[i] = Math.max(multiplier[i], 1);
         }
         restrictToInt=aNBT.getBoolean("restrictToInt" );
-        allowopt=aNBT.getBoolean("allowopt");
+        allowopt=aNBT.getBoolean("allowopt");normalopt=aNBT.getBoolean("normalopt");
         updateValidGridProxySides();
     }
 
@@ -539,7 +542,7 @@ public int page() {
         aNBT.setLong("saved", saved);
         aNBT.setIntArray("multiplier", multiplier);
         aNBT.setBoolean("restrictToInt", restrictToInt); 
-        aNBT.setBoolean("allowopt", allowopt);
+        aNBT.setBoolean("allowopt", allowopt);  aNBT.setBoolean("normalopt", normalopt);
         super.saveNBTData(aNBT);
     }
 
@@ -810,50 +813,8 @@ public int page() {
     ICraftingPatternDetails[] patternDetailCache = new ICraftingPatternDetails[36];
 
     public static class DA implements ICraftingPatternDetails {
-
-        public DA(ICraftingPatternDetails p, int m) {
-            if (p == null) throw new NullPointerException();
-            this.p = p;
-            this.m = m;
-            if (m < 1) m = 1;
-        }
-
-        ICraftingPatternDetails p;
-        int m;
-
-        @Override
-        public ItemStack getPattern() {
-
-            ItemStack is = new ItemStack(MyMod.fakepattern);
-            is.setTagCompound(new NBTTagCompound());
-            is.getTagCompound()
-                .setByte("type", (byte) 3);
-            is.getTagCompound()
-                .setTag(
-                    "p",
-                    p.getPattern()
-                        .writeToNBT(new NBTTagCompound()));
-            is.getTagCompound()
-                .setInteger("m", m);
-            return is;
-        }
-
-        @Override
-        public boolean isValidItemForSlot(int slotIndex, ItemStack itemStack, World world) {
-
-            return p.isValidItemForSlot(slotIndex, itemStack, world);
-        }
-
-        @Override
-        public boolean isCraftable() {
-
-            return p.isCraftable();
-        }
-
-        IAEItemStack[] i;
-
-        public IAEItemStack[] mul(IAEItemStack[] in) {
-            IAEItemStack[] ret = new IAEItemStack[in.length];
+   	 private IAEStack[] mul(IAEStack<?>[] in) {
+   		 IAEStack[] ret = new IAEStack[in.length];
             for (int k = 0; k < ret.length; k++) {
                 ret[k] = in[k];
                 if (ret[k] != null) {
@@ -863,104 +824,187 @@ public int page() {
 
             }
             return ret;
-        }
-
-        @SuppressWarnings("deprecation")
+		}
+       public DA(ICraftingPatternDetails p, int m) {
+           if (p == null) throw new NullPointerException();
+           this.p = p;
+           this.m = m;
+           if (m < 1) m = 1;
+       }
+       IAEStack[] aeci,aeco,aei,aeo;
+       @Override
+       public IAEStack<?>[] getAEInputs() {
+       	 if (aei == null) {
+                aei = mul(p.getAEInputs());
+       	 	}
+       	return aei;
+       }
+      
 		@Override
-        public IAEItemStack[] getInputs() {
-            if (i == null) {
-                i = mul(p.getInputs());
+       public IAEStack<?>[] getAEOutputs() {
+      	 if (aeo == null) {
+            aeo = mul(p.getAEOutputs());
+   	 	}
+      	 return aeo;
+       }
+       @Override
+       public IAEStack<?>[] getCondensedAEInputs() {
+      	 if (aeci == null) {
+            aeci = mul(p.getCondensedAEInputs());
+   	 	}
+      	 return aeci;
+      	 }
+       @Override
+       public IAEStack<?>[] getCondensedAEOutputs() {
+         	 if (aeco == null) {
+                aeco = mul(p.getCondensedAEOutputs());
+       	 	}
+          	 return aeco;  }
+       
+       
+       ICraftingPatternDetails p;
+       int m;
 
-            }
-            return i;
-        }
+       @Override
+       public ItemStack getPattern() {
 
-        IAEItemStack[] ci;
+           ItemStack is = new ItemStack(MyMod.fakepattern);
+           is.setTagCompound(new NBTTagCompound());
+           is.getTagCompound()
+               .setByte("type", (byte) 3);
+           is.getTagCompound()
+               .setTag(
+                   "p",
+                   p.getPattern()
+                       .writeToNBT(new NBTTagCompound()));
+           is.getTagCompound()
+               .setInteger("m", m);
+           return is;
+       }
 
-        @Override
-        public IAEItemStack[] getCondensedInputs() {
-            if (ci == null) {
-                ci = mul(p.getCondensedInputs());
-            }
-            return ci;
-        }
+       @Override
+       public boolean isValidItemForSlot(int slotIndex, ItemStack itemStack, World world) {
 
-        IAEItemStack[] co;
+           return p.isValidItemForSlot(slotIndex, itemStack, world);
+       }
 
-        @Override
-        public IAEItemStack[] getCondensedOutputs() {
-            if (co == null) {
-                co = mul(p.getCondensedOutputs());
-            }
-            return co;
-        }
+       @Override
+       public boolean isCraftable() {
 
-        IAEItemStack[] o;
+           return p.isCraftable();
+       }
 
-        @Override
-        public IAEItemStack[] getOutputs() {
-            if (o == null) {
-                o = mul(p.getOutputs());
-            }
-            return o;
-        }
+       IAEItemStack[] i;
 
-        @Override
-        public boolean canSubstitute() {
+       public IAEItemStack[] mul(IAEItemStack[] in) {
+           IAEItemStack[] ret = new IAEItemStack[in.length];
+           for (int k = 0; k < ret.length; k++) {
+               ret[k] = in[k];
+               if (ret[k] != null) {
+                   ret[k] = ret[k].copy()
+                       .setStackSize(ret[k].getStackSize() * m);
+               }
 
-            return p.canSubstitute();
-        }
-        public  boolean canBeSubstitute() {  
-        	return p.canBeSubstitute();
-        };
+           }
+           return ret;
+       }
 
-        ItemStack so;
+       @SuppressWarnings("deprecation")
+		@Override
+       public IAEItemStack[] getInputs() {
+           if (i == null) {
+               i = mul(p.getInputs());
 
-        @Override
-        public ItemStack getOutput(InventoryCrafting craftingInv, World world) {
-            if (so == null) {
-                so = p.getOutput(craftingInv, world);
-                if (so != null) {
-                    so = so.copy();
-                    so.stackSize *= m;
-                }
-            }
-            return so;
-        }
+           }
+           return i;
+       }
 
-        @Override
-        public int getPriority() {
+       IAEItemStack[] ci;
 
-            return p.getPriority();
-        }
+       @Override
+       public IAEItemStack[] getCondensedInputs() {
+           if (ci == null) {
+               ci = mul(p.getCondensedInputs());
+           }
+           return ci;
+       }
 
-        @Override
-        public void setPriority(int priority) {
-            p.setPriority(priority);
-        }
+       IAEItemStack[] co;
 
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null) {
-                return false;
-            }
-            if (this.getClass() != obj.getClass()) {
-                return false;
-            }
-            final DA other = (DA) obj;
-            if (this.p != null && other.p != null) {
-                return this.p.equals(other.p) && this.m == other.m;
-            }
-            return false;
+       @Override
+       public IAEItemStack[] getCondensedOutputs() {
+           if (co == null) {
+               co = mul(p.getCondensedOutputs());
+           }
+           return co;
+       }
 
-        }
+       IAEItemStack[] o;
 
-        @Override
-        public int hashCode() {
+       @Override
+       public IAEItemStack[] getOutputs() {
+           if (o == null) {
+               o = mul(p.getOutputs());
+           }
+           return o;
+       }
 
-            return p.hashCode() + 31 * (m - 1);
-        }
-    }
+       @Override
+       public boolean canSubstitute() {
+
+           return p.canSubstitute();
+       }
+       public  boolean canBeSubstitute() {  
+       	return p.canBeSubstitute();
+       };
+
+       ItemStack so;
+
+       @Override
+       public ItemStack getOutput(InventoryCrafting craftingInv, World world) {
+           if (so == null) {
+               so = p.getOutput(craftingInv, world);
+               if (so != null) {
+                   so = so.copy();
+                   so.stackSize *= m;
+               }
+           }
+           return so;
+       }
+
+       @Override
+       public int getPriority() {
+
+           return p.getPriority();
+       }
+
+       @Override
+       public void setPriority(int priority) {
+           p.setPriority(priority);
+       }
+
+       @Override
+       public boolean equals(Object obj) {
+           if (obj == null) {
+               return false;
+           }
+           if (this.getClass() != obj.getClass()) {
+               return false;
+           }
+           final DA other = (DA) obj;
+           if (this.p != null && other.p != null) {
+               return this.p.equals(other.p) && this.m == other.m;
+           }
+           return false;
+
+       }
+
+       @Override
+       public int hashCode() {
+
+           return p.hashCode() + 31 * (m - 1);
+       }
+   }
 
     @Override
     public void provideCrafting(ICraftingProviderHelper craftingTracker) {
@@ -1333,9 +1377,15 @@ public int getCircuitSlot() {
 				isDividing = true;
 				bitMultiplier = -bitMultiplier;
 			}
+			if(normalopt) {
+				 PatternMultiplierHelper.applyModification(stack, bitMultiplier);
+				 patternInv.setInventorySlotContents(i, stack);
+			}
+			else {
 			multiplier[i] = isDividing ? multiplier[i] >> bitMultiplier : multiplier[i] << bitMultiplier;
 			if (multiplier[i] <= 0) {
 				multiplier[i] = 1;
+			}
 			}
 			markDirty();
 			onPatternChange(); 
@@ -1701,7 +1751,10 @@ public int getCircuitSlot() {
 		        }));
 
 		        super.addUIWidgets(builder, buildContext);
-		    }protected Builder createWindowEx(EntityPlayer player) {
+		    }
+		
+		
+		/*protected Builder createWindowEx(EntityPlayer player) {
 		
 		Builder builder = super.createWindowEx(player);
 		
@@ -1729,7 +1782,34 @@ public int getCircuitSlot() {
 		
 		
 		return builder;
-	}}
-
+	}*/
+		
+	}    boolean normalopt;
+@Override
+public ExConfig initExConfig() {
+	ExConfig x=super.initExConfig();
+	x.reg(0, 1, ExConfigEntry.create(
+			() -> restrictToInt, 
+				(s) -> {restrictToInt = s;},
+				"programmable_hatches.gt.restrictToInt.0",
+				"programmable_hatches.gt.restrictToInt.1"
+				));
+	x.reg(1, 1, ExConfigEntry.create(
+			() -> allowopt, 
+			(s) -> {allowopt = s;},
+			"programmable_hatches.gt.allowopt.0",
+			"programmable_hatches.gt.allowopt.1"
+			));	
+	
+	x.reg(3, 1, ExConfigEntry.create(
+			() -> normalopt, 
+			(s) -> {normalopt = s;},
+			"programmable_hatches.gt.normalopt.0",
+			"programmable_hatches.gt.normalopt.1"
+			));
+	
+	
+	return x;
+}
 	public boolean disablePatternSlots(){return false;}
 }

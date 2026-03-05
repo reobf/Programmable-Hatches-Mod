@@ -31,6 +31,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -60,11 +61,14 @@ import net.minecraftforge.oredict.OreDictionary;
 
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
+
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashBiMap;
 
 import com.cleanroommc.modularui.api.IPanelHandler;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.value.IIntValue;
+import com.cleanroommc.modularui.api.value.IValue;
 import com.cleanroommc.modularui.api.widget.Interactable.Result;
 import com.cleanroommc.modularui.factory.PosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
@@ -84,6 +88,7 @@ import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import com.glodblock.github.common.item.ItemFluidPacket;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Table;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
@@ -112,6 +117,7 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.util.DimensionalCoord;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.SoundResource;
@@ -164,7 +170,125 @@ public class BufferedDualInputHatch extends DualInputHatch
 		implements IRecipeProcessingAwareDualHatch, IInputStateProvider, ICraftingV2
 
 {
+	public static abstract class ExConfigEntry{
+		public CycleButtonWidget asMUI1(int x,int y) {
+			return (CycleButtonWidget) new CycleButtonWidget().setToggle(this::get, this::set).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+				.setPos(3 + 18 * x, 3 + 18 * y).setSize(18, 18)
+				.addTooltips((List<String>)Stream.of(tips()).map(s->StatCollector.translateToLocal(s)).collect(Collectors.toList()));
+		}
+		public com.cleanroommc.modularui.widgets.CycleButtonWidget asMUI2(int x,int y) {
+			return new com.cleanroommc.modularui.widgets.CycleButtonWidget()
+					.stateCount(2)
+					.value(accessorI(this::get, this::set))
+					
+					.stateBackground(1, GTGuiTextures.BUTTON_STANDARD_PRESSED)
+					.stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
+				      .stateOverlay(1, GTGuiTextures.OVERLAY_BUTTON_CHECKMARK)
+                     .stateOverlay(0, GTGuiTextures.OVERLAY_BUTTON_CHECKMARK)
+					
+					
+				
+					.pos(3 + 18 * x, 3 + 18 * y).size(18, 18)
+					.tooltipBuilder(sx->{Stream.of(tips()).map(s->StatCollector.translateToLocal(s)).forEach(sx::add);});
 
+		}		
+		
+		public abstract boolean shouldApply();
+		public abstract boolean get();
+		public abstract void set(boolean b);
+		public abstract String[] tips();
+		public static ExConfigEntry create(Supplier<Boolean> get,Consumer<Boolean> set,String... tips) {
+		return create(()->true, get, set);
+		}
+		public static ExConfigEntry create(Supplier<Boolean> apply,Supplier<Boolean> get,Consumer<Boolean> set,String... tips) {
+			
+			return new ExConfigEntry() {
+
+				@Override
+				public boolean shouldApply() {
+				
+					return apply.get();
+				}
+
+				@Override
+				public boolean get() {
+					return get.get();
+				}
+
+				@Override
+				public void set(boolean b) {
+					 set.accept(b);
+					
+				}
+
+				@Override
+				public String[] tips() {
+					
+					return tips;
+				}};
+		}
+		
+	}
+	public static class ExConfig{
+		Table<Integer, Integer, ExConfigEntry> table = HashBasedTable.create();
+		public void reg(int x,int y,ExConfigEntry xx) {
+			ExConfigEntry old = table.put(x, y, xx);
+			if(old !=null) {throw new AssertionError("NO");}
+		}
+	}
+	public ExConfig exconfig=initExConfig();
+	public ExConfig initExConfig() {
+		ExConfig ret=new ExConfig();
+		///////////
+		ret.reg(0, 0, ExConfigEntry.create(
+				() -> updateEveryTick, 
+				(s) -> {updateEveryTick = s;},
+				"programmable_hatches.gt.forcecheck"));
+		ret.reg(1, 0, ExConfigEntry.create(
+				() -> CMMode, 
+				(s) -> {CMMode = s;},
+				"programmable_hatches.gt.cmmode.0",
+				"programmable_hatches.gt.cmmode.1",
+				"programmable_hatches.gt.cmmode.2",
+				"programmable_hatches.gt.cmmode.3",
+				"programmable_hatches.gt.cmmode.4",
+				"programmable_hatches.gt.cmmode.5",
+				"programmable_hatches.gt.cmmode.6"
+				));
+
+		ret.reg(3, 0, ExConfigEntry.create(
+				()->(isInfBuffer() || shared.infbufUpgrades > 0),
+				() -> autoAppend, 
+				(s) -> {autoAppend = s;},
+				"programmable_hatches.gt.elasticbuffer.0",
+				"programmable_hatches.gt.elasticbuffer.1",
+				"programmable_hatches.gt.elasticbuffer.2"
+				));
+		ret.reg(4, 0, ExConfigEntry.create(
+				() -> useNewGTPatternCache, 
+				(s) -> {				if (MyMod.newGTCache) {
+					useNewGTPatternCache = s;
+					if (useNewGTPatternCache == false) {
+						resetMulti();
+						detailmap.clear();
+						detailmapUsage.clear();
+						inv0.forEach(sX -> sX.PID = 0);
+
+					}
+				}},
+				"programmable_hatches.gt.newcrib.0",
+				"programmable_hatches.gt.newcrib.1",
+				"programmable_hatches.gt.newcrib.2",
+				"programmable_hatches.gt.newcrib.3",
+				"programmable_hatches.gt.newcrib.4",
+				"programmable_hatches.gt.newcrib.5",
+				(MyMod.newGTCache) ? ""
+						: StatCollector.translateToLocal("programmable_hatches.gt.newcrib.nosupport")
+				));
+		
+		return ret;
+	}
 	public Deque<Long> scheduled = new LinkedList<>();// no randomaccess,
 														// LinkedList will work
 														// fine
@@ -1240,7 +1364,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			
 			return BufferedDualInputHatch.this;
 		}
-		protected Builder createWindowEx(final EntityPlayer player) {
+		protected final Builder createWindowEx(final EntityPlayer player) {
 
 			final int WIDTH = 18 * 6 + 6;
 			final int HEIGHT = 18 * 4 + 6;
@@ -1254,7 +1378,14 @@ public class BufferedDualInputHatch extends DualInputHatch
 			builder.setPos((size, window) -> Alignment.Center.getAlignedPos(size, new Size(PARENT_WIDTH, PARENT_HEIGHT))
 					.add(Alignment.TopRight.getAlignedPos(new Size(PARENT_WIDTH, PARENT_HEIGHT), new Size(WIDTH, HEIGHT))));
 
-			builder.widget(new CycleButtonWidget().setToggle(() -> updateEveryTick, (s) -> {
+			
+			exconfig.table.cellSet().stream().map(s->s.getValue().asMUI1(s.getRowKey(), s.getColumnKey()))
+			.forEach(builder::widget);
+			
+			
+			
+			
+			/*builder.widget(new CycleButtonWidget().setToggle(() -> updateEveryTick, (s) -> {
 				updateEveryTick = s;
 
 			}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
@@ -1262,7 +1393,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 					.setPos(3 + 18 * 0, 3 + 18 * 0).setSize(18, 18)
 					.setGTTooltip(() -> mTooltipCache.getData("programmable_hatches.gt.forcecheck"))
 
-			);
+			);*/
 			/*
 			 * builder.widget(new CycleButtonWidget().setToggle(() ->!trunOffEnsure
 			 * , (s) -> { trunOffEnsure =! s;
@@ -1278,7 +1409,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			 * .addTooltip(StatCollector.translateToLocal(
 			 * "programmable_hatches.gt.ensureintmax.3")) );
 			 */
-			builder.widget(new CycleButtonWidget().setToggle(() -> CMMode, (s) -> {
+			/*builder.widget(new CycleButtonWidget().setToggle(() -> CMMode, (s) -> {
 				CMMode = s;
 
 			}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
@@ -1291,7 +1422,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.4"))
 					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.5"))
 					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.6")));
-
+*/
 			/*
 			 * builder.widget(new CycleButtonWidget().setToggle(() -> merge, (s) ->
 			 * { merge = s; })
@@ -1303,7 +1434,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			 * .addTooltip(StatCollector.translateToLocal(
 			 * "programmable_hatches.gt.merge.1")) );
 			 */
-			if (isInfBuffer() || shared.infbufUpgrades > 0)
+		/*	if (isInfBuffer() || shared.infbufUpgrades > 0)
 				builder.widget(new CycleButtonWidget().setToggle(() -> autoAppend, (s) -> {
 					autoAppend = s;
 
@@ -1347,7 +1478,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			)
 
 			;
-			
+			*/
 			return builder;
 
 		}
@@ -3047,12 +3178,21 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 		
 	
 	}
-		@Override
-		public void buildUI(ModularPanel builder, PosGuiData data, PanelSyncManager syncManager,
-				UISettings uiSettings) {
-			super.buildUI(builder, data, syncManager, uiSettings);
-			
-			builder.child(new  com.cleanroommc.modularui.widgets.CycleButtonWidget().stateCount(2)
+		com.cleanroommc.modularui.widgets.CycleButtonWidget createPowerSwitchButton2(PanelSyncManager syncManager){
+			return new  com.cleanroommc.modularui.widgets.CycleButtonWidget() {
+				@Override
+				public @NotNull Result onMousePressed(int mouseButton) {
+					if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+						
+						syncManager.findPanelHandlerNullable("EX_Config").openPanel();;
+						return Result.ACCEPT;
+					}
+					return super.onMousePressed(mouseButton);
+				}
+				
+				
+			}.stateCount(2)
+					
 					.value(  new IntSyncValue(()-> getBaseMetaTileEntity().isAllowedToWork()?1:0, s->{
 						 if(s==1)
 						getBaseMetaTileEntity().enableWorking();
@@ -3060,13 +3200,26 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 						getBaseMetaTileEntity().disableWorking();
 					}))
 					
-					.stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
+					.stateBackground(1, GTGuiTextures.BUTTON_STANDARD)
 					.stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
 				      .stateOverlay(1, GTGuiTextures.OVERLAY_BUTTON_POWER_SWITCH_ON)
-                      .stateOverlay(0, GTGuiTextures.OVERLAY_BUTTON_POWER_SWITCH_OFF)
+                     .stateOverlay(0, GTGuiTextures.OVERLAY_BUTTON_POWER_SWITCH_OFF)
 					.pos(getGUIWidth() - 18 - 3, 5//.tooltip(s->{s.add(tool);})
 					
-					).size(16, 16));
+					).size(16, 16);
+		}
+		
+		@Override
+		public void buildUI(ModularPanel builder, PosGuiData data, PanelSyncManager syncManager,
+				UISettings uiSettings) {
+			super.buildUI(builder, data, syncManager, uiSettings);
+			
+			syncManager.syncedPanel("EX_Config", true, 
+					(manager, handler) -> createWindowEX2(manager));
+	
+			
+			
+			builder.child(createPowerSwitchButton2(syncManager));
 			
 			
 			syncManager.syncValue("setDirty", new SyncHandler() {
@@ -3086,6 +3239,39 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 			});
 			addBuffer(builder, data, syncManager, uiSettings);
 		}
+		public final ModularPanel createWindowEX2(@NotNull PanelSyncManager manager) {
+			final int WIDTH = 18 * 6 + 6;
+			final int HEIGHT = 18 * 4 + 6;	
+			ModularPanel builder = new ModularPanel("EX_Config");
+			builder.size(WIDTH, HEIGHT);
+			
+			/*builder.child(new com.cleanroommc.modularui.widgets.CycleButtonWidget()
+					.stateCount(2)
+					.value(accessorI(() -> updateEveryTick, (s) -> {
+				updateEveryTick = s;
+			}))
+					
+					//.setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+					//.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
+					.stateBackground(1, GTGuiTextures.BUTTON_STANDARD_PRESSED)
+					.stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
+				      .stateOverlay(1, GTGuiTextures.OVERLAY_BUTTON_CHECKMARK)
+                     .stateOverlay(0, GTGuiTextures.OVERLAY_BUTTON_CHECKMARK)
+					
+					
+				
+					.pos(3 + 18 * 0, 3 + 18 * 0).size(18, 18)
+					.tooltipBuilder(s->s.addLine( StatCollector.translateToLocal("programmable_hatches.gt.forcecheck")))
+
+			);*/
+			exconfig.table.cellSet().stream().map(s->s.getValue().asMUI2(s.getRowKey(), s.getColumnKey()))
+			.forEach(builder::child);
+			
+			
+			
+			return builder;
+		}
+		@SuppressWarnings({ "deprecation"})
 		public void addBuffer(ModularPanel builder, PosGuiData data, PanelSyncManager syncManager,
 		UISettings uiSettings){
 			ScrollWidget<?> list = new ScrollWidget<>(new VerticalScrollData()).size(18);
@@ -3098,9 +3284,9 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 			//String sg="slot_group_buffer_"+id;
 			//syncManager.getSlotGroup(sg);
 			
-			final IPanelHandler panel = syncManager.panel("buffer_panel_sync_"+id, 
-					(manager, handler) -> createBufferWindow2(manager,id), true);
-
+			final IPanelHandler panel = syncManager.syncedPanel("buffer_panel_sync_"+id, true, 
+					(manager, handler) -> createBufferWindow2(manager,id));
+	
 			com.cleanroommc.modularui.widgets.ButtonWidget button=new com.cleanroommc.modularui.widgets.ButtonWidget<>()
 			.onMousePressed(s->{
 				panel.openPanel();
@@ -3243,6 +3429,15 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 	public MUI2Container initMUI2() {
 		return new MUI2ContainerX();
 	}
+
+
+
+
+public static IntSyncValue accessorI(Supplier<Boolean> object, Consumer<Boolean> object2) {
+	
+		return new IntSyncValue(()->object.get()?1:0, s->object2.accept(s==1));
+	}
+
 @Override
 public int getGUIWidth() {
 	

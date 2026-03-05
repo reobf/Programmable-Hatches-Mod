@@ -101,6 +101,7 @@ import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.gui.modularui.GTUITextures;
+import gregtech.api.interfaces.IDataCopyable;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.logic.ProcessingLogic;
@@ -130,7 +131,7 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
 public class StockingDualInputHatchME extends MTEHatchInputBus
-    implements IDualInputHatchWithPattern, IRecipeProcessingAwareDualHatch, IPowerChannelState, IGridProxyable, IPHDual {
+    implements IDualInputHatchWithPattern, IRecipeProcessingAwareDualHatch, IPowerChannelState, IGridProxyable, IPHDual,IDataCopyable {
 
     public StockingDualInputHatchME(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures,
         boolean allowAuto2) {
@@ -836,7 +837,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
         updateAllInformationSlots();
     }
 
-    protected void refreshItemList() {
+    protected void refreshItemList() {        if (!isAllowedToWork()) return;
         AENetworkProxy proxy = getProxy();
         try {
             IMEMonitor<IAEItemStack> sg = proxy.getStorage()
@@ -865,7 +866,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
         } catch (final GridAccessException ignored) {}
     }
 
-    protected void refreshItemListF() {
+    protected void refreshItemListF() {        if (!isAllowedToWork()) return;
         AENetworkProxy proxy = getProxy();
         try {
             IMEMonitor<IAEFluidStack> sg = proxy.getStorage()
@@ -964,7 +965,8 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 
     @Override
     public void startRecipeProcessing() {
-        recipe = true;
+    	 cachedActivity = isAllowedToWork();
+    	 recipe = true;
         program();
         for (int i = 0; i < 16; i++) {
             i_shadow[i] = null;
@@ -1089,7 +1091,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
         return CheckRecipeResultRegistry.SUCCESSFUL;
     }
 
-    protected void updateAllInformationSlots() {
+    protected void updateAllInformationSlots() {        if (!isAllowedToWork()) return;
         for (int index = 0; index < 16; index++) {
             updateInformationSlot(index, i_mark[index]);
         }
@@ -1131,6 +1133,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 
     @Override
     public Iterator<? extends IDualInputInventoryWithPattern> inventories() {
+    	    if (!isAllowedToWork())return new ArrayList().iterator();
         if (off) return new ArrayList().iterator();
         if (!recipe) {
             return (Iterator<? extends IDualInputInventoryWithPattern>) new ArrayList().iterator();// huh...
@@ -1202,6 +1205,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
     @Override
     public Optional<IDualInputInventory> getFirstNonEmptyInventory() {
         if (off) return Optional.empty();
+        if (!isAllowedToWork()) return Optional.empty();
         if (!recipe) {
             return Optional.empty();// huh...
         }
@@ -1273,66 +1277,69 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
     public void saveNBTData(NBTTagCompound aNBT) {
         aNBT.setBoolean("additionalConnection", additionalConnection);
         aNBT.setBoolean("allowAuto", allowAuto);
-        getProxy().writeToNBT(aNBT);
+        
         super.saveNBTData(aNBT);
-        NBTTagList nbtTagList = new NBTTagList();
-        for (int i = 0; i < 16; i++) {
-            FluidStack fluidStack = f_mark[i];
-            if (fluidStack == null) {
-                nbtTagList.appendTag(new NBTTagCompound());
-                continue;
-            }
-            NBTTagCompound fluidTag = fluidStack.writeToNBT(new NBTTagCompound());
-            if (f_mark[i] != null) fluidTag.setInteger("informationAmount", f_mark[i].amount);
-            nbtTagList.appendTag(fluidTag);
-        }
-        aNBT.setTag("storedFluids", nbtTagList);
-
-        nbtTagList = new NBTTagList();
-        for (int i = 0; i < 16; i++) {
-            ItemStack fluidStack = i_mark[i];
-            if (fluidStack == null) {
-                nbtTagList.appendTag(new NBTTagCompound());
-                continue;
-            }
-            NBTTagCompound fluidTag = fluidStack.writeToNBT(new NBTTagCompound());
-            if (i_mark[i] != null) fluidTag.setInteger("informationAmount", i_mark[i].stackSize);
-            nbtTagList.appendTag(fluidTag);
-        }
-        aNBT.setTag("storedItems", nbtTagList);
-
-        {
-            int[] sizesf = new int[16];
-            for (int i = 0; i < 16; ++i) sizesf[i] = f_display[i] == null ? 0 : f_display[i].amount;
-            aNBT.setIntArray("sizesF", sizesf);
-            int[] sizes = new int[16];
-            for (int i = 0; i < 16; ++i) sizes[i] = i_display[i] == null ? 0 : i_display[i].stackSize;
-            aNBT.setIntArray("sizes", sizes);
-        }
-
-        {
-            ByteBuffer b = ByteBuffer.allocate(Long.SIZE / Byte.SIZE * 16);
-            for (long l : i_client) {
-                b.putLong(l);
-            }
-            aNBT.setByteArray("clientDisplayValue", b.array());
-
-            b = ByteBuffer.allocate(Long.SIZE / Byte.SIZE * 16);
-            for (long l : f_client) {
-                b.putLong(l);
-            }
-            aNBT.setByteArray("clientDisplayValueF", b.array());
-
-        }
-
-        aNBT.setBoolean("program", program);
-        aNBT.setBoolean("autoPull", autoPullItemList);
-
-        aNBT.setInteger("intmaxs", intmaxs);
-        aNBT.setInteger("interval", interval);
-
+    l(aNBT);
         getProxy().writeToNBT(aNBT);
     }
+    
+    public void l(NBTTagCompound aNBT) {    NBTTagList nbtTagList = new NBTTagList();
+    for (int i = 0; i < 16; i++) {
+        FluidStack fluidStack = f_mark[i];
+        if (fluidStack == null) {
+            nbtTagList.appendTag(new NBTTagCompound());
+            continue;
+        }
+        NBTTagCompound fluidTag = fluidStack.writeToNBT(new NBTTagCompound());
+        if (f_mark[i] != null) fluidTag.setInteger("informationAmount", f_mark[i].amount);
+        nbtTagList.appendTag(fluidTag);
+    }
+    aNBT.setTag("storedFluids", nbtTagList);
+
+    nbtTagList = new NBTTagList();
+    for (int i = 0; i < 16; i++) {
+        ItemStack fluidStack = i_mark[i];
+        if (fluidStack == null) {
+            nbtTagList.appendTag(new NBTTagCompound());
+            continue;
+        }
+        NBTTagCompound fluidTag = fluidStack.writeToNBT(new NBTTagCompound());
+        if (i_mark[i] != null) fluidTag.setInteger("informationAmount", i_mark[i].stackSize);
+        nbtTagList.appendTag(fluidTag);
+    }
+    aNBT.setTag("storedItems", nbtTagList);
+
+    {
+        int[] sizesf = new int[16];
+        for (int i = 0; i < 16; ++i) sizesf[i] = f_display[i] == null ? 0 : f_display[i].amount;
+        aNBT.setIntArray("sizesF", sizesf);
+        int[] sizes = new int[16];
+        for (int i = 0; i < 16; ++i) sizes[i] = i_display[i] == null ? 0 : i_display[i].stackSize;
+        aNBT.setIntArray("sizes", sizes);
+    }
+
+    {
+        ByteBuffer b = ByteBuffer.allocate(Long.SIZE / Byte.SIZE * 16);
+        for (long l : i_client) {
+            b.putLong(l);
+        }
+        aNBT.setByteArray("clientDisplayValue", b.array());
+
+        b = ByteBuffer.allocate(Long.SIZE / Byte.SIZE * 16);
+        for (long l : f_client) {
+            b.putLong(l);
+        }
+        aNBT.setByteArray("clientDisplayValueF", b.array());
+
+    }
+
+    aNBT.setBoolean("program", program);
+    aNBT.setBoolean("autoPull", autoPullItemList);
+
+    aNBT.setInteger("intmaxs", intmaxs);
+    aNBT.setInteger("interval", interval);
+}
+    
 
     @Override
     public void loadNBTData(NBTTagCompound aNBT) {
@@ -1340,6 +1347,11 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
         allowAuto = aNBT.getBoolean("allowAuto");
         getProxy().readFromNBT(aNBT);
         super.loadNBTData(aNBT);
+        w(aNBT);
+        }
+    
+    
+    public void w(NBTTagCompound aNBT){
         if (aNBT.hasKey("storedFluids")) {
             NBTTagList nbtTagList = aNBT.getTagList("storedFluids", 10);
             int c = Math.min(nbtTagList.tagCount(), 16);
@@ -1527,5 +1539,42 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
         syncManager.panel("x", (a, b) -> new ModularPanel("mainc"), false);
         // syncManager.bindPlayerInventory(player);
         return new ModularPanel("main");
-    }*/
+    }*/  boolean cachedActivity;
+    protected boolean isAllowedToWork() {
+      
+		if (recipe) return cachedActivity;
+
+        IGregTechTileEntity igte = getBaseMetaTileEntity();
+
+        if (igte == null || !igte.isAllowedToWork()) return false;
+
+        AENetworkProxy proxy = getProxy();
+
+        if (!proxy.isActive()) return false;
+
+        return true;
+    }
+
+	@Override
+	public NBTTagCompound getCopiedData(EntityPlayer player) {
+		NBTTagCompound tag=new NBTTagCompound();
+		w(tag); 
+		additionalConnection = tag.getBoolean("additionalConnection");
+		updateValidGridProxySides();
+		return tag;
+	}
+
+	@Override
+	public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+		l(nbt);  
+		nbt.setBoolean("additionalConnection", additionalConnection);
+		return true;
+	}
+
+	@Override
+	public String getCopiedDataIdentifier(EntityPlayer player) {
+		
+		return "STOCKING_DUAL";
+	}
+
 }

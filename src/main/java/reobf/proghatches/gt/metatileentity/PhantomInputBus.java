@@ -17,6 +17,20 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import org.joml.Vector4i;
 
+import com.cleanroommc.modularui.factory.PosGuiData;
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.ModularScreen;
+import com.cleanroommc.modularui.screen.UISettings;
+import com.cleanroommc.modularui.value.sync.ItemSlotSH;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.value.sync.PhantomItemSlotSH;
+import com.cleanroommc.modularui.widget.ParentWidget;
+import com.cleanroommc.modularui.widget.ScrollWidget;
+import com.cleanroommc.modularui.widget.scroll.VerticalScrollData;
+import com.cleanroommc.modularui.widgets.SlotGroupWidget;
+import com.cleanroommc.modularui.widgets.slot.ItemSlot;
+import com.cleanroommc.modularui.widgets.slot.ModularSlot;
+import com.cleanroommc.modularui.widgets.slot.PhantomItemSlot;
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
@@ -30,12 +44,31 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
+import gregtech.api.modularui2.GTGuis;
+import gregtech.api.util.StringUtils;
 import gregtech.api.util.GTTooltipDataCache.TooltipData;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.registration.Registration;
 
 public class PhantomInputBus extends MTEHatchInputBus {
+@Override
+protected boolean useMui2() {
+	
+	return true;
+	
+}
+
+
+
+
+
+
+
+
+
+
+
 
     public PhantomInputBus(int id, String name, String nameRegional, int tier) {
         super(id, name, nameRegional, tier, 64, Config.get("PIB", ImmutableMap.of()));
@@ -54,17 +87,74 @@ public class PhantomInputBus extends MTEHatchInputBus {
 
     }
 
+
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
         // TODO Auto-generated method stub
         super.onPostTick(aBaseMetaTileEntity, aTimer);
     }
 
+@Override
+	public int getOffsetX() {
+
+		return 0;
+	}@Override
+	public int getOffsetY() {
+
+		return 0;
+	}
     @Override
     public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
         return new PhantomInputBus(this.mName, this.mTier, mDescriptionArray, this.mTextures);
     }
+    @Override
+    public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings) {
+		ModularPanel builder = GTGuis.mteTemplatePanelBuilder(this, data, syncManager,uiSettings)
+				.doesAddGregTechLogo(false).doesAddGhostCircuitSlot(allowSelectCircuit()).build();
+		
 
+
+	
+		        syncManager.registerSlotGroup("item_inv", 4);
+
+		        String[] matrix = new String[16];
+		        String repeat = StringUtils.getRepetitionOf('s', 4);
+		        Arrays.fill(matrix, repeat);
+		        SlotGroupWidget all = SlotGroupWidget.builder()
+		            .matrix(matrix)
+		            .key(
+		                's',
+		                index -> new PhantomItemSlot().syncHandler(new PhantomItemSlotSH(new ModularSlot(inventoryHandler, index) {
+		                	
+		                	public void putStack(ItemStack stack) {
+		                		if(stack!=null) {stack=stack.copy();stack.stackSize=0;}
+		                		super.putStack(stack);
+		                		};
+		                }.slotGroup("item_inv"))))
+		            .build()
+		            .pos(0, 0).size(18*4, 18*16)
+		           ;
+		    
+				ScrollWidget<?> list = new ScrollWidget<>(new VerticalScrollData()).size(18)/*.keepScrollBarInArea(true)*/;
+				list.getScrollArea().getScrollY().setScrollSize(18 * 16);
+				list.child(all);
+				list.size(18 * 4+4, 18 * 4) .horizontalCenter()
+				.top(5)
+				;
+				
+		
+				builder.child(list);
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		return builder;
+    }
     @Override
     public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
         final Scrollable scrollable = (Scrollable) new Scrollable().setVerticalScroll()

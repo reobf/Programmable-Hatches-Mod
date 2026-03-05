@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -35,9 +38,12 @@ import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 
+import com.cleanroommc.modularui.value.sync.IntSyncValue;
 import com.glodblock.github.common.item.ItemFluidPacket;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Table;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.NumberFormatMUI;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
@@ -85,6 +91,7 @@ import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.tile.misc.TileInterface;
+import appeng.util.PatternMultiplierHelper;
 import codechicken.nei.ItemStackMap;
 import codechicken.nei.ItemStackSet;
 import gregtech.GTMod;
@@ -96,9 +103,11 @@ import gregtech.api.gui.modularui.GTUIInfos;
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
+import gregtech.api.interfaces.modularui.IAddGregtechLogo;
 import gregtech.api.interfaces.modularui.IAddUIWidgets;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTETieredMachineBlock;
+import gregtech.api.modularui2.GTGuiTextures;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.IDualInputHatch;
@@ -106,6 +115,8 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
+import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.ExConfig;
+import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.ExConfigEntry;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch.DA;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 import reobf.proghatches.gt.metatileentity.bufferutil.LongWrapper;
@@ -123,8 +134,134 @@ import reobf.proghatches.net.TryOpenPatternCIRBMessage;
 public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch & IDualInputHatch & IMetaTileEntity>
     extends MTETieredMachineBlock
     implements IAddUIWidgets, ICraftingMedium, ICustomNameObject, IGridProxyable, IInterfaceViewable,
-    IPowerChannelState, IActionHost, ICraftingProvider, IMultiplePatternPushable, IDataCopyablePlaceHolder,ISpecialOptimize {
+    IPowerChannelState, IActionHost, ICraftingProvider,IAddGregtechLogo, IMultiplePatternPushable, IDataCopyablePlaceHolder,ISpecialOptimize {
+	public static IntSyncValue accessorI(Supplier<Boolean> object, Consumer<Boolean> object2) {
+		
+		return new IntSyncValue(()->object.get()?1:0, s->object2.accept(s==1));
+	}
+	public static abstract class ExConfigEntry{
+		public CycleButtonWidget asMUI1(int x,int y) {
+			return (CycleButtonWidget) new CycleButtonWidget().setToggle(this::get, this::set).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+				.setPos(3 + 18 * x, 3 + 18 * y).setSize(18, 18)
+				.addTooltips((List<String>)Stream.of(tips()).map(s->StatCollector.translateToLocal(s)).collect(Collectors.toList()));
+		}
+		public com.cleanroommc.modularui.widgets.CycleButtonWidget asMUI2(int x,int y) {
+			return new com.cleanroommc.modularui.widgets.CycleButtonWidget()
+					.stateCount(2)
+					.value(accessorI(this::get, this::set))
+					
+					.stateBackground(1, GTGuiTextures.BUTTON_STANDARD_PRESSED)
+					.stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
+				      .stateOverlay(1, GTGuiTextures.OVERLAY_BUTTON_CHECKMARK)
+                     .stateOverlay(0, GTGuiTextures.OVERLAY_BUTTON_CHECKMARK)
+					
+					
+				
+					.pos(3 + 18 * x, 3 + 18 * y).size(18, 18)
+					.tooltipBuilder(sx->{Stream.of(tips()).map(s->StatCollector.translateToLocal(s)).forEach(sx::add);});
 
+		}		
+		
+		public abstract boolean shouldApply();
+		public abstract boolean get();
+		public abstract void set(boolean b);
+		public abstract String[] tips();
+		public static ExConfigEntry create(Supplier<Boolean> get,Consumer<Boolean> set,String... tips) {
+		return create(()->true, get, set);
+		}
+		public static ExConfigEntry create(Supplier<Boolean> apply,Supplier<Boolean> get,Consumer<Boolean> set,String... tips) {
+			
+			return new ExConfigEntry() {
+
+				@Override
+				public boolean shouldApply() {
+				
+					return apply.get();
+				}
+
+				@Override
+				public boolean get() {
+					return get.get();
+				}
+
+				@Override
+				public void set(boolean b) {
+					 set.accept(b);
+					
+				}
+
+				@Override
+				public String[] tips() {
+					
+					return tips;
+				}};
+		}
+		
+	}
+	public static class ExConfig{
+		Table<Integer, Integer, ExConfigEntry> table = HashBasedTable.create();
+		public void reg(int x,int y,ExConfigEntry xx) {
+			ExConfigEntry old = table.put(x, y, xx);
+			if(old !=null) {throw new AssertionError("NO");}
+		}
+	}
+	public ExConfig exconfig=initExConfig();
+	
+	public ExConfig initExConfig() {
+		ExConfig ret=new ExConfig();
+		///////////
+   /* 	builder.widget(new CycleButtonWidget().setToggle(() -> allowopt, (s) -> {
+    		allowopt = s;
+
+    	}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+    			.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+    			.setPos(3 + 18 * 1, 3 + 18 * 1).setSize(18, 18)
+    			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.0"))
+    			//.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.1"))
+    		);	
+    	
+     	builder.widget(new CycleButtonWidget().setToggle(() -> inherit, (s) -> {
+     		inherit = s;
+
+    	}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+    			.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+    			.setPos(3 + 18 * 2, 3 + 18 * 1).setSize(18, 18)
+    			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.inherit.0"))
+    			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.inherit.1"))
+    		);	
+     	builder.widget(new CycleButtonWidget().setToggle(() -> normalopt, (s) -> {
+     		normalopt = s;
+
+    	}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+    			.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+    			.setPos(3 + 18 * 3, 3 + 18 * 1).setSize(18, 18)
+    			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.normalopt.0"))
+    			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.normalopt.1"))
+    		);	    	*/
+		/// ////
+		ret.reg(1, 1, ExConfigEntry.create(
+				() -> allowopt, 
+				(s) -> {allowopt = s;},
+				"programmable_hatches.gt.allowopt.0",
+				"programmable_hatches.gt.allowopt.1"));
+		ret.reg(2, 1, ExConfigEntry.create(
+				() -> inherit, 
+				(s) -> {inherit = s;},
+				"programmable_hatches.gt.inherit.0",
+				"programmable_hatches.gt.inherit.1"
+				));
+
+		ret.reg(3, 1, ExConfigEntry.create(
+				() -> normalopt, 
+				(s) -> {normalopt = s;},
+				"programmable_hatches.gt.normalopt.0",
+				"programmable_hatches.gt.normalopt.1"
+				));
+		
+		
+		return ret;
+	}
     private T master; // use getMaster() to access
     public int masterX, masterY, masterZ;
     public boolean masterSet = false; // indicate if values of masterX,
@@ -181,7 +318,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         aNBT.setIntArray("multiplier", multiplier);
         aNBT.setBoolean("allowopt", allowopt);
         aNBT.setBoolean("inherit", inherit);
-        
+        aNBT.setBoolean("normalopt", normalopt);
         
     }
 
@@ -216,7 +353,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         allowopt=aNBT.getBoolean("allowopt");
         if(!aNBT.hasKey("inherit"))aNBT.setBoolean("inherit", true);
         inherit=aNBT.getBoolean("inherit");
-       
+        normalopt=aNBT.getBoolean("normalopt");
     }
 
     @Override
@@ -1636,8 +1773,10 @@ public boolean playerConfigClient;
 		builder.setGuiTint(getGUIColorization());
 		builder.setDraggable(true);
 		
+		exconfig.table.cellSet().stream().map(s->s.getValue().asMUI1(s.getRowKey(), s.getColumnKey()))
+		.forEach(builder::widget);
 
-    	
+    	/*
     	builder.widget(new CycleButtonWidget().setToggle(() -> allowopt, (s) -> {
     		allowopt = s;
 
@@ -1657,10 +1796,20 @@ public boolean playerConfigClient;
     			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.inherit.0"))
     			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.inherit.1"))
     		);	
-    	
-    	
+     	builder.widget(new CycleButtonWidget().setToggle(() -> normalopt, (s) -> {
+     		normalopt = s;
+
+    	}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+    			.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+    			.setPos(3 + 18 * 3, 3 + 18 * 1).setSize(18, 18)
+    			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.normalopt.0"))
+    			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.normalopt.1"))
+    		);	    	
+    	*/
     	return builder;
-    }@Override
+    }
+    boolean normalopt;
+    @Override
 	public void optimize(ItemStackMap<Pair<Object, Integer>> lookupMap) {
 		IInventory patternInv = this.getPatterns();
 
@@ -1697,9 +1846,16 @@ public boolean playerConfigClient;
 				isDividing = true;
 				bitMultiplier = -bitMultiplier;
 			}
+			
+			if(normalopt) {
+				 PatternMultiplierHelper.applyModification(stack, bitMultiplier);
+				 patternInv.setInventorySlotContents(i, stack);
+			}
+			else {
 			multiplier[i] = isDividing ? multiplier[i] >> bitMultiplier : multiplier[i] << bitMultiplier;
 			if (multiplier[i] <= 0) {
 				multiplier[i] = 1;
+			}
 			}
 			markDirty();
 			onPatternChange(); 
@@ -1719,4 +1875,8 @@ public boolean playerConfigClient;
 			if(a!=null)black.add(a.getPattern());
 		}
 	}
+    @Override
+    public void addGregTechLogo(Builder builder) {
+ //no-op
+    }
 }

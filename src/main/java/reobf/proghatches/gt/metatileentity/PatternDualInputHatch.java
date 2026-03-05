@@ -71,6 +71,7 @@ import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IInterfaceViewable;
@@ -810,14 +811,55 @@ public int page() {
     ICraftingPatternDetails[] patternDetailCache = new ICraftingPatternDetails[36];
 
     public static class DA implements ICraftingPatternDetails {
+    	 private IAEStack[] mul(IAEStack<?>[] in) {
+    		 IAEStack[] ret = new IAEStack[in.length];
+             for (int k = 0; k < ret.length; k++) {
+                 ret[k] = in[k];
+                 if (ret[k] != null) {
+                     ret[k] = ret[k].copy()
+                         .setStackSize(ret[k].getStackSize() * m);
+                 }
 
+             }
+             return ret;
+ 		}
         public DA(ICraftingPatternDetails p, int m) {
             if (p == null) throw new NullPointerException();
             this.p = p;
             this.m = m;
             if (m < 1) m = 1;
         }
-
+        IAEStack[] aeci,aeco,aei,aeo;
+        @Override
+        public IAEStack<?>[] getAEInputs() {
+        	 if (aei == null) {
+                 aei = mul(p.getAEInputs());
+        	 	}
+        	return aei;
+        }
+       
+		@Override
+        public IAEStack<?>[] getAEOutputs() {
+       	 if (aeo == null) {
+             aeo = mul(p.getAEOutputs());
+    	 	}
+       	 return aeo;
+        }
+        @Override
+        public IAEStack<?>[] getCondensedAEInputs() {
+       	 if (aeci == null) {
+             aeci = mul(p.getCondensedAEInputs());
+    	 	}
+       	 return aeci;
+       	 }
+        @Override
+        public IAEStack<?>[] getCondensedAEOutputs() {
+          	 if (aeco == null) {
+                 aeco = mul(p.getCondensedAEOutputs());
+        	 	}
+           	 return aeco;  }
+        
+        
         ICraftingPatternDetails p;
         int m;
 

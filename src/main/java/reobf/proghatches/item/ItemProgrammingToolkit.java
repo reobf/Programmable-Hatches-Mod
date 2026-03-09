@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,7 +30,10 @@ import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 
 import baubles.api.BaubleType;
+import baubles.api.BaublesApi;
 import baubles.api.IBauble;
+import baubles.common.network.PacketHandler;
+import baubles.common.network.PacketSyncBauble;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -110,6 +114,19 @@ public class ItemProgrammingToolkit extends Item implements IItemWithModularUI, 
             if (entityIn.ticksExisted % 80 == 12) {
                 EntityPlayer p = (EntityPlayer) entityIn;
                 p.triggerAchievement(MyMod.achievement);
+               if(p instanceof EntityPlayerMP) {
+            	   		int i=0;
+            	   		for(i=0;i<BaublesApi.getBaubles(p).getSizeInventory();i++) {
+            	   		if(BaublesApi.getBaubles(p).getStackInSlot(i)==stack) { 
+            	   			
+            	   			PacketHandler.INSTANCE.sendTo(new PacketSyncBauble(p, i), (EntityPlayerMP) p);
+            	   			break;
+            	   		};
+            	   		}
+            	   		
+            	   		
+               
+                }
             }
         }
 

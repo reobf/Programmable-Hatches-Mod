@@ -1662,12 +1662,14 @@ public int getCircuitSlot() {
 
 		@Override
 		    public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-		        buildContext.addSyncedWindow(88, this::createPatternWindow);
+		        
+			if(!disablePatternSlots())buildContext.addSyncedWindow(88, this::createPatternWindow);
 
 		        builder.widget(createRefundButton(builder));
-		        ButtonWidget b;
+		        ButtonWidget b= new ButtonWidget();
+		        if(!disablePatternSlots())
 		        builder.widget(
-		            (b = new ButtonWidget()).setOnClick(
+		            (b /*= new ButtonWidget()*/).setOnClick(
 		                (clickData, widget) -> {
 		                    if (widget.getContext()
 		                        .isClient() == false)
@@ -1725,6 +1727,11 @@ public int getCircuitSlot() {
 		
 		return builder;
 	}}
+
+	public boolean disablePatternSlots() {
+	
+		return false;
+	}
 
 
 }

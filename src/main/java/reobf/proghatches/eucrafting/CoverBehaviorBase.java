@@ -10,6 +10,7 @@ import com.google.common.io.ByteArrayDataInput;
 import gregtech.api.covers.CoverContext;
 import gregtech.api.interfaces.ITexture;
 import gregtech.common.covers.Cover;
+import gregtech.common.gui.modularui.cover.base.CoverBaseGui;
 import io.netty.buffer.ByteBuf;
 
 public abstract class CoverBehaviorBase<T extends ISer> extends Cover {
@@ -59,6 +60,12 @@ public abstract class CoverBehaviorBase<T extends ISer> extends Cover {
         coverData.writeToByteBuf(byteBuf);
         super.writeDataToByteBuf(byteBuf);
     }
+    
+@Override
+protected @NotNull CoverBaseGui<?> getCoverGui() {
+	
+	return super.getCoverGui();
+}
 
     private static final String NBT_DATA = "d";
 }

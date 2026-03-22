@@ -7,7 +7,7 @@
  *  - api("g:n:v:c"): if the mod you're building doesn't need this dependency during runtime at all, e.g. for optional mods
  *       Not available at all for mods depending on this mod, only visible at compiletime for this mod
  *  - api("g:n:v:c"): like api, but also visible at compiletime for mods depending on this mod
- *       Available at compiletime but not runtime for mods depending on this mod
+ *       Available at compiletime but not runt-ime for mods depending on this mod
  *  - runtimeOnlyNonPublishable("g:n:v:c"): if you want to include a mod in this mod's runClient/runServer runs, but not publish it as a dependency
  *       Not available at all for mods depending on this mod, only visible at runtime for this mod
  *  - devOnlyNonPublishable("g:n:v:c"): a combination of runtimeOnlyNonPublishable and api for dependencies present at both compiletime and runtime,
@@ -35,9 +35,9 @@
  */
 
 dependencies {
- api("com.github.GTNewHorizons:AE2FluidCraft-Rework:1.5.60-gtnh:dev")
+ api("com.github.GTNewHorizons:AE2FluidCraft-Rework:1.5.68-gtnh:dev")
  api('com.github.GTNewHorizons:GT5-Unofficial:5.09.52.295:dev')
-api("com.github.GTNewHorizons:Applied-Energistics-2-Unofficial:rv3-betea-833-GTNH:dev")
+api("com.github.GTNewHorizons:Applied-Energistics-2-Unofficial:rv3-beta-871-GTNH:dev")
 
 
    //api('com.github.GTNewHorizons:GT5-Unofficial:5.09.52.190:dev')

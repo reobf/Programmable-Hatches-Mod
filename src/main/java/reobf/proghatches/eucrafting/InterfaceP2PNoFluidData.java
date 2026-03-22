@@ -718,7 +718,22 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
         // TODO Auto-generated method stub
         return side;
     }
-
+    @Override
+	public void mui2Click( EntityPlayer entityPlayer) {
+    	 if (hasAEGUI() && !entityPlayer
+    	            .getEntityWorld().isRemote) {
+    		 entityPlayer
+    	                .openGui(
+    	                    MyMod.instance,
+    	                    side.ordinal(),
+    	                    entityPlayer
+    	                        .getEntityWorld(),
+    	                    this.getPos().x,
+    	                    this.getPos().y,
+    	                    this.getPos().z);
+    	        }
+		
+	}
     @Override
     public void addUIWidgets(Builder builder, CoverUIBuildContext CoverUIBuildContext) {
         if ((hasAEGUI() && !CoverUIBuildContext.getPlayer()

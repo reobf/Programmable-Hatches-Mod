@@ -3,6 +3,9 @@ package reobf.proghatches.eucrafting;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
+import org.jetbrains.annotations.NotNull;
+
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
@@ -485,7 +488,22 @@ public ItemStack getSelfRep() {
                     this.getPos().z);
         }
     }
-
+    @Override
+	public void mui2Click( EntityPlayer entityPlayer) {
+    	 if (hasAEGUI() && !entityPlayer
+    	            .getEntityWorld().isRemote) {
+    		 entityPlayer
+    	                .openGui(
+    	                    MyMod.instance,
+    	                    side.ordinal(),
+    	                    entityPlayer
+    	                        .getEntityWorld(),
+    	                    this.getPos().x,
+    	                    this.getPos().y,
+    	                    this.getPos().z);
+    	        }
+		
+	}
     @Override
     public ForgeDirection getActualSide() {
 

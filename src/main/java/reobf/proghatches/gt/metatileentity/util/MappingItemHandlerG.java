@@ -11,6 +11,7 @@ import appeng.util.item.AEItemStack;
 import gregtech.api.util.GTUtil;
 import gregtech.api.util.GTUtility;
 import gtPlusPlus.core.util.minecraft.ItemUtils;
+import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 
 public class MappingItemHandlerG
@@ -19,7 +20,8 @@ public class MappingItemHandlerG
     {
 
     public Runnable update = () -> {};
-
+	private DualInvBuffer b;
+public MappingItemHandlerG bind(DualInvBuffer b) {this.b=b;return this;}
     public MappingItemHandlerG(ItemStackG[] is, int index, int num) {
         this.is = is;
         this.index = index;

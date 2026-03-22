@@ -403,6 +403,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 	public int currentID = 1;
 	public HashBiMap<Recipe, Integer> detailmap = HashBiMap.create();
 	public HashMap<Integer, Integer> detailmapUsage = new HashMap();
+	public static boolean emptyopt=true;
 	public class DualInvBuffer implements INeoDualInputInventory {
 
 		public int PID;
@@ -414,7 +415,9 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		public void onChange() {
 		}
-
+		//true->might have something but not 100% sure
+		//false->100% empty
+		public boolean nonempty;
 		protected FluidTankG[] mStoredFluidInternal;
 		protected ItemStackG[] mStoredItemInternal;
 		protected FluidTank[] mStoredFluidInternalSingle;
@@ -430,7 +433,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		// public boolean lock;
 		public boolean full() {
-
+			if(nonempty==false&&emptyopt)return false;
 			for (int index = 0; index < mStoredItemInternalSingle.length; index++) {
 				ItemStackG i = mStoredItemInternal[index];
 				ItemStack si = mStoredItemInternalSingle[index];
@@ -461,14 +464,15 @@ public class BufferedDualInputHatch extends DualInputHatch
 		}
 
 		public void updateSlots() {
+			nonempty=false;
 			for (int i = 0; i < this.i; i++)
-				if (mStoredItemInternal[i] != null && mStoredItemInternal[i].stackSize() <= 0) {
+				if ((mStoredItemInternal[i] != null && mStoredItemInternal[i].stackSize() <= 0)||mStoredItemInternal[i] == null) {
 					mStoredItemInternal[i] = null;
-				}
+				}else {nonempty=true;}
 			for (int i = 0; i < this.f; i++)
 				if (Optional.ofNullable(mStoredFluidInternal[i].getFluid()).filter(s -> s.amount == 0).isPresent()) {
 					mStoredFluidInternal[i].setFluid(null);
-				}
+				}else {nonempty=true;}
 
 		}
 
@@ -510,6 +514,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 				for (int i = 0; i < mStoredFluidInternal.length; i++) {
 					if (tag.hasKey("mStoredFluidInternal" + i)) {
 						mStoredFluidInternal[i].readFromNBT(tag.getCompoundTag("mStoredFluidInternal" + i));
+						if(mStoredFluidInternal[i].getFluidAmount()>0)nonempty=true;
 					}
 				}
 			}
@@ -524,6 +529,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 				for (int i = 0; i < mStoredItemInternal.length; i++) {
 					if (tag.hasKey("mStoredItemInternal" + i)) {
 						mStoredItemInternal[i] = loadItemStackFromNBTG(tag.getCompoundTag("mStoredItemInternal" + i));
+						if(mStoredItemInternal[i]!=null&&mStoredItemInternal[i].stackSize()>0)nonempty=true;
 					}
 				}
 			}
@@ -588,18 +594,18 @@ public class BufferedDualInputHatch extends DualInputHatch
 		}
 
 		public boolean isEmpty() {
-
+			if(nonempty==false&&emptyopt)return true;
 			for (FluidTankG f : mStoredFluidInternal) {
-				if (f.isEmpty()==false) {
+				if (f.isEmpty()==false) {nonempty=true;
 					return false;
 				}
 			}
 			for (ItemStackG i : mStoredItemInternal) {
 
-				if (i != null && i.isEmpty()==false) {
+				if (i != null && i.isEmpty()==false) {nonempty=true;
 					return false;
 				}
-			}
+			}nonempty=false;
 			return true;
 		}
 
@@ -701,12 +707,13 @@ public class BufferedDualInputHatch extends DualInputHatch
 				mStoredFluidInternal[ix]
 						.setFluid(Optional.ofNullable(fin[ix].getFluid()).map(FluidStack::copy).orElse(null));
 				fin[ix].setFluidDirect(null);
-
+				nonempty=true;
 			}
 			for (int ix = 0; ix < Math.min(i,hinti); ix++) {
 				mStoredItemInternal[ix] = ItemStackG
 						.neo(Optional.ofNullable(iin[ix]).map(ItemStack::copy).orElse(null));
 				iin[ix] = null;
+				nonempty=true;
 			}
 			/*
 			 * Long tick=tickFirstClassify+2;
@@ -718,6 +725,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			onClassify();
 			programLocal();
 			onChange();
+			justHadNewItems = true;
 		}
 
 		private void programLocal() {
@@ -805,7 +813,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 					fin[ix].setFluidDirect(null);
 				else if (fin[ix].getFluid() != null)
 					fin[ix].setFluidDirect(fin[ix].getFluid().copy());
-
+				nonempty=true;
 			}
 			for (int ix = 0; ix < (enableOpt?indexItem+1:i); ix++) {
 				if (mStoredItemInternalSingle[ix] != null)
@@ -817,6 +825,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 					iin[ix] = null;
 				else if (iin[ix] != null)
 					iin[ix] = iin[ix].copy();
+				nonempty=true;
 			}
 			tickFirstClassify = -1;// make it instantly accessible
 			markJustHadNewItems();
@@ -833,6 +842,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			if (program)
 				programLocal();
 			onChange();
+			justHadNewItems = true;
 			return true;
 		}
 
@@ -878,8 +888,9 @@ public class BufferedDualInputHatch extends DualInputHatch
 			 * 1]; bruh[before_size] = additional; System.arraycopy(condensed,
 			 * 0, bruh, 0, before_size); return bruh;
 			 */
-
-			ItemStack[] condensed = filterStack.apply(flat(mStoredItemInternal), shared.getItems());
+			ItemStack[] flat = flat(mStoredItemInternal);
+			if(flat.length==0)nonempty=false;
+			ItemStack[] condensed = filterStack.apply(flat, shared.getItems());
 
 			// if(!trunOffEnsure){condensed=ensureIntMax(condensed);}
 
@@ -889,6 +900,8 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		@Override
 		public FluidStack[] getFluidInputs() {
+			FluidStack[] flat = flat(mStoredFluidInternal);
+			if(flat.length==0)nonempty=false;
 			FluidStack[] condensed = asFluidStack.apply(flat(mStoredFluidInternal), shared.getFluid());
 			// if(!trunOffEnsure){condensed=ensureIntMax(condensed);}
 
@@ -1154,6 +1167,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 							moveTo(from.mStoredFluidInternalSingle, to.mStoredFluidInternalSingle);
 							moveTo(from.mStoredItemInternal, to.mStoredItemInternal);
 							moveTo(from.mStoredItemInternalSingle, to.mStoredItemInternalSingle);
+							to.nonempty=true;
 							to.f = from.f;
 							to.i = from.i;
 							// to.fp=from.fp;
@@ -1521,7 +1535,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 	}
 		public void add1by1Slot(ModularWindow.Builder builder, int index, IDrawable... background) {
 			final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
-					offset, 1).id(1);
+					offset, 1).bind(inv0.get(index)).id(1);
 			if (background.length == 0) {
 				background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 			}
@@ -1532,7 +1546,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		public void add2by2Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
 			final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
-					offset, 4).id(1);
+					offset, 4).bind(inv0.get(index)).id(1);
 			if (background.length == 0) {
 				background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 			}
@@ -1543,7 +1557,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		public void add3by3Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
 			final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
-					offset, 9).id(1);
+					offset, 9).bind(inv0.get(index)).id(1);
 			if (background.length == 0) {
 				background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 			}
@@ -1554,7 +1568,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		
 		public void add4by4Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
 			final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
-					offset, 16*page()).id(1);
+					offset, 16*page()).bind(inv0.get(index)).id(1);
 			if (background.length == 0) {
 				background = new IDrawable[] { getGUITextureSet().getItemSlot() };
 			}
@@ -1674,7 +1688,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 				final Scrollable scrollable = new Scrollable().setVerticalScroll();
 				for (int i = 0; i < inv0.get(index).mStoredFluidInternal.length; i++) {
 					position0 = new Pos2d((i % fluidSlotsPerRow()) * 18, (i / fluidSlotsPerRow()) * 18);
-					scrollable.widget(new FluidSlotWidget(new LimitedFluidTank(inv0.get(index).mStoredFluidInternal[i]))
+					scrollable.widget(new FluidSlotWidget(new LimitedFluidTank(inv0.get(index).mStoredFluidInternal[i]).bind(inv0.get(index)))
 							.setBackground(ModularUITextures.FLUID_SLOT).setPos(position0));
 
 				}
@@ -1771,6 +1785,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 					// player operation is more complicated, always set to true when
 					// GUI open
 					BufferedDualInputHatch.this.dirty = true;
+					BufferedDualInputHatch.this.inv0.forEach(s->s.nonempty=true);
 					markDirty();
 					// flush changes to client
 					// sometimes vanilla detection will fail so sync it manually
@@ -1993,14 +2008,15 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 	public class LimitedFluidTank implements IFluidTank {
 
 		FluidTankG inner;
-
+		private DualInvBuffer b;
+		public LimitedFluidTank bind(DualInvBuffer b) {this.b=b;;return this;}
 		public LimitedFluidTank(FluidTankG mStoredFluidInternal) {
 			inner = mStoredFluidInternal;
 		}
 
 		@Override
 		public FluidStack getFluid() {
-
+			//b.nonempty=true;
 			return inner.getFluid();
 		}
 
@@ -2029,7 +2045,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 
 		@Override
 		public int fill(FluidStack resource, boolean doFill) {
-
+			b.nonempty=true;
 			return inner.fill(resource, doFill);
 		}
 
@@ -2083,13 +2099,13 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 
 		if (Config.experimentalOptimize) {
 
-			return (Optional) inv0.stream().filter((DualInvBuffer::isAccessibleForMulti)).map(s -> new PiorityBuffer(s))
+			return (Optional) inv0.stream().filter(s->s.nonempty||!emptyopt).filter((DualInvBuffer::isAccessibleForMulti)).map(s -> new PiorityBuffer(s))
 					.sorted().map(s -> {
 						return s.buff;
 					}).findFirst();
 		} else {
 
-			return (Optional) inv0.stream().filter((DualInvBuffer::isAccessibleForMulti)).findFirst();
+			return (Optional) inv0.stream().filter(s->s.nonempty||!emptyopt).filter((DualInvBuffer::isAccessibleForMulti)).findFirst();
 
 		}
 
@@ -2120,14 +2136,14 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 
 		if (Config.experimentalOptimize) {
 
-			return inv0.stream().filter(DualInvBuffer::isAccessibleForMulti).map(s -> new PiorityBuffer(s)).sorted()
+			return inv0.stream().filter(s->s.nonempty||!emptyopt).filter(DualInvBuffer::isAccessibleForMulti).map(s -> new PiorityBuffer(s)).sorted()
 					.map(s -> {
 						return s.buff;
 					}).map(this::wrap)
 
 					.iterator();
 		}
-		return inv0.stream().filter(DualInvBuffer::isAccessibleForMulti).map(this::wrap).iterator();
+		return inv0.stream().filter(s->s.nonempty||!emptyopt).filter(DualInvBuffer::isAccessibleForMulti).map(this::wrap).iterator();
 
 	}
 
@@ -3234,6 +3250,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 				@Override
 				public void detectAndSendChanges(boolean init) {
 					BufferedDualInputHatch.this.dirty = true;
+					BufferedDualInputHatch.this.inv0.forEach(s->s.nonempty=true);
 					markDirty();
 				}
 			});
@@ -3338,7 +3355,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 			int x=Math.min(3, slotTierOverride(mTier))+1;
 			
 			final MappingItemHandlerG inventoryHandler = new MappingItemHandlerG(inv0.get(ind).mStoredItemInternal,
-					0, x*x*page()).id(1);
+					0, x*x*page()).bind(inv0.get(ind)).id(1);
 			switch (slotTierOverride(mTier)) {
 			case 0:
 				genSlots = () -> gridTemplate1by1(
@@ -3372,7 +3389,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 				
 				list.addChild(new FluidSlot()
 						.pos(i % fluidSlotsPerRow() * 18, (i / fluidSlotsPerRow()) * 18)
-						.syncHandler(new LimitedFluidTank(inv0.get(ind).mStoredFluidInternal[i]))
+						.syncHandler(new LimitedFluidTank(inv0.get(ind).mStoredFluidInternal[i]).bind(inv0.get(ind)))
 						
 						, i);
 				

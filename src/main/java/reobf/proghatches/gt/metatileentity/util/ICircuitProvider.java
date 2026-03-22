@@ -3,7 +3,10 @@ package reobf.proghatches.gt.metatileentity.util;
 import java.util.Collection;
 import java.util.HashSet;
 
+import gregtech.api.metatileentity.BaseMetaTileEntity;
+import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 
 public interface ICircuitProvider {
 
@@ -18,5 +21,15 @@ public interface ICircuitProvider {
         return blacklist.add(this);
 
     };
+    public default TileEntity getTile() {
+    	if(this instanceof MetaTileEntity mte) {
+    		if(mte.getBaseMetaTileEntity() instanceof TileEntity te) {
+    			return te;
+    		}
+    		
+    	}
+    	
+    	return null;
+    }
 
 }

@@ -731,7 +731,22 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
         if (duality.hasCustomName()) return duality.getCustomName();
         return null;
     }
-
+    @Override
+	public void mui2Click( EntityPlayer entityPlayer) {
+    	 if (hasAEGUI() && !entityPlayer
+    	            .getEntityWorld().isRemote) {
+    		 entityPlayer
+    	                .openGui(
+    	                    MyMod.instance,
+    	                    side.ordinal(),
+    	                    entityPlayer
+    	                        .getEntityWorld(),
+    	                    this.getPos().x,
+    	                    this.getPos().y,
+    	                    this.getPos().z);
+    	        }
+		
+	}
     @Override
     public void addUIWidgets(Builder builder, CoverUIBuildContext CoverUIBuildContext) {
         if (hasAEGUI() && !CoverUIBuildContext.getPlayer()

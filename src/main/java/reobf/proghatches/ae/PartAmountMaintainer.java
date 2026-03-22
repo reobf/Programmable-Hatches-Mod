@@ -326,7 +326,23 @@ public class PartAmountMaintainer extends PartBasicState
                                     source);
                                 /* IAEStack notadd = */getStorage(getProxy().getStorage(), ch)
                                     .injectItems(realtake, Actionable.MODULATE, source);
-                            }
+                            }else {
+                            	long notaddamount=notadd.getStackSize();//stuff cannot go in
+                            	expected-=notaddamount;//remove those part
+                            	IAEStack again = inv.injectItems(is.copy()
+                                        .setStackSize(-amount + expected), Actionable.SIMULATE, source);
+                            	if (again == null || again.getStackSize() == 0) {
+                                    IAEStack realtake = getStorage(getProxy().getStorage(), ch).extractItems(
+                                            is.copy()
+                                                .setStackSize(-amount + expected),
+                                            Actionable.MODULATE,
+                                            source);if(realtake!=null)
+                                    /* IAEStack notadd = */inv.injectItems(realtake, Actionable.MODULATE, source);
+                            	}else {
+                            		//Someone implemented the handler terribly, there's nothing I can do!
+                            	}
+                            	
+                        }
 
                         } catch (GridAccessException e) {}
                     }
@@ -353,6 +369,22 @@ public class PartAmountMaintainer extends PartBasicState
                                     Actionable.MODULATE,
                                     source);
                                 /* IAEStack notadd = */inv.injectItems(realtake, Actionable.MODULATE, source);
+                            }else {
+	                            	long notaddamount=notadd.getStackSize();//stuff cannot go in
+	                            	expected-=notaddamount;//remove those part
+	                            	IAEStack again = inv.injectItems(is.copy()
+                                            .setStackSize(-amount + expected), Actionable.SIMULATE, source);
+	                            	if (again == null || again.getStackSize() == 0) {
+	                                    IAEStack realtake = getStorage(getProxy().getStorage(), ch).extractItems(
+	                                            is.copy()
+	                                                .setStackSize(-amount + expected),
+	                                            Actionable.MODULATE,
+	                                            source);if(realtake!=null)
+	                                    /* IAEStack notadd = */inv.injectItems(realtake, Actionable.MODULATE, source);
+	                            	}else {
+	                            		//Someone implemented the handler terribly, there's nothing I can do!
+	                            	}
+	                            	
                             }
 
                         } catch (GridAccessException e) {}

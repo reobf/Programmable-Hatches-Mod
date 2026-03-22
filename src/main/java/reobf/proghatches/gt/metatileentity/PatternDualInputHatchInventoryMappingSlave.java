@@ -1559,7 +1559,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         return allowopt;
     }
     boolean inherit;
-boolean allowopt;
+    boolean allowopt=true;
 public boolean shouldDisplayMaster;
 
 
@@ -1683,7 +1683,7 @@ public boolean playerConfigClient;
                                     .amountAcc(theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount() * 1l * todo);
                             }
                         }
-
+                        theBuffer.nonempty=true;
                         suc += todo;
                     }
                     theBuffer.onChange();

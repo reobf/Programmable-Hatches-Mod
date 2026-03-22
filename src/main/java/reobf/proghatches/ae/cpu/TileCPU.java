@@ -611,14 +611,14 @@ public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 		}*/
 		
 		k:{
-			boolean anynew=false;
+			boolean donotCreateNewCCC=false;
 			Iterator<Entry<CraftingCPUCluster, Data>> it = clusterData.entrySet().iterator();
 			for(;it.hasNext();){
 				Entry<CraftingCPUCluster, Data> set = it.next();
 
 					if (set.getValue().state == 0) {
-						
 						if (set.getKey().isBusy()) {
+							//new task submitted
 							set.getValue().state = 1;
 						} else
 						{
@@ -635,14 +635,14 @@ public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 							}
 							
 							
-							anynew = true;}
+							donotCreateNewCCC = true;}
 					}
 				
 				
 				if(set.getValue().state==1){
 					if(!set.getKey().isBusy()){
+						//that means the task is finished
 						if(set.getKey().getInventory().isEmpty()){
-						//cluster.remove(set.getKey());
 						refund(set.getValue().usedStorage);
 						set.getValue().usedStorage.clear();
 						it.remove();
@@ -655,7 +655,8 @@ public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 				
 			}	
 			
-			if(anynew)break k;
+			if(donotCreateNewCCC)break k;
+			//create a new virtual CPU for use
 			long get=qureyStorage();
 			CraftingCPUCluster c = newCCC();
 			((IExternalManagerHolder)(Object)c).setStorage(get);

@@ -24,10 +24,14 @@ import net.minecraftforge.fluids.Fluid;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.UISettings;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.glodblock.github.loader.ItemAndBlockHolder;
 import com.google.common.io.ByteArrayDataInput;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+import com.gtnewhorizons.modularui.common.internal.wrapper.ModularUIContainer;
 
 import appeng.api.exceptions.FailedConnection;
 import appeng.api.networking.GridFlags;
@@ -52,7 +56,10 @@ import gregtech.api.gui.modularui.CoverUIBuildContext;
 import gregtech.api.gui.modularui.GTUIInfos;
 import gregtech.api.interfaces.tileentity.ICoverable;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.modularui2.CoverGuiData;
 import gregtech.common.covers.Cover;
+import gregtech.common.covers.CoverLegacyData;
+import gregtech.common.gui.modularui.cover.base.CoverBaseGui;
 //import gregtech.crossmod.waila.GregtechTEWailaDataProvider;
 //import gregtech.crossmod.waila.GregtechWailaDataProvider;
 import io.netty.buffer.ByteBuf;
@@ -580,6 +587,8 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
         void setTag(NBTTagCompound tagCompound);
 
         NBTTagCompound getTag();
+
+		default void mui2Click(@NotNull EntityPlayer entityPlayer) {};
     }
 
     // private static Throwable t = new Throwable();
@@ -954,7 +963,26 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
             (((AECover) buildContext.getTile()
                 .getCoverAtSide(buildContext.getCoverSide())).coverData)).createWindow();
     }
+@Override
+protected @NotNull CoverBaseGui<?> getCoverGui() {
 
+	return new  CoverBaseGui<>(this) {
+		Data data;
+		@Override
+		public ModularPanel createBasePanel(String panelName, PanelSyncManager syncManager, UISettings uiSettings,
+				CoverGuiData data) {
+			this.data = ((AECover) data.getCoverable().getCoverAtSide(data.getSide())).coverData;
+			
+			if(this.data.hasAEGUI()) {
+				
+				this.data.mui2Click(data.getPlayer());
+			}
+			
+			return super.createBasePanel(panelName, syncManager, uiSettings, data);
+		}
+		
+	};
+}
     private class AECoverUIFactory extends CoverUIFactory<AECover> {
 
         public AECoverUIFactory(CoverUIBuildContext buildContext, Data d) {
@@ -964,11 +992,7 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
 
         Data data;
 
-        @Override
-        public ModularWindow createWindow() {
-            // TODO Auto-generated method stub
-            return super.createWindow();
-        }
+
 
         @Override
         public void addUIWidgets(Builder builder) {
@@ -976,7 +1000,11 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
             data.addUIWidgets(builder, getUIBuildContext());
         }
     }
-
+@Override
+public ModularUIContainer createCoverContainer(EntityPlayer player) {
+	// TODO Auto-generated method stub
+	return super.createCoverContainer(player);
+}
     @Override
     public boolean allowsCopyPasteTool() {
 

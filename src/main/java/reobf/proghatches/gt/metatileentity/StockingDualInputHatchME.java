@@ -693,7 +693,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
                             .setPos(3, 22)
                             .setSize(74, 14))
                         .addChild(
-                            new NumericWidget().setSetter(val -> interval = (int) val)
+                            new NumericWidget().setSetter(val -> interval = Math.max((int) val,1))
                                 .setGetter(() -> interval)
                                 .setBounds(1, Integer.MAX_VALUE)
                                 .setScrollValues(1, 4, 64)
@@ -898,6 +898,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
         if (getBaseMetaTileEntity().isServerSide()) {
             program();
+            interval=Math.max(1, interval);
             if (aTimer % interval == 0 && autoPullItemList) {
                 refreshItemList();
                 refreshItemListF();

@@ -1188,7 +1188,7 @@ public int page() {
        
         return allowopt;
     }
-boolean allowopt;
+boolean allowopt=true;
     @Override
     public int[] pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
         if (Config.fastPatternDualInput == false) return AZERO;
@@ -1289,6 +1289,7 @@ boolean allowopt;
                             .amountAcc(theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount() * 1l * todo);
                     }
                 }
+                theBuffer.nonempty=true;
                 suc += todo;
             }
             theBuffer.onChange();

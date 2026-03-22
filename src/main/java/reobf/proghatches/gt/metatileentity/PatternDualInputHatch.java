@@ -84,6 +84,7 @@ import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
+import appeng.util.PatternMultiplierHelper;
 import appeng.util.Platform;
 import codechicken.nei.ItemStackMap;
 import codechicken.nei.ItemStackSet;
@@ -427,6 +428,10 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
     private static final NumberFormatMUI numberFormatx = new NumberFormatMUI();
     boolean needPatternSync;
 
+
+
+	private boolean normalopt;
+
     private void onPatternChange() {
         if (!getBaseMetaTileEntity().isServerSide()) return;
         // we do not refund 'cause it's impossible to trace the item
@@ -516,7 +521,7 @@ public int page() {
             multiplier[i] = Math.max(multiplier[i], 1);
         }
         restrictToInt=aNBT.getBoolean("restrictToInt" );
-        allowopt=aNBT.getBoolean("allowopt");
+        allowopt=aNBT.getBoolean("allowopt");normalopt=aNBT.getBoolean("normalopt");
         updateValidGridProxySides();
     }
 
@@ -538,7 +543,7 @@ public int page() {
         aNBT.setLong("saved", saved);
         aNBT.setIntArray("multiplier", multiplier);
         aNBT.setBoolean("restrictToInt", restrictToInt); 
-        aNBT.setBoolean("allowopt", allowopt);
+        aNBT.setBoolean("allowopt", allowopt); aNBT.setBoolean("normalopt", normalopt);
         super.saveNBTData(aNBT);
     }
 
@@ -1142,7 +1147,7 @@ public int page() {
        
         return allowopt;
     }
-boolean allowopt;
+boolean allowopt=true;
     @Override
     public int[] pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
         if (Config.fastPatternDualInput == false) return AZERO;
@@ -1331,7 +1336,11 @@ public int getCircuitSlot() {
 				isDividing = true;
 				bitMultiplier = -bitMultiplier;
 			}
-			multiplier[i] = isDividing ? multiplier[i] >> bitMultiplier : multiplier[i] << bitMultiplier;
+			if(normalopt) {
+				 PatternMultiplierHelper.applyModification(stack, bitMultiplier);
+				 patternInv.setInventorySlotContents(i, stack);
+			}
+			else multiplier[i] = isDividing ? multiplier[i] >> bitMultiplier : multiplier[i] << bitMultiplier;
 			if (multiplier[i] <= 0) {
 				multiplier[i] = 1;
 			}
@@ -1722,7 +1731,15 @@ public int getCircuitSlot() {
 				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.1"))
 			);	
 		
-		
+		builder.widget(new CycleButtonWidget().setToggle(() -> normalopt, (s) -> {
+			normalopt = s;
+
+		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+				.setPos(3 + 18 * 3, 3 + 18 * 1).setSize(18, 18)
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.normalopt.0"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.normalopt.1"))
+			);		
 		
 		
 		return builder;

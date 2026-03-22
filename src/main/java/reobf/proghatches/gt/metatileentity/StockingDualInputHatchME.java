@@ -898,6 +898,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
         if (getBaseMetaTileEntity().isServerSide()) {
             program();
+            interval=Math.max(1, interval);
             if (aTimer % interval == 0 && autoPullItemList) {
                 refreshItemList();
                 refreshItemListF();

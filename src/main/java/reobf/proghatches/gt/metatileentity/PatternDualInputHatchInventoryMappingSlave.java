@@ -85,6 +85,7 @@ import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.tile.misc.TileInterface;
+import appeng.util.PatternMultiplierHelper;
 import codechicken.nei.ItemStackMap;
 import codechicken.nei.ItemStackSet;
 import gregtech.GTMod;
@@ -128,6 +129,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
     private T master; // use getMaster() to access
     public int masterX, masterY, masterZ;
     public boolean masterSet = false; // indicate if values of masterX,
+	private boolean normalopt;
                                       // masterY, masterZ are valid
 
     public PatternDualInputHatchInventoryMappingSlave(int aID, String aName, String aNameRegional, int aTier) {
@@ -180,7 +182,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 
         aNBT.setIntArray("multiplier", multiplier);
         aNBT.setBoolean("allowopt", allowopt);
-        aNBT.setBoolean("inherit", inherit);
+        aNBT.setBoolean("inherit", inherit); aNBT.setBoolean("normalopt", normalopt);
         
         
     }
@@ -214,7 +216,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
             multiplier[i] = Math.max(multiplier[i], 1);
         }
         allowopt=aNBT.getBoolean("allowopt");
-        if(!aNBT.hasKey("inherit"))aNBT.setBoolean("inherit", true);
+        if(!aNBT.hasKey("inherit"))aNBT.setBoolean("inherit", true);normalopt=aNBT.getBoolean("normalopt");
         inherit=aNBT.getBoolean("inherit");
        
     }
@@ -1422,7 +1424,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         return allowopt;
     }
     boolean inherit;
-boolean allowopt;
+    boolean allowopt=true;
 public boolean shouldDisplayMaster;
 
 
@@ -1658,7 +1660,15 @@ public boolean playerConfigClient;
     			.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.inherit.1"))
     		);	
     	
-    	
+		builder.widget(new CycleButtonWidget().setToggle(() -> normalopt, (s) -> {
+			normalopt = s;
+
+		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
+				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
+				.setPos(3 + 18 * 3, 3 + 18 * 1).setSize(18, 18)
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.normalopt.0"))
+				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.normalopt.1"))
+			);		
     	return builder;
     }@Override
 	public void optimize(ItemStackMap<Pair<Object, Integer>> lookupMap) {
@@ -1697,7 +1707,11 @@ public boolean playerConfigClient;
 				isDividing = true;
 				bitMultiplier = -bitMultiplier;
 			}
-			multiplier[i] = isDividing ? multiplier[i] >> bitMultiplier : multiplier[i] << bitMultiplier;
+			if(normalopt) {
+				 PatternMultiplierHelper.applyModification(stack, bitMultiplier);
+				 patternInv.setInventorySlotContents(i, stack);
+			}
+			else multiplier[i] = isDividing ? multiplier[i] >> bitMultiplier : multiplier[i] << bitMultiplier;
 			if (multiplier[i] <= 0) {
 				multiplier[i] = 1;
 			}

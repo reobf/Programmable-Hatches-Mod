@@ -51,6 +51,7 @@ import com.gtnewhorizons.modularui.common.widget.SlotWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import appeng.api.AEApi;
+import appeng.api.config.CraftingAllow;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.CraftingItemList;
@@ -191,7 +192,8 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
         aNBT.setTag("refunds", writeList(refunds));;
         aNBT.setTag("acc", writeList(acc));;
         aNBT.setTag("accCondenser", writeList(accCondenser));;
-        aNBT.setString("myName", myName);
+        aNBT.setString("myName", myName); 
+        aNBT.setInteger("cmode", cmode.ordinal());
 		super.saveNBTData(aNBT);
 	};
 
@@ -222,7 +224,7 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 		updateCondenserCache();
 		myName=aNBT.getString("myName");
 		super.loadNBTData(aNBT);
-
+		 cmode=CraftingAllow.values()[aNBT.getInteger("cmode")];
 	};
 
 	//List<CraftingCPUCluster> cluster = new ArrayList<>();
@@ -1097,5 +1099,13 @@ protected void onCorrectCasingAdded() {
     	
     	super.getWailaBody(itemStack, currentTip, accessor, config);
     }  
-  
+    CraftingAllow cmode=CraftingAllow.ALLOW_ALL;
+	public CraftingAllow getCraftingAllowMode() {
+		
+		return cmode;
+	}
+
+	public void changeCraftingAllowMode(CraftingAllow mode) {
+		cmode=mode;
+	}
 }

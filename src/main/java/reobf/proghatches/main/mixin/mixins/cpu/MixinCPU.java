@@ -14,6 +14,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 
+import appeng.api.config.CraftingAllow;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.crafting.ICraftingJob;
 import appeng.api.networking.crafting.ICraftingLink;
@@ -33,8 +34,8 @@ import reobf.proghatches.main.asm.repack.objectwebasm.Opcodes;
 
 @Mixin(value=CraftingCPUCluster.class,remap=false)
 public class MixinCPU implements IExternalManagerHolder{
-	
-	
+	@Shadow
+	public void markDirty() {}
 	
 	@Inject(at = { @At("HEAD") },method="isDestroyed",cancellable=true,require=1)
 	 public void isDestroyed(CallbackInfoReturnable<Boolean> ci) 
@@ -209,5 +210,28 @@ public class MixinCPU implements IExternalManagerHolder{
 				//⧗⏳ ⏳
 				(((CraftingCPUCluster)(Object)this).isBusy()?"(⌛)":"(+)")
 				);
-	  }
+	  }	@Inject(at = { @At("HEAD") },method="changeCraftingAllowMode",cancellable=true,require=1)
+		 public void changeCraftingAllowMode(CraftingAllow mode,CallbackInfo ci) 
+		{
+			
+			if(ex!=null){
+				
+			ex.changeCraftingAllowMode(mode);
+				this.markDirty();
+				ci.cancel();
+			}
+
+		}
+		@Inject(at = @At("HEAD"),method="getCraftingAllowMode",cancellable=true,require=1)
+		 public void getCraftingAllowMode(CallbackInfoReturnable<CraftingAllow> ci) 
+		{
+			
+			if(ex!=null){
+				
+			ci.setReturnValue(ex.getCraftingAllowMode());
+				
+				
+			}
+			
+		 }
 }

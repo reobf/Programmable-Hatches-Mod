@@ -179,12 +179,12 @@ public class PartSubnetExciter extends PartBasicState implements IAEPowerStorage
                 // if(ok)w .playSoundEffect((double)(getHost().getTile().xCoord + 0.5F),
                 // (double)(getHost().getTile().yCoord + 0.5F), (double)(getHost().getTile().zCoord + 0.5F),
                 // "random.orb", 0.5F, 2.6F + (w.rand.nextFloat() - w.rand.nextFloat()) * 0.8F);
-
+                /*
                 ChannelLoader.sendPacketToAllPlayers(
                     this.host.getTile()
                         .getDescriptionPacket(),
                     this.host.getTile()
-                        .getWorldObj());
+                        .getWorldObj());*/
 
             } catch (GridAccessException e) {}
         }

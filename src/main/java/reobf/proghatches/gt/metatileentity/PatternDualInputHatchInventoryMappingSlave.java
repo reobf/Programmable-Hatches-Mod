@@ -325,6 +325,15 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
      * net.minecraft.entity.player.EntityPlayer,
      * net.minecraftforge.common.util.ForgeDirection, float, float, float)
      */
+   @Override
+public void onLeftclick(IGregTechTileEntity baseMetaTileEntity, EntityPlayer player) {
+	   if(player.isSneaking()==false){
+	   T master = getMaster();
+       if (master != null) {
+            master.onRightclick(master.getBaseMetaTileEntity(), player);
+       }}
+	super.onLeftclick(baseMetaTileEntity, player);
+}
     @Override
     public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer, ForgeDirection side,
         float aX, float aY, float aZ) {
@@ -349,7 +358,13 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         }
 
         //if (getMaster() != null) {
-            if (aBaseMetaTileEntity.isClientSide()) {
+           if(aPlayer.isSneaking()) {
+        	  
+        	   
+           }else
+        
+        openGui(aPlayer);
+        /*if (aBaseMetaTileEntity.isClientSide()) {
               
         	 MyMod.net.sendToServer(
                      new TryOpenPatternCIRBMessage(
@@ -358,7 +373,9 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                          aBaseMetaTileEntity.getZCoord(),
                          this));
         
-        }
+        }*/
+            
+            
             //}
         return false;
 
@@ -544,7 +561,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         }
         
         
-        if (get instanceof IAddUIWidgets) {
+        /*if (get instanceof IAddUIWidgets) {
             builder.widget(new SyncedWidget() {
 
                 @Override
@@ -586,7 +603,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                     // .setPos(10 + 16 * 9, 3 + 16 * 2)
                     .setPos(new Pos2d(getGUIWidth() - 18 - 3, 5 + 16 + 2 + 16 + 2 + 18 + 24)));
 
-        } else if (get == null) {
+        } else if (get == null) */{
             builder.widget(
                 TextWidget.localised("hatch.dualinput.slave.inv.mapping.me.missing")
                     .setPos(5, 5)

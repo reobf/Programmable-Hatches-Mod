@@ -131,6 +131,17 @@ public class ItemAPICard extends Item implements li.cil.oc.api.driver.item.HostA
             // database.GET
         }
 
+        @Callback(doc = "print() --debug", direct = false)
+        public Object[] print(final Context context, final Arguments args) {
+        
+        	System.out.println(args.checkAny(0));
+         	System.out.println(args.checkAny(0).getClass());
+            return null;
+
+            // return new Object[]{ OreDictionary.getOreID(s)};
+
+            // database.GET
+        }
         @Callback(doc = "getOreDict(database:address,index:number):string --get OreDicts", direct = false)
         public Object[] getOreDict(final Context context, final Arguments args) {
             Node n = node().network()

@@ -815,3 +815,6 @@ multimachine.CPU.name=合成CPU
 hatch.input.buffered.me.autogen.name=配方表输入总成
 programmable_hatches.gt.normalopt.0=不勾选: 修改倍增
 programmable_hatches.gt.normalopt.1=勾选: 修改样板本身
+item.proghatches.ctrlinvertedterminal.name=流体终端(C)
+item.ctrlinvertedterminal.name.tooltip.0=手持含有流体的容器或者点击流体时
+item.ctrlinvertedterminal.name.tooltip.1=自动反转你的Ctrl键

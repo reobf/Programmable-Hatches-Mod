@@ -16,7 +16,7 @@ public class ClassPatchManager {
 	public static final ClassPatchManager INSTANCE = new ClassPatchManager();
 
 	private ClassPatchManager() {
-
+		//li.cil.repack.com.naef.jnlua.DefaultConverter h;
 	}
 
 	public byte[] getPatchedResource(String name, String mappedName, LaunchClassLoader loader) throws IOException {

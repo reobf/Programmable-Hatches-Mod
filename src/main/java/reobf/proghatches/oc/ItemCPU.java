@@ -23,9 +23,13 @@ import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
 import li.cil.oc.server.machine.Callbacks;
+import li.cil.oc.server.machine.Machine;
 
 public class ItemCPU extends Item implements li.cil.oc.api.driver.item.HostAware, li.cil.oc.api.driver.item.Processor {
-
+ {
+	
+	//Machine.add(Arch.class);
+}
     @Override
     public boolean worksWith(ItemStack stack) {
 
@@ -42,7 +46,18 @@ public class ItemCPU extends Item implements li.cil.oc.api.driver.item.HostAware
 
         @Override
         public void update() {
-            node().network()
+        	for(var n:node().network()
+            .nodes()) {
+        		if(n.host() instanceof Machine m) {
+        			m.architecture();
+        			System.out.println(Machine.architectures());;
+        		
+        			
+        		}
+        		
+        		
+        	}
+            /*node().network()
                 .nodes()
                 .forEach(s -> {
 
@@ -53,7 +68,7 @@ public class ItemCPU extends Item implements li.cil.oc.api.driver.item.HostAware
                             s.host()
                                 .getClass()));
 
-                });
+                });*/
 
         }
 

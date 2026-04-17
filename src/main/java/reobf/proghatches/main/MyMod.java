@@ -61,6 +61,9 @@ import com.projecturanus.betterp2p.BetterP2P;
 import appeng.api.AEApi;
 import appeng.api.config.Upgrades;
 import appeng.api.definitions.IItemDefinition;
+import appeng.client.gui.AEBaseGui;
+import appeng.client.gui.implementations.GuiMEMonitorable;
+import appeng.core.Api;
 import appeng.core.features.ActivityState;
 import appeng.core.features.ItemDefinition;
 import appeng.core.features.registries.InterfaceTerminalRegistry;
@@ -102,6 +105,7 @@ import gregtech.api.net.GTPacketSendCoverData;
 import gregtech.common.blocks.BlockMachines;
 import kotlin.jvm.functions.Function1;
 import li.cil.oc.api.Driver;
+import li.cil.oc.server.machine.Machine;
 import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockAutoFillerMKII;
 //import reobf.proghatches.ae.BlockFluidDiscretizerMKII;
@@ -150,6 +154,7 @@ import reobf.proghatches.net.TryOpenPatternCIRBMessage;
 import reobf.proghatches.net.UpgradesMessage;
 import reobf.proghatches.net.VoidFXMessage;
 import reobf.proghatches.net.WayPointMessage;
+import reobf.proghatches.oc.Arch;
 import reobf.proghatches.oc.ItemAPICard;
 import reobf.proghatches.oc.ItemGTRedstoneCard;
 import reobf.proghatches.oc.TileCardReader;
@@ -430,7 +435,9 @@ public class MyMod {
          * == false) { e.player.getEntityData().setBoolean(
          * "ProgrammableHatchesTutorialGet3", true);
          */
-
+        
+        
+        
         if (e.player.getExtendedProperties(GET_PROGHATCHBOOK) != null) {
             Prop p = (Prop) e.player.getExtendedProperties(GET_PROGHATCHBOOK);
             if (p.get) {
@@ -476,6 +483,7 @@ public class MyMod {
 
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
+        Machine.add(Arch.class);
         /*appeng.core.Api.INSTANCE.registries().gridCache().registerGridCache
         (ICacheFD.class, ICacheFD.CacheFD.class);*/
         
@@ -523,23 +531,24 @@ public class MyMod {
 
             Upgrades.ADVANCED_BLOCKING.registerItem(s, 1);
         }*/
-        InterfaceTerminalRegistry.instance()
+       var get= Api.INSTANCE.registries().interfaceTerminal();
+        get
             .register(PatternHousing.pattern.class);
-        InterfaceTerminalRegistry.instance()
+        get
             .register(InterfaceData.class);
-        InterfaceTerminalRegistry.instance()
+        get
             .register(InterfaceData.FluidInterfaceData_TileFluidInterface.class);
-       /* InterfaceTerminalRegistry.instance()
+       /* get
             .register(PartEUP2PInterface.class);*/
-        InterfaceTerminalRegistry.instance()
+        get
             .register(PartFluidP2PInterface.class);
-      /*  InterfaceTerminalRegistry.instance()
+      /*  get
             .register(TileFluidInterface_EU.class);*/
-        InterfaceTerminalRegistry.instance()
+        get
             .register(PatternDualInputHatch.Inst.class);
-        InterfaceTerminalRegistry.instance()
+        get
         .register(RecipeFilterCRIB.Inst2.class);       
-        InterfaceTerminalRegistry.instance()
+        get
             .register(PatternDualInputHatchInventoryMappingSlave.class);
 
         // InterfaceTerminalRegistry.instance().register(ProgrammingCircuitProvider.class);
@@ -996,6 +1005,7 @@ public class MyMod {
     public static Item part_cow;
     public static Item fixer2;
 	public static Item badge;
+	public static Item ctrlinvertedterminal;
 
 	//public static BlockFluidDiscretizerMKII fd;
 

@@ -35,14 +35,15 @@ import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
+import appeng.items.misc.ItemEncodedPattern;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 import gregtech.api.gui.modularui.GTUIInfos;
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.util.GTUtility;
-import reobf.proghatches.item.DummySuper2;
 
-public class ItemEmitterPattern extends DummySuper2 implements ICraftingPatternItem, IItemWithModularUI {
+
+public class ItemEmitterPattern extends ItemEncodedPattern implements ICraftingPatternItem, IItemWithModularUI {
 
     public ItemEmitterPattern() {
         super();

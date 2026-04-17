@@ -233,6 +233,8 @@ public static boolean loaded;
         retLate.add("part2.MixinProcessLogicReset");
         retLate.add("cpu.MixinCache");
         retLate.add("cpu.MixinCPU");
+        retLate.add("part2.MixinTerminalCtrlInvert");
+        
         return ret;
 
     }

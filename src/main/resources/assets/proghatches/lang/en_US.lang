@@ -817,3 +817,6 @@ multimachine.CPU.name=Crafting CPU
 hatch.input.buffered.me.autogen.name=Recipe Map Crafting Input Buffer
 programmable_hatches.gt.normalopt.0=Unchecked: Modify multiplier
 programmable_hatches.gt.normalopt.1=Checked: Modify Pattern itself
+item.proghatches.ctrlinvertedterminal.name=Fluid Terminal (C)
+item.ctrlinvertedterminal.name.tooltip.0=When holding an item that contains fluid or clicking on fluid stack,
+item.ctrlinvertedterminal.name.tooltip.1=invert your Control key

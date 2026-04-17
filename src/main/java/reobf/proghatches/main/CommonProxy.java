@@ -32,6 +32,7 @@ import reobf.proghatches.ae.BlockStockingCircuitRequestInterceptor;
 import reobf.proghatches.ae.BlockStorageProxy;
 import reobf.proghatches.ae.ItemEmitterPattern;
 import reobf.proghatches.ae.ItemPartAmountMaintainer;
+import reobf.proghatches.ae.ItemPartCtrlInvertedTerminal;
 import reobf.proghatches.ae.ItemPartMAP2P;
 import reobf.proghatches.ae.ItemPartStockingExportBus;
 import reobf.proghatches.ae.ItemPartStorageProxy;
@@ -277,7 +278,10 @@ public class CommonProxy {
             MyMod.stockingexport = new ItemPartStockingExportBus().setUnlocalizedName("proghatches.stockingexport")
                 .setTextureName("?"),
             "stockingexport");
-
+        GameRegistry.registerItem(
+                MyMod.ctrlinvertedterminal = new ItemPartCtrlInvertedTerminal().setUnlocalizedName("proghatches.ctrlinvertedterminal")
+                    .setTextureName("?"),
+                "ctrlinvertedterminal");
         a();
 
         MyMod.ma_conduit = ItemMAConduit.create();

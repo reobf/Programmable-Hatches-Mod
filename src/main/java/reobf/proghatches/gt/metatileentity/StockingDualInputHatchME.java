@@ -57,7 +57,9 @@ import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
 import com.gtnewhorizons.modularui.api.math.Alignment;
 import com.gtnewhorizons.modularui.api.math.Color;
 import com.gtnewhorizons.modularui.api.math.Pos2d;
+import com.gtnewhorizons.modularui.api.math.Size;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.api.widget.Interactable;
 import com.gtnewhorizons.modularui.api.widget.Widget.ClickData;
@@ -65,6 +67,7 @@ import com.gtnewhorizons.modularui.common.fluid.FluidStackTank;
 import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
 import com.gtnewhorizons.modularui.common.internal.wrapper.ModularGui;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
 import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
 import com.gtnewhorizons.modularui.common.widget.MultiChildWidget;
@@ -133,7 +136,9 @@ import reobf.proghatches.main.registration.Registration;
 public class StockingDualInputHatchME extends MTEHatchInputBus
     implements IDualInputHatchWithPattern, IRecipeProcessingAwareDualHatch, IPowerChannelState, IGridProxyable, IPHDual,IDataCopyable {
 
-    public StockingDualInputHatchME(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures,
+    private static final int CONFIG_WINDOW_ID = 88880;
+
+	public StockingDualInputHatchME(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures,
         boolean allowAuto2) {
         super(aName, aTier, 1, aDescription, aTextures);
         allowAuto = allowAuto2;
@@ -174,6 +179,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
     private boolean autoPullItemList;
     private long minAutoPullStackSize = 1;
     private int interval = 1;
+	private long minAutoPullStackSizeF=1;
 
     public ItemStack updateInformationSlot(int aIndex, ItemStack aStack) {
 
@@ -279,10 +285,71 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
         }, capacity);
 
     }
-
+    protected ModularWindow createStackSizeConfigurationWindow(final EntityPlayer player) {
+        final int WIDTH = 78;
+        final int HEIGHT = 115;
+        final int PARENT_WIDTH = getGUIWidth();
+        final int PARENT_HEIGHT = getGUIHeight();
+        ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
+        builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+        builder.setGuiTint(getGUIColorization());
+        builder.setDraggable(true);
+        builder.setPos(
+            (size, window) -> Alignment.Center.getAlignedPos(size, new Size(PARENT_WIDTH, PARENT_HEIGHT))
+                .add(
+                    Alignment.TopRight.getAlignedPos(new Size(PARENT_WIDTH, PARENT_HEIGHT), new Size(WIDTH, HEIGHT))
+                        .add(WIDTH - 3, 0)));
+        builder.widget(
+            TextWidget.localised("GT5U.machines.stocking_hatch.min_amount")
+                .setPos(3, 2)
+                .setSize(74, 14))
+            .widget(
+                new NumericWidget().setSetter(val -> minAutoPullStackSizeF = (int) val)
+                    .setGetter(() -> minAutoPullStackSizeF)
+                    .setBounds(1, Integer.MAX_VALUE)
+                    .setScrollValues(1, 4, 64)
+                    .setTextAlignment(Alignment.Center)
+                    .setTextColor(Color.WHITE.normal)
+                    .setSize(70, 18)
+                    .setPos(3, 18)
+                    .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
+        builder.widget(
+            TextWidget.localised("GT5U.machines.stocking_bus.min_stack_size")
+                .setPos(3, 42)
+                .setSize(74, 14))
+            .widget(
+                new NumericWidget().setSetter(val -> minAutoPullStackSize = (int) val)
+                    .setGetter(() -> minAutoPullStackSize)
+                    .setBounds(1, Integer.MAX_VALUE)
+                    .setScrollValues(1, 4, 64)
+                    .setTextAlignment(Alignment.Center)
+                    .setTextColor(Color.WHITE.normal)
+                    .setSize(70, 18)
+                    .setPos(3, 58)
+                    .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
+        /*builder.widget(
+            TextWidget.localised("GT5U.machines.stocking_bus.force_check")
+                .setPos(3, 88)
+                .setSize(50, 14))
+            .widget(
+                new CycleButtonWidget().setToggle(() -> expediteRecipeCheck, val -> setRecipeCheck(val))
+                    .setTextureGetter(
+                        state -> expediteRecipeCheck ? GTUITextures.OVERLAY_BUTTON_CHECKMARK
+                            : GTUITextures.OVERLAY_BUTTON_CROSS)
+                    .setBackground(GTUITextures.BUTTON_STANDARD)
+                    .setPos(53, 87)
+                    .setSize(16, 16));*/
+        return builder.build();
+    }
     @Override
     public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-        updateAllInformationSlots();
+    	  if (allowAuto) {
+              buildContext.addSyncedWindow(CONFIG_WINDOW_ID, this::createStackSizeConfigurationWindow);
+          }
+    	  
+    	  
+    	  
+    	  updateAllInformationSlots();
         final SlotWidget[] aeSlotWidgets = new SlotWidget[16];
         builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
 
@@ -723,10 +790,10 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
                             if (clickData.mouseButton == 0) {
                                 if (allowAuto) setAutoPullItemList(!autoPullItemList);
                             } else if (clickData.mouseButton == 1 && !widget.isClient()) {
-                                /*
-                                 * widget.getContext()
-                                 * .openSyncedWindow(CONFIG_WINDOW_ID);
-                                 */
+                                
+                                  widget.getContext()
+                                  .openSyncedWindow(CONFIG_WINDOW_ID);
+                                 
                             }
                         })
                             .setBackground(() -> {
@@ -876,7 +943,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
             int index = 0;
             while (iterator.hasNext() && index < 16) {
                 IAEFluidStack currItem = iterator.next();
-                if (currItem.getStackSize() >= minAutoPullStackSize) {
+                if (currItem.getStackSize() >= minAutoPullStackSizeF) {
                     FluidStack itemstack = GTUtility.copyAmount(1, currItem.getFluidStack());
                     /*
                      * if (expediteRecipeCheck) { ItemStack previous =
@@ -1226,8 +1293,8 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
         return new ItemStack[0];
     }
 
-    @Override
-    public void setProcessingLogic(ProcessingLogic pl) {}
+
+
 
     AENetworkProxy gridProxy;
 
@@ -1339,6 +1406,8 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 
     aNBT.setInteger("intmaxs", intmaxs);
     aNBT.setInteger("interval", interval);
+    aNBT.setLong("minAutoPullStackSize", minAutoPullStackSize);
+    aNBT.setLong("minAutoPullStackSizeF", minAutoPullStackSizeF);
 }
     
 
@@ -1428,6 +1497,8 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
         interval = aNBT.getInteger("interval");
         intmaxs = aNBT.getInteger("intmaxs");
         autoPullItemList = aNBT.getBoolean("autoPull");
+  minAutoPullStackSize=aNBT.getLong("minAutoPullStackSize");
+  minAutoPullStackSizeF=aNBT.getLong("minAutoPullStackSizeF");  
     }
 
     public IItemHandlerModifiable inventoryHandlerMark = new ItemStackHandler(i_mark);;

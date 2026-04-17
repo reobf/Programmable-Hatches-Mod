@@ -3,6 +3,7 @@ package reobf.proghatches.main.mixin.mixins.part2;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -31,7 +32,7 @@ public class MixinProcessLogicReset {
 	@Shadow
 	 protected IDualInputInventoryWithPattern activeDualInv;
 	@Shadow
-	protected Map<IDualInputInventoryWithPattern, Set<GTRecipe>> dualInvWithPatternToRecipeCache;
+	protected WeakHashMap<IDualInputInventoryWithPattern, Set<GTRecipe>> dualInvWithPatternToRecipeCache;
 
 	  @Inject(
 		        method = "process",

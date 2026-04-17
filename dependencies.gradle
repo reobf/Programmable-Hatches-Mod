@@ -1,43 +1,9 @@
-/*
- * Add your dependencies here. Supported configurations:
- *  - api("group:name:version:classifier"): if you use the types from this dependency in the public API of this mod
- *       Available at runtime and compiletime for mods depending on this mod
- *  - implementation("g:n:v:c"): if you need this for internal implementation details of the mod, but none of it is visible via the public API
- *       Available at runtime but not compiletime for mods depending on this mod
- *  - api("g:n:v:c"): if the mod you're building doesn't need this dependency during runtime at all, e.g. for optional mods
- *       Not available at all for mods depending on this mod, only visible at compiletime for this mod
- *  - api("g:n:v:c"): like api, but also visible at compiletime for mods depending on this mod
- *       Available at compiletime but not runt-ime for mods depending on this mod
- *  - runtimeOnlyNonPublishable("g:n:v:c"): if you want to include a mod in this mod's runClient/runServer runs, but not publish it as a dependency
- *       Not available at all for mods depending on this mod, only visible at runtime for this mod
- *  - devOnlyNonPublishable("g:n:v:c"): a combination of runtimeOnlyNonPublishable and api for dependencies present at both compiletime and runtime,
- *       but not published as Maven dependencies - useful for RFG-deobfuscated dependencies or local testing
- *  - runtimeOnly("g:n:v:c"): if you don't need this at compile time, but want it to be present at runtime
- *       Available at runtime for mods depending on this mod
- *  - annotationProcessor("g:n:v:c"): mostly for java compilfer plugins, if you know you need this, use it, otherwise don't worry
- *  - testCONFIG("g:n:v:c") - replace CONFIG by one of the above (except api), same as above but for the test sources instead of main
- *
- *  - shadowImplementation("g:n:v:c"): effectively the same as API, but the dependency is included in your jar under a renamed package name
- *       Requires you to enable usesShadowedDependencies in gradle.properties
- *
- *  - compile("g:n:v:c"): deprecated, replace with "api" (works like the old "compile") or "implementation" (can be more efficient)
- *
- * You can exclude transitive dependencies (dependencies of the chosen dependency) by appending { transitive = false } if needed,
- * but use this sparingly as it can break using your mod as another mod's dependency if you're not careful.
- *
- * To depend on obfuscated jars you can use `devOnlyNonPublishable(rfg.deobf("dep:spec:1.2.3"))` to fetch an obfuscated jar from maven,
- * or `devOnlyNonPublishable(rfg.deobf(project.files("libs/my-mod-jar.jar")))` to use a file.
- *
- * Gradle names for some of the configuration can be misleading, api and runtimeOnly both get published as dependencies in Maven, but api does not.
- * The buildscript adds runtimeOnlyNonPublishable to also have a runtime dependency that's not published.
- *
- * For more details, see https://docs.gradle.org/8.0.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
- */
+
 
 dependencies {
- api("com.github.GTNewHorizons:AE2FluidCraft-Rework:1.5.68-gtnh:dev")
- api('com.github.GTNewHorizons:GT5-Unofficial:5.09.52.295:dev')
-api("com.github.GTNewHorizons:Applied-Energistics-2-Unofficial:rv3-beta-871-GTNH:dev")
+ api("com.github.GTNewHorizons:AE2FluidCraft-Rework:1.5.73-gtnh:dev")
+ api('com.github.GTNewHorizons:GT5-Unofficial:5.09.52.430:dev')
+api("com.github.GTNewHorizons:Applied-Energistics-2-Unofficial:rv3-beta-897-GTNH:dev")
 
 
    //api('com.github.GTNewHorizons:GT5-Unofficial:5.09.52.190:dev')
@@ -45,17 +11,17 @@ api("com.github.GTNewHorizons:Applied-Energistics-2-Unofficial:rv3-beta-871-GTNH
 
   //api("com.github.GTNewHorizons:StructureLib:1.4.15:dev")
     api("net.industrial-craft:industrialcraft-2:2.2.828-experimental:dev")
-    api("com.github.GTNewHorizons:NotEnoughItems:2.8.48-GTNH:dev")
+    api("com.github.GTNewHorizons:NotEnoughItems:2.8.91-GTNH:dev")
     api("com.github.GTNewHorizons:NotEnoughIds:2.1.10:dev")
-    api("com.github.GTNewHorizons:GTNHLib:0.8.45:dev")
+    api("com.github.GTNewHorizons:GTNHLib:0.9.51:dev")
 
-    api("com.github.GTNewHorizons:ModularUI2:2.3.44-1.7.10:dev")
+    api("com.github.GTNewHorizons:ModularUI2:2.3.56-1.7.10:dev")
     compileOnly rfg.deobf("curse.maven:neverenoughanimation-1062347:6552319")
 
 
     api("com.github.GTNewHorizons:waila:1.9.15:dev")
     
-   api("com.github.GTNewHorizons:ae2stuff:0.10.11-GTNH:dev")
+   api("com.github.GTNewHorizons:ae2stuff:0.10.19-GTNH:dev")
     api('com.github.GTNewHorizons:Yamcl:0.7.3:dev')
     api("com.github.GTNewHorizons:Postea:1.1.5:dev")
 

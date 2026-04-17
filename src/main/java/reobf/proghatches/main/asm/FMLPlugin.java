@@ -18,8 +18,8 @@ public class FMLPlugin implements /*IEarlyMixinLoader,*/ IFMLLoadingPlugin {
         System.out.println("xxxxxxxxxxxxxxxx");
         return new String[] {
         		
-        		 AEItemTransformer.class.getName(),
-            AEItemTransformer2.class.getName(), MUITransformer.class.getName(),
+        		// AEItemTransformer.class.getName(),
+           // AEItemTransformer2.class.getName(), MUITransformer.class.getName(),
             // DataCopyableTransformer.class.getName(),
             MFUTransformer.class.getName()
 

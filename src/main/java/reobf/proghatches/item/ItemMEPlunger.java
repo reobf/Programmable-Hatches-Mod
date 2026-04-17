@@ -36,6 +36,7 @@ import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.WorldCoord;
+import appeng.items.tools.powered.powersink.AEBasePoweredItem;
 import appeng.tile.networking.TileWireless;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
@@ -55,7 +56,7 @@ import gregtech.common.tileentities.machines.IDualInputInventory;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.lang.LangManager;
 
-public class ItemMEPlunger extends DummySuper implements INetworkEncodable {
+public class ItemMEPlunger extends AEBasePoweredItem implements INetworkEncodable {
 
     public IAEItemPowerStorage asPowerStorage() {
         return (IAEItemPowerStorage) this;

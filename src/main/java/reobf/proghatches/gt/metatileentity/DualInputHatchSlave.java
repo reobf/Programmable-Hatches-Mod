@@ -349,10 +349,7 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatchWithP
         return getMaster() != null ? getMaster().getSharedItems() : new ItemStack[0];
     }
 
-    @Override
-    public void setProcessingLogic(ProcessingLogic pl) {
-        if (getMaster() != null) getMaster().setProcessingLogic(pl);
-    }
+    
     /*public void setProcessingLogics(List<ProcessingLogic> processingLogics) {
     
     	// if (getMaster() != null) getMaster().setProcessingLogics(processingLogics);

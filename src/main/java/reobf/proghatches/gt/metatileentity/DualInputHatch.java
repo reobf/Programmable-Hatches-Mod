@@ -1928,15 +1928,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		 * processingLogics; }
 		 */
 
-	@Override
-	public void setProcessingLogic(ProcessingLogic pl) {
-		if (!hasBuffer())
-			return;
-		if (!processingLogics.contains(pl)) {
-			processingLogics.add(Objects.requireNonNull(pl));
-		}
-
-	}/*
+/*
 		 * public void resetMulti() { for ( IDualInputInventory o :
 		 * inventoriesReal()) { resetMulti(o); } } private void
 		 * resetMulti(IDualInputInventory dual) { for (ProcessingLogic pl :
@@ -1949,7 +1941,6 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		return super.getMachineCraftingIcon();
 	}
 
-	public List<ProcessingLogic> processingLogics = new ArrayList<>();
 
 	boolean off;
 
@@ -3120,12 +3111,13 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 				public boolean canTakeStack(EntityPlayer playerIn) {
 					return true;
 				}
+				
 
-				@Override
+				/*@Override
 				protected boolean canTake() {
 
 					return true;
-				}
+				}*/
 
 			};
 			slot.changeListener(new IOnSlotChanged() {

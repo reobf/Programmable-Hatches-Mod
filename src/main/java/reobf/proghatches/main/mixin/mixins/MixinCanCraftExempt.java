@@ -4,6 +4,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryCrafting;
 
+import java.util.List;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -49,7 +51,7 @@ public class MixinCanCraftExempt {
     }
 
     @Inject(method = "canCraft", at = @At("RETURN"), cancellable = true, require = 1)
-    private void canCraft(final ICraftingPatternDetails details, final IAEStack[] condensedInputs,
+    private void canCraft(final ICraftingPatternDetails details, final List condensedInputs,
         CallbackInfoReturnable<Boolean> ci) {
         if ((details instanceof IInputMightBeEmptyPattern)) {
             ci.setReturnValue(true);

@@ -2982,16 +2982,14 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 		if (fail) {
 			return;
 		}
-		for (ProcessingLogic pl : processingLogics) {
+		/*for (ProcessingLogic pl : processingLogics) {
 			for (int i : detailmap.values()) {
 
 				try {
-					/*if (m == null)
-						m = ProcessingLogic.class.getDeclaredMethod("clearCraftingPatternRecipeCache",
-								IDualInputInventory.class);*/
+			
 					pl.removeInventoryRecipeCache(new PatternDualInv(i));
 					
-				//	m.invoke(pl, new PatternDualInv(i));
+			
 					
 				} catch (Exception e) {
 					fail = true;
@@ -2999,7 +2997,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 
 			}
 
-		}
+		}*/
 	}
 
 	public void recordRecipe(DualInvBuffer thiz) {
@@ -3023,7 +3021,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 			for(int i:topKeys){
 				detailmap.inverse().remove(i);
 				detailmapUsage.remove(i);
-				for (ProcessingLogic pl : processingLogics) {
+				/*for (ProcessingLogic pl : processingLogics) {
 					for (int ix : topKeys) {
 
 						try {
@@ -3034,7 +3032,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 
 					}
 
-				}
+				}*/
 			}
 			MyMod.LOG.warn(osize+"->"+(detailmap.size()));
 			MyMod.LOG.warn(

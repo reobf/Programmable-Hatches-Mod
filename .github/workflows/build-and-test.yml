@@ -1,6 +1,13 @@
 name: Build and test
 
 on:
+  workflow_dispatch:
+    inputs:
+      workspace:
+        description: 'setupCIWorkspace/setupDecompWorkspace'
+        required: false
+        default: "setupCIWorkspace"
+        type: string
   pull_request:
     branches: [ "*" ]
   push:

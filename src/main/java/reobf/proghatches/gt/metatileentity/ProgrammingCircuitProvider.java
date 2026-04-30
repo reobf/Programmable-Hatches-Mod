@@ -152,12 +152,10 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         } catch (GridAccessException e) {
 
         }
-        ItemStack circuitItem = (patternDetails.getOutput(
-            table,
-            this.getBaseMetaTileEntity()
-                .getWorld()));
-
-        ret.add(AEItemStack.create(circuitItem));
+        IAEItemStack[] outputs = patternDetails.getOutputs();
+        if (outputs != null && outputs.length > 0) {
+            ret.add(outputs[0]);
+        }
         return true;
     }
 
@@ -373,6 +371,9 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         final public ItemStack out;
         @Nonnull
         final int hash;
+        private final IAEItemStack[] cachedOutputs;
+        private final IAEItemStack[] cachedInputs;
+        private final ItemStack pattern;
 
         @Override
         public boolean equals(Object obj) {
@@ -403,15 +404,9 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
             if (o.stackSize <= 0) throw new IllegalArgumentException("invalid stackSize");
             hash = AEItemStack.create(out)
                 .hashCode() ^ 0x1234abcd;
-            /*
-             * if(out ==null){ Thread.dumpStack();
-             * System.exit(0);}
-             */
-        }
-
-        @Override
-        public ItemStack getPattern() {
-            return Optional.of(new ItemStack(MyMod.fakepattern))
+            this.cachedOutputs = new IAEItemStack[] { AEApi.instance().storage().createItemStack(out) };
+            this.cachedInputs = new IAEItemStack[] { AEApi.instance().storage().createItemStack(new ItemStack(Items.apple, 0)) };
+            this.pattern = Optional.of(new ItemStack(MyMod.fakepattern))
                 .map(s -> {
 
                     s.stackTagCompound = (NBTTagCompound) out.writeToNBT(new NBTTagCompound())
@@ -420,6 +415,15 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
                     return s;
                 })
                 .get();
+            /*
+             * if(out ==null){ Thread.dumpStack();
+             * System.exit(0);}
+             */
+        }
+
+        @Override
+        public ItemStack getPattern() {
+            return pattern;
 
         }
 
@@ -442,28 +446,24 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         @Override
         public IAEItemStack[] getInputs() {
 
-            return new IAEItemStack[] { AEApi.instance()
-                .storage()
-                .createItemStack(new ItemStack(Items.apple, 0)) };
+            return cachedInputs;
         }
 
         @Override
         public IAEItemStack[] getCondensedInputs() {
-            return getInputs();
+            return cachedInputs;
         }
 
         @Override
         public IAEItemStack[] getCondensedOutputs() {
 
-            return new IAEItemStack[] { AEApi.instance()
-                .storage()
-                .createItemStack(out) };
+            return cachedOutputs;
         }
 
         @Override
         public IAEItemStack[] getOutputs() {
 
-            return getCondensedOutputs();
+            return cachedOutputs;
         }
 
         @Override
@@ -758,6 +758,8 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         customName = name;
 
     }
+
+
 
     @Override
     public boolean shouldDropItemAt(int index) {

@@ -1,6 +1,7 @@
 package reobf.proghatches.item;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -152,6 +153,8 @@ public class ItemProgrammingCircuit extends Item {
         return wrap(is, i, false);
     }
 
+    private static final HashMap<Item, String> nameCache = new HashMap<>();
+
     public static ItemStack wrap(ItemStack is, int i, boolean legacy) {
 
         ItemStack iss = new ItemStack(MyMod.progcircuit, i);
@@ -162,7 +165,10 @@ public class ItemProgrammingCircuit extends Item {
             NBTTagCompound tag = (NBTTagCompound) is.writeToNBT(new NBTTagCompound())
                 .copy();
 
-            if (!legacy) tag.setString("string_id", Item.itemRegistry.getNameForObject(is.getItem()));
+            if (!legacy) {
+                String name = nameCache.computeIfAbsent(is.getItem(), Item.itemRegistry::getNameForObject);
+                tag.setString("string_id", name);
+            }
             if (tag.hasKey("string_id")) tag.removeTag("id");
             iss.stackTagCompound.setTag("targetCircuit", tag);
 
@@ -171,6 +177,8 @@ public class ItemProgrammingCircuit extends Item {
 
     }
 
+    private static final HashMap<String, Integer> idCache = new HashMap<>();
+
     public static ItemStack parse(NBTTagCompound tag) {
 
         String s = tag.getString("string_id");
@@ -178,7 +186,8 @@ public class ItemProgrammingCircuit extends Item {
         if (s.isEmpty() == false) {
             // if string id is present, replace the number id
             tag = (NBTTagCompound) tag.copy();// note to self: copy it before modifying it!!!
-            tag.setInteger("id", Item.itemRegistry.getIDForObject(Item.itemRegistry.getObject(s)));
+            int id = idCache.computeIfAbsent(s, k -> Item.itemRegistry.getIDForObject(Item.itemRegistry.getObject(k)));
+            tag.setInteger("id", id);
         }
 
         return ItemStack.loadItemStackFromNBT(tag);

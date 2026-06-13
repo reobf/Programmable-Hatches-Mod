@@ -125,11 +125,11 @@ public class CommonProxy {
 
         GameRegistry.registerItem(
             MyMod.progcircuit = new ItemProgrammingCircuit().setUnlocalizedName("prog_circuit")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "prog_circuit");
         GameRegistry.registerItem(
             MyMod.fakepattern = new ItemFakePattern().setUnlocalizedName("fake_pattern")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "fake_pattern");
         GameRegistry.registerItem(
             MyMod.fixer = new ItemFixer().setUnlocalizedName("proghatch_circuit_fixer")
@@ -141,15 +141,15 @@ public class CommonProxy {
             "proghatch_circuit_fixer2");
         GameRegistry.registerItem(
             MyMod.toolkit = new ItemProgrammingToolkit().setUnlocalizedName("prog_toolkit")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "prog_toolkit");
         GameRegistry.registerItem(
             MyMod.smartarm = new ItemSmartArm().setUnlocalizedName("proghatches.smartarm")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "proghatches.smartarm");
         GameRegistry.registerItem(
             MyMod.cover = new ItemDedicatedCover().setUnlocalizedName("proghatches.cover")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "proghatches.cover");
         GameRegistry.registerItem(
             MyMod.oc_redstone = new ItemGTRedstoneCard().setMaxStackSize(1)
@@ -168,7 +168,7 @@ public class CommonProxy {
             "proghatches.oc.peripheral_card");
         GameRegistry.registerItem(
             MyMod.eu_token = new ItemEUToken().setUnlocalizedName("eu_token")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "eu_token");
 
         GameRegistry.registerItem(
@@ -178,12 +178,12 @@ public class CommonProxy {
             "book_tutorial");
         GameRegistry.registerItem(
             MyMod.upgrades = new ItemUpgrades().setUnlocalizedName("prog_upgrades")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "prog_upgrades");
 
         GameRegistry.registerItem(
             MyMod.cpu = new ItemCPU().setUnlocalizedName("test_cpu")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "test_cpu");
 
         MyMod.storageproxy = GameRegistry.registerBlock(
@@ -240,47 +240,47 @@ public class CommonProxy {
             "proghatches.euinterface");*/
       /*  GameRegistry.registerItem(
             MyMod.eu_source_part = new ItemPartEUSource().setUnlocalizedName("proghatches.part.eu.source")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "proghatches.part.eu.source");*/
         GameRegistry.registerItem(
             MyMod.lazer_p2p_part = new ItemPartLazerP2P().setUnlocalizedName("proghatches.part.lazer.p2p")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "proghatches.part.lazer.p2p");
         GameRegistry.registerItem(
             MyMod.ma_p2p_part = new ItemPartMAP2P().setUnlocalizedName("proghatches.part.ma.p2p")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "proghatches.part.ma.p2p");
         GameRegistry.registerItem(
             MyMod.part_tunnel = new ItemPartRequestTunnel().setUnlocalizedName("proghatches.part.tunnel")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "proghatches.part.tunnel");
         GameRegistry.registerItem(
             MyMod.part_cow = new ItemPartCoW().setUnlocalizedName("proghatches.part.cow")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "proghatches.part.cow");
       /*  GameRegistry.registerItem(
             MyMod.euinterface_p2p = new ItemPartEUP2PInterface().setUnlocalizedName("proghatches.euinterface.p2p")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "proghatches.euinterface.p2p");*/
         GameRegistry.registerItem(
             MyMod.amountmaintainer = new ItemPartAmountMaintainer().setUnlocalizedName("proghatches.amountmaintainer")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "amountmaintainer");
         GameRegistry.registerItem(
             MyMod.partproxy = new ItemPartStorageProxy().setUnlocalizedName("proghatches.storageproxy.part")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "proghatches.storageproxy.part");
         GameRegistry.registerItem(
             MyMod.exciter = new ItemPartSubnetExciter().setUnlocalizedName("proghatches.exciter")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "proghatches.exciter");
         GameRegistry.registerItem(
             MyMod.stockingexport = new ItemPartStockingExportBus().setUnlocalizedName("proghatches.stockingexport")
-                .setTextureName("?"),
+                .setTextureName("NOTSET"),
             "stockingexport");
         GameRegistry.registerItem(
                 MyMod.ctrlinvertedterminal = new ItemPartCtrlInvertedTerminal().setUnlocalizedName("proghatches.ctrlinvertedterminal")
-                    .setTextureName("?"),
+                    .setTextureName("NOTSET"),
                 "ctrlinvertedterminal");
         a();
 
@@ -288,7 +288,7 @@ public class CommonProxy {
         GameRegistry.registerBlock(
             MyMod.circuit_interceptor = new BlockStockingCircuitRequestInterceptor(),
             ItemBlockTooltip.class,
-            /* .setUnlocalizedName("proghatches.circuit_interceptor").setTextureName("?") */
+            /* .setUnlocalizedName("proghatches.circuit_interceptor").setTextureName("NOTSET") */
             "circuit_interceptor",
             new Object[] { "" });
         GameRegistry.registerBlock(

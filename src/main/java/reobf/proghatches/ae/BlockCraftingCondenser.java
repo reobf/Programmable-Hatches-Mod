@@ -19,7 +19,7 @@ public class BlockCraftingCondenser extends BlockCraftingUnit {
     public BlockCraftingCondenser(int tier) {
         this.setTileEntity(TileCraftingCondenser.class);
         setBlockName("proghatches.craftingdumper." + tier);
-        setBlockTextureName("?");
+        setBlockTextureName("notset");
         setHardness(1);
         this.tier = tier;
     }

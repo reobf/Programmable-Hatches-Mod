@@ -143,7 +143,6 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.Recipe;
-import reobf.proghatches.gt.metatileentity.DualInputHatch.MUI2Compat;
 import reobf.proghatches.gt.metatileentity.bufferutil.FluidTankG;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 import reobf.proghatches.gt.metatileentity.bufferutil.LongWrapper;
@@ -162,9 +161,8 @@ import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
-@MUI2Compat
 public class BufferedDualInputHatch extends DualInputHatch
-		implements IRecipeProcessingAwareDualHatch, IInputStateProvider, ICraftingV2
+		implements IRecipeProcessingAwareDualHatch, IInputStateProvider, ICraftingV2, IMUITexture
 
 {
 	public static abstract class ExConfigEntry{
@@ -187,7 +185,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 					
 				
 					.pos(3 + 18 * x, 3 + 18 * y).size(18, 18)
-					.tooltipBuilder(sx->{Stream.of(tips()).map(s->StatCollector.translateToLocal(s)).forEach(sx::add);});
+					.tooltipBuilder(sx->{Stream.of(tips()).map(s->StatCollector.translateToLocal(s)).forEach(sx::addLine);});
 
 		}		
 		
@@ -196,7 +194,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		public abstract void set(boolean b);
 		public abstract String[] tips();
 		public static ExConfigEntry create(Supplier<Boolean> get,Consumer<Boolean> set,String... tips) {
-		return create(()->true, get, set);
+		return create(()->true, get, set, tips);
 		}
 		public static ExConfigEntry create(Supplier<Boolean> apply,Supplier<Boolean> get,Consumer<Boolean> set,String... tips) {
 			
@@ -1369,491 +1367,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 	}
 
 
-	public class MUI1ContainerX extends MUI1Container{
-		@Override
-		public BufferedDualInputHatch this$() {
-			
-			return BufferedDualInputHatch.this;
-		}
-		protected final Builder createWindowEx(final EntityPlayer player) {
-
-			final int WIDTH = 18 * 6 + 6;
-			final int HEIGHT = 18 * 4 + 6;
-			final int PARENT_WIDTH = getGUIWidth();
-			final int PARENT_HEIGHT = getGUIHeight();
-			ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-			builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
-			builder.setGuiTint(getGUIColorization());
-			builder.setDraggable(true);
-
-			builder.setPos((size, window) -> Alignment.Center.getAlignedPos(size, new Size(PARENT_WIDTH, PARENT_HEIGHT))
-					.add(Alignment.TopRight.getAlignedPos(new Size(PARENT_WIDTH, PARENT_HEIGHT), new Size(WIDTH, HEIGHT))));
-
-			
-			exconfig.table.cellSet().stream().map(s->s.getValue().asMUI1(s.getRowKey(), s.getColumnKey()))
-			.forEach(builder::widget);
-			
-			
-			
-			
-			/*builder.widget(new CycleButtonWidget().setToggle(() -> updateEveryTick, (s) -> {
-				updateEveryTick = s;
-
-			}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-					.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
-					.setPos(3 + 18 * 0, 3 + 18 * 0).setSize(18, 18)
-					.setGTTooltip(() -> mTooltipCache.getData("programmable_hatches.gt.forcecheck"))
-
-			);*/
-			/*
-			 * builder.widget(new CycleButtonWidget().setToggle(() ->!trunOffEnsure
-			 * , (s) -> { trunOffEnsure =! s;
-			 * }).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-			 * .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).
-			 * setTooltipShowUpDelay(TOOLTIP_DELAY) .setPos(3 + 18 * 1, 3 + 18 *
-			 * 0).setSize(18, 18) .addTooltip(StatCollector.translateToLocal(
-			 * "programmable_hatches.gt.ensureintmax.0"))
-			 * .addTooltip(StatCollector.translateToLocal(
-			 * "programmable_hatches.gt.ensureintmax.1"))
-			 * .addTooltip(StatCollector.translateToLocal(
-			 * "programmable_hatches.gt.ensureintmax.2"))
-			 * .addTooltip(StatCollector.translateToLocal(
-			 * "programmable_hatches.gt.ensureintmax.3")) );
-			 */
-			/*builder.widget(new CycleButtonWidget().setToggle(() -> CMMode, (s) -> {
-				CMMode = s;
-
-			}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-					.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
-					.setPos(3 + 18 * 1, 3 + 18 * 0).setSize(18, 18)
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.0"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.1"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.2"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.3"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.4"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.5"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.cmmode.6")));
-*/
-			/*
-			 * builder.widget(new CycleButtonWidget().setToggle(() -> merge, (s) ->
-			 * { merge = s; })
-			 * .setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-			 * .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
-			 * .setTooltipShowUpDelay(TOOLTIP_DELAY) .setPos(3 + 18 * 2, 3 + 18 * 0)
-			 * .setSize(18, 18) .addTooltip(StatCollector.translateToLocal(
-			 * "programmable_hatches.gt.merge.0"))
-			 * .addTooltip(StatCollector.translateToLocal(
-			 * "programmable_hatches.gt.merge.1")) );
-			 */
-		/*	if (isInfBuffer() || shared.infbufUpgrades > 0)
-				builder.widget(new CycleButtonWidget().setToggle(() -> autoAppend, (s) -> {
-					autoAppend = s;
-
-				}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-						.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
-						.setPos(3 + 18 * 3, 3 + 18 * 0).setSize(18, 18)
-						.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.0"))
-						.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.1"))
-						.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.2"))
-						.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.elasticbuffer.3"))
-
-				);
-
-			builder.widget(new CycleButtonWidget().setToggle(() -> useNewGTPatternCache, (s) -> {
-				{
-					if (MyMod.newGTCache) {
-						useNewGTPatternCache = s;
-						if (useNewGTPatternCache == false) {
-							resetMulti();
-							detailmap.clear();
-							detailmapUsage.clear();
-							inv0.forEach(sX -> sX.PID = 0);
-
-						}
-					}
-
-				}
-
-			}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-					.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
-					.setPos(3 + 18 * 4, 3 + 18 * 0).setSize(18, 18)
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.0"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.1"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.2"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.3"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.4"))
-					.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.newcrib.5"))
-					.addTooltip((MyMod.newGTCache) ? ""
-							: StatCollector.translateToLocal("programmable_hatches.gt.newcrib.nosupport"))
-
-			)
-
-			;
-			*/
-			return builder;
-
-		}
-		
-		ButtonWidget createPowerSwitchButton(IWidgetBuilder<?> builder) {
-		IGregTechTileEntity thiz = this$().getBaseMetaTileEntity();
-		Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
-			if (clickData.shift == true) {
-				if (widget.getContext().isClient() == false)
-					widget.getContext().openSyncedWindow(EX_CONFIG);
-				return;
-
-			}
-			if (thiz.isAllowedToWork()) {
-				thiz.disableWorking();
-			} else {
-				thiz.enableWorking();
-				// BufferedDualInputHatch bff =(BufferedDualInputHatch)
-				// (thiz).getMetaTileEntity();
-				BufferedDualInputHatch.this.dirty = true;
-			}
-		}).setPlayClickSoundResource(() -> thiz.isAllowedToWork() ? SoundResource.GUI_BUTTON_UP.resourceLocation
-				: SoundResource.GUI_BUTTON_DOWN.resourceLocation).setBackground(() -> {
-					if (thiz.isAllowedToWork()) {
-						return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
-								GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_ON };
-					} else {
-						return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
-								GTUITextures.OVERLAY_BUTTON_POWER_SWITCH_OFF };
-					}
-				}).attachSyncer(new FakeSyncWidget.BooleanSyncer(thiz::isAllowedToWork, val -> {
-					if (val)
-						thiz.enableWorking();
-					else
-						thiz.disableWorking();
-				}), builder).addTooltip(LangManager.translateToLocal("GT5U.gui.button.power_switch"))
-				.addTooltip(LangManager.translateToLocal("proghatch.gui.button.power_switch.ex"))
-				.setTooltipShowUpDelay(TOOLTIP_DELAY).setPos(new Pos2d(getGUIWidth() - 18 - 3, 5)).setSize(16, 16);
-		return (ButtonWidget) button;
-	}
-		public void add1by1Slot(ModularWindow.Builder builder, int index, IDrawable... background) {
-			final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
-					offset, 1).bind(inv0.get(index)).id(1);
-			if (background.length == 0) {
-				background = new IDrawable[] { getGUITextureSet().getItemSlot() };
-			}
-			builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 1).startFromSlot(offset)
-					.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset).background(background).build()
-					.setPos(3, 3));
-		}
-
-		public void add2by2Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
-			final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
-					offset, 4).bind(inv0.get(index)).id(1);
-			if (background.length == 0) {
-				background = new IDrawable[] { getGUITextureSet().getItemSlot() };
-			}
-			builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 2).startFromSlot(offset)
-					.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset + 3).background(background)
-					.build().setPos(3, 3));
-		}
-
-		public void add3by3Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
-			final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
-					offset, 9).bind(inv0.get(index)).id(1);
-			if (background.length == 0) {
-				background = new IDrawable[] { getGUITextureSet().getItemSlot() };
-			}
-			builder.widget(SlotGroup.ofItemHandler(inventoryHandler, 3).startFromSlot(offset)
-					.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset + 8).background(background)
-					.build().setPos(3, 3));
-		}
-		
-		public void add4by4Slots(ModularWindow.Builder builder, int index, IDrawable... background) {
-			final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal,
-					offset, 16*page()).bind(inv0.get(index)).id(1);
-			if (background.length == 0) {
-				background = new IDrawable[] { getGUITextureSet().getItemSlot() };
-			}
-			final Scrollable scrollable = new Scrollable().setVerticalScroll();
-			scrollable.setSize(18*4, 18*4);
-			scrollable.widget(SlotGroup.ofItemHandler(inventoryHandler, 4).startFromSlot(offset)
-					.slotCreator(BaseSlotPatched.newInst(inventoryHandler)).endAtSlot(offset + 16*page()-1).background(background)
-					.build()
-
-			);
-			builder.widget(scrollable.setPos(3, 3));
-			
-			
-		}
-
-		private Widget createButtonBuffer(int id, int xoffset, int yoffset) {
-			// for(int i=0;i<bufferNum;i++)
-			return new ButtonWidget().setOnClick((clickData, widget) -> {
-				if (clickData.mouseButton == 0) {
-					if (!widget.isClient())
-						widget.getContext().openSyncedWindow(BUFFER_0 + id);
-				}
-			}).setPlayClickSound(true).setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
-					.addTooltips(ImmutableList
-							.of(LangManager.translateToLocalFormatted("programmable_hatches.gt.buffer", "" + id)))
-					.setSize(16, 16).setPos(xoffset + 16 * (id % 3), yoffset + 16 * (id / 3));
-
-			/*
-			 * return new ButtonWidget().setOnClick((clickData, widget) -> { if
-			 * (clickData.mouseButton == 0) { widget.getContext()
-			 * .openSyncedWindow(BUFFER_0); } }) .setPlayClickSound(true)
-			 * .setBackground(GTUITextures.BUTTON_STANDARD,
-			 * GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
-			 * .addTooltips(ImmutableList.of("Place manual items")) .setSize(18, 18)
-			 * .setPos(7 + offset*18, 62-18*2);
-			 */
-
-			/*
-			 * return new CycleButtonWidget().setToggle(getter, setter)
-			 * .setStaticTexture(picture)
-			 * .setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE)
-			 * .setTooltipShowUpDelay(TOOLTIP_DELAY) .setPos(7 + offset*18, 62-18*2)
-			 * .setSize(18, 18) .setGTTooltip(tooltipDataSupplier);
-			 */
-		}
-protected ModularWindow createWindow(final EntityPlayer player, int index) {
-			// DualInvBuffer inv0 = this.inv0.get(index);
-			final int WIDTH = 18 * 6 + 6;
-			final int HEIGHT = 18 * 4 + 6;
-			final int PARENT_WIDTH = getGUIWidth();
-			final int PARENT_HEIGHT = getGUIHeight();
-			ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-			builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
-			builder.setGuiTint(getGUIColorization());
-			builder.setDraggable(true);
-			// make sure the manual window is within the parent window
-			// otherwise picking up manual items would toss them
-			// See GuiContainer.java flag1
-
-			builder.setPos((size, window) -> Alignment.Center.getAlignedPos(size, new Size(PARENT_WIDTH, PARENT_HEIGHT))
-					.add(Alignment.TopRight.getAlignedPos(new Size(PARENT_WIDTH, PARENT_HEIGHT), new Size(WIDTH, HEIGHT))));
-			switch (slotTierOverride(mTier)) {
-			case 0:
-				add1by1Slot(builder, index);
-				break;
-			case 1:
-				add2by2Slots(builder, index);
-				break;
-			case 2:
-				add3by3Slots(builder, index);
-				break;
-			default:
-				add4by4Slots(builder, index);
-				break;
-			}
-
-			Pos2d[] p = new Pos2d[] { new Pos2d(3 + 18 * 1, 7 - 4), new Pos2d(3 + 18 * 2, 7 - 4),
-					new Pos2d(3 + 18 * 3, 7 - 4), new Pos2d(3 + 18 * 4, 7 - 4) };
-			Pos2d position = p[Math.min(3, slotTierOverride(this$().mTier))];
-
-			Scrollable sc = new Scrollable().setVerticalScroll();
-
-			final IItemHandlerModifiable inventoryHandler = new MappingItemHandlerG(inv0.get(index).mStoredItemInternal, 0,
-					inv0.get(index).mStoredItemInternal.length).phantom();
-			for (int i = 0; i < inv0.get(index).v; i++)
-
-				sc.widget((i == 0 ? circuitSlot(inventoryHandler, inv0.get(index).i + i)
-						: new SlotWidget(new BaseSlot(inventoryHandler, inv0.get(index).i + i) {
-
-							public int getSlotStackLimit() {
-								return 0;
-							};
-
-						}
-
-						) {
-
-							@Override
-							public List<String> getExtraTooltip() {
-								return Arrays
-										.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1"));
-							}
-						}.disableShiftInsert().setHandlePhantomActionClient(true).setGTTooltip(() -> new TooltipData(
-								Arrays.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.0"),
-										LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1")),
-								Arrays.asList(LangManager.translateToLocal("programmable_hatches.gt.marking.slot.0"),
-										LangManager.translateToLocal("programmable_hatches.gt.marking.slot.1"))))).setPos(0,
-												18 * i)
-
-				);
-
-			builder.widget(sc.setSize(18, 18 * 2).setPos(3 + 18 * 5, 3));
-
-			{
-				Pos2d position0 = new Pos2d(0, 0);
-
-				final Scrollable scrollable = new Scrollable().setVerticalScroll();
-				for (int i = 0; i < inv0.get(index).mStoredFluidInternal.length; i++) {
-					position0 = new Pos2d((i % fluidSlotsPerRow()) * 18, (i / fluidSlotsPerRow()) * 18);
-					scrollable.widget(new FluidSlotWidget(new LimitedFluidTank(inv0.get(index).mStoredFluidInternal[i]).bind(inv0.get(index)))
-							.setBackground(ModularUITextures.FLUID_SLOT).setPos(position0));
-
-				}
-
-				builder.widget(scrollable
-						.setSize(18 * fluidSlotsPerRow(), 18 * Math.min(4, inv0.get(index).mStoredFluidInternal.length)
-
-						).setPos(position));
-			}
-
-			/*
-			 * for (int i = 0; i < inv0.mStoredFluidInternal.length; i++) {
-			 * builder.widget( new FluidSlotWidget(new
-			 * LimitedFluidTank(inv0.mStoredFluidInternal[i])).setBackground(
-			 * ModularUITextures.FLUID_SLOT) .setPos(position)); position=new
-			 * Pos2d(position.getX(),position.getY()).add(0, 18); }
-			 */
-
-			builder.widget(TextWidget.dynamicString(() -> inv0.get(index).recipeLocked ? "§4Lock" : "§aIdle")
-					.setSynced(true).setPos(3 + 18 * 5, 3 + 18 * 2));
-
-			builder.widget(new CycleButtonWidget().setToggle(() -> !inv0.get(index).lock, (s) -> {
-				inv0.get(index).lock = !s;
-				inv0.get(index).clearRecipeIfNeeded();
-			}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_RECIPE_LOCKED_DISABLED)
-					.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
-					.setPos(3 + 18 * 5, 3 + 18 * 3).setSize(18, 18)
-					.setGTTooltip(() -> mTooltipCache.getData("programmable_hatches.gt.lockbuffer"))
-
-			);
-			/*
-			 * builder.widget(new FakeSyncWidget.BooleanSyncer(()->
-			 * inv0.recipeLocked, s->inv0.recipeLocked=s ));
-			 */
-			builder.widget(new FakeSyncWidget.StringSyncer(() -> inv0.get(index).toTag().toString(),
-					s -> inv0.get(index).fromTag(cv(s))));
-			ModularWindow wd = builder.build();
-
-			wd.addInteractionListener(new Interactable() {
-
-				@SideOnly(Side.CLIENT)
-				public boolean onKeyPressed(char character, int keyCode) {
-					if (!wd.isClientOnly()) {
-
-						if ((keyCode == Keyboard.KEY_ESCAPE
-								|| Minecraft.getMinecraft().gameSettings.keyBindInventory.getKeyCode() == keyCode)
-								&& Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-							ArrayList<ModularWindow> tmp = new ArrayList<>();
-
-							wd.getContext().getMainWindow().getContext().getOpenWindows().forEach(tmp::add);
-							// return true will not prevent further check(not
-							// properly implemented to me)
-							// so close all other sync windows
-							// and let it proceed, it will close this window
-							tmp.forEach(wdd -> {
-								if (wdd == wd)
-									return;
-								if (wdd == wd.getContext().getMainWindow())
-									return;
-								wdd.getContext().sendClientPacket(ModularUIContext.DataCodes.CLOSE_WINDOW, null, wdd,
-										NetworkUtils.EMPTY_PACKET);
-								wdd.tryClose();
-							});
-
-							return false;
-						}
-					}
-
-					return false;
-				}
-
-			});
-			return wd;
-		}
-		@Override
-		public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-			Scrollable sc = new Scrollable().setVerticalScroll();
-			for (int i = 0; i < bufferNum; i++) {
-				final int ii = i;
-				buildContext.addSyncedWindow(BUFFER_0 + i, (s) -> createWindow(s, ii));
-				sc.widget(createButtonBuffer(i, 0, 0));
-			}
-
-			buildContext.addSyncedWindow(EX_CONFIG, (s) -> createWindowEx(s).build());
-
-			// .setPos(new Pos2d(getGUIWidth() - 18 - 3, 5)).setSize(16, 16)
-			builder.widget(sc.setSize(16 * 3, 16 * 2).setPos(3, 3));
-
-			builder.widget(createPowerSwitchButton(builder));
-			builder.widget(new SyncedWidget() {
-
-				@SuppressWarnings("unchecked")
-				public void detectAndSendChanges(boolean init) {
-					// player operation is more complicated, always set to true when
-					// GUI open
-					BufferedDualInputHatch.this.dirty = true;
-					BufferedDualInputHatch.this.inv0.forEach(s->s.nonempty=true);
-					markDirty();
-					// flush changes to client
-					// sometimes vanilla detection will fail so sync it manually
-					// System.out.println(last-getBaseMetaTileEntity().getTimer());
-					if (getBaseMetaTileEntity() != null)
-						if (last >= getBaseMetaTileEntity().getTimer())
-							getWindow().getContext().getContainer().inventorySlots.forEach(s -> ((Slot) s).onSlotChanged());
-
-				};
-
-				@Override
-				public void readOnClient(int id, PacketBuffer buf) throws IOException {
-				}
-
-				@Override
-				public void readOnServer(int id, PacketBuffer buf) throws IOException {
-				}
-			});
-
-			// ProghatchesUtil.removeMultiCache(builder, this);
-			ProghatchesUtil.attachZeroSizedStackRemover(builder, buildContext);
-
-			builder.widget(new SyncedWidget() {
-
-				Consumer<Widget> ticker = ss -> {
-
-					for (int i = 0; i < inv0.size(); i++) {
-						DualInvBuffer inv = inv0.get(i);
-						if (getContext().isWindowOpen(BUFFER_0 + i))
-							for (ItemStackG items : inv.mStoredItemInternal) {
-								if (items != null) {
-									items.adjust();
-								}
-							}
-					}
-				};
-
-				{
-					this.setTicker(ticker);
-				}
-
-				public void detectAndSendChanges(boolean init) {
-
-					ticker.accept(this);
-				};
-
-				@Override
-				public void readOnClient(int id, PacketBuffer buf) throws IOException {
-				}
-
-				@Override
-				public void readOnServer(int id, PacketBuffer buf) throws IOException {
-				}
-			});
-
-			super.addUIWidgets(builder, buildContext);
-		}
-		
-	}
- public MUI1Container initMUI1() {
-	
-	
-	return new MUI1ContainerX();
-};
-	@Override
-	public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-
-	
-		super.addUIWidgets(builder, buildContext);
-
-	}
 
 	public int moveButtons() {
 		return 0;
@@ -3093,7 +2606,6 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 
 	}
 
-	public class MUI2ContainerX extends MUI2Container implements IMUITexture {
 		ItemSlot circuitSlotInBuffer2(int pos,int indexPhantom, MappingItemHandlerG inventoryHandlerPhantom) {
 			
 
@@ -3139,7 +2651,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 						getBaseMetaTileEntity().enableWorking();
 						 else
 						getBaseMetaTileEntity().disableWorking();
-					}))
+					}).allowC2S())
 					
 					.stateBackground(1, GTGuiTextures.BUTTON_STANDARD)
 					.stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
@@ -3151,9 +2663,9 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 		}
 		
 		@Override
-		public void buildUI(ModularPanel builder, PosGuiData data, PanelSyncManager syncManager,
+		public void populateUI(ModularPanel builder, PosGuiData data, PanelSyncManager syncManager,
 				UISettings uiSettings) {
-			super.buildUI(builder, data, syncManager, uiSettings);
+			super.populateUI(builder, data, syncManager, uiSettings);
 			
 			syncManager.syncedPanel("EX_Config", true, 
 					(manager, handler) -> createWindowEX2(manager));
@@ -3216,9 +2728,15 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 		@SuppressWarnings({ "deprecation"})
 		public void addBuffer(ModularPanel builder, PosGuiData data, PanelSyncManager syncManager,
 		UISettings uiSettings){
-			ScrollWidget<?> list = new ScrollWidget<>(new VerticalScrollData()).size(18);
-			list.getScrollArea().getScrollY().setScrollSize(18 * ((bufferNum/3)+1));
-			list.size(16 * 3, 16 * 2).pos(3, 3);
+			// buttons are 16x16 laid out in 3 columns; number of rows = ceil(bufferNum / 3)
+			final int BTN = 16;
+			final int COLS = 3;
+			final int VISIBLE_ROWS = 2;
+			int rows = (bufferNum + COLS - 1) / COLS; // ceil
+			ScrollWidget<?> list = new ScrollWidget<>(new VerticalScrollData());
+			// total scrollable content height = all rows; viewport shows VISIBLE_ROWS rows
+			list.getScrollArea().getScrollY().setScrollSize(BTN * rows);
+			list.size(BTN * COLS, BTN * VISIBLE_ROWS).pos(3, 3);
 		for (int i = 0; i < bufferNum; i++) {
 			int id=i;
 			int xoffset=0; int yoffset=0;
@@ -3237,8 +2755,8 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 			.background(GTGuiTextures.BUTTON_STANDARD,OVERLAY_BUTTON_PLUS_LARGE)
 			.tooltipBuilder(s->{
 				s.addLine(LangManager.translateToLocalFormatted("programmable_hatches.gt.buffer", "" + id));
-			})	.size(16)
-			.pos(xoffset + 16 * (id % 3), yoffset + 16 * (id / 3));
+			})	.size(BTN)
+			.pos(xoffset + BTN * (id % COLS), yoffset + BTN * (id / COLS));
 			
 			
 			
@@ -3346,7 +2864,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 					()->inv0.get(ind).lock
 					,
 					s->{inv0.get(ind).lock=s;inv0.get(ind).clearRecipeIfNeeded();}
-					))
+					).allowC2S())
                     .overlay(false, GTGuiTextures.OVERLAY_BUTTON_RECIPE_LOCKED_DISABLED)
                     .overlay(true, GTGuiTextures.OVERLAY_BUTTON_RECIPE_LOCKED)
                     .size(16).pos(3+18*5, 3+18*3))
@@ -3358,26 +2876,20 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 			
 			;
 			BooleanSyncValue recipeLocked;
-			syncManager.syncValue("sync_recipeLocked_"+ind, recipeLocked=new BooleanSyncValue(()->inv0.get(ind).recipeLocked));
+			syncManager.syncValue("sync_recipeLocked_"+ind, recipeLocked=new BooleanSyncValue(()->inv0.get(ind).recipeLocked).allowC2S());
 			builder.child(IKey.dynamic(() -> recipeLocked.getBoolValue() ? "§4Lock" : "§aIdle").asWidget()
 					.pos(3 + 18 * 5, 3 + 18 * 2).size(16));
 			
 			
 			return builder;
 		}
-	}
-	
-	@Override
-	public MUI2Container initMUI2() {
-		return new MUI2ContainerX();
-	}
 
 
 
 
 public static IntSyncValue accessorI(Supplier<Boolean> object, Consumer<Boolean> object2) {
 	
-		return new IntSyncValue(()->object.get()?1:0, s->object2.accept(s==1));
+		return new IntSyncValue(()->object.get()?1:0, s->object2.accept(s==1)).allowC2S();
 	}
 
 @Override

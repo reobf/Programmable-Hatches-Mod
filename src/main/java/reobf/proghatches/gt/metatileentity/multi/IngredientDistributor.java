@@ -10,12 +10,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
+
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -50,11 +53,13 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
+import appeng.api.config.FuzzyMode;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IAEStackType;
 import appeng.api.storage.data.IItemList;
 import appeng.me.GridAccessException;
 import appeng.util.IterationCounter;
@@ -1044,12 +1049,12 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
     private boolean isAllMEOutputEmpty() {
 
         for (MTEHatchOutputBus o : mOutputBusses) {
-            if (o instanceof MTEHatchOutputBusME) {
+            if (o instanceof MTEHatchOutputBusME oo) {
 
                 IItemList<IAEItemStack> itemCache;
                 try {
-                    itemCache = (IItemList<IAEItemStack>) f.get(o);
-                    if (itemCache.isEmpty() == false) {
+                   // itemCache =  ;//(IItemList<IAEItemStack>) f.get(o);
+                    if (oo.getProvider().getCacheList().isEmpty() == false) {
                         return false;
                     }
                     itemCache = o.getProxy()
@@ -1071,12 +1076,12 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
         }
 
         for (MTEHatchOutput o : mOutputHatches) {
-            if (o instanceof MTEHatchOutputME) {
+            if (o instanceof MTEHatchOutputME oo) {
 
                 IItemList<IAEFluidStack> itemCache;
                 try {
-                    itemCache = (IItemList<IAEFluidStack>) f2.get(o);
-                    if (itemCache.isEmpty() == false) {
+                    //itemCache = (IItemList<IAEFluidStack>) f2.get(o);
+                    if (oo.getProvider().getCacheList().isEmpty() == false) {
                         return false;
                     }
                     itemCache = o.getProxy()
@@ -1098,7 +1103,7 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
         return true;
     }
 
-    static Field f, f2;
+  /*  static Field f, f2;
     static {
         if (f == null) try {
             f = MTEHatchOutputBusME.class.getDeclaredField("itemCache");
@@ -1113,7 +1118,7 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
             e.printStackTrace();
         }
     }
-
+*/
     private static <T extends IAEStack<?>> T verifyForRealExistance(T tocheck, IMEMonitor<T> tocheckfrom) {
 
         if (tocheck == null) return tocheck;
@@ -1126,8 +1131,8 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
     private TransferCheckResult checkMEBus(MTEHatchOutputBusME bus, ItemStack check, int index) {
 
         try {
-            IItemList<IAEItemStack> itemCache = (IItemList<IAEItemStack>) f.get(bus);
-            Iterator<IAEItemStack> itr = itemCache.iterator();
+           // IItemList<IAEItemStack> itemCache = (IItemList<IAEItemStack>) f.get(bus);
+            Iterator<IAEItemStack> itr = bus.getProvider().getCacheList().iterator();
             // if(check!=null)
             while (itr.hasNext()) {
                 IAEItemStack next;
@@ -1182,8 +1187,9 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
     private TransferCheckResult checkMEHatch(MTEHatchOutputME bus, FluidStack check, int index) {
 
         try {
-            IItemList<IAEFluidStack> itemCache = (IItemList<IAEFluidStack>) f2.get(bus);
-            Iterator<IAEFluidStack> itr = itemCache.iterator();
+        	Iterator<IAEFluidStack> itr = bus.getProvider().getCacheList().iterator();
+           // IItemList<IAEFluidStack> itemCache = (IItemList<IAEFluidStack>) f2.get(bus);
+          //  Iterator<IAEFluidStack> itr = itemCache.iterator();
             // if(check!=null)
             while (itr.hasNext()) {
                 IAEFluidStack next = itr.next();
@@ -1754,4 +1760,8 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
     protected boolean useMui2() {
     	return false;
     }
+    
+   
+    
+    
 }

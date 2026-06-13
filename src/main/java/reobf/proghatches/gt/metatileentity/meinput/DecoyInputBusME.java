@@ -58,12 +58,17 @@ import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import gregtech.common.tileentities.machines.MTEHatchInputME;
-import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolderSuper;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
+import com.cleanroommc.modularui.factory.PosGuiData;
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.UISettings;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import gregtech.api.modularui2.GTGuiTextures;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
-public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverrided, IDataCopyablePlaceHolderSuper {
+public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverrided, IDataCopyablePlaceHolder {
 
 	
 	
@@ -437,6 +442,37 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
 
     }
 
+    // ===== MUI2 =====
+    // GT's MTEHatchInputBusME builds its GUI with MUI2, so the MUI1 addUIWidgets() above is dead now.
+    // The decoy bus's only GUI element was a refresh button (reserveFirst is toggled with a
+    // screwdriver via onScrewdriverRightClick, which is unaffected by the GUI), so we just reuse
+    // GT's panel and re-add that refresh button.
+    @Override
+    public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings) {
+        ModularPanel panel = super.buildUI(data, syncManager, uiSettings);
+
+        com.cleanroommc.modularui.value.sync.InteractionSyncHandler refresh =
+            new com.cleanroommc.modularui.value.sync.InteractionSyncHandler().setOnMousePressed(d -> {
+                for (int index = 0; index < 16; index++) {
+                    MEHatchRefactor.updateInformationSlot(this, index);
+                }
+            });
+        syncManager.syncValue("decoy_refresh", refresh);
+        panel.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>()
+            .syncHandler(refresh)
+            .background(GTGuiTextures.BUTTON_STANDARD)
+            .tooltip(t -> {
+                t.addLine(com.cleanroommc.modularui.api.drawable.IKey
+                    .str(StatCollector.translateToLocal("proghatches.restricted.refresh.0")));
+                t.addLine(com.cleanroommc.modularui.api.drawable.IKey
+                    .str(StatCollector.translateToLocal("proghatches.restricted.refresh.1")));
+            })
+            .size(16, 16)
+            .pos(80, 10 + 18));
+
+        return panel;
+    }
+
     boolean reserveFirst;
     // private BaseActionSource requestSource;
 
@@ -658,17 +694,6 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
         super.loadNBTData(aNBT);
     }
 
-    @Override
-    public boolean impl_pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
-        if (nbt.hasKey("reserveFirst")) reserveFirst = nbt.getBoolean("reserveFirst");
-        return true;
-    }
-
-    @Override
-    public NBTTagCompound impl_getCopiedData(EntityPlayer player, NBTTagCompound tag) {
-        tag.setBoolean("reserveFirst", reserveFirst);
-        return tag;
-    }
 
     /*
      * @Override
@@ -690,42 +715,26 @@ public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverr
      * return super_getCopiedDataIdentifier(player,()->MethodHandles.lookup());
      * }
      */
+    // Flattened + inlined from the former IDataCopyablePlaceHolderSuper compat layer.
     @Override
     public NBTTagCompound getCopiedData(EntityPlayer player) {
-        return IDataCopyablePlaceHolderSuper.super.getCopiedData(player);
+        NBTTagCompound ret = super.getCopiedData(player);
+        ret.setBoolean("reserveFirst", reserveFirst);
+        ret.setString("type", getCopiedDataIdentifier(player));
+        return ret;
     }
 
     @Override
     public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
-        return IDataCopyablePlaceHolderSuper.super.pasteCopiedData(player, nbt);
-    }
-
-    @Override
-    public String getCopiedDataIdentifier(EntityPlayer player) {
-        return IDataCopyablePlaceHolderSuper.super.getCopiedDataIdentifier(player);
-    }
-
-    @Override
-    public NBTTagCompound super_getCopiedData(EntityPlayer player) {
-
-        return super.getCopiedData(player);
-    }
-
-    @Override
-    public String super_getCopiedDataIdentifier(EntityPlayer player) {
-
-        return super.getCopiedDataIdentifier(player);
-    }
-
-    @Override
-    public boolean super_pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
-
+        if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+        nbt = (NBTTagCompound) nbt.copy();
+        if (nbt.hasKey("reserveFirst")) reserveFirst = nbt.getBoolean("reserveFirst");
+        nbt.setString("type", super.getCopiedDataIdentifier(player));
         return super.pasteCopiedData(player, nbt);
     }
-    
-    
-@SuppressWarnings("unchecked")
-@Override
+
+    @SuppressWarnings("unchecked")
+    @Override
 public IAEStack qureyStorage(IMEMonitor thiz, IAEStack request, Actionable mode, BaseActionSource src) {
 	
 	return  thiz.extractItems(request, mode, src);

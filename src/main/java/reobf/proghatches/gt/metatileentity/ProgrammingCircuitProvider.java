@@ -70,13 +70,14 @@ import reobf.proghatches.eucrafting.IInputMightBeEmptyPattern;
 import reobf.proghatches.eucrafting.IInstantCompletable;
 import reobf.proghatches.gt.metatileentity.util.ICircuitProvider;
 import reobf.proghatches.gt.metatileentity.util.IDisallowOptimize;
+import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
 public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidgets, IPowerChannelState,
-    ICraftingProvider, IGridProxyable, ICircuitProvider, IInstantCompletable, ICustomNameObject, IInterfaceViewable {
+    ICraftingProvider,IMultiplePatternPushable , IGridProxyable, ICircuitProvider, IInstantCompletable, ICustomNameObject, IInterfaceViewable {
 
     int tech;
 
@@ -911,4 +912,35 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
             new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
         return true;
     }
+
+	@Override
+	public int[] pushPatternMulti(ICraftingPatternDetails patternDetails, InventoryCrafting table, int maxTodo) {
+		if(maxTodo<=0)return new int[] {0};
+	    try {
+            if (ItemProgrammingCircuit.getCircuit(patternDetails.getOutputs()[0].getItemStack())
+                .map(ItemStack::getItem)
+                .orElse(null) == MyMod.progcircuit) {
+                this.getBaseMetaTileEntity()
+                    .doExplosion(2);
+                return new int[] {0};
+            }
+
+        } catch (Exception e) {}
+
+        try {
+            this.getProxy()
+                .getEnergy()
+                .extractAEPower(10, Actionable.MODULATE, PowerMultiplier.ONE);
+        } catch (GridAccessException e) {
+
+        }
+        
+        ItemStack circuitItem = (patternDetails.getOutput(
+            table,
+            this.getBaseMetaTileEntity()
+                .getWorld()));
+
+        ret.add(AEItemStack.create(circuitItem).setStackSize(maxTodo));
+        return new int[] {maxTodo};
+	}
 }

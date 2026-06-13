@@ -104,8 +104,6 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.ExConfigEntry;
-import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.MUI1ContainerX;
-import reobf.proghatches.gt.metatileentity.DualInputHatch.MUI1Container;
 import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch.DA;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
@@ -113,6 +111,23 @@ import reobf.proghatches.gt.metatileentity.bufferutil.LongWrapper;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.ISpecialOptimize;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
+import com.cleanroommc.modularui.api.IPanelHandler;
+import com.cleanroommc.modularui.api.drawable.IKey;
+import com.cleanroommc.modularui.api.widget.Interactable.Result;
+import com.cleanroommc.modularui.drawable.GuiTextures;
+import com.cleanroommc.modularui.factory.PosGuiData;
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.UISettings;
+import com.cleanroommc.modularui.value.sync.InteractionSyncHandler;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.utils.item.ItemStackHandler;
+import com.cleanroommc.modularui.widget.ParentWidget;
+import com.cleanroommc.modularui.widget.sizer.Area;
+import com.cleanroommc.modularui.widgets.PageButton;
+import com.cleanroommc.modularui.widgets.PagedWidget;
+import com.cleanroommc.modularui.widgets.slot.ItemSlot;
+import com.cleanroommc.modularui.widgets.slot.ModularSlot;
+import gregtech.api.modularui2.GTGuiTextures;
 import reobf.proghatches.item.ItemFakePattern;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
@@ -1406,386 +1421,479 @@ public int getCircuitSlot() {
 			if(a!=null)black.add(a.getPattern());
 		}
 	}
-	 public MUI1Container initMUI1() {
-			
-			
-			return new MUI1ContainerXX();
-		};
-		@Override
-		public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-		
-			super.addUIWidgets(builder, buildContext);
+
+	// ===================== MUI2 =====================
+	// MUI2 port of the pattern insertion window. Adds, on top of the parent
+	// (BufferedDualInputHatch) UI, a button that opens a popup panel with three pages:
+	//   page 1: pattern slots
+	//   page 2: individual multiplier op.
+	//   page 3: batch multiplier op. (also hosts the refund button)
+	// Ported from the legacy MUI1 pattern window (createPatternWindow / addUIWidgets).
+
+	private com.cleanroommc.modularui.widgets.ButtonWidget<?> createRefundButton2(PanelSyncManager syncManager) {
+		InteractionSyncHandler refund = new InteractionSyncHandler().setOnMousePressed(data -> {
+			PatternDualInputHatch.this.dirty = true;
+			try {
+				PatternDualInputHatch.this.refundAll();
+			} catch (Exception e) {
+				// e.printStackTrace();
+			}
+		});
+		syncManager.syncValue("refund_all", refund);
+		return (com.cleanroommc.modularui.widgets.ButtonWidget<?>) new com.cleanroommc.modularui.widgets.ButtonWidget<>().syncHandler(refund)
+			.background(GTGuiTextures.BUTTON_STANDARD, GTGuiTextures.OVERLAY_BUTTON_EXPORT)
+			.tooltip(t -> t.addLine(IKey.str("Return all internally stored items back to AE")))
+			.size(16, 16);
+	}
+
+	/**
+	 * Builds a 16x16 button whose action runs on the server. The click is synced to the
+	 * server by the {@link InteractionSyncHandler}, where {@code action} is executed, so
+	 * any mutation of server-persisted state (e.g. {@code multiplier[]}) takes effect.
+	 */
+	private com.cleanroommc.modularui.widgets.ButtonWidget<?> makeBatchButton(PanelSyncManager syncManager, String key, Runnable action) {
+		InteractionSyncHandler handler = new InteractionSyncHandler().setOnMousePressed(data -> action.run());
+		syncManager.syncValue(key, handler);
+		return (com.cleanroommc.modularui.widgets.ButtonWidget<?>) new com.cleanroommc.modularui.widgets.ButtonWidget<>().syncHandler(handler)
+			.size(16, 16)
+			.background(GTGuiTextures.BUTTON_STANDARD);
+	}
+
+	@Override
+	public void populateUI(ModularPanel builder, PosGuiData data, PanelSyncManager syncManager,
+		UISettings uiSettings) {
+		super.populateUI(builder, data, syncManager, uiSettings);
+
+		if (disablePatternSlots()) return;
+
+		IPanelHandler patternPanel = syncManager.syncedPanel("pattern_panel", true,
+			(manager, handler) -> createPatternWindow2(manager));
+
+		builder.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>().onMousePressed(mouseButton -> {
+			patternPanel.openPanel();
+			return patternPanel.isPanelOpen();
+		})
+			.background(GTGuiTextures.BUTTON_STANDARD, GTGuiTextures.OVERLAY_BUTTON_PLUS_LARGE)
+			.tooltip(t -> t.addLine(
+				IKey.str(LangManager.translateToLocalFormatted("programmable_hatches.gt.pattern"))))
+			.size(16, 16)
+			.pos(getGUIWidth() - 18 - 3, 5 + 16 + 2 + 16 + 2));
+	}
+
+	// ===================== MUI2 drag-handle support =====================
+	// A drag handle that protrudes OUTSIDE the panel (like the glove tab here) cannot use MUI2's
+	// stock DragHandle / DraggablePanelWrapper: ModularPanel.onMousePressed applies the hovered
+	// widget's OWN matrix before onDragStart runs, so DraggablePanelWrapper.onDragStart's
+	// context.transformX(0,0) resolves to the HANDLE's origin instead of the panel's. The drag
+	// then anchors to the handle and the window jumps by the handle's offset (~WIDTH px) the
+	// instant it is grabbed (and the render matrix is offset to match).
+	// To avoid all of that, this forwarder does NOT use the movingArea / drawMovingState render
+	// path. It repositions the panel directly every frame in onDrag using absolute mouse coords
+	// (unaffected by any matrix) and the same resizer math MUI2 uses at drag-end. The panel is
+	// never disabled, so it just renders normally at its live-updated position.
+	// NOTE: reproduces engine behaviour and can't be compiled/tested here - verify feel in game.
+
+	/** Forwards a drag to the given panel by repositioning it live each frame (no matrix offset). */
+	private static final class PanelDragForwarder implements com.cleanroommc.modularui.api.widget.IDraggable {
+
+		private final com.cleanroommc.modularui.screen.ModularPanel panel;
+		private int grabX, grabY;
+		private boolean moving;
+
+		PanelDragForwarder(com.cleanroommc.modularui.screen.ModularPanel panel) {
+			this.panel = panel;
 		}
-	public class MUI1ContainerXX extends MUI1ContainerX{
-		 ButtonWidget createRefundButton(IWidgetBuilder<?> builder) {
 
-		        Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
-
-		            PatternDualInputHatch.this.dirty = true;
-		            try {
-		                PatternDualInputHatch.this.refundAll();
-		            } catch (Exception e) {
-
-		                // e.printStackTrace();
-		            }
-		        })
-		            .setPlayClickSound(true)
-		            .setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_EXPORT)
-
-		            .addTooltips(ImmutableList.of("Return all internally stored items back to AE"))
-
-		            .setPos(new Pos2d(getGUIWidth() - 18 - 3, 5 + 16 + 2))
-		            .setSize(16, 16);
-		        return (ButtonWidget) button;
-		    }
-		public PatternDualInputHatch this$(){
-			return PatternDualInputHatch.this;}
-		protected ModularWindow createPatternWindow(final EntityPlayer player) {
-	        final int WIDTH = 18 * 4 + 6;
-	        final int HEIGHT = 18 * 9 + 6;
-	        final int PARENT_WIDTH = getGUIWidth();
-	        final int PARENT_HEIGHT = getGUIHeight();
-	        ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-	        IDrawable tab1 = new ItemDrawable(
-	            Api.INSTANCE.definitions()
-	                .items()
-	                .encodedPattern()
-	                .maybeStack(1)
-	                .get()).withFixedSize(18, 18, 4, 4);
-	        IDrawable tab2 = GTUITextures.OVERLAY_BUTTON_BATCH_MODE_OFF.withFixedSize(18, 18, 4, 4);;
-
-	        /*
-	         * new ItemDrawable(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Iron, 1))
-	         * .withFixedSize(18, 18, 4, 4);
-	         */
-	        IDrawable tab3 = GTUITextures.OVERLAY_BUTTON_BATCH_MODE_ON.withFixedSize(
-	            18,
-	            18,
-	            4,
-	            4);;/*
-	                 * new ItemDrawable(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Gold, 1))
-	                 * .withFixedSize(18, 18, 4, 4);
-	                 */
-
-	        TabContainer tab;
-	        builder.widget(
-	            tab = new TabContainer().setButtonSize(28, 32)
-	                .addTabButton(
-	                    new TabButton(0)
-	                        .setBackground(
-	                            true,
-	                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 0f, 1f, 1 / 3f)
-	                                .getSubArea(0, 0, 0.5f, 1f),
-	                            tab1)
-	                        .setBackground(
-	                            false,
-	                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 0f, 1f, 1 / 3f)
-	                                .getSubArea(0.5f, 0, 1f, 1f),
-	                            tab1)
-	                        .setPos(WIDTH - 3, -1)
-	                        .addTooltip("Patterns"))
-	                .addTabButton(
-	                    new TabButton(1)
-	                        .setBackground(
-	                            true,
-	                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
-	                                .getSubArea(0, 0, 0.5f, 1f),
-	                            tab2)
-	                        .setBackground(
-	                            false,
-	                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
-	                                .getSubArea(0.5f, 0, 1f, 1f),
-	                            tab2)
-	                        .setPos(WIDTH - 3, 28 - 1)
-	                        .addTooltip("Individual Multiplier Op."))
-	                .addTabButton(
-	                    new TabButton(2)
-	                        .setBackground(
-	                            true,
-	                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
-	                                .getSubArea(0, 0, 0.5f, 1f),
-	                            tab3)
-	                        .setBackground(
-	                            false,
-	                            ModularUITextures.VANILLA_TAB_RIGHT.getSubArea(0f, 1 / 3f, 1f, 2 / 3f)
-	                                .getSubArea(0.5f, 0, 1f, 1f),
-	                            tab3)
-	                        .setPos(WIDTH - 3, 56 - 1)
-	                        .addTooltip("Batch Multiplier Op.")));
-
-	        builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
-	        builder.setGuiTint(getGUIColorization());
-	        builder.setDraggable(true);
-	        builder.setPos(
-	            (a, b) -> new Pos2d(
-	                PARENT_WIDTH + b.getPos()
-	                    .getX(),
-	                PARENT_HEIGHT * 0 + b.getPos()
-	                    .getY()));
-	        MultiChildWidget page1 = new MultiChildWidget();
-	        tab.addPage(page1);
-	        MultiChildWidget page2 = new MultiChildWidget();
-	        tab.addPage(page2);
-	        MultiChildWidget page3 = new MultiChildWidget();
-	        tab.addPage(page3);
-
-	        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
-	            for (int i = 0; i < 36; i++) {
-	                multiplier[i] *= 2;
-	                multiplier[i] = Math.max(multiplier[i], 1);
-	            }
-	            refresh();
-	        })
-	            .setSize(16, 16)
-	            .setPos(3, 3)
-	            .setBackground(GTUITextures.BUTTON_STANDARD)
-	            .addTooltip("x2"));
-	        page3.addChild(
-	            TextWidget.dynamicString(() -> "x2")
-	                .setPos(3 + 3, 3));
-	        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
-	            for (int i = 0; i < 36; i++) multiplier[i] = 1;
-	            refresh();
-	        })
-	            .setSize(16, 16)
-	            .setPos(3 + 16, 3)
-	            .setBackground(GTUITextures.BUTTON_STANDARD)
-	            .addTooltip("=1"));
-	        page3.addChild(
-	            TextWidget.dynamicString(() -> "=2")
-	                .setPos(3 + 3 + 16, 3));
-	        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
-	            for (int i = 0; i < 36; i++) {
-	                multiplier[i] *= n;
-	                multiplier[i] = Math.max(multiplier[i], 1);
-	            }
-	            refresh();
-	        })
-	            .setSize(16, 16)
-	            .setPos(3, 3 + 32)
-	            .setBackground(GTUITextures.BUTTON_STANDARD)
-	            .addTooltip("xN"));
-	        page3.addChild(
-	            TextWidget.dynamicString(() -> "x" + n)
-	                .setPos(3 + 3, 3 + 32));
-	        page3.addChild(new ButtonWidget().setOnClick((buttonId, doubleClick) -> {
-	            for (int i = 0; i < 36; i++) multiplier[i] = n;
-	            refresh();
-	        })
-	            .setSize(16, 16)
-	            .setPos(3 + 16, 3 + 32)
-	            .setBackground(GTUITextures.BUTTON_STANDARD)
-	            .addTooltip("=N"));
-	        page3.addChild(
-	            TextWidget.dynamicString(() -> "=" + n)
-	                .setPos(3 + 3 + 16, 3 + 32));
-	        TextFieldWidget text_n;
-	        page3.addChild((text_n = new TextFieldWidget()).setValidator(s -> {
-	            try {
-	                Integer.valueOf(s);
-	            } catch (Exception e) {
-	                return "1";
-	            }
-	            return s;
-	        })
-	            .setSetter(s -> {
-
-	                n = Integer.valueOf(s);
-
-	                refresh();
-	            })
-
-	            .setGetter(() -> n + "")
-
-	            .setTextAlignment(Alignment.Center)
-	            .setTextColor(Color.WHITE.normal)
-	            .addTooltip("N=")
-	            .setSize(60, 18)
-	            .setPos(3, 3 + 32 + 18)
-	            .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
-
-	        page3.addChild(new TextWidget().setStringSupplier(() -> {
-	            if (text_n == text_n.getContext()
-	                .getCursor()
-	                .getFocused()) {
-	                return "Enter <Space> to update value";
-	            }
-	            return "";
-	        })
-	            .setPos(3, 3 + 32 + 18 + 18)
-
-	        /*
-	         * TextWidget.dynamicString(()->{
-	         * //if(text_n.isFocused()){return "Enter <Space> to update value";}
-	         * System.out.println(text_n.getContext().getCursor().getFocused());
-	         * System.out.println(text_n);
-	         * return "";}).setPos(3, 3+32+18+18)
-	         */
-	        );
-
-	        MappingItemHandler shared_handler = new MappingItemHandler(pattern, 0, 36);
-	        // use shared handler
-	        // or shift clicking a pattern in pattern slot will just transfer it to
-	        // another pattern slot
-	        // instead of player inventory!
-	        for (int i = 0; i < 36; i++) {
-	            final int ii = i;
-
-	            page2.addChild(new SlotWidget(new BaseSlot(shared_handler, i)) {
-
-	                @Override
-	                protected ItemStack getItemStackForRendering(Slot slotIn) {
-	                    ItemStack stack = slotIn.getStack();
-	                    if (stack == null || !(stack.getItem() instanceof ItemEncodedPattern)) {
-	                        return stack;
-	                    }
-	                    ItemStack output = ((ItemEncodedPattern) stack.getItem()).getOutput(stack);
-	                    return output != null ? output : stack;
-
-	                }
-	            }.disableInteraction()
-	                .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
-	                .setBackground(GTUITextures.SLOT_DARK_GRAY, GTUITextures.OVERLAY_SLOT_PATTERN_ME));
-
-	            page2.addChild(
-	                new TextFieldWidget()
-
-	                    .setValidator(s -> {
-	                        try {
-	                            Integer.valueOf(s);
-	                        } catch (Exception e) {
-	                            return "1";
-	                        }
-	                        return s;
-	                    })
-	                    .setSetter(s -> {
-
-	                        multiplier[ii] = Integer.valueOf(s);
-
-	                        refresh();
-	                    })
-
-	                    .setGetter(() -> multiplier[ii] + "")
-	                    .setTextColor(Color.RED.bright(0))
-	                    .setMaxLength(999)
-
-	                    .setScrollBar()
-
-	                    .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 1)
-
-	                    .setSize(18, 16)
-	                    .setBackground());
-	            page1.addChild(new SlotWidget(new BaseSlot(shared_handler, i)
-
-	            ) {
-
-	                @Override
-	                protected ItemStack getItemStackForRendering(Slot slotIn) {
-	                    ItemStack stack = slotIn.getStack();
-	                    if (stack == null || !(stack.getItem() instanceof ItemEncodedPattern)) {
-	                        return stack;
-	                    }
-	                    ItemStack output = ((ItemEncodedPattern) stack.getItem()).getOutput(stack);
-	                    return output != null ? output : stack;
-
-	                }
-	            }.setShiftClickPriority(-1)
-	                .setFilter(itemStack -> itemStack.getItem() instanceof ICraftingPatternItem)
-	                .setChangeListener(() -> { onPatternChange(); })
-	                .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
-	                .setBackground(getGUITextureSet().getItemSlot(), GTUITextures.OVERLAY_SLOT_PATTERN_ME));
-
-	            page1.addChild(TextWidget.dynamicString(() -> {
-
-	                String s = multiplier[ii] == 1 ? "" : (ps(multiplier[ii]) + "");
-	                if (pattern[ii] == null) return s = "§7" + s;
-
-	                return s;
-	            })
-	                .setTextAlignment(Alignment.TopLeft)
-	                .setDefaultColor(Color.WHITE.normal)
-	                .setPos((i % 4) * 18 + 3, (i / 4) * 18 + 2)
-
-	                .setSize(36, 16)
-	                .setBackground());
-	        }
-
-	        return builder.build();
-	    }
-
-		@SuppressWarnings("unchecked")
 		@Override
-		    public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-		       if(!disablePatternSlots()) buildContext.addSyncedWindow(88, this::createPatternWindow);
+		public boolean onDragStart(int button) {
+			if (button != 0) {
+				return false;
+			}
+			// record the cursor's offset from the panel's top-left (absolute coords).
+			Area a = this.panel.getArea();
+			this.grabX = this.panel.getContext().getAbsMouseX() - a.x;
+			this.grabY = this.panel.getContext().getAbsMouseY() - a.y;
+			return true;
+		}
 
-		        builder.widget(createRefundButton(builder));
-		        ButtonWidget b=new ButtonWidget();
-		        
-		        if(!disablePatternSlots())
-		        	builder.widget(
-		            (b /*= new ButtonWidget()*/).setOnClick(
-		                (clickData, widget) -> {
-		                    if (widget.getContext()
-		                        .isClient() == false)
-		                        widget.getContext()
-		                            .openSyncedWindow(88);
-		                })
-		                .setPlayClickSound(true)
-		                .setBackground(GTUITextures.BUTTON_STANDARD, GTUITextures.OVERLAY_BUTTON_PLUS_LARGE)
-		                .addTooltips(ImmutableList.of(LangManager.translateToLocalFormatted("programmable_hatches.gt.pattern")))
+		@Override
+		public void onDrag(int mouseButton, long timeSinceLastClick) {
+			reposition();
+		}
 
-		                .setSize(16, 16)
-		                // .setPos(10 + 16 * 9, 3 + 16 * 2)
-		                .setPos(new Pos2d(getGUIWidth() - 18 - 3, 5 + 16 + 2 + 16 + 2)));
-		        final boolean e=PatternDualInputHatchInventoryMappingSlave.enclose;
-		        builder.widget(new Widget() {}.setTicker(new Consumer() {
+		@Override
+		public void onDragEnd(boolean successful) {
+			// already repositioned every frame during the drag; nothing to finalise.
+		}
 
-		            int init;
+		private void reposition() {
+			Area screen = this.panel.getScreen().getScreenArea();
+			Area pa = this.panel.getArea();
+			int targetX = this.panel.getContext().getAbsMouseX() - this.grabX;
+			int targetY = this.panel.getContext().getAbsMouseY() - this.grabY;
+			// convert the absolute target top-left into the 0..1 relative anchor the resizer
+			// uses - same normalisation as MUI2's DraggablePanelWrapper#onDragEnd.
+			float relX = (targetX - screen.x) / (float) Math.max(1, screen.width - pa.width);
+			float relY = (targetY - screen.y) / (float) Math.max(1, screen.height - pa.height);
+			this.panel.resizer().resetPosition();
+			this.panel.resizer().relativeToScreen();
+			this.panel.resizer().topRelAnchor(relY, relY).leftRelAnchor(relX, relX);
+			this.panel.scheduleResize();
+		}
 
-		            public void accept(Object x) {
-		            	if(e)return;
-		                init++;
-		                if (init == 2&&!disablePatternSlots()) {
-		                	if(!disablePatternSlots()) b.syncToServer(1, Widget.ClickData.create(1, false)::writeToPacket);
-		                }
-		            }
-		        }));
+		@Override
+		public void drawMovingState(com.cleanroommc.modularui.screen.viewport.ModularGuiContext context,
+			float partialTicks) {
+			// panel is not disabled during the drag, so it draws itself at its repositioned
+			// location; there is nothing extra to draw here.
+		}
 
-		        super.addUIWidgets(builder, buildContext);
-		    }
-		
-		
-		/*protected Builder createWindowEx(EntityPlayer player) {
-		
-		Builder builder = super.createWindowEx(player);
-		
-		builder.widget(new CycleButtonWidget().setToggle(() -> restrictToInt, (s) -> {
-			restrictToInt = s;
+		@Override
+		public Area getMovingArea() {
+			return this.panel.getArea();
+		}
 
-		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
-				.setPos(3 + 18 * 0, 3 + 18 * 1).setSize(18, 18)
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.restrictToInt.0"))
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.restrictToInt.1"))
-			);
-		
-		builder.widget(new CycleButtonWidget().setToggle(() -> allowopt, (s) -> {
-			allowopt = s;
+		@Override
+		public boolean isMoving() {
+			return this.moving;
+		}
 
-		}).setStaticTexture(GTUITextures.OVERLAY_BUTTON_CHECKMARK)
-				.setVariableBackground(GTUITextures.BUTTON_STANDARD_TOGGLE).setTooltipShowUpDelay(TOOLTIP_DELAY)
-				.setPos(3 + 18 * 1, 3 + 18 * 1).setSize(18, 18)
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.0"))
-				.addTooltip(StatCollector.translateToLocal("programmable_hatches.gt.allowopt.1"))
-			);	
-		
-		
-		
-		
+		@Override
+		public void setMoving(boolean moving) {
+			// intentionally do NOT disable the panel (no setEnabled(false)); we reposition it
+			// live and let it render normally, which is what avoids the drag-handle offset.
+			this.moving = moving;
+		}
+
+		@Override
+		public void transform(com.cleanroommc.modularui.api.layout.IViewportStack stack) {
+			// no-op: the panel renders at its own (repositioned) area, so no extra transform.
+		}
+	}
+
+	/** A widget that forwards drags to its ModularPanel via PanelDragForwarder. */
+	private static final class DragTab extends com.cleanroommc.modularui.widget.Widget<DragTab>
+		implements com.cleanroommc.modularui.api.widget.IDraggable, com.cleanroommc.modularui.api.layout.IViewport {
+
+		private com.cleanroommc.modularui.api.widget.IDraggable forwarder;
+
+		@Override
+		public void onInit() {
+			com.cleanroommc.modularui.api.widget.IWidget p = getParent();
+			while (p != null && !(p instanceof com.cleanroommc.modularui.screen.ModularPanel)) {
+				p = p.getParent();
+			}
+			if (p instanceof com.cleanroommc.modularui.screen.ModularPanel panel && panel.isDraggable()) {
+				this.forwarder = new PanelDragForwarder(panel);
+			}
+		}
+
+		@Override
+		public boolean onDragStart(int button) {
+			return this.forwarder != null && this.forwarder.onDragStart(button);
+		}
+
+		@Override
+		public void onDragEnd(boolean successful) {
+			if (this.forwarder != null) {
+				this.forwarder.onDragEnd(successful);
+			}
+		}
+
+		@Override
+		public void onDrag(int mouseButton, long timeSinceLastClick) {
+			if (this.forwarder != null) {
+				this.forwarder.onDrag(mouseButton, timeSinceLastClick);
+			}
+		}
+
+		@Override
+		public void drawMovingState(com.cleanroommc.modularui.screen.viewport.ModularGuiContext context,
+			float partialTicks) {
+			if (this.forwarder != null) {
+				this.forwarder.drawMovingState(context, partialTicks);
+			}
+		}
+
+		@Override
+		public Area getMovingArea() {
+			return this.forwarder != null ? this.forwarder.getMovingArea() : null;
+		}
+
+		@Override
+		public boolean isMoving() {
+			return this.forwarder != null && this.forwarder.isMoving();
+		}
+
+		@Override
+		public void setMoving(boolean moving) {
+			if (this.forwarder != null) {
+				this.forwarder.setMoving(moving);
+			}
+		}
+
+		@Override
+		public void transform(com.cleanroommc.modularui.api.layout.IViewportStack stack) {
+			super.transform(stack);
+		}
+	}
+
+	/**
+	 * A {@link com.cleanroommc.modularui.widgets.TextWidget} used purely as a visual overlay.
+	 * It never takes part in hit-testing (isInside always false), so when it is layered on top
+	 * of another widget (e.g. a slot) it does not appear in the hovered-widget list and cannot
+	 * swallow that widget's click/drag/release. Without this, clicking a slot under the label
+	 * was treated as a click "outside" the slot and threw the held item out. It still renders
+	 * normally - drawing is gated by canBeSeen (scissor area), which does not use isInside.
+	 */
+	private static final class NonInteractiveText extends com.cleanroommc.modularui.widgets.TextWidget<NonInteractiveText> {
+
+		NonInteractiveText(IKey key) {
+			super(key);
+		}
+
+		@Override
+		public boolean isInside(com.cleanroommc.modularui.api.layout.IViewportStack stack, int mx, int my, boolean absolute) {
+			return false;
+		}
+	}
+
+	protected ModularPanel createPatternWindow2(PanelSyncManager syncManager) {
+		final int WIDTH = 18 * 4 + 6;     // page content width (4 slots wide)
+		final int HEIGHT = 18 * 9 + 6;
+		// Panel is content-width only; the right-side tabs protrude past its right edge.
+		// (Widening the panel area to wrap the tabs was rejected: the extra area is visually
+		// transparent but still part of the panel, so clicking that empty corner triggered a
+		// "ghost" window drag. So the area stays at content size.)
+		// Consequence of a content-width panel: a protruding child sits OUTSIDE the panel
+		// area, so NEI fills that strip and the panel's built-in drag does not cover it.
+		final int PANEL_W = WIDTH;
+		final int TAB_W = 32;             // GuiTextures.TAB_RIGHT width (drag-tab size)
+		// open the popup docked to the right edge of the main panel (top-aligned) instead
+		// of the default centered position. The main panel's screen area is only known at
+		// open time, so the position is set in onOpen (before super lays the panel out).
+		ModularPanel builder = new ModularPanel("pattern_window") {
+			@Override
+			public void onOpen(com.cleanroommc.modularui.screen.ModularScreen screen) {
+				Area main = screen.getMainPanel().getArea();
+				// left edge flush against the main panel's right edge; tops aligned.
+				// left()/top() override the center() set in the ModularPanel constructor.
+				this.left(main.x() + main.w()).top(main.y());
+				super.onOpen(screen);
+			}
+		};
+		builder.size(PANEL_W, HEIGHT);
+
+		com.cleanroommc.modularui.api.drawable.IDrawable tab1 = new com.cleanroommc.modularui.drawable.ItemDrawable(
+			Api.INSTANCE.definitions()
+				.items()
+				.encodedPattern()
+				.maybeStack(1)
+				.get()).asIcon()
+					.size(18, 18);
+		com.cleanroommc.modularui.api.drawable.IDrawable tab2 = GTGuiTextures.OVERLAY_BUTTON_BATCH_MODE_OFF.asIcon()
+			.size(18, 18);
+		com.cleanroommc.modularui.api.drawable.IDrawable tab3 = GTGuiTextures.OVERLAY_BUTTON_BATCH_MODE_ON.asIcon()
+			.size(18, 18);
+		// Icon for the drag tab: GT++ (miscutils) heat-protection bauble ("insulated gloves").
+		// The registry name really does include the trailing ".name" - that's a GT++ quirk,
+		// not the lang-key suffix - so it is kept verbatim. Falls back to a plus overlay if
+		// the item isn't found, so it never crashes.
+		net.minecraft.item.Item gloveItem = cpw.mods.fml.common.registry.GameRegistry
+			.findItem("miscutils", "GTPP.bauble.fireprotection.0.name");
+		com.cleanroommc.modularui.api.drawable.IDrawable dragIcon = gloveItem != null
+			? new com.cleanroommc.modularui.drawable.ItemDrawable(new ItemStack(gloveItem, 1, 0)).asIcon().size(18, 18)
+			: GTGuiTextures.OVERLAY_BUTTON_PLUS_LARGE.asIcon().size(18, 18);
+
+		PagedWidget.Controller tabController = new PagedWidget.Controller();
+
+		ParentWidget<?> page1 = new ParentWidget<>().coverChildren()
+			.name("patterns");
+		ParentWidget<?> page2 = new ParentWidget<>().coverChildren()
+			.name("individual_multiplier");
+		ParentWidget<?> page3 = new ParentWidget<>().coverChildren()
+			.name("batch_multiplier");
+
+		// ---- page 3: batch multiplier op. ----
+		// These buttons mutate multiplier[] (saved to NBT), so the mutation must run
+		// server-side. Route each click through an InteractionSyncHandler (the click is
+		// synced to the server, where the action runs), mirroring the legacy MUI1
+		// com.cleanroommc.modularui.widgets.ButtonWidget.setOnClick behaviour which auto-synced clicks to the server.
+		page3.child(makeBatchButton(syncManager, "batch_x2", () -> {
+			for (int i = 0; i < 36; i++) {
+				multiplier[i] *= 2;
+				multiplier[i] = Math.max(multiplier[i], 1);
+			}
+			refresh();
+		}).pos(3, 3)
+			.tooltip(t -> t.addLine(IKey.str("x2"))));
+		page3.child(IKey.str("x2")
+			.asWidget()
+			.pos(3 + 3, 3));
+		page3.child(makeBatchButton(syncManager, "batch_set1", () -> {
+			for (int i = 0; i < 36; i++) multiplier[i] = 1;
+			refresh();
+		}).pos(3 + 16, 3)
+			.tooltip(t -> t.addLine(IKey.str("=1"))));
+		page3.child(IKey.str("=1")
+			.asWidget()
+			.pos(3 + 3 + 16, 3));
+		page3.child(makeBatchButton(syncManager, "batch_xn", () -> {
+			for (int i = 0; i < 36; i++) {
+				multiplier[i] *= n;
+				multiplier[i] = Math.max(multiplier[i], 1);
+			}
+			refresh();
+		}).pos(3, 3 + 32)
+			.tooltip(t -> t.addLine(IKey.str("xN"))));
+		page3.child(IKey.dynamic(() -> "x" + n)
+			.asWidget()
+			.pos(3 + 3, 3 + 32));
+		page3.child(makeBatchButton(syncManager, "batch_setn", () -> {
+			for (int i = 0; i < 36; i++) multiplier[i] = n;
+			refresh();
+		}).pos(3 + 16, 3 + 32)
+			.tooltip(t -> t.addLine(IKey.str("=N"))));
+		page3.child(IKey.dynamic(() -> "=" + n)
+			.asWidget()
+			.pos(3 + 3 + 16, 3 + 32));
+
+		com.cleanroommc.modularui.value.sync.IntSyncValue nValue = new com.cleanroommc.modularui.value.sync.IntSyncValue(
+			() -> n, s -> {
+				n = s;
+				refresh();
+			}).allowC2S();
+		page3.child(new com.cleanroommc.modularui.widgets.textfield.TextFieldWidget().value(nValue)
+			.formatAsInteger(true)
+			.numbersInt(Integer.MIN_VALUE, Integer.MAX_VALUE)
+			.setTextColor(com.cleanroommc.modularui.utils.Color.WHITE.main)
+			.tooltip(t -> t.addLine(IKey.str("N=")))
+			.size(60, 18)
+			.pos(3, 3 + 32 + 18)
+			.background(GTGuiTextures.BACKGROUND_TEXT_FIELD));
+
+		// refund button, placed in the empty lower area of the batch op. page
+		page3.child(createRefundButton2(syncManager).pos(3, 3 + 32 + 18 + 18 + 4));
+		page3.child(IKey.str("Refund")
+			.asWidget()
+			.pos(3 + 18, 3 + 32 + 18 + 18 + 4 + 4));
+
+		// shared handler: use one handler for pattern + display slots so shift-clicking
+		// a pattern doesn't transfer it between pattern slots instead of to player inv.
+		// MUI2 ItemStackHandler(ItemStack[]) is backed by Arrays.asList(pattern), so
+		// writes propagate directly to the pattern[] array (same as the legacy handler).
+		ItemStackHandler shared_handler = new ItemStackHandler(pattern);
+
+		// register the slot group before the slots reference it (rowSize 4 == grid width)
+		// rowSize 4 (grid width); shift-click priority -1 so shift-clicking from the player
+		// inventory targets other slot groups before these pattern slots (matches the legacy
+		// MUI1 setShiftClickPriority(-1) behaviour).
+		syncManager.registerSlotGroup("pattern_inv", 4, -1);
+
+		for (int i = 0; i < 36; i++) {
+			final int ii = i;
+
+			// ---- page 2: display-only slot + per-slot multiplier field ----
+			page2.child(new ItemSlot() {
+				@Override
+				@cpw.mods.fml.relauncher.SideOnly(cpw.mods.fml.relauncher.Side.CLIENT)
+				protected ItemStack getItemStackForRendering(ItemStack itemstack, boolean dragging) {
+					if (itemstack == null || !(itemstack.getItem() instanceof ItemEncodedPattern)) {
+						return itemstack;
+					}
+					ItemStack output = ((ItemEncodedPattern) itemstack.getItem()).getOutput(itemstack);
+					return output != null ? output : itemstack;
+				}
+			}.slot(new ModularSlot(shared_handler, i).accessibility(false, false))
+				.pos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
+				.background(GTGuiTextures.SLOT_ITEM_STANDARD, GTGuiTextures.OVERLAY_SLOT_PATTERN_ME));
+
+			com.cleanroommc.modularui.value.sync.IntSyncValue mulValue = new com.cleanroommc.modularui.value.sync.IntSyncValue(
+				() -> multiplier[ii], s -> {
+					multiplier[ii] = s;
+					refresh();
+				}).allowC2S();
+			page2.child(new com.cleanroommc.modularui.widgets.textfield.TextFieldWidget().value(mulValue)
+				.formatAsInteger(true)
+				.numbersInt(Integer.MIN_VALUE, Integer.MAX_VALUE)
+				.setMaxLength(999)
+				.setTextColor(com.cleanroommc.modularui.utils.Color.RED.main)
+				.pos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
+				.size(18, 18));
+
+			// ---- page 1: interactive pattern slot + multiplier text overlay ----
+			page1.child(new ItemSlot() {
+				@Override
+				@cpw.mods.fml.relauncher.SideOnly(cpw.mods.fml.relauncher.Side.CLIENT)
+				protected ItemStack getItemStackForRendering(ItemStack itemstack, boolean dragging) {
+					if (itemstack == null || !(itemstack.getItem() instanceof ItemEncodedPattern)) {
+						return itemstack;
+					}
+					ItemStack output = ((ItemEncodedPattern) itemstack.getItem()).getOutput(itemstack);
+					return output != null ? output : itemstack;
+				}
+			}.slot(new ModularSlot(shared_handler, i).slotGroup("pattern_inv")
+				.filter(itemStack -> itemStack.getItem() instanceof ICraftingPatternItem)
+				.changeListener((newItem, onlyAmountChanged, client, init) -> onPatternChange()))
+				.pos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
+				.background(GTGuiTextures.SLOT_ITEM_STANDARD, GTGuiTextures.OVERLAY_SLOT_PATTERN_ME));
+
+			// Multiplier label drawn on top of the slot. It must NOT take part in hit-testing:
+			// layered over the slot, a normal TextWidget sits above the slot in the hovered
+			// list and swallows the slot's click/release, so a click on the slot is treated as
+			// a drop "outside" and throws the held item out. NonInteractiveText returns false
+			// from isInside, so it is skipped in hit-testing (clicks/drags reach the slot) while
+			// still rendering the number.
+			page1.child(new NonInteractiveText(IKey.dynamic(() -> {
+				String s = multiplier[ii] == 1 ? "" : (ps(multiplier[ii]) + "");
+				if (pattern[ii] == null) return "§7" + s;
+				return s;
+			}))
+				.pos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
+				.size(18, 18));
+		}
+
+		// Invisible backing behind the (protruding) tab strip, marked as an NEI/recipe-viewer
+		// exclusion area. The strip sits outside the panel's own area, so the panel's auto
+		// NEI exclusion doesn't cover it; this widget does. It draws nothing and clicks pass
+		// through to the tabs rendered on top of it.
+		builder.child(new com.cleanroommc.modularui.widget.Widget<>()
+			.pos(WIDTH - 3, -1)
+			.size(TAB_W, 28 * 4)
+			.excludeAreaInRecipeViewer());
+
+		builder.child(new com.cleanroommc.modularui.widgets.layout.Column().coverChildren()
+			.pos(WIDTH - 3, -1)
+			// First tab slot = GT++ heat-protection glove, used as a drag handle. It is a
+			// DragTab (forwards the drag to the panel by repositioning it live each frame, so
+			// no jump even though the tab protrudes outside the panel area), NOT a PageButton,
+			// so it moves the window and does not switch pages.
+			.child(new DragTab()
+				.background(GuiTextures.TAB_RIGHT.get(-1, false), dragIcon)
+				.size(TAB_W, 28)
+				.tooltip(t -> t.addLine(IKey.str("Hold to drag"))))
+			.child(new PageButton(0, tabController).tab(GuiTextures.TAB_RIGHT, 0)
+				.overlay(tab1)
+				.tooltip(t -> t.addLine(IKey.str("Patterns"))))
+			.child(new PageButton(1, tabController).tab(GuiTextures.TAB_RIGHT, 0)
+				.overlay(tab2)
+				.tooltip(t -> t.addLine(IKey.str("Individual Multiplier Op."))))
+			.child(new PageButton(2, tabController).tab(GuiTextures.TAB_RIGHT, 0)
+				.overlay(tab3)
+				.tooltip(t -> t.addLine(IKey.str("Batch Multiplier Op.")))));
+
+		builder.child(new PagedWidget<>().controller(tabController)
+			.pos(0, 0)
+			.size(WIDTH, HEIGHT)
+			.addPage(page1)
+			.addPage(page2)
+			.addPage(page3));
+
 		return builder;
-	}*/
-		
-	}    boolean normalopt;
+	}
+	// =================== MUI2 end ===================
+
+	boolean normalopt;
 @Override
 public ExConfig initExConfig() {
 	ExConfig x=super.initExConfig();

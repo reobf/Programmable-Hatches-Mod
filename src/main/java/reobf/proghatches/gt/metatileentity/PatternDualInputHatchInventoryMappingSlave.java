@@ -159,7 +159,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 					
 				
 					.pos(3 + 18 * x, 3 + 18 * y).size(18, 18)
-					.tooltipBuilder(sx->{Stream.of(tips()).map(s->StatCollector.translateToLocal(s)).forEach(sx::add);});
+					.tooltipBuilder(sx->{Stream.of(tips()).map(s->StatCollector.translateToLocal(s)).forEach(sx::addLine);});
 
 		}		
 		
@@ -168,7 +168,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
 		public abstract void set(boolean b);
 		public abstract String[] tips();
 		public static ExConfigEntry create(Supplier<Boolean> get,Consumer<Boolean> set,String... tips) {
-		return create(()->true, get, set);
+		return create(()->true, get, set, tips);
 		}
 		public static ExConfigEntry create(Supplier<Boolean> apply,Supplier<Boolean> get,Consumer<Boolean> set,String... tips) {
 			

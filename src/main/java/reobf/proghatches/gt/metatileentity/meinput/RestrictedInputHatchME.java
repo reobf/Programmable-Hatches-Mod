@@ -49,13 +49,18 @@ import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import gregtech.common.tileentities.machines.MTEHatchInputME;
 
-import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolderSuper;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
+import com.cleanroommc.modularui.factory.PosGuiData;
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.UISettings;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import gregtech.api.modularui2.GTGuiTextures;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
 
-public class RestrictedInputHatchME extends MTEHatchInputME implements IDataCopyablePlaceHolderSuper,IMEHatchOverrided {
+public class RestrictedInputHatchME extends MTEHatchInputME implements IDataCopyablePlaceHolder,IMEHatchOverrided {
 
     public RestrictedInputHatchME(int aID, boolean autoPullAvailable, String aName, String aNameRegional) {
         super(aID, autoPullAvailable, aName, aNameRegional);
@@ -296,6 +301,125 @@ public class RestrictedInputHatchME extends MTEHatchInputME implements IDataCopy
         return builder.build();
     }
 
+    // ===== MUI2 =====
+    // GT's MTEHatchInputME already builds its GUI with MUI2, so the legacy MUI1 addUIWidgets()/
+    // createStackSizeConfigurationWindow() above are dead code now (this hatch's extra config had
+    // become unreachable in-game). Reuse GT's panel and append a config button + refresh button.
+    @Override
+    public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings) {
+        ModularPanel panel = super.buildUI(data, syncManager, uiSettings);
+
+        com.cleanroommc.modularui.api.IPanelHandler configPanel = syncManager
+            .syncedPanel("restrict_config", true, (m, h) -> createConfigWindow2(m));
+        panel.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>()
+            .onMousePressed(mb -> {
+                configPanel.openPanel();
+                return configPanel.isPanelOpen();
+            })
+            .background(GTGuiTextures.BUTTON_STANDARD, GTGuiTextures.OVERLAY_BUTTON_AUTOPULL_ME)
+            .tooltip(t -> t.addLine(com.cleanroommc.modularui.api.drawable.IKey
+                .str(StatCollector.translateToLocal("proghatches.restricted.configure"))))
+            .size(16, 16)
+            .pos(80, 10));
+
+        // refresh re-reads every stocked slot from the network; runs server-side, so route the click
+        // through an InteractionSyncHandler. updateInformationSlot may raise GridAccessException.
+        com.cleanroommc.modularui.value.sync.InteractionSyncHandler refresh =
+            new com.cleanroommc.modularui.value.sync.InteractionSyncHandler().setOnMousePressed(d -> {
+                for (int index = 0; index < SLOT_COUNT; index++) {
+                    try {
+                        updateInformationSlot(index);
+                    } catch (Exception e) {
+                        if (!(e instanceof GridAccessException)) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+            });
+        syncManager.syncValue("restrict_refresh", refresh);
+        panel.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>()
+            .syncHandler(refresh)
+            .background(GTGuiTextures.BUTTON_STANDARD)
+            .tooltip(t -> {
+                t.addLine(com.cleanroommc.modularui.api.drawable.IKey
+                    .str(StatCollector.translateToLocal("proghatches.restricted.refresh.0")));
+                t.addLine(com.cleanroommc.modularui.api.drawable.IKey
+                    .str(StatCollector.translateToLocal("proghatches.restricted.refresh.1")));
+            })
+            .size(16, 16)
+            .pos(80, 10 + 18));
+
+        return panel;
+    }
+
+    protected ModularPanel createConfigWindow2(PanelSyncManager syncManager) {
+        final int WIDTH = 78;
+        final int HEIGHT = 80 + 18 + 18;
+        ModularPanel builder = new ModularPanel("restrict_config");
+        builder.size(WIDTH, HEIGHT);
+
+        builder.child(com.cleanroommc.modularui.api.drawable.IKey
+            .str(StatCollector.translateToLocal("proghatches.restricted.bound.down"))
+            .asWidget()
+            .pos(3, 2)
+            .size(74, 14 + 18));
+        com.cleanroommc.modularui.value.sync.IntSyncValue lowVal = new com.cleanroommc.modularui.value.sync.IntSyncValue(
+            () -> restrict_lowbound,
+            s -> restrict_lowbound = s).allowC2S();
+        builder.child(new com.cleanroommc.modularui.widgets.textfield.TextFieldWidget()
+            .value(lowVal)
+            .formatAsInteger(true)
+            .numbersInt(1, Integer.MAX_VALUE)
+            .setTextAlignment(com.cleanroommc.modularui.utils.Alignment.Center)
+            .setTextColor(com.cleanroommc.modularui.utils.Color.WHITE.main)
+            .size(70, 18)
+            .pos(3, 18 + 18)
+            .background(GTGuiTextures.BACKGROUND_TEXT_FIELD));
+
+        builder.child(com.cleanroommc.modularui.api.drawable.IKey
+            .str(StatCollector.translateToLocal("proghatches.restricted.bound.up"))
+            .asWidget()
+            .pos(3, 42 + 18)
+            .size(74, 14));
+        com.cleanroommc.modularui.value.sync.IntSyncValue upVal = new com.cleanroommc.modularui.value.sync.IntSyncValue(
+            () -> restrict,
+            s -> restrict = s).allowC2S();
+        builder.child(new com.cleanroommc.modularui.widgets.textfield.TextFieldWidget()
+            .value(upVal)
+            .formatAsInteger(true)
+            .numbersInt(1, Integer.MAX_VALUE)
+            .setTextAlignment(com.cleanroommc.modularui.utils.Alignment.Center)
+            .setTextColor(com.cleanroommc.modularui.utils.Color.WHITE.main)
+            .size(70, 18)
+            .pos(3, 58 + 18)
+            .background(GTGuiTextures.BACKGROUND_TEXT_FIELD));
+
+        // multiples mode: 0 = off/exact, 1 = multiples, 2 = alt
+        com.cleanroommc.modularui.drawable.UITexture mode0mui2 = com.cleanroommc.modularui.drawable.UITexture
+            .fullImage("proghatches", "gui/restrict_mode0");
+        com.cleanroommc.modularui.drawable.UITexture mode1mui2 = com.cleanroommc.modularui.drawable.UITexture
+            .fullImage("proghatches", "gui/restrict_mode1");
+        com.cleanroommc.modularui.value.sync.IntSyncValue mulVal = new com.cleanroommc.modularui.value.sync.IntSyncValue(
+            () -> multiples,
+            s -> multiples = s).allowC2S();
+        builder.child(new com.cleanroommc.modularui.widgets.CycleButtonWidget()
+            .stateCount(3)
+            .value((com.cleanroommc.modularui.api.value.IIntValue<?>) mulVal)
+            .stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
+            .stateOverlay(0, GTGuiTextures.OVERLAY_BUTTON_POWER_SWITCH_OFF)
+            .stateBackground(1, GTGuiTextures.BUTTON_STANDARD_PRESSED)
+            .stateOverlay(1, mode0mui2)
+            .stateBackground(2, GTGuiTextures.BUTTON_STANDARD_PRESSED)
+            .stateOverlay(2, mode1mui2)
+            .addTooltip(0, LangManager.translateToLocal("proghatches.restricted.multiples.exact"))
+            .addTooltip(1, LangManager.translateToLocal("proghatches.restricted.multiples"))
+            .addTooltip(2, LangManager.translateToLocal("proghatches.restricted.multiples.alt"))
+            .pos(3, HEIGHT - 3 - 16)
+            .size(16, 16));
+
+        return builder;
+    }
+
     int restrict = Integer.MAX_VALUE;
     int restrict_lowbound = 1;
 
@@ -343,53 +467,27 @@ public class RestrictedInputHatchME extends MTEHatchInputME implements IDataCopy
      * return super_getCopiedDataIdentifier(player,()->MethodHandles.lookup());
      * }
      */
+    // Flattened + inlined from the former IDataCopyablePlaceHolderSuper compat layer:
+    // our extra fields layered on top of the GT super's copied data, tagged with this type.
     @Override
-    public NBTTagCompound super_getCopiedData(EntityPlayer player) {
-
-        return super.getCopiedData(player);
-    }
-
-    @Override
-    public String super_getCopiedDataIdentifier(EntityPlayer player) {
-
-        return super.getCopiedDataIdentifier(player);
-    }
-
-    @Override
-    public boolean super_pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
-
-        return super.pasteCopiedData(player, nbt);
-    }
-
-    @Override
-    public boolean impl_pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
-        if (nbt.hasKey("multiples")) multiples = nbt.getInteger("multiples");
-        if (nbt.hasKey("restrict")) restrict = nbt.getInteger("restrict");
-        if (nbt.hasKey("restrict_lowbound")) restrict_lowbound = nbt.getInteger("restrict_lowbound");
-        return true;
-    }
-
-    @Override
-    public NBTTagCompound impl_getCopiedData(EntityPlayer player, NBTTagCompound ret) {
+    public NBTTagCompound getCopiedData(EntityPlayer player) {
+        NBTTagCompound ret = super.getCopiedData(player);
         ret.setInteger("multiples", multiples);
         ret.setInteger("restrict", restrict);
         ret.setInteger("restrict_lowbound", restrict_lowbound);
+        ret.setString("type", getCopiedDataIdentifier(player));
         return ret;
     }
 
     @Override
-    public NBTTagCompound getCopiedData(EntityPlayer player) {
-        return IDataCopyablePlaceHolderSuper.super.getCopiedData(player);
-    }
-
-    @Override
     public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
-        return IDataCopyablePlaceHolderSuper.super.pasteCopiedData(player, nbt);
-    }
-
-    @Override
-    public String getCopiedDataIdentifier(EntityPlayer player) {
-        return IDataCopyablePlaceHolderSuper.super.getCopiedDataIdentifier(player);
+        if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+        nbt = (NBTTagCompound) nbt.copy();
+        if (nbt.hasKey("multiples")) multiples = nbt.getInteger("multiples");
+        if (nbt.hasKey("restrict")) restrict = nbt.getInteger("restrict");
+        if (nbt.hasKey("restrict_lowbound")) restrict_lowbound = nbt.getInteger("restrict_lowbound");
+        nbt.setString("type", super.getCopiedDataIdentifier(player));
+        return super.pasteCopiedData(player, nbt);
     }
     
     @Override

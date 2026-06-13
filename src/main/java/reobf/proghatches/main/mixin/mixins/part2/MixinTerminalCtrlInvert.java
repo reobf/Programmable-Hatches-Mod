@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -98,9 +99,18 @@ public abstract void drawHoveringText(List textLines, int x, int y, FontRenderer
 	    return original.call(); 
 	}
 
-@Shadow
+//@Shadow
+@Unique
 private  ITerminalHost host;
 
+@Inject(
+	    method = "<init>(Lnet/minecraft/entity/player/InventoryPlayer;Lappeng/api/storage/ITerminalHost;Lappeng/container/implementations/ContainerMEMonitorable;)V",
+	    at = @At("RETURN")
+	)
+public void ctr(final InventoryPlayer inventoryPlayer, final ITerminalHost te,
+        final ContainerMEMonitorable c,CallbackInfo a) {
+	host=te;
+}
 
 @Inject(method = "drawFG", at = { @At("HEAD") })
 public void A(CallbackInfo a,@Share(value = "showContainerInteractionTooltips") LocalRef<Boolean> tmp) {

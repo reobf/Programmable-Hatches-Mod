@@ -111,6 +111,15 @@ public class PartSubnetExciter extends PartBasicState implements IAEPowerStorage
 
         check(null);
     }
+    
+    
+    
+    
+Class TileCharger;{ try {
+	TileCharger=Class.forName("appeng.tile.misc.TileCharger");
+} catch (ClassNotFoundException e) {
+throw new AssertionError(e);
+}}
 
     public void check(@Nullable IGridNode exept/* this node is not checked */) {
 
@@ -141,7 +150,7 @@ public class PartSubnetExciter extends PartBasicState implements IAEPowerStorage
 
                 }
 
-                if (mach instanceof TileCharger) {
+                if (/*mach instanceof TileCharger*/TileCharger.isInstance(mach)) {
                     ok = false;
                 }
                 if (mach instanceof IAEPowerStorage) {

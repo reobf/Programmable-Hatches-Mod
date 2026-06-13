@@ -49,14 +49,19 @@ import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import gregtech.common.tileentities.machines.MTEHatchInputME;
 
-import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolderSuper;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
+import com.cleanroommc.modularui.factory.PosGuiData;
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.UISettings;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import gregtech.api.modularui2.GTGuiTextures;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class PriorityFilterInputHatchME extends MTEHatchInputME
-    implements IMEHatchOverrided, IDataCopyablePlaceHolderSuper, IPriorityHost, IActionHost {
+    implements IMEHatchOverrided, IDataCopyablePlaceHolder, IPriorityHost, IActionHost {
 
     public PriorityFilterInputHatchME(int aID, /* boolean autoPullAvailable, */ String aName, String aNameRegional) {
         super(aID, /* autoPullAvailable */true, aName, aNameRegional);
@@ -211,130 +216,78 @@ public class PriorityFilterInputHatchME extends MTEHatchInputME
      * return super_getCopiedDataIdentifier(player,()->MethodHandles.lookup());
      * }
      */
+
+    // ===== MUI2 =====
+    // GT's MTEHatchInputME builds its GUI with MUI2 (the old MUI1 addUIWidgets()/
+    // createStackSizeConfigurationWindow() have been removed). Reuse GT's panel and append a
+    // config button (priority filter) + refresh button. (onlyFromSameP isn't user-configurable.)
     @Override
-    public NBTTagCompound super_getCopiedData(EntityPlayer player) {
+    public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings) {
+        ModularPanel panel = super.buildUI(data, syncManager, uiSettings);
 
-        return super.getCopiedData(player);
-    }
-
-    @Override
-    public String super_getCopiedDataIdentifier(EntityPlayer player) {
-
-        return super.getCopiedDataIdentifier(player);
-    }
-
-    @Override
-    public boolean super_pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
-
-        return super.pasteCopiedData(player, nbt);
-    }
-
-    @Override
-    public boolean impl_pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
-        if (nbt.hasKey("filter")) filter = nbt.getInteger("filter");
-        return true;
-    }
-
-    @Override
-    public NBTTagCompound impl_getCopiedData(EntityPlayer player, NBTTagCompound tag) {
-        tag.setInteger("filter", filter);
-        return tag;
-    }
-
-    protected ModularWindow createStackSizeConfigurationWindow(final EntityPlayer player) {
-        ModularWindow parent = super.createStackSizeConfigurationWindow(player);
-
-        final int WIDTH = 78;
-        final int HEIGHT = parent.getSize().height + 18 + 18 + 3;
-        final int PARENT_WIDTH = getGUIWidth();
-        final int PARENT_HEIGHT = getGUIHeight();
-        ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
-        builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
-        builder.setGuiTint(getGUIColorization());
-        builder.setDraggable(true);
-
-        builder.widgets(parent.getChildren());
-
-        builder.setPos(
-            (size, window) -> Alignment.Center.getAlignedPos(size, new Size(PARENT_WIDTH, PARENT_HEIGHT))
-                .add(
-                    Alignment.TopRight.getAlignedPos(new Size(PARENT_WIDTH, PARENT_HEIGHT), new Size(WIDTH, HEIGHT))
-                        .add(WIDTH - 3, 0)));
-        builder.widget(
-            TextWidget.localised("proghatches.priority.filter")
-                .setPos(3, parent.getSize().height)
-                .setSize(74, 18))
-            .widget(
-                new NumericWidget().setSetter(val -> filter = (int) val)
-                    .setGetter(() -> filter)
-                    .setBounds(Integer.MIN_VALUE, Integer.MAX_VALUE)
-                    .setScrollValues(1, 4, 64)
-                    .setTextAlignment(Alignment.Center)
-                    .setTextColor(Color.WHITE.normal)
-                    .setSize(70, 18)
-                    .setPos(3, parent.getSize().height + 18)
-                    .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
-
-        // builder.widget(createMultiplesModeButton(builder,HEIGHT));
-
-        return builder.build();
-    }
-
-    private static final int CONFIG_WINDOW_ID = 123456;
-
-    @Override
-    public void addUIWidgets(ModularWindow.Builder builder, UIBuildContext buildContext) {
-
-        buildContext.addSyncedWindow(CONFIG_WINDOW_ID, this::createStackSizeConfigurationWindow);
-
-        builder.widget(new ButtonWidget().setOnClick((clickData, widget) -> {
-            if (clickData.mouseButton == 0) {
-                if (!widget.isClient()) {
-                    widget.getContext()
-                        .openSyncedWindow(CONFIG_WINDOW_ID);
-                }
-            }
-        })
-            .setBackground(() -> {
-                {
-                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
-                        GTUITextures.OVERLAY_BUTTON_AUTOPULL_ME_DISABLED };
-                }
+        com.cleanroommc.modularui.api.IPanelHandler configPanel = syncManager
+            .syncedPanel("priority_config", true, (m, h) -> createConfigWindow2(m));
+        panel.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>()
+            .onMousePressed(mb -> {
+                configPanel.openPanel();
+                return configPanel.isPanelOpen();
             })
-            .addTooltips(Arrays.asList(StatCollector.translateToLocal("proghatches.restricted.configure")))
-            .setSize(16, 16)
-            .setPos(80, 10));
+            .background(GTGuiTextures.BUTTON_STANDARD, GTGuiTextures.OVERLAY_BUTTON_AUTOPULL_ME)
+            .tooltip(t -> t.addLine(com.cleanroommc.modularui.api.drawable.IKey
+                .str(StatCollector.translateToLocal("proghatches.restricted.configure"))))
+            .size(16, 16)
+            .pos(80, 10));
 
-        builder.widget(new ButtonWidget().setOnClick((clickData, widget) -> {
-            if (clickData.mouseButton == 0) {
-                if (!widget.isClient()) {
-
-                    for (int index = 0; index < 16; index++) {
-                        try {
-							updateInformationSlot(index);
-						} catch (Throwable e) {
-						
-						}
+        com.cleanroommc.modularui.value.sync.InteractionSyncHandler refresh =
+            new com.cleanroommc.modularui.value.sync.InteractionSyncHandler().setOnMousePressed(d -> {
+                for (int index = 0; index < 16; index++) {
+                    try {
+                        updateInformationSlot(index);
+                    } catch (Throwable e) {
                     }
                 }
-            }
-        })
-            .setBackground(() -> {
-                {
-                    return new IDrawable[] { GTUITextures.BUTTON_STANDARD };
-                }
+            });
+        syncManager.syncValue("priority_refresh", refresh);
+        panel.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>()
+            .syncHandler(refresh)
+            .background(GTGuiTextures.BUTTON_STANDARD)
+            .tooltip(t -> {
+                t.addLine(com.cleanroommc.modularui.api.drawable.IKey
+                    .str(StatCollector.translateToLocal("proghatches.restricted.refresh.0")));
+                t.addLine(com.cleanroommc.modularui.api.drawable.IKey
+                    .str(StatCollector.translateToLocal("proghatches.restricted.refresh.1")));
             })
-            .addTooltips(
-                Arrays.asList(
-                    StatCollector.translateToLocal("proghatches.restricted.refresh.0"),
-                    StatCollector.translateToLocal("proghatches.restricted.refresh.1")))
-            .setSize(16, 16)
-            .setPos(80, 10 + 18));
+            .size(16, 16)
+            .pos(80, 10 + 18));
 
-        // .widget(new FakeSyncWidget.BooleanSyncer(() -> autoPullFluidList, this::setAutoPullFluidList));
+        return panel;
+    }
 
-        super.addUIWidgets(builder, buildContext);
+    protected ModularPanel createConfigWindow2(PanelSyncManager syncManager) {
+        final int WIDTH = 78;
+        final int HEIGHT = 18 + 18 + 9;
+        ModularPanel builder = new ModularPanel("priority_config");
+        builder.size(WIDTH, HEIGHT);
 
+        builder.child(com.cleanroommc.modularui.api.drawable.IKey
+            .str(StatCollector.translateToLocal("proghatches.priority.filter"))
+            .asWidget()
+            .pos(3, 3)
+            .size(74, 18));
+        com.cleanroommc.modularui.value.sync.IntSyncValue filterVal = new com.cleanroommc.modularui.value.sync.IntSyncValue(
+            () -> filter,
+            s -> filter = s).allowC2S();
+        builder.child(new com.cleanroommc.modularui.widgets.textfield.TextFieldWidget()
+            .value(filterVal)
+            .formatAsInteger(true)
+            .numbersInt(Integer.MIN_VALUE, Integer.MAX_VALUE)
+            .setTextAlignment(com.cleanroommc.modularui.utils.Alignment.Center)
+            .setTextColor(com.cleanroommc.modularui.utils.Color.WHITE.main)
+            .size(70, 18)
+            .pos(3, 21)
+            .background(GTGuiTextures.BACKGROUND_TEXT_FIELD));
+
+        return builder;
     }
 
     @Override
@@ -349,19 +302,22 @@ public class PriorityFilterInputHatchME extends MTEHatchInputME
         super.loadNBTData(aNBT);
     }
 
+    // Flattened + inlined from the former IDataCopyablePlaceHolderSuper compat layer.
     @Override
     public NBTTagCompound getCopiedData(EntityPlayer player) {
-        return IDataCopyablePlaceHolderSuper.super.getCopiedData(player);
+        NBTTagCompound ret = super.getCopiedData(player);
+        ret.setInteger("filter", filter);
+        ret.setString("type", getCopiedDataIdentifier(player));
+        return ret;
     }
 
     @Override
     public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
-        return IDataCopyablePlaceHolderSuper.super.pasteCopiedData(player, nbt);
-    }
-
-    @Override
-    public String getCopiedDataIdentifier(EntityPlayer player) {
-        return IDataCopyablePlaceHolderSuper.super.getCopiedDataIdentifier(player);
+        if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+        nbt = (NBTTagCompound) nbt.copy();
+        if (nbt.hasKey("filter")) filter = nbt.getInteger("filter");
+        nbt.setString("type", super.getCopiedDataIdentifier(player));
+        return super.pasteCopiedData(player, nbt);
     }
 
     @Override

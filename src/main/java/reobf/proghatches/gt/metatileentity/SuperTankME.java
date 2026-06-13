@@ -285,7 +285,7 @@ public class SuperTankME extends MTEHatch
     public ITexture[] getTexturesActive(ITexture aBaseTexture) {
 
         return new ITexture[] { aBaseTexture, CTexture. CTexture(ExtraBlockTextures.MEChest.getIcon(), 0xD7BBEC),
-        		CTexture. CTexture(FCPartsTexture.PartFluidTerminal_Bright.getIcon(), 0xffffff)
+        		CTexture. CTexture(FCPartsTexture.PartLevelTerminal_Bright.getIcon(), 0xffffff)
 
         };
     }

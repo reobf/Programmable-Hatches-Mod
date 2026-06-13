@@ -283,6 +283,8 @@ public class PriorityFilterInputBusME extends MTEHatchInputBusME
 
         return builder.build();
     }
+    
+    
 
     private static final int CONFIG_WINDOW_ID = 123456;
 

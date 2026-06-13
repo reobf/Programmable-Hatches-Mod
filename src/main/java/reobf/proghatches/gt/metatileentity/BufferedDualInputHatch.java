@@ -2,10 +2,7 @@ package reobf.proghatches.gt.metatileentity;
 
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
-import static gregtech.common.modularui2.util.CommonGuiComponents.gridTemplate1by1;
-import static gregtech.common.modularui2.util.CommonGuiComponents.gridTemplate2by2;
-import static gregtech.common.modularui2.util.CommonGuiComponents.gridTemplate3by3;
-import static gregtech.common.modularui2.util.CommonGuiComponents.gridTemplate4by4;
+
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -273,7 +270,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 						resetMulti();
 						detailmap.clear();
 						detailmapUsage.clear();
-						inv0.forEach(sX -> sX.PID = 0);
+						//inv0.forEach(sX -> sX.PID = 0);
 
 					}
 				}},
@@ -406,7 +403,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 	public static boolean emptyopt=true;
 	public class DualInvBuffer implements INeoDualInputInventory {
 
-		public int PID;
+		//public int PID;
 		/*
 		 * @Override public boolean areYouSerious() { boolean
 		 * y=lock&&recipeLocked; return !y; }
@@ -479,7 +476,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		public NBTTagCompound toTag() {
 
 			NBTTagCompound tag = new NBTTagCompound();
-			tag.setInteger("PID", PID);
+			//tag.setInteger("PID", PID);
 			for (int i = 0; i < mStoredFluidInternal.length; i++) {
 				if (mStoredFluidInternal[i] != null)
 					tag.setTag("mStoredFluidInternal" + i, mStoredFluidInternal[i].writeToNBT(new NBTTagCompound()));
@@ -509,7 +506,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		public void fromTag(NBTTagCompound tag) {
 
-			PID = tag.getInteger("PID");
+			//PID = tag.getInteger("PID");
 			if (mStoredFluidInternal != null) {
 				for (int i = 0; i < mStoredFluidInternal.length; i++) {
 					if (tag.hasKey("mStoredFluidInternal" + i)) {
@@ -644,7 +641,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 				}
 				recipeLocked = false;
-				PID = 0;
+				//PID = 0;
 				/*
 				 * if(detail!=null){ int index=inv0.indexOf(this); DualInvBuffer
 				 * neo=new DualInvBuffer(); neo.init(mInventory.length - 1,
@@ -1071,10 +1068,10 @@ public class BufferedDualInputHatch extends DualInputHatch
 		if (aBaseMetaTileEntity.getWorld().isRemote)
 			return;
 
-		toDisconnect.forEach(s -> {
+		/*toDisconnect.forEach(s -> {
 			s.wrapped = null;
 		});
-		toDisconnect.clear();
+		toDisconnect.clear();*/
 		// System.out.println(scheduled);
 		// System.out.println(aTick+" "+scheduled.peekLast());
 		Optional.ofNullable(scheduled.peekLast()).filter(s -> s < aTick).ifPresent(s -> {
@@ -2150,10 +2147,10 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 	boolean useNewGTPatternCache = false;
 
 	private IDualInputInventoryWithPattern wrap(DualInvBuffer to) {
-		if (to.PID > 0 && useNewGTPatternCache) {
+		/*if (to.PID > 0 && useNewGTPatternCache) {
 
 			return new PatternDualInv(to);
-		}
+		}*/
 
 		return to;
 	}
@@ -2265,9 +2262,9 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 		}
 	}
 
-	LinkedList<PatternDualInv> toDisconnect = new LinkedList<PatternDualInv>();
+	//LinkedList<PatternDualInv> toDisconnect = new LinkedList<PatternDualInv>();
 
-	public class PatternDualInv implements IDualInputInventoryWithPattern {
+	/*public class PatternDualInv implements IDualInputInventoryWithPattern {
 		@Override
 		public boolean shouldBeCached() {
 		
@@ -2328,18 +2325,14 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 		@Override
 		public GTDualInputPattern getPatternInputs() {
 
-			/*Recipe opt = (detailmap.inverse().get(this.ID));
-			if(opt!=null){
-				return opt;
-			}
-				*/
+	
 				
 				
 			
 			return wrapped.getPatternInputs();
 		}
 
-	}
+	}*/
 
 	@Override
 	public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
@@ -2357,7 +2350,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 			sub.setBoolean("noClear", inv.lock);
 			sub.setBoolean("locked", inv.recipeLocked);
 			sub.setBoolean("empty", inv.isEmpty());
-			sub.setInteger("patternID", inv.PID);
+			//sub.setInteger("patternID", inv.PID);
 			RecipeTracker rt = new RecipeTracker();
 
 			sub.setString("lock_item",
@@ -3001,73 +2994,7 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 	}
 
 	public void recordRecipe(DualInvBuffer thiz) {
-		if (thiz == null)
-			return;
-		if (thiz.PID > 0)
-			return;
-		if (useNewGTPatternCache == false) {
-			return;
-		}
-		
-		int osize;
-		if((osize=detailmap.size())>512){
-			Set<Integer> inuse=inv0.stream().map(s->s.PID).collect(Collectors.toSet());
-			List<Integer> topKeys = detailmapUsage.entrySet().stream()
-	                .sorted((e1, e2) -> -e2.getValue().compareTo(e1.getValue()))
-	                .filter(s->!inuse.contains(s.getKey()))
-	                .limit(64)
-	                .map(Map.Entry::getKey)
-	                .collect(Collectors.toList());
-			for(int i:topKeys){
-				detailmap.inverse().remove(i);
-				detailmapUsage.remove(i);
-				/*for (ProcessingLogic pl : processingLogics) {
-					for (int ix : topKeys) {
-
-						try {
-							pl.removeInventoryRecipeCache(new PatternDualInv(ix));
-						} catch (Exception e) {
-							fail = true;
-						}
-
-					}
-
-				}*/
-			}
-			MyMod.LOG.warn(osize+"->"+(detailmap.size()));
-			MyMod.LOG.warn(
-					new DimensionalCoord((TileEntity) this.getBaseMetaTileEntity()).toString()
-					+
-					" now has more than 512 recipe cache! Now freeing some of them to avoid potential OOME."
-					);
-			MyMod.LOG.warn(
-
-					"Consider turning off recipe cache, since cache is not likely to help in this condition."
-					);			
-			
-			
-			
-		}
-		
-		
-		
-		
-		Integer check = detailmap.getOrDefault(Recipe.fromBuffer(thiz, false), null);
-		if (check == null) {
-			currentID++;
-			detailmap.put(Recipe.fromBuffer(thiz, true), currentID);
-			check = currentID;
-		}
-		thiz.PID = check;			
-		int thisorder = detailmapUsage.getOrDefault(check, -1);
-		if(thisorder!=order)order=order+1;//if current_order=this_order, do not accumulate current_order
-		detailmapUsage.put(check, order);
-		
-		if(order>detailmapUsage.size()*2+128){
-			
-			compressValues();
-		}
-		
+		// nah
 	} 
 	 public  void compressValues(/*Map<Integer, Integer> originalMap*/) {
 	       
@@ -3356,17 +3283,17 @@ protected ModularWindow createWindow(final EntityPlayer player, int index) {
 					0, x*x*page()).bind(inv0.get(ind)).id(1);
 			switch (slotTierOverride(mTier)) {
 			case 0:
-				genSlots = () -> gridTemplate1by1(
+				genSlots = () -> gridTemplate1by1X(
 						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(3, 3);
 				fluidslot_pos_index = 0;
 				break;
 			case 1:
-				genSlots = () -> gridTemplate2by2(
+				genSlots = () -> gridTemplate2by2X(
 						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(3, 3);
 				fluidslot_pos_index = 1;
 				break;
 			case 2:
-				genSlots = () -> gridTemplate3by3(
+				genSlots = () -> gridTemplate3by3X(
 						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(3, 3);
 				fluidslot_pos_index = 2;
 				break;

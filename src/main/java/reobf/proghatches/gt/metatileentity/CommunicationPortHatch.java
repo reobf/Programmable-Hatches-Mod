@@ -34,8 +34,8 @@ public class CommunicationPortHatch extends MTEHatch {
         return new CommunicationPortHatch(mName, mTier, mDescriptionArray, mTextures);
     }
 
-    private static final IIconContainer textureFont = new Textures.BlockIcons.CustomIcon("icons/NeutronSensorFont");
-    private static final IIconContainer textureFont_Glow = new Textures.BlockIcons.CustomIcon(
+    private static final IIconContainer textureFont = Textures.BlockIcons.custom("icons/NeutronSensorFont");
+    private static final IIconContainer textureFont_Glow =Textures.BlockIcons.custom(
         "icons/NeutronSensorFont_GLOW");
 
     @Override

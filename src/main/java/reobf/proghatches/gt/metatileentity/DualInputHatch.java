@@ -3,7 +3,7 @@ package reobf.proghatches.gt.metatileentity;
 import static gregtech.api.enums.Mods.GregTech;
 import static gregtech.api.enums.Textures.BlockIcons.*;
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
-import static gregtech.common.modularui2.util.CommonGuiComponents.*;
+
 import static tectech.Reference.MODID;
 
 import java.io.IOException;
@@ -2845,14 +2845,31 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		return  new MUI2Container();
 	}
 	public class MUI2Container {
-		  public  Grid gridTemplate4by4X(IntFunction<IWidget> widgetCreator) {
-
-
-
+		  @SuppressWarnings("deprecation")
+		public  Grid gridTemplate4by4X(IntFunction<IWidget> widgetCreator) {
 			  return new Grid().coverChildren()
 		            .pos(52, 7)
 		            .mapTo(4, 16*page(), widgetCreator);
 		    }
+		  @SuppressWarnings("deprecation")
+		public  Grid gridTemplate3by3X(IntFunction<IWidget> widgetCreator) {
+			  return new Grid().coverChildren()
+		            .pos(52, 7)
+		            .mapTo(3, 9, widgetCreator);
+		    }	  
+		  @SuppressWarnings("deprecation")
+		public  Grid gridTemplate2by2X(IntFunction<IWidget> widgetCreator) {
+			  return new Grid().coverChildren()
+		            .pos(52, 7)
+		            .mapTo(2, 4, widgetCreator);
+		    }	
+		  @SuppressWarnings("deprecation")
+		public  Grid gridTemplate1by1X(IntFunction<IWidget> widgetCreator) {
+			  return new Grid().coverChildren()
+		            .pos(52, 7)
+		            .mapTo(1, 1, widgetCreator);
+		    }	
+		  
 		public com.cleanroommc.modularui.widgets.CycleButtonWidget createButton2(PanelSyncManager syncManager,String key,IntSupplier getter, IntConsumer setter, com.cleanroommc.modularui.drawable.UITexture back,
 				String tool, int offset,int count) {
 
@@ -2950,17 +2967,17 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			int fluidslot_pos_index = -1;
 			switch (slotTierOverride(mTier)) {
 			case 0:
-				genSlots = () -> gridTemplate1by1(
+				genSlots = () -> gridTemplate1by1X(
 						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
 				fluidslot_pos_index = 0;
 				break;
 			case 1:
-				genSlots = () -> gridTemplate2by2(
+				genSlots = () -> gridTemplate2by2X(
 						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
 				fluidslot_pos_index = 1;
 				break;
 			case 2:
-				genSlots = () -> gridTemplate3by3(
+				genSlots = () -> gridTemplate3by3X(
 						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
 				fluidslot_pos_index = 2;
 				break;

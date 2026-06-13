@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
-import com.glodblock.github.nei.object.OrderStack;
+
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 
@@ -31,7 +31,7 @@ public class MixinPatternEncodingCiruitSpecialTreatmentNeo {
      * private List<OrderStack<?>> inputs;
      * @Shadow private boolean isCraft;
      */
-    @Inject(
+   /* @Inject(
         method = "overlayRecipe",
 
         at = @At(
@@ -51,7 +51,7 @@ public class MixinPatternEncodingCiruitSpecialTreatmentNeo {
         mergedInputs.set(MixinCallback.encodeCallback(mergedInputs.get()));;
 
     }
-
+*/
     private boolean init;
 
     private boolean canProcessRecipe(IRecipeHandler recipe) {

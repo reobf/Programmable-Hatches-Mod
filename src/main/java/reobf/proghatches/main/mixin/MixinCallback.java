@@ -20,7 +20,7 @@ import net.minecraft.server.MinecraftServer;
 
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.glodblock.github.nei.object.OrderStack;
+
 
 import appeng.api.config.Actionable;
 import appeng.api.config.FuzzyMode;
@@ -130,7 +130,7 @@ public class MixinCallback {
 
     private static AEItemStack type = AEItemStack.create(new ItemStack(MyMod.eu_token, 1, 1));
 
-    
+    /*
 
     public static List<OrderStack<?>> encodeCallback(List<OrderStack<?>> inputs) {
 
@@ -180,5 +180,5 @@ public class MixinCallback {
         return inputs;
         // c.setReturnValue(ret);
     }
-
+*/
 }

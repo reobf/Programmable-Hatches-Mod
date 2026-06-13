@@ -284,7 +284,7 @@ public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 		mCasingAmount=0;
 		return checkPiece("M", 1, 1, 0);
 	}
-	  private static final IIconContainer textureFont = new Textures.BlockIcons.CustomIcon("icons/YOTTAHatch");
+	  private static final IIconContainer textureFont =  Textures.BlockIcons.custom("icons/YOTTAHatch");
 	  
 	public ITexture[] getTexturesActive(ITexture aBaseTexture) {
 		return new ITexture[] { aBaseTexture,

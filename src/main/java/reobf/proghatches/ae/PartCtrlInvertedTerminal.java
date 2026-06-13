@@ -35,10 +35,12 @@ public class PartCtrlInvertedTerminal extends PartCraftingTerminal implements IC
 	public boolean invert() {
 		return true;
 	}
-	 private static final FCPartsTexture FRONT_BRIGHT_ICON = FCPartsTexture.PartFluidTerminal_Bright;
-	    private static final FCPartsTexture FRONT_DARK_ICON = FCPartsTexture.PartFluidTerminal_Colored;
-	    private static final FCPartsTexture FRONT_COLORED_ICON = FCPartsTexture.PartFluidTerminal_Dark;
-
+	// private static final FCPartsTexture FRONT_BRIGHT_ICON = FCPartsTexture.PartFluidTerminal_Bright;
+	//    private static final FCPartsTexture FRONT_DARK_ICON = FCPartsTexture.PartFluidTerminal_Colored;
+	 //   private static final FCPartsTexture FRONT_COLORED_ICON = FCPartsTexture.PartFluidTerminal_Dark;
+	    private static final CableBusTextures FRONT_BRIGHT_ICON = CableBusTextures.PartCraftingTerm_Bright;
+	    private static final CableBusTextures FRONT_DARK_ICON = CableBusTextures.PartCraftingTerm_Dark;
+	    private static final CableBusTextures FRONT_COLORED_ICON = CableBusTextures.PartCraftingTerm_Colored;
 
 
 	    @Override

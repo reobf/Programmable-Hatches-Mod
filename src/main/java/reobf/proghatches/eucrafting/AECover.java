@@ -969,7 +969,7 @@ protected @NotNull CoverBaseGui<?> getCoverGui() {
 	return new  CoverBaseGui<>(this) {
 		Data data;
 		@Override
-		public ModularPanel createBasePanel(String panelName, PanelSyncManager syncManager, UISettings uiSettings,
+		public ModularPanel createBasePanel( PanelSyncManager syncManager, UISettings uiSettings,
 				CoverGuiData data) {
 			this.data = ((AECover) data.getCoverable().getCoverAtSide(data.getSide())).coverData;
 			
@@ -978,7 +978,7 @@ protected @NotNull CoverBaseGui<?> getCoverGui() {
 				this.data.mui2Click(data.getPlayer());
 			}
 			
-			return super.createBasePanel(panelName, syncManager, uiSettings, data);
+			return super.createBasePanel(syncManager, uiSettings, data);
 		}
 		
 	};

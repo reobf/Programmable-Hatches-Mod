@@ -1745,7 +1745,7 @@ public int getCircuitSlot() {
 		            public void accept(Object x) {
 		            	if(e)return;
 		                init++;
-		                if (init == 2) {
+		                if (init == 2&&!disablePatternSlots()) {
 		                	if(!disablePatternSlots()) b.syncToServer(1, Widget.ClickData.create(1, false)::writeToPacket);
 		                }
 		            }

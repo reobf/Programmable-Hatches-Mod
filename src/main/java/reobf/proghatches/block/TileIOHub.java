@@ -87,6 +87,7 @@ import li.cil.oc.api.network.Visibility;
 import li.cil.oc.api.prefab.ManagedEnvironment;
 import li.cil.oc.integration.appeng.NetworkControl;
 import li.cil.oc.integration.appeng.NetworkControl$class;
+import li.cil.oc.integration.appeng.internal.SubscriptionBase;
 import li.cil.oc.server.component.traits.*;
 import li.cil.oc.util.BlockPosition;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
@@ -1443,6 +1444,109 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		public Object[] getItemInNetwork(Context arg0, Arguments arg1) {
 			// TODO Auto-generated method stub
 			return NetworkControl$class.getItemInNetwork(this, arg0, arg1);
+		}
+
+		@Override
+		public boolean canUpdate() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public void update() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public Object[] getFluidInNetwork(Context arg0, Arguments arg1) {
+		
+			return NetworkControl$class.getFluidInNetwork(null, arg0, arg1);
+		}
+
+		@Override
+		public Object[] isFluidEventSubscription(Context arg0, Arguments arg1) {
+			// TODO Auto-generated method stub
+			return NetworkControl$class.isFluidEventSubscription(null, arg0, arg1);
+		}
+
+		@Override
+		public Object[] isItemEventSubscription(Context arg0, Arguments arg1) {
+			// TODO Auto-generated method stub
+			return NetworkControl$class.isItemEventSubscription(null, arg0, arg1);
+		}
+
+		@Override
+		public SubscriptionBase<IAEFluidStack> li$cil$oc$integration$appeng$NetworkControl$$fluidSubscription() {
+		
+			return fSubscriptionBase;
+		}
+
+		@Override
+		public SubscriptionBase<IAEItemStack> li$cil$oc$integration$appeng$NetworkControl$$itemSubscription() {
+			
+			return iSubscriptionBase;
+		}
+		SubscriptionBase iSubscriptionBase;
+		SubscriptionBase fSubscriptionBase;
+		@Override
+		public void li$cil$oc$integration$appeng$NetworkControl$_setter_$li$cil$oc$integration$appeng$NetworkControl$$fluidSubscription_$eq(
+				SubscriptionBase arg0) {
+			fSubscriptionBase=arg0;
+			
+		}
+
+		@Override
+		public void li$cil$oc$integration$appeng$NetworkControl$_setter_$li$cil$oc$integration$appeng$NetworkControl$$itemSubscription_$eq(
+				SubscriptionBase arg0) {
+			iSubscriptionBase=arg0;
+			
+		}
+
+		@Override
+		public void load(NBTTagCompound arg0) {
+			{
+				var get = arg0.getTag("iSubscriptionBase");
+				if (get != null) {
+					if(iSubscriptionBase!=null)
+					iSubscriptionBase.load((NBTTagCompound) get);
+				}
+			}
+			{
+				var get = arg0.getTag("fSubscriptionBase");
+				if (get != null) {
+					if(fSubscriptionBase!=null)
+					fSubscriptionBase.load((NBTTagCompound) get);
+				}
+			}			
+			
+		}
+
+		@Override
+		public void save(NBTTagCompound arg0) {
+			if(iSubscriptionBase!=null) {
+				var tag=new NBTTagCompound();
+				iSubscriptionBase.save(tag);
+				arg0.setTag("iSubscriptionBase", tag);
+			}
+			if(fSubscriptionBase!=null) {
+				var tag=new NBTTagCompound();
+				fSubscriptionBase.save(tag);
+				arg0.setTag("fSubscriptionBase", tag);
+			}			
+			
+		}
+
+		@Override
+		public Object[] setFluidEventSubscription(Context arg0, Arguments arg1) {
+			// TODO Auto-generated method stub
+			return NetworkControl$class.setFluidEventSubscription(null, arg0, arg1);
+		}
+
+		@Override
+		public Object[] setItemEventSubscription(Context arg0, Arguments arg1) {
+			// TODO Auto-generated method stub
+			return NetworkControl$class.setItemEventSubscription(null, arg0, arg1);
 		}
 
         // end of oc

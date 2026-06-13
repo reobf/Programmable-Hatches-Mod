@@ -29,10 +29,10 @@ public class MixinProcessLogicReset {
 		  
 	  }
 	  */
-	@Shadow
+	/*@Shadow
 	 protected IDualInputInventoryWithPattern activeDualInv;
 	@Shadow
-	protected WeakHashMap<IDualInputInventoryWithPattern, Set<GTRecipe>> dualInvWithPatternToRecipeCache;
+	protected WeakHashMap<IDualInputInventoryWithPattern, Set<GTRecipe>> dualInvWithPatternToRecipeCache ;
 
 	  @Inject(
 		        method = "process",
@@ -49,5 +49,5 @@ public class MixinProcessLogicReset {
 		    	   dualInvWithPatternToRecipeCache.remove(activeDualInv);
 		    	   ((BufferedDualInputHatch.PatternDualInv)(activeDualInv)).reset++;
 		       }
-		    }
+		    }*/
 }

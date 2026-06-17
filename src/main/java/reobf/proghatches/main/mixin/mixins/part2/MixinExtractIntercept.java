@@ -25,7 +25,7 @@ public abstract class MixinExtractIntercept extends CraftingTask {
 
     @Inject(require = 1, method = "extractExact", at = { @At("HEAD") }, cancellable = true)
 
-    public void extract(CraftingContext context, MECraftingInventory source, List<IAEItemStack> removedList,
+    public void extract(CraftingContext context, MECraftingInventory source, List<IAEItemStack> removedList ,boolean isFuzzy,
         CallbackInfo c) {
         if (!((IIsExtractFromInvAllowed) (Object) context).isAllowed(this.request.stack)) {
 

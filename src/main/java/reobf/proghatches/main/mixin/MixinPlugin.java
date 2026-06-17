@@ -159,7 +159,7 @@ public static boolean loaded;
             noEUMixin = true;
         }
 
-        retLate.add("eucrafting." + "MixinEUSourceCoverChunkUnloadNotification");
+      //  retLate.add("eucrafting." + "MixinEUSourceCoverChunkUnloadNotification");
         retLate.add("eucrafting." + "MixinCoverInsertion");
         if (FMLLaunchHandler.side()
             .isClient()) {

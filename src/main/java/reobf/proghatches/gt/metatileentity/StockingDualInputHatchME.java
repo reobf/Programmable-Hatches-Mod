@@ -42,6 +42,9 @@ import org.lwjgl.opengl.GL12;
 import com.cleanroommc.modularui.factory.PosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.screen.UISettings;
+import gregtech.api.modularui2.GTGuiTextures;
+import gregtech.api.modularui2.GTGuis;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.gtnewhorizons.modularui.api.GlStateManager;
@@ -868,6 +871,253 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
         }
 
         // return builder;
+    }
+
+    // ===== MUI2 =====
+    // GT's MTEHatchInputBus now builds its GUI with MUI2, so the MUI1 addUIWidgets()/
+    // createStackSizeConfigurationWindow() above are dead. This rebuilds the custom 3-tab stocking
+    // GUI in MUI2 (item stocking tab + fluid stocking tab + config tab) plus the stack-size config
+    // window, mirroring PatternDualInputHatch.createPatternWindow2's tab structure (Column of
+    // PageButton tabs + PagedWidget) and using plain MUI2 slots so tooltips/hover/sync work.
+    //   Display slots are read-only and simply sync the server-side i_display[]/f_display[] arrays
+    //   (kept fresh by updateAllInformationSlots in the tick loop). Mark slots are phantom and write
+    //   i_mark[]/f_mark[]; the tick loop turns them into the display, so the display refreshes a tick
+    //   or two after a mark edit. NOTE: positions/sizes are a first pass and may need in-game tuning;
+    //   amounts beyond a stack are not drawn as a number overlay (the legacy AE renderer wasn't ported).
+    @Override
+    public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings) {
+        ModularPanel panel = GTGuis.mteTemplatePanelBuilder(this, data, syncManager, uiSettings)
+            .doesAddGregTechLogo(false)
+            .doesAddGhostCircuitSlot(false)   // re-added on top of the tab pages below (Q2)
+            .build();
+
+        com.cleanroommc.modularui.api.IPanelHandler stackSizeCfg = syncManager
+            .syncedPanel("stocking_cfg", true, (m, h) -> createConfigWindow2(m));
+
+        // tab icons (same items the MUI1 GUI used)
+        com.cleanroommc.modularui.api.drawable.IDrawable tabItem = new com.cleanroommc.modularui.drawable.ItemDrawable(
+            gregtech.api.enums.ItemList.Hatch_Input_Bus_ME_Advanced.get(1)).asIcon().size(18, 18);
+        com.cleanroommc.modularui.api.drawable.IDrawable tabFluid = new com.cleanroommc.modularui.drawable.ItemDrawable(
+            gregtech.api.enums.ItemList.Hatch_Input_ME_Advanced.get(1)).asIcon().size(18, 18);
+        com.cleanroommc.modularui.api.drawable.IDrawable tabCfg = new com.cleanroommc.modularui.drawable.ItemDrawable(
+            GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Iron, 1)).asIcon().size(18, 18);
+
+        com.cleanroommc.modularui.widgets.PagedWidget.Controller tabController =
+            new com.cleanroommc.modularui.widgets.PagedWidget.Controller();
+
+        // content pages (transparent; only their positioned children render)
+        panel.child(new com.cleanroommc.modularui.widgets.PagedWidget<>()
+            .controller(tabController)
+            .addPage(itemStockingTab2(syncManager))              // page 0: item stocking
+            .addPage(fluidStockingTab2(syncManager))             // page 1: fluid stocking
+            .addPage(configTab2(syncManager, stackSizeCfg))      // page 2: config
+            .pos(0, 0)
+            .size(getGUIWidth(), 18 * 4 + 12));
+
+        // right-edge tab strip (mirrors createPatternWindow2)
+        panel.child(new com.cleanroommc.modularui.widgets.layout.Column().coverChildren()
+            .pos(getGUIWidth() - 3, 0)
+            .child(new com.cleanroommc.modularui.widgets.PageButton(0, tabController)
+                .tab(com.cleanroommc.modularui.drawable.GuiTextures.TAB_RIGHT, 0)
+                .overlay(tabItem)
+                .tooltip(t -> t.addLine(com.cleanroommc.modularui.api.drawable.IKey
+                    .str(StatCollector.translateToLocal("GT5U.machines.stocking_bus.name")))))
+            .child(new com.cleanroommc.modularui.widgets.PageButton(1, tabController)
+                .tab(com.cleanroommc.modularui.drawable.GuiTextures.TAB_RIGHT, 0)
+                .overlay(tabFluid)
+                .tooltip(t -> t.addLine(com.cleanroommc.modularui.api.drawable.IKey
+                    .str(StatCollector.translateToLocal("GT5U.machines.stocking_hatch.name")))))
+            .child(new com.cleanroommc.modularui.widgets.PageButton(2, tabController)
+                .tab(com.cleanroommc.modularui.drawable.GuiTextures.TAB_RIGHT, 0)
+                .overlay(tabCfg)
+                .tooltip(t -> t.addLine(com.cleanroommc.modularui.api.drawable.IKey
+                    .str(StatCollector.translateToLocal("proghatch.stockingdual.intmax"))))));
+
+        // Re-add the ghost circuit slot ON TOP of the tab pages. The transparent PagedWidget covers
+        // its position, so if it were added by the panel builder (underneath) it would render but
+        // swallow no hover -> no tooltip. Added last = on top = hoverable. (Q2)
+        panel.child(gregtech.api.modularui2.common.CommonWidgets.createCircuitSlot(syncManager, this)
+            .pos(getCircuitSlotX() - 1, getCircuitSlotY() - 1));
+
+        return panel;
+    }
+
+    // Item stocking tab: 16 read-only display slots (x=97) showing what is currently stocked
+    // (i_display[], synced from the server) + 16 phantom "mark" slots (x=7) where the player picks
+    // what to stock (i_mark[]). Plain MUI2 slots: their sync handlers are auto-registered, so tooltip,
+    // hover and sync all work. Mark slots are disabled while auto-pull is on.
+    private com.cleanroommc.modularui.widget.ParentWidget<?> itemStockingTab2(PanelSyncManager syncManager) {
+        com.cleanroommc.modularui.widget.ParentWidget<?> page =
+            new com.cleanroommc.modularui.widget.ParentWidget<>().coverChildren().name("item_stocking");
+        // MUI2 handlers sharing the existing backing arrays (Arrays.asList view writes through)
+        com.cleanroommc.modularui.utils.item.ItemStackHandler displayHandler =
+            new com.cleanroommc.modularui.utils.item.ItemStackHandler(i_display);
+        com.cleanroommc.modularui.utils.item.ItemStackHandler markHandler =
+            new com.cleanroommc.modularui.utils.item.ItemStackHandler(i_mark);
+        for (int ii = 0; ii < 16; ii++) {
+            final int i = ii;
+            final int x = i % 4, y = i / 4;
+            page.child(new com.cleanroommc.modularui.widgets.slot.ItemSlot()
+                .slot(new com.cleanroommc.modularui.widgets.slot.ModularSlot(displayHandler, i)
+                    .accessibility(false, false))
+                .pos(97 + x * 18, 9 + y * 18)
+                .background(GTGuiTextures.SLOT_ITEM_STANDARD, GTGuiTextures.OVERLAY_SLOT_ARROW_ME));
+            page.child(new com.cleanroommc.modularui.widgets.slot.PhantomItemSlot()
+                .slot(new com.cleanroommc.modularui.widgets.slot.ModularSlot(markHandler, i) {
+                    @Override
+                    public int getItemStackLimit(net.minecraft.item.ItemStack stack) {
+                        return 1; // a mark is just a single item type, no quantity (Q1)
+                    }
+                })
+                .setEnabledIf(w -> !autoPullItemList)
+                .pos(7 + x * 18, 9 + y * 18)
+                .background(GTGuiTextures.SLOT_ITEM_STANDARD, GTGuiTextures.OVERLAY_SLOT_ARROW_ME));
+        }
+        return page;
+    }
+
+    // Fluid stocking tab: mirror of the item tab. Display slots read f_display[] (read-only); phantom
+    // mark slots write f_mark[] through a FluidStackTank whose setter is unconditional (so the write
+    // applies server-side, unlike createTankForFluidStack which is client-only). FluidSlot has no
+    // setEnabled-on-update path, so the tab-switch crash that hits item slots doesn't apply here.
+    private com.cleanroommc.modularui.widget.ParentWidget<?> fluidStockingTab2(PanelSyncManager syncManager) {
+        com.cleanroommc.modularui.widget.ParentWidget<?> page =
+            new com.cleanroommc.modularui.widget.ParentWidget<>().coverChildren().name("fluid_stocking");
+        for (int ii = 0; ii < 16; ii++) {
+            final int i = ii;
+            final int x = i % 4, y = i / 4;
+            page.child(new com.cleanroommc.modularui.widgets.slot.FluidSlot()
+                .syncHandler(new com.cleanroommc.modularui.value.sync.FluidSlotSyncHandler(
+                    createTankForFluidStack(f_display, i, Integer.MAX_VALUE)).canDrainSlot(false).canFillSlot(false))
+                .pos(97 + x * 18, 9 + y * 18));
+            page.child(new com.cleanroommc.modularui.widgets.slot.FluidSlot()
+                .syncHandler(new com.cleanroommc.modularui.value.sync.FluidSlotSyncHandler(
+                    new FluidStackTank(() -> f_mark[i], v -> f_mark[i] = v, 1)).phantom(true))
+                .setEnabledIf(w -> !autoPullItemList)
+                .pos(7 + x * 18, 9 + y * 18));
+        }
+        return page;
+    }
+
+    private com.cleanroommc.modularui.widget.ParentWidget<?> configTab2(
+        PanelSyncManager syncManager, com.cleanroommc.modularui.api.IPanelHandler stackSizeCfg) {
+        com.cleanroommc.modularui.widget.ParentWidget<?> page =
+            new com.cleanroommc.modularui.widget.ParentWidget<>().size(getGUIWidth(), getGUIHeight());
+
+        // refresh interval
+        page.child(com.cleanroommc.modularui.api.drawable.IKey
+            .str(StatCollector.translateToLocal("GT5U.machines.stocking_bus.refresh_time"))
+            .asWidget().pos(3, 22).size(74, 14));
+        page.child(new com.cleanroommc.modularui.widgets.textfield.TextFieldWidget()
+            .value(new com.cleanroommc.modularui.value.sync.IntSyncValue(() -> interval, v -> interval = Math.max(v, 1)).allowC2S())
+            .formatAsInteger(true)
+            .numbersInt(1, Integer.MAX_VALUE)
+            .setTextAlignment(com.cleanroommc.modularui.utils.Alignment.Center)
+            .setTextColor(com.cleanroommc.modularui.utils.Color.WHITE.main)
+            .size(70, 18).pos(3, 3)
+            .background(GTGuiTextures.BACKGROUND_TEXT_FIELD));
+
+        // intmax cap (1..100)
+        page.child(com.cleanroommc.modularui.api.drawable.IKey
+            .str(StatCollector.translateToLocal("proghatch.stockingdual.intmax"))
+            .asWidget().pos(3, 64).size(74, 14));
+        page.child(new com.cleanroommc.modularui.widgets.textfield.TextFieldWidget()
+            .value(new com.cleanroommc.modularui.value.sync.IntSyncValue(() -> intmaxs, v -> intmaxs = v).allowC2S())
+            .formatAsInteger(true)
+            .numbersInt(1, 100)
+            .setTextAlignment(com.cleanroommc.modularui.utils.Alignment.Center)
+            .setTextColor(com.cleanroommc.modularui.utils.Color.WHITE.main)
+            .size(70, 18).pos(3, 3 + 40)
+            .background(GTGuiTextures.BACKGROUND_TEXT_FIELD));
+
+        // auto-pull toggle (ToggleButton, mirrors GT's ME bus): left-click toggles auto-pull,
+        // right-click opens the stack-size config window. setEnabledIf(allowAuto) disables the button
+        // on the basic variant, so it can't be pressed at all (no press-and-bounce-back).
+        page.child(new com.cleanroommc.modularui.widgets.ToggleButton() {
+            @Override
+            public com.cleanroommc.modularui.api.widget.Interactable.Result onMousePressed(int mouseButton) {
+                switch (mouseButton) {
+                    case 0:
+                        next();
+                        playClickSound();
+                        return com.cleanroommc.modularui.api.widget.Interactable.Result.SUCCESS;
+                    case 1:
+                        if (!stackSizeCfg.isPanelOpen()) stackSizeCfg.openPanel();
+                        else stackSizeCfg.closePanel();
+                        playClickSound();
+                        return com.cleanroommc.modularui.api.widget.Interactable.Result.SUCCESS;
+                    default:
+                        return com.cleanroommc.modularui.api.widget.Interactable.Result.IGNORE;
+                }
+            }
+        }.value(new com.cleanroommc.modularui.value.sync.BooleanSyncValue(() -> autoPullItemList, this::setAutoPullItemList).allowC2S())
+            .setEnabledIf(w -> allowAuto)
+            .overlay(true, GTGuiTextures.OVERLAY_BUTTON_AUTOPULL_ME)
+            .overlay(false, GTGuiTextures.OVERLAY_BUTTON_AUTOPULL_ME_DISABLED)
+            .addTooltip(true, StatCollector.translateToLocal("GT5U.machines.stocking_bus.auto_pull.tooltip.1"))
+            .addTooltip(false, StatCollector.translateToLocal("GT5U.machines.stocking_bus.auto_pull.tooltip.1"))
+            .addTooltip(true, StatCollector.translateToLocal("GT5U.machines.stocking_bus.auto_pull.tooltip.2"))
+            .addTooltip(false, StatCollector.translateToLocal("GT5U.machines.stocking_bus.auto_pull.tooltip.2"))
+            .size(16, 16).pos(80, 3));
+
+        // program toggle (integrated-circuit programming)
+        page.child(new com.cleanroommc.modularui.widgets.CycleButtonWidget()
+            .stateCount(2)
+            .value((com.cleanroommc.modularui.api.value.IIntValue<?>) new com.cleanroommc.modularui.value.sync.IntSyncValue(
+                () -> program ? 1 : 0,
+                v -> program = (v != 0)).allowC2S())
+            .stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
+            .stateBackground(1, GTGuiTextures.BUTTON_STANDARD_PRESSED)
+            .addTooltip(0, StatCollector.translateToLocal("hatch.dualinput.stocking.autopull.program"))
+            .addTooltip(1, StatCollector.translateToLocal("hatch.dualinput.stocking.autopull.program"))
+            .size(16, 16).pos(80, 3 + 38));
+
+        return page;
+    }
+
+    // Stack-size config popup: min auto-pull fluid amount + min auto-pull item stack size.
+    protected ModularPanel createConfigWindow2(PanelSyncManager syncManager) {
+        final int WIDTH = 78;
+        final int HEIGHT = 78;
+        // ESC normally closes the whole screen in-world; override onKeyPressed so ESC consumed here
+        // closes only this popup (returning true cancels the key event before the vanilla close). (Q3)
+        ModularPanel builder = new ModularPanel("stocking_cfg") {
+            @Override
+            public boolean onKeyPressed(char typedChar, int keyCode) {
+                if (keyCode == org.lwjgl.input.Keyboard.KEY_ESCAPE) {
+                    closeIfOpen();
+                    return true;
+                }
+                return super.onKeyPressed(typedChar, keyCode);
+            }
+        };
+        builder.size(WIDTH, HEIGHT);
+
+        builder.child(com.cleanroommc.modularui.api.drawable.IKey
+            .str(StatCollector.translateToLocal("GT5U.machines.stocking_hatch.min_amount"))
+            .asWidget().pos(3, 2).size(74, 14));
+        builder.child(new com.cleanroommc.modularui.widgets.textfield.TextFieldWidget()
+            .value(new com.cleanroommc.modularui.value.sync.IntSyncValue(() -> (int) minAutoPullStackSizeF, v -> minAutoPullStackSizeF = v).allowC2S())
+            .formatAsInteger(true)
+            .numbersInt(1, Integer.MAX_VALUE)
+            .setTextAlignment(com.cleanroommc.modularui.utils.Alignment.Center)
+            .setTextColor(com.cleanroommc.modularui.utils.Color.WHITE.main)
+            .size(70, 18).pos(3, 18)
+            .background(GTGuiTextures.BACKGROUND_TEXT_FIELD));
+
+        builder.child(com.cleanroommc.modularui.api.drawable.IKey
+            .str(StatCollector.translateToLocal("GT5U.machines.stocking_bus.min_stack_size"))
+            .asWidget().pos(3, 42).size(74, 14));
+        builder.child(new com.cleanroommc.modularui.widgets.textfield.TextFieldWidget()
+            .value(new com.cleanroommc.modularui.value.sync.IntSyncValue(() -> (int) minAutoPullStackSize, v -> minAutoPullStackSize = v).allowC2S())
+            .formatAsInteger(true)
+            .numbersInt(1, Integer.MAX_VALUE)
+            .setTextAlignment(com.cleanroommc.modularui.utils.Alignment.Center)
+            .setTextColor(com.cleanroommc.modularui.utils.Color.WHITE.main)
+            .size(70, 18).pos(3, 58)
+            .background(GTGuiTextures.BACKGROUND_TEXT_FIELD));
+
+        return builder;
     }
 
     long i_client[] = new long[16];

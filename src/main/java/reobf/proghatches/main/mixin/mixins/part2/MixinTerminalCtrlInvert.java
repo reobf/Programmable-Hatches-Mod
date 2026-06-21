@@ -50,11 +50,11 @@ public abstract class MixinTerminalCtrlInvert extends AEBaseGui{
 		super(container);
 		
 	}
-
-
+/*
+@Shadow
 
 public abstract void drawHoveringText(List textLines, int x, int y, FontRenderer font);
-
+*/
 
 @WrapOperation(method = "handleMonitorableSlotClick", at = @At(
 	    value = "INVOKE",

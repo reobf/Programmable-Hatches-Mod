@@ -1,6 +1,7 @@
 
 plugins {
     id("com.gtnewhorizons.gtnhconvention")
+     id("maven-publish")
 }
 
 tasks.compileJava {
@@ -13,3 +14,6 @@ tasks.compileJava {
         }
     }
 }
+
+group = "com.github.reobf"
+version = "1.0.0"

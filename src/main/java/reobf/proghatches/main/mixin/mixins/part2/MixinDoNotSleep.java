@@ -13,7 +13,7 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.CommonBaseMetaTileEntity;
 import reobf.proghatches.gt.metatileentity.util.IDoNotSleep;
 
-@Mixin(value = { CommonBaseMetaTileEntity.class, TilePatternInterface.class }, remap = false)
+@Mixin(value = { CommonBaseMetaTileEntity.class }, remap = false)
 public abstract class MixinDoNotSleep implements IGregTechTileEntity{
 
 	

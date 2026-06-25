@@ -9,11 +9,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.github.vfyjxf.nee.block.tile.TilePatternInterface;
 
 import appeng.helpers.DualityInterface;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.CommonBaseMetaTileEntity;
 import reobf.proghatches.gt.metatileentity.util.IDoNotSleep;
 
-@Mixin(value = { DualityInterface.class, TilePatternInterface.class }, remap = false)
-public abstract class MixinDoNotSleep extends CommonBaseMetaTileEntity{
+@Mixin(value = { CommonBaseMetaTileEntity.class, TilePatternInterface.class }, remap = false)
+public abstract class MixinDoNotSleep implements IGregTechTileEntity{
 
 	
 	@Inject(method="tryDisableTicking", at = { @At("HEAD") },cancellable = true)

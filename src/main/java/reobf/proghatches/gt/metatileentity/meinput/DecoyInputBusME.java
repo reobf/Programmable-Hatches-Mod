@@ -59,6 +59,8 @@ import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import gregtech.common.tileentities.machines.MTEHatchInputME;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
+import reobf.proghatches.gt.metatileentity.util.IDoNotSleep;
+
 import com.cleanroommc.modularui.factory.PosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
@@ -68,11 +70,11 @@ import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
-public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverrided, IDataCopyablePlaceHolder {
+public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverrided, IDataCopyablePlaceHolder ,IDoNotSleep{
 
 	
 	
-
+	
 	
 	
 	

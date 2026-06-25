@@ -34,12 +34,112 @@ import reobf.proghatches.eucrafting.ISer;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.value.sync.IntSyncValue;
+import com.cleanroommc.modularui.api.drawable.IKey;
+import com.cleanroommc.modularui.api.value.IIntValue;
+import com.cleanroommc.modularui.widgets.layout.Flow;
+import gregtech.api.modularui2.CoverGuiData;
+import gregtech.api.modularui2.GTGuiTextures;
+import gregtech.common.gui.modularui.cover.base.CoverBaseGui;
+
 public class WirelessControlCover
     extends CoverBehaviorBase<WirelessControlCover.Data> /* implements IControlsWorkCover */ {
 
     @Override
     public ModularWindow createWindow(CoverUIBuildContext buildContext) {
         return new WirelessCCUIFactory(buildContext).createWindow();
+    }
+
+    // ===== MUI2 =====
+    // GT now opens covers via getCoverGui(); the MUI1 createWindow/WirelessCCUIFactory above is dead.
+    // Rebuilds the same controls: invert / safe / crashed / uuid-source / private toggles, the gate-mode
+    // cycle (AND/NAND/OR/NOR), the frequency field, and the live redstone readout.
+    @Override
+    protected CoverBaseGui<?> getCoverGui() {
+        return new CoverBaseGui<WirelessControlCover>(this) {
+
+            private com.cleanroommc.modularui.widgets.CycleButtonWidget boolToggle(
+                java.util.function.IntSupplier getter, java.util.function.IntConsumer setter,
+                com.cleanroommc.modularui.api.drawable.IDrawable tex0,
+                com.cleanroommc.modularui.api.drawable.IDrawable tex1, String tip0, String tip1) {
+                return new com.cleanroommc.modularui.widgets.CycleButtonWidget()
+                    .stateCount(2)
+                    .value((IIntValue<?>) new IntSyncValue(getter, setter).allowC2S())
+                    .stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
+                    .stateBackground(1, GTGuiTextures.BUTTON_STANDARD)
+                    .stateOverlay(0, tex0)
+                    .stateOverlay(1, tex1)
+                    .addTooltip(0, tip0)
+                    .addTooltip(1, tip1)
+                    .marginRight(2)
+                    .size(18, 18);
+            }
+
+            @Override
+            public void addUIWidgets(PanelSyncManager syncManager, Flow column, CoverGuiData data) {
+                com.cleanroommc.modularui.drawable.UITexture texOff = com.cleanroommc.modularui.drawable.UITexture
+                    .fullImage(GregTech.ID, "blocks/iconsets/OVERLAY_FRONT_IMPLOSION_COMPRESSOR.png");
+                com.cleanroommc.modularui.drawable.UITexture texOn = com.cleanroommc.modularui.drawable.UITexture
+                    .fullImage(GregTech.ID, "blocks/iconsets/OVERLAY_FRONT_IMPLOSION_COMPRESSOR_ACTIVE.png");
+                com.cleanroommc.modularui.drawable.UITexture texMachine = com.cleanroommc.modularui.drawable.UITexture
+                    .fullImage("proghatches", "gui/uuid_machine.png");
+                com.cleanroommc.modularui.drawable.UITexture texCover = com.cleanroommc.modularui.drawable.UITexture
+                    .fullImage("proghatches", "gui/uuid_cover.png");
+
+                column.child(makeRowLayout()
+                    .child(positionRow(Flow.row()
+                        .child(boolToggle(() -> cover.coverData.invert ? 1 : 0, v -> cover.coverData.invert = v != 0,
+                            GTGuiTextures.OVERLAY_BUTTON_REDSTONE_ON, GTGuiTextures.OVERLAY_BUTTON_REDSTONE_OFF,
+                            LangManager.translateToLocal("programmable_hatches.cover.wireless.invert.false"),
+                            LangManager.translateToLocal("programmable_hatches.cover.wireless.invert.true")))
+                        .child(boolToggle(() -> cover.coverData.safe ? 1 : 0, v -> cover.coverData.safe = v != 0,
+                            GTGuiTextures.OVERLAY_BUTTON_CROSS, GTGuiTextures.OVERLAY_BUTTON_CHECKMARK,
+                            LangManager.translateToLocal("programmable_hatches.cover.wireless.safe.false"),
+                            LangManager.translateToLocal("programmable_hatches.cover.wireless.safe.true")))
+                        .child(boolToggle(() -> cover.coverData.crashed ? 1 : 0, v -> cover.coverData.crashed = v != 0,
+                            texOn, texOff,
+                            LangManager.translateToLocal("programmable_hatches.cover.wireless.crashed.false"),
+                            LangManager.translateToLocal("programmable_hatches.cover.wireless.crashed.true")))
+                        .child(boolToggle(() -> cover.coverData.useMachineOwnerUUID ? 1 : 0, v -> cover.coverData.useMachineOwnerUUID = v != 0,
+                            texCover, texMachine,
+                            LangManager.translateToLocal("programmable_hatches.cover.wireless.uuidsource.false"),
+                            LangManager.translateToLocal("programmable_hatches.cover.wireless.uuidsource.true")))
+                        .child(boolToggle(() -> cover.coverData.privateFreq ? 1 : 0, v -> cover.coverData.privateFreq = v != 0,
+                            GTGuiTextures.OVERLAY_BUTTON_RECIPE_UNLOCKED, GTGuiTextures.OVERLAY_BUTTON_RECIPE_LOCKED,
+                            LangManager.translateToLocal("programmable_hatches.cover.wireless.private.false"),
+                            LangManager.translateToLocal("programmable_hatches.cover.wireless.private.true")))
+                        .child(new com.cleanroommc.modularui.widgets.CycleButtonWidget()
+                            .stateCount(4)
+                            .value((IIntValue<?>) new IntSyncValue(() -> cover.coverData.gateMode, v -> cover.coverData.gateMode = v).allowC2S())
+                            .stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
+                            .stateBackground(1, GTGuiTextures.BUTTON_STANDARD)
+                            .stateBackground(2, GTGuiTextures.BUTTON_STANDARD)
+                            .stateBackground(3, GTGuiTextures.BUTTON_STANDARD)
+                            .stateOverlay(0, GTGuiTextures.OVERLAY_BUTTON_GATE_AND)
+                            .stateOverlay(1, GTGuiTextures.OVERLAY_BUTTON_GATE_NAND)
+                            .stateOverlay(2, GTGuiTextures.OVERLAY_BUTTON_GATE_OR)
+                            .stateOverlay(3, GTGuiTextures.OVERLAY_BUTTON_GATE_NOR)
+                            .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.wireless.gatemode.0"))
+                            .addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.wireless.gatemode.1"))
+                            .addTooltip(2, LangManager.translateToLocal("programmable_hatches.cover.wireless.gatemode.2"))
+                            .addTooltip(3, LangManager.translateToLocal("programmable_hatches.cover.wireless.gatemode.3"))
+                            .size(18, 18))))
+                    .child(positionRow(Flow.row()
+                        .child(makeNumberField(70)
+                            .value(new IntSyncValue(() -> cover.coverData.freq, v -> {
+                                cover.coverData.user = data.getPlayer().getUniqueID();
+                                cover.coverData.freq = v;
+                            }).allowC2S())
+                            .numbersInt(0, Integer.MAX_VALUE))))
+                    .child(positionRow(Flow.row()
+                        .child(IKey.dynamic(() -> {
+                            int r = getRedstone(cover.coverData, cover.getTile());
+                            if (cover.coverData.invert) r = (byte) (15 - r);
+                            return "redstone:" + r;
+                        }).asWidget()))));
+            }
+        };
     }
 
     public WirelessControlCover(CoverContext context, ITexture t) {

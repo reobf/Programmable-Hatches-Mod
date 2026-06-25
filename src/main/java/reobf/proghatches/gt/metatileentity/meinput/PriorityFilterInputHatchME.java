@@ -50,6 +50,8 @@ import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import gregtech.common.tileentities.machines.MTEHatchInputME;
 
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
+import reobf.proghatches.gt.metatileentity.util.IDoNotSleep;
+
 import com.cleanroommc.modularui.factory.PosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
@@ -61,7 +63,7 @@ import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class PriorityFilterInputHatchME extends MTEHatchInputME
-    implements IMEHatchOverrided, IDataCopyablePlaceHolder, IPriorityHost, IActionHost {
+    implements IMEHatchOverrided, IDataCopyablePlaceHolder, IPriorityHost, IActionHost,IDoNotSleep {
 
     public PriorityFilterInputHatchME(int aID, /* boolean autoPullAvailable, */ String aName, String aNameRegional) {
         super(aID, /* autoPullAvailable */true, aName, aNameRegional);

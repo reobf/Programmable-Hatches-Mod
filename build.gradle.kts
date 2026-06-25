@@ -16,7 +16,6 @@ tasks.compileJava {
 }
 
 group = "com.github.reobf"
-version = "1.0.0"
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(25))

@@ -52,6 +52,18 @@ import reobf.proghatches.eucrafting.CoverBehaviorBase;
 import reobf.proghatches.eucrafting.ISer;
 import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.value.sync.IntSyncValue;
+import com.cleanroommc.modularui.value.sync.LongSyncValue;
+import com.cleanroommc.modularui.api.drawable.IKey;
+import com.cleanroommc.modularui.api.value.IIntValue;
+import com.cleanroommc.modularui.widgets.layout.Flow;
+import com.cleanroommc.modularui.widgets.slot.PhantomItemSlot;
+import com.cleanroommc.modularui.widgets.slot.ModularSlot;
+import gregtech.api.modularui2.CoverGuiData;
+import gregtech.api.modularui2.GTGuiTextures;
+import gregtech.common.gui.modularui.cover.base.CoverBaseGui;
+
 public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data> {
 
     public LevelControlCover(CoverContext context, gregtech.api.interfaces.ITexture t) {
@@ -188,6 +200,78 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
             }
 
         }.createWindow();
+    }
+
+    // ===== MUI2 =====
+    // GT now opens covers via getCoverGui(); the MUI1 createWindow above is dead. This rebuilds the
+    // same controls (filter phantom slot, item/fluid mode, invert, threshold amount, work status).
+    @Override
+    protected @NotNull CoverBaseGui<?> getCoverGui() {
+        return new CoverBaseGui<LevelControlCover>(this) {
+            @Override
+            public void addUIWidgets(PanelSyncManager syncManager, Flow column, CoverGuiData data) {
+                // filter handler shares coverData.filter[]; forces count 1 and, in fluid mode,
+                // converts a filled container to its fluid display stack (mirrors the MUI1 phantomClick)
+                com.cleanroommc.modularui.utils.item.ItemStackHandler filterHandler =
+                    new com.cleanroommc.modularui.utils.item.ItemStackHandler(cover.coverData.filter) {
+                        @Override
+                        public void setStackInSlot(int slot, ItemStack stack) {
+                            if (stack != null) {
+                                ItemStack result = stack;
+                                if (cover.coverData.mode != 0) {
+                                    FluidStack fs = GTUtility.getFluidForFilledItem(stack, true);
+                                    if (fs != null) result = GTUtility.getFluidDisplayStack(fs, false);
+                                }
+                                result = result == null ? null : result.copy();
+                                if (result != null) result.stackSize = 1;
+                                stack = result;
+                            }
+                            super.setStackInSlot(slot, stack);
+                        }
+                    };
+
+                column.child(makeRowLayout()
+                    .child(positionRow(Flow.row()
+                        .child(new PhantomItemSlot()
+                            .slot(new ModularSlot(filterHandler, 0))
+                            .marginRight(4)
+                            .tooltipBuilder(t -> t.addLine(IKey
+                                .str(StatCollector.translateToLocal("proghatches.amountmaintainer.phantomslot")))))
+                        .child(new com.cleanroommc.modularui.widgets.CycleButtonWidget()
+                            .stateCount(2)
+                            .value((IIntValue<?>) new IntSyncValue(() -> cover.coverData.mode, v -> cover.coverData.mode = v).allowC2S())
+                            .stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
+                            .stateBackground(1, GTGuiTextures.BUTTON_STANDARD)
+                            .stateOverlay(0, GTGuiTextures.OVERLAY_BUTTON_VOID_EXCESS_ITEM)
+                            .stateOverlay(1, GTGuiTextures.OVERLAY_BUTTON_VOID_EXCESS_FLUID)
+                            .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.0"))
+                            .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.1"))
+                            .marginRight(2)
+                            .size(18, 18))
+                        .child(new com.cleanroommc.modularui.widgets.CycleButtonWidget()
+                            .stateCount(2)
+                            .value((IIntValue<?>) new IntSyncValue(() -> cover.coverData.invert ? 1 : 0, v -> cover.coverData.invert = v != 0).allowC2S())
+                            .stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
+                            .stateBackground(1, GTGuiTextures.BUTTON_STANDARD)
+                            .stateOverlay(0, GTGuiTextures.OVERLAY_BUTTON_CROSS)
+                            .stateOverlay(1, GTGuiTextures.OVERLAY_BUTTON_CHECKMARK)
+                            .addTooltip(0, StatCollector.translateToLocal("proghatches.levelcontrolcover.invert.0"))
+                            .addTooltip(1, StatCollector.translateToLocal("proghatches.levelcontrolcover.invert.1"))
+                            .size(18, 18))))
+                    .child(positionRow(Flow.row()
+                        .child(makeNumberField(70)
+                            .value(new LongSyncValue(() -> cover.coverData.amount, v -> cover.coverData.amount = v).allowC2S())
+                            .numbersLong(0, 9_007_199_254_740_991L))))
+                    .child(positionRow(Flow.row()
+                        .child(IKey.dynamic(() -> {
+                            ICoverable te = cover.getTile();
+                            if (te instanceof IMachineProgress) {
+                                return "Working: " + ((IMachineProgress) te).isAllowedToWork();
+                            }
+                            return "Machine not valid.";
+                        }).asWidget()))));
+            }
+        };
     }
 
     public static class Data implements ISer {

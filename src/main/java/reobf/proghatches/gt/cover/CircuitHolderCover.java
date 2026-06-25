@@ -54,6 +54,15 @@ import reobf.proghatches.gt.cover.SmartArmCover.Data;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.util.ProghatchesUtil;
 
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.value.sync.InteractionSyncHandler;
+import com.cleanroommc.modularui.drawable.DynamicDrawable;
+import com.cleanroommc.modularui.widgets.layout.Flow;
+import com.cleanroommc.modularui.widgets.ListWidget;
+import gregtech.api.modularui2.CoverGuiData;
+import gregtech.api.modularui2.GTGuiTextures;
+import gregtech.common.gui.modularui.cover.base.CoverBaseGui;
+
 public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Data> {
 
     public CircuitHolderCover(CoverContext context, ITexture t) {
@@ -125,6 +134,85 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
     public ModularWindow createWindow(CoverUIBuildContext buildContext) {
 
         return new CircuitHolderUIFactory(buildContext).createWindow();
+    }
+
+    // ===== MUI2 =====
+    // GT now opens covers via getCoverGui(); the MUI1 createWindow/CircuitHolderUIFactory above is dead.
+    // The MUI1 ChangeableWidget rebuilt a Scrollable on every change; here we use a fixed scrollable grid
+    // sized to the cover's capacity. Each slot shows circuits[i] via a DynamicDrawable and acts on the live
+    // coverData.tag on click (left = apply to the machine's circuit slot, right = remove). A separate '+'
+    // button appends the held item. All server-side mutations go through InteractionSyncHandler, and the
+    // grid reflects changes because coverData.tag is synced by the cover framework.
+    @Override
+    protected @NotNull CoverBaseGui<?> getCoverGui() {
+        return new CoverBaseGui<CircuitHolderCover>(this) {
+            @Override
+            public void addUIWidgets(PanelSyncManager syncManager, Flow column, CoverGuiData data) {
+                ItemStack coverItem = cover.getTile().getCoverItemAtSide(cover.getSide());
+                final int limit = damageToLimit(coverItem == null ? 0 : coverItem.getItemDamage());
+                final int perrow = 5;
+                final int rows = (limit + perrow - 1) / perrow;
+
+                ListWidget<com.cleanroommc.modularui.api.widget.IWidget, ?> list = new ListWidget<>();
+                list.size(16 * perrow + 8, Math.min(Math.max(rows, 1), 6) * 16);
+                for (int r = 0; r * perrow < limit; r++) {
+                    Flow row = Flow.row().size(16 * perrow, 16);
+                    for (int cc = 0; cc < perrow && r * perrow + cc < limit; cc++) {
+                        final int idx = r * perrow + cc;
+                        row.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>()
+                            .background(GTGuiTextures.BUTTON_STANDARD, new DynamicDrawable(() -> {
+                                ItemStack[] cs = ProghatchesUtil.deseri(cover.coverData.tag, "circuit");
+                                return idx < cs.length
+                                    ? new com.cleanroommc.modularui.drawable.ItemDrawable(cs[idx])
+                                    : com.cleanroommc.modularui.api.drawable.IDrawable.EMPTY;
+                            }))
+                            .syncHandler(new InteractionSyncHandler().setOnMousePressed(mouseData -> {
+                                ItemStack[] cs = ProghatchesUtil.deseri(cover.coverData.tag, "circuit");
+                                if (idx >= cs.length) return;
+                                if (mouseData.mouseButton == 1) {
+                                    java.util.ArrayList<ItemStack> ar = new java.util.ArrayList<>(cs.length);
+                                    for (ItemStack c : cs) ar.add(c);
+                                    ar.remove(idx);
+                                    cover.coverData.tag = ProghatchesUtil.ser(new NBTTagCompound(), ar.toArray(new ItemStack[0]), "circuit");
+                                    cover.getTile().markDirty();
+                                } else {
+                                    ICoverable te = cover.getTile();
+                                    if (te instanceof BaseMetaTileEntity) {
+                                        IMetaTileEntity mte = ((BaseMetaTileEntity) te).getMetaTileEntity();
+                                        if (mte instanceof IConfigurationCircuitSupport) {
+                                            mte.setInventorySlotContents(((IConfigurationCircuitSupport) mte).getCircuitSlot(), cs[idx]);
+                                        }
+                                    }
+                                }
+                            }))
+                            .tooltipBuilder(t -> t.addLine(LangManager.translateToLocalFormatted("programmable_hatches.gt.holder.apply")))
+                            .size(16, 16));
+                    }
+                    list.child(row);
+                }
+
+                com.cleanroommc.modularui.widgets.ButtonWidget<?> addBtn = new com.cleanroommc.modularui.widgets.ButtonWidget<>()
+                    .syncHandler(new InteractionSyncHandler().setOnMousePressed(mouseData -> {
+                        ItemStack[] cs = ProghatchesUtil.deseri(cover.coverData.tag, "circuit");
+                        if (limit <= cs.length) return;
+                        ItemStack held = data.getPlayer().inventory.getItemStack();
+                        if (held != null) {
+                            java.util.ArrayList<ItemStack> ar = new java.util.ArrayList<>(cs.length + 1);
+                            for (ItemStack c : cs) ar.add(c);
+                            ar.add(held);
+                            cover.coverData.tag = ProghatchesUtil.ser(new NBTTagCompound(), ar.toArray(new ItemStack[0]), "circuit");
+                            cover.getTile().markDirty();
+                        }
+                    }))
+                    .background(GTGuiTextures.BUTTON_STANDARD, GTGuiTextures.OVERLAY_BUTTON_PLUS_LARGE)
+                    .tooltipBuilder(t -> t.addLine(LangManager.translateToLocalFormatted("programmable_hatches.gt.holder.max", "" + limit)))
+                    .size(16, 16);
+
+                column.child(makeRowLayout()
+                    .child(positionRow(Flow.row().child(addBtn)))
+                    .child(list));
+            }
+        };
     }
 
     private class CircuitHolderUIFactory extends CoverUIFactory<CircuitHolderCover> {

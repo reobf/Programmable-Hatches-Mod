@@ -54,6 +54,21 @@ import reobf.proghatches.gt.cover.parser.SimpleParser.Context;
 import reobf.proghatches.gt.cover.parser.SimpleParser.Expression;
 import reobf.proghatches.gt.cover.parser.SimpleParser.Rational;
 import reobf.proghatches.lang.LangManager;
+
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.value.sync.IntSyncValue;
+import com.cleanroommc.modularui.value.sync.StringSyncValue;
+import com.cleanroommc.modularui.value.sync.InteractionSyncHandler;
+import com.cleanroommc.modularui.api.drawable.IKey;
+import com.cleanroommc.modularui.api.value.IIntValue;
+import com.cleanroommc.modularui.api.IPanelHandler;
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.drawable.DynamicDrawable;
+import com.cleanroommc.modularui.widget.ParentWidget;
+import com.cleanroommc.modularui.widgets.layout.Flow;
+import gregtech.api.modularui2.CoverGuiData;
+import gregtech.api.modularui2.GTGuiTextures;
+import gregtech.common.gui.modularui.cover.base.CoverBaseGui;
 import reobf.proghatches.util.ProghatchesUtil;
 
 public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
@@ -580,6 +595,114 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
         return new ArmUIFactory(buildContext).createWindow();
     }
 
+    // ===== MUI2 =====
+    // GT now opens covers via getCoverGui(); the MUI1 createWindow/ArmUIFactory above is dead. This
+    // rebuilds the smart-arm controls using an absolutely-positioned ParentWidget (the MUI1 grid,
+    // rebased below the CoverBaseGui title) plus a synced pop-up panel for the slot prober.
+    // NOTE: positions are a first pass and likely need in-game tuning.
+    @Override
+    protected @NotNull CoverBaseGui<?> getCoverGui() {
+        return new CoverBaseGui<SmartArmCover>(this) {
+
+            // pop-up panel: cycle the probed key index and show f(probe)=value
+            private ModularPanel createProbePanel(PanelSyncManager m) {
+                ModularPanel p = new ModularPanel("sa_probe");
+                p.size(16 * 8, 16 * 3);
+                p.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>()
+                    .syncHandler(new InteractionSyncHandler().setOnMousePressed(mouseData -> {
+                        if (cover.coverData.state != 0) return;
+                        if (mouseData.mouseButton == 0) cover.coverData.probe++;
+                        else cover.coverData.probe--;
+                        int len = cover.coverData.key.length;
+                        if (len > 0 && cover.coverData.probe >= len) cover.coverData.probe = cover.coverData.probe % len;
+                        if (cover.coverData.probe < 0) cover.coverData.probe = cover.coverData.probe + len;
+                    }))
+                    .background(GTGuiTextures.BUTTON_STANDARD, com.cleanroommc.modularui.drawable.UITexture
+                        .fullImage(GregTech.ID, "blocks/iconsets/OVERLAY_PIPELINE_ITEM_SIDE_UP_DOWN"))
+                    .tooltipBuilder(t -> t.addLine(LangManager.translateToLocal("programmable_hatches.cover.smart.probe.move")))
+                    .size(16, 16).pos(8, 8));
+                p.child(IKey.dynamic(() -> String.format("§0f(§4%s§0)=%s",
+                    cover.coverData.probe, probe(cover.coverData, cover.getTile()))).asWidget()
+                    .pos(8 + 16 * 2, 16).size(16 * 5, 14));
+                return p;
+            }
+
+            @Override
+            public void addUIWidgets(PanelSyncManager syncManager, Flow column, CoverGuiData data) {
+                // keep detail + probe synced with the server (replaces the MUI1 FakeSyncWidget syncers)
+                syncManager.syncValue("sa_detail", new StringSyncValue(() -> cover.coverData.detail, v -> cover.coverData.detail = v));
+                syncManager.syncValue("sa_probe", new IntSyncValue(() -> cover.coverData.probe, v -> cover.coverData.probe = v));
+
+                IPanelHandler probeHandler = syncManager.syncedPanel("sa_probe_win", true, (m, h) -> createProbePanel(m));
+
+                DynamicDrawable formulaImg = new DynamicDrawable(() -> com.cleanroommc.modularui.drawable.UITexture
+                    .fullImage(new ResourceLocation("proghatches", "textures/gui/formula" + cover.coverData.mode + ".png")));
+
+                final int startX = 3, startY = 3, spaceX = 18, spaceY = 18;
+
+                column.child(new ParentWidget<>()
+                    .size(startX + spaceX * 7, startY + spaceY * 4 + 4)
+                    .child(new com.cleanroommc.modularui.widgets.CycleButtonWidget()
+                        .stateCount(2)
+                        .value((IIntValue<?>) new IntSyncValue(() -> cover.coverData.io ? 1 : 0, v -> cover.coverData.io = v != 0).allowC2S())
+                        .stateBackground(0, GTGuiTextures.BUTTON_STANDARD).stateBackground(1, GTGuiTextures.BUTTON_STANDARD)
+                        .stateOverlay(0, GTGuiTextures.OVERLAY_BUTTON_IMPORT).stateOverlay(1, GTGuiTextures.OVERLAY_BUTTON_EXPORT)
+                        .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.smart.io.false"))
+                        .addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.smart.io.true"))
+                        .size(18, 18).pos(startX, startY))
+                    .child(new com.cleanroommc.modularui.widgets.ButtonWidget<>()
+                        .syncHandler(new InteractionSyncHandler().setOnMousePressed(mouseData -> cover.coverData.formulaprev = "\0\0\0\0"))
+                        .background(GTGuiTextures.BUTTON_STANDARD, GTGuiTextures.OVERLAY_SLOT_RECYCLE)
+                        .tooltipBuilder(t -> t.addLine(LangManager.translateToLocal("programmable_hatches.cover.smart.reset")))
+                        .size(16, 16).pos(startX + spaceX * 6, startY))
+                    .child(new com.cleanroommc.modularui.widgets.CycleButtonWidget()
+                        .stateCount(2)
+                        .value((IIntValue<?>) new IntSyncValue(() -> cover.coverData.mode, v -> { cover.coverData.mode = v; cover.coverData.formulaprev = "\0\0\0\0"; }).allowC2S())
+                        .stateBackground(0, GTGuiTextures.BUTTON_STANDARD).stateBackground(1, GTGuiTextures.BUTTON_STANDARD)
+                        .stateOverlay(0, GTGuiTextures.OVERLAY_BUTTON_IMPORT).stateOverlay(1, GTGuiTextures.OVERLAY_BUTTON_EXPORT)
+                        .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.smart.mode.0"))
+                        .addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.smart.mode.1"))
+                        .size(18, 18).pos(startX, startY + spaceY))
+                    .child(new com.cleanroommc.modularui.widgets.CycleButtonWidget()
+                        .stateCount(2)
+                        .value((IIntValue<?>) new IntSyncValue(() -> cover.coverData.dyn ? 1 : 0, v -> { cover.coverData.dyn = v != 0; cover.coverData.formulaprev = "~~~~~"; }).allowC2S())
+                        .stateBackground(0, GTGuiTextures.BUTTON_STANDARD).stateBackground(1, GTGuiTextures.BUTTON_STANDARD)
+                        .stateOverlay(0, GTGuiTextures.OVERLAY_BUTTON_CROSS).stateOverlay(1, GTGuiTextures.OVERLAY_BUTTON_CHECKMARK)
+                        .addTooltip(0, LangManager.translateToLocal("programmable_hatches.cover.smart.dyn.0"))
+                        .addTooltip(1, LangManager.translateToLocal("programmable_hatches.cover.smart.dyn.1"))
+                        .size(18, 18).pos(startX, startY + spaceY * 3))
+                    .child(new com.cleanroommc.modularui.widgets.textfield.TextFieldWidget()
+                        .value(new StringSyncValue(() -> cover.coverData.formula, v -> cover.coverData.formula = v).allowC2S())
+                        .setTextColor(com.cleanroommc.modularui.utils.Color.WHITE.main)
+                        .background(GTGuiTextures.BACKGROUND_TEXT_FIELD)
+                        .size(spaceX * 3, 12).pos(startX + spaceX, startY + spaceY * 2))
+                    .child(new ParentWidget<>()
+                        .background(formulaImg)
+                        .tooltipBuilder(t -> {
+                            t.addLine(LangManager.translateToLocal("programmable_hatches.cover.smart.tips.0"));
+                            t.addLine(LangManager.translateToLocal("programmable_hatches.cover.smart.tips.1"));
+                        })
+                        .size(14 * 4, 14).pos(startX + spaceX, startY + spaceY))
+                    .child(new com.cleanroommc.modularui.widgets.ButtonWidget<>()
+                        .onMousePressed(mouseButton -> {
+                            if (mouseButton == 0) {
+                                if (!probeHandler.isPanelOpen()) probeHandler.openPanel();
+                                return true;
+                            }
+                            return false;
+                        })
+                        .background(GTGuiTextures.BUTTON_STANDARD, com.cleanroommc.modularui.drawable.UITexture
+                            .fullImage(GregTech.ID, "items/gt.metaitem.01/762"))
+                        .tooltipBuilder(t -> t.addLine(LangManager.translateToLocal("programmable_hatches.cover.smart.probe")))
+                        .size(16, 16).pos(startX + spaceX * 6, startY + spaceY * 2))
+                    .child(IKey.dynamic(() -> StatCollector.translateToLocal("programmable_hatches.cover.smart.io." + cover.coverData.io))
+                        .asWidget().pos(startX + spaceX, 4 + startY))
+                    .child(IKey.str("f =").asWidget().pos(startX, startY + spaceY * 2))
+                    .child(IKey.dynamic(() -> cover.coverData.detail).asWidget().pos(startX + spaceX, 4 + startY + spaceY * 3)));
+            }
+        };
+    }
+
     @Override
     public boolean onCoverRightClick(EntityPlayer aPlayer, float aX, float aY, float aZ) {
 
@@ -627,8 +750,10 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
 
     @Override
     public int getDefaultTickRate() {
-
-        return Math.max(tier[mtier][0], coverData.dyn ? 5 : 1);
+        // Cover's constructor calls this (via getDefaultTickRateAddition) before CoverBehaviorBase
+        // initializes coverData, so coverData can still be null here. A freshly placed cover has
+        // dyn == false anyway, and a loaded cover overwrites the tick rate from NBT afterwards.
+        return Math.max(tier[mtier][0], (coverData != null && coverData.dyn) ? 5 : 1);
     }
 
     @Override

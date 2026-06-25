@@ -1,5 +1,8 @@
 // Add any additional repositories for your dependencies here.
-
 repositories {
-
+    mavenLocal()
+    maven {
+        url = uri("https://jitpack.io")
+    }
 }
+

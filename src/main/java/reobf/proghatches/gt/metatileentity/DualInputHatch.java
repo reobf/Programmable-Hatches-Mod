@@ -2016,6 +2016,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 					.doesAddGregTechLogo(false).doesAddGhostCircuitSlot(allowSelectCircuit()).build();
 			return builder;
 		}
+		@SuppressWarnings("deprecation")
 		public void populateUI(ModularPanel builder,PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings) {
 
 
@@ -2109,7 +2110,9 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
 				fluidslot_pos_index = 3;
 			}
-			genSlotsFluid = () -> new Grid().coverChildren().pos(0, 0).mapTo(1*fluidSlotsPerRow(), mStoredFluid.length,
+			genSlotsFluid = 
+					mStoredFluid.length==0?()->new Grid().coverChildren().pos(0, 0):
+					() -> new Grid().coverChildren().pos(0, 0).mapTo(1*fluidSlotsPerRow(), mStoredFluid.length,
 					index -> new FluidSlot().syncHandler(new FluidSlotSyncHandler(mStoredFluid[index])));
 
 			ScrollWidget<?> list = new ScrollWidget<>(new VerticalScrollData()).size(18*fluidSlotsPerRow());

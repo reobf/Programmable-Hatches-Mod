@@ -23,6 +23,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.IInterfaceViewable;
 import appeng.core.localization.GuiText;
 import appeng.items.misc.ItemEncodedPattern;
+import appeng.items.misc.ItemEncodedUltimatePattern;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.item.AEItemStack;
 import reobf.proghatches.main.MyMod;
@@ -129,7 +130,7 @@ public class ItemFixer2 extends Item {
         is = is.copy();
         // item.getPatternForItem(is, null);
 
-        boolean fluid = is.getItem() instanceof ItemFluidEncodedPattern;
+        boolean fluid = is.getItem() instanceof ItemFluidEncodedPattern||is.getItem() instanceof ItemEncodedUltimatePattern;
         final NBTTagCompound encodedValue = (NBTTagCompound) is.getTagCompound();
         NBTTagList in = encodedValue.getTagList("in", 10);
         for (int x = 0; x < in.tagCount(); x++) {

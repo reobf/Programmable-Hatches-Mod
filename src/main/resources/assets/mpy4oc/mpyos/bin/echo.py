@@ -1,0 +1,1 @@
+tty.print(" ".join(args))

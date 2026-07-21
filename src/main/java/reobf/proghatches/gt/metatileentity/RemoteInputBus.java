@@ -99,24 +99,16 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
             return;
         }
         try {
-            String s = aPlayer.getHeldItem()
-                .getTagCompound()
-                .getString("dataLines0");
-            s = s.replaceAll("§b|§r|§m", "");
-            s = s.replaceAll("(-){2,}", "");
-            s = s.replace(" ", "");
-            s = s.replace("X", "");
-            s = s.replace("Y", "");
-            s = s.replace("Z", "");
-            s = s.replace("D", "");
-
-            String[] splits = s.split(":");
-            int x = Integer.valueOf(splits[1].replace(",", ""));
-            int y = Integer.valueOf(splits[2].replace(",", ""));
-            int z = Integer.valueOf(splits[3].replace(",", ""));
-            int d = Integer.valueOf(splits[4].replace(",", ""));
+            net.minecraft.item.ItemStack held = aPlayer.getHeldItem();
+            int[] coords = held == null ? null
+                : reobf.proghatches.util.ProghatchesUtil.parseScannerCoords(held.getTagCompound());
+            if (coords == null) throw new Exception();
+            int x = coords[0];
+            int y = coords[1];
+            int z = coords[2];
             World w = this.getBaseMetaTileEntity()
                 .getWorld();
+            int d = coords.length >= 4 ? coords[3] : w.provider.dimensionId;
             if (d == w.provider.dimensionId) {
 
                 this.x = x;

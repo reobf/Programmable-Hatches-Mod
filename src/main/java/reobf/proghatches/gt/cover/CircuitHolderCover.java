@@ -147,6 +147,13 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
     protected @NotNull CoverBaseGui<?> getCoverGui() {
         return new CoverBaseGui<CircuitHolderCover>(this) {
             @Override
+            protected boolean doesBindPlayerInventory() {
+                // Cover GUIs hide the player inventory by default. This cover records circuits from the
+                // cursor stack, so the player must be able to pick items up inside the GUI -> show it.
+                return true;
+            }
+
+            @Override
             public void addUIWidgets(PanelSyncManager syncManager, Flow column, CoverGuiData data) {
                 ItemStack coverItem = cover.getTile().getCoverItemAtSide(cover.getSide());
                 final int limit = damageToLimit(coverItem == null ? 0 : coverItem.getItemDamage());
@@ -175,6 +182,7 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
                                     ar.remove(idx);
                                     cover.coverData.tag = ProghatchesUtil.ser(new NBTTagCompound(), ar.toArray(new ItemStack[0]), "circuit");
                                     cover.getTile().markDirty();
+                                    cover.getTile().issueCoverUpdate(cover.getSide());
                                 } else {
                                     ICoverable te = cover.getTile();
                                     if (te instanceof BaseMetaTileEntity) {
@@ -202,6 +210,7 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
                             ar.add(held);
                             cover.coverData.tag = ProghatchesUtil.ser(new NBTTagCompound(), ar.toArray(new ItemStack[0]), "circuit");
                             cover.getTile().markDirty();
+                            cover.getTile().issueCoverUpdate(cover.getSide());
                         }
                     }))
                     .background(GTGuiTextures.BUTTON_STANDARD, GTGuiTextures.OVERLAY_BUTTON_PLUS_LARGE)

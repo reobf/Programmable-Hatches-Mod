@@ -417,4 +417,58 @@ public class ProghatchesUtil {
 		
 		return   (aTier + 1) * (aTier + 1);
 	}
+
+	/**
+	 * Extracts block coordinates from a GregTech tricorder/scanner item's stored scan data, independent
+	 * of the client language. GT stores the scan either as plain strings ("dataLines"+i, older builds)
+	 * or as serialized chat components ("scanLine"+i, newer builds). The coordinate line
+	 * ("Position X: .. Y: .. Z: ..", optionally with a trailing dimension in older builds) is located by
+	 * its X/Y/Z markers, then its numbers are read directly. This way localized labels, full-width
+	 * colons, thousand separators and colour codes no longer break parsing.
+	 *
+	 * @return {x, y, z} or {x, y, z, dimension}, or null if no coordinate line could be found.
+	 */
+	public static int[] parseScannerCoords(NBTTagCompound tag) {
+		if (tag == null) return null;
+		int count = tag.getInteger("dataLinesCount");
+		if (count <= 0 || count > 128) count = 128;
+		java.util.regex.Pattern coordPat = java.util.regex.Pattern.compile(
+			".*[Xx][:\uFF1A]?-?\\d+.*[Yy][:\uFF1A]?-?\\d+.*[Zz][:\uFF1A]?-?\\d+.*",
+			java.util.regex.Pattern.DOTALL);
+		java.util.regex.Pattern numPat = java.util.regex.Pattern.compile("-?\\d+");
+		for (int i = 0; i < count; i++) {
+			String line = null;
+			// newer builds: serialized IChatComponent under key "s"
+			if (tag.hasKey("scanLine" + i)) {
+				try {
+					NBTTagCompound c = tag.getCompoundTag("scanLine" + i);
+					if (c.hasKey("s")) {
+						net.minecraft.util.IChatComponent comp = net.minecraft.util.IChatComponent.Serializer
+							.func_150699_a(c.getString("s"));
+						if (comp != null) line = comp.getFormattedText();
+					}
+				} catch (Exception ignore) {}
+			}
+			// older builds: plain formatted string
+			if (line == null && tag.hasKey("dataLines" + i)) line = tag.getString("dataLines" + i);
+			if (line == null || line.isEmpty()) continue;
+			// drop colour codes, separator dashes (2+), thousand separators and whitespace
+			String s = line.replaceAll("\u00A7.", "")
+				.replaceAll("-{2,}", "")
+				.replaceAll("[,\uFF0C\\s]", "");
+			if (!coordPat.matcher(s).matches()) continue;
+			java.util.regex.Matcher m = numPat.matcher(s);
+			java.util.ArrayList<Integer> nums = new java.util.ArrayList<>();
+			while (m.find()) {
+				try {
+					nums.add(Integer.parseInt(m.group()));
+				} catch (NumberFormatException ignore) {}
+			}
+			if (nums.size() < 3) continue;
+			if (nums.size() >= 4)
+				return new int[] { nums.get(0), nums.get(1), nums.get(2), nums.get(3) };
+			return new int[] { nums.get(0), nums.get(1), nums.get(2) };
+		}
+		return null;
+	}
 }

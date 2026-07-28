@@ -450,11 +450,11 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		return true;
 	}
 
-	@Override
+	/*@Override
 	public boolean justUpdated() {
 
 		return false;
-	}
+	}*/
 
 	@SuppressWarnings("rawtypes")
 	public final static Iterator emptyItr = new Iterator() {

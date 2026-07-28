@@ -1436,10 +1436,10 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
     FluidStack[] f_display = new FluidStack[16];
     long[] f_saved = new long[16];
 
-    @Override
+    /*@Override
     public boolean justUpdated() {
         return false;
-    }
+    }*/
 
     @Override
     public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {

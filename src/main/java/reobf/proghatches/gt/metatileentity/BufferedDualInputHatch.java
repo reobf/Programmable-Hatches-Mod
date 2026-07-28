@@ -1569,12 +1569,12 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 	boolean justHadNewItems;
 
-	@Override
+	/*@Override
 	public boolean justUpdated() {
 		boolean ret = justHadNewItems;
 		justHadNewItems = false;
 		return ret;
-	}
+	}*/
 
 	class PiorityBuffer implements Comparable<PiorityBuffer> {
 
@@ -2865,7 +2865,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 					,
 					s->{inv0.get(ind).lock=s;inv0.get(ind).clearRecipeIfNeeded();}
 					).allowC2S())
-                    .overlay(false, GTGuiTextures.OVERLAY_BUTTON_RECIPE_LOCKED_DISABLED)
+                    .overlay(false, GTGuiTextures.OVERLAY_BUTTON_RECIPE_UNLOCKED)
                     .overlay(true, GTGuiTextures.OVERLAY_BUTTON_RECIPE_LOCKED)
                     .size(16).pos(3+18*5, 3+18*3))
 			.tooltip(s->{

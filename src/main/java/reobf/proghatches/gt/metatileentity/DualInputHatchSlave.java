@@ -176,10 +176,10 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatchWithP
         return getMaster() != null && getMaster().supportsFluids();
     }
 
-    @Override
+   /* @Override
     public boolean justUpdated() {
         return getMaster() != null && getMaster().justUpdated();
-    }
+    }*/
 
     @SuppressWarnings("unchecked")
     public IDualInputHatch trySetMasterFromCoord(int x, int y, int z) {

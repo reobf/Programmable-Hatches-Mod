@@ -38,10 +38,10 @@ import cpw.mods.fml.relauncher.FMLLaunchHandler;
 
 public class MixinPlugin implements IMixinConfigPlugin {
 static{
-	
-	
-	
-      
+
+
+
+
 }
     public MixinPlugin() {
         System.out.println("xx");
@@ -193,6 +193,7 @@ public static boolean loaded;
         retLate.add("part2.MixinMultiPattern");
         // retLate.add("part2.MixinSplitDetect");
         retLate.add("part2.MixinMEBusOverride");
+        retLate.add("part2.MixinMEBusOverrideF");
         retLate.add("part2.MixinCraftingCondender");
         //retLate.add("part2.MixinVoidingHatch");
         retLate.add("part2.MixinCraftingV2");
@@ -217,31 +218,31 @@ public static boolean loaded;
 
             if (!"true".equals(pp.get("noPatternEncodingMixin"))) {
                 // if(ff)retLate.add("MixinPatternEncodingCiruitSpecialTreatment");
-            	
+
             	//  wo/ fluid
-                retLate.add("MixinPatternEncodingCiruitSpecialTreatment2"); 
+                retLate.add("MixinPatternEncodingCiruitSpecialTreatment2");
                 //  with fluid
                //legacy
                 retLate.add("part2.MixinPatternEncodingCiruitSpecialTreatmentNeo");
-                
-                
+
+
             }
             retLate.add("part2.MixinGTCopiedBlockTextureRender");
-        } ; 
+        } ;
         //retLate.add("part2.MixinFixSolidfier");
         retLate.add("part2.MixinOptimize");
         retLate.add("part2.MixinProcessLogicReset");
         retLate.add("cpu.MixinCache");
         retLate.add("cpu.MixinCPU");
         retLate.add("part2.MixinTerminalCtrlInvert");
-        
+
         return ret;
 
     }
 
     @Override
     public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-       
+
 
     }
 
@@ -250,9 +251,9 @@ public static boolean loaded;
 
     }
 
-    
+
 
     public static final Logger LOG = LogManager.getLogger("PHMixin");
-    
- 
+
+
 }

@@ -4,9 +4,7 @@
   "refmap": "mixins.programmablehatches.refmap.json",
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
-  "mixins": [
-    "part2.MixinMEBusOverrideF"
-  ],
+  "mixins": [],
   "client": [],
   "server": []
 }

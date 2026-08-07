@@ -276,12 +276,16 @@ public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelStat
         			neo.add(sp);
         		});
         		inv=neo.toArray(new ItemStack[0]);
+        		// the visible data stick set changed; sticks live in the ME network, not the GT inventory,
+        		// so onContentsChanged never fires for them - push the recipe check ourselves
+        		notifyWatchers();
         	return;
         }
         
         
         
         
+        ItemStack[] oldInv = inv;
         try {
             ArrayList<ItemStack> list = new ArrayList<>(
                 getProxy().getStorage()
@@ -311,6 +315,17 @@ public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelStat
 
         } catch (Exception w) {
             inv = new ItemStack[] {};
+        }
+        // full refresh: if the visible stick set actually changed, push a recipe check (see above)
+        if (oldInv == null || oldInv.length != inv.length) {
+            notifyWatchers();
+        } else {
+            for (int i = 0; i < inv.length; i++) {
+                if (!ItemStack.areItemStacksEqual(oldInv[i], inv[i])) {
+                    notifyWatchers();
+                    break;
+                }
+            }
         }
 
     }

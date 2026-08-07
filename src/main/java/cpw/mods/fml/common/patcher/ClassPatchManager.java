@@ -6,33 +6,32 @@ import java.util.jar.JarInputStream;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 
 import cpw.mods.fml.relauncher.Side;
-
+/**
+ * This is a dummy class to keep eclipse JDT compiler shut about complaining generated rfg sources.
+ * ClassPatchManager refers to Pack200.java which only exists on JDK8.
+ * If this java file causes some problems in IDEA or obfuscated env, try to exclude it or remove it.
+ * 
+ * */
 public class ClassPatchManager {
-    public static final ClassPatchManager INSTANCE = null;
+	public static final ClassPatchManager INSTANCE = new ClassPatchManager();
 
-    public static final boolean dumpPatched = false;
-    public static final boolean DEBUG = false;
+	private ClassPatchManager() {
+		//li.cil.repack.com.naef.jnlua.DefaultConverter h;
+	}
 
+	public byte[] getPatchedResource(String name, String mappedName, LaunchClassLoader loader) throws IOException {
+		throw new RuntimeException("stub");
+	}
 
+	public byte[] applyPatch(String name, String mappedName, byte[] inputData) {
+		throw new RuntimeException("stub");
+	}
 
-    public byte[] getPatchedResource(String name, String mappedName, LaunchClassLoader loader) throws IOException
-    {
-    	  return null;
-    }
-    public byte[] applyPatch(String name, String mappedName, byte[] inputData)
-    {
-      
-        return null;
-    }
+	public void setup(Side side) {
+		throw new RuntimeException("stub");
+	}
 
-    public void setup(Side side)
-    {
-       
-    }
-
-    private ClassPatch readPatch(JarEntry patchEntry, JarInputStream jis)
-    {
-      
-        return null;
-    }
+	private ClassPatch readPatch(JarEntry patchEntry, JarInputStream jis) {
+		throw new RuntimeException("stub");
+	}
 }

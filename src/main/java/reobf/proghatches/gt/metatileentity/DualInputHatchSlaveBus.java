@@ -86,6 +86,12 @@ public class DualInputHatchSlaveBus<T extends MetaTileEntity & IDualInputHatch &
         if (aTimer % 100 == 0 && masterSet && getMaster() == null) {
             trySetMasterFromCoord(masterX, masterY, masterZ);
         }
+        // Contents are proxied straight from the master, so local change detection never fires; nudge
+        // watching controllers periodically now that GT's interval recipe polling is gone (no-op when
+        // nothing is watching).
+        if (aBaseMetaTileEntity.isServerSide() && aTimer % 32 == 0 && getMaster() != null) {
+            notifyWatchers();
+        }
     }
 
     @Override

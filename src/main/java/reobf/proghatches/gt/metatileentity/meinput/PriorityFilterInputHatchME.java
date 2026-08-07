@@ -382,7 +382,12 @@ public class PriorityFilterInputHatchME extends MTEHatchInputME
     @Override
     public void setConfigFluid(MTEHatchInputME thiz, int index, FluidStack bruh, FluidStack itemStack2) {
     	try {
+			FluidStack prevCfg = this.slots[index] == null ? null : this.slots[index].config;
 			thiz.setSlotConfig(index, bruh);
+			// the mixin replaces GT's refresh (which would set justHadNewFluids), so push here on change
+			if (!(prevCfg == null ? bruh == null : (bruh != null && prevCfg.isFluidEqual(bruh)))) {
+				notifyWatchers();
+			}
 		
 			if(itemStack2!=null){
 				Slot ww= this.slots[index];

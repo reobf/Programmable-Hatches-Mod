@@ -1182,6 +1182,14 @@ public class BufferedDualInputHatch extends DualInputHatch
 		}
 
 		dirty = false;
+
+		// GT (#7185) removed interval recipe polling: hatches must push. justHadNewItems is set when new
+		// items/fluids land in the internal buffers (AE pushes, scheduled arrivals, slot moves), which
+		// bypasses hasInventoryBeenModified(), so notify registered controllers here explicitly.
+		if (justHadNewItems) {
+			notifyWatchers();
+			justHadNewItems = false;
+		}
 	}
 
 	private void moveTo(Object[] a, Object[] b) {
@@ -1568,13 +1576,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 	}
 
 	boolean justHadNewItems;
-
-	/*@Override
-	public boolean justUpdated() {
-		boolean ret = justHadNewItems;
-		justHadNewItems = false;
-		return ret;
-	}*/
 
 	class PiorityBuffer implements Comparable<PiorityBuffer> {
 
@@ -2451,6 +2452,10 @@ public class BufferedDualInputHatch extends DualInputHatch
 					recordRecipe(buff);
 					buff.onChange();
 				}
+				((BufferedDualInputHatch) master).justHadNewItems = true;
+			}
+			if (master.getBaseMetaTileEntity() instanceof gregtech.api.interfaces.tileentity.IHasInventory inv) {
+				inv.markInventoryBeenModified();
 			}
 			return true;// hoo ray
 		}

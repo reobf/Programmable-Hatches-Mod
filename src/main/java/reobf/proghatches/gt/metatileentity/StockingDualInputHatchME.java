@@ -137,7 +137,8 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
 public class StockingDualInputHatchME extends MTEHatchInputBus
-    implements IDualInputHatchWithPattern, IRecipeProcessingAwareDualHatch, IPowerChannelState, IGridProxyable, IPHDual,IDataCopyable {
+    implements IDualInputHatchWithPattern, IRecipeProcessingAwareDualHatch, IPowerChannelState, IGridProxyable, IPHDual,IDataCopyable,
+    appeng.api.networking.storage.IStackWatcherHost {
 
     private static final int CONFIG_WINDOW_ID = 88880;
 
@@ -1215,6 +1216,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
         if (getBaseMetaTileEntity().isServerSide()) {
             program();
+            if (aTimer % 64 == 0) configureAEWatchers(); // marks can change via GUI/autopull/NBT paste
             interval=Math.max(1, interval);
             if (aTimer % interval == 0 && autoPullItemList) {
                 refreshItemList();
@@ -1270,6 +1272,50 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
             }
 
         } catch (GridAccessException e) {}
+    }
+
+    // ===== #7185 event adaptation =====
+    // This hatch samples the ME network lazily in startRecipeProcessing(), so nothing schedules a
+    // recipe check when the network gains matching items. Mirror GT's stocking bus: register an AE
+    // stack watcher for the configured marks and give watching controllers a THROTTLED nudge on change.
+    private appeng.api.networking.storage.IStackWatcher phStackWatcher;
+    private final java.util.List<gregtech.common.tileentities.machines.IHatchWatcher> phWatcherMirror = new java.util.ArrayList<>();
+
+    @Override
+    public void addWatcher(gregtech.common.tileentities.machines.IHatchWatcher watcher) {
+        super.addWatcher(watcher);
+        phWatcherMirror.add(watcher);
+    }
+
+    @Override
+    public void removeWatcher(gregtech.common.tileentities.machines.IHatchWatcher watcher) {
+        super.removeWatcher(watcher);
+        phWatcherMirror.remove(watcher);
+    }
+
+    @Override
+    public void updateWatcher(appeng.api.networking.storage.IStackWatcher newWatcher) {
+        phStackWatcher = newWatcher;
+        configureAEWatchers();
+    }
+
+    private void configureAEWatchers() {
+        if (phStackWatcher == null) return;
+        phStackWatcher.clear();
+        for (int i = 0; i < 16; i++) {
+            if (i_mark[i] != null) phStackWatcher.add(AEItemStack.create(i_mark[i]));
+            if (f_mark[i] != null) phStackWatcher.add(AEFluidStack.create(f_mark[i]));
+        }
+    }
+
+    @Override
+    public void onStackChange(appeng.api.storage.data.IItemList o, appeng.api.storage.data.IAEStack fullStack,
+        appeng.api.storage.data.IAEStack diffStack, BaseActionSource src, appeng.api.storage.StorageChannel chan) {
+        if (diffStack != null && diffStack.getStackSize() > 0) {
+            for (gregtech.common.tileentities.machines.IHatchWatcher w : phWatcherMirror) {
+                w.scheduleRecipeCheck(gregtech.common.tileentities.machines.RecipeCheckReason.THROTTLED);
+            }
+        }
     }
 
     private BaseActionSource getRequestSource() {
@@ -1435,11 +1481,6 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
     }
     FluidStack[] f_display = new FluidStack[16];
     long[] f_saved = new long[16];
-
-    /*@Override
-    public boolean justUpdated() {
-        return false;
-    }*/
 
     @Override
     public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {

@@ -605,6 +605,17 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
     boolean blocked;
 
     @Override
+    public void onPostTick(gregtech.api.interfaces.tileentity.IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
+        super.onPostTick(aBaseMetaTileEntity, aTimer);
+        // Contents are proxied from the linked remote inventory (only visible while processingRecipe), so
+        // local change detection never fires for them; nudge watching controllers periodically now that
+        // GT's interval recipe polling is gone (no-op when nothing is watching or nothing is linked).
+        if (aBaseMetaTileEntity.isServerSide() && aTimer % 32 == 0 && linked) {
+            notifyWatchers();
+        }
+    }
+
+    @Override
     public void startRecipeProcessing() {
         processingRecipe = true;
         if (false == using.add(new DimensionalCoord((TileEntity) this.getBaseMetaTileEntity()))) {

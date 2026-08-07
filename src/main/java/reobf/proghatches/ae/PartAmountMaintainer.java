@@ -22,6 +22,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 import com.glodblock.github.common.item.ItemFluidDrop;
+
 import com.glodblock.github.util.BlockPos;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -72,7 +73,6 @@ import appeng.crafting.CraftingLink;
 import appeng.items.tools.ToolMemoryCard;
 import appeng.me.GridAccessException;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
-import appeng.me.storage.MEMonitorIFluidHandler;
 import appeng.me.storage.MEMonitorIInventory;
 import appeng.parts.PartBasicState;
 import appeng.parts.p2p.PartP2PRedstone;
@@ -281,14 +281,13 @@ public class PartAmountMaintainer extends PartBasicState
             if (inv != null) {
 
                 IItemList list;
-                if (inv instanceof MEMonitorIInventory) {
+                	if (inv instanceof MEMonitorIInventory) {
                     ((MEMonitorIInventory) inv).onTick();
+                    list = ((MEMonitorIInventory) inv).getAvailableItems(ch.createList());
 
-                } else if (inv instanceof MEMonitorIFluidHandler) {
-                    ((MEMonitorIFluidHandler) inv).onTick();
+                } else {
+                    list = inv.getAvailableItems(ch.createList());
                 }
-
-                list = inv.getAvailableItems(ch.createList());
 
                 end: {
                     IAEStack opt = maybe(ch);
@@ -342,7 +341,7 @@ public class PartAmountMaintainer extends PartBasicState
                             	}else {
                             		//Someone implemented the handler terribly, there's nothing I can do!
                             	}
-
+                            	
                         }
 
                         } catch (GridAccessException e) {}
@@ -385,7 +384,7 @@ public class PartAmountMaintainer extends PartBasicState
 	                            	}else {
 	                            		//Someone implemented the handler terribly, there's nothing I can do!
 	                            	}
-
+	                            	
                             }
 
                         } catch (GridAccessException e) {}
@@ -848,7 +847,7 @@ public class PartAmountMaintainer extends PartBasicState
                 break exit;
             }
             fs = new FluidStack(f, fs.amount);
-            mark[0] = GTUtility.getFluidDisplayStack(f);
+            mark[0]=GTUtility.getFluidDisplayStack(f);
         }
 
         upgrade[0] = ItemStack.loadItemStackFromNBT(data.getCompoundTag("upgrade"));
@@ -942,7 +941,7 @@ public class PartAmountMaintainer extends PartBasicState
 
         if (ch == AEItemStackType.ITEM_STACK_TYPE) return maybeItem();
         if (ch == AEFluidStackType.FLUID_STACK_TYPE) return maybeFluid();
-        throw new RuntimeException("What the heck");
+       throw new RuntimeException("What the heck");
     }
 
     public AEItemStack maybeItem() {
@@ -994,7 +993,7 @@ public class PartAmountMaintainer extends PartBasicState
     private IMEMonitor getStorage(IStorageGrid g, IAEStackType ch) {
         if (ch == AEItemStackType.ITEM_STACK_TYPE) return g.getItemInventory();
         if (ch == AEFluidStackType.FLUID_STACK_TYPE) return g.getFluidInventory();
-        throw new RuntimeException("What the heck");
+           throw new RuntimeException("What the heck");
 
     }
 

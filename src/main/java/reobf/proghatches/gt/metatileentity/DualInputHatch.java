@@ -450,12 +450,6 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		return true;
 	}
 
-	/*@Override
-	public boolean justUpdated() {
-
-		return false;
-	}*/
-
 	@SuppressWarnings("rawtypes")
 	public final static Iterator emptyItr = new Iterator() {
 
@@ -942,6 +936,21 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		if (aBaseMetaTileEntity.getWorld().isRemote)
 			return;
 
+		// item-slot changes are pushed by MTEHatchInputBus.onPostTick's detectInventoryChange() above;
+		// fluid fills bypass that flag (custom tanks), so push them here, once per tick at most.
+		if (fluidJustFilled) {
+			notifyWatchers();
+			fluidJustFilled = false;
+		}
+
+		// The shared ME upgrade only reads the adjacent interface's network during recipe processing;
+		// this hatch is not a grid node, so restocks of marked items/fluid are not observable from here.
+		// Nudge watching controllers periodically while marks are configured - THROTTLED, the same level
+		// GT's own stocking hatches use for ME restocks. No-op when nothing is watching or nothing is marked.
+		if (aTick % 32 == 0 && sharedHasMarks()) {
+			notifyWatchersThrottled();
+		}
+
 		if (program)
 			programLoose();
 
@@ -964,6 +973,47 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 	}
 
 	public void onFill() {
+		fluidJustFilled = true;
+	}
+
+	/** Set by ListeningFluidTank fills; fluids bypass hasInventoryBeenModified(), see onPostTick. */
+	protected boolean fluidJustFilled;
+
+	/** Local mirror of registered watchers (MTEHatch's own list is private) so THROTTLED pushes are possible. */
+	private final java.util.List<gregtech.common.tileentities.machines.IHatchWatcher> watcherMirror = new ArrayList<>();
+
+	@Override
+	public void addWatcher(gregtech.common.tileentities.machines.IHatchWatcher watcher) {
+		super.addWatcher(watcher);
+		watcherMirror.add(watcher);
+	}
+
+	@Override
+	public void removeWatcher(gregtech.common.tileentities.machines.IHatchWatcher watcher) {
+		super.removeWatcher(watcher);
+		watcherMirror.remove(watcher);
+	}
+
+	/** Like notifyWatchers(), but throttleable by the post-failure cooldown (see RecipeCheckReason.THROTTLED). */
+	protected void notifyWatchersThrottled() {
+		for (int i = 0; i < watcherMirror.size(); i++) {
+			watcherMirror.get(i).scheduleRecipeCheck(gregtech.common.tileentities.machines.RecipeCheckReason.THROTTLED);
+		}
+	}
+
+	/** Whether the shared ME upgrade has any item/fluid marked for network pulling. */
+	protected boolean sharedHasMarks() {
+		if (shared.isDummy())
+			return false;
+		if (off)
+			return false;
+		for (ItemStack is : shared.markedItems)
+			if (is != null)
+				return true;
+		for (FluidStack fs : shared.markedFluid)
+			if (fs != null)
+				return true;
+		return false;
 	}
 
 	public int fluidLimit = 1;
@@ -1948,6 +1998,8 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 	public void trunONME() {
 
 		off = false;
+		// re-enabling the shared ME contents makes new inputs visible to watching controllers
+		notifyWatchers();
 	}
 
 	@Override
@@ -2303,6 +2355,15 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 				public int getSlotStackLimit() {
 					return 0;
 				}
+
+				@Override
+				public void onSlotChanged() {
+					super.onSlotChanged();
+					// extra circuit slots live outside the GT inventory, so hasInventoryBeenModified()
+					// never fires for them; push the config change to watching controllers directly
+					// (watcher list is empty on the client side, so this is server-only in effect)
+					notifyWatchers();
+				}
 			}).pos(0, 0);
 			// is.getSyncHandler().isPhantom();
 
@@ -2329,6 +2390,14 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 				@Override
 				public int getSlotStackLimit() {
 					return 0;
+				}
+
+				@Override
+				public void onSlotChanged() {
+					super.onSlotChanged();
+					// marking/unmarking an ME item changes the effective inputs; the mark list is not
+					// part of the GT inventory, so push the change to watching controllers directly
+					notifyWatchers();
 				}
 			}).pos(0, 0);
 
@@ -2378,7 +2447,12 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 
 			};
-			is.syncHandler(new FluidSlotSyncHandler(new FluidStackTank(()->inv.get(index), s->inv.set(index, s), 1))
+			is.syncHandler(new FluidSlotSyncHandler(new FluidStackTank(()->inv.get(index), s->{
+				inv.set(index, s);
+				// marking/unmarking an ME fluid changes the effective inputs; push the config change
+				// to watching controllers (watcher list is empty client-side, so server-only in effect)
+				notifyWatchers();
+			}, 1))
 			.phantom(true));
 			return is;
 		}

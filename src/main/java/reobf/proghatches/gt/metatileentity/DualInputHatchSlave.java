@@ -176,10 +176,24 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatchWithP
         return getMaster() != null && getMaster().supportsFluids();
     }
 
-   /* @Override
-    public boolean justUpdated() {
-        return getMaster() != null && getMaster().justUpdated();
-    }*/
+    /** Local mirror of registered watchers (MTEHatch's own list is private) for forwarding to the master. */
+    private final java.util.List<gregtech.common.tileentities.machines.IHatchWatcher> forwardedWatchers = new java.util.ArrayList<>();
+
+    @Override
+    public void addWatcher(gregtech.common.tileentities.machines.IHatchWatcher watcher) {
+        super.addWatcher(watcher);
+        forwardedWatchers.add(watcher);
+        T m = getMaster();
+        if (m != null) m.addWatcher(watcher);
+    }
+
+    @Override
+    public void removeWatcher(gregtech.common.tileentities.machines.IHatchWatcher watcher) {
+        super.removeWatcher(watcher);
+        forwardedWatchers.remove(watcher);
+        T m = getMaster();
+        if (m != null) m.removeWatcher(watcher);
+    }
 
     @SuppressWarnings("unchecked")
     public IDualInputHatch trySetMasterFromCoord(int x, int y, int z) {
@@ -196,7 +210,11 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatchWithP
         masterY = y;
         masterZ = z;
         masterSet = true;
+        boolean changed = master != metaTileEntity;
         master = (T) metaTileEntity;
+        if (changed) {
+            for (gregtech.common.tileentities.machines.IHatchWatcher w : forwardedWatchers) master.addWatcher(w);
+        }
         return master;
     }
 

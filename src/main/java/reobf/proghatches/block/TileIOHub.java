@@ -1068,6 +1068,14 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
             return NetworkControl$class.getCraftables(this, context, args);
         }
 
+        // OpenComputers 1.12.49 added getCraftable(filter) to the NetworkControl trait; delegate to the
+        // trait implementation like every other NetworkControl method here.
+        @Callback(
+            doc = "function(filter:table):userdata -- Get one item recipe matching the filter. Can be used to issue crafting requests.")
+        public Object[] getCraftable(final Context context, final Arguments args) {
+            return NetworkControl$class.getCraftable(this, context, args);
+        }
+
         @APIType({ "item", "ae" })
         @Callback(doc = "function([filter:table]):table -- Get a list of the stored items in the network.")
         public Object[] getItemsInNetwork(final Context context, final Arguments args) {
@@ -1540,19 +1548,13 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		@Override
 		public Object[] setFluidEventSubscription(Context arg0, Arguments arg1) {
 			// TODO Auto-generated method stub
-			return NetworkControl$class.setFluidEventSubscription(this, arg0, arg1);
+			return NetworkControl$class.setFluidEventSubscription(null, arg0, arg1);
 		}
 
 		@Override
 		public Object[] setItemEventSubscription(Context arg0, Arguments arg1) {
 			// TODO Auto-generated method stub
-			return NetworkControl$class.setItemEventSubscription(this, arg0, arg1);
-		}
-
-		@Override
-		public Object[] getCraftable(Context arg0, Arguments arg1) {
-			// TODO Auto-generated method stub
-			return NetworkControl$class.getCraftable(this, arg0, arg1);
+			return NetworkControl$class.setItemEventSubscription(null, arg0, arg1);
 		}
 
         // end of oc

@@ -388,7 +388,13 @@ public class PriorityFilterInputBusME extends MTEHatchInputBusME
 	public  void setConfigItem(MTEHatchInputBusME thiz, int index, ItemStack bruh,
 			ItemStack itemStack2) {
 		try {
+				ItemStack prevCfg = this.slots[index] == null ? null : this.slots[index].config;
 				thiz.setSlotConfig(index, bruh);
+				// the mixin replaces GT's refresh (which would set justHadNewItems), so push here on change
+				if (!(prevCfg == null ? bruh == null
+						: (bruh != null && prevCfg.isItemEqual(bruh) && ItemStack.areItemStackTagsEqual(prevCfg, bruh)))) {
+					notifyWatchers();
+				}
 			
 				if(itemStack2!=null){
 					Slot ww= this.slots[index];

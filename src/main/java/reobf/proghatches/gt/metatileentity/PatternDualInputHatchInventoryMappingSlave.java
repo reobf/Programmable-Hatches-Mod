@@ -1141,6 +1141,13 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                 }
                 // ((BufferedDualInputHatch) master).classifyForce();
             }
+            // the writes above bypass setInventorySlotContents/fill, so raise the wake flags manually
+            if (master instanceof BufferedDualInputHatch) {
+                ((BufferedDualInputHatch) master).justHadNewItems = true;
+            }
+            if (master.getBaseMetaTileEntity() instanceof gregtech.api.interfaces.tileentity.IHasInventory inv) {
+                inv.markInventoryBeenModified();
+            }
             return true;// hoo ray
         }
 
@@ -1693,6 +1700,9 @@ public boolean playerConfigClient;
 
             if (master instanceof BufferedDualInputHatch) {
                 ((BufferedDualInputHatch) master).justHadNewItems = true;
+            }
+            if (master.getBaseMetaTileEntity() instanceof gregtech.api.interfaces.tileentity.IHasInventory inv) {
+                inv.markInventoryBeenModified();
             }
             if (master instanceof PatternDualInputHatch) {
                 ((PatternDualInputHatch) master).saved += suc;

@@ -193,6 +193,7 @@ public static boolean loaded;
         retLate.add("part2.MixinMultiPattern");
         // retLate.add("part2.MixinSplitDetect");
         retLate.add("part2.MixinMEBusOverride");
+        retLate.add("part2.MixinMEBusOverrideF");
         retLate.add("part2.MixinCraftingCondender");
         //retLate.add("part2.MixinVoidingHatch");
         retLate.add("part2.MixinCraftingV2");

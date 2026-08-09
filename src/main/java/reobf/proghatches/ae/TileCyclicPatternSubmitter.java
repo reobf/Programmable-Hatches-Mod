@@ -519,6 +519,14 @@ public class TileCyclicPatternSubmitter extends TileEntity
         return items;
     }
 
+    /** New-signature overload actually called by CraftingLink; default would silently void products (see #319). */
+    @Override
+    public appeng.api.storage.data.IAEStack<?> injectCraftedItems(ICraftingLink link,
+        appeng.api.storage.data.IAEStack<?> items, Actionable mode) {
+
+        return items;
+    }
+
     @Override
     public void jobStateChange(ICraftingLink link) {
         /*

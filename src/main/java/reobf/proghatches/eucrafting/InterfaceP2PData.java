@@ -347,6 +347,14 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
         return this.duality.injectCraftedItems(link, items, mode);
     }
 
+    /** New-signature overload actually called by CraftingLink; default would silently void products (see #319). */
+    @Override
+    public appeng.api.storage.data.IAEStack<?> injectCraftedItems(ICraftingLink link,
+        appeng.api.storage.data.IAEStack<?> items, Actionable mode) {
+
+        return this.duality.injectCraftedItems(link, items, mode);
+    }
+
     @Override
     public void jobStateChange(ICraftingLink link) {
         this.duality.jobStateChange(link);

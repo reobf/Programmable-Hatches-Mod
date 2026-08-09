@@ -257,6 +257,21 @@ this.parent=parent;source = new MachineSource(this.parent);
         return last == null ? ImmutableSet.of() : ImmutableSet.of(last);
     }
 boolean returnAll=true;
+
+    /**
+     * New-signature overload actually called by CraftingLink after AE2U's IAEStack generalization; the
+     * interface default returns null ("accepted everything") and would silently void products (see #319).
+     * Route item stacks to the legacy logic below, reject anything else so it falls through to storage.
+     */
+    @Override
+    public appeng.api.storage.data.IAEStack<?> injectCraftedItems(ICraftingLink link,
+        appeng.api.storage.data.IAEStack<?> items, Actionable mode) {
+        if (items instanceof IAEItemStack) {
+            return injectCraftedItems(link, (IAEItemStack) items, mode);
+        }
+        return items;
+    }
+
     @Override
     public IAEItemStack injectCraftedItems(ICraftingLink link, IAEItemStack items, Actionable mode) {
         if (mode == Actionable.SIMULATE) {

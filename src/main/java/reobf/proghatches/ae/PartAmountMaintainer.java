@@ -1015,6 +1015,18 @@ public class PartAmountMaintainer extends PartBasicState
         return items;
     }
 
+    /**
+     * AE2U generalized ICraftingRequester to IAEStack and CraftingLink now dispatches to THIS overload; the
+     * interface default returns null ("accepted everything"), which silently VOIDED all crafted products
+     * ordered by this part (#319). Reject everything so products fall through the pipeline into storage.
+     */
+    @Override
+    public appeng.api.storage.data.IAEStack<?> injectCraftedItems(ICraftingLink link,
+        appeng.api.storage.data.IAEStack<?> items, Actionable mode) {
+
+        return items;
+    }
+
     @Override
     public void jobStateChange(ICraftingLink link) {
 

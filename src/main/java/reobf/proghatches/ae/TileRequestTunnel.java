@@ -284,6 +284,14 @@ public class TileRequestTunnel extends AENetworkTile
         return internal.injectCraftedItems(link, items, mode);
     }
 
+    /** New-signature overload actually called by CraftingLink; default would silently void products (see #319). */
+    @Override
+    public appeng.api.storage.data.IAEStack<?> injectCraftedItems(ICraftingLink link,
+        appeng.api.storage.data.IAEStack<?> items, Actionable mode) {
+
+        return internal.injectCraftedItems(link, items, mode);
+    }
+
     HashMap<StorageChannel, IMEInventory> inv = new HashMap();
     HashMap<StorageChannel, Integer> handlerHash = new HashMap();
     // public ItemStack[] mark=new ItemStack[1];

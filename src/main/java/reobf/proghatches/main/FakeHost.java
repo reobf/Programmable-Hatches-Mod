@@ -94,6 +94,14 @@ public class FakeHost extends TileEntity implements IInterfaceHost, IUpgradeable
         return cover.injectCraftedItems(link, items, mode);
     }
 
+    /** New-signature overload actually called by CraftingLink; default would silently void products (see #319). */
+    @Override
+    public appeng.api.storage.data.IAEStack<?> injectCraftedItems(ICraftingLink link,
+        appeng.api.storage.data.IAEStack<?> items, Actionable mode) {
+
+        return cover.injectCraftedItems(link, items, mode);
+    }
+
     @Override
     public void jobStateChange(ICraftingLink link) {
         cover.jobStateChange(link);

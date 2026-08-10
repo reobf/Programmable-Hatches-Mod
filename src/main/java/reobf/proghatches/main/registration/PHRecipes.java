@@ -845,7 +845,10 @@ public class PHRecipes implements Runnable {
         }
 
         GTValues.RA.stdBuilder()
-            .itemInputs(Cover_Controller.get(1), Cover_AdvancedRedstoneReceiverInternal.get(1)
+            // GT #5415 (GTNH 2.9.0) deleted the shapeless External<->Internal toggle recipes, making
+            // Cover_AdvancedRedstoneReceiverInternal unobtainable. The External variant used to cost exactly
+            // the same (1:1 toggle), so it is a drop-in replacement. See issue #320.
+            .itemInputs(Cover_Controller.get(1), Cover_AdvancedRedstoneReceiver.get(1)
 
             )
             .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
@@ -874,8 +877,9 @@ public class PHRecipes implements Runnable {
             .itemInputs(
                 new ItemStack(GameRegistry.findItem("OpenComputers", "item"), 1, 33),
                 GTUtility.getIntegratedCircuit(15),
-                Cover_AdvancedRedstoneReceiverInternal.get(1),
-                Cover_AdvancedRedstoneTransmitterInternal.get(1))
+                // Internal variants are unobtainable since GT #5415; External ones cost the same (issue #320)
+                Cover_AdvancedRedstoneReceiver.get(1),
+                Cover_AdvancedRedstoneTransmitter.get(1))
             .fluidInputs(Materials.SolderingAlloy.getMolten(144 * 20))
             .itemOutputs(new ItemStack(MyMod.oc_redstone, 1)
 

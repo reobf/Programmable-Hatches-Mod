@@ -1548,13 +1548,13 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 		@Override
 		public Object[] setFluidEventSubscription(Context arg0, Arguments arg1) {
 			// TODO Auto-generated method stub
-			return NetworkControl$class.setFluidEventSubscription(null, arg0, arg1);
+			return NetworkControl$class.setFluidEventSubscription(this, arg0, arg1);
 		}
 
 		@Override
 		public Object[] setItemEventSubscription(Context arg0, Arguments arg1) {
 			// TODO Auto-generated method stub
-			return NetworkControl$class.setItemEventSubscription(null, arg0, arg1);
+			return NetworkControl$class.setItemEventSubscription(this, arg0, arg1);
 		}
 
         // end of oc

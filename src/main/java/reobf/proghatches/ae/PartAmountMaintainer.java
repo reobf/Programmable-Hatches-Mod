@@ -73,6 +73,7 @@ import appeng.crafting.CraftingLink;
 import appeng.items.tools.ToolMemoryCard;
 import appeng.me.GridAccessException;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
+import appeng.me.storage.MEMonitorIFluidHandler;
 import appeng.me.storage.MEMonitorIInventory;
 import appeng.parts.PartBasicState;
 import appeng.parts.p2p.PartP2PRedstone;
@@ -286,6 +287,12 @@ public class PartAmountMaintainer extends PartBasicState
                     list = ((MEMonitorIInventory) inv).getAvailableItems(ch.createList());
 
                 } else {
+                    // MEMonitorIFluidHandler.getAvailableItems() only reads a cached list; onTick() is the
+                    // only thing that re-polls the tank and refreshes that cache. Without this the bus sees
+                    // a frozen snapshot and stops maintaining after the first fill (issue #321).
+                    if (inv instanceof MEMonitorIFluidHandler) {
+                        ((MEMonitorIFluidHandler) inv).onTick();
+                    }
                     list = inv.getAvailableItems(ch.createList());
                 }
 

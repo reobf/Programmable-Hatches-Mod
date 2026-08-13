@@ -6,6 +6,8 @@
 Programmable Hatches Mod
 
 [![](https://github.com/reobf/Programmable-Hatches-Mod/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/reobf/Programmable-Hatches-Mod/actions/workflows/build-and-test.yml)
+
+[**灰机Wiki 文档**](https://gtnh.huijiwiki.com/wiki/PH:%E5%8F%AF%E7%BC%96%E7%A8%8B%E4%BB%93%E5%AE%A4)
 </div>
 
 ## 介绍
@@ -19,6 +21,14 @@ Programmable Hatches Mod
 或者自行备份后移除本mod后确认问题不是来自本mod，再向官方提交。
 
 提交issue必要时请附带复现方式与相关报错log。
+
+### 文档与Wiki
+
+本Mod在GTNH灰机Wiki上有详细的中文文档，包含各仓室的用法说明与示例：
+
+**<https://gtnh.huijiwiki.com/wiki/PH:%E5%8F%AF%E7%BC%96%E7%A8%8B%E4%BB%93%E5%AE%A4>**
+
+本README仅介绍主要特性，具体机器的详细用法请以Wiki与游戏内tooltips为准。
 
 ## MOD安装须知
 
@@ -186,7 +196,7 @@ Programmable Hatches Mod
 
 增加了少许Open Computer Mod的使用部件，例如能够访问GT高级无线红石的高级无线红石卡，提供矿典访问与数字和字符串ID转换的API卡等扩展，具体内容请在NEI搜索。
 
->更多内容请在游戏内探索，如果对于某些内容产生文本理解疑惑，可前去B站进行搜索相关视频教程。
+>更多内容请在游戏内探索，如果对于某些内容产生文本理解疑惑，可前去[灰机Wiki](https://gtnh.huijiwiki.com/wiki/PH:%E5%8F%AF%E7%BC%96%E7%A8%8B%E4%BB%93%E5%AE%A4)查阅文档，或前去B站进行搜索相关视频教程。
 
 ## 兼容性
 

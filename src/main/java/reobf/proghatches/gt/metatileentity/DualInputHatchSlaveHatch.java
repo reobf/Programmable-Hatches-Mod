@@ -44,6 +44,7 @@ import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.gt.metatileentity.util.polyfill.INeoDualInputInventory;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class DualInputHatchSlaveHatch<T extends MetaTileEntity & IDualInputHatch & IMetaTileEntity>
     extends MTEHatchMultiInput implements IRecipeProcessingAwareHatch, IDataCopyablePlaceHolder {
 

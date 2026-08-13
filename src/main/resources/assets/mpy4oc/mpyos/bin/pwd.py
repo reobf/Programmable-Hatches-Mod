@@ -1,1 +1,0 @@
-tty.print(sh.cwd)

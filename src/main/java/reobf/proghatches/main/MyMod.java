@@ -307,6 +307,9 @@ public class MyMod {
             .bus()
             .register(this);
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(reobf.proghatches.util.RemoteOpenHelper.INSTANCE);
+        // lazily wraps OmniOcular's catch-all Waila providers so IDoNotShowInOO MTEs stay clean
+        MinecraftForge.EVENT_BUS.register(new reobf.proghatches.util.OmniOcularSuppressor());
 
     }
 

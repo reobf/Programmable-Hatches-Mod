@@ -77,6 +77,7 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.main.Config;
 import tectech.thing.casing.BlockGTCasingsTT;
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class DualInputHachOC extends DualInputHatch
     implements reobf.proghatches.oc.IActualEnvironment, Environment, SidedEnvironment, IGridProxyable, IActionHost {
 

@@ -1,6 +1,5 @@
 package reobf.proghatches.gt.metatileentity;
 
-import java.lang.reflect.Method;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -41,6 +40,7 @@ import reobf.proghatches.gt.metatileentity.SuperChestME.UnlimitedWrapper;
 import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class NBTHatchMEFocus extends MTEBusInputFocus implements ICellContainer, IGridProxyable, IStoageCellUpdate {
 
     public NBTHatchMEFocus(int id, String name, String nameRegional) {
@@ -93,19 +93,6 @@ public class NBTHatchMEFocus extends MTEBusInputFocus implements ICellContainer,
         public UnlimitedWrapper() {
 
         }
-        public Method m;
-        {
-        	
-        	try {
-    			m=this.getClass().getMethod("isItemValidForUsageSlot", ItemStack.class);
-    		} catch (Exception e) {
-    		}
-        	
-          	try {
-    			m=this.getClass().getMethod("isItemValidForInputSlot", ItemStack.class);
-    		} catch (Exception e) {
-    		}
-        }
         @Override
         public IAEItemStack injectItems(IAEItemStack input, Actionable type, BaseActionSource src) {
             if (type != Actionable.SIMULATE) post();
@@ -113,12 +100,14 @@ public class NBTHatchMEFocus extends MTEBusInputFocus implements ICellContainer,
             if (input == null) {
                 return input;
             }
-            try {
-				if (!(boolean)m.invoke(this,input.getItemStack())) {
-				    return input;
-				}
-			} catch (Exception e) {
-			}
+            // Direct outer-instance validation. This used to be reflection resolved against
+            // this.getClass() (= the wrapper, which has neither isItemValidForUsageSlot nor
+            // isItemValidForInputSlot), so the handle stayed null, the NPE from m.invoke was
+            // swallowed by an empty catch, and the AE injection path accepted ANY item into the
+            // first usage slot. isItemValidForUsageSlot no longer exists in current GT at all.
+            if (!NBTHatchMEFocus.this.isItemValidForInputSlot(input.getItemStack())) {
+                return input;
+            }
 
             try {
                 long l = input.getStackSize();

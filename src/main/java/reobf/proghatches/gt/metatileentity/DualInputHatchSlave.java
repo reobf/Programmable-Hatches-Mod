@@ -47,6 +47,7 @@ import reobf.proghatches.gt.metatileentity.util.IPHDual;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatchWithPattern & IMetaTileEntity> extends MTEHatchInputBus
     implements IDualInputHatchWithPattern, IRecipeProcessingAwareDualHatch, IDataCopyablePlaceHolder {
 

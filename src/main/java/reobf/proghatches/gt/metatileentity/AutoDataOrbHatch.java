@@ -13,6 +13,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.MTEHatchElementalDataOrbHolder;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class AutoDataOrbHatch extends MTEHatchElementalDataOrbHolder {
 
     @Override

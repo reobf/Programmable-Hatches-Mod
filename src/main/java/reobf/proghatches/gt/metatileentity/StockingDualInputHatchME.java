@@ -136,6 +136,7 @@ import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class StockingDualInputHatchME extends MTEHatchInputBus
     implements IDualInputHatchWithPattern, IRecipeProcessingAwareDualHatch, IPowerChannelState, IGridProxyable, IPHDual,IDataCopyable,
     appeng.api.networking.storage.IStackWatcherHost {

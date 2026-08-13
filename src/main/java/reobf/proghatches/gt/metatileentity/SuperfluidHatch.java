@@ -10,6 +10,7 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import reobf.proghatches.gt.metatileentity.util.ListeningFluidTank;
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class SuperfluidHatch extends BufferedDualInputHatch {
 
     public SuperfluidHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
@@ -62,15 +63,6 @@ public class SuperfluidHatch extends BufferedDualInputHatch {
     }
 
     public void initTierBasedField() {
-
-        ArrayList<FluidTank> arr = new ArrayList<>();
-        for (int i = 0; i < 24; i++) {
-            arr.add(new ListeningFluidTank(10_000_000, this));
-
-        }
-
-        mStoredFluid = arr.toArray(new ListeningFluidTank[0]);
-
-        return;
+        buildFluidTanks(24, 10_000_000);
     }
 }

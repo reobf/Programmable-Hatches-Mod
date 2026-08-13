@@ -58,6 +58,7 @@ import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessingAwareHatch, IDataCopyablePlaceHolder {
 
     static public ArrayList<String> blacklist = new ArrayList<>();
@@ -197,116 +198,7 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
 
     }
 
-    @Override
-    public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-        // super.addUIWidgets(builder, buildContext);
-        builder.widget(TextWidget.dynamicString(() -> {
-
-            if (!linked) {
-                return LangManager.translateToLocal("programmable_hatches.remote.unlinked");
-            }
-
-            Optional<TileEntity> opt = getTile();
-            if (this.getBaseMetaTileEntity()
-                .getWorld()
-                .getChunkProvider()
-                .chunkExists(x >> 4, z >> 4) == false)
-                return LangManager.translateToLocal("programmable_hatches.remote.chunk");
-
-            if (opt.isPresent() == false) return LangManager.translateToLocal("programmable_hatches.remote.nothing");
-            else checkBlackList();
-            if (opt.get() instanceof IInventory == false) {
-                return LangManager.translateToLocal("programmable_hatches.remote.dummytarget");
-
-            }
-
-            return LangManager.translateToLocal("programmable_hatches.remote.ok");
-
-        }
-
-        )
-            .setSynced(true)
-            .setPos(5, 5));
-        ItemStackHandler is;
-        SlotWidget[] circuitslot = new SlotWidget[1];
-        builder.widget(
-            SlotGroup.ofItemHandler(is = new ItemStackHandler(17), 8)
-                .widgetCreator(s -> {
-                    SlotWidget sw = (SlotWidget) new SlotWidget(s).disableInteraction();
-
-                    if (s.getSlotIndex() == 16) {
-                        circuitslot[0] = sw;
-                    }
-
-                    return sw;
-                })
-                .phantom(true)
-                .startFromSlot(0)
-                .endAtSlot(16)
-                .build()
-                .setPos(3, 3 + 16));
-
-        circuitslot[0].setBackground(getGUITextureSet().getItemSlot(), GTUITextures.OVERLAY_SLOT_INT_CIRCUIT);
-
-        builder.widget(new SyncedWidget() {
-
-            int count;
-
-            @Override
-            public void detectAndSendChanges(boolean init) {
-                if (count-- <= 0) {
-                    count = 100;
-                } else return;
-
-                Optional<TileEntity> opt = getTile();
-                if (opt.isPresent()) {
-                    arr = null;
-                    List<ItemStack> list = opt.map(e -> filterTakable(e))
-                        .get();
-                    arr = null;
-
-                    for (int i = 0; i < is.getSlots() - 1; i++) {
-                        is.setStackInSlot(i, list.size() > i ? list.get(i) : null);
-                    }
-
-                    TileEntity gt = opt.orElse(null);
-                    if (gt != null && gt instanceof IGregTechTileEntity) {
-                        IMetaTileEntity meta = ((IGregTechTileEntity) gt).getMetaTileEntity();
-                        if (meta != null && (meta instanceof IConfigurationCircuitSupport)) {
-                            IConfigurationCircuitSupport c = (IConfigurationCircuitSupport) meta;
-                            is.setStackInSlot(16, meta.getStackInSlot(c.getCircuitSlot()));
-                        }
-                    }
-
-                } else {
-                    for (int i = 0; i < is.getSlots(); i++) {
-                        is.setStackInSlot(i, null);
-
-                    }
-
-                }
-            }
-
-            public void readOnClient(int id, PacketBuffer buf) throws IOException {}
-
-            public void readOnServer(int id, PacketBuffer buf) throws IOException {}
-        });
-
-        Widget w;
-        builder.widget(
-            w = new DrawableWidget().setDrawable(ModularUITextures.ICON_INFO)
-
-                .setPos(3 + 18 * 8 + 1, 3 + 18 * 2 + 1)
-                .setSize(16, 16)
-        // .addTooltip("xxxxxxx")
-        );
-
-        IntStream.range(0, Integer.valueOf(StatCollector.translateToLocal("programmable_hatches.gt.remotebus.tooltip")))
-            .forEach(
-                s -> w.addTooltip(LangManager.translateToLocal("programmable_hatches.gt.remotebus.tooltip." + +s)));
-
-        // buildContext.addCloseListener(() -> uiButtonCount = 0);
-    }
+    
 
     @Override
     public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
@@ -641,13 +533,16 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
     @Override
     public IItemHandlerModifiable getInventoryHandler() {
 
-        return new ItemStackHandler(0) {
+        // The circuit "slot" is addressed as getCircuitSlot()==Integer.MAX_VALUE by GT's ghost-circuit
+        // plumbing (GhostCircuitItemStackHandler does inventory.get/setStackInSlot(getCircuitSlot()));
+        // every index maps onto mInventory[0] here, and the validateSlotIndex override below only
+        // admits that sentinel index.
+        return new ItemStackHandler(1) {
 
             public void setSize(int size) {}
 
             @Override
             public void setStackInSlot(int slot, ItemStack stack) {
-                this.validateSlotIndex(slot);
                 mInventory[0] = GTUtility.copyAmount(0, stack);
             }
 
@@ -658,7 +553,6 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
 
             @Override
             public ItemStack getStackInSlot(int slot) {
-                this.validateSlotIndex(slot);
                 return mInventory[0];
             }
 
@@ -742,6 +636,248 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
         if (nbt.hasKey("z")) z = nbt.getInteger("z");
         if (nbt.hasKey("linked")) linked = nbt.getBoolean("linked");
         return true;
+    }
+
+
+    // ===================== MUI2 =====================
+    // The base MTEHatchInputBus GUI switched to MUI2, so the MUI1 preview UI above stopped being
+    // used (the stock bus GUI opened instead). Full custom panel: status line + read-only preview
+    // of the remote inventory (16 item slots + the target's circuit slot) + info tooltips.
+    @Override
+    public com.cleanroommc.modularui.screen.ModularPanel buildUI(com.cleanroommc.modularui.factory.PosGuiData data,
+        com.cleanroommc.modularui.value.sync.PanelSyncManager syncManager,
+        com.cleanroommc.modularui.screen.UISettings uiSettings) {
+        com.cleanroommc.modularui.screen.ModularPanel builder = gregtech.api.modularui2.GTGuis
+            .mteTemplatePanelBuilder(this, data, syncManager, uiSettings)
+            .doesAddGregTechLogo(false)
+            .doesAddGhostCircuitSlot(false)
+            .build();
+
+        // status decided server-side; only the lang KEY is synced so the client localizes it itself
+        com.cleanroommc.modularui.value.sync.StringSyncValue status =
+            new com.cleanroommc.modularui.value.sync.StringSyncValue(this::remoteStatusSynced);
+        syncManager.syncValue("remote_status", status);
+
+        // target rendered as its pick-block item; hover = server-evaluated WAILA tooltip
+        final reobf.proghatches.util.TargetBlockInfoSync targetInfo = new reobf.proghatches.util.TargetBlockInfoSync(
+            () -> this.getBaseMetaTileEntity() == null ? null
+                : this.getBaseMetaTileEntity()
+                    .getWorld(),
+            () -> linked ? new int[] { x, y, z } : null);
+        syncManager.syncValue("target_item", targetInfo);
+        builder.child(
+            targetInfo.createWidget()
+                .pos(5, 2));
+
+        builder.child(com.cleanroommc.modularui.api.drawable.IKey
+            .dynamic(() -> remoteStatusDisplay(status.getStringValue(), targetInfo))
+            .asWidget()
+            .pos(24, 5)
+            .size(getGUIWidth() - 29, 12));
+
+        // Highlight-target button: purely client-side, reuses AE2's interface-terminal highlighter.
+        builder.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>().onMousePressed(mouseButton -> {
+            highlightTargetClient(status.getStringValue());
+            return true;
+        })
+            .background(
+                gregtech.api.modularui2.GTGuiTextures.BUTTON_STANDARD,
+                gregtech.api.modularui2.GTGuiTextures.OVERLAY_BUTTON_HIGHLIGHT_BLOCK)
+            .tooltip(t -> t.addLine(
+                com.cleanroommc.modularui.api.drawable.IKey.lang("programmable_hatches.remote.highlight")))
+            .size(16, 16)
+            .pos(3 + 18 * 8 + 4, 3 + 16 + 18));
+
+        // Open-target button: forwards a plain right-click to the linked block on the server, so
+        // chests / tanks / machines open their own GUI. NOTE: vanilla containers validate player
+        // distance in canInteractWith, so a far-away chest may close itself immediately; GT machines
+        // go through the mixin-fixed remote-open path instead.
+        com.cleanroommc.modularui.value.sync.InteractionSyncHandler openTarget = new com.cleanroommc.modularui.value.sync.InteractionSyncHandler().setOnMousePressed(d -> {
+            if (getBaseMetaTileEntity() == null || getBaseMetaTileEntity().isClientSide()) return;
+            if (!linked) return;
+            World w = this.getBaseMetaTileEntity().getWorld();
+            if (!w.getChunkProvider().chunkExists(x >> 4, z >> 4)) return;
+            if (checkBlackList()) return;
+            if (!(data.getPlayer() instanceof net.minecraft.entity.player.EntityPlayerMP)) return;
+            // RemoteIO-style remote activation: distance-spoofing proxy + container whitelist,
+            // so vanilla chests/tanks stay open at any distance (see RemoteOpenHelper)
+            reobf.proghatches.util.RemoteOpenHelper
+                .activateBlock(w, x, y, z, (net.minecraft.entity.player.EntityPlayerMP) data.getPlayer());
+        });
+        syncManager.syncValue("open_target", openTarget);
+        builder.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>().syncHandler(openTarget)
+            .background(
+                gregtech.api.modularui2.GTGuiTextures.BUTTON_STANDARD,
+                gregtech.api.modularui2.GTGuiTextures.OVERLAY_BUTTON_EXPORT)
+            .tooltip(t -> t.addLine(
+                com.cleanroommc.modularui.api.drawable.IKey.lang("programmable_hatches.remote.open")))
+            .size(16, 16)
+            .pos(3 + 18 * 8 + 4, 3 + 16 + 18 * 2));
+
+
+        // read-only preview of the remote inventory, server-refreshed every 100 ticks
+        // (slot 16 mirrors the remote machine's configuration-circuit slot)
+        final com.cleanroommc.modularui.utils.item.ItemStackHandler display =
+            new com.cleanroommc.modularui.utils.item.ItemStackHandler(17);
+        syncManager.syncValue("remote_refresh", new com.cleanroommc.modularui.value.sync.SyncHandler() {
+
+            int count;
+
+            @Override
+            public void detectAndSendChanges(boolean init) {
+                if (!init && count-- > 0) return;
+                count = 100;
+                Optional<TileEntity> opt = getTile();
+                if (opt.isPresent()) {
+                    arr = null;
+                    List<ItemStack> list = opt.map(e -> filterTakable(e)).get();
+                    arr = null;
+                    for (int i = 0; i < display.getSlots() - 1; i++) {
+                        display.setStackInSlot(i, list.size() > i ? list.get(i) : null);
+                    }
+                    TileEntity gt = opt.orElse(null);
+                    display.setStackInSlot(16, null);
+                    if (gt instanceof IGregTechTileEntity) {
+                        IMetaTileEntity meta = ((IGregTechTileEntity) gt).getMetaTileEntity();
+                        if (meta instanceof IConfigurationCircuitSupport) {
+                            IConfigurationCircuitSupport c = (IConfigurationCircuitSupport) meta;
+                            display.setStackInSlot(16, meta.getStackInSlot(c.getCircuitSlot()));
+                        }
+                    }
+                } else {
+                    for (int i = 0; i < display.getSlots(); i++) display.setStackInSlot(i, null);
+                }
+                // push the whole preview to the client explicitly (same idea as GT's stocking bus,
+                // which syncs its Slot[] data separately instead of relying on implicit slot sync)
+                syncToClient(1, buf -> {
+                    for (int i = 0; i < display.getSlots(); i++)
+                        com.cleanroommc.modularui.network.NetworkUtils.writeItemStack(buf, display.getStackInSlot(i));
+                });
+            }
+
+            @Override
+            public void readOnClient(int id, net.minecraft.network.PacketBuffer buf) {
+                if (id == 1) for (int i = 0; i < display.getSlots(); i++)
+                    display.setStackInSlot(i, com.cleanroommc.modularui.network.NetworkUtils.readItemStack(buf));
+            }
+
+            @Override
+            public void readOnServer(int id, net.minecraft.network.PacketBuffer buf) {}
+        });
+        for (int i = 0; i < 17; i++) {
+            com.cleanroommc.modularui.widgets.slot.ItemSlot slot = new com.cleanroommc.modularui.widgets.slot.ItemSlot()
+                .slot(new com.cleanroommc.modularui.widgets.slot.ModularSlot(display, i).accessibility(false, false));
+            if (i == 16) {
+                slot.background(
+                    gregtech.api.modularui2.GTGuiTextures.SLOT_ITEM_STANDARD,
+                    gregtech.api.modularui2.GTGuiTextures.OVERLAY_SLOT_INT_CIRCUIT);
+            }
+            builder.child(slot.pos(3 + (i % 8) * 18, 3 + 16 + (i / 8) * 18));
+        }
+
+        // The bus's OWN configuration circuit (stored in mInventory[0], overlaid on the remote
+        // inventory for recipe checks). MUI1's window template added this automatically; MUI2's
+        // ghost-circuit widget works now that getInventoryHandler() tolerates the MAX_VALUE index.
+        builder.child(gregtech.api.modularui2.common.CommonWidgets.createCircuitSlot(syncManager, this)
+            // custom position: right-aligned in the third preview row (the default 153,60 from
+            // getCircuitSlotX/Y belongs to the stock bus layout and lands outside our grid)
+            .pos(3 + 18 * 7, 3 + 16 + 18 * 2));
+
+        // info tooltips (same lang keys as the MUI1 icon)
+        // MUI1's info icon, referenced straight from ModularUI(1)'s assets
+        builder.child(new com.cleanroommc.modularui.widget.Widget<>()
+            .background(com.cleanroommc.modularui.drawable.UITexture
+                .fullImage("modularui", "gui/widgets/information"))
+            .pos(3 + 18 * 8 + 4, 3 + 16)
+            .size(16, 16)
+            .tooltipBuilder(t -> {
+                int n = Integer.valueOf(StatCollector.translateToLocal("programmable_hatches.gt.remotebus.tooltip"));
+                for (int i = 0; i < n; i++) t.addLine(
+                    com.cleanroommc.modularui.api.drawable.IKey
+                        .str(LangManager.translateToLocal("programmable_hatches.gt.remotebus.tooltip." + i)));
+            }));
+        return builder;
+    }
+
+    private String remoteStatusKey() {
+        if (!linked) return "programmable_hatches.remote.unlinked";
+        if (!this.getBaseMetaTileEntity().getWorld().getChunkProvider().chunkExists(x >> 4, z >> 4))
+            return "programmable_hatches.remote.chunk";
+        Optional<TileEntity> opt = getTile();
+        if (!opt.isPresent()) return "programmable_hatches.remote.nothing";
+        checkBlackList();
+        if (!(opt.get() instanceof IInventory)) return "programmable_hatches.remote.dummytarget";
+        return "programmable_hatches.remote.ok";
+    }
+
+
+    /**
+     * Client-only. Highlights the linked target position with AE2's block highlighter (pulsing blue
+     * box + chat message) and closes the screen, exactly like the interface terminal's highlight.
+     */
+    private void highlightTargetClient(String synced) {
+        if (synced == null || !synced.startsWith("I")) return;
+        try {
+            // Format: "I<x>,<y>,<z>|<damage>|<blockRegName>" — coords first, since the registry
+            // name is free-form and may itself contain '|' (e.g. BuildCraft|Factory:tankBlock).
+            String[] p = synced.substring(1).split("\\|", 3);
+            String[] c = p[0].split(",");
+            if (c.length < 3) return;
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
+            appeng.client.render.highlighter.BlockPosHighlighter.highlightBlocks(
+                mc.thePlayer,
+                java.util.Collections.singletonList(
+                    new appeng.api.util.DimensionalCoord(
+                        mc.theWorld,
+                        Integer.parseInt(c[0]),
+                        Integer.parseInt(c[1]),
+                        Integer.parseInt(c[2]))),
+                appeng.core.localization.PlayerMessages.MachineHighlighted.getUnlocalized(),
+                appeng.core.localization.PlayerMessages.MachineInOtherDim.getUnlocalized());
+            mc.thePlayer.closeScreen();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Server-side: "K<langKey>" for a plain status, or "I<x>,<y>,<z>|<damage>|<blockRegName>" when a
+     * target container is present, so the client can localize the container name with its own lang.
+     * The registry name goes LAST because it is free-form and may contain '|' (BuildCraft mod ids).
+     */
+    private String remoteStatusSynced() {
+        String key = remoteStatusKey();
+        if (!"programmable_hatches.remote.ok".equals(key)) return "K" + key;
+        try {
+            World w = this.getBaseMetaTileEntity().getWorld();
+            net.minecraft.block.Block b = w.getBlock(x, y, z);
+            String reg = net.minecraft.block.Block.blockRegistry.getNameForObject(b);
+            int dmg = b.getDamageValue(w, x, y, z);
+            return "I" + x + "," + y + "," + z + "|" + dmg + "|" + reg;
+        } catch (Exception e) {
+            return "K" + key;
+        }
+    }
+
+    /** Client-side: turn the synced status into display text (container name localized locally). */
+    private String remoteStatusDisplay(String v, reobf.proghatches.util.TargetBlockInfoSync targetInfo) {
+        if (v == null || v.isEmpty()) return "";
+        if (v.startsWith("K")) return LangManager.translateToLocal(v.substring(1));
+        String[] p = v.substring(1).split("\\|", 3);
+        if (p.length < 3) return "";
+        // Prefer the name of the stack the server resolved (Waila stack providers / getPickBlock):
+        // GT machines all share one Block and keep their identity in the tile entity, so
+        // new ItemStack(block, 1, blockMetadata) would give a generic, often untranslated name.
+        String name = targetInfo == null ? null : targetInfo.clientDisplayName();
+        if (name == null || name.isEmpty()) {
+            try {
+                net.minecraft.block.Block b = net.minecraft.block.Block.getBlockFromName(p[2]);
+                name = new ItemStack(b, 1, Integer.parseInt(p[1])).getDisplayName();
+            } catch (Exception e) {
+                name = p[2];
+            }
+        }
+        return LangManager.translateToLocalFormatted("programmable_hatches.remote.hostinfo", name, p[0]);
     }
 
 }

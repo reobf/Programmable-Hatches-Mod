@@ -206,6 +206,7 @@ import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.net.UpgradesMessage;
 import reobf.proghatches.util.ProghatchesUtil;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCircuitSupport, IAddGregtechLogo,
 		IAddUIWidgets, IDualInputHatchWithPattern, IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch,
 		ISkipStackSizeCheck, IOnFillCallback, IPHDual/* ,IMultiCircuitSupport */ {
@@ -251,38 +252,33 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 	}
 
 	public void initTierBasedField() {
+		buildFluidTanks(mMultiFluid ? fluidSlots() : 1, getInventoryFluidLimit());
+	}
 
-		if (mMultiFluid) {
-
-			mStoredFluid = Stream.generate(() -> (new ListeningFluidTank(getInventoryFluidLimit(), this)))
-					.limit(fluidSlots()).toArray(ListeningFluidTank[]::new);
-
-		} else {
-
-			mStoredFluid = new ListeningFluidTank[] { new ListeningFluidTank(getInventoryFluidLimit(), this) };
-
+	/**
+	 * (Re)creates mStoredFluid as backend-mirrored tanks: the contiguous mStoredFluidBack array
+	 * always reflects each slot's FluidStack (null = empty), so occupancy scans read plain array
+	 * references. External behavior of the tanks is unchanged (see BackedListeningFluidTank).
+	 */
+	protected void buildFluidTanks(int count, int capacity) {
+		mStoredFluidBack = new FluidStack[count];
+		ListeningFluidTank[] tanks = new ListeningFluidTank[count];
+		for (int i = 0; i < count; i++) {
+			tanks[i] = new reobf.proghatches.gt.metatileentity.util.BackedListeningFluidTank(capacity, this,
+					mStoredFluidBack, i);
 		}
-
+		mStoredFluid = tanks;
 	}
 
 	public void reinitTierBasedField() {
 
 		this.markDirty();
 
-		if (mMultiFluid) {
-			ListeningFluidTank[] old = mStoredFluid;
-			mStoredFluid = Stream.generate(() -> (new ListeningFluidTank(getInventoryFluidLimit(), this)))
-					.limit(fluidSlots()).toArray(ListeningFluidTank[]::new);
-			for (int i = 0; i < mStoredFluid.length; i++) {
-				mStoredFluid[i] = old[i];
-			}
-
-		} else {
-			ListeningFluidTank[] old = mStoredFluid;
-			mStoredFluid = new ListeningFluidTank[] { new ListeningFluidTank(getInventoryFluidLimit(), this) };
-			for (int i = 0; i < mStoredFluid.length; i++) {
-				mStoredFluid[i] = old[i];
-			}
+		ListeningFluidTank[] old = mStoredFluid;
+		buildFluidTanks(mMultiFluid ? fluidSlots() : 1, getInventoryFluidLimit());
+		// content copy, NOT object copy: the new tanks are bound to the new backend array
+		for (int i = 0; i < Math.min(mStoredFluid.length, old.length); i++) {
+			mStoredFluid[i].setFluidDirect(old[i].getFluid());
 		}
 
 	}
@@ -322,6 +318,8 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 	}
 
 	public ListeningFluidTank[] mStoredFluid = new ListeningFluidTank[0];
+	/** Contiguous mirror of every tank's content (null = empty); see buildFluidTanks. */
+	public FluidStack[] mStoredFluidBack = new FluidStack[0];
 
 	@Override
 	public void saveNBTData(NBTTagCompound aNBT) {

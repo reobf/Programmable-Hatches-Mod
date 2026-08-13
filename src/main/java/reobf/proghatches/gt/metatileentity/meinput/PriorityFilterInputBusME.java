@@ -62,6 +62,7 @@ import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.ProghatchesUtil;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class PriorityFilterInputBusME extends MTEHatchInputBusME
     implements IMEHatchOverrided, IDataCopyablePlaceHolder, IPriorityHost, IActionHost,IDoNotSleep {
 

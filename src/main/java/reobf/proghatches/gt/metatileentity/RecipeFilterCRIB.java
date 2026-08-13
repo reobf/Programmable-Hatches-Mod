@@ -99,6 +99,7 @@ import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.ISpecialOptimize;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class RecipeFilterCRIB extends PatternDualInputHatch  {
     public class Inst2 extends RecipeFilterCRIB {
 

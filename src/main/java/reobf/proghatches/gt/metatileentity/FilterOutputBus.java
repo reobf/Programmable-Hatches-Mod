@@ -20,6 +20,7 @@ import gregtech.common.GTClient;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.ProghatchesUtil;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class FilterOutputBus extends MTEHatchOutputBus {
 
     public FilterOutputBus(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,

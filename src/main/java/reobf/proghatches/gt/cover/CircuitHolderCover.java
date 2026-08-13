@@ -130,6 +130,16 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
         return true;
     }
 
+    /**
+     * GT 54.31 gates cover-GUI opening on hasCoverGUI() (default false); the legacy useModularUI()
+     * above is no longer consulted, which made shift-right-click do nothing. The other covers got
+     * this override during the MUI2 adaptation - this one was missed.
+     */
+    @Override
+    public boolean hasCoverGUI() {
+        return true;
+    }
+
     @Override
     public ModularWindow createWindow(CoverUIBuildContext buildContext) {
 
@@ -160,6 +170,47 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
                 final int perrow = 5;
                 final int rows = (limit + perrow - 1) / perrow;
 
+                // The client-side Cover instance can be REPLACED when the server issues a cover data
+                // update, so anything that keeps reading the captured cover.coverData goes stale and the
+                // grid never visually updates. GT's own MUI2 cover GUIs never read cover fields on the
+                // client; they sync the data. Do the same: push the circuit list explicitly into a
+                // GUI-local cache whenever the server-side tag changes, and render from that cache.
+                final ItemStack[] shownCircuits = new ItemStack[limit];
+                syncManager.syncValue("holder_circuits", new com.cleanroommc.modularui.value.sync.SyncHandler() {
+
+                    private String lastSer;
+
+                    @Override
+                    public void detectAndSendChanges(boolean init) {
+                        String ser = String.valueOf(cover.coverData.tag);
+                        if (!init && ser.equals(lastSer)) return;
+                        lastSer = ser;
+                        ItemStack[] cs = ProghatchesUtil.deseri(cover.coverData.tag, "circuit");
+                        // keep the server-side cache in step too (harmless, aids debugging)
+                        for (int i = 0; i < shownCircuits.length; i++)
+                            shownCircuits[i] = i < cs.length ? cs[i] : null;
+                        syncToClient(1, buf -> {
+                            buf.writeVarIntToBuffer(cs.length);
+                            for (ItemStack c : cs)
+                                com.cleanroommc.modularui.network.NetworkUtils.writeItemStack(buf, c);
+                        });
+                    }
+
+                    @Override
+                    public void readOnClient(int id, net.minecraft.network.PacketBuffer buf) {
+                        if (id != 1) return;
+                        int n = buf.readVarIntFromBuffer();
+                        java.util.Arrays.fill(shownCircuits, null);
+                        for (int i = 0; i < n; i++) {
+                            ItemStack is = com.cleanroommc.modularui.network.NetworkUtils.readItemStack(buf);
+                            if (i < shownCircuits.length) shownCircuits[i] = is;
+                        }
+                    }
+
+                    @Override
+                    public void readOnServer(int id, net.minecraft.network.PacketBuffer buf) {}
+                });
+
                 ListWidget<com.cleanroommc.modularui.api.widget.IWidget, ?> list = new ListWidget<>();
                 list.size(16 * perrow + 8, Math.min(Math.max(rows, 1), 6) * 16);
                 for (int r = 0; r * perrow < limit; r++) {
@@ -168,9 +219,8 @@ public class CircuitHolderCover extends CoverBehaviorBase<CircuitHolderCover.Dat
                         final int idx = r * perrow + cc;
                         row.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>()
                             .background(GTGuiTextures.BUTTON_STANDARD, new DynamicDrawable(() -> {
-                                ItemStack[] cs = ProghatchesUtil.deseri(cover.coverData.tag, "circuit");
-                                return idx < cs.length
-                                    ? new com.cleanroommc.modularui.drawable.ItemDrawable(cs[idx])
+                                return shownCircuits[idx] != null
+                                    ? new com.cleanroommc.modularui.drawable.ItemDrawable(shownCircuits[idx])
                                     : com.cleanroommc.modularui.api.drawable.IDrawable.EMPTY;
                             }))
                             .syncHandler(new InteractionSyncHandler().setOnMousePressed(mouseData -> {

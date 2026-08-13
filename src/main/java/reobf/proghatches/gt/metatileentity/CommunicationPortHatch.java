@@ -16,6 +16,7 @@ import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.render.TextureFactory;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class CommunicationPortHatch extends MTEHatch {
 
     public CommunicationPortHatch(int aID, String aName, String aNameRegional, int aTier) {

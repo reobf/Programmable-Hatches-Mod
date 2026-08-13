@@ -100,6 +100,7 @@ import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientDistributor>
     implements ISurvivalConstructable {
 
@@ -1756,12 +1757,172 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
         this.mEUt = (int) calculator.getConsumption();
         this.mMaxProgresstime = calculator.getDuration();
     }
-    @Override
-    protected boolean useMui2() {
-    	return false;
-    }
+    
     
    
     
     
+
+    // ===================== MUI2 =====================
+    // Ported from the MUI1 addUIWidgets/drawTexts above (now dead code kept for reference):
+    // status/debug text lines, blocking-mode toggle, and the synced TransferCheckResult.
+    static final TransferCheckResult EMPTY_FAIL = TransferCheckResult.ofSuccess();
+
+    @Override
+    protected gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui<?> getGui() {
+        return new Gui(this);
+    }
+
+    private static class Gui extends gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui<IngredientDistributor> {
+
+        Gui(IngredientDistributor mb) {
+            super(mb);
+        }
+
+        @Override
+        protected void registerSyncValues(com.cleanroommc.modularui.value.sync.PanelSyncManager syncManager) {
+            super.registerSyncValues(syncManager);
+            syncManager.syncValue(
+                "ingd_lockRecipe",
+                new com.cleanroommc.modularui.value.sync.BooleanSyncValue(
+                    () -> multiblock.lockRecipe, v -> multiblock.lockRecipe = v));
+            syncManager.syncValue(
+                "ingd_port",
+                new com.cleanroommc.modularui.value.sync.BooleanSyncValue(
+                    () -> multiblock.port != null, v -> multiblock.clientport = v));
+            syncManager.syncValue(
+                "ingd_count",
+                new com.cleanroommc.modularui.value.sync.IntSyncValue(
+                    () -> multiblock.count, v -> multiblock.count = v));
+            syncManager.syncValue(
+                "ingd_cd",
+                new com.cleanroommc.modularui.value.sync.IntSyncValue(() -> multiblock.cd, v -> multiblock.cd = v));
+            syncManager.syncValue(
+                "ingd_cdmax",
+                new com.cleanroommc.modularui.value.sync.IntSyncValue(
+                    () -> multiblock.cdmax, v -> multiblock.cdmax = v));
+            syncManager.syncValue(
+                "ingd_yield",
+                new com.cleanroommc.modularui.value.sync.BooleanSyncValue(
+                    () -> multiblock.yield, v -> multiblock.yield = v));
+            syncManager.syncValue(
+                "ingd_noblockreason",
+                new com.cleanroommc.modularui.value.sync.IntSyncValue(
+                    () -> multiblock.blockingNotAvailableReason, v -> multiblock.blockingNotAvailableReason = v));
+            // reuse TransferCheckResult's existing PacketBuffer ser/deser; identity compare matches the
+            // MUI1 FakeSyncWidget behaviour (lastfail is replaced, not mutated, on change)
+            syncManager.syncValue(
+                "ingd_lastfail",
+                com.cleanroommc.modularui.value.sync.GenericSyncValue.builder(TransferCheckResult.class)
+                    .getter(() -> multiblock.lastfail == null ? EMPTY_FAIL : multiblock.lastfail)
+                    .setter(v -> multiblock.lastfail = (v == null || v.isSuccess) ? null : v)
+                    .adapter(
+                        new com.cleanroommc.modularui.utils.serialization.IByteBufAdapter<TransferCheckResult>() {
+
+                            @Override
+                            public TransferCheckResult deserialize(net.minecraft.network.PacketBuffer buffer) {
+                                return TransferCheckResult.deser(buffer);
+                            }
+
+                            @Override
+                            public void serialize(net.minecraft.network.PacketBuffer buffer,
+                                TransferCheckResult t) {
+                                TransferCheckResult.ser(buffer, t);
+                            }
+
+                            @Override
+                            public boolean areEqual(TransferCheckResult t1, TransferCheckResult t2) {
+                                return t1 == t2;
+                            }
+                        })
+                    .build());
+        }
+
+        @Override
+        protected com.cleanroommc.modularui.widgets.ListWidget<com.cleanroommc.modularui.api.widget.IWidget, ?> createTerminalTextWidget(
+            com.cleanroommc.modularui.value.sync.PanelSyncManager syncManager,
+            com.cleanroommc.modularui.screen.ModularPanel parent) {
+            return super.createTerminalTextWidget(syncManager, parent)
+                .child(
+                    com.cleanroommc.modularui.api.drawable.IKey
+                        .dynamic(() -> multiblock.lastfail == null ? "" : multiblock.lastfail.format())
+                        .color(com.cleanroommc.modularui.utils.Color.WHITE.main)
+                        .asWidget()
+                        .setEnabledIf(
+                            w -> multiblock.getBaseMetaTileEntity().isAllowedToWork() && multiblock.lastfail != null)
+                        .marginBottom(2)
+                        .fullWidth())
+                .child(com.cleanroommc.modularui.api.drawable.IKey.dynamic(() -> {
+                    if (multiblock.yield) return StatCollector.translateToLocal("proghatch.ingbuf.yield");
+                    if (multiblock.count > 0) return StatCollector.translateToLocal("proghatch.ingbuf.acquring");
+                    if (multiblock.lockRecipe) return StatCollector.translateToLocal("proghatch.ingbuf.locked");
+                    return StatCollector.translateToLocal("proghatch.ingbuf.idle");
+                })
+                    .color(com.cleanroommc.modularui.utils.Color.WHITE.main)
+                    .asWidget()
+                    .setEnabledIf(w -> multiblock.clientport)
+                    .marginBottom(2)
+                    .fullWidth())
+                .child(
+                    com.cleanroommc.modularui.api.drawable.IKey.dynamic(() -> "lock:" + multiblock.lockRecipe)
+                        .color(com.cleanroommc.modularui.utils.Color.WHITE.main)
+                        .asWidget()
+                        .setEnabledIf(w -> multiblock.clientport)
+                        .marginBottom(2)
+                        .fullWidth())
+                .child(
+                    com.cleanroommc.modularui.api.drawable.IKey.dynamic(() -> "count:" + multiblock.count)
+                        .color(com.cleanroommc.modularui.utils.Color.WHITE.main)
+                        .asWidget()
+                        .setEnabledIf(w -> multiblock.clientport)
+                        .marginBottom(2)
+                        .fullWidth())
+                .child(
+                    com.cleanroommc.modularui.api.drawable.IKey.dynamic(() -> multiblock.cd + "/" + multiblock.cdmax)
+                        .color(com.cleanroommc.modularui.utils.Color.WHITE.main)
+                        .asWidget()
+                        .setEnabledIf(w -> multiblock.clientport)
+                        .marginBottom(2)
+                        .fullWidth())
+                .child(
+                    com.cleanroommc.modularui.api.drawable.IKey
+                        .dynamic(
+                            () -> StatCollector.translateToLocal(
+                                "proghatch.ingbuf.noblocking.reason." + multiblock.blockingNotAvailableReason))
+                        .color(com.cleanroommc.modularui.utils.Color.RED.main)
+                        .asWidget()
+                        .setEnabledIf(w -> multiblock.blockingNotAvailableReason > 0)
+                        .marginBottom(2)
+                        .fullWidth());
+        }
+
+        @Override
+        protected com.cleanroommc.modularui.widgets.layout.Flow createLeftPanelGapRow(
+            com.cleanroommc.modularui.screen.ModularPanel parent,
+            com.cleanroommc.modularui.value.sync.PanelSyncManager syncManager) {
+            return super.createLeftPanelGapRow(parent, syncManager)
+                .child(new com.cleanroommc.modularui.widgets.CycleButtonWidget().stateCount(2)
+                    .value(
+                        (com.cleanroommc.modularui.value.sync.IntSyncValue) new com.cleanroommc.modularui.value.sync.IntSyncValue(
+                            () -> multiblock.blocking ? 1 : 0,
+                            v -> multiblock.blocking = v == 1).allowC2S())
+                    .stateBackground(1, gregtech.api.modularui2.GTGuiTextures.BUTTON_STANDARD_PRESSED)
+                    .stateBackground(0, gregtech.api.modularui2.GTGuiTextures.BUTTON_STANDARD)
+                    .stateOverlay(1, gregtech.api.modularui2.GTGuiTextures.OVERLAY_BUTTON_POWER_SWITCH_ON)
+                    .stateOverlay(0, gregtech.api.modularui2.GTGuiTextures.OVERLAY_BUTTON_POWER_SWITCH_OFF)
+                    .size(18, 18)
+                    .marginRight(2)
+                    .tooltipBuilder(t -> {
+                        t.addLine(
+                            com.cleanroommc.modularui.api.drawable.IKey
+                                .str(StatCollector.translateToLocal("proghatches.ingredientdistr.blocking")));
+                        int n = Integer
+                            .valueOf(StatCollector.translateToLocal("proghatches.ingredientdistr.blocking.desc"));
+                        for (int i = 0; i < n; i++) t.addLine(
+                            com.cleanroommc.modularui.api.drawable.IKey.str(
+                                LangManager.translateToLocal("proghatches.ingredientdistr.blocking.desc." + i)));
+                    }));
+        }
+    }
+
 }

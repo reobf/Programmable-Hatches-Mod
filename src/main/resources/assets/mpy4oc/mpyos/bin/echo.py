@@ -1,1 +1,0 @@
-tty.print(" ".join(args))

@@ -67,6 +67,7 @@ import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.main.registration.Registration;
 import tectech.util.TTUtility;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class StorageOutputBus extends MTEHatchOutputBusME
     {
 

@@ -114,6 +114,7 @@ import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.SIDItemStack;
 
 @SuppressWarnings({ "deprecation", "unchecked" })
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
 		implements ISurvivalConstructable, IExternalManager, IGridProxyable, IActionHost,ICustomNameObject {
 	private AENetworkProxy gridProxy;

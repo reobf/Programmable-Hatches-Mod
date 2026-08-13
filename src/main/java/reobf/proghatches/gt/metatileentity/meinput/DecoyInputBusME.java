@@ -70,6 +70,7 @@ import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class DecoyInputBusME extends MTEHatchInputBusME implements IMEHatchOverrided, IDataCopyablePlaceHolder ,IDoNotSleep{
 
 	

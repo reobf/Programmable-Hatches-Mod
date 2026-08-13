@@ -100,6 +100,7 @@ import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.CTexture;
 import reobf.proghatches.util.ProghatchesUtil;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class SuperTankME extends MTEHatch
     implements ICellContainer, IGridProxyable, IPriorityHost, IStoageCellUpdate, IPowerChannelState {
 

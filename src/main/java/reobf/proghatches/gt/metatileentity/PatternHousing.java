@@ -54,6 +54,7 @@ import reobf.proghatches.gt.metatileentity.multi.MultiblockProxy;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class PatternHousing extends MTEHatch implements IAddGregtechLogo {
 
     @Override

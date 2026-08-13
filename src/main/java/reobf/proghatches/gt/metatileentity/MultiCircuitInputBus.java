@@ -37,6 +37,7 @@ import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.ProghatchesUtil;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCircuitSupport {
 
     @Override
@@ -154,6 +155,92 @@ public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCirc
 
     public MultiCircuitInputBus(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures) {
         super(mName, mTier, ProghatchesUtil.getSlots(mTier) + 4, mDescriptionArray, mTextures);
+    }
+
+    /**
+     * GT 290 changed {@code MTEHatch.getSlots(tier)} from the old 16-capped formula to a plain
+     * (tier+1)^2, but this bus is still built with {@code ProghatchesUtil.getSlots(tier) + 4}
+     * slots — so the inherited {@code getCircuitSlot()} started pointing past the end of the
+     * inventory (25..64 for a 20 slot inventory). That made every circuit slot index invalid:
+     * the MUI2 ghost circuit handler threw while opening the GUI, and getCircuitSlots() /
+     * isValidSlot() / allowPullStack() all worked on non-existent slots. Pin it to the real
+     * layout instead: 16 item slots, then the four circuit slots.
+     */
+    @Override
+    public int getCircuitSlot() {
+        return ProghatchesUtil.getSlots(mTier);
+    }
+
+    /** Side length of the square item slot grid, i.e. everything before the circuit slots. */
+    private int itemGridDimension() {
+        int slots = getCircuitSlot();
+        int dim = (int) Math.ceil(Math.sqrt(slots));
+        return Math.max(1, dim);
+    }
+
+    @Override
+    public com.cleanroommc.modularui.screen.ModularPanel buildUI(
+        com.cleanroommc.modularui.factory.PosGuiData data,
+        com.cleanroommc.modularui.value.sync.PanelSyncManager syncManager,
+        com.cleanroommc.modularui.screen.UISettings uiSettings) {
+        return new Gui(this).build(data, syncManager, uiSettings);
+    }
+
+    /**
+     * The stock bus GUI sizes its slot grid from the tier ((tier+1)^2 slots), which no longer
+     * matches this bus, and it only draws a single circuit slot. This one uses the real slot
+     * count and adds the three extra marking slots next to the stock circuit slot.
+     */
+    private static class Gui extends gregtech.common.gui.modularui.hatch.MTEHatchInputBusGui {
+
+        private final MultiCircuitInputBus bus;
+
+        Gui(MultiCircuitInputBus bus) {
+            super(bus);
+            this.bus = bus;
+        }
+
+        @Override
+        protected int getDimension() {
+            return bus.itemGridDimension();
+        }
+
+        @Override
+        protected com.cleanroommc.modularui.widgets.layout.Flow createBottomRightCornerFlow(
+            com.cleanroommc.modularui.screen.ModularPanel panel,
+            com.cleanroommc.modularui.value.sync.PanelSyncManager syncManager) {
+            com.cleanroommc.modularui.widgets.layout.Flow flow = super.createBottomRightCornerFlow(panel, syncManager);
+            // reverse layout: children are laid out right to left, so these end up left of the
+            // stock circuit slot
+            for (int i = 1; i < 4; i++) {
+                final int slot = bus.getCircuitSlot() + i;
+                flow.child(
+                    new com.cleanroommc.modularui.widgets.slot.PhantomItemSlot()
+                        .syncHandler(
+                            new com.cleanroommc.modularui.value.sync.PhantomItemSlotSH(
+                                new com.cleanroommc.modularui.widgets.slot.ModularSlot(bus.inventoryHandler, slot) {
+
+                                    @Override
+                                    public int getSlotStackLimit() {
+                                        // marking slot: the circuit is only a marker, never stored
+                                        return 0;
+                                    }
+                                }))
+                        .background(
+                            gregtech.api.modularui2.GTGuiTextures.SLOT_ITEM_STANDARD,
+                            gregtech.api.modularui2.GTGuiTextures.OVERLAY_SLOT_INT_CIRCUIT)
+                        .tooltipBuilder(t -> {
+                            t.addLine(
+                                com.cleanroommc.modularui.api.drawable.IKey
+                                    .lang("programmable_hatches.gt.marking.slot.0"));
+                            t.addLine(
+                                com.cleanroommc.modularui.api.drawable.IKey
+                                    .lang("programmable_hatches.gt.marking.slot.1"));
+                        })
+                        .tooltipShowUpTimer(TOOLTIP_DELAY));
+            }
+            return flow;
+        }
     }
 
     @Override

@@ -51,6 +51,7 @@ import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class PhantomInputBus extends MTEHatchInputBus {
 @Override
 protected boolean useMui2() {
@@ -124,13 +125,17 @@ protected boolean useMui2() {
 		            .matrix(matrix)
 		            .key(
 		                's',
-		                index -> new PhantomItemSlot().syncHandler(new PhantomItemSlotSH(new ModularSlot(inventoryHandler, index) {
-		                	
+		                // PhantomItemSlot.slot(...) is the supported public path (it wraps the slot in
+		                // a PhantomItemSlotSH itself); constructing PhantomItemSlotSH manually uses an
+		                // @ApiStatus.Internal ctor that is not stable across ModularUI2 builds
+		                index -> new PhantomItemSlot().slot(new ModularSlot(inventoryHandler, index) {
+
+		                	@Override
 		                	public void putStack(ItemStack stack) {
 		                		if(stack!=null) {stack=stack.copy();stack.stackSize=0;}
 		                		super.putStack(stack);
 		                		};
-		                }.slotGroup("item_inv"))))
+		                }.slotGroup("item_inv")))
 		            .build()
 		            .pos(0, 0).size(18*4, 18*16)
 		           ;

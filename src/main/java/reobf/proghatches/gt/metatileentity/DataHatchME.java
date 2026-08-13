@@ -52,6 +52,7 @@ import gregtech.api.util.GTUtility;
 import reobf.proghatches.main.registration.Registration;
 import tectech.thing.casing.BlockGTCasingsTT;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelState, IGridProxyable {
 
     Map<Object, Object> h;

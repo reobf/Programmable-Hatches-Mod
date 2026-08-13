@@ -175,12 +175,12 @@ public class TileMolecularAssemblerInterface extends TileEntity implements ICraf
     // -1 pass
     // >=0 first index in inputs that won't fit
     public int itemCheck(TileEntity t, ArrayList<ItemStack> item, boolean doInject, int side) {
+        if (item.isEmpty()) return -1; // nothing to push: a fluid-only target is fine
         if (t instanceof IInventory == false) {
             return Integer.MAX_VALUE;
         }
         IInventory te = (IInventory) t;
 
-        ForgeDirection dir = getSide();
         ISideCheck checker = ISideCheck.ofInv(te);
         int[] slots = checker.getAccessibleSlotsFromSide(side);
         Arrays.sort(slots);
@@ -188,8 +188,11 @@ public class TileMolecularAssemblerInterface extends TileEntity implements ICraf
         next: for (int i = 0; i < item.size(); i++) {
 
             while (true) {
+                if (slots.length <= cnt) return i; // ran out of slots
 
-                if (checker.canInsertItem(slots[cnt], item.get(i), dir.ordinal())
+                // insert permission checked from the same side the slot list came from (the
+                // ejection side) — it used to ask getSide()==DOWN, disagreeing with the slot list
+                if (checker.canInsertItem(slots[cnt], item.get(i), side)
                     && te.isItemValidForSlot(slots[cnt], item.get(i))
                     && te.getInventoryStackLimit() >= item.get(i).stackSize
                     && item.get(i).stackSize <= item.get(i)
@@ -204,10 +207,13 @@ public class TileMolecularAssemblerInterface extends TileEntity implements ICraf
                         te.setInventorySlotContents(slots[cnt], item.get(i));
                     }
 
+                    // consume this slot in BOTH the simulate and the inject pass. Without this,
+                    // every input passed the simulation against the same first empty slot, then the
+                    // inject pass filled it with input 0 and silently dropped the rest (item void).
+                    cnt++;
                     continue next;
                 } ;
                 cnt++;
-                if (slots.length <= cnt) return i;
             }
 
         }
@@ -216,6 +222,7 @@ public class TileMolecularAssemblerInterface extends TileEntity implements ICraf
     }
 
     public int fluidCheck(TileEntity t, ArrayList<FluidStack> fluid, boolean doInject, ForgeDirection side) {
+        if (fluid.isEmpty()) return -1; // nothing to push: an item-only target is fine
         if (t instanceof IFluidHandler == false) {
             return Integer.MAX_VALUE;
         }
@@ -233,8 +240,12 @@ public class TileMolecularAssemblerInterface extends TileEntity implements ICraf
             return 0;
         }
         for (int i = 0; i < fluid.size(); i++) {
-            if (f.fill(getSide(), fluid.get(i), false) == fluid.get(i).amount) return i;
-            if (doInject) f.fill(getSide(), fluid.get(i), true);// TODO:check ret val?
+            // fail when the simulated fill can NOT take everything (this comparison used to be
+            // inverted: a tank that fit the whole amount "failed" while one that fit nothing
+            // "passed" and then voided the fluid on the partial inject). Also fill from the
+            // ejection side, not getSide()==DOWN.
+            if (f.fill(side, fluid.get(i), false) != fluid.get(i).amount) return i;
+            if (doInject) f.fill(side, fluid.get(i), true);
 
         }
 

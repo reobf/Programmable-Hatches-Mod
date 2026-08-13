@@ -39,6 +39,7 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.net.VoidFXMessage;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class VoidOutputHatch extends MTEHatchOutput {
 
     public VoidOutputHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures) {

@@ -39,6 +39,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
@@ -142,7 +143,6 @@ import gregtech.common.tileentities.machines.IDualInputInventoryWithPattern;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
-import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.Recipe;
 import reobf.proghatches.gt.metatileentity.bufferutil.FluidTankG;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 import reobf.proghatches.gt.metatileentity.bufferutil.LongWrapper;
@@ -161,8 +161,10 @@ import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class BufferedDualInputHatch extends DualInputHatch
-		implements IRecipeProcessingAwareDualHatch, IInputStateProvider, ICraftingV2, IMUITexture
+		implements IRecipeProcessingAwareDualHatch, IInputStateProvider, ICraftingV2, IMUITexture,
+		reobf.proghatches.util.OmniOcularSuppressor.IDoNotShowInOO
 
 {
 	public static abstract class ExConfigEntry{
@@ -260,28 +262,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 				"programmable_hatches.gt.elasticbuffer.1",
 				"programmable_hatches.gt.elasticbuffer.2"
 				));
-		ret.reg(4, 0, ExConfigEntry.create(
-				() -> useNewGTPatternCache, 
-				(s) -> {				if (MyMod.newGTCache) {
-					useNewGTPatternCache = s;
-					if (useNewGTPatternCache == false) {
-						resetMulti();
-						detailmap.clear();
-						detailmapUsage.clear();
-						//inv0.forEach(sX -> sX.PID = 0);
-
-					}
-				}},
-				"programmable_hatches.gt.newcrib.0",
-				"programmable_hatches.gt.newcrib.1",
-				"programmable_hatches.gt.newcrib.2",
-				"programmable_hatches.gt.newcrib.3",
-				"programmable_hatches.gt.newcrib.4",
-				"programmable_hatches.gt.newcrib.5",
-				(MyMod.newGTCache) ? ""
-						: StatCollector.translateToLocal("programmable_hatches.gt.newcrib.nosupport")
-				));
-		
 		return ret;
 	}
 	public Deque<Long> scheduled = new LinkedList<>();// no randomaccess,
@@ -395,9 +375,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 	// private long mask=new
 	// Random().nextLong()&(~0b1111_1111_1111_1111);//65536 buffers
 	// private short count;
-	public int currentID = 1;
-	public HashBiMap<Recipe, Integer> detailmap = HashBiMap.create();
-	public HashMap<Integer, Integer> detailmapUsage = new HashMap();
 	public static boolean emptyopt=true;
 	public class DualInvBuffer implements INeoDualInputInventory {
 
@@ -545,26 +522,27 @@ public class BufferedDualInputHatch extends DualInputHatch
 			recipeLocked = tag.getBoolean("recipeLocked");
 			lock = tag.getBoolean("lock");
 			unlockDelay = tag.getInteger("unlockDelay");
+			if (recipeLocked) treeInsert(this); // rebuild the (transient) tree on load
 		}
 
 		int v = 4;
 
 		int unlockDelay = 0;
 
+		/** Contiguous mirror of the recorded recipe's fluid singles (null = empty slot). */
+		FluidStack[] singleBack;
+
 		public void init(int item, int fluid) {
 			i = item;
 			f = fluid;
 			mStoredFluidInternal = initFluidTack(new FluidTankG[fluid]);
-			mStoredFluidInternalSingle = initFluidTack(new FluidTank[fluid]);
+			singleBack = new FluidStack[fluid];
+			mStoredFluidInternalSingle = new FluidTank[fluid];
+			for (int ix = 0; ix < fluid; ix++) {
+				mStoredFluidInternalSingle[ix] = new BackedFluidTank(singleBack, ix);
+			}
 			mStoredItemInternal = new ItemStackG[item + v];
 			mStoredItemInternalSingle = new ItemStack[item];
-		}
-
-		private FluidTank[] initFluidTack(FluidTank[] t) {
-			for (int i = 0; i < t.length; i++) {
-				t[i] = new FluidTank(Integer.MAX_VALUE);
-			}
-			return t;
 		}
 
 		private FluidTankG[] initFluidTack(FluidTankG[] t) {
@@ -586,6 +564,22 @@ public class BufferedDualInputHatch extends DualInputHatch
 			CoverableTileEntity obj = ((CoverableTileEntity) getBaseMetaTileEntity());
 			return obj != null ? obj.mTickTimer : 0;
 
+		}
+
+		/** True iff no fluid tank holds anything (same predicate isEmpty() uses for the fluid side). */
+		private boolean fluidSideEmpty() {
+			for (FluidTankG t : mStoredFluidInternal) {
+				if (t.isEmpty() == false) return false;
+			}
+			return true;
+		}
+
+		/** True iff no item slot holds anything (same predicate isEmpty() uses for the item side). */
+		private boolean itemSideEmpty() {
+			for (ItemStackG g : mStoredItemInternal) {
+				if (g != null && g.isEmpty() == false) return false;
+			}
+			return true;
 		}
 
 		public boolean isEmpty() {
@@ -631,6 +625,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 					}
 				}
 
+				treeRemove(this); // prune BEFORE the recorded keys below are wiped
 				for (FluidTank ft : mStoredFluidInternalSingle) {
 					ft.setFluid(null);
 				}
@@ -715,7 +710,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 			 * if(!tick.equals(scheduled.peekFirst())) { scheduled.push(tick); }
 			 */
 
-			recordRecipe(this);
 			markJustHadNewItems();
 			onClassify();
 			programLocal();
@@ -754,8 +748,14 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		}
 
+		/**
+		 * Whether this buffer's recorded recipe is currently inserted in the hatch's recipeTree.
+		 * Kept in sync in the same call stack at every mutation site (record / clear / fromTag /
+		 * compaction move / inv0 removal) — an inconsistent state never escapes the call stack.
+		 */
+		public boolean inTree;
+
 		public boolean classify(ListeningFluidTank[] fin, ItemStack[] iin, boolean removeInputOnSuccess) {
-			boolean enableOpt=true;
 			int indexItem=-1;
 			int indexFluid=-1;
 			boolean hasJob = false;
@@ -802,7 +802,29 @@ public class BufferedDualInputHatch extends DualInputHatch
 				return false;
 			}
 //System.out.println(indexItem+" "+indexFluid);
-			for (int ix = 0; ix < (enableOpt?indexFluid+1:f); ix++) {
+			return accumulateMatched(fin, iin, removeInputOnSuccess, indexFluid, indexItem);
+		}
+
+		/**
+		 * Tree-confirmed merge: the RecipeTree walk (cheap layers + item NBT layers) already proved
+		 * the input region equals this buffer's recorded recipe, so skip the slot-by-slot compare
+		 * and go straight to the accumulate phase. Fluid tags are intentionally NOT part of the
+		 * tree predicate (dead in practice per user decision) — a tag-differing fluid dose merges
+		 * and adopts the recorded tag (accumulation fills from the recorded single anyway).
+		 */
+		public boolean classifyMatched(ListeningFluidTank[] fin, ItemStack[] iin, boolean removeInputOnSuccess) {
+			int indexFluid = -1;
+			int indexItem = -1;
+			for (int ix = 0; ix < f; ix++) if (mStoredFluidInternalSingle[ix].getFluid() != null) indexFluid = ix;
+			for (int ix = 0; ix < i; ix++) if (mStoredItemInternalSingle[ix] != null) indexItem = ix;
+			if (indexFluid < 0 && indexItem < 0) return false; // no recorded recipe: nothing to merge
+			return accumulateMatched(fin, iin, removeInputOnSuccess, indexFluid, indexItem);
+		}
+
+		/** The action phase shared by classify() and classifyMatched(): accumulate one dose, consume inputs. */
+		private boolean accumulateMatched(ListeningFluidTank[] fin, ItemStack[] iin, boolean removeInputOnSuccess,
+				int indexFluid, int indexItem) {
+			for (int ix = 0; ix < indexFluid+1; ix++) {
 				mStoredFluidInternal[ix].fill(mStoredFluidInternalSingle[ix].getFluid(), true);
 				if (removeInputOnSuccess)
 					fin[ix].setFluidDirect(null);
@@ -810,7 +832,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 					fin[ix].setFluidDirect(fin[ix].getFluid().copy());
 				nonempty=true;
 			}
-			for (int ix = 0; ix < (enableOpt?indexItem+1:i); ix++) {
+			for (int ix = 0; ix < indexItem+1; ix++) {
 				if (mStoredItemInternalSingle[ix] != null)
 					if (mStoredItemInternal[ix] == null)
 						mStoredItemInternal[ix] = ItemStackG.neo(mStoredItemInternalSingle[ix].copy());
@@ -825,7 +847,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 			tickFirstClassify = -1;// make it instantly accessible
 			markJustHadNewItems();
 
-			recordRecipe(this);
 			/*
 			 * Integer check = detailmap.get(Recipe.fromBuffer(this, false));
 			 * if(check==null){ currentID++;
@@ -866,8 +887,10 @@ public class BufferedDualInputHatch extends DualInputHatch
 					}
 				}
 				recipeLocked = actuallyFound;
-				if (actuallyFound)
+				if (actuallyFound) {
+					treeInsert(this);
 					firstClassify(fin, iin,indexf+1,indexi+1);
+				}
 				return actuallyFound;
 			}
 			return false;
@@ -884,7 +907,14 @@ public class BufferedDualInputHatch extends DualInputHatch
 			 * 0, bruh, 0, before_size); return bruh;
 			 */
 			ItemStack[] flat = flat(mStoredItemInternal);
-			if(flat.length==0)nonempty=false;
+			// nonempty=false means "100% empty", so one empty SIDE is not enough: an item-only
+			// buffer used to be flagged false by getFluidInputs (and vice versa), making it
+			// invisible to the multi's nonempty filter and lying to isEmpty()'s fast path
+			// (record-target selection & surplus-buffer removal). Check the other side too —
+			// then this doubles as the cheap "just got drained" false-setter.
+			if (flat.length == 0) {
+				if (fluidSideEmpty()) nonempty = false;
+			} else nonempty = true;
 			ItemStack[] condensed = filterStack.apply(flat, shared.getItems());
 
 			// if(!trunOffEnsure){condensed=ensureIntMax(condensed);}
@@ -896,7 +926,9 @@ public class BufferedDualInputHatch extends DualInputHatch
 		@Override
 		public FluidStack[] getFluidInputs() {
 			FluidStack[] flat = flat(mStoredFluidInternal);
-			if(flat.length==0)nonempty=false;
+			if (flat.length == 0) {
+				if (itemSideEmpty()) nonempty = false;
+			} else nonempty = true;
 			FluidStack[] condensed = asFluidStack.apply(flat(mStoredFluidInternal), shared.getFluid());
 			// if(!trunOffEnsure){condensed=ensureIntMax(condensed);}
 
@@ -1025,20 +1057,28 @@ public class BufferedDualInputHatch extends DualInputHatch
 	@Override
 	public void startRecipeProcessingImpl() {
 
-		if (isInputEmpty() == false && getBaseMetaTileEntity().isAllowedToWork())
+		if (isInputEmpty() == false && getBaseMetaTileEntity().isAllowedToWork()) {
+			// one tree walk either proves "no buffer can match" or yields the DEFINITIVE matches:
+			// merge via classifyMatched without re-comparing (see RecipeTree javadoc)
+			final java.util.ArrayList<DualInvBuffer> candidates = treeLookup();
 			for (DualInvBuffer inv0 : this.sortByEmptyItr()) {
 
 				if (inv0.full() == false) {
-					if (inv0.classify(this.mStoredFluid, mInventory, true)
-							||inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory) 
-						)
-							break;
-						
-					
+					boolean done;
+					if (candidates != null && candidates.contains(inv0)) {
+						done = inv0.classifyMatched(this.mStoredFluid, mInventory, true);
+					} else {
+						done = (!treeEligible(inv0) && inv0.classify(this.mStoredFluid, mInventory, true))
+							|| inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory);
+					}
+					if (done) break;
+
+
 				}
 
 				// inv0.clearRecipeIfNeeded();
 			}
+		}
 
 		super.startRecipeProcessingImpl();
 	}
@@ -1118,21 +1158,26 @@ public class BufferedDualInputHatch extends DualInputHatch
 		// System.out.println(sleep);
 
 		// if(inputEmpty==null)inputEmpty=isInputEmpty();
-		if (!sleep || updateEveryTick())
+		if (!sleep || updateEveryTick()) {
+			final java.util.ArrayList<DualInvBuffer> candidates = (on && !inputEmpty.get()) ? treeLookup() : null;
 			for (DualInvBuffer inv0 : this.sortByEmptyItr()) {
 				if (on && !inputEmpty.get()) {
 					if (inv0.full() == false) {
-						if (inv0.classify(this.mStoredFluid, mInventory, true)
-								||inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)
-								 )
-							break;
-						;
+						boolean done;
+						if (candidates != null && candidates.contains(inv0)) {
+							done = inv0.classifyMatched(this.mStoredFluid, mInventory, true);
+						} else {
+							done = (!treeEligible(inv0) && inv0.classify(this.mStoredFluid, mInventory, true))
+								|| inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory);
+						}
+						if (done) break;
 
 					}
 				}
 
 				inv0.clearRecipeIfNeeded();
 			}
+		}
 		// prevdirty=dirty;
 
 		if (autoAppend && allFull && !isInputEmpty()) {
@@ -1145,6 +1190,10 @@ public class BufferedDualInputHatch extends DualInputHatch
 				boolean exfull = true;
 				for (int i = bufferNum; i < inv0.size(); i++) {
 					if (inv0.get(i).isEmpty()) {
+						// isEmpty() ignores recipeLocked: the buffer may leave inv0 with a recipe
+						// still recorded (delayed unlock) — prune it or the tree would keep serving
+						// a buffer that no longer exists
+						treeRemove(inv0.get(i));
 						inv0.remove(i);
 						exfull = false;
 						break;
@@ -1156,10 +1205,17 @@ public class BufferedDualInputHatch extends DualInputHatch
 						if (inv0.get(i).isEmpty() && (!inv0.get(i).recipeLocked)) {
 							DualInvBuffer from = inv0.get(bufferNum);
 							DualInvBuffer to = inv0.get(i);
+							// recipe unchanged, host object swapped: re-home the leaf entry
+							treeRemove(from);
 							// to.fromTag(from.toTag());//TODO shallow copy
 							// instead
 							moveTo(from.mStoredFluidInternal, to.mStoredFluidInternal);
-							moveTo(from.mStoredFluidInternalSingle, to.mStoredFluidInternalSingle);
+							// CONTENT copy, not object copy: the single tanks are views bound to
+							// their owning buffer's singleBack mirror (see BackedFluidTank)
+							for (int mi = 0; mi < Math.min(from.mStoredFluidInternalSingle.length,
+								to.mStoredFluidInternalSingle.length); mi++) {
+								to.mStoredFluidInternalSingle[mi].setFluid(from.mStoredFluidInternalSingle[mi].getFluid());
+							}
 							moveTo(from.mStoredItemInternal, to.mStoredItemInternal);
 							moveTo(from.mStoredItemInternalSingle, to.mStoredItemInternalSingle);
 							to.nonempty=true;
@@ -1172,6 +1228,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 							to.recipeLocked = from.recipeLocked;
 							to.tickFirstClassify = from.tickFirstClassify;
 							to.unlockDelay = from.unlockDelay;
+							if (to.recipeLocked) treeInsert(to);
 							inv0.remove(bufferNum);
 							break;
 						}
@@ -1317,10 +1374,17 @@ public class BufferedDualInputHatch extends DualInputHatch
 	public void classify() {
 		if (isRemote())
 			return;
+		final java.util.ArrayList<DualInvBuffer> candidates = treeLookup();
 		for (DualInvBuffer inv0 : this.sortByEmptyItr()) {
-			if (inv0.full() == false)
-				if (inv0.classify(this.mStoredFluid, mInventory, true))
-					break;
+			if (inv0.full() == false) {
+				boolean done;
+				if (candidates != null && candidates.contains(inv0)) {
+					done = inv0.classifyMatched(this.mStoredFluid, mInventory, true);
+				} else {
+					done = !treeEligible(inv0) && inv0.classify(this.mStoredFluid, mInventory, true);
+				}
+				if (done) break;
+			}
 		}
 
 	}
@@ -1328,11 +1392,18 @@ public class BufferedDualInputHatch extends DualInputHatch
 	public DualInvBuffer classifyForce() {
 		if (isRemote())
 			return null;
+		final java.util.ArrayList<DualInvBuffer> candidates = treeLookup();
 		for (DualInvBuffer inv0 : this.sortByEmptyItr()) {
-			if (inv0.full() == false)
-				if (inv0.classify(this.mStoredFluid, mInventory, true)
-						|| inv0.recordRecipeOrClassify(mStoredFluid, mInventory))
-					return inv0;
+			if (inv0.full() == false) {
+				boolean done;
+				if (candidates != null && candidates.contains(inv0)) {
+					done = inv0.classifyMatched(this.mStoredFluid, mInventory, true);
+				} else {
+					done = (!treeEligible(inv0) && inv0.classify(this.mStoredFluid, mInventory, true))
+						|| inv0.recordRecipeOrClassify(mStoredFluid, mInventory);
+				}
+				if (done) return inv0;
+			}
 		}
 		return null;
 
@@ -1391,7 +1462,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 	public void loadNBTData(NBTTagCompound aNBT) {
 		if (aNBT.hasKey("x") == false)
 			return;
-		order=aNBT.getInteger("order");
 		dirty = aNBT.getBoolean("dirty");
 		int iex = aNBT.getInteger("exinvlen");
 		boolean warn = false;
@@ -1422,51 +1492,16 @@ public class BufferedDualInputHatch extends DualInputHatch
 		merge = aNBT.getBoolean("merge");
 		justHadNewItems = aNBT.getBoolean("justHadNewItems");
 		updateEveryTick = aNBT.getBoolean("updateEveryTick");
-		if (aNBT.hasKey("useNewGTPatternCache"))
-			useNewGTPatternCache = aNBT.getBoolean("useNewGTPatternCache");
 		preventSleep = aNBT.getInteger("preventSleep");
-		currentID = aNBT.getInteger("currentID");
-
-		detailmap.clear();
-		int i = 0;
-		while (true) {
-
-			int value = aNBT.getInteger("detailmap_v" + i);
-			if (value > 0) {
-				NBTTagCompound key = (NBTTagCompound) aNBT.getTag("detailmap_k" + i);
-				// ItemStack is = ItemStack.loadItemStackFromNBT(key);
-				detailmap.put(Recipe.deser(key)
-				// ((ICraftingPatternItem)is.getItem()).getPatternForItem(is,
-				// getBaseMetaTileEntity().getWorld())
-						, value);
-			} else {
-				break;
-			}
-			i++;
-		}
-		detailmapUsage.clear();
-		 i = 0;
-		while (true) {
-
-			int value = aNBT.getInteger("detailmapUsage_v" + i);
-			if (value > 0) {
-				int key =  aNBT.getInteger("detailmapUsage_k" + i);
-				// ItemStack is = ItemStack.loadItemStackFromNBT(key);
-				detailmapUsage.put((key)
-				// ((ICraftingPatternItem)is.getItem()).getPatternForItem(is,
-				// getBaseMetaTileEntity().getWorld())
-						, value);
-			} else {
-				break;
-			}
-			i++;
-		}
+		// legacy keys useNewGTPatternCache / currentID / order / detailmap* / detailmapUsage* are
+		// intentionally ignored: the GT-pattern-cache experiment they belonged to was never wired
+		// up (its consumers have been commented out for a long time) and the RecipeTree covers
+		// recipe identity now. Old saves load fine; the stale tags are simply dropped.
 		super.loadNBTData(aNBT);
 	}
 
 	@Override
 	public void saveNBTData(NBTTagCompound aNBT) {
-		aNBT.setInteger("order", order);
 		aNBT.setBoolean("dirty", dirty);
 		for (int i = 0; i < inv0.size(); i++)
 
@@ -1476,28 +1511,8 @@ public class BufferedDualInputHatch extends DualInputHatch
 		aNBT.setBoolean("merge", merge);
 		aNBT.setBoolean("justHadNewItems", justHadNewItems);
 		aNBT.setBoolean("updateEveryTick", updateEveryTick);
-		aNBT.setBoolean("useNewGTPatternCache", useNewGTPatternCache);
 		aNBT.setBoolean("autoAppend", autoAppend);
 		aNBT.setInteger("preventSleep", preventSleep);
-		aNBT.setInteger("currentID", currentID);
-		int i = 0;
-		for (Entry<Recipe, Integer> e : detailmap.entrySet()) {
-			NBTTagCompound key = e.getKey().ser();
-			int value = e.getValue();
-
-			aNBT.setInteger("detailmap_v" + i, value);
-			aNBT.setTag("detailmap_k" + i, key);
-			i++;
-		}
-	 i = 0;
-		for (Entry<Integer, Integer> e : detailmapUsage.entrySet()) {
-			int key = e.getKey();
-			int value = e.getValue();
-
-			aNBT.setInteger("detailmapUsage_v" + i, value);
-			aNBT.setInteger("detailmapUsage_k" + i, key);
-			i++;
-		}
 
 		super.saveNBTData(aNBT);
 	}
@@ -1658,7 +1673,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 	}
 
-	boolean useNewGTPatternCache = false;
 
 	private IDualInputInventoryWithPattern wrap(DualInvBuffer to) {
 		/*if (to.PID > 0 && useNewGTPatternCache) {
@@ -1671,110 +1685,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 	static Random ran = new Random();
 	final int mask = ran.nextInt();
-
-	public static class Recipe extends GTDualInputPattern{
-
-		//ItemStack[] i;
-		//FluidStack[] f;
-
-		public static Recipe fromBuffer(DualInvBuffer buf, boolean copy) {
-			Recipe r = new Recipe();
-			r.inputItems = buf.mStoredItemInternalSingle;
-			if (copy)
-				r.inputItems = r.inputItems.clone();
-			for (int i = 0; i < r.inputItems.length; i++) {
-				if (copy)
-					r.inputItems[i] = r.inputItems[i] == null ? null : r.inputItems[i].copy();
-			}
-			r.inputFluid = new FluidStack[buf.mStoredFluidInternalSingle.length];
-			for (int i = 0; i < r.inputFluid.length; i++) {
-				FluidStack fs = buf.mStoredFluidInternalSingle[i].getFluid();
-				if (copy && fs != null)
-					fs = fs.copy();
-				r.inputFluid[i] = fs;
-			}
-
-			return r;
-		}
-		private Integer hashcache;
-		@Override
-		public int hashCode() {
-			if(hashcache==null){
-			int hashCode = 1;
-			for (ItemStack e : inputItems)
-				hashCode = 31 * hashCode + (e == null ? 0 : hashCode(e));
-			for (FluidStack e : inputFluid)
-				hashCode = 31 * hashCode + (e == null ? 0 : hashCode(e));
-			hashcache= hashCode;
-			}
-			return hashcache;
-		}
-
-		private int hashCode(ItemStack e) {
-			int hashCode = 1;
-			hashCode = 31 * hashCode + e.stackSize;
-			hashCode = 31 * hashCode + Item.getIdFromItem(e.getItem());
-			hashCode = 31 * hashCode + (e.stackTagCompound == null ? 0 : e.stackTagCompound.hashCode());
-			return hashCode;
-		}
-		private int hashCode(FluidStack e) {
-			int hashCode = 1;
-			hashCode = 31 * hashCode + e.amount;
-			hashCode = 31 * hashCode + e.getFluidID();
-			hashCode = 31 * hashCode + (e.tag == null ? 0 : e.tag.hashCode());
-			return hashCode;
-		}
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof Recipe) {
-				Recipe p = (Recipe) obj;
-				for (int j = 0; j < inputFluid.length; j++) {
-					if (!ItemStack.areItemStacksEqual(inputItems[j], p.inputItems[j])) {
-						return false;
-					}
-					if (!fluidEquals(inputFluid[j], p.inputFluid[j])) {
-						return false;
-					}
-				}
-				return true;
-			}
-			return super.equals(obj);
-		}
-
-		public NBTTagCompound ser() {
-			NBTTagCompound tag = new NBTTagCompound();
-
-			for (int i = 0; i < inputFluid.length; i++) {
-				if (inputFluid[i] != null)
-					tag.setTag("f" + i, inputFluid[i].writeToNBT(new NBTTagCompound()));
-			}
-			tag.setInteger("ff", inputFluid.length);
-			for (int ii = 0; ii < inputItems.length; ii++) {
-				if (inputItems[ii] != null)
-					tag.setTag("i" + ii, writeToNBT(inputItems[ii], new NBTTagCompound()));
-			}
-			tag.setInteger("ii", inputItems.length);
-			return tag;
-		}
-
-		public static Recipe deser(NBTTagCompound tag) {
-			Recipe r = new Recipe();
-			r.inputFluid = new FluidStack[tag.getInteger("ff")];
-			r.inputItems = new ItemStack[tag.getInteger("ii")];
-			for (int i = 0; i < r.inputFluid.length; i++) {
-				if (tag.hasKey("f" + i)) {
-					r.inputFluid[i] = FluidStack.loadFluidStackFromNBT(tag.getCompoundTag("f" + i));
-				}
-			}
-			for (int i = 0; i < r.inputItems.length; i++) {
-				if (tag.hasKey("i" + i)) {
-					r.inputItems[i] = loadItemStackFromNBT(tag.getCompoundTag("i" + i));
-				}
-			}
-
-			return r;
-		}
-	}
 
 	//LinkedList<PatternDualInv> toDisconnect = new LinkedList<PatternDualInv>();
 
@@ -1851,7 +1761,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 	@Override
 	public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
 			int z) {
-		tag.setInteger("detailMapCacheSize", detailmap.size());
 		tag.setInteger("exinvlen", inv0.size() - bufferNum);
 		tag.setBoolean("sleep", sleep);
 		tag.setInteger("sleepTime", sleepTime);
@@ -2002,7 +1911,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 			);
 
-		currenttip.add("Cached Recipes:" + tag.getInteger("detailMapCacheSize"));
 
 		int idle[] = new int[1];
 		IntStream.range(0, tag.getInteger("inv_size")).forEach(s -> {
@@ -2305,10 +2213,331 @@ public class BufferedDualInputHatch extends DualInputHatch
 	 */
 	
 	
+	// ===================== recipe-hash fast path =====================
+	// classify() compares the whole input region against every buffer's recorded recipe slot by
+	// slot (ItemStack.areItemStacksEqual incl. NBT + fluidEquals incl. amount) every tick while
+	// awake. A single int hash of the region, using exactly the fields those predicates compare,
+	// lets the per-buffer scan bail out with one int comparison: equal contents imply equal hashes,
+	// so a hash mismatch proves classify() would have returned false. A collision merely falls
+	// through to the full (authoritative) comparison.
+
+	/**
+	 * Cheap slot fingerprints used as the recipe tree's bucket keys: no NBT, no registry lookups —
+	 * Item/Fluid are singletons so System.identityHashCode is a sound stand-in. Contents that the
+	 * classify() predicates consider equal always produce equal cheap keys, so a matching node (if
+	 * any) is always in the input slot's own bucket; NBT is only deep-compared inside a bucket hit.
+	 */
+	static public int hashFluidSlotCheap(FluidStack fs) {
+		if (fs == null || fs.amount == 0) return 0;
+		return System.identityHashCode(fs.getFluid()) * 31 + fs.amount;
+	}
+
+	static public int hashItemSlotCheap(ItemStack s) {
+		if (s == null) return 0;
+		int h = System.identityHashCode(s.getItem());
+		h = h * 31 + Items.feather.getDamage(s);
+		h = h * 31 + s.stackSize;
+		return h;
+	}
+
+	/**
+	 * Recipe-single tank mirrored into one slot of the buffer's contiguous singleBack array; the
+	 * tank's own field stays the source of truth, only field assignments are mirrored (all of them
+	 * go through the overridden methods here — FluidTank.readFromNBT dispatches virtually to
+	 * setFluid). Same idea as BackedListeningFluidTank on the input side.
+	 */
+	static final class BackedFluidTank extends FluidTank {
+
+		private final FluidStack[] back;
+		private final int idx;
+
+		BackedFluidTank(FluidStack[] back, int idx) {
+			super(Integer.MAX_VALUE);
+			this.back = back;
+			this.idx = idx;
+		}
+
+		@Override
+		public void setFluid(FluidStack f) {
+			super.setFluid(f);
+			back[idx] = this.fluid;
+		}
+
+		@Override
+		public int fill(FluidStack resource, boolean doFill) {
+			try {
+				return super.fill(resource, doFill);
+			} finally {
+				back[idx] = this.fluid;
+			}
+		}
+
+		@Override
+		public FluidStack drain(int maxDrain, boolean doDrain) {
+			try {
+				return super.drain(maxDrain, doDrain);
+			} finally {
+				back[idx] = this.fluid;
+			}
+		}
+	}
+
+	/** Mirrors fluidEquals minus the tag comparison — never rejects anything fluidEquals accepts. */
+	static boolean fluidSlotMatchesNoTag(FluidStack fa, FluidStack fb) {
+		if (fa == null && fb == null) return true;
+		if ((fa == null ? 0 : fa.amount) != (fb == null ? 0 : fb.amount)) return false;
+		return fa == null || fb == null || fa.getFluid() == fb.getFluid();
+	}
+
+	/** The NBT-free half of ItemStack.areItemStacksEqual: null↔null, item, raw damage, stackSize. */
+	static boolean itemSlotMatchesCheap(ItemStack a, ItemStack b) {
+		if (a == null || b == null) return a == b;
+		return a.getItem() == b.getItem() && Items.feather.getDamage(a) == Items.feather.getDamage(b)
+			&& a.stackSize == b.stackSize;
+	}
+
+	/** The tag half of ItemStack.areItemStacksEqual (null-safe deep equality). */
+	static boolean tagMatches(Object a, Object b) {
+		return a == null ? b == null : b != null && a.equals(b);
+	}
+
+	/**
+	 * Sparse prefix tree over all recorded recipes of this hatch. A recipe/input region is
+	 * decomposed into its NON-EMPTY (slot, content) pairs only — empty slots never become nodes,
+	 * the slot index inside every key encodes the gaps (so item-gap-item and two adjacent items
+	 * differ by construction). Three sections in fixed order, each enumerated in DESCENDING slot
+	 * order (the user's "match from the last occupied slot backwards"):
+	 * <p>
+	 * section A: occupied fluid slots, keyed (slot, fluid identity + amount), tags ignored by
+	 * design (fluid tags are dead in practice - a tree match is definitive even if they differ);
+	 * section B: occupied item slots, keyed (slot, item / raw damage / count) - no NBT;
+	 * section C: those same item slots' tags, in section B's order, bucketed by tag.hashCode()
+	 * computed lazily only if the walk survives that far. NBT therefore stays last: it is touched
+	 * only when every fluid and every item's cheap half already matched.
+	 * <p>
+	 * Because pair 0 is the HIGHEST occupied slot, a growing input dies at the root in O(1): a
+	 * 1~15-item input probes the root bucket with (slot14, ...) while a 1~16 recipe's first key
+	 * is (slot15, ...) - no shared prefix is ever walked. Walk length = the input's own pair
+	 * count; matching ends exactly when the input's pairs are exhausted (tail leaves), so no
+	 * per-node length census is needed. Deterministic, no backtracking.
+	 * <p>
+	 * A tree match is EXACT equality of the whole region (modulo fluid tags), so the scan merges
+	 * via classifyMatched() without re-comparing; a null lookup proves no buffer can match. Node
+	 * keys reference the recorded *Single contents (stable between record and clear).
+	 * <p>
+	 * INVARIANT: buffer.inTree == (its recorded recipe is inserted), maintained in the same call
+	 * stack at every mutation site - record, clear, fromTag/load, compaction move, inv0 removal.
+	 */
+	public static final class RecipeTree {
+
+		static final byte SEC_FLUID = 0, SEC_ITEM = 1, SEC_TAG = 2;
+
+		static final class Node {
+
+			final byte sec;
+			final int slot;
+			/** FluidStack (A) / ItemStack (B) / NBTTagCompound or null (C). */
+			final Object key;
+			java.util.HashMap<Integer, java.util.ArrayList<Node>> children;
+			/** Recipes whose pair list ends exactly at this node. */
+			java.util.ArrayList<DualInvBuffer> tail;
+
+			Node(byte sec, int slot, Object key) {
+				this.sec = sec;
+				this.slot = slot;
+				this.key = key;
+			}
+
+			boolean isEmpty() {
+				return (children == null || children.isEmpty()) && (tail == null || tail.isEmpty());
+			}
+		}
+
+		final Node root = new Node((byte) -1, -1, null);
+
+		/**
+		 * Decomposes a region (works for both the recorded singles and the live input arrays)
+		 * into its non-empty pairs: fluids by descending slot, then items by descending slot,
+		 * then those items' tags in the same order. Fills sec/slot/content and the PRE-computable
+		 * bucket keys (ck of tag pairs is computed lazily in bucketKey - never here).
+		 *
+		 * @return pair count
+		 */
+		private static int enumerate(FluidStack[] fback, ItemStack[] items, int f, int i, int[] ck, byte[] sec,
+			int[] slot, Object[] content) {
+			int n = 0;
+			// fluids scan the contiguous backend mirror (see BackedListeningFluidTank/BackedFluidTank):
+			// NullScan hops the null runs; a non-null 0-amount stack just needs the follow-up check
+			for (int s = reobf.proghatches.util.NullScan.lastNonNull(fback, Math.min(f, fback.length) - 1); s >= 0;
+				s = s == 0 ? -1 : reobf.proghatches.util.NullScan.lastNonNull(fback, s - 1)) {
+				FluidStack fs = fback[s];
+				if (fs.amount == 0) continue;
+				sec[n] = SEC_FLUID;
+				slot[n] = s;
+				content[n] = fs;
+				ck[n] = (SEC_FLUID * 31 + s) * 31 + hashFluidSlotCheap(fs);
+				n++;
+			}
+			int itemsStart = n;
+			// Unsafe-accelerated null-run skipping (pairs of reference slots zero-tested per
+			// getLong under compressed oops; plain-loop fallback inside)
+			for (int s = reobf.proghatches.util.NullScan.lastNonNull(items, Math.min(i, items.length) - 1); s >= 0;
+				s = s == 0 ? -1 : reobf.proghatches.util.NullScan.lastNonNull(items, s - 1)) {
+				ItemStack st = items[s];
+				sec[n] = SEC_ITEM;
+				slot[n] = s;
+				content[n] = st;
+				ck[n] = (SEC_ITEM * 31 + s) * 31 + hashItemSlotCheap(st);
+				n++;
+			}
+			int itemsEnd = n;
+			for (int k = itemsStart; k < itemsEnd; k++) {
+				ItemStack st = (ItemStack) content[k];
+				sec[n] = SEC_TAG;
+				slot[n] = slot[k];
+				content[n] = st.stackTagCompound;
+				n++;
+			}
+			return n;
+		}
+
+		/** Tag-pair bucket keys are derived here, lazily, so an early divergence never hashes NBT. */
+		private static int bucketKey(int d, int[] ck, byte[] sec, Object[] content) {
+			if (sec[d] == SEC_TAG) return SEC_TAG * 961 + (content[d] == null ? 0 : content[d].hashCode());
+			return ck[d];
+		}
+
+		private static boolean nodeMatches(Node n, byte sec, int slot, Object content) {
+			if (n.sec != sec) return false;
+			if (sec == SEC_FLUID) return n.slot == slot && fluidSlotMatchesNoTag((FluidStack) n.key, (FluidStack) content);
+			if (sec == SEC_ITEM) return n.slot == slot && itemSlotMatchesCheap((ItemStack) n.key, (ItemStack) content);
+			return tagMatches(n.key, content);
+		}
+
+		public void insert(DualInvBuffer buf, int f, int i) {
+			if (buf.inTree) remove(buf, f, i); // idempotence / self-heal
+			int cap = f + i + i;
+			int[] ck = new int[cap];
+			byte[] sec = new byte[cap];
+			int[] slot = new int[cap];
+			Object[] content = new Object[cap];
+			int n = enumerate(buf.singleBack, buf.mStoredItemInternalSingle, f, i, ck, sec, slot, content);
+			if (n == 0) return; // nothing recorded: never inserted (recordRecipeOrClassify can't produce this)
+			Node cur = root;
+			for (int d = 0; d < n; d++) {
+				if (cur.children == null) cur.children = new java.util.HashMap<>();
+				int k = bucketKey(d, ck, sec, content);
+				java.util.ArrayList<Node> bucket = cur.children.get(k);
+				if (bucket == null) cur.children.put(k, bucket = new java.util.ArrayList<>(1));
+				Node next = null;
+				for (Node node : bucket) {
+					if (nodeMatches(node, sec[d], slot[d], content[d])) {
+						next = node;
+						break;
+					}
+				}
+				if (next == null) bucket.add(next = new Node(sec[d], slot[d], content[d]));
+				cur = next;
+			}
+			if (cur.tail == null) cur.tail = new java.util.ArrayList<>(1);
+			if (!cur.tail.contains(buf)) cur.tail.add(buf);
+			buf.inTree = true;
+		}
+
+		public void remove(DualInvBuffer buf, int f, int i) {
+			if (!buf.inTree) return;
+			buf.inTree = false;
+			int cap = f + i + i;
+			int[] ck = new int[cap];
+			byte[] sec = new byte[cap];
+			int[] slot = new int[cap];
+			Object[] content = new Object[cap];
+			int n = enumerate(buf.singleBack, buf.mStoredItemInternalSingle, f, i, ck, sec, slot, content);
+			Node[] chain = new Node[n + 1];
+			int[] cks = new int[n];
+			chain[0] = root;
+			for (int d = 0; d < n; d++) {
+				Node cur = chain[d];
+				if (cur.children == null) return; // drift: path missing, nothing to prune
+				cks[d] = bucketKey(d, ck, sec, content);
+				java.util.ArrayList<Node> bucket = cur.children.get(cks[d]);
+				if (bucket == null) return;
+				Node next = null;
+				for (Node node : bucket) {
+					if (nodeMatches(node, sec[d], slot[d], content[d])) {
+						next = node;
+						break;
+					}
+				}
+				if (next == null) return;
+				chain[d + 1] = next;
+			}
+			if (chain[n].tail != null) chain[n].tail.remove(buf);
+			for (int d = n; d >= 1; d--) {
+				if (!chain[d].isEmpty()) break; // still shared by other recipes
+				java.util.ArrayList<Node> bucket = chain[d - 1].children.get(cks[d - 1]);
+				if (bucket != null) {
+					bucket.remove(chain[d]);
+					if (bucket.isEmpty()) chain[d - 1].children.remove(cks[d - 1]);
+				}
+			}
+		}
+
+		/**
+		 * Definitive matches (buffers whose recorded recipe EQUALS the input region, modulo fluid
+		 * tags), or null. Fails at the first divergence; pair 0 already compares the highest
+		 * occupied slot.
+		 */
+		public java.util.ArrayList<DualInvBuffer> lookup(FluidStack[] fin, ItemStack[] iin, int f, int i) {
+			int cap = f + i + i;
+			int[] ck = new int[cap];
+			byte[] sec = new byte[cap];
+			int[] slot = new int[cap];
+			Object[] content = new Object[cap];
+			int n = enumerate(fin, iin, f, i, ck, sec, slot, content);
+			if (n == 0) return null; // empty input: no recipe is empty
+			Node cur = root;
+			for (int d = 0; d < n; d++) {
+				if (cur.children == null) return null;
+				java.util.ArrayList<Node> bucket = cur.children.get(bucketKey(d, ck, sec, content));
+				if (bucket == null) return null;
+				Node next = null;
+				for (Node node : bucket) {
+					if (nodeMatches(node, sec[d], slot[d], content[d])) {
+						next = node;
+						break;
+					}
+				}
+				if (next == null) return null;
+				cur = next;
+			}
+			return cur.tail; // recipes with MORE pairs hang deeper and are correctly not returned
+		}
+	}
+	public final transient RecipeTree recipeTree = new RecipeTree();
+
+	/** Buffers with legacy-NBT slot counts never enter the tree; the scan falls back to plain classify for them. */
+	boolean treeEligible(DualInvBuffer b) {
+		return b.f == this.mStoredFluid.length && b.i == this.mInventory.length - 1;
+	}
+
+	void treeInsert(DualInvBuffer b) {
+		if (!treeEligible(b)) return;
+		recipeTree.insert(b, b.f, b.i);
+	}
+
+	void treeRemove(DualInvBuffer b) {
+		recipeTree.remove(b, b.f, b.i);
+	}
+
+	java.util.ArrayList<DualInvBuffer> treeLookup() {
+		return recipeTree.lookup(this.mStoredFluidBack, this.mInventory, this.mStoredFluid.length, this.mInventory.length - 1);
+	}
+
 	/**
 	 * 2 both null
 	 * 0 not same
-	 * 1 same 
+	 * 1 same
 	 * */
 	static public int fluidEquals(FluidTank a, FluidTank b) {
 		// if(a==b)return false;
@@ -2449,7 +2678,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 				DualInvBuffer buff = ((BufferedDualInputHatch) master).classifyForce();
 				if (buff != null) {
-					recordRecipe(buff);
 					buff.onChange();
 				}
 				((BufferedDualInputHatch) master).justHadNewItems = true;
@@ -2511,30 +2739,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 		}*/
 	}
 
-	public void recordRecipe(DualInvBuffer thiz) {
-		// nah
-	} 
-	 public  void compressValues(/*Map<Integer, Integer> originalMap*/) {
-	       
-	        List<Integer> sortedValues = new ArrayList<>(detailmapUsage.values());
-	        Collections.sort(sortedValues);
-	        
-	      
-	        Map<Integer, Integer> valueToIndex = new HashMap<>();
-	        for (int i = 0; i < sortedValues.size(); i++) {
-	            valueToIndex.put(sortedValues.get(i), i);
-	        }
-	        
-	      
-	        HashMap<Integer, Integer> compressedMap = new HashMap<>();
-	        for (Map.Entry<Integer, Integer> entry : detailmapUsage.entrySet()) {
-	            compressedMap.put(entry.getKey(), valueToIndex.get(entry.getValue()));
-	        }
-	        
-	        detailmapUsage= compressedMap;
-	        order=sortedValues.size()+1;
-	    }
-	int order;
 	public static NBTTagCompound writeToNBTG(ItemStackG is, NBTTagCompound tag) {
 		is.writeToNBT(tag);
 		// tag.setInteger("ICount", is.stackSize);

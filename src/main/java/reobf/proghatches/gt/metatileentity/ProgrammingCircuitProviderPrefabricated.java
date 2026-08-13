@@ -36,6 +36,7 @@ import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.ProghatchesUtil;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class ProgrammingCircuitProviderPrefabricated extends MTEHatch implements ICircuitProvider {
 
     public ProgrammingCircuitProviderPrefabricated(int aID, String aName, String aNameRegional, int aTier,

@@ -65,6 +65,7 @@ import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class RemoteInputHatch extends MTEHatchMultiInput
     implements IRecipeProcessingAwareHatch, IDataCopyablePlaceHolder {
 
@@ -220,145 +221,7 @@ public class RemoteInputHatch extends MTEHatchMultiInput
     }
 
     @SuppressWarnings("unchecked")
-    @Override
-    public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
-        // super.addUIWidgets(builder, buildContext);
-
-        // buildContext.addCloseListener(() -> uiButtonCount = 0);
-
-        builder.widget(TextWidget.dynamicString(() -> {
-
-            if (!linked) {
-                return LangManager.translateToLocal("programmable_hatches.remote.unlinked");
-            }
-
-            Optional<TileEntity> opt = getTile();
-            if (this.getBaseMetaTileEntity()
-                .getWorld()
-                .getChunkProvider()
-                .chunkExists(x >> 4, z >> 4) == false)
-                return LangManager.translateToLocal("programmable_hatches.remote.chunk");
-
-            if (opt.isPresent() == false) return LangManager.translateToLocal("programmable_hatches.remote.nothing");
-            else checkBlackList();
-            if (opt.get() instanceof IFluidHandler == false) {
-                return LangManager.translateToLocal("programmable_hatches.remote.dummytarget");
-
-            }
-
-            return LangManager.translateToLocal("programmable_hatches.remote.ok");
-
-        }
-
-        )
-            .setSynced(true)
-            .setPos(5, 5))
-
-        ;
-        List<FluidTank> is;
-
-        builder.widget(
-            SlotGroup.ofFluidTanks(
-                (List) (is = Stream.generate(() -> new FluidTank(Integer.MAX_VALUE))
-                    .limit(16)
-                    .collect(Collectors.toList())),
-                8)
-                .widgetCreator((s, b) -> {
-                    FluidSlotWidget sw = new FluidSlotWidget(b) {
-
-                        @Override
-                        public void buildTooltip(List<Text> tooltip) {
-                            // super.buildTooltip(tooltip);
-                            FluidStack fluid = getContent();
-                            if (fluid != null) {
-                                addFluidNameInfo(tooltip, fluid);
-                                tooltip.add(Text.localised("modularui.fluid.phantom.amount", fluid.amount));
-                                addAdditionalFluidInfo(tooltip, fluid);
-                                if (!Interactable.hasShiftDown()) {
-                                    tooltip.add(Text.EMPTY);
-                                    tooltip.add(Text.localised("modularui.tooltip.shift"));
-                                }
-                            } else {
-                                tooltip.add(
-                                    Text.localised("modularui.fluid.empty")
-                                        .format(EnumChatFormatting.WHITE));
-                            }
-                        }
-
-                        @Override
-                        protected void tryClickPhantom(ClickData clickData, ItemStack cursorStack) {}
-
-                        @Override
-                        protected void tryScrollPhantom(int direction) {}
-                    };
-
-                    return sw;
-                })
-                .phantom(true)
-                .startFromSlot(0)
-                .endAtSlot(16)
-                .build()
-                .setPos(3, 3 + 16));
-
-        builder.widget(new SyncedWidget() {
-
-            int count;
-
-            @Override
-            public void detectAndSendChanges(boolean init) {
-                if (count-- <= 0) {
-                    count = 100;
-                } else return;
-
-                Optional<TileEntity> opt = getTile();
-                if (opt.isPresent()) {
-                    List<FluidStack> list = opt.map(e -> {
-                        try {
-                            processingRecipe = true;
-                            tmp = null;
-                            return filterTakable(e);
-                        } finally {
-                            processingRecipe = false;
-                            tmp = null;
-                        }
-
-                    })
-                        .get();
-                    for (int i = 0; i < is.size(); i++) {
-                        is.get(i)
-                            .setFluid(list.size() > i ? list.get(i) : null);
-                    }
-
-                } else {
-                    for (int i = 0; i < is.size(); i++) {
-                        is.get(i)
-                            .setFluid(null);
-
-                    }
-
-                }
-            }
-
-            public void readOnClient(int id, PacketBuffer buf) throws IOException {}
-
-            public void readOnServer(int id, PacketBuffer buf) throws IOException {}
-        });
-
-        Widget w;
-        builder.widget(
-            w = new DrawableWidget().setDrawable(ModularUITextures.ICON_INFO)
-
-                .setPos(3 + 18 * 8 + 1, 3 + 18 * 2 + 1)
-                .setSize(16, 16)
-        // .addTooltip("xxxxxxx")
-        );
-
-        IntStream
-            .range(0, Integer.valueOf(StatCollector.translateToLocal("programmable_hatches.gt.remotehatch.tooltip")))
-            .forEach(
-                s -> w.addTooltip(LangManager.translateToLocal("programmable_hatches.gt.remotehatch.tooltip." + +s)));
-
-    }
+    
 
     @Override
     public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
@@ -790,4 +653,229 @@ public class RemoteInputHatch extends MTEHatchMultiInput
         if (nbt.hasKey("linked")) linked = nbt.getBoolean("linked");
         return true;
     }
+
+    // ===================== MUI2 =====================
+    // MTEHatchMultiInput's stock MUI2 GUI indexes fluidTanks[0..3], but this hatch is constructed
+    // with 0 slots (contents live in the remote handler), so opening it crashed with an AIOOBE and
+    // the GUI never appeared. Full custom panel instead: status line + read-only remote preview.
+    @Override
+    public com.cleanroommc.modularui.screen.ModularPanel buildUI(com.cleanroommc.modularui.factory.PosGuiData data,
+        com.cleanroommc.modularui.value.sync.PanelSyncManager syncManager,
+        com.cleanroommc.modularui.screen.UISettings uiSettings) {
+        com.cleanroommc.modularui.screen.ModularPanel builder = gregtech.api.modularui2.GTGuis
+            .mteTemplatePanelBuilder(this, data, syncManager, uiSettings)
+            .doesAddGregTechLogo(false)
+            .build();
+
+        // status decided server-side; only the lang KEY is synced so the client localizes it itself
+        com.cleanroommc.modularui.value.sync.StringSyncValue status =
+            new com.cleanroommc.modularui.value.sync.StringSyncValue(this::remoteStatusSynced);
+        syncManager.syncValue("remote_status", status);
+
+        // target rendered as its pick-block item; hover = server-evaluated WAILA tooltip
+        final reobf.proghatches.util.TargetBlockInfoSync targetInfo = new reobf.proghatches.util.TargetBlockInfoSync(
+            () -> this.getBaseMetaTileEntity() == null ? null
+                : this.getBaseMetaTileEntity()
+                    .getWorld(),
+            () -> linked ? new int[] { x, y, z } : null);
+        syncManager.syncValue("target_item", targetInfo);
+        builder.child(
+            targetInfo.createWidget()
+                .pos(5, 2));
+
+        builder.child(com.cleanroommc.modularui.api.drawable.IKey
+            .dynamic(() -> remoteStatusDisplay(status.getStringValue(), targetInfo))
+            .asWidget()
+            .pos(24, 5)
+            .size(getGUIWidth() - 29, 12));
+
+        // Highlight-target button: purely client-side, reuses AE2's interface-terminal highlighter.
+        builder.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>().onMousePressed(mouseButton -> {
+            highlightTargetClient(status.getStringValue());
+            return true;
+        })
+            .background(
+                gregtech.api.modularui2.GTGuiTextures.BUTTON_STANDARD,
+                gregtech.api.modularui2.GTGuiTextures.OVERLAY_BUTTON_HIGHLIGHT_BLOCK)
+            .tooltip(t -> t.addLine(
+                com.cleanroommc.modularui.api.drawable.IKey.lang("programmable_hatches.remote.highlight")))
+            .size(16, 16)
+            .pos(3 + 18 * 8 + 4, 3 + 16 + 18));
+
+        // Open-target button: forwards a plain right-click to the linked block on the server, so
+        // chests / tanks / machines open their own GUI. NOTE: vanilla containers validate player
+        // distance in canInteractWith, so a far-away chest may close itself immediately; GT machines
+        // go through the mixin-fixed remote-open path instead.
+        com.cleanroommc.modularui.value.sync.InteractionSyncHandler openTarget = new com.cleanroommc.modularui.value.sync.InteractionSyncHandler().setOnMousePressed(d -> {
+            if (getBaseMetaTileEntity() == null || getBaseMetaTileEntity().isClientSide()) return;
+            if (!linked) return;
+            World w = this.getBaseMetaTileEntity().getWorld();
+            if (!w.getChunkProvider().chunkExists(x >> 4, z >> 4)) return;
+            if (checkBlackList()) return;
+            if (!(data.getPlayer() instanceof net.minecraft.entity.player.EntityPlayerMP)) return;
+            // RemoteIO-style remote activation: distance-spoofing proxy + container whitelist,
+            // so vanilla chests/tanks stay open at any distance (see RemoteOpenHelper)
+            reobf.proghatches.util.RemoteOpenHelper
+                .activateBlock(w, x, y, z, (net.minecraft.entity.player.EntityPlayerMP) data.getPlayer());
+        });
+        syncManager.syncValue("open_target", openTarget);
+        builder.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>().syncHandler(openTarget)
+            .background(
+                gregtech.api.modularui2.GTGuiTextures.BUTTON_STANDARD,
+                gregtech.api.modularui2.GTGuiTextures.OVERLAY_BUTTON_EXPORT)
+            .tooltip(t -> t.addLine(
+                com.cleanroommc.modularui.api.drawable.IKey.lang("programmable_hatches.remote.open")))
+            .size(16, 16)
+            .pos(3 + 18 * 8 + 4, 3 + 16 + 18 * 2));
+
+
+        // 16 read-only preview slots showing the remote tank's extractable fluids, server-refreshed
+        // every 100 ticks (same cadence as the old MUI1 SyncedWidget)
+        final FluidStack[] display = new FluidStack[16];
+        syncManager.syncValue("remote_refresh", new com.cleanroommc.modularui.value.sync.SyncHandler() {
+
+            int count;
+
+            @Override
+            public void detectAndSendChanges(boolean init) {
+                if (!init && count-- > 0) return;
+                count = 100;
+                Optional<TileEntity> opt = getTile();
+                if (opt.isPresent()) {
+                    List<FluidStack> list;
+                    try {
+                        processingRecipe = true;
+                        tmp = null;
+                        list = filterTakable(opt.get());
+                    } finally {
+                        processingRecipe = false;
+                        tmp = null;
+                    }
+                    for (int i = 0; i < display.length; i++) display[i] = list.size() > i ? list.get(i) : null;
+                } else {
+                    java.util.Arrays.fill(display, null);
+                }
+                // push the whole preview to the client explicitly (see RemoteInputBus for rationale)
+                syncToClient(1, buf -> {
+                    for (int i = 0; i < display.length; i++)
+                        com.cleanroommc.modularui.network.NetworkUtils.writeFluidStack(buf, display[i]);
+                });
+            }
+
+            @Override
+            public void readOnClient(int id, net.minecraft.network.PacketBuffer buf) {
+                if (id == 1) for (int i = 0; i < display.length; i++)
+                    display[i] = com.cleanroommc.modularui.network.NetworkUtils.readFluidStack(buf);
+            }
+
+            @Override
+            public void readOnServer(int id, net.minecraft.network.PacketBuffer buf) {}
+        });
+        for (int i = 0; i < 16; i++) {
+            final int fi = i;
+            builder.child(new com.cleanroommc.modularui.widgets.slot.FluidSlot()
+                .syncHandler(new com.cleanroommc.modularui.value.sync.FluidSlotSyncHandler(
+                    new com.gtnewhorizons.modularui.common.fluid.FluidStackTank(
+                        () -> display[fi], f -> display[fi] = f, Integer.MAX_VALUE)).canFillSlot(false)
+                            .canDrainSlot(false))
+                .pos(3 + (i % 8) * 18, 3 + 16 + (i / 8) * 18));
+        }
+
+        // info tooltips (same lang keys as the MUI1 icon)
+        // MUI1's info icon, referenced straight from ModularUI(1)'s assets
+        builder.child(new com.cleanroommc.modularui.widget.Widget<>()
+            .background(com.cleanroommc.modularui.drawable.UITexture
+                .fullImage("modularui", "gui/widgets/information"))
+            .pos(3 + 18 * 8 + 4, 3 + 16)
+            .size(16, 16)
+            .tooltipBuilder(t -> {
+                int n = Integer.valueOf(StatCollector.translateToLocal("programmable_hatches.gt.remotehatch.tooltip"));
+                for (int i = 0; i < n; i++) t.addLine(
+                    com.cleanroommc.modularui.api.drawable.IKey
+                        .str(LangManager.translateToLocal("programmable_hatches.gt.remotehatch.tooltip." + i)));
+            }));
+        return builder;
+    }
+
+    private String remoteStatusKey() {
+        if (!linked) return "programmable_hatches.remote.unlinked";
+        if (!this.getBaseMetaTileEntity().getWorld().getChunkProvider().chunkExists(x >> 4, z >> 4))
+            return "programmable_hatches.remote.chunk";
+        Optional<TileEntity> opt = getTile();
+        if (!opt.isPresent()) return "programmable_hatches.remote.nothing";
+        checkBlackList();
+        if (!(opt.get() instanceof IFluidHandler)) return "programmable_hatches.remote.dummytarget";
+        return "programmable_hatches.remote.ok";
+    }
+
+
+    /**
+     * Client-only. Highlights the linked target position with AE2's block highlighter (pulsing blue
+     * box + chat message) and closes the screen, exactly like the interface terminal's highlight.
+     */
+    private void highlightTargetClient(String synced) {
+        if (synced == null || !synced.startsWith("I")) return;
+        try {
+            // Format: "I<x>,<y>,<z>|<damage>|<blockRegName>" — coords first, since the registry
+            // name is free-form and may itself contain '|' (e.g. BuildCraft|Factory:tankBlock).
+            String[] p = synced.substring(1).split("\\|", 3);
+            String[] c = p[0].split(",");
+            if (c.length < 3) return;
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
+            appeng.client.render.highlighter.BlockPosHighlighter.highlightBlocks(
+                mc.thePlayer,
+                java.util.Collections.singletonList(
+                    new appeng.api.util.DimensionalCoord(
+                        mc.theWorld,
+                        Integer.parseInt(c[0]),
+                        Integer.parseInt(c[1]),
+                        Integer.parseInt(c[2]))),
+                appeng.core.localization.PlayerMessages.MachineHighlighted.getUnlocalized(),
+                appeng.core.localization.PlayerMessages.MachineInOtherDim.getUnlocalized());
+            mc.thePlayer.closeScreen();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Server-side: "K<langKey>" for a plain status, or "I<x>,<y>,<z>|<damage>|<blockRegName>" when a
+     * target container is present, so the client can localize the container name with its own lang.
+     * The registry name goes LAST because it is free-form and may contain '|' (BuildCraft mod ids).
+     */
+    private String remoteStatusSynced() {
+        String key = remoteStatusKey();
+        if (!"programmable_hatches.remote.ok".equals(key)) return "K" + key;
+        try {
+            World w = this.getBaseMetaTileEntity().getWorld();
+            net.minecraft.block.Block b = w.getBlock(x, y, z);
+            String reg = net.minecraft.block.Block.blockRegistry.getNameForObject(b);
+            int dmg = b.getDamageValue(w, x, y, z);
+            return "I" + x + "," + y + "," + z + "|" + dmg + "|" + reg;
+        } catch (Exception e) {
+            return "K" + key;
+        }
+    }
+
+    /** Client-side: turn the synced status into display text (container name localized locally). */
+    private String remoteStatusDisplay(String v, reobf.proghatches.util.TargetBlockInfoSync targetInfo) {
+        if (v == null || v.isEmpty()) return "";
+        if (v.startsWith("K")) return LangManager.translateToLocal(v.substring(1));
+        String[] p = v.substring(1).split("\\|", 3);
+        if (p.length < 3) return "";
+        // Prefer the name of the stack the server resolved (Waila stack providers / getPickBlock):
+        // GT machines all share one Block and keep their identity in the tile entity, so
+        // new ItemStack(block, 1, blockMetadata) would give a generic, often untranslated name.
+        String name = targetInfo == null ? null : targetInfo.clientDisplayName();
+        if (name == null || name.isEmpty()) {
+            try {
+                net.minecraft.block.Block b = net.minecraft.block.Block.getBlockFromName(p[2]);
+                name = new ItemStack(b, 1, Integer.parseInt(p[1])).getDisplayName();
+            } catch (Exception e) {
+                name = p[2];
+            }
+        }
+        return LangManager.translateToLocalFormatted("programmable_hatches.remote.hostinfo", name, p[0]);
+    }
+
 }

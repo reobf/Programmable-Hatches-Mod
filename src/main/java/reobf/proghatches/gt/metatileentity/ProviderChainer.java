@@ -44,6 +44,7 @@ import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class ProviderChainer extends MTEHatch implements IPowerChannelState, IGridProxyable, ICircuitProvider {
 
     public ProviderChainer(int aID, String aName, String aNameRegional, int aTier, int aInvSlotCount) {

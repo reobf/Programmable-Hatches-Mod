@@ -70,6 +70,7 @@ import gregtech.api.modularui2.GTGuiTextures;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class DecoyInputHatchME extends MTEHatchInputME implements IMEHatchOverrided, IDataCopyablePlaceHolder,IDoNotSleep {
 
     public DecoyInputHatchME(int aID, /* boolean autoPullAvailable, */ String aName, String aNameRegional) {

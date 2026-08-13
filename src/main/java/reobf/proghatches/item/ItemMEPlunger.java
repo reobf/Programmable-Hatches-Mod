@@ -347,18 +347,36 @@ public class ItemMEPlunger extends AEBasePoweredItem implements INetworkEncodabl
                         Actionable.SIMULATE,
                         new PlayerSource(aPlayer, (IActionHost) getWirelessGridHost(aStack)));
 
+                // The condition used to be inverted: it MODULATE-injected (and zeroed the tank) exactly
+                // when the simulation reported leftover - voiding whatever the network could not take -
+                // and did nothing (but still played the success sound) when everything would have fit.
                 if (notadd != null && notadd.getStackSize() > 0) {
-
-                    fluid.getFluidInventory()
-                        .injectItems(
-                            AEFluidStack.create(machine.mFluid.copy()),
-                            Actionable.MODULATE,
-                            new PlayerSource(aPlayer, (IActionHost) getWirelessGridHost(aStack))
-
-                        );
-                    machine.mFluid.amount = 0;
+                    // network cannot take all of it: do nothing (mirrors the IFluidHandler path above)
+                    return false;
+                }
+                // this path also forgot to consume durability; every other plunger path does
+                if (!(aPlayer.capabilities.isCreativeMode || damage(aStack))) {
+                    return false;
                 }
 
+                fluid.getFluidInventory()
+                    .injectItems(
+                        AEFluidStack.create(machine.mFluid.copy()),
+                        Actionable.MODULATE,
+                        new PlayerSource(aPlayer, (IActionHost) getWirelessGridHost(aStack)));
+                machine.mFluid = null; // same empty-tank state MTEBasicTank.drain() leaves behind
+                machine.markDirty();
+
+                GTUtility
+                    .sendSoundToPlayers(aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE, 1.0F, -1.0F, aX, aY, aZ);
+                return true;
+            }
+        }
+        // Thaumcraft essentia containers (jars etc.): dump their essentia into the network's
+        // essentia storage via ThE's stack type. Guarded so the compat class never loads without ThE.
+        if (cpw.mods.fml.common.Loader.isModLoaded("thaumicenergistics")) {
+            if (PlungerEssentiaCompat.tryClearEssentia(fluid, aStack, this, aPlayer, aWorld, aX, aY, aZ,
+                new PlayerSource(aPlayer, (IActionHost) getWirelessGridHost(aStack)))) {
                 GTUtility
                     .sendSoundToPlayers(aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE, 1.0F, -1.0F, aX, aY, aZ);
                 return true;

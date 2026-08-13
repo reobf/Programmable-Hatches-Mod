@@ -45,6 +45,7 @@ import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class DualInputHatchInventoryMappingSlave<T extends MetaTileEntity & IDualInputHatch & IMetaTileEntity>
     extends MTETieredMachineBlock implements ISkipStackSizeCheck, IDataCopyablePlaceHolder, ICraftingV2 {
 
@@ -553,4 +554,19 @@ public class DualInputHatchInventoryMappingSlave<T extends MetaTileEntity & IDua
         } ;
         return false;
     }
+
+    @Override
+    public void onLeftclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
+        // Left-click opens the linked host's GUI, using the same forwarding the plain slaves use for
+        // right-click (GTNH's mixin copes with far-away/unloaded hosts). Sneak keeps normal breaking.
+        if (aBaseMetaTileEntity.isServerSide() && !aPlayer.isSneaking()) {
+            T m = getMaster();
+            if (m != null) {
+                m.onRightclick(m.getBaseMetaTileEntity(), aPlayer);
+                return;
+            }
+        }
+        super.onLeftclick(aBaseMetaTileEntity, aPlayer);
+    }
+
 }

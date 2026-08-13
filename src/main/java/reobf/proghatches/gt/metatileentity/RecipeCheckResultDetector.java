@@ -28,6 +28,7 @@ import reobf.proghatches.main.registration.Registration;
 
 // spotless:off
 @Deprecated
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class RecipeCheckResultDetector extends MTEHatchInputBus implements IRecipeProcessingAwareHatch {
 
     @Override

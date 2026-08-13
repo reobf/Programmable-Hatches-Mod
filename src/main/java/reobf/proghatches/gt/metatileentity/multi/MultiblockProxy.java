@@ -105,6 +105,7 @@ import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class MultiblockProxy extends MTEEnhancedMultiBlockBase<MultiblockProxy>
     implements IGridProxyable, ICraftingProvider, ISurvivalConstructable/* , IPowerChannelState */ {
 
@@ -560,7 +561,6 @@ public class MultiblockProxy extends MTEEnhancedMultiBlockBase<MultiblockProxy>
 
                 DualInvBuffer theBuffer = ((BufferedDualInputHatch) master).classifyForce();
                 if (theBuffer != null) {
-                    ((BufferedDualInputHatch) master).recordRecipe(theBuffer);
                     theBuffer.onChange();
                 }
                 // ((BufferedDualInputHatch) master).classifyForce();
@@ -1130,5 +1130,37 @@ public class MultiblockProxy extends MTEEnhancedMultiBlockBase<MultiblockProxy>
      * return getProxy().isActive();
      * }
      */
+
+
+    // ===================== MUI2 =====================
+    // The base multiblock GUI switched to MUI2 (useMui2()==true in MTEMultiBlockBase), so the MUI1
+    // drawTexts() override above is no longer called; this adds the proxy-count line back.
+    @Override
+    protected gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui<?> getGui() {
+        return new Gui(this);
+    }
+
+    private static class Gui extends gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui<MultiblockProxy> {
+
+        Gui(MultiblockProxy mb) {
+            super(mb);
+        }
+
+        @Override
+        protected com.cleanroommc.modularui.widgets.ListWidget<com.cleanroommc.modularui.api.widget.IWidget, ?> createTerminalTextWidget(
+            com.cleanroommc.modularui.value.sync.PanelSyncManager syncManager,
+            com.cleanroommc.modularui.screen.ModularPanel parent) {
+            com.cleanroommc.modularui.value.sync.IntSyncValue proxyCount =
+                new com.cleanroommc.modularui.value.sync.IntSyncValue(() -> multiblock.pos.size());
+            syncManager.syncValue("proxy_count", proxyCount);
+            return super.createTerminalTextWidget(syncManager, parent).child(
+                com.cleanroommc.modularui.api.drawable.IKey.dynamic(() -> String.valueOf(proxyCount.getValue()))
+                    .color(com.cleanroommc.modularui.utils.Color.WHITE.main)
+                    .asWidget()
+                    .setEnabledIf(w -> multiblock.getBaseMetaTileEntity().isAllowedToWork())
+                    .marginBottom(2)
+                    .fullWidth());
+        }
+    }
 
 }

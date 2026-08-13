@@ -62,6 +62,7 @@ import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class RestrictedInputHatchME extends MTEHatchInputME implements IDataCopyablePlaceHolder,IMEHatchOverrided,IDoNotSleep {
 
     public RestrictedInputHatchME(int aID, boolean autoPullAvailable, String aName, String aNameRegional) {

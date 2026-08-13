@@ -134,6 +134,7 @@ import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.util.ProghatchesUtil;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class PatternDualInputHatch extends BufferedDualInputHatch implements ICraftingProvider, IGridProxyable,
     ICustomNameObject, IInterfaceViewable, IPowerChannelState, IActionHost, IMultiplePatternPushable,ISpecialOptimize {
 
@@ -663,7 +664,6 @@ public int page() {
 
         DualInvBuffer theBuffer = /* ((BufferedDualInputHatch) master). */classifyForce();
         if (theBuffer != null) {
-            recordRecipe(theBuffer);
             theBuffer.onChange();
         }
         justHadNewItems = true;
@@ -1257,7 +1257,6 @@ boolean allowopt=true;
          */
 
         DualInvBuffer theBuffer = /* ((BufferedDualInputHatch) master). */classifyForce();
-        if (theBuffer != null) recordRecipe(theBuffer);
 
         // if(theBuffer!=null){
         suc++;
@@ -1494,7 +1493,7 @@ public int getCircuitSlot() {
 	// NOTE: reproduces engine behaviour and can't be compiled/tested here - verify feel in game.
 
 	/** Forwards a drag to the given panel by repositioning it live each frame (no matrix offset). */
-	private static final class PanelDragForwarder implements com.cleanroommc.modularui.api.widget.IDraggable {
+	static final class PanelDragForwarder implements com.cleanroommc.modularui.api.widget.IDraggable {
 
 		private final com.cleanroommc.modularui.screen.ModularPanel panel;
 		private int grabX, grabY;
@@ -1572,7 +1571,7 @@ public int getCircuitSlot() {
 	}
 
 	/** A widget that forwards drags to its ModularPanel via PanelDragForwarder. */
-	private static final class DragTab extends com.cleanroommc.modularui.widget.Widget<DragTab>
+	static final class DragTab extends com.cleanroommc.modularui.widget.Widget<DragTab>
 		implements com.cleanroommc.modularui.api.widget.IDraggable, com.cleanroommc.modularui.api.layout.IViewport {
 
 		private com.cleanroommc.modularui.api.widget.IDraggable forwarder;
@@ -1646,7 +1645,7 @@ public int getCircuitSlot() {
 	 * was treated as a click "outside" the slot and threw the held item out. It still renders
 	 * normally - drawing is gated by canBeSeen (scissor area), which does not use isInside.
 	 */
-	private static final class NonInteractiveText extends com.cleanroommc.modularui.widgets.TextWidget<NonInteractiveText> {
+	static final class NonInteractiveText extends com.cleanroommc.modularui.widgets.TextWidget<NonInteractiveText> {
 
 		NonInteractiveText(IKey key) {
 			super(key);

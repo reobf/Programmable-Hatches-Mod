@@ -63,6 +63,7 @@ import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChannelState, ICraftingProvider,
     IGridProxyable, IInstantCompletable, ICustomNameObject, IInterfaceViewable {
 

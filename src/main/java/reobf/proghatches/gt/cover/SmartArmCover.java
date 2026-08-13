@@ -76,6 +76,11 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
     public SmartArmCover(int tier, CoverContext context, ITexture t) {
         super(context, SmartArmCover.Data.class, t);
         this.mtier = tier;
+        // Cover's constructor already computed the default tick rate, but it did so while mtier was
+        // still 0 (Java assigns subclass fields only after super() returns), so every freshly placed
+        // cover got tier[0][0] = 1600t regardless of its actual tier. Recompute with the real tier.
+        // Covers loaded from disk are unaffected: readFromNbt overwrites tickRateAddition afterwards.
+        setTickRateAddition(getDefaultTickRate() - getMinimumTickRate());
     }
 
     int mtier;
@@ -751,9 +756,20 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
     @Override
     public int getDefaultTickRate() {
         // Cover's constructor calls this (via getDefaultTickRateAddition) before CoverBehaviorBase
-        // initializes coverData, so coverData can still be null here. A freshly placed cover has
-        // dyn == false anyway, and a loaded cover overwrites the tick rate from NBT afterwards.
-        return Math.max(tier[mtier][0], (coverData != null && coverData.dyn) ? 5 : 1);
+        // initializes coverData and before our constructor sets mtier; the constructor recomputes
+        // the tick rate once mtier is known, and loaded covers restore theirs from NBT afterwards.
+        return Math.max(tier[mtier][0], getMinimumTickRate());
+    }
+
+    /**
+     * The advertised minimums (1t static, 5t dynamic) are now a real floor: getTickRate() can never
+     * go below this, so the jackhammer cannot brick the cover at 0t any more (tickCoverAtSide skips
+     * covers with tick rate 0 forever, with no GUI to recover). A positive minimum also makes the
+     * cover GUI show the tick-rate adjust button (CoverBaseGui requires getMinimumTickRate() > 0).
+     */
+    @Override
+    public int getMinimumTickRate() {
+        return (coverData != null && coverData.dyn) ? 5 : 1;
     }
 
     @Override

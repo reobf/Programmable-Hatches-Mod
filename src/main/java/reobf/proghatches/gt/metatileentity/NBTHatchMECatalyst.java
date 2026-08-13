@@ -1,7 +1,6 @@
 package reobf.proghatches.gt.metatileentity;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -42,6 +41,7 @@ import reobf.proghatches.gt.metatileentity.SuperChestME.UnlimitedWrapper;
 import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class NBTHatchMECatalyst extends MTEHatchCatalysts implements ICellContainer, IGridProxyable, IStoageCellUpdate {
 
     public NBTHatchMECatalyst(int id, String name, String nameRegional) {
@@ -91,19 +91,6 @@ public class NBTHatchMECatalyst extends MTEHatchCatalysts implements ICellContai
 
     
     
-    public Method m;
-    {
-    	
-    	try {
-			m=this.getClass().getMethod("isItemValidForUsageSlot", ItemStack.class);
-		} catch (Exception e) {
-		}
-    	
-      	try {
-			m=this.getClass().getMethod("isItemValidForInputSlot", ItemStack.class);
-		} catch (Exception e) {
-		}
-    }
     public class UnlimitedWrapper implements IMEInventory<IAEItemStack> {
 
         public UnlimitedWrapper() {
@@ -117,13 +104,12 @@ public class NBTHatchMECatalyst extends MTEHatchCatalysts implements ICellContai
             if (input == null) {
                 return input;
             }
-            //isItemValidForUsageSlot
-            try {
-				if (!(boolean)m.invoke(this,input.getItemStack())) {
-				    return input;
-				}
-			} catch (Exception e) {
-			}
+            // Direct outer-instance validation. The old reflection found the method on the OUTER
+            // class but invoked it with the wrapper as receiver - the IllegalArgumentException was
+            // swallowed by an empty catch and the AE injection path accepted ANY item.
+            if (!NBTHatchMECatalyst.this.isItemValidForInputSlot(input.getItemStack())) {
+                return input;
+            }
 
             try {
                 long l = input.getStackSize();

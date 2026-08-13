@@ -43,6 +43,7 @@ import gregtech.api.util.GTUtility;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.main.registration.Registration;
 
+@gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class IngredientBuffer extends MTETieredMachineBlock implements IAddUIWidgets {
 
     public static int T0 = 3;
@@ -75,10 +76,12 @@ public class IngredientBuffer extends MTETieredMachineBlock implements IAddUIWid
             reobf.proghatches.main.Config.get(
                 "IB",
                 ImmutableMap.of(
+                    // these were swapped: item slots are get(aTier, 9, 27) (the aInvSlotCount
+                    // passed to super above), fluid tanks are get(aTier, 4, 7) (mStoredFluid size)
                     "item",
-                    get(aTier, 4, 7),
-                    "fluid",
                     get(aTier, 9, 27),
+                    "fluid",
+                    get(aTier, 4, 7),
                     "cap",
                     getCapacityPerTank(aTier, 0),
                     "int format",

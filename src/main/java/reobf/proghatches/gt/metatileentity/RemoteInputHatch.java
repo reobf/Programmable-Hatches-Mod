@@ -821,18 +821,11 @@ public class RemoteInputHatch extends MTEHatchMultiInput
             String[] p = synced.substring(1).split("\\|", 3);
             String[] c = p[0].split(",");
             if (c.length < 3) return;
-            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
-            appeng.client.render.highlighter.BlockPosHighlighter.highlightBlocks(
-                mc.thePlayer,
-                java.util.Collections.singletonList(
-                    new appeng.api.util.DimensionalCoord(
-                        mc.theWorld,
-                        Integer.parseInt(c[0]),
-                        Integer.parseInt(c[1]),
-                        Integer.parseInt(c[2]))),
-                appeng.core.localization.PlayerMessages.MachineHighlighted.getUnlocalized(),
-                appeng.core.localization.PlayerMessages.MachineInOtherDim.getUnlocalized());
-            mc.thePlayer.closeScreen();
+            // ClientHighlight is a separate class so client-only types are never touched during
+            // THIS class's verification (the dedicated server crashed with ClassNotFoundException:
+            // WorldClient at registration otherwise); it only classloads on actual button press.
+            reobf.proghatches.util.ClientHighlight
+                .highlightAndClose(Integer.parseInt(c[0]), Integer.parseInt(c[1]), Integer.parseInt(c[2]));
         } catch (Exception e) {
             e.printStackTrace();
         }

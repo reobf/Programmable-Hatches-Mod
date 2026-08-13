@@ -330,8 +330,14 @@ public class MAConduit extends AbstractConduit implements ICraftingMachineCondui
 
         int bit = 0;
         if (te instanceof ICraftingMachine) {
+            // probe only: save/restore the shared static direction state (it used to leak here)
+            ForgeDirection old = StateHolder.state;
             StateHolder.state = fromDirection.getOpposite();
-            if (((ICraftingMachine) te).acceptsPlans()) bit = bit | 1;
+            try {
+                if (((ICraftingMachine) te).acceptsPlans()) bit = bit | 1;
+            } finally {
+                StateHolder.state = old;
+            }
 
         }
         if (te instanceof IInterfaceHost) {
@@ -400,7 +406,11 @@ public class MAConduit extends AbstractConduit implements ICraftingMachineCondui
             if (ignoreConnectionMode == false && !getConnectionMode(direction).acceptsInput()) {
                 break a;
             }
-            return ((IPartHost) te).getPart(direction.getOpposite()) instanceof IInterfaceHost;
+            // also accept the molecular-assembler P2P part: externalConnectionAdded has a branch
+            // classifying an adjacent PartMAP2P by input/output, but it was unreachable because
+            // this gate only admitted IInterfaceHost front parts on cable buses
+            appeng.api.parts.IPart part = ((IPartHost) te).getPart(direction.getOpposite());
+            return part instanceof IInterfaceHost || part instanceof PartMAP2P;
 
         }
         return false;

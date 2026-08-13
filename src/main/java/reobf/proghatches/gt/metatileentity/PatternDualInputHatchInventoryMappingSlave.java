@@ -1579,18 +1579,10 @@ public boolean playerConfigClient;
 		try {
 			int sep = hostInfo.indexOf('|');
 			String[] c = hostInfo.substring(sep + 1).split(",");
-			net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
-			appeng.client.render.highlighter.BlockPosHighlighter.highlightBlocks(
-				mc.thePlayer,
-				java.util.Collections.singletonList(
-					new appeng.api.util.DimensionalCoord(
-						mc.theWorld,
-						Integer.parseInt(c[0]),
-						Integer.parseInt(c[1]),
-						Integer.parseInt(c[2]))),
-				appeng.core.localization.PlayerMessages.MachineHighlighted.getUnlocalized(),
-				appeng.core.localization.PlayerMessages.MachineInOtherDim.getUnlocalized());
-			mc.thePlayer.closeScreen();
+			// see ClientHighlight: isolated so this class never references client-only types
+			// (WorldClient/EntityClientPlayerMP would be loaded by the VERIFIER on the server)
+			reobf.proghatches.util.ClientHighlight
+				.highlightAndClose(Integer.parseInt(c[0]), Integer.parseInt(c[1]), Integer.parseInt(c[2]));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

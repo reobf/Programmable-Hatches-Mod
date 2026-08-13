@@ -40,50 +40,70 @@ public class PartMAP2P extends PartP2PTunnelStatic<PartMAP2P> implements ICrafti
             return false;
         }
 
-        if (tick == MinecraftServer.getServer()
-            .getTickCounter()) {
-            // same tick... try the one found in acceptsPlans!
-            ICraftingMachine val;
-            if ((val = candidate.get()) != null && val.pushPattern(patternDetails, table, candidateDir)) {
-                return true;
-            }
+        // Re-entrancy guard, mirroring acceptsPlans(). Without it this method could recurse
+        // forever: an output tunnel's neighbour may be a cable bus, which is an ICraftingMachine
+        // through LayerCraftingMachine, whose pushPattern dispatches straight back into another
+        // PartMAP2P.pushPattern. The acceptsPlans() pre-check cannot break such a cycle because
+        // TileMolecularAssemblerInterface.acceptsPlans() is unconditionally true, so a blocked
+        // (full) assembler hanging off the loop keeps every level returning true while every
+        // pushPattern fails -> endless recursion -> StackOverflowError.
+        if (chain.contains(this)) {
+            return false;
         }
-        // direct call to pushPattern? or acceptsPlans but push failed?
-        // just iterate again to find another valid!
+        chain.add(this);
         try {
 
-            for (PartMAP2P out : getOutputs()) {
-
-                TileEntity te = out.getTarget();
-                if (te == null) {
-                    continue;
+            if (tick == MinecraftServer.getServer()
+                .getTickCounter()) {
+                // same tick... try the one found in acceptsPlans!
+                ICraftingMachine val;
+                if ((val = candidate.get()) != null && val.pushPattern(patternDetails, table, candidateDir)) {
+                    return true;
                 }
-                if (te instanceof ICraftingMachine) {
+            }
+            // direct call to pushPattern? or acceptsPlans but push failed?
+            // just iterate again to find another valid!
+            try {
 
-                    ICraftingMachine ep = (ICraftingMachine) te;
-                    ForgeDirection old = StateHolder.state;
-                    StateHolder.state = out.getSide()
-                        .getOpposite();
-                    if (ep.acceptsPlans()) {
-                        if (ep.pushPattern(
-                            patternDetails,
-                            table,
-                            out.getSide()
-                                .getOpposite())) {
-                            return true;
-                        }
-                        StateHolder.state = old;
+                for (PartMAP2P out : getOutputs()) {
+
+                    TileEntity te = out.getTarget();
+                    if (te == null) {
                         continue;
                     }
-                    StateHolder.state = old;
-                }
+                    if (te instanceof ICraftingMachine) {
 
-            } ;
-        } catch (GridAccessException e) {
+                        ICraftingMachine ep = (ICraftingMachine) te;
+                        ForgeDirection old = StateHolder.state;
+                        StateHolder.state = out.getSide()
+                            .getOpposite();
+                        // try/finally: the success path used to return WITHOUT restoring the shared
+                        // static direction state (failure paths and acceptsPlans did restore) -
+                        // asymmetric leakage into every other StateHolder reader (conduits, layer)
+                        try {
+                            if (ep.acceptsPlans()) {
+                                if (ep.pushPattern(
+                                    patternDetails,
+                                    table,
+                                    out.getSide()
+                                        .getOpposite())) {
+                                    return true;
+                                }
+                            }
+                        } finally {
+                            StateHolder.state = old;
+                        }
+                    }
 
+                } ;
+            } catch (GridAccessException e) {
+
+            }
+
+            return false;
+        } finally {
+            chain.remove(this);
         }
-
-        return false;
     }
 
     ForgeDirection candidateDir;
@@ -130,16 +150,18 @@ public class PartMAP2P extends PartP2PTunnelStatic<PartMAP2P> implements ICrafti
                         ForgeDirection old = StateHolder.state;
                         StateHolder.state = out.getSide()
                             .getOpposite();
-                        if (ep.acceptsPlans()) {
-                            tick = MinecraftServer.getServer()
-                                .getTickCounter();
-                            candidate = new WeakReference<ICraftingMachine>(ep);
-                            candidateDir = out.getSide()
-                                .getOpposite();
+                        try {
+                            if (ep.acceptsPlans()) {
+                                tick = MinecraftServer.getServer()
+                                    .getTickCounter();
+                                candidate = new WeakReference<ICraftingMachine>(ep);
+                                candidateDir = out.getSide()
+                                    .getOpposite();
+                                return true;
+                            }
+                        } finally {
                             StateHolder.state = old;
-                            return true;
                         }
-                        StateHolder.state = old;
                     }
 
                 } ;

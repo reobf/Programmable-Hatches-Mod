@@ -210,6 +210,16 @@ import reobf.proghatches.util.ProghatchesUtil;
 public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCircuitSupport, IAddGregtechLogo,
 		IAddUIWidgets, IDualInputHatchWithPattern, IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch,
 		ISkipStackSizeCheck, IOnFillCallback, IPHDual/* ,IMultiCircuitSupport */ {
+    /**
+     * GT 290's hatch base classes override getDescription() with their own hardcoded
+     * "input bus / output hatch / ..." text, which shadowed every PH machine's own tooltip
+     * (the Config.get(...) template passed to the constructor). Hand it back.
+     */
+    @Override
+    public String[] getDescription() {
+        return mDescriptionArray;
+    }
+
 
 	static int[] AZERO = { 0 };
 	static java.text.DecimalFormat format = new java.text.DecimalFormat("#,###");
@@ -481,15 +491,23 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			return Optional.empty();
 		boolean empty = true;
 
+		// The break used to sit OUTSIDE the if, so both loops inspected only element 0 and then
+		// bailed out. Fluids happened to survive that (asFluidStack condenses and drops
+		// amount<=0), but filterStack only drops nulls, so a leading zero-sized stack - a
+		// programming circuit copied with amount 0, a marking slot, a shared upgrade item -
+		// made this report "empty" while later slots still held real inputs. That fed
+		// OC isEmpty()/refund(), the slave bus and the ingredient distributor.
 		for (FluidStack f : theInv.getFluidInputs()) {
-			if (f != null && f.amount > 0)
+			if (f != null && f.amount > 0) {
 				empty = false;
-			break;
+				break;
+			}
 		}
-		for (ItemStack f : theInv.getItemInputs()) {
-			if (f != null && f.stackSize > 0)
+		if (empty) for (ItemStack f : theInv.getItemInputs()) {
+			if (f != null && f.stackSize > 0) {
 				empty = false;
-			break;
+				break;
+			}
 		}
 
 		if (empty)
@@ -2371,13 +2389,12 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 		ItemSlot markSlot(ArrayList<ItemStack> inv, int index) {
 
-			ItemSlot is = new PhantomItemSlot(){
-				public Result onMousePressed(int mouseButton) {
-					//if (getSlot().getHasStack())
-					//	getSlot().putStack(null);
-					return super.onMousePressed(mouseButton);
-				};
-			}.slot(new ModularSlot(new ItemStackHandler(inv), index) {
+			// ClearableMarkSlotSH makes a plain left click remove the mark: marks are stored with
+			// stackSize 0, and MUI2's default left-click path (incrementStackCount(-1) ->
+			// max(0, 0-1) == 0) changes nothing, so previously only shift+left-click cleared.
+			ItemSlot is = new PhantomItemSlot()
+				.syncHandler(new reobf.proghatches.gt.metatileentity.util.ClearableMarkSlotSH(
+					new ModularSlot(new ItemStackHandler(inv), index) {
 				@Override
 				public void putStack(ItemStack stack) {
 					if (stack != null)
@@ -2397,7 +2414,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 					// part of the GT inventory, so push the change to watching controllers directly
 					notifyWatchers();
 				}
-			}).pos(0, 0);
+			})).pos(0, 0);
 
 			is.addTooltipStringLines((this instanceof BufferedDualInputHatch)
 					? ImmutableList.of(StatCollector.translateToLocal("programmable_hatches.gt.item.pull.me.0"),

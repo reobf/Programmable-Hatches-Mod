@@ -1719,30 +1719,25 @@ public class PHRecipes implements Runnable {
 
         }
 
-        GTValues.RA.stdBuilder()
-            .itemInputs(
-                new ItemStack(GameRegistry.findItem("ExtraUtilities", "trashcan"), 1, 0),
-                Hatch_Output_Bus_IV.get(1),
-                GTUtility.getIntegratedCircuit(3)
-
-            )
-            .itemOutputs(new ItemStack(GregTechAPI.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.VBus))
-            .duration(100 * SECONDS)
-            .eut(480 * 4)
-            .addTo(RecipeMaps.assemblerRecipes);
-
-        GTValues.RA.stdBuilder()
-            .itemInputs(
-                new ItemStack(GameRegistry.findItem("ExtraUtilities", "trashcan"), 1, 1),
-                Hatch_Output_IV.get(1),
-                GTUtility.getIntegratedCircuit(4)
-
-            )
-            .itemOutputs(
-                new ItemStack(GregTechAPI.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.VHatch))
-            .duration(100 * SECONDS)
-            .eut(480 * 4)
-            .addTo(RecipeMaps.assemblerRecipes);
+        // DEPRECATED: the void output bus/hatch are superseded by GT's own Void Bus / Void Hatch.
+        // Their assembler recipes are gone; existing ones convert 1:1 on a crafting table below.
+        // (The dedicated voiding logic - MixinVoidingHatch - has been removed too: GT 290 ejects
+        // recipe results through addItemOutputs/addFluidOutputs, so the old addOutput injection
+        // points are no longer on the output path at all.)
+        {
+            IRecipe voidBusToGT = new ShapelessOreRecipe(
+                Hatch_Void_Bus.get(1),
+                new ItemStack(GregTechAPI.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.VBus));
+            CraftingManager.getInstance()
+                .getRecipeList()
+                .add(voidBusToGT);
+            IRecipe voidHatchToGT = new ShapelessOreRecipe(
+                Hatch_Void.get(1),
+                new ItemStack(GregTechAPI.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.VHatch));
+            CraftingManager.getInstance()
+                .getRecipeList()
+                .add(voidHatchToGT);
+        }
 
         GTValues.RA.stdBuilder()
             .itemInputs(Cover_Controller.get(1), new ItemStack(MyMod.cover, 1, 37)

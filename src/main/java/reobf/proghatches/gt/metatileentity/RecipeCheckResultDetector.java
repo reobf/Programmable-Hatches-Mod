@@ -30,6 +30,16 @@ import reobf.proghatches.main.registration.Registration;
 @Deprecated
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class RecipeCheckResultDetector extends MTEHatchInputBus implements IRecipeProcessingAwareHatch {
+    /**
+     * GT 290's hatch base classes override getDescription() with their own hardcoded
+     * "input bus / output hatch / ..." text, which shadowed every PH machine's own tooltip
+     * (the Config.get(...) template passed to the constructor). Hand it back.
+     */
+    @Override
+    public String[] getDescription() {
+        return mDescriptionArray;
+    }
+
 
     @Override
     public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {

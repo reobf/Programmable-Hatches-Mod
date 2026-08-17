@@ -22,6 +22,16 @@ import reobf.proghatches.util.ProghatchesUtil;
 
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class FilterOutputBus extends MTEHatchOutputBus {
+    /**
+     * GT 290's hatch base classes override getDescription() with their own hardcoded
+     * "input bus / output hatch / ..." text, which shadowed every PH machine's own tooltip
+     * (the Config.get(...) template passed to the constructor). Hand it back.
+     */
+    @Override
+    public String[] getDescription() {
+        return mDescriptionArray;
+    }
+
 
     public FilterOutputBus(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures,
         boolean keepone) {
@@ -35,6 +45,22 @@ public class FilterOutputBus extends MTEHatchOutputBus {
         super.addUIWidgets(builder, buildContext);
         ProghatchesUtil.attachZeroSizedStackRemover(builder, buildContext);
 
+    }
+
+    /**
+     * MTEHatchOutputBus.useMui2() is true in GT 290, so the MUI1 addUIWidgets above no longer runs
+     * and this bus lost its zero-sized-stack guard - which it needs, because keeping a "ghost" of
+     * an item is exactly how it works (setInventorySlotContents zeroes the stack instead of
+     * clearing it). Re-attach it on the MUI2 panel.
+     */
+    @Override
+    public com.cleanroommc.modularui.screen.ModularPanel buildUI(
+        com.cleanroommc.modularui.factory.PosGuiData data,
+        com.cleanroommc.modularui.value.sync.PanelSyncManager syncManager,
+        com.cleanroommc.modularui.screen.UISettings uiSettings) {
+        com.cleanroommc.modularui.screen.ModularPanel panel = super.buildUI(data, syncManager, uiSettings);
+        ProghatchesUtil.attachZeroSizedStackRemover2(syncManager, panel);
+        return panel;
     }
 
     public FilterOutputBus(int aID, String aName, String aNameRegional, int tier, boolean keepone) {

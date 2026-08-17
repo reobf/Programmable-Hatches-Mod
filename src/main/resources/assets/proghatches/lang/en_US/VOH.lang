@@ -1,4 +1,3 @@
-Specify up to 16 types of fluid to void.
-Have highest priority than any other output hatches.
-Only voids fluid, has 0 tank capacity.
-Thus do not affect void protection.
+§cDeprecated: voiding no longer works§r
+Use GregTech's own Void Hatch instead.
+Put this hatch in a crafting table to convert it 1:1.

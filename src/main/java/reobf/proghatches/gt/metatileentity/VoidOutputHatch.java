@@ -41,6 +41,16 @@ import reobf.proghatches.net.VoidFXMessage;
 
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class VoidOutputHatch extends MTEHatchOutput {
+    /**
+     * GT 290's hatch base classes override getDescription() with their own hardcoded
+     * "input bus / output hatch / ..." text, which shadowed every PH machine's own tooltip
+     * (the Config.get(...) template passed to the constructor). Hand it back.
+     */
+    @Override
+    public String[] getDescription() {
+        return mDescriptionArray;
+    }
+
 
     public VoidOutputHatch(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures) {
         super(mName, mTier, 0, mDescriptionArray, mTextures);

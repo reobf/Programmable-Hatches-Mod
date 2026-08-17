@@ -39,6 +39,16 @@ import reobf.proghatches.util.ProghatchesUtil;
 
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCircuitSupport {
+    /**
+     * GT 290's hatch base classes override getDescription() with their own hardcoded
+     * "input bus / output hatch / ..." text, which shadowed every PH machine's own tooltip
+     * (the Config.get(...) template passed to the constructor). Hand it back.
+     */
+    @Override
+    public String[] getDescription() {
+        return mDescriptionArray;
+    }
+
 
     @Override
     public IItemHandlerModifiable getInventoryHandler() {
@@ -79,6 +89,12 @@ public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCirc
     private static final String ONE_STACK_LIMIT_TOOLTIP = "GT5U.machines.one_stack_limit.tooltip";
     private static final int BUTTON_SIZE = 18;
 
+    /**
+     * Item slots are always allocated for the largest variant so that changing a variant's tier can
+     * never truncate an already-saved inventory or move the circuit slots. See usableItemSlots().
+     */
+    public static final int ITEM_SLOT_CAPACITY = 16;
+
     @Override
     public void addUIWidgets(Builder builder, UIBuildContext buildContext) {
         buildContext.addCloseListener(() -> uiButtonCount = 0);
@@ -86,13 +102,18 @@ public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCirc
         addOneStackLimitButton(builder);
         super.addUIWidgets(builder, buildContext);
 
+        // NOTE: this switch used to fall through, so every tier drew all four grids on top of each
+        // other. It only went unnoticed while the bus was registered at tier 4..7 (always `default`).
         switch (mTier) {
             case 0:
                 getBaseMetaTileEntity().add1by1Slot(builder);
+                break;
             case 1:
                 getBaseMetaTileEntity().add2by2Slots(builder);
+                break;
             case 2:
                 getBaseMetaTileEntity().add3by3Slots(builder);
+                break;
             default:
                 getBaseMetaTileEntity().add4by4Slots(builder);
         }
@@ -134,7 +155,7 @@ public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCirc
             name,
             nameRegional,
             tier,
-            ProghatchesUtil.getSlots(tier) + 4,
+            ITEM_SLOT_CAPACITY + 4,
             (optional.length > 0 ? optional
                 : reobf.proghatches.main.Config.get(
                     "MCIB",
@@ -154,7 +175,7 @@ public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCirc
     }
 
     public MultiCircuitInputBus(String mName, byte mTier, String[] mDescriptionArray, ITexture[][][] mTextures) {
-        super(mName, mTier, ProghatchesUtil.getSlots(mTier) + 4, mDescriptionArray, mTextures);
+        super(mName, mTier, ITEM_SLOT_CAPACITY + 4, mDescriptionArray, mTextures);
     }
 
     /**
@@ -164,18 +185,31 @@ public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCirc
      * inventory (25..64 for a 20 slot inventory). That made every circuit slot index invalid:
      * the MUI2 ghost circuit handler threw while opening the GUI, and getCircuitSlots() /
      * isValidSlot() / allowPullStack() all worked on non-existent slots. Pin it to the real
-     * layout instead: 16 item slots, then the four circuit slots.
+     * layout instead: ProghatchesUtil.getSlots(tier) item slots, then the four circuit slots.
      */
     @Override
     public int getCircuitSlot() {
+        return ITEM_SLOT_CAPACITY;
+    }
+
+    /**
+     * How many of the allocated item slots this tier actually exposes: 1 / 4 / 9 / 16 for ULV..HV.
+     * <p>
+     * The backing array is always {@link #ITEM_SLOT_CAPACITY} + 4 entries regardless of tier, so the
+     * circuit slots keep the same indices on every variant. That matters for compatibility: shrinking
+     * the array on the lower tiers would drop the saved stacks past the new end AND shift the four
+     * circuit marks to different indices, silently wiping every existing bus's configuration. Slots
+     * at or past this limit stay readable and extractable (see allowPullStack / isValidSlot) so
+     * anything already stored in a bus that just became a lower tier can still be drained out, and
+     * fillStacksIntoFirstSlots() leaves them alone instead of compacting them away.
+     */
+    private int usableItemSlots() {
         return ProghatchesUtil.getSlots(mTier);
     }
 
-    /** Side length of the square item slot grid, i.e. everything before the circuit slots. */
+    /** Side length of the square item slot grid actually drawn for this tier. */
     private int itemGridDimension() {
-        int slots = getCircuitSlot();
-        int dim = (int) Math.ceil(Math.sqrt(slots));
-        return Math.max(1, dim);
+        return Math.max(1, (int) Math.ceil(Math.sqrt(usableItemSlots())));
     }
 
     @Override
@@ -183,7 +217,11 @@ public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCirc
         com.cleanroommc.modularui.factory.PosGuiData data,
         com.cleanroommc.modularui.value.sync.PanelSyncManager syncManager,
         com.cleanroommc.modularui.screen.UISettings uiSettings) {
-        return new Gui(this).build(data, syncManager, uiSettings);
+        com.cleanroommc.modularui.screen.ModularPanel panel = new Gui(this).build(data, syncManager, uiSettings);
+        // the MUI1 GUI attached this; carry it over so a 0-sized stack can never be left on the
+        // cursor / in the player inventory (negative stack size dupe guard)
+        ProghatchesUtil.attachZeroSizedStackRemover2(syncManager, panel);
+        return panel;
     }
 
     /**
@@ -205,52 +243,79 @@ public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCirc
             return bus.itemGridDimension();
         }
 
+        /**
+         * The GregTech logo shares the bottom-right corner row with the circuit slot. Dropping it
+         * frees the 17px the extra circuit column needs, and keeps the corner from being crowded.
+         */
         @Override
-        protected com.cleanroommc.modularui.widgets.layout.Flow createBottomRightCornerFlow(
+        protected boolean doesAddGregTechLogo() {
+            return false;
+        }
+
+        /**
+         * The three extra circuit slots used to be appended to the bottom-right corner <em>row</em>,
+         * which grows leftwards (reverseLayout) and therefore ran straight over the right half of the
+         * item grid. Stack them vertically above the stock circuit slot instead - the same layout the
+         * MUI1 GUI used ({@code getCircuitSlotY() - 18 * i}) - so nothing overlaps: the column is
+         * 18px wide at the right edge, while the centered 4x4 grid ends well left of it.
+         */
+        @Override
+        protected com.cleanroommc.modularui.widget.ParentWidget<?> createContentSection(
             com.cleanroommc.modularui.screen.ModularPanel panel,
             com.cleanroommc.modularui.value.sync.PanelSyncManager syncManager) {
-            com.cleanroommc.modularui.widgets.layout.Flow flow = super.createBottomRightCornerFlow(panel, syncManager);
-            // reverse layout: children are laid out right to left, so these end up left of the
-            // stock circuit slot
-            for (int i = 1; i < 4; i++) {
-                final int slot = bus.getCircuitSlot() + i;
-                flow.child(
-                    new com.cleanroommc.modularui.widgets.slot.PhantomItemSlot()
-                        .syncHandler(
-                            new com.cleanroommc.modularui.value.sync.PhantomItemSlotSH(
-                                new com.cleanroommc.modularui.widgets.slot.ModularSlot(bus.inventoryHandler, slot) {
+            com.cleanroommc.modularui.widget.ParentWidget<?> content = super.createContentSection(panel, syncManager);
 
-                                    @Override
-                                    public int getSlotStackLimit() {
-                                        // marking slot: the circuit is only a marker, never stored
-                                        return 0;
-                                    }
-                                }))
-                        .background(
-                            gregtech.api.modularui2.GTGuiTextures.SLOT_ITEM_STANDARD,
-                            gregtech.api.modularui2.GTGuiTextures.OVERLAY_SLOT_INT_CIRCUIT)
-                        .tooltipBuilder(t -> {
-                            t.addLine(
-                                com.cleanroommc.modularui.api.drawable.IKey
-                                    .lang("programmable_hatches.gt.marking.slot.0"));
-                            t.addLine(
-                                com.cleanroommc.modularui.api.drawable.IKey
-                                    .lang("programmable_hatches.gt.marking.slot.1"));
-                        })
-                        .tooltipShowUpTimer(TOOLTIP_DELAY));
+            com.cleanroommc.modularui.widgets.layout.Flow column = com.cleanroommc.modularui.widgets.layout.Flow
+                .column()
+                .coverChildren()
+                .right(0)
+                // directly on top of the stock circuit slot, which sits in the bottom-right corner row
+                .bottom(SLOT_SIZE);
+
+            // topmost is the highest index, so slot+1 ends up adjacent to the stock circuit slot
+            for (int i = 3; i >= 1; i--) {
+                column.child(markingSlot(bus.getCircuitSlot() + i));
             }
-            return flow;
+            return content.child(column);
+        }
+
+        private com.cleanroommc.modularui.api.widget.IWidget markingSlot(final int slot) {
+            return new com.cleanroommc.modularui.widgets.slot.PhantomItemSlot()
+                .syncHandler(
+                    // ClearableMarkSlotSH: marks are stored with stackSize 0, and MUI2's default
+                    // left-click path is then a no-op, so the mark could not be removed by clicking it
+                    new reobf.proghatches.gt.metatileentity.util.ClearableMarkSlotSH(
+                        new com.cleanroommc.modularui.widgets.slot.ModularSlot(bus.inventoryHandler, slot) {
+
+                            @Override
+                            public int getSlotStackLimit() {
+                                // marking slot: the circuit is only a marker, never stored
+                                return 0;
+                            }
+                        }))
+                .background(
+                    gregtech.api.modularui2.GTGuiTextures.SLOT_ITEM_STANDARD,
+                    gregtech.api.modularui2.GTGuiTextures.OVERLAY_SLOT_INT_CIRCUIT)
+                .tooltipBuilder(t -> {
+                    t.addLine(
+                        com.cleanroommc.modularui.api.drawable.IKey.lang("programmable_hatches.gt.marking.slot.0"));
+                    t.addLine(
+                        com.cleanroommc.modularui.api.drawable.IKey.lang("programmable_hatches.gt.marking.slot.1"));
+                })
+                .tooltipShowUpTimer(TOOLTIP_DELAY);
         }
     }
 
     @Override
     public boolean isValidSlot(int aIndex) {
-        return aIndex < getCircuitSlot();
+        return aIndex < usableItemSlots();
     }
 
     @Override
     public boolean allowPullStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
         ItemStack aStack) {
+        // deliberately getCircuitSlot() and not usableItemSlots(): a bus that used to be a higher
+        // tier may still hold stacks past its current grid, and those have to remain extractable
         if (aIndex >= getCircuitSlot()) return false;
         return side == getBaseMetaTileEntity().getFrontFacing();
     }
@@ -258,7 +323,7 @@ public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCirc
     @Override
     public boolean allowPutStack(IGregTechTileEntity aBaseMetaTileEntity, int aIndex, ForgeDirection side,
         ItemStack aStack) {
-        return side == getBaseMetaTileEntity().getFrontFacing() && aIndex < getCircuitSlot()
+        return side == getBaseMetaTileEntity().getFrontFacing() && aIndex < usableItemSlots()
             && (mRecipeMap == null || disableFilter || mRecipeMap.containsInput(aStack))
             && (disableLimited || limitedAllowPutStack(aIndex, aStack));
     }

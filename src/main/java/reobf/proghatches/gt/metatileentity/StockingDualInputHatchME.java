@@ -140,6 +140,16 @@ import reobf.proghatches.main.registration.Registration;
 public class StockingDualInputHatchME extends MTEHatchInputBus
     implements IDualInputHatchWithPattern, IRecipeProcessingAwareDualHatch, IPowerChannelState, IGridProxyable, IPHDual,IDataCopyable,
     appeng.api.networking.storage.IStackWatcherHost {
+    /**
+     * GT 290's hatch base classes override getDescription() with their own hardcoded
+     * "input bus / output hatch / ..." text, which shadowed every PH machine's own tooltip
+     * (the Config.get(...) template passed to the constructor). Hand it back.
+     */
+    @Override
+    public String[] getDescription() {
+        return mDescriptionArray;
+    }
+
 
     private static final int CONFIG_WINDOW_ID = 88880;
 

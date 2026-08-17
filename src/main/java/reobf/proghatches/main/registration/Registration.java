@@ -496,11 +496,16 @@ public class Registration implements Runnable {
             0,
             i);
 
+        // tier == i, NOT i + 4: the name is built from GTValues.VN[i] (ULV..HV), the assembler recipe
+        // consumes HATCHES_INPUT_BUS[i] at GTValues.VP[i], and the tooltip advertises
+        // min(16, (tier+1)^2) slots - everything except the tier itself was already keyed on i.
+        // With i + 4 the slot count ran through ProghatchesUtil.getSlots(4..7), which is capped at 16,
+        // so all four variants ended up identical (16 item slots) instead of 1/4/9/16.
         for (int i = 0; i < 4; i++) new MultiCircuitInputBus(
             Config.metaTileEntityOffset + MultiCircuitBusOffset + i,
             "bus.input.multicircuit." + i,
             LangManager.translateToLocalFormatted("bus.input.multicircuit.name", GTValues.VN[i]),
-            i + 4);
+            i);
 
         new DataHatchME(
             Config.metaTileEntityOffset + DataHatchMEOffset,

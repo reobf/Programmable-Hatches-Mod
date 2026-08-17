@@ -53,6 +53,16 @@ import reobf.proghatches.main.registration.Registration;
 
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class PhantomInputBus extends MTEHatchInputBus {
+    /**
+     * GT 290's hatch base classes override getDescription() with their own hardcoded
+     * "input bus / output hatch / ..." text, which shadowed every PH machine's own tooltip
+     * (the Config.get(...) template passed to the constructor). Hand it back.
+     */
+    @Override
+    public String[] getDescription() {
+        return mDescriptionArray;
+    }
+
 @Override
 protected boolean useMui2() {
 	
@@ -125,17 +135,19 @@ protected boolean useMui2() {
 		            .matrix(matrix)
 		            .key(
 		                's',
-		                // PhantomItemSlot.slot(...) is the supported public path (it wraps the slot in
-		                // a PhantomItemSlotSH itself); constructing PhantomItemSlotSH manually uses an
-		                // @ApiStatus.Internal ctor that is not stable across ModularUI2 builds
-		                index -> new PhantomItemSlot().slot(new ModularSlot(inventoryHandler, index) {
+		                // ClearableMarkSlotSH: marks are stored with stackSize 0, and MUI2's default
+		                // left-click path (incrementStackCount(-1) -> max(0, 0-1) == 0) is then a
+		                // no-op, so a mark could never be removed by clicking it
+		                index -> new PhantomItemSlot()
+		                    .syncHandler(new reobf.proghatches.gt.metatileentity.util.ClearableMarkSlotSH(
+		                        new ModularSlot(inventoryHandler, index) {
 
 		                	@Override
 		                	public void putStack(ItemStack stack) {
 		                		if(stack!=null) {stack=stack.copy();stack.stackSize=0;}
 		                		super.putStack(stack);
 		                		};
-		                }.slotGroup("item_inv")))
+		                }.slotGroup("item_inv"))))
 		            .build()
 		            .pos(0, 0).size(18*4, 18*16)
 		           ;

@@ -734,7 +734,7 @@ boolean returnAll=true;
     public FluidTankInfo[] getTankInfo(ForgeDirection from) {
 
         return cacheFR.stream()
-            .map(s -> new FluidTank(s, 1))
+            .map(s -> new FluidTankInfo(s, 1))
             .toArray(FluidTankInfo[]::new);
     }
 

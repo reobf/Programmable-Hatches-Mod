@@ -438,6 +438,11 @@ public class ProghatchesUtil {
 		java.util.regex.Pattern numPat = java.util.regex.Pattern.compile("-?\\d+");
 		for (int i = 0; i < count; i++) {
 			String line = null;
+			// Only the legacy "dataLines" format ever embedded a dimension id in the coordinate line.
+			// The component format (GT 5.09.5x BehaviourScanner/ScannerHelper) writes
+			// base_info_1 = X/Y/Z only, so any fourth number there is part of the localized text, not a
+			// dimension - reading it as one made the bind fall into the "wrong dimension" branch. #326
+			boolean legacyLine = false;
 			// newer builds: serialized IChatComponent under key "s"
 			if (tag.hasKey("scanLine" + i)) {
 				try {
@@ -445,12 +450,21 @@ public class ProghatchesUtil {
 					if (c.hasKey("s")) {
 						net.minecraft.util.IChatComponent comp = net.minecraft.util.IChatComponent.Serializer
 							.func_150699_a(c.getString("s"));
-						if (comp != null) line = comp.getFormattedText();
+						// getUnformattedText(), NOT getFormattedText(): the latter is
+						// @SideOnly(Side.CLIENT) on IChatComponent and is stripped from the dedicated
+						// server, so calling it threw NoSuchMethodError - an Error, which slipped past
+						// every catch(Exception) on the way out and killed the server tick loop as soon
+						// as a player bound a remote bus with a tricorder. #326
+						// Nothing is lost: the colour codes it would add are stripped below anyway.
+						if (comp != null) line = comp.getUnformattedText();
 					}
 				} catch (Exception ignore) {}
 			}
 			// older builds: plain formatted string
-			if (line == null && tag.hasKey("dataLines" + i)) line = tag.getString("dataLines" + i);
+			if (line == null && tag.hasKey("dataLines" + i)) {
+				line = tag.getString("dataLines" + i);
+				legacyLine = true;
+			}
 			if (line == null || line.isEmpty()) continue;
 			// drop colour codes, separator dashes (2+), thousand separators and whitespace
 			String s = line.replaceAll("\u00A7.", "")
@@ -465,7 +479,7 @@ public class ProghatchesUtil {
 				} catch (NumberFormatException ignore) {}
 			}
 			if (nums.size() < 3) continue;
-			if (nums.size() >= 4)
+			if (legacyLine && nums.size() >= 4)
 				return new int[] { nums.get(0), nums.get(1), nums.get(2), nums.get(3) };
 			return new int[] { nums.get(0), nums.get(1), nums.get(2) };
 		}

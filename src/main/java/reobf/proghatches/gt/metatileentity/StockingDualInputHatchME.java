@@ -21,7 +21,6 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Slot;
@@ -425,19 +424,32 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
                             .background(GTUITextures.SLOT_DARK_GRAY)
                             .widgetCreator(slot -> aeSlotWidgets[slot.getSlotIndex()] = new AESlotWidget(slot) {
 
+                                /**
+                                 * StatCollector, NOT net.minecraft.client.resources.I18n: that whole
+                                 * class is @SideOnly(Side.CLIENT), while this widget is built inside
+                                 * addUIWidgets() and therefore also constructed on the dedicated
+                                 * server when the container is assembled. Same failure shape as the
+                                 * IChatComponent.getFormattedText() crash in #326 - an Error, not an
+                                 * Exception, so nothing would catch it. StatCollector resolves from
+                                 * the active language on the client just the same.
+                                 */
                                 @Override
                                 public List<String> getExtraTooltip() {
                                     List<String> extraLines = new ArrayList<>();
                                     if (i_client[slot.getSlotIndex()] >= 1000) {
-                                        extraLines.add(I18n.format("modularui.amount", i_client[slot.getSlotIndex()]));
+                                        extraLines.add(
+                                            StatCollector.translateToLocalFormatted(
+                                                "modularui.amount",
+                                                i_client[slot.getSlotIndex()]));
                                     }
                                     if (isPhantom()) {
                                         if (canControlAmount()) {
-                                            String[] lines = I18n.format("modularui.item.phantom.control")
+                                            String[] lines = StatCollector
+                                                .translateToLocal("modularui.item.phantom.control")
                                                 .split("\\\\n");
                                             extraLines.addAll(Arrays.asList(lines));
                                         } else if (!interactionDisabled) {
-                                            extraLines.add(I18n.format("modularui.phantom.single.clear"));
+                                            extraLines.add(StatCollector.translateToLocal("modularui.phantom.single.clear"));
                                         }
                                     }
                                     return extraLines.isEmpty() ? Collections.emptyList() : extraLines;

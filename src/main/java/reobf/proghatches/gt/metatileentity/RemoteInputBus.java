@@ -98,6 +98,23 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
 
     }
 
+
+    /**
+     * The contents of this machine are PROXIED from the linked inventory and only materialise while a
+     * recipe is being processed (see getSizeInventory()/getStackInSlot(), which return 1 / null
+     * otherwise). The stock MUI1 GUI just wires slots onto getInventoryHandler(), which exposes a
+     * single slot - the ghost circuit - so it renders an empty bus even though the multiblock can see
+     * the linked items. The MUI2 panel built below instead pushes an explicit preview snapshot to the
+     * client, GT-stocking-bus style, which is the only way this machine can show anything at all.
+     * <p>
+     * Hence force MUI2 regardless of {@code GTGuis.GLOBAL_SWITCH_MUI2}: with the global switch off the
+     * player got the broken MUI1 window. #326
+     */
+    @Override
+    protected boolean forceUseMui2() {
+        return true;
+    }
+
     @Override
     public void onLeftclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
         if (aBaseMetaTileEntity.getWorld().isRemote) return;
@@ -150,13 +167,19 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
             } else {
                 this.linked = false;
                 aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.remote.dim"));
-                aPlayer.addChatComponentMessage(null);
+                // NO addChatComponentMessage(null) here: that queues an S02PacketChat carrying a null
+                // component, which blows up on the receiving side (and inside the try, so the message
+                // above was the only thing the player ever saw of it). #326
             } ;
 
-        } catch (Exception w) {// w.printStackTrace();
+        } catch (Throwable w) {
+            // Throwable, not Exception: this runs inside the server tick from a player left-click, and
+            // the scan-data parsing / blacklist probing below reaches into arbitrary foreign tiles.
+            // An Error escaping here (StackOverflowError from a link chain, NoClassDefFoundError from a
+            // half-loaded mod class, ...) takes the whole server down instead of just failing the bind.
             this.linked = false;
             aPlayer.addChatMessage(new ChatComponentTranslation("programmable_hatches.remote.fail"));
-
+            if (!(w instanceof Exception)) w.printStackTrace();
         }
         super.onLeftclick(aBaseMetaTileEntity, aPlayer);
     }
@@ -167,16 +190,21 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
             .getWorld();
         return Optional.ofNullable(ww.getTileEntity(x, y, z))
             .map(TileEntity::getClass)
-            .map(Class::toString)
+            // getTypeName(), NOT toString(): Class.toString() yields "class foo.Bar" while the
+            // blacklist above is filled with getTypeName() ("foo.Bar"), so this branch never matched
+            // and the non-GregTech entries (RemoteIO's remote interface, TT's transvector interface)
+            // were effectively unblacklisted - exactly the proxy tiles that can be chained into an
+            // inventory loop. #326
+            .map(Class::getTypeName)
             .map(blacklist::contains)
             .orElse(false) ||
         // Optional.ofNullable(ww.getBlock(x, y,
         // z)).map(Block::getClass).map(Class::toString).map(blacklist::contains).orElse(false)||
             Optional.ofNullable(ww.getTileEntity(x, y, z))
                 .filter(sp -> sp instanceof IGregTechTileEntity)
+                .map(sp -> ((IGregTechTileEntity) sp).getMetaTileEntity())
                 .map(
-                    sp -> ((IGregTechTileEntity) sp).getMetaTileEntity()
-                        .getClass()
+                    meta -> meta.getClass()
                         .getTypeName())
                 .map(blacklist::contains)
                 .orElse(false);
@@ -187,15 +215,16 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
     private boolean checkBlackList(Optional<TileEntity> opt) {// World
                                                               // ww=this.getBaseMetaTileEntity().getWorld();
         return opt.map(TileEntity::getClass)
-            .map(Class::toString)
+            // see the note in the no-arg overload: getTypeName(), not toString()
+            .map(Class::getTypeName)
             .map(blacklist::contains)
             .orElse(false) ||
         // Optional.ofNullable(ww.getBlock(x, y,
         // z)).map(Block::getClass).map(Class::toString).map(blacklist::contains).orElse(false)||
             opt.filter(sp -> sp instanceof IGregTechTileEntity)
+                .map(sp -> ((IGregTechTileEntity) sp).getMetaTileEntity())
                 .map(
-                    sp -> ((IGregTechTileEntity) sp).getMetaTileEntity()
-                        .getClass()
+                    meta -> meta.getClass()
                         .getTypeName())
                 .map(blacklist::contains)
                 .orElse(false);
@@ -376,6 +405,11 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
                 .orElse(0) + 2;
         } catch (RecursiveLinkExcpetion e) {
             return 0;
+        } catch (StackOverflowError e) {
+            // StackOverflowError is an Error, so catch(Exception) let it out into the server tick:
+            // the link target is an arbitrary foreign inventory and a proxy tile that is not on the
+            // blacklist can form a loop that checkDepth() never sees. Fail the query instead. #326
+            return 0;
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
@@ -456,6 +490,11 @@ public class RemoteInputBus extends MTEHatchInputBus implements IRecipeProcessin
             return arr.get(aIndex);
             // }catch(Exception e){e.printStackTrace();return null;}
         } catch (RecursiveLinkExcpetion e) {
+            return null;
+        } catch (StackOverflowError e) {
+            // StackOverflowError is an Error, so catch(Exception) let it out into the server tick:
+            // the link target is an arbitrary foreign inventory and a proxy tile that is not on the
+            // blacklist can form a loop that checkDepth() never sees. Fail the query instead. #326
             return null;
         } catch (Exception e) {
             e.printStackTrace();

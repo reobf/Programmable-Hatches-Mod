@@ -71,6 +71,7 @@ import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IItemList;
 import appeng.api.util.AEColor;
+
 import appeng.api.util.DimensionalCoord;
 import appeng.client.texture.ExtraBlockTextures;
 import appeng.helpers.IPriorityHost;
@@ -82,6 +83,7 @@ import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEFluidStackType;
 import appeng.util.item.FluidList;
 import appeng.util.prioitylist.PrecisePriorityList;
+import gregtech.api.enums.Dyes;
 import gregtech.api.GregTechAPI;
 import gregtech.api.gui.modularui.GTUIInfos;
 import gregtech.api.gui.modularui.GTUITextures;
@@ -1021,6 +1023,10 @@ public class SuperTankME extends MTEHatch
     public void loadNBTData(NBTTagCompound aNBT) {
         if (aNBT.hasKey("proxy")) getProxy().readFromNBT(aNBT);
         super.loadNBTData(aNBT);
+        // the proxy colour is not persisted by AE (AENetworkProxy resets myColor to Transparent),
+        // so re-derive it from the saved paint - otherwise a painted block silently accepted every
+        // cable colour again after a reload. Same place GregTech does it.
+        updateAE2ProxyColor();
         piority = aNBT.getInteger("piority");
         sticky = aNBT.getBoolean("sticky");
         autoUnlock = aNBT.getBoolean("autoUnlock");
@@ -1133,16 +1139,34 @@ public class SuperTankME extends MTEHatch
     public void onColorChangeServer(byte aColor) {
 
         super.onColorChangeServer(aColor);
-        AEColor c;
-        if (aColor == -1) {
-            c = (AEColor.Transparent);
-        } else c = (AEColor.values()[15 - aColor]);
+        updateAE2ProxyColor();
+    }
 
-        try {
-            getProxy().setColor(c);
-            getGridNode(null).updateState();
-        } catch (Exception e) {}
-
+    /**
+     * Pushes the block's paint colour to the AE grid node, mirroring GT's own
+     * {@code MTEHatchInputBusME.updateAE2ProxyColor()}.
+     * <p>
+     * This used to read the {@code aColor} argument of {@link #onColorChangeServer(byte)}, which is
+     * {@code mColor} - the RAW colour, where 0 means "unpainted" and a dye index d is stored as
+     * d + 1 - and then mapped it with {@code AEColor.values()[15 - aColor]}. Two bugs came out of
+     * that: an unpainted block (raw 0) became {@code AEColor.Black} instead of
+     * {@code AEColor.Transparent}, and every painted block landed one entry off
+     * ({@code 15 - (d + 1)} instead of {@code 15 - d}), so a cable dyed the same colour as the block
+     * refused to connect while the neighbouring colour did. Use {@link #getColor()} (dye index,
+     * -1 when unpainted) and {@link Dyes#transformDyeIndex(int)} like GregTech does.
+     */
+    public void updateAE2ProxyColor() {
+        AENetworkProxy proxy = getProxy();
+        byte color = getColor();
+        if (color == -1) {
+            proxy.setColor(AEColor.Transparent);
+        } else {
+            proxy.setColor(AEColor.values()[Dyes.transformDyeIndex(color)]);
+        }
+        if (proxy.getNode() != null) {
+            proxy.getNode()
+                .updateState();
+        }
     }
 
     protected void fillStacksIntoFirstSlots() {

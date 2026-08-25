@@ -1239,6 +1239,16 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
         if (getBaseMetaTileEntity().isServerSide()) {
             program();
+            // issue #327: 机器控制覆盖板这类外部开关直接作用在仓室上时，把仓室从“停止”切回“运行”
+            // 并不会通知主机，主机会一直空转到玩家手动打开界面重新检测。这里盯住 isAllowedToWork()
+            // 的 false->true 跳变，主动叫醒监听的主机。顺带也覆盖了 AE 网络掉电后恢复的情况。
+            boolean phAllowed = isAllowedToWork();
+            if (phAllowed && !phLastAllowedToWork) {
+                for (gregtech.common.tileentities.machines.IHatchWatcher w : phWatcherMirror) {
+                    w.scheduleRecipeCheck(gregtech.common.tileentities.machines.RecipeCheckReason.IMMEDIATE);
+                }
+            }
+            phLastAllowedToWork = phAllowed;
             if (aTimer % 64 == 0) configureAEWatchers(); // marks can change via GUI/autopull/NBT paste
             interval=Math.max(1, interval);
             if (aTimer % interval == 0 && autoPullItemList) {
@@ -1302,6 +1312,8 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
     // recipe check when the network gains matching items. Mirror GT's stocking bus: register an AE
     // stack watcher for the configured marks and give watching controllers a THROTTLED nudge on change.
     private appeng.api.networking.storage.IStackWatcher phStackWatcher;
+    /** 见 onPostTick：issue #327，记录上一 tick 的 isAllowedToWork()，用来抓 false->true 跳变。 */
+    private boolean phLastAllowedToWork = true;
     private final java.util.List<gregtech.common.tileentities.machines.IHatchWatcher> phWatcherMirror = new java.util.ArrayList<>();
 
     @Override

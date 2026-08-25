@@ -18,6 +18,8 @@ import appeng.core.sync.GuiBridge;
 import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.GregTechAPI;
+import gregtech.api.util.GTUtility;
 import gregtech.common.blocks.MaterialMachines;
 
 public class BlockIOHub extends BlockContainer {
@@ -82,6 +84,16 @@ public class BlockIOHub extends BlockContainer {
          * suc;
          */
         final ItemStack is = player.inventory.getCurrentItem();
+        if (is != null && player.isSneaking() && GTUtility.isStackInList(is, GregTechAPI.sWireCutterList)) {
+            player.openGui(
+                AppEng.instance(),
+                GuiBridge.GUI_RENAMER.ordinal() << 5 | (side),
+                te.getWorldObj(),
+                te.xCoord,
+                te.yCoord,
+                te.zCoord);
+            return true;
+        }
         if (is != null && is.getItem() instanceof ToolQuartzCuttingKnife) {
             if (ForgeEventFactory.onItemUseStart(player, is, 1) <= 0) return false;
 

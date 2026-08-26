@@ -80,7 +80,6 @@ import appeng.core.Api;
 import appeng.core.AppEng;
 import appeng.core.sync.GuiBridge;
 import appeng.helpers.ICustomNameObject;
-import appeng.items.misc.ItemEncodedPattern;
 import appeng.items.tools.quartz.ToolQuartzCuttingKnife;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
@@ -125,9 +124,9 @@ import com.cleanroommc.modularui.widget.ParentWidget;
 import com.cleanroommc.modularui.widget.sizer.Area;
 import com.cleanroommc.modularui.widgets.PageButton;
 import com.cleanroommc.modularui.widgets.PagedWidget;
-import com.cleanroommc.modularui.widgets.slot.ItemSlot;
 import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import gregtech.api.modularui2.GTGuiTextures;
+import gregtech.common.gui.modularui.util.PatternSlot;
 import reobf.proghatches.item.ItemFakePattern;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
@@ -1805,19 +1804,17 @@ public int getCircuitSlot() {
 			final int ii = i;
 
 			// ---- page 2: display-only slot + per-slot multiplier field ----
-			page2.child(new ItemSlot() {
-				@Override
-				@cpw.mods.fml.relauncher.SideOnly(cpw.mods.fml.relauncher.Side.CLIENT)
-				protected ItemStack getItemStackForRendering(ItemStack itemstack, boolean dragging) {
-					if (itemstack == null || !(itemstack.getItem() instanceof ItemEncodedPattern)) {
-						return itemstack;
-					}
-					ItemStack output = ((ItemEncodedPattern) itemstack.getItem()).getOutput(itemstack);
-					return output != null ? output : itemstack;
-				}
-			}.slot(new ModularSlot(shared_handler, i).accessibility(false, false))
+			// GT's PatternSlot renders a pattern's output in place of the pattern and draws the
+			// amount exactly once. Substituting by hand via ItemEncodedPattern.getOutput() draws it
+			// twice when the output is a fluid: that stack is a GT Fluid Display item carrying the
+			// amount both in NBT (mFluidDisplayAmount -> "144L" bottom-left, drawn by
+			// FluidDisplayStackRenderer) and in stackSize (-> "144" bottom-right, drawn by MUI2's
+			// ItemSlot). PatternSlot takes getItemStackForNEI(0), which zeroes both, then draws the
+			// count itself. Item outputs were never affected - they carry no mFluidDisplayAmount.
+			// Fixes issue #329.
+			page2.child(new PatternSlot().slot(new ModularSlot(shared_handler, i).accessibility(false, false))
 				.pos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
-				.background(GTGuiTextures.SLOT_ITEM_STANDARD, GTGuiTextures.OVERLAY_SLOT_PATTERN_ME));
+				.background(GTGuiTextures.SLOT_ITEM_STANDARD));
 
 			com.cleanroommc.modularui.value.sync.IntSyncValue mulValue = new com.cleanroommc.modularui.value.sync.IntSyncValue(
 				() -> multiplier[ii], s -> {
@@ -1833,21 +1830,12 @@ public int getCircuitSlot() {
 				.size(18, 18));
 
 			// ---- page 1: interactive pattern slot + multiplier text overlay ----
-			page1.child(new ItemSlot() {
-				@Override
-				@cpw.mods.fml.relauncher.SideOnly(cpw.mods.fml.relauncher.Side.CLIENT)
-				protected ItemStack getItemStackForRendering(ItemStack itemstack, boolean dragging) {
-					if (itemstack == null || !(itemstack.getItem() instanceof ItemEncodedPattern)) {
-						return itemstack;
-					}
-					ItemStack output = ((ItemEncodedPattern) itemstack.getItem()).getOutput(itemstack);
-					return output != null ? output : itemstack;
-				}
-			}.slot(new ModularSlot(shared_handler, i).slotGroup("pattern_inv")
+			// Same output-rendering fix as page 2, see the comment there (issue #329).
+			page1.child(new PatternSlot().slot(new ModularSlot(shared_handler, i).slotGroup("pattern_inv")
 				.filter(itemStack -> itemStack.getItem() instanceof ICraftingPatternItem)
 				.changeListener((newItem, onlyAmountChanged, client, init) -> onPatternChange()))
 				.pos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
-				.background(GTGuiTextures.SLOT_ITEM_STANDARD, GTGuiTextures.OVERLAY_SLOT_PATTERN_ME));
+				.background(GTGuiTextures.SLOT_ITEM_STANDARD));
 
 			// Multiplier label drawn on top of the slot. It must NOT take part in hit-testing:
 			// layered over the slot, a normal TextWidget sits above the slot in the hovered

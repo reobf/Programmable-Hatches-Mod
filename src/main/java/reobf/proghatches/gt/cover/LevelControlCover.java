@@ -30,6 +30,10 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.networking.IGrid;
+import appeng.api.networking.security.BaseActionSource;
+import appeng.api.networking.storage.IBaseMonitor;
+import appeng.api.storage.IMEMonitorHandlerReceiver;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
@@ -438,7 +442,14 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
 
             }
 
-            amount = lookupAmount(grid, aCoverVariable);
+            maintainListener(grid);
+            ticksSinceEval += Math.max(1, getTickRate());
+            if (pendingEvent || ticksSinceEval >= MAX_EVAL_INTERVAL_TICKS) {
+                pendingEvent = false;
+                ticksSinceEval = 0;
+                cachedAmount = lookupAmount(grid, aCoverVariable);
+            }
+            amount = cachedAmount;
 
             // new MachineSource((IActionHost) aTileEntity);
 
@@ -466,17 +477,111 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
     // code always probed the fluid channel first, so an item filter still paid for one wasted full
     // fluid scan before scanning items: two full scans per cover per 10 ticks.
     //
-    // Now we only touch the channel the filter actually belongs to, and we read NetworkMonitor's own
-    // cached list instead of rescanning. That list is shared with every other AE consumer and is only
-    // rebuilt when the network storage actually changed, so N covers cost at most one shared rebuild
-    // instead of 2N full scans, and the lookup itself is a hash probe.
-    //
-    // Deliberately NOT driven by an AE listener/IStackWatcher: NetworkMonitor#postChange bails out
-    // early when localDepthSemaphore > 0 || GLOBAL_DEPTH.contains(this), so change notifications are
-    // silently dropped for any storage change nested inside another storage operation, and they are
-    // never replayed. A cache invalidated only by those events latches forever the first time one is
-    // missed (see the report on issue #328). Listeners are fine as a hint that schedules more work -
-    // that is all GT's stocking bus uses them for - but they cannot be the only source of truth.
+    // Now: reads only touch the channel the filter belongs to and go through NetworkMonitor's own
+    // cached list (rebuilt at most once per actual storage change, shared by the whole network), so a
+    // lookup is a hash probe. Scheduling is hybrid:
+    //   - an AE storage listener marks the cover pending when the watched stack changes, so the next
+    //     doCoverThings (<= one cover tick away, 10t by default) re-evaluates - events never reset
+    //     any timer, so a busy network cannot starve updates;
+    //   - with no event the cover still re-evaluates every MAX_EVAL_INTERVAL_TICKS, because AE change
+    //     notifications are lossy by design: NetworkMonitor#postChange drops (never queues) anything
+    //     that happens nested inside another dispatch of the same monitor, and a level control that
+    //     misses a threshold crossing turns the producer off and thereby silences the very item whose
+    //     next event would have healed it (see the second report on issue #328). Events are a hint
+    //     here, never the source of truth.
+    // The listener is registered per IGrid instance (the grid object is the verification token, like
+    // AE's own level emitter): after a grid merge/split, isValid() turns false on the dead grid's
+    // monitors so AE prunes us there, and maintainListener() re-registers on the new grid.
+    private static final int MAX_EVAL_INTERVAL_TICKS = 40; // 2 s
+
+    private long cachedAmount;
+    private int ticksSinceEval = MAX_EVAL_INTERVAL_TICKS; // evaluate on the first tick
+    private boolean pendingEvent;
+    private IGrid registeredGrid;
+
+    @SuppressWarnings("rawtypes")
+    private final IMEMonitorHandlerReceiver storageListener = new IMEMonitorHandlerReceiver() {
+
+        @Override
+        public boolean isValid(Object verificationToken) {
+            return verificationToken != null && verificationToken == registeredGrid;
+        }
+
+        @Override
+        public void postChange(IBaseMonitor monitor, Iterable change, BaseActionSource actionSource) {
+            if (pendingEvent || change == null) return;
+            for (Object o : change) {
+                if (isWatched(o)) {
+                    pendingEvent = true;
+                    return;
+                }
+            }
+        }
+
+        @Override
+        public void onListUpdate() {
+            pendingEvent = true;
+        }
+    };
+
+    private boolean isWatched(Object o) {
+        if (o instanceof IAEFluidStack) {
+            AEFluidStack want = coverData.maybeFluid();
+            return want != null && ((IAEFluidStack) o).isSameType(want);
+        }
+        if (o instanceof IAEItemStack) {
+            AEItemStack want = coverData.maybeItem();
+            return want != null && ((IAEItemStack) o).isSameType(want);
+        }
+        return false;
+    }
+
+    private void maintainListener(AENetworkProxy proxyOwner) {
+        IGrid current = null;
+        if (proxyOwner != null) try {
+            current = proxyOwner.getGrid();
+        } catch (GridAccessException e) {}
+        if (current == registeredGrid) return;
+        // Old registrations (if any) die by themselves: isValid() compares against registeredGrid,
+        // so the monitors of the previous grid prune us on their next dispatch.
+        registeredGrid = current;
+        pendingEvent = true; // grid changed - resync on this tick
+        if (current == null) return;
+        try {
+            proxyOwner.getStorage()
+                .getItemInventory()
+                .addListener(storageListener, current);
+            proxyOwner.getStorage()
+                .getFluidInventory()
+                .addListener(storageListener, current);
+        } catch (GridAccessException e) {
+            registeredGrid = null;
+        }
+    }
+
+    private void dropListener() {
+        // Invalidates every registration at once; AE prunes lazily via isValid().
+        registeredGrid = null;
+    }
+
+    @Override
+    public void onCoverRemoval() {
+        dropListener();
+        super.onCoverRemoval();
+    }
+
+    @Override
+    public void onCoverUnload() {
+        dropListener();
+        super.onCoverUnload();
+    }
+
+    @Override
+    public void onBaseTEDestroyed() {
+        dropListener();
+        super.onBaseTEDestroyed();
+    }
+
     private long lookupAmount(AENetworkProxy grid, Data aCoverVariable) {
         if (grid == null) return 0;
         try {

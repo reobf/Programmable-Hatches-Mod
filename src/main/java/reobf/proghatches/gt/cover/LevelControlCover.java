@@ -411,7 +411,7 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
     @Override
     public int getDefaultTickRate() {
 
-        return 10;
+        return 5;
     }
 
     @Override
@@ -481,7 +481,7 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
     // cached list (rebuilt at most once per actual storage change, shared by the whole network), so a
     // lookup is a hash probe. Scheduling is hybrid:
     //   - an AE storage listener marks the cover pending when the watched stack changes, so the next
-    //     doCoverThings (<= one cover tick away, 10t by default) re-evaluates - events never reset
+    //     doCoverThings (<= one cover tick away, 5t by default) re-evaluates - events never reset
     //     any timer, so a busy network cannot starve updates;
     //   - with no event the cover still re-evaluates every MAX_EVAL_INTERVAL_TICKS, because AE change
     //     notifications are lossy by design: NetworkMonitor#postChange drops (never queues) anything

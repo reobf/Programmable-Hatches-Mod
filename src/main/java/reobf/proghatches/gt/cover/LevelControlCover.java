@@ -33,9 +33,6 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
-import appeng.api.networking.security.BaseActionSource;
-import appeng.api.networking.storage.IBaseMonitor;
-import appeng.api.storage.IMEMonitorHandlerReceiver;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import gregtech.api.covers.CoverContext;
@@ -441,21 +438,7 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
 
             }
 
-            if (grid != listenedGrid) {
-                detachStorageListener();
-                attachStorageListener(grid);
-                amountDirty = true;
-            }
-            if (!ItemStack.areItemStacksEqual(listenedFilter, aCoverVariable.filter[0])) {
-                listenedFilter = aCoverVariable.filter[0] == null ? null
-                    : aCoverVariable.filter[0].copy();
-                amountDirty = true;
-            }
-            if (amountDirty) {
-                cachedAmount = lookupAmount(grid, aCoverVariable);
-                amountDirty = false;
-            }
-            amount = cachedAmount;
+            amount = lookupAmount(grid, aCoverVariable);
 
             // new MachineSource((IActionHost) aTileEntity);
 
@@ -477,85 +460,23 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
     }
 
     // ===== issue #328 =====
-    // 原来每 getDefaultTickRate()（10 tick）调一次 IMEInventory#getAvailableItem。NetworkMonitor 没有覆写
-    // 这个方法，它会退化到默认实现 getAvailableItems(...)，也就是把整个网络的存储从头扫一遍；而且过滤器
-    // 装的是物品时，流体侧那一次还是照扫不误，等于每 10tick 两次全盘扫描，覆盖板一多就很吃性能。
-    // 现在改成挂 AE 自己的监听器：只有网络里出现和过滤器同类型的变动才置脏，置脏之后从 NetworkMonitor
-    // 已经缓存好的列表里做一次 findPrecise 定点查找。稳态下每 tick 的开销是零。
-    private long cachedAmount;
-    private boolean amountDirty = true;
-    private Object listenerToken;
-    private AENetworkProxy listenedGrid;
-    private ItemStack listenedFilter;
-
-    @SuppressWarnings("rawtypes")
-    private final IMEMonitorHandlerReceiver storageListener = new IMEMonitorHandlerReceiver() {
-
-        @Override
-        public boolean isValid(Object verificationToken) {
-            // token 置 null 之后 AE 会自己把监听器摘掉，不用担心覆盖板被拆了还挂在网络上
-            return listenerToken != null && verificationToken == listenerToken;
-        }
-
-        @Override
-        public void postChange(IBaseMonitor monitor, Iterable change, BaseActionSource actionSource) {
-            if (amountDirty || change == null) return;
-            for (Object o : change) {
-                if (isWatched(o)) {
-                    amountDirty = true;
-                    return;
-                }
-            }
-        }
-
-        @Override
-        public void onListUpdate() {
-            amountDirty = true;
-        }
-    };
-
-    private boolean isWatched(Object o) {
-        if (o instanceof IAEFluidStack) {
-            AEFluidStack want = coverData.maybeFluid();
-            return want != null && ((IAEFluidStack) o).isSameType(want);
-        }
-        if (o instanceof IAEItemStack) {
-            AEItemStack want = coverData.maybeItem();
-            return want != null && ((IAEItemStack) o).isSameType(want);
-        }
-        return false;
-    }
-
-    private void attachStorageListener(AENetworkProxy grid) {
-        if (grid == null) return;
-        try {
-            listenerToken = new Object();
-            grid.getStorage()
-                .getItemInventory()
-                .addListener(storageListener, listenerToken);
-            grid.getStorage()
-                .getFluidInventory()
-                .addListener(storageListener, listenerToken);
-            listenedGrid = grid;
-        } catch (GridAccessException e) {
-            listenerToken = null;
-            listenedGrid = null;
-        }
-    }
-
-    private void detachStorageListener() {
-        if (listenedGrid != null) try {
-            listenedGrid.getStorage()
-                .getItemInventory()
-                .removeListener(storageListener);
-            listenedGrid.getStorage()
-                .getFluidInventory()
-                .removeListener(storageListener);
-        } catch (GridAccessException e) {}
-        listenedGrid = null;
-        listenerToken = null;
-    }
-
+    // This used to call IMEInventory#getAvailableItem once per getDefaultTickRate() (10 ticks).
+    // NetworkMonitor does not override that method, so it fell through to the default implementation,
+    // which runs getAvailableItems(...) - a full walk of every storage on the network. Worse, the old
+    // code always probed the fluid channel first, so an item filter still paid for one wasted full
+    // fluid scan before scanning items: two full scans per cover per 10 ticks.
+    //
+    // Now we only touch the channel the filter actually belongs to, and we read NetworkMonitor's own
+    // cached list instead of rescanning. That list is shared with every other AE consumer and is only
+    // rebuilt when the network storage actually changed, so N covers cost at most one shared rebuild
+    // instead of 2N full scans, and the lookup itself is a hash probe.
+    //
+    // Deliberately NOT driven by an AE listener/IStackWatcher: NetworkMonitor#postChange bails out
+    // early when localDepthSemaphore > 0 || GLOBAL_DEPTH.contains(this), so change notifications are
+    // silently dropped for any storage change nested inside another storage operation, and they are
+    // never replayed. A cache invalidated only by those events latches forever the first time one is
+    // missed (see the report on issue #328). Listeners are fine as a hint that schedules more work -
+    // that is all GT's stocking bus uses them for - but they cannot be the only source of truth.
     private long lookupAmount(AENetworkProxy grid, Data aCoverVariable) {
         if (grid == null) return 0;
         try {
@@ -576,28 +497,9 @@ public class LevelControlCover extends CoverBehaviorBase<LevelControlCover.Data>
                 return got == null ? 0 : got.getStackSize();
             }
         } catch (GridAccessException e) {
-            // 网络暂时够不着，保持脏标记下次再试
-            amountDirty = true;
+            // network temporarily unreachable - report 0, same as the old code did
         }
         return 0;
-    }
-
-    @Override
-    public void onCoverRemoval() {
-        detachStorageListener();
-        super.onCoverRemoval();
-    }
-
-    @Override
-    public void onCoverUnload() {
-        detachStorageListener();
-        super.onCoverUnload();
-    }
-
-    @Override
-    public void onBaseTEDestroyed() {
-        detachStorageListener();
-        super.onBaseTEDestroyed();
     }
 
     @Override

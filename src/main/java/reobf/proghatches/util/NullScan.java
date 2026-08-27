@@ -1,5 +1,10 @@
 package reobf.proghatches.util;
 
+import reobf.proghatches.main.asm.repack.objectwebasm.ClassWriter;
+import reobf.proghatches.main.asm.repack.objectwebasm.MethodVisitor;
+import reobf.proghatches.main.asm.repack.objectwebasm.Opcodes;
+import reobf.proghatches.main.asm.repack.objectwebasm.Type;
+
 /**
  * Descending "last non-null element" scan over Object[] using sun.misc.Unsafe: reference slots are
  * read as raw integers purely for ZERO-TESTING (null encodes as all-zero bits under every HotSpot
@@ -12,58 +17,57 @@ package reobf.proghatches.util;
  * scale 8, exotic VMs — permanently drops to the plain loop fallback, which is also the reference
  * semantics: index of the last non-null element at or below {@code from}, or -1.
  *
- * <h2>Why the Unsafe calls live in an embedded class file</h2>
+ * <h2>Why the Unsafe calls are generated instead of written</h2>
  * The memory-access methods are terminally deprecated (JEP 471), so calling them inline raised a
  * javac {@code [removal]} warning per call site, and Eclipse additionally flags the type under its
  * "discouraged access / not API" rule, which {@code @SuppressWarnings} cannot silence once that
- * rule is set to error. So {@link Raw}'s implementation is compiled separately and its class file
- * is embedded below as base64; {@link #RAW} defines it at runtime through a child ClassLoader. No
- * compiler that builds the mod ever sees sun.misc.Unsafe, while the bytecode that actually runs is
- * a plain {@code invokevirtual sun/misc/Unsafe.getLong} — the very instruction this class used to
- * emit inline. {@code RAW} is {@code static final} and the implementation is the only one loaded,
- * so C2 devirtualizes the interface call and inlines it back down to the same intrinsic.
+ * rule is set to error. So {@link Raw}'s implementation is emitted at runtime by {@link #emit()}
+ * with the mod's repacked ASM and defined through a child ClassLoader. No compiler that builds the
+ * mod ever sees sun.misc.Unsafe, while the bytecode that actually runs is a plain
+ * {@code invokevirtual sun/misc/Unsafe.getLong} — the very instruction this class used to emit
+ * inline. {@link #RAW} is {@code static final} and its class is the only implementation ever
+ * loaded, so C2 devirtualizes the interface call and inlines it back down to the same intrinsic;
+ * measured throughput is unchanged from the hand-written version on both JDK 8 and 21.
  * <p>
- * <b>MethodHandles were tried first and are not usable here.</b> Binding the four methods into
- * {@code static final} MethodHandles and calling {@code invokeExact} compiles and behaves fine on
- * JDK 17, 21 and 25, but reproducibly crashes HotSpot on JDK 8 (EXCEPTION_ACCESS_VIOLATION inside
- * {@code MethodHandle::linkToSpecial}, once C2 compiles the scan loop). 1.7.10 still runs on Java 8
- * for a lot of players, so that route is closed. Plain reflection is out for the opposite reason:
- * it is per-element work in a hot loop.
- *
- * <h2>Regenerating {@link #IMPL}</h2>
- * The embedded class is compiled from this source (kept out of the tree on purpose):
+ * The generated class is equivalent to:
  *
  * <pre>
- * package reobf.proghatches.util;
- *
  * public final class NullScanRaw implements NullScan.Raw {
  *
  *     private static final sun.misc.Unsafe U = akka.util.Unsafe.instance;
  *
- *     public long base()                        { return U.arrayBaseOffset(Object[].class); }
- *     public int  scale()                       { return U.arrayIndexScale(Object[].class); }
- *     public long getLong(Object o, long off)   { return U.getLong(o, off); }
- *     public int  getInt (Object o, long off)   { return U.getInt (o, off); }
+ *     public long base()                      { return U.arrayBaseOffset(Object[].class); }
+ *     public int  scale()                     { return U.arrayIndexScale(Object[].class); }
+ *     public long getLong(Object o, long off) { return U.getLong(o, off); }
+ *     public int  getInt (Object o, long off) { return U.getInt (o, off); }
  * }
  * </pre>
  *
- * built with a JDK 8 javac (major 52 loads on every JDK from 8 up) against akka-actor and
- * scala-library, then base64'd:
+ * {@code akka.util.Unsafe.instance} is just a public forward to
+ * {@code scala.concurrent.util.Unsafe.instance}; both jars are in Forge 1.7.10's own library
+ * manifest (that is how FML supports Scala mods), so they are on every client and server, and the
+ * public field hands the singleton over without {@code setAccessible} — the part modern JDKs keep
+ * tightening.
  *
- * <pre>
- * javac -XDignore.symbol.file -cp akka-actor_2.11-2.3.3.jar;scala-library-2.11.5.jar \
- *       -d out NullScan.java NullScanRaw.java
- * base64 -w0 out/reobf/proghatches/util/NullScanRaw.class
- * </pre>
- *
- * {@code akka.util.Unsafe.instance} is just a public forward to {@code scala.concurrent.util
- * .Unsafe.instance}; both jars are in Forge 1.7.10's own library manifest (that is how FML supports
- * Scala mods), so they are on every client and server, and the public field hands the singleton
- * over without {@code setAccessible} — the part modern JDKs keep tightening.
+ * <h2>Do not "simplify" this into MethodHandles</h2>
+ * Binding the four methods into {@code static final} MethodHandles and calling {@code invokeExact}
+ * is the obvious tidier alternative. It works on JDK 17, 21 and 25 — and reproducibly crashes the
+ * JVM on JDK 8, which plenty of 1.7.10 players still run. Narrowed down:
+ * <ul>
+ * <li>a MethodHandle to an <i>ordinary</i> Java method of the same signature, in the same hot loop,
+ * is fine — so it is not "MethodHandles are broken";
+ * <li>{@code -Xint}, {@code -XX:TieredStopAtLevel=1} and {@code =3} all survive, only C2 crashes;
+ * <li>{@code -XX:+UnlockDiagnosticVMOptions -XX:DisableIntrinsic=_getLong} makes it survive.
+ * </ul>
+ * So JDK 8's C2 mishandles a MethodHandle call site whose target is an intrinsified Unsafe native:
+ * rather than expanding the intrinsic it leaves a call to be resolved, and the resolution stub
+ * (~RuntimeStub::resolve_opt_virtual_call, reached from the compiled scan loop) dereferences null.
+ * Reproduced on Zulu 8u392 and 8u472 alike. Plain reflection is out for the opposite reason: it is
+ * per-element work in a hot loop.
  */
 public final class NullScan {
 
-    /** Implemented only by the embedded class file below. */
+    /** Implemented only by the class {@link #emit()} generates. */
     public interface Raw {
 
         long base();
@@ -75,21 +79,83 @@ public final class NullScan {
         int getInt(Object o, long off);
     }
 
-    /** base64 of NullScanRaw.class; see the class javadoc for the source and build command. */
-    private static final String IMPL =
-        "yv66vgAAADQANAoACgAdCQAJAB4HAB8KACAAIQoAIAAiCgAgACMKACAAJAkAJQAmBwAnBwAoBwAqAQABVQEAEUxzdW4vbWlz"
-            + "Yy9VbnNhZmU7AQAGPGluaXQ+AQADKClWAQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEABGJhc2UBAAMoKUoBAAVzY2FsZQEA"
-            + "AygpSQEAB2dldExvbmcBABYoTGphdmEvbGFuZy9PYmplY3Q7SilKAQAGZ2V0SW50AQAWKExqYXZhL2xhbmcvT2JqZWN0O0op"
-            + "SQEACDxjbGluaXQ+AQAKU291cmNlRmlsZQEAEE51bGxTY2FuUmF3LmphdmEMAA4ADwwADAANAQATW0xqYXZhL2xhbmcvT2Jq"
-            + "ZWN0OwcALQwALgAvDAAwAC8MABYAFwwAGAAZBwAxDAAyAA0BACJyZW9iZi9wcm9naGF0Y2hlcy91dGlsL051bGxTY2FuUmF3"
-            + "AQAQamF2YS9sYW5nL09iamVjdAcAMwEAI3Jlb2JmL3Byb2doYXRjaGVzL3V0aWwvTnVsbFNjYW4kUmF3AQADUmF3AQAMSW5u"
-            + "ZXJDbGFzc2VzAQAPc3VuL21pc2MvVW5zYWZlAQAPYXJyYXlCYXNlT2Zmc2V0AQAUKExqYXZhL2xhbmcvQ2xhc3M7KUkBAA9h"
-            + "cnJheUluZGV4U2NhbGUBABBha2thL3V0aWwvVW5zYWZlAQAIaW5zdGFuY2UBAB9yZW9iZi9wcm9naGF0Y2hlcy91dGlsL051"
-            + "bGxTY2FuADEACQAKAAEACwABABoADAANAAAABgABAA4ADwABABAAAAAdAAEAAQAAAAUqtwABsQAAAAEAEQAAAAYAAQAAAAoA"
-            + "AQASABMAAQAQAAAAIgACAAEAAAAKsgACEgO2AASFrQAAAAEAEQAAAAYAAQAAAA8AAQAUABUAAQAQAAAAIQACAAEAAAAJsgAC"
-            + "EgO2AAWsAAAAAQARAAAABgABAAAAEwABABYAFwABABAAAAAhAAQABAAAAAmyAAIrILYABq0AAAABABEAAAAGAAEAAAAXAAEA"
-            + "GAAZAAEAEAAAACEABAAEAAAACbIAAisgtgAHrAAAAAEAEQAAAAYAAQAAABsACAAaAA8AAQAQAAAAHwABAAAAAAAHsgAIswAC"
-            + "sQAAAAEAEQAAAAYAAQAAAAwAAgAbAAAAAgAcACwAAAAKAAEACwApACsGCQ==";
+    private static final String IMPL = "reobf/proghatches/util/NullScanRaw";
+    private static final String UNSAFE = "sun/misc/Unsafe";
+    private static final String UNSAFE_DESC = "Lsun/misc/Unsafe;";
+
+    /** Emits the {@link Raw} implementation shown in the class javadoc. */
+    private static byte[] emit() {
+        // COMPUTE_MAXS is enough, and COMPUTE_FRAMES is deliberately avoided: computing frames
+        // makes ASM load common superclasses to merge types, and nothing here branches, so a class
+        // file carrying no StackMapTable entries verifies fine.
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        cw.visit(
+            Opcodes.V1_8,
+            Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL | Opcodes.ACC_SUPER,
+            IMPL,
+            null,
+            "java/lang/Object",
+            new String[] { Type.getInternalName(Raw.class) });
+        cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "U", UNSAFE_DESC, null, null)
+            .visitEnd();
+
+        // static { U = akka.util.Unsafe.instance; }
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
+        mv.visitCode();
+        mv.visitFieldInsn(Opcodes.GETSTATIC, "akka/util/Unsafe", "instance", UNSAFE_DESC);
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, IMPL, "U", UNSAFE_DESC);
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // long base() { return U.arrayBaseOffset(Object[].class); }   (int result widened)
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "base", "()J", null, null);
+        mv.visitCode();
+        mv.visitFieldInsn(Opcodes.GETSTATIC, IMPL, "U", UNSAFE_DESC);
+        mv.visitLdcInsn(Type.getType("[Ljava/lang/Object;"));
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, UNSAFE, "arrayBaseOffset", "(Ljava/lang/Class;)I", false);
+        mv.visitInsn(Opcodes.I2L);
+        mv.visitInsn(Opcodes.LRETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // int scale() { return U.arrayIndexScale(Object[].class); }
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "scale", "()I", null, null);
+        mv.visitCode();
+        mv.visitFieldInsn(Opcodes.GETSTATIC, IMPL, "U", UNSAFE_DESC);
+        mv.visitLdcInsn(Type.getType("[Ljava/lang/Object;"));
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, UNSAFE, "arrayIndexScale", "(Ljava/lang/Class;)I", false);
+        mv.visitInsn(Opcodes.IRETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        emitAccessor(cw, "getLong", "(Ljava/lang/Object;J)J", Opcodes.LRETURN);
+        emitAccessor(cw, "getInt", "(Ljava/lang/Object;J)I", Opcodes.IRETURN);
+
+        cw.visitEnd();
+        return cw.toByteArray();
+    }
+
+    /** {@code public T name(Object o, long off) { return U.name(o, off); }} */
+    private static void emitAccessor(ClassWriter cw, String name, String desc, int returnOp) {
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, name, desc, null, null);
+        mv.visitCode();
+        mv.visitFieldInsn(Opcodes.GETSTATIC, IMPL, "U", UNSAFE_DESC);
+        mv.visitVarInsn(Opcodes.ALOAD, 1);
+        mv.visitVarInsn(Opcodes.LLOAD, 2);
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, UNSAFE, name, desc, false);
+        mv.visitInsn(returnOp);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
 
     /** Defines exactly one class, delegating everything else (Raw, Unsafe, akka) to the parent. */
     private static final class Defining extends ClassLoader {
@@ -112,8 +178,7 @@ public final class NullScan {
         long base = 0;
         boolean ok = false;
         try {
-            raw = (Raw) new Defining(NullScan.class.getClassLoader())
-                .define("reobf.proghatches.util.NullScanRaw", java.util.Base64.getDecoder().decode(IMPL))
+            raw = (Raw) new Defining(NullScan.class.getClassLoader()).define(IMPL.replace('/', '.'), emit())
                 .getDeclaredConstructor()
                 .newInstance();
             base = raw.base();

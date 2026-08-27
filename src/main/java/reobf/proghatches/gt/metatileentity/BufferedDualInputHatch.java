@@ -3011,26 +3011,35 @@ public class BufferedDualInputHatch extends DualInputHatch
 			switch (slotTierOverride(mTier)) {
 			case 0:
 				genSlots = () -> gridTemplate1by1X(
-						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(3, 3);
+						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0, 0);
 				fluidslot_pos_index = 0;
 				break;
 			case 1:
 				genSlots = () -> gridTemplate2by2X(
-						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(3, 3);
+						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0, 0);
 				fluidslot_pos_index = 1;
 				break;
 			case 2:
 				genSlots = () -> gridTemplate3by3X(
-						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(3, 3);
+						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0, 0);
 				fluidslot_pos_index = 2;
 				break;
 			default:
 				genSlots = () -> gridTemplate4by4X(
-						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(3, 3);
+						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0, 0);
 				fluidslot_pos_index = 3;
 			}
 			
-			builder.child(genSlots.get());
+			// The item grid is 4 rows per page(), but this panel is a fixed 4 rows tall, so on the
+			// MK.II (page() == 2, 32 slots) the lower half rendered outside the window with no way
+			// to reach it. Scroll it, exactly as the main GUI already does for the same grid (see
+			// DualInputHatch#populateUI) and as the fluid/circuit lists below already do here.
+			ScrollWidget<?> listItem = new ScrollWidget<>(new VerticalScrollData()).size(18);
+			listItem.getScrollArea().getScrollY().setScrollSize(18 * 4 * page());
+			listItem.size(18 * (fluidslot_pos_index + 1), 18 * 4);
+			listItem.child(genSlots.get());
+			listItem.pos(3, 3);
+			builder.child(listItem);
 			ScrollWidget<?> list = new ScrollWidget<>(new VerticalScrollData()).size(18)/*.keepScrollBarInArea(true)*/;
 			list.getScrollArea().getScrollY().setScrollSize(18 * inv0.get(ind).mStoredFluidInternal.length/fluidSlotsPerRow());
 			list.size(18 * fluidSlotsPerRow(), 18 * Math.min(4, inv0.get(ind).mStoredFluidInternal.length/fluidSlotsPerRow()));

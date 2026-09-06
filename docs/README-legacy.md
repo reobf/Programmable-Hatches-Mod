@@ -66,7 +66,7 @@ Programmable Hatches Mod
 
 <div align="center">
   
-![pic1](docs/1.png)
+![pic1](1.png)
 
 `电路覆盖板`
 
@@ -84,7 +84,7 @@ Programmable Hatches Mod
 
 <div align="center">
   
-![pic2](docs/2.png)
+![pic2](2.png)
 
 `锻造锤制作编程电路`
 
@@ -94,7 +94,7 @@ Programmable Hatches Mod
 
 <div align="center">
   
-![pic3](docs/3.png)
+![pic3](3.png)
 
 `电路提供器T1`
 
@@ -133,7 +133,7 @@ Programmable Hatches Mod
 
 <div align="center">
   
-![pic4](docs/4.png)
+![pic4](4.png)
 
 `进阶编程多流体二合一输入仓Luv`
 

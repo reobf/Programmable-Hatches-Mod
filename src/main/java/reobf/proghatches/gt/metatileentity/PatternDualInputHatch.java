@@ -90,7 +90,6 @@ import codechicken.nei.ItemStackMap;
 import codechicken.nei.ItemStackSet;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Textures.BlockIcons;
 import gregtech.api.gui.modularui.GTUITextures;
@@ -1047,7 +1046,7 @@ public int page() {
                         .getWorld());
             } catch (Exception e) {}
             if (details == null) {
-                GTMod.GT_FML_LOGGER.warn(
+                MyMod.LOG.warn(
                     "Found an invalid pattern at " + getBaseMetaTileEntity().getCoords()
                         + " in dim "
                         + getBaseMetaTileEntity().getWorld().provider.dimensionId);

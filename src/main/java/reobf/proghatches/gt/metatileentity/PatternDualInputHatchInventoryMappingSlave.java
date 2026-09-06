@@ -93,7 +93,6 @@ import appeng.tile.misc.TileInterface;
 import appeng.util.PatternMultiplierHelper;
 import codechicken.nei.ItemStackMap;
 import codechicken.nei.ItemStackSet;
-import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.SoundResource;
@@ -1097,7 +1096,7 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                         .getWorld());
             } catch (Exception e) {}
             if (details == null) {
-                GTMod.GT_FML_LOGGER.warn(
+                MyMod.LOG.warn(
                     "Found an invalid pattern at " + getBaseMetaTileEntity().getCoords()
                         + " in dim "
                         + getBaseMetaTileEntity().getWorld().provider.dimensionId);

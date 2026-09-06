@@ -42,7 +42,6 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatchOutputBus;
 import gregtech.api.util.GTUtility;
-import reobf.proghatches.gt.metatileentity.VoidOutputHatch.EntityDropParticleFX;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.net.VoidFXMessage;
@@ -232,7 +231,7 @@ public class VoidOutputBus extends MTEHatchOutputBus {
             ItemStack f = types.get((int) (types.size() * Math.random()));
 
             ForgeDirection fc = aBaseMetaTileEntity.getFrontFacing();
-            EntityDropParticleFX fx = new EntityDropParticleFX(
+            VoidOutputBusDropFX fx = new VoidOutputBusDropFX(
                 Minecraft.getMinecraft().theWorld,
 
                 aBaseMetaTileEntity.getXCoord() + 0.5D + (fc.offsetX) * 0.51f,
@@ -250,218 +249,7 @@ public class VoidOutputBus extends MTEHatchOutputBus {
         super.onPreTick(aBaseMetaTileEntity, aTick);
     }
 
-    @SideOnly(Side.CLIENT)
-    public class EntityDropParticleFX extends EntityFX {
 
-        private Render itemRenderer;
-
-        {
-            itemRenderer = new RenderItem() {
-
-                @Override
-                public byte getMiniBlockCount(ItemStack stack, byte original) {
-                    return SignedBytes.saturatedCast(Math.min(stack.stackSize / 32, 15) + 1);
-                }
-
-                @Override
-                public byte getMiniItemCount(ItemStack stack, byte original) {
-                    return SignedBytes.saturatedCast(Math.min(stack.stackSize / 32, 7) + 1);
-                }
-
-                @Override
-                public boolean shouldBob() {
-                    return false;
-                }
-
-                @Override
-                public boolean shouldSpreadItems() {
-                    return false;
-                }
-            };
-            itemRenderer.setRenderManager(RenderManager.instance);
-        }
-        /** the material type for dropped items/blocks */
-        private Material materialType;
-        /** The height of the current bob */
-        private int bobTimer;
-        // private static final String __OBFID = "CL_00000901";
-        ItemStack is;
-
-        public EntityDropParticleFX(World worldIn, double p_i1203_2_, double p_i1203_4_, double p_i1203_6_,
-            ItemStack f) {
-            super(worldIn, p_i1203_2_, p_i1203_4_, p_i1203_6_, 0.0D, 0.0D, 0.0D);
-            this.motionX = this.motionY = this.motionZ = 0.0D;
-            is = f;
-
-            this.particleBlue = 0xFF;
-            this.particleGreen = 0xFF;
-            this.particleRed = 0xFF;
-
-            setParticleIcon(
-                f.getItem()
-                    .getIcon(
-                        f,
-                        (int) (f.getItem()
-                            .getRenderPasses(f.getItemDamage()) * Math.random()))
-
-            );
-
-            // this.setParticleTextureIndex(113);
-            this.setSize(0.01F, 0.01F);
-            this.particleGravity = 0.06F;
-            // this.materialType = p_i1203_8_;
-            this.bobTimer = 00;
-            this.particleMaxAge = (int) (64.0D / (Math.random() * 0.8D + 0.2D));
-            this.motionX = this.motionY = this.motionZ = 0.0D;
-            particleMaxAge = 100;
-        }
-
-        @Override
-        public int getFXLayer() {
-            return 1;
-        }
-
-        public int getBrightnessForRender(float p_70070_1_) {
-            return this.materialType == Material.water ? super.getBrightnessForRender(p_70070_1_) : 257;
-        }
-
-        /**
-         * Gets how bright this entity is.
-         */
-        public float getBrightness(float p_70013_1_) {
-            return this.materialType == Material.water ? super.getBrightness(p_70013_1_) : 1.0F;
-        }
-
-        /**
-         * Called to update the entity's position/logic.
-         */
-        public void onUpdate() {
-            this.prevPosX = this.posX;
-            this.prevPosY = this.posY;
-            this.prevPosZ = this.posZ;
-
-            /*
-             * if (this.materialType == Material.water)
-             * {
-             * this.particleRed = 0.2F;
-             * this.particleGreen = 0.3F;
-             * this.particleBlue = 1.0F;
-             * }
-             * else
-             * {
-             * this.particleRed = 1.0F;
-             * this.particleGreen = 16.0F / (float)(40 - this.bobTimer + 16);
-             * this.particleBlue = 4.0F / (float)(40 - this.bobTimer + 8);
-             * }
-             */
-            this.motionY -= (double) this.particleGravity;
-
-            if (this.bobTimer-- > 0) {
-                this.motionX *= 0.02D;
-                this.motionY *= 0.02D;
-                this.motionZ *= 0.02D;
-                // this.setParticleTextureIndex(113);
-                // this.setParticleTextureIndex(19 + this.rand.nextInt(4));
-            } else {
-                // this.setParticleTextureIndex(113);
-                // this.setParticleTextureIndex(19 + this.rand.nextInt(4));
-            }
-
-            this.moveEntity(this.motionX, this.motionY, this.motionZ);
-            this.motionX *= 0.9800000190734863D;
-            this.motionY *= 0.9800000190734863D;
-            this.motionZ *= 0.9800000190734863D;
-
-            if (this.particleMaxAge-- <= 0) {
-                this.setDead();
-            }
-
-            if (this.onGround) {
-                this.c = 0;
-                this.a = 90;
-                this.a1 = 0;
-                this.c1 = 0;
-                this.b1 *= 0.8;
-                // this.setDead();
-
-                /*
-                 * if (this.materialType == Material.water)
-                 * {
-                 * else
-                 * {
-                 * this.setParticleTextureIndex(114);
-                 * }
-                 */
-                //
-                // this.worldObj.spawnParticle("splash", this.posX, this.posY, this.posZ, 0.0D, 0.0D, 0.0D);
-
-                this.motionX *= 0.699999988079071D;
-                this.motionZ *= 0.699999988079071D;
-            }
-
-            Material material = this.worldObj
-                .getBlock(
-                    MathHelper.floor_double(this.posX),
-                    MathHelper.floor_double(this.posY),
-                    MathHelper.floor_double(this.posZ))
-                .getMaterial();
-
-            if (material.isLiquid() || material.isSolid()) {
-                double d0 = (double) ((float) (MathHelper.floor_double(this.posY) + 1)
-                    - BlockLiquid.getLiquidHeightPercent(
-                        this.worldObj.getBlockMetadata(
-                            MathHelper.floor_double(this.posX),
-                            MathHelper.floor_double(this.posY),
-                            MathHelper.floor_double(this.posZ))));
-
-                if (this.posY < d0) {
-                    this.setDead();
-                }
-            }
-        }
-
-        double a = Math.random() * 360;
-        double b = Math.random() * 360;
-        double c = Math.random() * 360;
-        double a1 = Math.random() * 360;
-        double b1 = Math.random() * 360;
-        double c1 = Math.random() * 360;
-
-        @Override
-        public void renderParticle(Tessellator tessellator, float timeStep, float rotationX, float rotationXZ,
-            float rotationZ, float rotationYZ, float rotationXY) {
-            tessellator.draw();
-
-            GL11.glPushMatrix();
-            EntityClientPlayerMP p = Minecraft.getMinecraft().thePlayer;
-            float f11 = (float) (this.prevPosX + (this.posX - this.prevPosX) * (double) timeStep);
-            float f12 = (float) (this.prevPosY + (this.posY - this.prevPosY) * (double) timeStep);
-            float f13 = (float) (this.prevPosZ + (this.posZ - this.prevPosZ) * (double) timeStep);
-            float f21 = (float) (p.prevPosX + (p.posX - p.prevPosX) * (double) timeStep);
-            float f22 = (float) (p.prevPosY + (p.posY - p.prevPosY) * (double) timeStep);
-            float f23 = (float) (p.prevPosZ + (p.posZ - p.prevPosZ) * (double) timeStep);
-            GL11.glTranslated(f11 - f21, f12 - f22, f13 - f23
-
-            );
-
-            GL11.glRotated(a, 1, 0, 0);
-            GL11.glRotated(b, 0, 1, 0);
-            GL11.glRotated(c, 0, 0, 1);
-            a += (a1 - b1) / 100;
-            b += (b1 - c1) / 100;
-            c += (c1 - a1) / 100;
-
-            EntityItem customitem = new EntityItem(Minecraft.getMinecraft().theWorld);
-            customitem.hoverStart = 0f;
-            customitem.setEntityItemStack(is);
-            itemRenderer.doRender(customitem, 0, 0, 0, 0, 0);
-
-            GL11.glPopMatrix();
-
-            tessellator.startDrawingQuads();
-        }
-
-    }
 
     boolean fx = true;
 
@@ -474,6 +262,232 @@ public class VoidOutputBus extends MTEHatchOutputBus {
         fx = !fx;
         GTUtility.sendChatToPlayer(aPlayer, StatCollector.translateToLocal("proghatches.gt.void.fx." + fx));
 
+    }
+
+}
+
+/**
+ * Top-level on purpose, NOT a nested class of the hatch/bus above.
+ *
+ * GT 5.09.54.133 made MetaTileEntity's constructor call getClass().getAnnotation(SkipGenerateName),
+ * and reading any annotation makes the JVM materialise *every* annotation on the class. Because the
+ * mod is compiled with jvmDowngrader (downgradeTargetVersion = 8), javac's Java 11 NestMembers
+ * class-file attribute is rewritten into an @xyz.wagyourtail.jvmdg.j11.NestMembers annotation whose
+ * value is a Class[]. As a nested class this particle was listed in that array, and it is
+ * @SideOnly(CLIENT), so FML's side transformer deletes it outright on a dedicated server - the
+ * Class[] then fails to resolve and getAnnotation blows up with
+ * ArrayStoreException: TypeNotPresentExceptionProxy, killing mod init server-side.
+ * Keeping it top-level removes it from the enclosing class's nest, so no Class[] ever points at it.
+ */
+@SideOnly(Side.CLIENT)
+class VoidOutputBusDropFX extends EntityFX {
+
+    private Render itemRenderer;
+
+    {
+        itemRenderer = new RenderItem() {
+
+            @Override
+            public byte getMiniBlockCount(ItemStack stack, byte original) {
+                return SignedBytes.saturatedCast(Math.min(stack.stackSize / 32, 15) + 1);
+            }
+
+            @Override
+            public byte getMiniItemCount(ItemStack stack, byte original) {
+                return SignedBytes.saturatedCast(Math.min(stack.stackSize / 32, 7) + 1);
+            }
+
+            @Override
+            public boolean shouldBob() {
+                return false;
+            }
+
+            @Override
+            public boolean shouldSpreadItems() {
+                return false;
+            }
+        };
+        itemRenderer.setRenderManager(RenderManager.instance);
+    }
+    /** the material type for dropped items/blocks */
+    private Material materialType;
+    /** The height of the current bob */
+    private int bobTimer;
+    // private static final String __OBFID = "CL_00000901";
+    ItemStack is;
+
+    public VoidOutputBusDropFX(World worldIn, double p_i1203_2_, double p_i1203_4_, double p_i1203_6_,
+        ItemStack f) {
+        super(worldIn, p_i1203_2_, p_i1203_4_, p_i1203_6_, 0.0D, 0.0D, 0.0D);
+        this.motionX = this.motionY = this.motionZ = 0.0D;
+        is = f;
+
+        this.particleBlue = 0xFF;
+        this.particleGreen = 0xFF;
+        this.particleRed = 0xFF;
+
+        setParticleIcon(
+            f.getItem()
+                .getIcon(
+                    f,
+                    (int) (f.getItem()
+                        .getRenderPasses(f.getItemDamage()) * Math.random()))
+
+        );
+
+        // this.setParticleTextureIndex(113);
+        this.setSize(0.01F, 0.01F);
+        this.particleGravity = 0.06F;
+        // this.materialType = p_i1203_8_;
+        this.bobTimer = 00;
+        this.particleMaxAge = (int) (64.0D / (Math.random() * 0.8D + 0.2D));
+        this.motionX = this.motionY = this.motionZ = 0.0D;
+        particleMaxAge = 100;
+    }
+
+    @Override
+    public int getFXLayer() {
+        return 1;
+    }
+
+    public int getBrightnessForRender(float p_70070_1_) {
+        return this.materialType == Material.water ? super.getBrightnessForRender(p_70070_1_) : 257;
+    }
+
+    /**
+     * Gets how bright this entity is.
+     */
+    public float getBrightness(float p_70013_1_) {
+        return this.materialType == Material.water ? super.getBrightness(p_70013_1_) : 1.0F;
+    }
+
+    /**
+     * Called to update the entity's position/logic.
+     */
+    public void onUpdate() {
+        this.prevPosX = this.posX;
+        this.prevPosY = this.posY;
+        this.prevPosZ = this.posZ;
+
+        /*
+         * if (this.materialType == Material.water)
+         * {
+         * this.particleRed = 0.2F;
+         * this.particleGreen = 0.3F;
+         * this.particleBlue = 1.0F;
+         * }
+         * else
+         * {
+         * this.particleRed = 1.0F;
+         * this.particleGreen = 16.0F / (float)(40 - this.bobTimer + 16);
+         * this.particleBlue = 4.0F / (float)(40 - this.bobTimer + 8);
+         * }
+         */
+        this.motionY -= (double) this.particleGravity;
+
+        if (this.bobTimer-- > 0) {
+            this.motionX *= 0.02D;
+            this.motionY *= 0.02D;
+            this.motionZ *= 0.02D;
+            // this.setParticleTextureIndex(113);
+            // this.setParticleTextureIndex(19 + this.rand.nextInt(4));
+        } else {
+            // this.setParticleTextureIndex(113);
+            // this.setParticleTextureIndex(19 + this.rand.nextInt(4));
+        }
+
+        this.moveEntity(this.motionX, this.motionY, this.motionZ);
+        this.motionX *= 0.9800000190734863D;
+        this.motionY *= 0.9800000190734863D;
+        this.motionZ *= 0.9800000190734863D;
+
+        if (this.particleMaxAge-- <= 0) {
+            this.setDead();
+        }
+
+        if (this.onGround) {
+            this.c = 0;
+            this.a = 90;
+            this.a1 = 0;
+            this.c1 = 0;
+            this.b1 *= 0.8;
+            // this.setDead();
+
+            /*
+             * if (this.materialType == Material.water)
+             * {
+             * else
+             * {
+             * this.setParticleTextureIndex(114);
+             * }
+             */
+            //
+            // this.worldObj.spawnParticle("splash", this.posX, this.posY, this.posZ, 0.0D, 0.0D, 0.0D);
+
+            this.motionX *= 0.699999988079071D;
+            this.motionZ *= 0.699999988079071D;
+        }
+
+        Material material = this.worldObj
+            .getBlock(
+                MathHelper.floor_double(this.posX),
+                MathHelper.floor_double(this.posY),
+                MathHelper.floor_double(this.posZ))
+            .getMaterial();
+
+        if (material.isLiquid() || material.isSolid()) {
+            double d0 = (double) ((float) (MathHelper.floor_double(this.posY) + 1)
+                - BlockLiquid.getLiquidHeightPercent(
+                    this.worldObj.getBlockMetadata(
+                        MathHelper.floor_double(this.posX),
+                        MathHelper.floor_double(this.posY),
+                        MathHelper.floor_double(this.posZ))));
+
+            if (this.posY < d0) {
+                this.setDead();
+            }
+        }
+    }
+
+    double a = Math.random() * 360;
+    double b = Math.random() * 360;
+    double c = Math.random() * 360;
+    double a1 = Math.random() * 360;
+    double b1 = Math.random() * 360;
+    double c1 = Math.random() * 360;
+
+    @Override
+    public void renderParticle(Tessellator tessellator, float timeStep, float rotationX, float rotationXZ,
+        float rotationZ, float rotationYZ, float rotationXY) {
+        tessellator.draw();
+
+        GL11.glPushMatrix();
+        EntityClientPlayerMP p = Minecraft.getMinecraft().thePlayer;
+        float f11 = (float) (this.prevPosX + (this.posX - this.prevPosX) * (double) timeStep);
+        float f12 = (float) (this.prevPosY + (this.posY - this.prevPosY) * (double) timeStep);
+        float f13 = (float) (this.prevPosZ + (this.posZ - this.prevPosZ) * (double) timeStep);
+        float f21 = (float) (p.prevPosX + (p.posX - p.prevPosX) * (double) timeStep);
+        float f22 = (float) (p.prevPosY + (p.posY - p.prevPosY) * (double) timeStep);
+        float f23 = (float) (p.prevPosZ + (p.posZ - p.prevPosZ) * (double) timeStep);
+        GL11.glTranslated(f11 - f21, f12 - f22, f13 - f23
+
+        );
+
+        GL11.glRotated(a, 1, 0, 0);
+        GL11.glRotated(b, 0, 1, 0);
+        GL11.glRotated(c, 0, 0, 1);
+        a += (a1 - b1) / 100;
+        b += (b1 - c1) / 100;
+        c += (c1 - a1) / 100;
+
+        EntityItem customitem = new EntityItem(Minecraft.getMinecraft().theWorld);
+        customitem.hoverStart = 0f;
+        customitem.setEntityItemStack(is);
+        itemRenderer.doRender(customitem, 0, 0, 0, 0, 0);
+
+        GL11.glPopMatrix();
+
+        tessellator.startDrawingQuads();
     }
 
 }

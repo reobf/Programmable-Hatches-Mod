@@ -466,7 +466,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
                                 @SideOnly(Side.CLIENT)
                                 protected void drawSlot(Slot slotIn) {
                                     final AppEngRenderItem aeRenderItem = new AppEngRenderItem();
-                                    AppEngRenderItem.POST_HOOKS.add(HookHolder.SKIP_ITEM_STACK_SIZE_HOOK);
+                                    AppEngRenderItem.POST_HOOKS.add(StockingHookHolder.SKIP_ITEM_STACK_SIZE_HOOK);
                                     final RenderItem pIR = this.setItemRender(aeRenderItem);
                                     try {
                                         IAEItemStack is = Platform.getAEStackInSlot(slotIn);
@@ -479,7 +479,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
                                     } catch (final Exception err) {
                                         AELog.warn("[AppEng] AE prevented crash while drawing slot: " + err);
                                     }
-                                    AppEngRenderItem.POST_HOOKS.remove(HookHolder.SKIP_ITEM_STACK_SIZE_HOOK);
+                                    AppEngRenderItem.POST_HOOKS.remove(StockingHookHolder.SKIP_ITEM_STACK_SIZE_HOOK);
                                     this.setItemRender(pIR);
                                 }
 
@@ -1859,21 +1859,6 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
         return new ITexture[] { aBaseTexture, TextureFactory.of(MyMod.iohub, MyMod.iohub.magicNO_overlay_dual) };
     }
 
-    private static class HookHolder {
-
-        static ItemRenderHook SKIP_ITEM_STACK_SIZE_HOOK = new ItemRenderHook() {
-
-            @Override
-            public boolean renderOverlay(FontRenderer fr, TextureManager tm, ItemStack is, int x, int y) {
-                return true;
-            }
-
-            @Override
-            public boolean showStackSize(ItemStack is) {
-                return false;
-            }
-        };
-    }
 
     @Override
     public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
@@ -1977,4 +1962,35 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 		return "STOCKING_DUAL";
 	}
 
+}
+
+
+/**
+ * Top-level on purpose, NOT a nested class of the hatch above.
+ *
+ * The holder idiom keeps ItemRenderHook - which is @SideOnly(CLIENT) - off the server by only
+ * loading this class from client-side render code. That still works, but nesting it inside the
+ * hatch defeated it: compiled with jvmDowngrader (downgradeTargetVersion = 8), javac's Java 11
+ * NestMembers attribute becomes an @xyz.wagyourtail.jvmdg.j11.NestMembers annotation whose value is
+ * a Class[], and Java nests are flat, so the anonymous ItemRenderHook ended up listed there as
+ * StockingDualInputHatchME$HookHolder$1. GT 5.09.54.133 calls getClass().getAnnotation(...) in
+ * MetaTileEntity's constructor, which materialises every annotation on the class, which resolves
+ * that Class[], which needs the client-only interface - ArrayStoreException:
+ * TypeNotPresentExceptionProxy, and mod init dies on a dedicated server.
+ * As a top-level class it is not part of the hatch's nest, so nothing eagerly resolves it.
+ */
+class StockingHookHolder {
+
+    static ItemRenderHook SKIP_ITEM_STACK_SIZE_HOOK = new ItemRenderHook() {
+
+        @Override
+        public boolean renderOverlay(FontRenderer fr, TextureManager tm, ItemStack is, int x, int y) {
+            return true;
+        }
+
+        @Override
+        public boolean showStackSize(ItemStack is) {
+            return false;
+        }
+    };
 }

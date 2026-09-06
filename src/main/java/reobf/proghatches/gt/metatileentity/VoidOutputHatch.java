@@ -248,7 +248,7 @@ public class VoidOutputHatch extends MTEHatchOutput {
             int col = f.getFluid()
                 .getColor();
             ForgeDirection fc = aBaseMetaTileEntity.getFrontFacing();
-            EntityDropParticleFX fx = new EntityDropParticleFX(
+            VoidOutputHatchDropFX fx = new VoidOutputHatchDropFX(
                 Minecraft.getMinecraft().theWorld,
 
                 aBaseMetaTileEntity.getXCoord() + 0.5D + (fc.offsetX) * 0.51f,
@@ -266,198 +266,7 @@ public class VoidOutputHatch extends MTEHatchOutput {
         super.onPreTick(aBaseMetaTileEntity, aTick);
     }
 
-    @SideOnly(Side.CLIENT)
-    public class EntityDropParticleFX extends EntityFX {
 
-        /** the material type for dropped items/blocks */
-        private Material materialType;
-        /** The height of the current bob */
-        private int bobTimer;
-        // private static final String __OBFID = "CL_00000901";
-
-        public EntityDropParticleFX(World worldIn, double p_i1203_2_, double p_i1203_4_, double p_i1203_6_, Fluid f) {
-            super(worldIn, p_i1203_2_, p_i1203_4_, p_i1203_6_, 0.0D, 0.0D, 0.0D);
-            this.motionX = this.motionY = this.motionZ = 0.0D;
-
-            int col = f.getColor();
-            this.particleBlue = col & 0xFF;
-            this.particleGreen = (col & 0xFF00) >> 8;
-            this.particleRed = (col & 0xFF0000) >> 16;
-
-            this.particleBlue = 0xFF;
-            this.particleGreen = 0xFF;
-            this.particleRed = 0xFF;
-
-            setParticleIcon(f.getIcon());
-
-            // this.setParticleTextureIndex(113);
-            this.setSize(0.01F, 0.01F);
-            this.particleGravity = 0.06F;
-            // this.materialType = p_i1203_8_;
-            this.bobTimer = 00;
-            this.particleMaxAge = (int) (64.0D / (Math.random() * 0.8D + 0.2D));
-            this.motionX = this.motionY = this.motionZ = 0.0D;
-            particleMaxAge = 100;
-        }
-
-        @Override
-        public int getFXLayer() {
-            return 1;
-        }
-
-        public int getBrightnessForRender(float p_70070_1_) {
-            return this.materialType == Material.water ? super.getBrightnessForRender(p_70070_1_) : 257;
-        }
-
-        /**
-         * Gets how bright this entity is.
-         */
-        public float getBrightness(float p_70013_1_) {
-            return this.materialType == Material.water ? super.getBrightness(p_70013_1_) : 1.0F;
-        }
-
-        /**
-         * Called to update the entity's position/logic.
-         */
-        public void onUpdate() {
-            this.prevPosX = this.posX;
-            this.prevPosY = this.posY;
-            this.prevPosZ = this.posZ;
-
-            /*
-             * if (this.materialType == Material.water) { this.particleRed =
-             * 0.2F; this.particleGreen = 0.3F; this.particleBlue = 1.0F; } else
-             * { this.particleRed = 1.0F; this.particleGreen = 16.0F /
-             * (float)(40 - this.bobTimer + 16); this.particleBlue = 4.0F /
-             * (float)(40 - this.bobTimer + 8); }
-             */
-            this.motionY -= (double) this.particleGravity;
-
-            if (this.bobTimer-- > 0) {
-                this.motionX *= 0.02D;
-                this.motionY *= 0.02D;
-                this.motionZ *= 0.02D;
-                // this.setParticleTextureIndex(113);
-                // this.setParticleTextureIndex(19 + this.rand.nextInt(4));
-            } else {
-                // this.setParticleTextureIndex(113);
-                // this.setParticleTextureIndex(19 + this.rand.nextInt(4));
-            }
-
-            this.moveEntity(this.motionX, this.motionY, this.motionZ);
-            this.motionX *= 0.9800000190734863D;
-            this.motionY *= 0.9800000190734863D;
-            this.motionZ *= 0.9800000190734863D;
-
-            if (this.particleMaxAge-- <= 0) {
-                this.setDead();
-            }
-
-            if (this.onGround) {
-                /*
-                 * if (this.materialType == Material.water) { else {
-                 * this.setParticleTextureIndex(114); }
-                 */
-                // this.setDead();
-                // this.worldObj.spawnParticle("splash", this.posX, this.posY,
-                // this.posZ, 0.0D, 0.0D, 0.0D);
-
-                this.motionX *= 0.699999988079071D;
-                this.motionZ *= 0.699999988079071D;
-            }
-
-            Material material = this.worldObj
-                .getBlock(
-                    MathHelper.floor_double(this.posX),
-                    MathHelper.floor_double(this.posY),
-                    MathHelper.floor_double(this.posZ))
-                .getMaterial();
-
-            if (material.isLiquid() || material.isSolid()) {
-                double d0 = (double) ((float) (MathHelper.floor_double(this.posY) + 1)
-                    - BlockLiquid.getLiquidHeightPercent(
-                        this.worldObj.getBlockMetadata(
-                            MathHelper.floor_double(this.posX),
-                            MathHelper.floor_double(this.posY),
-                            MathHelper.floor_double(this.posZ))));
-
-                if (this.posY < d0) {
-                    this.setDead();
-                }
-            }
-        }
-
-        @Override
-        public void renderParticle(Tessellator tess, float timeStep, float rotationX, float rotationXZ, float rotationZ,
-            float rotationYZ, float rotationXY) {
-            double x = (this.prevPosX + (this.posX - this.prevPosX) * timeStep - interpPosX);
-            double y = (this.prevPosY + (this.posY - this.prevPosY) * timeStep - interpPosY);
-            double z = (this.prevPosZ + (this.posZ - this.prevPosZ) * timeStep - interpPosZ);
-
-            float minU = this.particleTextureIndexX / 16.0F;
-            float maxU = minU + 0.0624375F;
-            float minV = this.particleTextureIndexY / 16.0F;
-            float maxV = minV + 0.0624375F;
-            float scale = 0.1F * this.particleScale;
-
-            if (this.particleIcon != null) {
-                minU = this.particleIcon.getMinU();
-                maxU = this.particleIcon.getMaxU();
-                minV = this.particleIcon.getMinV();
-                maxV = this.particleIcon.getMaxV();
-            }
-
-            tess.setColorRGBA_F(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha);
-
-            for (int i = 0; i < 5; i++) {
-                renderParticle(
-                    tess,
-                    x,
-                    y,
-                    z,
-                    rotationX,
-                    rotationXZ,
-                    rotationZ,
-                    rotationYZ,
-                    rotationXY,
-                    minU,
-                    maxU,
-                    minV,
-                    maxV,
-                    scale);
-            }
-        }
-
-        private void renderParticle(Tessellator tess, double x, double y, double z, float rotationX, float rotationXZ,
-            float rotationZ, float rotationYZ, float rotationXY, float minU, float maxU, float minV, float maxV,
-            float scale) {
-            tess.addVertexWithUV(
-                (x - rotationX * scale - rotationYZ * scale),
-                (y - rotationXZ * scale),
-                (z - rotationZ * scale - rotationXY * scale),
-                maxU,
-                maxV);
-            tess.addVertexWithUV(
-                (x - rotationX * scale + rotationYZ * scale),
-                (y + rotationXZ * scale),
-                (z - rotationZ * scale + rotationXY * scale),
-                maxU,
-                minV);
-            tess.addVertexWithUV(
-                (x + rotationX * scale + rotationYZ * scale),
-                (y + rotationXZ * scale),
-                (z + rotationZ * scale + rotationXY * scale),
-                minU,
-                minV);
-            tess.addVertexWithUV(
-                (x + rotationX * scale - rotationYZ * scale),
-                (y - rotationXZ * scale),
-                (z + rotationZ * scale - rotationXY * scale),
-                minU,
-                maxV);
-        }
-
-    }
 
     boolean fx = true;
 
@@ -470,6 +279,212 @@ public class VoidOutputHatch extends MTEHatchOutput {
         fx = !fx;
         GTUtility.sendChatToPlayer(aPlayer, StatCollector.translateToLocal("proghatches.gt.void.fx." + fx));
 
+    }
+
+}
+
+/**
+ * Top-level on purpose, NOT a nested class of the hatch/bus above.
+ *
+ * GT 5.09.54.133 made MetaTileEntity's constructor call getClass().getAnnotation(SkipGenerateName),
+ * and reading any annotation makes the JVM materialise *every* annotation on the class. Because the
+ * mod is compiled with jvmDowngrader (downgradeTargetVersion = 8), javac's Java 11 NestMembers
+ * class-file attribute is rewritten into an @xyz.wagyourtail.jvmdg.j11.NestMembers annotation whose
+ * value is a Class[]. As a nested class this particle was listed in that array, and it is
+ * @SideOnly(CLIENT), so FML's side transformer deletes it outright on a dedicated server - the
+ * Class[] then fails to resolve and getAnnotation blows up with
+ * ArrayStoreException: TypeNotPresentExceptionProxy, killing mod init server-side.
+ * Keeping it top-level removes it from the enclosing class's nest, so no Class[] ever points at it.
+ */
+@SideOnly(Side.CLIENT)
+class VoidOutputHatchDropFX extends EntityFX {
+
+    /** the material type for dropped items/blocks */
+    private Material materialType;
+    /** The height of the current bob */
+    private int bobTimer;
+    // private static final String __OBFID = "CL_00000901";
+
+    public VoidOutputHatchDropFX(World worldIn, double p_i1203_2_, double p_i1203_4_, double p_i1203_6_, Fluid f) {
+        super(worldIn, p_i1203_2_, p_i1203_4_, p_i1203_6_, 0.0D, 0.0D, 0.0D);
+        this.motionX = this.motionY = this.motionZ = 0.0D;
+
+        int col = f.getColor();
+        this.particleBlue = col & 0xFF;
+        this.particleGreen = (col & 0xFF00) >> 8;
+        this.particleRed = (col & 0xFF0000) >> 16;
+
+        this.particleBlue = 0xFF;
+        this.particleGreen = 0xFF;
+        this.particleRed = 0xFF;
+
+        setParticleIcon(f.getIcon());
+
+        // this.setParticleTextureIndex(113);
+        this.setSize(0.01F, 0.01F);
+        this.particleGravity = 0.06F;
+        // this.materialType = p_i1203_8_;
+        this.bobTimer = 00;
+        this.particleMaxAge = (int) (64.0D / (Math.random() * 0.8D + 0.2D));
+        this.motionX = this.motionY = this.motionZ = 0.0D;
+        particleMaxAge = 100;
+    }
+
+    @Override
+    public int getFXLayer() {
+        return 1;
+    }
+
+    public int getBrightnessForRender(float p_70070_1_) {
+        return this.materialType == Material.water ? super.getBrightnessForRender(p_70070_1_) : 257;
+    }
+
+    /**
+     * Gets how bright this entity is.
+     */
+    public float getBrightness(float p_70013_1_) {
+        return this.materialType == Material.water ? super.getBrightness(p_70013_1_) : 1.0F;
+    }
+
+    /**
+     * Called to update the entity's position/logic.
+     */
+    public void onUpdate() {
+        this.prevPosX = this.posX;
+        this.prevPosY = this.posY;
+        this.prevPosZ = this.posZ;
+
+        /*
+         * if (this.materialType == Material.water) { this.particleRed =
+         * 0.2F; this.particleGreen = 0.3F; this.particleBlue = 1.0F; } else
+         * { this.particleRed = 1.0F; this.particleGreen = 16.0F /
+         * (float)(40 - this.bobTimer + 16); this.particleBlue = 4.0F /
+         * (float)(40 - this.bobTimer + 8); }
+         */
+        this.motionY -= (double) this.particleGravity;
+
+        if (this.bobTimer-- > 0) {
+            this.motionX *= 0.02D;
+            this.motionY *= 0.02D;
+            this.motionZ *= 0.02D;
+            // this.setParticleTextureIndex(113);
+            // this.setParticleTextureIndex(19 + this.rand.nextInt(4));
+        } else {
+            // this.setParticleTextureIndex(113);
+            // this.setParticleTextureIndex(19 + this.rand.nextInt(4));
+        }
+
+        this.moveEntity(this.motionX, this.motionY, this.motionZ);
+        this.motionX *= 0.9800000190734863D;
+        this.motionY *= 0.9800000190734863D;
+        this.motionZ *= 0.9800000190734863D;
+
+        if (this.particleMaxAge-- <= 0) {
+            this.setDead();
+        }
+
+        if (this.onGround) {
+            /*
+             * if (this.materialType == Material.water) { else {
+             * this.setParticleTextureIndex(114); }
+             */
+            // this.setDead();
+            // this.worldObj.spawnParticle("splash", this.posX, this.posY,
+            // this.posZ, 0.0D, 0.0D, 0.0D);
+
+            this.motionX *= 0.699999988079071D;
+            this.motionZ *= 0.699999988079071D;
+        }
+
+        Material material = this.worldObj
+            .getBlock(
+                MathHelper.floor_double(this.posX),
+                MathHelper.floor_double(this.posY),
+                MathHelper.floor_double(this.posZ))
+            .getMaterial();
+
+        if (material.isLiquid() || material.isSolid()) {
+            double d0 = (double) ((float) (MathHelper.floor_double(this.posY) + 1)
+                - BlockLiquid.getLiquidHeightPercent(
+                    this.worldObj.getBlockMetadata(
+                        MathHelper.floor_double(this.posX),
+                        MathHelper.floor_double(this.posY),
+                        MathHelper.floor_double(this.posZ))));
+
+            if (this.posY < d0) {
+                this.setDead();
+            }
+        }
+    }
+
+    @Override
+    public void renderParticle(Tessellator tess, float timeStep, float rotationX, float rotationXZ, float rotationZ,
+        float rotationYZ, float rotationXY) {
+        double x = (this.prevPosX + (this.posX - this.prevPosX) * timeStep - interpPosX);
+        double y = (this.prevPosY + (this.posY - this.prevPosY) * timeStep - interpPosY);
+        double z = (this.prevPosZ + (this.posZ - this.prevPosZ) * timeStep - interpPosZ);
+
+        float minU = this.particleTextureIndexX / 16.0F;
+        float maxU = minU + 0.0624375F;
+        float minV = this.particleTextureIndexY / 16.0F;
+        float maxV = minV + 0.0624375F;
+        float scale = 0.1F * this.particleScale;
+
+        if (this.particleIcon != null) {
+            minU = this.particleIcon.getMinU();
+            maxU = this.particleIcon.getMaxU();
+            minV = this.particleIcon.getMinV();
+            maxV = this.particleIcon.getMaxV();
+        }
+
+        tess.setColorRGBA_F(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha);
+
+        for (int i = 0; i < 5; i++) {
+            renderParticle(
+                tess,
+                x,
+                y,
+                z,
+                rotationX,
+                rotationXZ,
+                rotationZ,
+                rotationYZ,
+                rotationXY,
+                minU,
+                maxU,
+                minV,
+                maxV,
+                scale);
+        }
+    }
+
+    private void renderParticle(Tessellator tess, double x, double y, double z, float rotationX, float rotationXZ,
+        float rotationZ, float rotationYZ, float rotationXY, float minU, float maxU, float minV, float maxV,
+        float scale) {
+        tess.addVertexWithUV(
+            (x - rotationX * scale - rotationYZ * scale),
+            (y - rotationXZ * scale),
+            (z - rotationZ * scale - rotationXY * scale),
+            maxU,
+            maxV);
+        tess.addVertexWithUV(
+            (x - rotationX * scale + rotationYZ * scale),
+            (y + rotationXZ * scale),
+            (z - rotationZ * scale + rotationXY * scale),
+            maxU,
+            minV);
+        tess.addVertexWithUV(
+            (x + rotationX * scale + rotationYZ * scale),
+            (y + rotationXZ * scale),
+            (z + rotationZ * scale + rotationXY * scale),
+            minU,
+            minV);
+        tess.addVertexWithUV(
+            (x + rotationX * scale - rotationYZ * scale),
+            (y - rotationXZ * scale),
+            (z + rotationZ * scale - rotationXY * scale),
+            minU,
+            maxV);
     }
 
 }

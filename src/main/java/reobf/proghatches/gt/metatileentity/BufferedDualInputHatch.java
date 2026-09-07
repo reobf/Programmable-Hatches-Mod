@@ -717,6 +717,21 @@ public class BufferedDualInputHatch extends DualInputHatch
 			justHadNewItems = true;
 		}
 
+		/**
+		 * True when slot ix of the recorded recipe is a programming-circuit wrapper (MyMod.progcircuit)
+		 * that programLocal() has already unwrapped into the circuit region mStoredItemInternal[i .. i+v).
+		 * Such a slot must never be dosed like a consumable: the non-consumable lives in the region, and
+		 * re-materialising the wrapper from the single would put a raw progcircuit item back into the
+		 * consumable region right after programLocal() removed it. That is what pushPatternMulti's
+		 * multiply loop used to do ("// circuit?"), leaving a wrapper in the buffer on return.
+		 * Gated on `program`: with programming mode off nothing ever strips the wrapper, it is just an
+		 * ordinary item in the buffer, and this predicate deliberately changes nothing there.
+		 */
+		boolean isUnwrappedCircuitSlot(int ix) {
+			ItemStack single = mStoredItemInternalSingle[ix];
+			return program && single != null && single.getItem() == MyMod.progcircuit;
+		}
+
 		private void programLocal() {
 			if (!program)
 				return;

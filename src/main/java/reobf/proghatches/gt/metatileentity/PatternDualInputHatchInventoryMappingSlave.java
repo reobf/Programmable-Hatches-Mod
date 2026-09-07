@@ -1310,6 +1310,9 @@ public boolean playerConfigClient;
 
                     if (todo > 0) {
                         for (int ix = 0; ix < theBuffer.i; ix++) {
+                            // non-consumable: already unwrapped into the circuit region by programLocal(),
+                            // extra doses must not re-materialise the wrapper as a consumable (issue #331)
+                            if (theBuffer.isUnwrappedCircuitSlot(ix)) continue;
                             if (theBuffer.mStoredItemInternalSingle[ix] != null) {
                                 if (theBuffer.mStoredItemInternal[ix] == null) {
                                     theBuffer.mStoredItemInternal[ix] = ItemStackG

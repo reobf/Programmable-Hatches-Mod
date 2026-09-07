@@ -1338,6 +1338,10 @@ public boolean playerConfigClient;
 
     }
 
+    // IDataCopyable (Matter Manipulator): copies the master link, the wire-cutter additionalConnection
+    // toggle, the 36 per-slot pattern multipliers and the allowopt/inherit/normalopt toggles.
+    // Deliberately NOT copied: pattern[] (real encoded pattern items, dropped by onBlockDestroyed),
+    // the AE grid proxy (per-block network identity) and customName (a per-block label, not behaviour).
     @Override
     public NBTTagCompound getCopiedData(EntityPlayer player) {
         NBTTagCompound ret = new NBTTagCompound();
@@ -1346,6 +1350,12 @@ public boolean playerConfigClient;
         ret.setInteger("masterY", masterY);
         ret.setInteger("masterZ", masterZ);
         ret.setBoolean("masterSet", masterSet);
+        ret.setBoolean("additionalConnection", additionalConnection);
+        // clone: NBTTagIntArray keeps the array reference, never hand out the live field
+        ret.setIntArray("multiplier", multiplier.clone());
+        ret.setBoolean("allowopt", allowopt);
+        ret.setBoolean("inherit", inherit);
+        ret.setBoolean("normalopt", normalopt);
 
         return ret;
     }
@@ -1358,6 +1368,26 @@ public boolean playerConfigClient;
         if (nbt.hasKey("masterZ")) masterZ = nbt.getInteger("masterZ");
         if (nbt.hasKey("masterSet")) masterSet = nbt.getBoolean("masterSet");
         master = null;
+        if (nbt.hasKey("additionalConnection")) {
+            additionalConnection = nbt.getBoolean("additionalConnection");
+            updateValidGridProxySides();
+        }
+        if (nbt.hasKey("multiplier")) {
+            // copy into the existing (always >= 36 long) array, bounded, and re-apply loadNBTData's
+            // Math.max(x, 1) sanitisation so a short/zeroed tag can never break the i < 36 loops
+            int[] src = nbt.getIntArray("multiplier");
+            int n = Math.min(src.length, multiplier.length);
+            for (int i = 0; i < n; i++) {
+                multiplier[i] = Math.max(src[i], 1);
+            }
+            // same sequence as the multiplier edit in optimize(): flag a re-post (retried in onPostTick
+            // until the grid proxy is active) and drop the pattern detail cache so the new multipliers apply
+            onPatternChange();
+            refresh();
+        }
+        if (nbt.hasKey("allowopt")) allowopt = nbt.getBoolean("allowopt");
+        if (nbt.hasKey("inherit")) inherit = nbt.getBoolean("inherit");
+        if (nbt.hasKey("normalopt")) normalopt = nbt.getBoolean("normalopt");
         return true;
     }
 

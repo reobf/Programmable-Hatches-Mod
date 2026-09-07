@@ -560,6 +560,54 @@ public int page() {
         super.saveNBTData(aNBT);
     }
 
+    /*
+     * Matter Manipulator support: adds this class's own settings on top of what BufferedDualInputHatch
+     * and DualInputHatch already copy. additionalConnection has to travel in the tag because this
+     * hatch does not implement IMEConnectable, so MM's generic "connect all sides" path never sees it.
+     * Deliberately NOT copied: pattern[] (real encoded-pattern items, dropped as entities in
+     * onBlockDestroyed - copying them would duplicate items), the AE grid proxy identity, customName
+     * (MM carries it through ICustomNameObject) and saved (a lifetime statistic shown in Waila).
+     * Every registered variant (1-page, 2-page, item-only) is materialised as the same Inst class and
+     * therefore shares one identifier, so the multiplier copy is bounded by both array lengths and
+     * every value is clamped exactly the way loadNBTData clamps it.
+     */
+    @Override
+    public NBTTagCompound getCopiedData(EntityPlayer player) {
+        NBTTagCompound ret = super.getCopiedData(player);
+        // clone(): setIntArray keeps the array by reference, so the tag must not alias the live field
+        ret.setIntArray("multiplier", multiplier.clone());
+        ret.setBoolean("restrictToInt", restrictToInt);
+        ret.setBoolean("allowopt", allowopt);
+        ret.setBoolean("normalopt", normalopt);
+        ret.setBoolean("additionalConnection", additionalConnection);
+        return ret;
+    }
+
+    @Override
+    public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+        if (nbt == null || !getCopiedDataIdentifier(player)
+            .equals(nbt.getString("type"))) return false;
+        if (nbt.hasKey("multiplier")) {
+            int[] src = nbt.getIntArray("multiplier");
+            for (int i = 0; i < Math.min(src.length, multiplier.length); i++) {
+                // loadNBTData applies the same floor: a 0 or negative multiplier is not usable
+                multiplier[i] = Math.max(src[i], 1);
+            }
+        }
+        if (nbt.hasKey("restrictToInt")) restrictToInt = nbt.getBoolean("restrictToInt");
+        if (nbt.hasKey("allowopt")) allowopt = nbt.getBoolean("allowopt");
+        if (nbt.hasKey("normalopt")) normalopt = nbt.getBoolean("normalopt");
+        if (nbt.hasKey("additionalConnection")) additionalConnection = nbt.getBoolean("additionalConnection");
+        if (!super.pasteCopiedData(player, nbt)) return false;
+        if (getBaseMetaTileEntity() != null) {
+            // what the wire cutter calls after flipping additionalConnection, and what the multiplier
+            // buttons call after changing a multiplier
+            updateValidGridProxySides();
+            refresh();
+        }
+        return true;
+    }
+
     private void clearInv() {
 
         for (int i = 0; i < page()*16; i++) mInventory[i] = null;

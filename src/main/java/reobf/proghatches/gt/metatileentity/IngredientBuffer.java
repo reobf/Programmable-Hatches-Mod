@@ -40,11 +40,12 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTETieredMachineBlock;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTUtility;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import reobf.proghatches.main.registration.Registration;
 
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
-public class IngredientBuffer extends MTETieredMachineBlock implements IAddUIWidgets {
+public class IngredientBuffer extends MTETieredMachineBlock implements IAddUIWidgets, IDataCopyablePlaceHolder {
 
     public static int T0 = 3;
     public static int T1 = 5;
@@ -168,6 +169,39 @@ public class IngredientBuffer extends MTETieredMachineBlock implements IAddUIWid
         mFluid = FluidStack.loadFluidStackFromNBT(aNBT.getCompoundTag("mFluid"));
         mMainFacing = ForgeDirection.getOrientation(aNBT.getInteger("mMainFacing"));
 
+    }
+
+    // Matter Manipulator copy/paste (IDataCopyable): only the four user settings are carried over.
+    // mStoredFluid[] / mFluid / mInventory are deliberately NOT copied - they are stored stock, not
+    // configuration. "type" is stamped by writeType() from the class name, so it also matches across
+    // the two tiers, which share all four settings (no per-tier arrays involved).
+    @Override
+    public NBTTagCompound getCopiedData(EntityPlayer player) {
+        NBTTagCompound ret = new NBTTagCompound();
+        writeType(ret, player);
+        ret.setBoolean("inputFromFront", inputFromFront);
+        ret.setBoolean("mItemTransfer", mItemTransfer);
+        ret.setBoolean("mFluidTransfer", mFluidTransfer);
+        ret.setInteger("mMainFacing", mMainFacing.ordinal());
+        return ret;
+    }
+
+    @Override
+    public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+        if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+        if (nbt.hasKey("inputFromFront")) inputFromFront = nbt.getBoolean("inputFromFront");
+        if (nbt.hasKey("mItemTransfer")) mItemTransfer = nbt.getBoolean("mItemTransfer");
+        if (nbt.hasKey("mFluidTransfer")) mFluidTransfer = nbt.getBoolean("mFluidTransfer");
+        if (nbt.hasKey("mMainFacing")) {
+            ForgeDirection dir = ForgeDirection.getOrientation(nbt.getInteger("mMainFacing"));
+            // apply through setMainFacing() (what sneak+wrench uses) so the front/main collision fixup
+            // in onFacingChange() runs; only fall back to the raw field if no base tile is attached yet
+            if (dir != ForgeDirection.UNKNOWN) {
+                if (getBaseMetaTileEntity() != null) setMainFacing(dir);
+                else mMainFacing = dir;
+            }
+        }
+        return true;
     }
 
     @Override

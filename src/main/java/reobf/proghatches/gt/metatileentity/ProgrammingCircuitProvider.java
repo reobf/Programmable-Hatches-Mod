@@ -69,6 +69,7 @@ import reobf.proghatches.block.BlockIOHub;
 import reobf.proghatches.eucrafting.IInputMightBeEmptyPattern;
 import reobf.proghatches.eucrafting.IInstantCompletable;
 import reobf.proghatches.gt.metatileentity.util.ICircuitProvider;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IDisallowOptimize;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
@@ -78,7 +79,8 @@ import reobf.proghatches.main.registration.Registration;
 
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidgets, IPowerChannelState,
-    ICraftingProvider,IMultiplePatternPushable , IGridProxyable, ICircuitProvider, IInstantCompletable, ICustomNameObject, IInterfaceViewable {
+    ICraftingProvider,IMultiplePatternPushable , IGridProxyable, ICircuitProvider, IInstantCompletable, ICustomNameObject, IInterfaceViewable,
+    IDataCopyablePlaceHolder {
 
     int tech;
 
@@ -911,6 +913,32 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         updateValidGridProxySides();
         aPlayer.addChatComponentMessage(
             new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
+        return true;
+    }
+
+    // Matter Manipulator copy/paste: only the user-set additionalConnection (wire-cutter) flag and the
+    // AE2 customName travel. NOT copied on purpose: `disabled` (structure-derived, set when a Large
+    // provider absorbs this hatch - pasting true gives a provider that never ticks), `legacy` (dead,
+    // force-reset every second), `tech` (constructor-fixed), AE proxy/`ret` (runtime), mInventory (real items).
+    @Override
+    public NBTTagCompound getCopiedData(EntityPlayer player) {
+        // local is `tag`, not `ret`: `ret` is already this class's AE return-queue field
+        NBTTagCompound tag = new NBTTagCompound();
+        writeType(tag, player);
+        tag.setBoolean("additionalConnection", additionalConnection);
+        if (customName != null) tag.setString("customName", customName);
+        return tag;
+    }
+
+    @Override
+    public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+        if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+        if (nbt.hasKey("additionalConnection")) {
+            additionalConnection = nbt.getBoolean("additionalConnection");
+            // same refresh the wire-cutter toggle does, otherwise the proxy's valid sides stay stale
+            updateValidGridProxySides();
+        }
+        if (nbt.hasKey("customName")) customName = nbt.getString("customName");
         return true;
     }
 

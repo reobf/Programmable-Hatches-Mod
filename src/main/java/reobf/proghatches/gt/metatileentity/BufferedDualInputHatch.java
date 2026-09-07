@@ -1516,6 +1516,40 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		super.saveNBTData(aNBT);
 	}
+
+	/*
+	 * Matter Manipulator support: this class only adds its three ExConfig toggles on top of what
+	 * DualInputHatch already copies. Deliberately NOT copied: the BUFFER_i inventories and exinvlen
+	 * (real buffered stock, plus the extra buffers autoAppend grows at runtime), dirty /
+	 * justHadNewItems / preventSleep / last (per-tick runtime state), and merge (still persisted, but
+	 * its only toggle is commented out in onRightclick's saw branch, so it is not user-settable).
+	 * No defensive nbt.copy() is needed here: unlike DecoyInputBusME this chain never rewrites
+	 * "type" - the identifier resolves virtually, so super already stamps and validates this
+	 * subclass's own class name.
+	 */
+	@Override
+	public NBTTagCompound getCopiedData(EntityPlayer player) {
+		NBTTagCompound ret = super.getCopiedData(player);
+		ret.setBoolean("updateEveryTick", updateEveryTick);
+		ret.setBoolean("CMMode", CMMode);
+		ret.setBoolean("autoAppend", autoAppend);
+		return ret;
+	}
+
+	@Override
+	public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+		if (nbt == null || !getCopiedDataIdentifier(player)
+			.equals(nbt.getString("type"))) return false;
+		if (nbt.hasKey("updateEveryTick")) updateEveryTick = nbt.getBoolean("updateEveryTick");
+		if (nbt.hasKey("CMMode")) CMMode = nbt.getBoolean("CMMode");
+		// the same capability guard the elastic-buffer button uses (ExConfigEntry.shouldApply in
+		// initExConfig): without the inf-buffer upgrade that button is not shown, so a tag taken
+		// from an upgraded hatch must not switch elastic buffering on here
+		if (nbt.hasKey("autoAppend") && (isInfBuffer() || shared.infbufUpgrades > 0))
+			autoAppend = nbt.getBoolean("autoAppend");
+		return super.pasteCopiedData(player, nbt);
+	}
+
 	private int count;
 	public void programLoose() {
 		if(((count++)%20)==1)

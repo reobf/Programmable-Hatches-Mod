@@ -108,6 +108,7 @@ import net.minecraftforge.event.ForgeEventFactory;
 import reobf.proghatches.gt.metatileentity.multi.IngredientDistributor;
 import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.multi.Util;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
@@ -116,7 +117,8 @@ import reobf.proghatches.util.SIDItemStack;
 @SuppressWarnings({ "deprecation", "unchecked" })
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class TileCPU extends MTEEnhancedMultiBlockBase<TileCPU>
-		implements ISurvivalConstructable, IExternalManager, IGridProxyable, IActionHost,ICustomNameObject {
+		implements ISurvivalConstructable, IExternalManager, IGridProxyable, IActionHost,ICustomNameObject,
+		IDataCopyablePlaceHolder {
 	private AENetworkProxy gridProxy;
 
 	public TileCPU(String aName) {
@@ -1130,5 +1132,30 @@ protected void onCorrectCasingAdded() {
 
 	public void changeCraftingAllowMode(CraftingAllow mode) {
 		cmode=mode;
+	}
+
+	// Matter Manipulator support: only the two user-set values are copied (CPU display name and
+	// crafting-allow mode). clusterData (live CPU clusters + in-flight jobs), refunds/acc/accCondenser
+	// (real accelerator/dumper stock) and the AE grid proxy are runtime/inventory state, NOT config.
+	@Override
+	public NBTTagCompound getCopiedData(EntityPlayer player) {
+		NBTTagCompound ret = new NBTTagCompound();
+		writeType(ret, player);
+		ret.setString("myName", myName == null ? "" : myName);
+		ret.setInteger("cmode", (cmode == null ? CraftingAllow.ALLOW_ALL : cmode).ordinal());
+		return ret;
+	}
+
+	@Override
+	public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+		if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+		if (nbt.hasKey("myName")) myName = nbt.getString("myName");
+		if (nbt.hasKey("cmode")) {
+			int idx = nbt.getInteger("cmode");
+			CraftingAllow[] values = CraftingAllow.values();
+			if (idx >= 0 && idx < values.length) cmode = values[idx];
+		}
+		// no derived state to rebuild: MixinCPU reads getName()/getCraftingAllowMode() live from these fields
+		return true;
 	}
 }

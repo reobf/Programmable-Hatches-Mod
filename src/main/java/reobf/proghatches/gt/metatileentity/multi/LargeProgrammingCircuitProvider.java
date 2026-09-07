@@ -118,6 +118,7 @@ import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitPro
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
 import reobf.proghatches.gt.metatileentity.ProviderChainer;
 import reobf.proghatches.gt.metatileentity.util.ICircuitProvider;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
 import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 import reobf.proghatches.item.ItemProgrammingCircuit;
@@ -128,7 +129,7 @@ import reobf.proghatches.main.registration.Registration;
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class LargeProgrammingCircuitProvider extends MTEEnhancedMultiBlockBase<LargeProgrammingCircuitProvider>
     implements ISurvivalConstructable, IGridProxyable, ICraftingProvider, IInstantCompletable, ICircuitProvider,
-    IInterfaceViewable, IPowerChannelState, IActionHost, IMultiplePatternPushable {
+    IInterfaceViewable, IPowerChannelState, IActionHost, IMultiplePatternPushable, IDataCopyablePlaceHolder {
 
     public LargeProgrammingCircuitProvider(String aName) {
         super(aName);
@@ -825,6 +826,34 @@ int off=0;
 
         cacheState = CacheState.values()[aNBT.getInteger("cacheState")];
         super.loadNBTData(aNBT);
+    }
+
+    // Matter Manipulator copy/paste: only the two GUI settings (parallel multiplier + remove-circuit toggle).
+    // Deliberately NOT copied: "chip" (a physical upgrade consumed from mInventory[1] - carrying it would let a
+    // paste duplicate the chip onto every target), the AE grid proxy (identity), "ret" (items still owed back
+    // to the network) and patternCache / cacheState (per-tick runtime caches rebuilt from the structure).
+    @Override
+    public NBTTagCompound getCopiedData(EntityPlayer player) {
+        NBTTagCompound tag = new NBTTagCompound();
+        writeType(tag, player);
+        tag.setInteger("multiply", multiply);
+        tag.setBoolean("removeStorageCircuit", removeStorageCircuit);
+        return tag;
+    }
+
+    @Override
+    public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+        if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+        if (nbt.hasKey("multiply")) {
+            multiply = nbt.getInteger("multiply");
+            // same sanitisation as loadNBTData; do not clamp against totalAcc + 1 here (it is 0 on a freshly
+            // placed controller) - checkMachine re-clamps on the next structure check
+            if (multiply <= 0) multiply = 1;
+            // same hook the GUI setters use: next active tick marks the cache DIRTY and re-posts the patterns
+            forceUpdatePattern = true;
+        }
+        if (nbt.hasKey("removeStorageCircuit")) removeStorageCircuit = nbt.getBoolean("removeStorageCircuit");
+        return true;
     }
 
     // ArrayList<ItemStack> toReturn = new ArrayList<>();

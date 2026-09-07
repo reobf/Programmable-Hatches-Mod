@@ -95,6 +95,7 @@ import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.util.GTUtility;
 import reobf.proghatches.gt.metatileentity.SuperChestME.SilentCloseable;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.gt.metatileentity.util.MappingFluidTank;
 import reobf.proghatches.lang.LangManager;
@@ -103,8 +104,8 @@ import reobf.proghatches.util.CTexture;
 import reobf.proghatches.util.ProghatchesUtil;
 
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
-public class SuperTankME extends MTEHatch
-    implements ICellContainer, IGridProxyable, IPriorityHost, IStoageCellUpdate, IPowerChannelState {
+public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxyable, IPriorityHost, IStoageCellUpdate,
+    IPowerChannelState, IDataCopyablePlaceHolder {
 
     public SuperTankME(String aName, int aTier, int aInvSlotCount, String[] aDescription, ITexture[][][] aTextures) {
         super(aName, aTier, aInvSlotCount, aDescription, aTextures);
@@ -1120,6 +1121,54 @@ public class SuperTankME extends MTEHatch
         aNBT.setBoolean("voidOverflow", voidOverflow);
 
         if (capOverride != 0) aNBT.setInteger("capOverride", capOverride);
+    }
+
+    // Matter Manipulator copy/paste (IDataCopyable): only the user configuration travels.
+    // Deliberately NOT copied: "content"/"last" (the stored fluid - copying it would duplicate matter),
+    // the AE proxy (grid identity), mInventory (real item slots) and suppressSticky (derived: onPostTick
+    // recomputes it every tick from content emptiness + autoUnlock).
+    @Override
+    public NBTTagCompound getCopiedData(EntityPlayer player) {
+        NBTTagCompound ret = new NBTTagCompound();
+        writeType(ret, player);
+        ret.setInteger("piority", piority);
+        ret.setBoolean("sticky", sticky);
+        ret.setBoolean("autoUnlock", autoUnlock);
+        if (cachedFilter != null) {
+            NBTTagCompound tag = new NBTTagCompound();
+            cachedFilter.writeToNBT(tag);
+            ret.setTag("cahcedFilter", tag);
+        }
+        ret.setBoolean("voidFull", voidFull);
+        ret.setBoolean("voidOverflow", voidOverflow);
+        ret.setInteger("capOverride", capOverride);
+        return ret;
+    }
+
+    @Override
+    public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+        if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+        if (nbt.hasKey("piority")) piority = nbt.getInteger("piority");
+        if (nbt.hasKey("sticky")) sticky = nbt.getBoolean("sticky");
+        if (nbt.hasKey("autoUnlock")) autoUnlock = nbt.getBoolean("autoUnlock");
+        if (nbt.hasKey("voidFull")) voidFull = nbt.getBoolean("voidFull");
+        if (nbt.hasKey("voidOverflow")) voidOverflow = nbt.getBoolean("voidOverflow");
+        // getCopiedData omits "cahcedFilter" when the source had no lock fluid, so its absence means
+        // "no filter"; updateFilter() rebuilds the handler's partition list and post()s either way,
+        // exactly like the GUI phantom slot and loadNBTData do.
+        FluidStack filter = null;
+        if (nbt.hasKey("cahcedFilter")) {
+            filter = FluidStack.loadFluidStackFromNBT(nbt.getCompoundTag("cahcedFilter"));
+        }
+        updateFilter(filter);
+        if (nbt.hasKey("capOverride")) {
+            capOverride = nbt.getInteger("capOverride");
+            if (capOverride < 0) capOverride = 0;
+        }
+        // cap() clamps capOverride to this tier's own maximum, so a bigger-tier override degrades gracefully
+        content.setCapacity(cap());
+        post();
+        return true;
     }
 
     @Override

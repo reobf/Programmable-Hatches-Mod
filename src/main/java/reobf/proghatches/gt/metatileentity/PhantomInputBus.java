@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagIntArray;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
@@ -47,12 +48,13 @@ import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.modularui2.GTGuis;
 import gregtech.api.util.StringUtils;
 import gregtech.api.util.GTTooltipDataCache.TooltipData;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.registration.Registration;
 
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
-public class PhantomInputBus extends MTEHatchInputBus {
+public class PhantomInputBus extends MTEHatchInputBus implements IDataCopyablePlaceHolder {
     /**
      * GT 290's hatch base classes override getDescription() with their own hardcoded
      * "input bus / output hatch / ..." text, which shadowed every PH machine's own tooltip
@@ -395,6 +397,62 @@ protected boolean useMui2() {
         }
 
         return super.onRightclick(aBaseMetaTileEntity, aPlayer);
+    }
+
+    /*
+     * Matter Manipulator support. The only user configuration of this bus is the set of phantom item
+     * marks in mInventory (ghost stacks kept at stackSize 0) - exactly what the bus-to-bus data stick
+     * copy above transfers. Deliberately NOT copied: no real stock exists here (allowPutStack/
+     * canInsertItem always return false), there is no ghost circuit (allowSelectCircuit() is false),
+     * the inherited disableSort/disableFilter/disableLimited flags are dead on this machine
+     * (updateSlots() is a no-op and nothing goes through limitedAllowPutStack), and the "phantom_pos"
+     * link list belongs to the data stick, not to the bus. The copy identifier is the class name
+     * (IDataCopyablePlaceHolder default), never the "PhantomInput" string used by the link stick, so
+     * an MM tag and a link stick can never be confused for one another.
+     */
+    @Override
+    public NBTTagCompound getCopiedData(EntityPlayer player) {
+        NBTTagCompound ret = new NBTTagCompound();
+        writeType(ret, player);
+        NBTTagList marks = new NBTTagList();
+        for (int i = 0; i < mInventory.length; i++) {
+            if (mInventory[i] == null) continue;
+            NBTTagCompound mark = new NBTTagCompound();
+            mark.setInteger("slot", i);
+            // copy() first: writeToNBT would otherwise hand out the live stack's own tag compound
+            mInventory[i].copy()
+                .writeToNBT(mark);
+            marks.appendTag(mark);
+        }
+        ret.setTag("marks", marks);
+        return ret;
+    }
+
+    @Override
+    public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+        if (nbt == null || !getCopiedDataIdentifier(player)
+            .equals(nbt.getString("type"))) return false;
+        // a copy taken from an unmarked bus is still a valid paste - returning false here would abort
+        // the Matter Manipulator's whole block placement
+        if (nbt.hasKey("marks")) {
+            NBTTagList marks = nbt.getTagList("marks", 10);
+            for (int i = 0; i < mInventory.length; i++) {
+                mInventory[i] = null;
+            }
+            for (int i = 0; i < marks.tagCount(); i++) {
+                NBTTagCompound mark = marks.getCompoundTagAt(i);
+                int slot = mark.getInteger("slot");
+                // the source bus may have had more slots than this one
+                if (slot < 0 || slot >= mInventory.length) continue;
+                ItemStack stack = ItemStack.loadItemStackFromNBT(mark);
+                // marks are stored with stackSize 0, exactly as the GUI slot's putStack forces
+                if (stack != null) stack.stackSize = 0;
+                mInventory[slot] = stack;
+            }
+        }
+        // nothing to rebuild afterwards: updateSlots() is overridden to do nothing and the marks are
+        // read straight out of mInventory, which is also all the bus-to-bus copy above does
+        return true;
     }
 
     public NBTTagIntArray p(List<Vector4i> c) {

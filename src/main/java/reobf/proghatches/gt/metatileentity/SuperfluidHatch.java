@@ -10,6 +10,14 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import reobf.proghatches.gt.metatileentity.util.ListeningFluidTank;
+/*
+ * Matter Manipulator: no getCopiedData/pasteCopiedData pair here on purpose. This class declares no
+ * NBT and no configuration of its own - it is pure tier/slot/tank sizing - so the pair inherited
+ * from BufferedDualInputHatch already carries every setting it has (updateEveryTick, CMMode,
+ * autoAppend, program, fluidLimit, the ghost circuits and the ME pull marks). newMetaEntity returns
+ * a real SuperfluidHatch, so getClass().getName() still gives it an identifier of its own and its
+ * tags stay incompatible with its siblings'.
+ */
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class SuperfluidHatch extends BufferedDualInputHatch {
 

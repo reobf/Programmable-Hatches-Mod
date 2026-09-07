@@ -506,6 +506,10 @@ public class DualInputHatchInventoryMappingSlave<T extends MetaTileEntity & IDua
         return super.getTankInfo(side);
     }
 
+    // Matter Manipulator copy/paste. Copies the master link (absolute coords + masterSet, same
+    // semantic as data-stick linking) and the wire-cutter allowAllSides toggle - everything
+    // saveNBTData persists. The cached `master` reference is deliberately NOT copied: it is
+    // runtime-derived and onPostTick re-resolves it from the coords (trySetMasterFromCoord).
     @Override
     public NBTTagCompound getCopiedData(EntityPlayer player) {
         NBTTagCompound ret = new NBTTagCompound();
@@ -514,6 +518,7 @@ public class DualInputHatchInventoryMappingSlave<T extends MetaTileEntity & IDua
         ret.setInteger("masterY", masterY);
         ret.setInteger("masterZ", masterZ);
         ret.setBoolean("masterSet", masterSet);
+        ret.setBoolean("allowAllSides", allowAllSides);
         return ret;
     }
 
@@ -524,6 +529,7 @@ public class DualInputHatchInventoryMappingSlave<T extends MetaTileEntity & IDua
         if (nbt.hasKey("masterY")) masterY = nbt.getInteger("masterY");
         if (nbt.hasKey("masterZ")) masterZ = nbt.getInteger("masterZ");
         if (nbt.hasKey("masterSet")) masterSet = nbt.getBoolean("masterSet");
+        if (nbt.hasKey("allowAllSides")) allowAllSides = nbt.getBoolean("allowAllSides");
         master = null;
         return true;
     }

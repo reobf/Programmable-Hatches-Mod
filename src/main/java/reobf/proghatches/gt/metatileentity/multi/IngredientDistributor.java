@@ -20,6 +20,7 @@ import java.util.stream.IntStream;
 
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -95,6 +96,7 @@ import gregtech.common.tileentities.machines.outputme.MTEHatchOutputBusME;
 import gregtech.common.tileentities.machines.outputme.MTEHatchOutputME;
 import reobf.proghatches.gt.metatileentity.CommunicationPortHatch;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.polyfill.INeoDualInputInventory;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.Config;
@@ -102,7 +104,7 @@ import reobf.proghatches.main.registration.Registration;
 
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientDistributor>
-    implements ISurvivalConstructable {
+    implements ISurvivalConstructable, IDataCopyablePlaceHolder {
 
     public IngredientDistributor(String aName) {
         super(aName);
@@ -1554,6 +1556,25 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
         aNBT.setInteger("cdmax", cdmax);
         aNBT.setBoolean("lockRecipe", lockRecipe);
         super.saveNBTData(aNBT);
+    }
+
+    // Matter Manipulator copy/paste: only the user-toggled blocking mode is carried over.
+    // ready/count/cd/cdmax/lockRecipe/emptyRun are runtime state written by the processing loop, and
+    // allMEHatch/isLiteVersion are recomputed by the structure check, so none of them are copied.
+    // No capability guard is needed here: onPostTick force-clears blocking on Lite / non-ME builds.
+    @Override
+    public NBTTagCompound getCopiedData(EntityPlayer player) {
+        NBTTagCompound ret = new NBTTagCompound();
+        writeType(ret, player);
+        ret.setBoolean("blocking", blocking);
+        return ret;
+    }
+
+    @Override
+    public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+        if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+        if (nbt.hasKey("blocking")) blocking = nbt.getBoolean("blocking");
+        return true;
     }
 
     boolean lockRecipe;

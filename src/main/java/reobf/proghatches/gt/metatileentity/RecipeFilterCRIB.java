@@ -225,6 +225,57 @@ public void loadNBTData(NBTTagCompound aNBT) {
 	super.loadNBTData(aNBT);
 }
 
+/*
+ * Matter Manipulator support: on top of what PatternDualInputHatch copies this carries the two
+ * settings this class owns - the machine whose recipe list is exposed (filter, a template copy of
+ * the player's held stack that is never dropped again, so this is config and not an item) and which
+ * of that machine's recipe maps is selected (recipeIndex) - then restarts the generator so the
+ * patterns are rebuilt on the target. Deliberately NOT copied: genPatterns / genPatternsDetails /
+ * filterCache / modeHint (derived output, routinely thousands of encoded patterns that would have
+ * to survive MM's JSON round trip, and all reproducible from filter + recipeIndex) and randomID
+ * (the AE ILocatable serial / wireless-terminal encryption key, which must stay unique per machine).
+ */
+@Override
+public NBTTagCompound getCopiedData(EntityPlayer player) {
+	NBTTagCompound ret = super.getCopiedData(player);
+	NBTTagCompound f = new NBTTagCompound();
+	// copy() first: writeToNBT would otherwise hand out the live stack's own tag compound
+	if (filter != null) filter.copy()
+		.writeToNBT(f);
+	ret.setTag("filter", f);
+	ret.setInteger("recipeIndex", recipeIndex);
+	return ret;
+}
+
+@Override
+public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+	if (nbt == null || !getCopiedDataIdentifier(player)
+		.equals(nbt.getString("type"))) return false;
+	// an empty tag loads back as null, i.e. "no machine selected"
+	if (nbt.hasKey("filter")) filter = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("filter"));
+	if (nbt.hasKey("recipeIndex")) recipeIndex = Math.max(0, nbt.getInteger("recipeIndex"));
+	if (!super.pasteCopiedData(player, nbt)) return false;
+	// Rebuild the generated patterns the way onScrewdriverRightClick / onRightclick do: pick the
+	// recipe map, then hand the work to the staged generator that onPostTick's step() drives on the
+	// server. getItemStackMachineRecipeMap returns an empty list for anything that is not a machine,
+	// so the modulo must not be reached with an empty list, and a generation already in flight
+	// (stage > 0) is never interrupted.
+	if (getBaseMetaTileEntity() != null && getBaseMetaTileEntity().isServerSide() && stage == 0) {
+		List<RecipeMap<?>> get = getItemStackMachineRecipeMap(filter);
+		if (!get.isEmpty()) {
+			recipeIndex = recipeIndex % get.size();
+			modeHint = null;
+			if (get.size() > 1) {
+				modeHint = "Machine modes (" + (recipeIndex + 1) + "/" + get.size() + "): " + "%s";
+				modeHintLangKey = get.get(recipeIndex)
+					.unlocalizedName;
+			}
+			regJob(get.get(recipeIndex));
+		}
+	}
+	return true;
+}
+
 Deque<IAEItemStack> tonitify=new ArrayDeque<>();
 
 

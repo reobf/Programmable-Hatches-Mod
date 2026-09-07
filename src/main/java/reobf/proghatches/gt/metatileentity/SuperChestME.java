@@ -89,6 +89,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.util.GTUtility;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
@@ -97,7 +98,8 @@ import reobf.proghatches.util.ProghatchesUtil;
 
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class SuperChestME extends MTEHatch
-    implements ICellContainer, IGridProxyable, IPriorityHost, IStoageCellUpdate, IPowerChannelState {
+    implements ICellContainer, IGridProxyable, IPriorityHost, IStoageCellUpdate, IPowerChannelState,
+    IDataCopyablePlaceHolder {
 
     public SuperChestME(String aName, int aTier, int aInvSlotCount, String[] aDescription, ITexture[][][] aTextures) {
         super(aName, aTier, aInvSlotCount, aDescription, aTextures);
@@ -1031,6 +1033,55 @@ public class SuperChestME extends MTEHatch
         aNBT.setBoolean("voidFull", voidFull);
         aNBT.setBoolean("voidOverflow", voidOverflow);
         if (capOverride != 0) aNBT.setInteger("capOverride", capOverride);
+    }
+
+    // IDataCopyable (Matter Manipulator copy/paste). Deliberately NOT copied: mInventory[0] / "last"
+    // (the stored stack is stock, not config), the AE proxy tag getProxy().writeToNBT emits (grid
+    // identity), and suppressSticky (onPostTick re-derives it every tick from autoUnlock and
+    // emptiness, so it is runtime state that would only be wrong for a tick on the target).
+    @Override
+    public NBTTagCompound getCopiedData(EntityPlayer player) {
+        NBTTagCompound ret = new NBTTagCompound();
+        writeType(ret, player);
+        ret.setInteger("piority", piority);
+        ret.setBoolean("sticky", sticky);
+        ret.setBoolean("autoUnlock", autoUnlock);
+        if (cachedFilter[0] != null) {
+            NBTTagCompound tag = new NBTTagCompound();
+            cachedFilter[0].writeToNBT(tag);
+            ret.setTag("cahcedFilter", tag);
+        }
+        ret.setBoolean("voidFull", voidFull);
+        ret.setBoolean("voidOverflow", voidOverflow);
+        ret.setInteger("capOverride", capOverride);
+        return ret;
+    }
+
+    @Override
+    public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+        if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+        if (nbt.hasKey("piority")) piority = nbt.getInteger("piority");
+        if (nbt.hasKey("sticky")) sticky = nbt.getBoolean("sticky");
+        if (nbt.hasKey("autoUnlock")) autoUnlock = nbt.getBoolean("autoUnlock");
+        if (nbt.hasKey("voidFull")) voidFull = nbt.getBoolean("voidFull");
+        if (nbt.hasKey("voidOverflow")) voidOverflow = nbt.getBoolean("voidOverflow");
+        if (nbt.hasKey("capOverride")) {
+            capOverride = nbt.getInteger("capOverride");
+            // same normalisation the GUI text field applies; cap() clamps to this tier's size on read
+            if (capOverride < 64) capOverride = 0;
+        }
+        // getCopiedData writes the filter only when one is set, so a stamped tag without it means the
+        // source had none - clear ours too, or the pasted chest keeps a partition the source lacked.
+        // updateFilter() rebuilds the AE partition list and post()s, like the phantom slot / loadNBTData.
+        ItemStack filter = null;
+        if (nbt.hasKey("cahcedFilter")) {
+            filter = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("cahcedFilter"));
+        }
+        updateFilter(filter);
+        // priority / sticky are read live by the handler, but AE only re-sorts the cell array on
+        // MENetworkCellArrayUpdate - the same event this class already posts from cellUpdate().
+        cellUpdate();
+        return true;
     }
 
     boolean facingJustChanged;

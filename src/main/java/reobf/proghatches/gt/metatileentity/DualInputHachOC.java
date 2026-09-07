@@ -199,6 +199,14 @@ public class DualInputHachOC extends DualInputHatch
 
     }
 
+    /*
+     * Matter Manipulator: no getCopiedData/pasteCopiedData pair here on purpose. Everything a player
+     * can configure on this hatch (program, fluidLimit, the ghost circuits and the ME pull marks) is
+     * owned by DualInputHatch and copied by its pair, which this class inherits - and because the
+     * copy identifier is getClass().getName(), an OC hatch's tag still cannot be pasted onto a plain
+     * one. Nothing below is config: the OC node and the AE proxy are identities that must stay
+     * unique, and tasks / idcounter are the live command queue.
+     */
     @Override
     public void saveNBTData(NBTTagCompound aNBT) {
 

@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.cleanroommc.modularui.utils.item.IItemHandlerModifiable;
@@ -32,13 +34,14 @@ import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.util.GTTooltipDataCache;
 import gregtech.api.util.GTTooltipDataCache.TooltipData;
 import gregtech.api.util.GTUtility;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IMultiCircuitSupport;
 import reobf.proghatches.lang.LangManager;
 import reobf.proghatches.main.registration.Registration;
 import reobf.proghatches.util.ProghatchesUtil;
 
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
-public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCircuitSupport {
+public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCircuitSupport, IDataCopyablePlaceHolder {
     /**
      * GT 290's hatch base classes override getDescription() with their own hardcoded
      * "input bus / output hatch / ..." text, which shadowed every PH machine's own tooltip
@@ -335,6 +338,44 @@ public class MultiCircuitInputBus extends MTEHatchInputBus implements IMultiCirc
         if (cSlotCache != null) return cSlotCache;
         return cSlotCache = new int[] { getCircuitSlot(), getCircuitSlot() + 1, getCircuitSlot() + 2,
             getCircuitSlot() + 3 };
+    }
+
+    // Matter Manipulator copy/paste. The whole user configuration of this bus is the four circuit
+    // marks in getCircuitSlots() (zero-sized ghost items); MM's generic ghost-circuit handling only
+    // reaches the first of them, because GhostCircuitItemStackHandler is built from the single
+    // getCircuitSlot(). Deliberately NOT copied: the real item stock in slots 0..ITEM_SLOT_CAPACITY-1,
+    // mRecipeMap (pushed by the multiblock, not user-set), and disableSort/disableLimited/disableFilter,
+    // which MM already carries generically for every MTEHatchInputBus. No tier clamping is needed: every
+    // variant allocates ITEM_SLOT_CAPACITY + 4 slots, so the circuit slots are 16..19 on all of them.
+    @Override
+    public NBTTagCompound getCopiedData(EntityPlayer player) {
+        NBTTagCompound ret = new NBTTagCompound();
+        writeType(ret, player);
+        int[] slots = getCircuitSlots();
+        for (int i = 0; i < slots.length; i++) {
+            // saveItem(null) is an empty tag that loads back as null, so an EMPTY mark is copied too:
+            // pasting a config with no circuits onto a configured bus clears the ones it had
+            ret.setTag("circuit" + i, GTUtility.saveItem(getStackInSlot(slots[i])));
+        }
+        return ret;
+    }
+
+    @Override
+    public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+        if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+        int[] slots = getCircuitSlots();
+        for (int i = 0; i < slots.length; i++) {
+            String key = "circuit" + i;
+            if (!nbt.hasKey(key)) continue;
+            // marks live at stackSize 0 (GTUtility.getIntegratedCircuit / ClearableMarkSlotSH / the
+            // ProgrammingCover all store them that way), so force the amount back to 0 here;
+            // copyAmount returns null for an empty or unloadable tag, which clears the slot
+            ItemStack mark = GTUtility.copyAmount(0, GTUtility.loadItem(nbt, key));
+            // same write path as the ProgrammingCover: it runs onContentsChanged()/markDirty(), the
+            // hook the GUI's phantom marking slots trigger too
+            setInventorySlotContents(slots[i], mark);
+        }
+        return true;
     }
 
     @Override

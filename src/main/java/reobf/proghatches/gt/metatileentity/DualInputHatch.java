@@ -187,6 +187,7 @@ import gregtech.common.tileentities.machines.IDualInputInventory;
 import gregtech.common.tileentities.machines.IDualInputInventoryWithPattern;
 import reobf.proghatches.eucrafting.AECover;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IOnFillCallback;
 import reobf.proghatches.gt.metatileentity.util.IPHDual;
 import reobf.proghatches.gt.metatileentity.util.IProgrammingCoverBlacklisted;
@@ -209,7 +210,7 @@ import reobf.proghatches.util.ProghatchesUtil;
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCircuitSupport, IAddGregtechLogo,
 		IAddUIWidgets, IDualInputHatchWithPattern, IProgrammingCoverBlacklisted, IRecipeProcessingAwareDualHatch,
-		ISkipStackSizeCheck, IOnFillCallback, IPHDual/* ,IMultiCircuitSupport */ {
+		ISkipStackSizeCheck, IOnFillCallback, IPHDual, IDataCopyablePlaceHolder/* ,IMultiCircuitSupport */ {
     /**
      * GT 290's hatch base classes override getDescription() with their own hardcoded
      * "input bus / output hatch / ..." text, which shadowed every PH machine's own tooltip
@@ -380,6 +381,82 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 
 
+	}
+
+	/*
+	 * Matter Manipulator support for the whole DualInputHatch family. Copied: the two GUI buttons
+	 * this class owns (program, fluidLimit) and every ghost slot (the config circuit itself plus
+	 * shared.circuitInv and the shared.markedItems / shared.markedFluid ME pull marks).
+	 * Deliberately NOT copied: mInventory stock and mStoredFluid (real contents), shared's upgrade
+	 * counts (those are consumed physical upgrade items that onDestroy() drops back, so copying them
+	 * would duplicate items - the TARGET's counts serve as the capability guard instead), and
+	 * mMultiFluid (a constructor-fixed variant property that the tank array is built from).
+	 * The copy identifier is IDataCopyablePlaceHolder's default getClass().getName(), so every
+	 * subclass below automatically gets its own, mutually incompatible identifier.
+	 */
+	@Override
+	public NBTTagCompound getCopiedData(EntityPlayer player) {
+		NBTTagCompound ret = new NBTTagCompound();
+		writeType(ret, player);
+		ret.setBoolean("program", program);
+		ret.setInteger("fluidLimit", fluidLimit);
+		// same encoding shared.ser() uses, minus the upgrade counts; serList/serListF only read
+		ret.setTag("circuitInv", shared.serList(shared.circuitInv));
+		ret.setTag("markedItems", shared.serList(shared.markedItems));
+		ret.setTag("markedFluid", shared.serListF(shared.markedFluid));
+		NBTTagCompound ghost = new NBTTagCompound();
+		int cs = getCircuitSlot();
+		// copy() first: writeToNBT would otherwise hand out the live stack's own tag compound
+		if (cs >= 0 && cs < mInventory.length && mInventory[cs] != null)
+			mInventory[cs].copy()
+				.writeToNBT(ghost);
+		ret.setTag("ghostCircuit", ghost);
+		return ret;
+	}
+
+	@Override
+	public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+		if (nbt == null || !getCopiedDataIdentifier(player)
+			.equals(nbt.getString("type"))) return false;
+		if (nbt.hasKey("program")) program = nbt.getBoolean("program");
+		// the fluid-limit button only exists on multi-fluid variants (see buttons()), so a tag taken
+		// from one of those must not change a single-fluid hatch
+		if (nbt.hasKey("fluidLimit") && mMultiFluid && showFluidLimit())
+			fluidLimit = Math.max(0, Math.min(2, nbt.getInteger("fluidLimit")));
+		// each ghost list is resized to THIS hatch's own upgrade count, exactly as shared.deser()
+		// clamps them: a hatch without the matching upgrade simply ends up with an empty list
+		if (nbt.hasKey("circuitInv")) applyGhostList(
+			shared.circuitInv,
+			shared.deserList(nbt.getCompoundTag("circuitInv")),
+			shared.circuitUpgrades);
+		if (nbt.hasKey("markedItems")) applyGhostList(
+			shared.markedItems,
+			shared.deserList(nbt.getCompoundTag("markedItems")),
+			shared.itemMEUpgrades);
+		if (nbt.hasKey("markedFluid")) applyGhostList(
+			shared.markedFluid,
+			shared.deserListF(nbt.getCompoundTag("markedFluid")),
+			shared.fluidMEUpgrades);
+		int cs = getCircuitSlot();
+		if (nbt.hasKey("ghostCircuit") && cs >= 0 && cs < mInventory.length)
+			// the config circuit is a ghost slot - isValidSlot() excludes it from the drops - so this
+			// carries a setting, not an item. An empty tag loads back as null, i.e. "no circuit".
+			mInventory[cs] = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("ghostCircuit"));
+		if (getBaseMetaTileEntity() != null) {
+			updateSlots(); // what the program / filter buttons call after a change
+			notifyWatchers(); // what the ghost-circuit and ME-mark slots call after a change
+		}
+		return true;
+	}
+
+	/**
+	 * Copies src over dst in place - dst is captured by reference by any open GUI, so the list object
+	 * must not be replaced - truncating or padding with nulls to size, which is exactly how
+	 * OptioanlSharedContents.deser() clamps each list to the installed upgrade count.
+	 */
+	private static <T> void applyGhostList(ArrayList<T> dst, ArrayList<T> src, int size) {
+		dst.clear();
+		for (int i = 0; i < size; i++) dst.add(i < src.size() ? src.get(i) : null);
 	}
 
 	@Override

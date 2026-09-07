@@ -633,14 +633,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 					mStoredItemInternalSingle[ii] = null;
 
 				}
-				// The recipe identity dies here, so the non-consumables that belonged to it must die with
-				// it. Without this the region keeps the old circuit until something happens to rebind the
-				// buffer, and the multiblock matches the stale recipe in the meantime (issue #331). Doing
-				// it at the release point rather than only at the next bind also heals buffers that are
-				// already stale in existing worlds, and is deliberately NOT gated on `program`.
-				for (int ii = 0; ii < v; ii++) {
-					mStoredItemInternal[this.i + ii] = null;
-				}
 				recipeLocked = false;
 				//PID = 0;
 				/*
@@ -720,43 +712,14 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 			markJustHadNewItems();
 			onClassify();
-			// true: this buffer is being bound to a NEW recipe, so any non-consumable left over from
-			// the recipe it held before must go, even if the incoming pattern brings none of its own.
-			programLocal(true);
+			programLocal();
 			onChange();
 			justHadNewItems = true;
 		}
 
 		private void programLocal() {
-			programLocal(false);
-		}
-
-		/**
-		 * Move the non-consumables a pushed pattern carried (wrapped as MyMod.progcircuit) into this
-		 * buffer's circuit region mStoredItemInternal[i .. i+v), where getItemInputs() picks them up.
-		 *
-		 * @param resetCircuits clear the region when the incoming batch carries no non-consumable at
-		 *                      all. Only firstClassify() may pass true. Every other caller MUST pass
-		 *                      false: program() runs from startRecipeProcessingImpl() on every buffer
-		 *                      at every recipe-processing start, and the wrapped circuits are consumed
-		 *                      by the first pass, so from the second call onwards isa is always empty -
-		 *                      clearing there would wipe the circuit before the recipe ever runs.
-		 *                      Guarding the wipe to "a new recipe is being recorded" is what fixes the
-		 *                      stale-circuit carry-over (issue #331): a recycled buffer used to keep
-		 *                      the previous pattern's circuit when the next pattern had none, and the
-		 *                      multiblock then matched the old recipe.
-		 */
-		private void programLocal(boolean resetCircuits) {
-			if (!program) {
-				// Clearing leftovers is state hygiene, not programming: with the toggle off nothing can
-				// manage this region any more, so a rebind must still empty it.
-				if (resetCircuits) {
-					for (int k = 0; k < v; k++) {
-						mStoredItemInternal[this.i + k] = null;
-					}
-				}
+			if (!program)
 				return;
-			}
 			ArrayList<ItemStack> isa = new ArrayList<>();
 			for (int i = 0; i < mStoredItemInternal.length; i++) {
 				ItemStackG is = mStoredItemInternal[i];
@@ -767,16 +730,11 @@ public class BufferedDualInputHatch extends DualInputHatch
 				mStoredItemInternal[i] = null;
 				// inv0.mStoredItemInternal[inv0.mStoredItemInternal.length-1]=
 
-				// A blank wrapper unwraps to null; adding it would occupy one of the v slots and silently
-				// push a real non-consumable out of the region.
-				ItemStack circuit = ItemProgrammingCircuit.getCircuit(is.getStack()).orElse(null);
-				if (circuit != null) {
-					isa.add(GTUtility.copyAmount(0, circuit));
-				}
+				isa.add(GTUtility.copyAmount(0, ItemProgrammingCircuit.getCircuit(is.getStack()).orElse(null)));
 			}
 
 			int nums = Math.min(v, isa.size());
-			if (nums == 0 && !resetCircuits)
+			if (nums == 0)
 				return;
 
 			for (int i = 0; i < v; i++) {

@@ -50,7 +50,6 @@ import gregtech.api.util.GTRecipeBuilder;
 import gregtech.api.util.GTRecipeConstants;
 import gregtech.api.util.GTUtility;
 import gtPlusPlus.xmod.gregtech.api.enums.GregtechItemList;
-import gtnhlanth.common.register.LanthItemList;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
@@ -2095,13 +2094,20 @@ public class PHRecipes implements Runnable {
             .eut(30)
             .addTo(RecipeMaps.assemblerRecipes);
 
-        GTValues.RA.stdBuilder()
-            .itemInputs(Api.INSTANCE.parts().partStorageBus.stack(1), LanthItemList.BEAMLINE_FOCUS_INPUT_BUS.copy())
-            .itemOutputs(
-                new ItemStack(GregTechAPI.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.MEFocusOffset))
-            .duration(1 * SECONDS)
-            .eut(30)
-            .addTo(RecipeMaps.assemblerRecipes);
+        // Deprecated: GT 5.09.54.133 deleted focus-bus support outright - HatchElement.FocusInput and
+        // MTEMultiBlockBase#addFocusInputToMachineList/#mFocusInputBuses are gone, and the Target Chamber
+        // now pulls Photolithographic Masks straight out of ordinary Input Buses. Nothing accepts a focus
+        // bus any more, so this one can never be installed. The machine itself stays registered at
+        // MEFocusOffset so existing worlds keep their block, but it is no longer craftable.
+        //
+        // GTValues.RA.stdBuilder()
+        // .itemInputs(Api.INSTANCE.parts().partStorageBus.stack(1),
+        // gtnhlanth.common.register.LanthItemList.BEAMLINE_FOCUS_INPUT_BUS.copy())
+        // .itemOutputs(
+        // new ItemStack(GregTechAPI.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.MEFocusOffset))
+        // .duration(1 * SECONDS)
+        // .eut(30)
+        // .addTo(RecipeMaps.assemblerRecipes);
 
         GTValues.RA.stdBuilder()
             .itemInputs(Api.INSTANCE.parts().partStorageBus.stack(1), GregtechItemList.Bus_Catalysts.get(1))

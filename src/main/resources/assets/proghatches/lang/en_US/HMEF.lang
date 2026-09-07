@@ -1,5 +1,7 @@
-Input Bus for Foci
-Connect ME Network to access the first Active Foci slot
-Not a Stocking Input Bus!
-You still need to automate the Foci switching process
-(e.g. use ME Level Emitter to detect items in Input Bus of Target Chamber)
+§4DEPRECATED - this bus no longer works
+GT removed focus bus support in 5.09.54.133
+The Target Chamber now takes Photolithographic Masks
+from ordinary Input Buses, so no structure accepts this
+Use a normal (ME) Input Bus instead
+Still registered only so existing worlds keep the block;
+it can no longer be crafted

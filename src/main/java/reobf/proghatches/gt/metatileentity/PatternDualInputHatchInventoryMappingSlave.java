@@ -80,7 +80,10 @@ import appeng.api.networking.events.MENetworkCraftingPatternChange;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
+import appeng.api.storage.data.IAEStackType;
 import appeng.api.util.IInterfaceViewable;
+import appeng.util.item.AEFluidStackType;
+import appeng.util.item.AEItemStackType;
 import appeng.core.Api;
 import appeng.core.AppEng;
 import appeng.core.sync.GuiBridge;
@@ -734,6 +737,23 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
     public IInventory getPatterns() {
 
         return patternMapper;
+    }
+
+    // AE2 paints a pattern slot solid red (itemSlotOverlayFluidMismatch) when the pattern uses a stack
+    // type this machine does not advertise - GuiInterfaceTerminal checks it against
+    // getSupportedStackTypes(), whose IInterfaceViewable default is items-only. Without this override
+    // every pattern with a fluid input looked broken in the Interface Terminal even though it worked
+    // fine; that is issue #331's "patterns are red". GT guards its own MTEHatchCraftingInputME the
+    // same way. Purely cosmetic: AE2 reads this only from GuiInterface and GuiInterfaceTerminal.
+    // The slave mirrors its master's patterns, so it must advertise what the MASTER accepts. Unlinked
+    // (master == null) it reports both rather than items-only: reporting items-only would red-flag
+    // every fluid pattern it is showing, which is the exact false positive this override removes.
+    @Override
+    public IAEStackType<?>[] getSupportedStackTypes() {
+        T m = getMaster();
+        return (m == null || m.supportsFluids())
+            ? new IAEStackType<?>[] { AEItemStackType.ITEM_STACK_TYPE, AEFluidStackType.FLUID_STACK_TYPE }
+            : new IAEStackType<?>[] { AEItemStackType.ITEM_STACK_TYPE };
     }
 
     @Override

@@ -74,7 +74,10 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
+import appeng.api.storage.data.IAEStackType;
 import appeng.api.util.IInterfaceViewable;
+import appeng.util.item.AEFluidStackType;
+import appeng.util.item.AEItemStackType;
 
 import appeng.core.Api;
 import appeng.core.AppEng;
@@ -166,6 +169,19 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
     @Override
     public IInventory getPatterns() {
         return patternMapper;
+    }
+
+    // AE2 paints a pattern slot solid red (itemSlotOverlayFluidMismatch) when the pattern uses a stack
+    // type this machine does not advertise - GuiInterfaceTerminal checks it against
+    // getSupportedStackTypes(), whose IInterfaceViewable default is items-only. Without this override
+    // every pattern with a fluid input looked broken in the Interface Terminal even though it worked
+    // fine; that is issue #331's "patterns are red". GT guards its own MTEHatchCraftingInputME the
+    // same way. Purely cosmetic: AE2 reads this only from GuiInterface and GuiInterfaceTerminal.
+    @Override
+    public IAEStackType<?>[] getSupportedStackTypes() {
+        return supportsFluids()
+            ? new IAEStackType<?>[] { AEItemStackType.ITEM_STACK_TYPE, AEFluidStackType.FLUID_STACK_TYPE }
+            : new IAEStackType<?>[] { AEItemStackType.ITEM_STACK_TYPE };
     }
 
     IInventory patternMapper = new IInventory() {

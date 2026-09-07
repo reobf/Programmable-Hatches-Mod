@@ -1940,19 +1940,36 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
         return true;
     }
 
+	// Careful: l() SAVES this hatch into the tag and w() LOADS the tag into this hatch - the names
+	// read the other way round. saveNBTData calls l(), loadNBTData calls w(). Both were used
+	// backwards here, which is issue #334: copying ran a load (so getCopiedData handed back an empty
+	// tag AND reset additionalConnection to false from the empty tag, then re-ran
+	// updateValidGridProxySides - that is why the *source* hatch lost its config), and pasting ran a
+	// save into a tag that was then thrown away, so the pasted hatch got nothing.
+	// l()/w() already cover the whole config surface (storedItems/storedFluids config slots,
+	// program, autoPull, intmaxs, interval, minAutoPullStackSize(F), sizes(F)); only
+	// additionalConnection lives outside them.
+
 	@Override
 	public NBTTagCompound getCopiedData(EntityPlayer player) {
-		NBTTagCompound tag=new NBTTagCompound();
-		w(tag); 
-		additionalConnection = tag.getBoolean("additionalConnection");
-		updateValidGridProxySides();
+		NBTTagCompound tag = new NBTTagCompound();
+		tag.setString("type", getCopiedDataIdentifier(player));
+		tag.setBoolean("additionalConnection", additionalConnection);
+		l(tag);
 		return tag;
 	}
 
 	@Override
 	public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
-		l(nbt);  
-		nbt.setBoolean("additionalConnection", additionalConnection);
+		if (nbt == null || !getCopiedDataIdentifier(player).equals(nbt.getString("type"))) return false;
+		additionalConnection = nbt.getBoolean("additionalConnection");
+		w(nbt);
+		// allowAuto is a per-variant capability fixed by the constructor, not user config. Both
+		// variants share this class and therefore the same copy identifier, so a tag taken from the
+		// Advanced hatch must not switch auto-pull on for the basic one. GT guards its own stocking
+		// bus with autoPullAvailable in the same way.
+		if (!allowAuto) autoPullItemList = false;
+		updateValidGridProxySides();
 		return true;
 	}
 

@@ -253,6 +253,13 @@ public class BufferedDualInputHatch extends DualInputHatch
 				"programmable_hatches.gt.cmmode.5",
 				"programmable_hatches.gt.cmmode.6"
 				));
+		ret.reg(2, 0, ExConfigEntry.create(
+				() -> reversePiority,
+				(s) -> {reversePiority = s;},
+				"programmable_hatches.gt.reversepiority.0",
+				"programmable_hatches.gt.reversepiority.1",
+				"programmable_hatches.gt.reversepiority.2"
+				));
 
 		ret.reg(3, 0, ExConfigEntry.create(
 				()->(isInfBuffer() || shared.infbufUpgrades > 0),
@@ -1507,6 +1514,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		merge = aNBT.getBoolean("merge");
 		justHadNewItems = aNBT.getBoolean("justHadNewItems");
 		updateEveryTick = aNBT.getBoolean("updateEveryTick");
+		reversePiority = aNBT.getBoolean("reversePiority");
 		preventSleep = aNBT.getInteger("preventSleep");
 		// legacy keys useNewGTPatternCache / currentID / order / detailmap* / detailmapUsage* are
 		// intentionally ignored: the GT-pattern-cache experiment they belonged to was never wired
@@ -1527,13 +1535,14 @@ public class BufferedDualInputHatch extends DualInputHatch
 		aNBT.setBoolean("justHadNewItems", justHadNewItems);
 		aNBT.setBoolean("updateEveryTick", updateEveryTick);
 		aNBT.setBoolean("autoAppend", autoAppend);
+		aNBT.setBoolean("reversePiority", reversePiority);
 		aNBT.setInteger("preventSleep", preventSleep);
 
 		super.saveNBTData(aNBT);
 	}
 
 	/*
-	 * Matter Manipulator support: this class only adds its three ExConfig toggles on top of what
+	 * Matter Manipulator support: this class only adds its four ExConfig toggles on top of what
 	 * DualInputHatch already copies. Deliberately NOT copied: the BUFFER_i inventories and exinvlen
 	 * (real buffered stock, plus the extra buffers autoAppend grows at runtime), dirty /
 	 * justHadNewItems / preventSleep / last (per-tick runtime state), and merge (still persisted, but
@@ -1548,6 +1557,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		ret.setBoolean("updateEveryTick", updateEveryTick);
 		ret.setBoolean("CMMode", CMMode);
 		ret.setBoolean("autoAppend", autoAppend);
+		ret.setBoolean("reversePiority", reversePiority);
 		return ret;
 	}
 
@@ -1557,6 +1567,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			.equals(nbt.getString("type"))) return false;
 		if (nbt.hasKey("updateEveryTick")) updateEveryTick = nbt.getBoolean("updateEveryTick");
 		if (nbt.hasKey("CMMode")) CMMode = nbt.getBoolean("CMMode");
+		if (nbt.hasKey("reversePiority")) reversePiority = nbt.getBoolean("reversePiority");
 		// the same capability guard the elastic-buffer button uses (ExConfigEntry.shouldApply in
 		// initExConfig): without the inf-buffer upgrade that button is not shown, so a tag taken
 		// from an upgraded hatch must not switch elastic buffering on here
@@ -1641,6 +1652,16 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 	boolean justHadNewItems;
 
+	/**
+	 * Issue #332: the priority sort normally serves the buffer with the MOST possible copies first.
+	 * With this on the comparator is inverted, so the buffer with the FEWEST copies goes first.
+	 * <p>
+	 * Turning it on also switches the sort into the path even when the global "Piority mode" config
+	 * (Config.experimentalOptimize) is off — a per-hatch button that silently does nothing would be
+	 * worse than paying getPossibleCopies() on a machine whose owner explicitly asked for ordering.
+	 */
+	public boolean reversePiority = false;
+
 	class PiorityBuffer implements Comparable<PiorityBuffer> {
 
 		PiorityBuffer(DualInvBuffer buff) {
@@ -1659,7 +1680,8 @@ public class BufferedDualInputHatch extends DualInputHatch
 		@Override
 		public int compareTo(PiorityBuffer o) {
 
-			return -Long.compare(piority, o.piority);
+			int c = Long.compare(piority, o.piority);
+			return reversePiority ? c : -c;
 		}
 
 	}
@@ -1672,7 +1694,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		markDirty();
 		dirty = true;
 
-		if (Config.experimentalOptimize) {
+		if (Config.experimentalOptimize || reversePiority) {
 
 			return (Optional) inv0.stream().filter(s->s.nonempty||!emptyopt).filter((DualInvBuffer::isAccessibleForMulti)).map(s -> new PiorityBuffer(s))
 					.sorted().map(s -> {
@@ -1709,7 +1731,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		 * if (merge) { return mergeSame(); }
 		 */
 
-		if (Config.experimentalOptimize) {
+		if (Config.experimentalOptimize || reversePiority) {
 
 			return inv0.stream().filter(s->s.nonempty||!emptyopt).filter(DualInvBuffer::isAccessibleForMulti).map(s -> new PiorityBuffer(s)).sorted()
 					.map(s -> {

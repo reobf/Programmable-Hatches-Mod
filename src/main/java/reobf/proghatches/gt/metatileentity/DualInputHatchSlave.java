@@ -46,6 +46,17 @@ import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IPHDual;
 import reobf.proghatches.gt.metatileentity.util.IRecipeProcessingAwareDualHatch;
 import reobf.proghatches.main.registration.Registration;
+import com.cleanroommc.modularui.factory.PosGuiData;
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.UISettings;
+import com.cleanroommc.modularui.value.sync.IntSyncValue;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.widgets.CycleButtonWidget;
+
+import gregtech.api.modularui2.GTGuiTextures;
+import gregtech.api.modularui2.GTGuis;
+import reobf.proghatches.lang.LangManager;
+
 
 @gregtech.api.interfaces.metatileentity.IMetaTileEntity.SkipGenerateDescription
 public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatchWithPattern & IMetaTileEntity> extends MTEHatchInputBus
@@ -107,6 +118,7 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatchWithP
         if (aNBT.hasKey("x") == false) return;
         super.loadNBTData(aNBT);
 
+        if (aNBT.hasKey("reverseMode")) reverseMode = aNBT.getInteger("reverseMode");
         if (aNBT.hasKey("master")) {
             NBTTagCompound masterNBT = aNBT.getCompoundTag("master");
             masterX = masterNBT.getInteger("x");
@@ -119,6 +131,7 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatchWithP
     @Override
     public void saveNBTData(NBTTagCompound aNBT) {
         super.saveNBTData(aNBT);
+        aNBT.setInteger("reverseMode", reverseMode);
         if (masterSet) {
             NBTTagCompound masterNBT = new NBTTagCompound();
             masterNBT.setInteger("x", masterX);
@@ -170,10 +183,31 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatchWithP
         return false;
     }
 
+    /**
+     * Buffer order this mirror asks its host for. 0 = most copies first, 1 = fewest copies first,
+     * 2 = follow the host's own button (the default, i.e. the behaviour before issue #332).
+     * <p>
+     * One host can feed several mirrors, each wired into a different multiblock, and those machines
+     * want different orders - so the choice belongs to the mirror, not to the host. It has no effect
+     * when the host is not a buffered hatch, because a hatch with a single inventory has nothing to
+     * order (see DualInputHatch#inventories(boolean)).
+     */
+    public int reverseMode = 2;
+
+    /** True when this mirror has a host whose buffer order it can actually choose. */
+    public boolean canChooseOrder() {
+        return getMaster() instanceof BufferedDualInputHatch;
+    }
+
     @Override
     public Iterator<? extends IDualInputInventoryWithPattern> inventories() {
         if (!this.isValid()) return DualInputHatch.emptyItr;
-        return getMaster() != null ? getMaster().inventories() : Collections.emptyIterator();
+        T m = getMaster();
+        if (m == null) return Collections.emptyIterator();
+        if (reverseMode != 2 && m instanceof BufferedDualInputHatch) {
+            return ((BufferedDualInputHatch) m).inventories(reverseMode == 1);
+        }
+        return m.inventories();
     }
 
     @Override
@@ -257,6 +291,11 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatchWithP
         return true;
     }
 
+    /**
+     * Right-click opens THIS mirror's own GUI (where its buffer-order option lives); the host's GUI
+     * moved to left-click, see {@link #onLeftclick}. Before issue #332 a mirror had no settings of its
+     * own, so right-click just forwarded to the host.
+     */
     @Override
     public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
         if (!(aPlayer instanceof EntityPlayerMP)) {
@@ -265,11 +304,70 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatchWithP
         if (tryLinkDataStick(aPlayer)) {
             return true;
         }
-        IDualInputHatch master = getMaster();
-        if (master != null) {
-            return ((MetaTileEntity) master).onRightclick(((IMetaTileEntity) master).getBaseMetaTileEntity(), aPlayer);
+        // MUI2: open our own panel on the server only, the same way the ME mapping mirror does.
+        if (aBaseMetaTileEntity.isClientSide()) return true;
+        openGui(aPlayer);
+        return true;
+    }
+
+    /** Left-click opens the linked host's GUI. Sneak still breaks the block normally. */
+    @Override
+    public void onLeftclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
+        if (aBaseMetaTileEntity.isServerSide() && !aPlayer.isSneaking()) {
+            T m = getMaster();
+            if (m != null) {
+                m.onRightclick(m.getBaseMetaTileEntity(), aPlayer);
+                return;
+            }
         }
-        return false;
+        super.onLeftclick(aBaseMetaTileEntity, aPlayer);
+    }
+
+    /**
+     * Our panel is MUI2 only (buildUI below), so openGui must take the MUI2 branch. If this returned
+     * false GT would fall back to GTUIInfos.openGTTileEntityUI, i.e. the MUI1 path, and nothing would
+     * be shown at all.
+     */
+    @Override
+    protected boolean useMui2() {
+        return true;
+    }
+
+    /**
+     * This mirror's own GUI.
+     * <p>
+     * Deliberately NOT super.buildUI(): every dual-input device only borrows MTEHatchInputBus as a
+     * shell, it is not really a bus, so the inherited bus panel would show item slots that stand for
+     * nothing. A blank MTE template panel is built instead, the same way the ME mapping mirror does it.
+     */
+    @Override
+    public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings) {
+        ModularPanel panel = GTGuis.mteTemplatePanelBuilder(this, data, syncManager, uiSettings)
+            .doesAddGregTechLogo(false)
+            // No ghost circuit slot: MTEHatchInputBus.getCircuitSlot() is getSlots(mTier), which is 49
+            // at this mirror's tier 6, while the mirror is built with ZERO inventory slots (it only
+            // forwards the host's). Letting the template add it threw
+            // "Slot 49 not in valid range - [0,0)" on every right-click.
+            .doesAddGhostCircuitSlot(false)
+            .build();
+        panel.child(
+            new CycleButtonWidget().stateCount(3)
+                .value(new IntSyncValue(() -> reverseMode, v -> reverseMode = v).allowC2S())
+                .stateBackground(0, GTGuiTextures.BUTTON_STANDARD)
+                .stateBackground(1, GTGuiTextures.BUTTON_STANDARD_PRESSED)
+                .stateBackground(2, GTGuiTextures.BUTTON_STANDARD)
+                .stateOverlay(0, GTGuiTextures.OVERLAY_BUTTON_SORTING_MODE)
+                .stateOverlay(1, GTGuiTextures.OVERLAY_BUTTON_SORTING_MODE)
+                .stateOverlay(2, GTGuiTextures.OVERLAY_BUTTON_SORTING_MODE)
+                .tooltipDynamic(t -> {
+                    t.addLine(LangManager.translateToLocal("programmable_hatches.gt.mirrororder"));
+                    t.addLine(LangManager.translateToLocal("programmable_hatches.gt.mirrororder." + reverseMode));
+                    if (!canChooseOrder())
+                        t.addLine(LangManager.translateToLocal("programmable_hatches.gt.mirrororder.na"));
+                })
+                .pos(7, 7)
+                .size(18, 18));
+        return panel;
     }
 
     @Override
@@ -358,6 +456,7 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatchWithP
         ret.setInteger("masterY", masterY);
         ret.setInteger("masterZ", masterZ);
         ret.setBoolean("masterSet", masterSet);
+        ret.setInteger("reverseMode", reverseMode);
 
         return ret;
     }
@@ -369,6 +468,7 @@ public class DualInputHatchSlave<T extends MetaTileEntity & IDualInputHatchWithP
         if (nbt.hasKey("masterY")) masterY = nbt.getInteger("masterY");
         if (nbt.hasKey("masterZ")) masterZ = nbt.getInteger("masterZ");
         if (nbt.hasKey("masterSet")) masterSet = nbt.getBoolean("masterSet");
+        if (nbt.hasKey("reverseMode")) reverseMode = Math.max(0, Math.min(2, nbt.getInteger("reverseMode")));
         master = null;
         return true;
     }

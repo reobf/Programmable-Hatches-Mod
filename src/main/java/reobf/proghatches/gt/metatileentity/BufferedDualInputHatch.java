@@ -1665,12 +1665,18 @@ public class BufferedDualInputHatch extends DualInputHatch
 	class PiorityBuffer implements Comparable<PiorityBuffer> {
 
 		PiorityBuffer(DualInvBuffer buff) {
+			this(buff, reversePiority);
+		}
+
+		PiorityBuffer(DualInvBuffer buff, boolean reverse) {
 			this.buff = buff;
 			this.piority = getPossibleCopies(buff);
+			this.reverse = reverse;
 		}
 
 		DualInvBuffer buff;
 		long piority;
+		final boolean reverse;
 
 		@Override
 		public String toString() {
@@ -1681,7 +1687,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		public int compareTo(PiorityBuffer o) {
 
 			int c = Long.compare(piority, o.piority);
-			return reversePiority ? c : -c;
+			return reverse ? c : -c;
 		}
 
 	}
@@ -1722,6 +1728,20 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 	@Override
 	public Iterator<? extends IDualInputInventoryWithPattern> inventories() {
+		return inventories(reversePiority);
+	}
+
+	/**
+	 * Issue #332: the same hatch can be read through several mirrors, each feeding a different
+	 * multiblock, and those machines want different buffer orders. The ordering therefore cannot live
+	 * only on the host - the caller passes the direction it wants, and the host's own button is just
+	 * the default used by {@link #inventories()}.
+	 *
+	 * @param reverse false serves the buffer holding the MOST copies first (the historical behaviour),
+	 *                true serves the FEWEST first.
+	 */
+	@Override
+	public Iterator<? extends IDualInputInventoryWithPattern> inventories(boolean reverse) {
 		if (!this.isValid())
 			return emptyItr;
 		markDirty();
@@ -1731,9 +1751,9 @@ public class BufferedDualInputHatch extends DualInputHatch
 		 * if (merge) { return mergeSame(); }
 		 */
 
-		if (Config.experimentalOptimize || reversePiority) {
+		if (Config.experimentalOptimize || reverse) {
 
-			return inv0.stream().filter(s->s.nonempty||!emptyopt).filter(DualInvBuffer::isAccessibleForMulti).map(s -> new PiorityBuffer(s)).sorted()
+			return inv0.stream().filter(s->s.nonempty||!emptyopt).filter(DualInvBuffer::isAccessibleForMulti).map(s -> new PiorityBuffer(s, reverse)).sorted()
 					.map(s -> {
 						return s.buff;
 					}).map(this::wrap)

@@ -557,6 +557,16 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		return Arrays.asList(theInv).iterator();
 	}
 
+	/**
+	 * Ordering hook for callers that read this hatch through a mirror (issue #332). A plain hatch
+	 * exposes a single inventory, so there is nothing to order and the requested direction is ignored
+	 * - which is exactly why a mirror's reverse option does nothing when its host is not a buffered
+	 * hatch. {@link BufferedDualInputHatch} overrides this.
+	 */
+	public Iterator<? extends IDualInputInventoryWithPattern> inventories(boolean reverse) {
+		return inventories();
+	}
+
 	public List<IDualInputInventory> inventoriesReal() {
 
 		return Arrays.asList(theInv);

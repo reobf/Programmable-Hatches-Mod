@@ -1956,6 +1956,19 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
 		tag.setString("type", getCopiedDataIdentifier(player));
 		tag.setBoolean("additionalConnection", additionalConnection);
 		l(tag);
+		// Runtime display state, not configuration: how much is currently stocked and the client-side
+		// display mirrors. Copying them was also an outright bug with the Matter Manipulator, which
+		// round-trips this tag through JSON (GTAnalysisResult l.244 / l.482). MMUtils.toJsonObject
+		// flattens an int array to a plain JSON array, and MMUtils.toNbt re-types every number by its
+		// MAGNITUDE - byte, then short, then int - and throws "NBT lists cannot contain tags of varying
+		// types" as soon as one array holds a mix. All-zero arrays (an empty hatch) are uniform and
+		// survive, which is exactly why this only broke once real items were being stocked (issue #334).
+		// That throw happens outside MM's try/catch, so the whole paste aborted: the block was placed
+		// with no configuration at all. w() guards every one of these with hasKey, so dropping them is safe.
+		tag.removeTag("sizes");
+		tag.removeTag("sizesF");
+		tag.removeTag("clientDisplayValue");
+		tag.removeTag("clientDisplayValueF");
 		return tag;
 	}
 

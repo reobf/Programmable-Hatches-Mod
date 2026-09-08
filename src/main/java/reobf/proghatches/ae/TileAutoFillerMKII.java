@@ -19,6 +19,8 @@ import org.apache.commons.lang3.tuple.MutablePair;
 
 import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.common.tile.TileFluidAutoFiller;
+import com.glodblock.github.loader.ItemAndBlockHolder;
+import com.glodblock.github.util.FluidPatternDetails;
 import com.glodblock.github.util.Util;
 
 import appeng.api.AEApi;
@@ -34,9 +36,11 @@ import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.me.GridAccessException;
 import appeng.tile.TileEvent;
 import appeng.tile.events.TileEventType;
+import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 
 public class TileAutoFillerMKII extends TileFluidAutoFiller/* implements IInstantCompletable */ {
@@ -59,18 +63,31 @@ public class TileAutoFillerMKII extends TileFluidAutoFiller/* implements IInstan
         .maybeItem()
         .orNull();
 
+    /**
+     * Builds an AE2FC fluid pattern, not a vanilla one.
+     * <p>
+     * The vanilla encoded pattern cannot carry a fluid: PatternHelper still reads in/out as plain
+     * ItemStacks through Platform.loadItemStackFromNBT. The old code worked around that by baking the
+     * fluid in as an ItemFluidDrop item tag, which asks the network for a drop item that no longer
+     * exists now that AE2 stores and crafts fluids natively, so none of these patterns could ever be
+     * satisfied. FluidPatternDetails.writeStackArray stamps the stack type, so the fluid stays a fluid.
+     */
     private ItemStack getPattern(ItemStack emptyContainer, ItemStack filledContainer) {
-        NBTTagList in = new NBTTagList();
-        NBTTagList out = new NBTTagList();
-        in.appendTag(emptyContainer.writeToNBT(new NBTTagCompound()));
-        ItemStack fluidDrop = ItemFluidDrop.newStack(Util.FluidUtil.getFluidFromContainer(filledContainer));
-        in.appendTag(createItemTag(fluidDrop));
-        out.appendTag(filledContainer.writeToNBT(new NBTTagCompound()));
+        IAEStack<?>[] in = new IAEStack<?>[] { AEItemStack.create(emptyContainer),
+            AEFluidStack.create(Util.FluidUtil.getFluidFromContainer(filledContainer)) };
+        IAEStack<?>[] out = new IAEStack<?>[] { AEItemStack.create(filledContainer) };
+
         NBTTagCompound itemTag = new NBTTagCompound();
-        itemTag.setTag("in", in);
-        itemTag.setTag("out", out);
+        NBTTagList tag2;
+        itemTag.setTag("Inputs", tag2 = FluidPatternDetails.writeStackArray(in));
+        itemTag.setTag("in", tag2.copy());
+        itemTag.setTag("Outputs", tag2 = FluidPatternDetails.writeStackArray(out));
+        itemTag.setTag("out", tag2.copy());
+        itemTag.setInteger("combine", 0);
+        itemTag.setBoolean("beSubstitute", false);
         itemTag.setBoolean("crafting", false);
-        ItemStack pattern = new ItemStack(this.encodedPattern);
+
+        ItemStack pattern = new ItemStack(ItemAndBlockHolder.PATTERN);
         pattern.setTagCompound(itemTag);
         return pattern;
     }

@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.loader.ItemAndBlockHolder;
 import com.glodblock.github.util.FluidPatternDetails;
 import com.google.common.collect.ImmutableList;
@@ -67,6 +66,7 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.tile.networking.TileWireless;
 import appeng.util.Platform;
+import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import appeng.util.item.ItemList;
 import cpw.mods.fml.client.event.ConfigChangedEvent.PostConfigChangedEvent;
@@ -373,76 +373,79 @@ private void postChangeInner(StorageChannel c,IAEItemStack is){
     	
     	return in;
     }
-    static private AEItemStack[] E=new AEItemStack[0];
+    // Widened from AEItemStack[]: the lists below now hold fluid-typed stacks too, and toArray()
+    // would throw ArrayStoreException on an AEItemStack[] the moment a fluid goes in.
+    static private IAEStack<?>[] E = new IAEStack<?>[0];
+
+    /**
+     * Encodes one GregTech recipe into a pattern item.
+     * <p>
+     * Fluids are written as fluid-typed stacks, NOT as ItemFluidDrop items. AE2 indexes by stack type
+     * everywhere that matters: FluidPatternDetails keeps an input verbatim when isItem() is true,
+     * MECraftingInventory extracts through inventoryMap.get(stack.getStackType()), and
+     * CraftingGridCache.craftableItems is keyed on the getAEOutputs() stack itself. A drop written here
+     * serialises with StackType="item" (AEItemStack.getStackType() is unconditional and
+     * Platform.readStackNBT only converts the legacy no-StackType form), so the generated pattern would
+     * declare an item ingredient that exists nowhere and advertise its fluid product under a key no
+     * request ever matches - beginCraftingJob converts a drop request to AEFluidStack first. The legacy
+     * drop view is derived by FluidPatternDetails itself via Platform.stackConvert; it must not be
+     * pre-baked here.
+     * <p>
+     * ItemFluidDrop is legacy since AE2 gained native fluid crafting.
+     */
+    private static ItemStack buildPatternStack(GTRecipe xx) {
+        ItemStack patternStack = new ItemStack(ItemAndBlockHolder.PATTERN);
+
+        List<IAEStack<?>> inputsList = new ArrayList<>();
+        for (ItemStack input : xx.mInputs) {
+            if (input != null) {
+                inputsList.add(RecipeFilterCRIB.zeroToCircuit(AEItemStack.create(input)));
+            }
+        }
+        for (FluidStack fluidInput : xx.mFluidInputs) {
+            if (fluidInput != null) {
+                inputsList.add(AEFluidStack.create(fluidInput));
+            }
+        }
+
+        List<IAEStack<?>> outputsList = new ArrayList<>();
+        int index = 0;
+        for (ItemStack output : xx.mOutputs) {
+            boolean condition = xx.mOutputChances == null
+                || (index < xx.mOutputChances.length && xx.mOutputChances[index] >= 10000);
+            if (condition && output != null) {
+                outputsList.add(AEItemStack.create(output));
+            }
+            index++;
+        }
+        for (FluidStack fluidOutput : xx.mFluidOutputs) {
+            if (fluidOutput != null) {
+                outputsList.add(AEFluidStack.create(fluidOutput));
+            }
+        }
+
+        if (inputsList.isEmpty())
+            inputsList.add(AEItemStack.create(new ItemStack(Items.paper).setStackDisplayName("No inputs")));
+        if (outputsList.isEmpty())
+            outputsList.add(AEItemStack.create(new ItemStack(Items.paper).setStackDisplayName("No outputs")));
+
+        NBTTagCompound tag = new NBTTagCompound();
+        NBTTagList tag2;
+        tag.setTag("Inputs", tag2 = FluidPatternDetails.writeStackArray(inputsList.toArray(E)));
+        tag.setTag("in", tag2.copy());
+        tag.setTag("Outputs", tag2 = FluidPatternDetails.writeStackArray(outputsList.toArray(E)));
+        tag.setTag("out", tag2.copy());
+        tag.setInteger("combine", 0);
+        tag.setBoolean("beSubstitute", false);
+        patternStack.setTagCompound(tag);
+        return patternStack;
+    }
     private ItemList assemble(RecipeMap<?> map){
 		ItemList all=new ItemList();
 		if(Platform.isClient())return all;
     	for(GTRecipe xx:map.getAllRecipes()){
     		if(xx.mEUt>eutFilter){continue;}
-		 ItemStack patternStack = new ItemStack(ItemAndBlockHolder.PATTERN);
-         //FluidPatternDetails pattern = new FluidPatternDetails(patternStack);
-         
-        /* Stream<IAEItemStack> inputs = Stream.concat(
-         Arrays.stream(xx.mInputs).filter(Objects::nonNull).map(AEItemStack::create).map(RecipeFilterCRIB::zeroToCircuit),
-         Arrays.stream(xx.mFluidInputs).filter(Objects::nonNull).map(s->ItemFluidDrop.newAeStack(s)));*/
-         List<IAEItemStack> inputsList = new ArrayList<>();
-       
-		for (ItemStack input : xx.mInputs) {
-        	    if (input != null) {
-        	        AEItemStack aeStack = AEItemStack.create(input);
-        	        IAEItemStack processedStack = RecipeFilterCRIB.zeroToCircuit(aeStack);
-        	        inputsList.add(processedStack);
-        	    }
-        	}
-		for (FluidStack fluidInput : xx.mFluidInputs) {
-        	    if (fluidInput != null) {
-        	        IAEItemStack fluidStack = ItemFluidDrop.newAeStack(fluidInput);
-        	        inputsList.add(fluidStack);
-        	    }
-        	}
-
-         
-         List<IAEItemStack> outputsList = new ArrayList<>();
-         int index = 0;
-
-     
-         for (ItemStack output : xx.mOutputs) {
-           
-             boolean condition = xx.mOutputChances == null || (index < xx.mOutputChances.length && xx.mOutputChances[index] >= 10000);
-             if (condition && output != null) {
-                 IAEItemStack aeStack = AEItemStack.create(output);
-                 outputsList.add(aeStack);
-             }
-             index++;
-         }
-
-       
-         for (FluidStack fluidOutput : xx.mFluidOutputs) {
-             if (fluidOutput != null) {
-                 IAEItemStack fluidStack = ItemFluidDrop.newAeStack(fluidOutput);
-                 outputsList.add(fluidStack);
-             }
-         }
-         
-         
-        
-         if(inputsList.isEmpty())inputsList.add(AEItemStack.create(new ItemStack(Items.paper).setStackDisplayName("No inputs")));
-         if(outputsList.isEmpty())outputsList.add(AEItemStack.create(new ItemStack(Items.paper).setStackDisplayName("No outputs")));
-         
-         
-         
-     
-         NBTTagCompound tag = new NBTTagCompound();
-         NBTTagList tag2;
-         tag.setTag("Inputs", tag2=FluidPatternDetails.writeStackArray(inputsList.toArray(E)));
-         tag.setTag("in", tag2.copy());
-        
-         tag.setTag("Outputs", tag2=FluidPatternDetails.writeStackArray(outputsList.toArray(E)));
-         tag.setTag("out",tag2.copy());
-         tag.setInteger("combine", 0);
-         tag.setBoolean("beSubstitute",false);
-        
-         patternStack.setTagCompound(tag);
+		 ItemStack patternStack = buildPatternStack(xx);
    
          
          
@@ -487,8 +490,17 @@ private void postChangeInner(StorageChannel c,IAEItemStack is){
     			aPlayer.addChatMessage(new ChatComponentText("Still generating!"));
     			break b;
     		}
-    		
-    		
+    		// No machine marked, or the marked item is not a RecipeMapWorkable: getItemStackMachineRecipeMap
+    		// hands back Collections.emptyList(), and the modulo below was then a division by zero - using
+    		// the screwdriver before marking a machine crashed the game. The two other callers already
+    		// guard this (pasteCopiedData and updaterFilter); the onRightclick twin guards it too.
+    		if(get.isEmpty()){
+    			modeHint=null;
+    			aPlayer.addChatMessage(new ChatComponentText("No machine marked."));
+    			break b;
+    		}
+
+
     		recipeIndex=recipeIndex%get.size();
     		modeHint=null;
     		if(get.size()>1){
@@ -697,66 +709,7 @@ private void postChangeInner(StorageChannel c,IAEItemStack is){
     		if(xx.mEUt>eutFilter){continue;}
     		to--;
     		
-   		 ItemStack patternStack = new ItemStack(ItemAndBlockHolder.PATTERN);
-
-            List<IAEItemStack> inputsList = new ArrayList<>();
-          
-   		for (ItemStack input : xx.mInputs) {
-           	    if (input != null) {
-           	        AEItemStack aeStack = AEItemStack.create(input);
-           	        IAEItemStack processedStack = RecipeFilterCRIB.zeroToCircuit(aeStack);
-           	        inputsList.add(processedStack);
-           	    }
-           	}
-   		for (FluidStack fluidInput : xx.mFluidInputs) {
-           	    if (fluidInput != null) {
-           	        IAEItemStack fluidStack = ItemFluidDrop.newAeStack(fluidInput);
-           	        inputsList.add(fluidStack);
-           	    }
-           	}
-
-            
-            List<IAEItemStack> outputsList = new ArrayList<>();
-            int index = 0;
-
-        
-            for (ItemStack output : xx.mOutputs) {
-              
-                boolean condition = xx.mOutputChances == null || (index < xx.mOutputChances.length && xx.mOutputChances[index] >= 10000);
-                if (condition && output != null) {
-                    IAEItemStack aeStack = AEItemStack.create(output);
-                    outputsList.add(aeStack);
-                }
-                index++;
-            }
-
-          
-            for (FluidStack fluidOutput : xx.mFluidOutputs) {
-                if (fluidOutput != null) {
-                    IAEItemStack fluidStack = ItemFluidDrop.newAeStack(fluidOutput);
-                    outputsList.add(fluidStack);
-                }
-            }
-            
-            
-           
-            if(inputsList.isEmpty())inputsList.add(AEItemStack.create(new ItemStack(Items.paper).setStackDisplayName("No inputs")));
-            if(outputsList.isEmpty())outputsList.add(AEItemStack.create(new ItemStack(Items.paper).setStackDisplayName("No outputs")));
-            
-            
-            
-        
-            NBTTagCompound tag = new NBTTagCompound();
-            NBTTagList tag2;
-            tag.setTag("Inputs", tag2=FluidPatternDetails.writeStackArray(inputsList.toArray(E)));
-            tag.setTag("in", tag2.copy());
-           
-            tag.setTag("Outputs", tag2=FluidPatternDetails.writeStackArray(outputsList.toArray(E)));
-            tag.setTag("out",tag2.copy());
-            tag.setInteger("combine", 0);
-            tag.setBoolean("beSubstitute",false);
-           
-            patternStack.setTagCompound(tag);
+   		 ItemStack patternStack = buildPatternStack(xx);
       
             
             

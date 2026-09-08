@@ -45,8 +45,10 @@ import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.api.util.AECableType;
+import appeng.util.Platform;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IInterfaceViewable;
 import appeng.helpers.ICustomNameObject;
@@ -468,6 +470,30 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
         public IAEItemStack[] getOutputs() {
 
             return getCondensedOutputs();
+        }
+
+        /**
+         * The modern, stack-typed view of the output. The deprecated getOutputs() above stays item-typed
+         * because that is what AE2 keeps in craftableItemsLegacy, but everything that decides whether this
+         * craftable can actually be requested is type-indexed: CraftingGridCache.craftableItems is keyed on
+         * the getAEOutputs() stack verbatim, and beginCraftingJob runs a fluid request through
+         * Platform.convertStack first. Without this override an ItemFluidDrop output (WaterProvider) was
+         * registered under an item key that no request could ever match, so the craftable was invisible.
+         * Platform.convertStack is a no-op for a genuine item, so the circuit provider is unaffected.
+         */
+        @Override
+        public IAEStack<?>[] getCondensedAEOutputs() {
+
+            return new IAEStack<?>[] { Platform.convertStack(
+                AEApi.instance()
+                    .storage()
+                    .createItemStack(out)) };
+        }
+
+        @Override
+        public IAEStack<?>[] getAEOutputs() {
+
+            return getCondensedAEOutputs();
         }
 
         @Override

@@ -51,7 +51,7 @@ Programmable Hatches（PH）是一个非官方的 GT New Horizons 社区附属�
 | 2.8.0–2.8.4 | 0.1.3p57 | [前往发布页](https://github.com/reobf/Programmable-Hatches-Mod/releases/tag/v0.1.3p57-beta) |
 | 2.9.0 Beta 1 | 0.2.0p9（290b1） | [前往发布页](https://github.com/reobf/Programmable-Hatches-Mod/releases/tag/v0.2.0p9-beta-290b1) |
 | 2.9.0 Beta 2 | 0.2.0p19 | [前往发布页](https://github.com/reobf/Programmable-Hatches-Mod/releases/tag/v0.2.0p19-beta) |
-| 2.9.0 Beta 3 | 0.2.0p21 | [前往发布页](https://github.com/reobf/Programmable-Hatches-Mod/releases/tag/v0.2.0p21-beta) |
+| 2.9.0 Beta 3 | 0.2.0p22 | [前往发布页](https://github.com/reobf/Programmable-Hatches-Mod/releases/tag/v0.2.0p22-beta) |
 | 2.9.0 Daily | 当前维护版本 | [查看最新发布](https://github.com/reobf/Programmable-Hatches-Mod/releases/latest) |
 
 旧版下载链接固定到各兼容分支的最后版本；2.9.0 Daily 请始终从最新发布页取得当前构建。

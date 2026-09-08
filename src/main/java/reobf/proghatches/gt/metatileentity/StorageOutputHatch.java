@@ -21,7 +21,6 @@ import net.minecraftforge.fluids.FluidStack;
 import org.spongepowered.asm.mixin.Unique;
 
 import com.glodblock.github.common.item.FCBaseItemCell;
-import com.glodblock.github.common.item.ItemFluidDrop;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

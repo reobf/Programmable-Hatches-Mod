@@ -2,19 +2,17 @@ package reobf.proghatches.main.mixin.mixins.part2;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.ListIterator;
 
-import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.common.item.ItemFluidPacket;
 
 import com.llamalad7.mixinextras.sugar.Local;
@@ -35,6 +33,7 @@ import appeng.crafting.MECraftingInventory;
 import appeng.me.cache.CraftingGridCache;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.tile.crafting.TileCraftingTile;
+import appeng.util.Platform;
 import appeng.util.inv.MEInventoryCrafting;
 import appeng.util.item.AEItemStack;
 import reobf.proghatches.ae.ICondenser;
@@ -110,7 +109,27 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 
     @Shadow
     private MECraftingInventory inventory;
-    private static final IAEItemStack[] EMPTY = new IAEItemStack[0];
+    private static final IAEStack<?>[] EMPTY = new IAEStack<?>[0];
+
+    /**
+     * The correctly typed AE stack for one crafting-inventory slot.
+     * <p>
+     * {@link MEInventoryCrafting} carries the {@link IAEStack} the CPU extracted alongside the plain
+     * ItemStack view, and {@code Platform.convertStackPacket} maps an {@link ItemFluidPacket} back to the
+     * {@code IAEFluidStack} it stands for. Both matter because {@code MECraftingInventory} indexes by
+     * stack type: an item-typed lookup can never find a fluid the CPU stocked, and an item-typed
+     * injection puts it back in the wrong list.
+     * <p>
+     * ItemFluidDrop is legacy here - since AE2 crafts fluids natively the CPU never hands one over - so
+     * converting to a drop only produced a stack that matches nothing.
+     */
+    @Unique
+    private static IAEStack<?> typedSlot(MEInventoryCrafting inv, int slot) {
+        IAEStack<?> ae = inv.getAEStackInSlot(slot);
+        if (ae != null) return ae;
+        ItemStack raw = inv.getStackInSlot(slot);
+        return raw == null ? null : Platform.convertStackPacket(raw);
+    }
 
     @SuppressWarnings("deprecation")
 	@Inject(
@@ -130,34 +149,33 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
             if (((LargeProgrammingCircuitProvider) medium).instant()) inf = true;
 
         }
-        InventoryCrafting inv = inv0.get();
+        MEInventoryCrafting inv = inv0.get();
         // if (isMulti.get()) {
         if (medium instanceof IMultiplePatternPushable) {
             int used = 0;
 
-            LinkedList<Object> is = new LinkedList<>();
+            // Use the AE stack the CPU actually stocked for the slot (see typedSlot).
+            //
+            // This used to rebuild every slot as an ItemFluidDrop wrapped in AEItemStack, i.e. always an
+            // ITEM-typed stack. MECraftingInventory is a per-stack-type map, so an AE2FC fluid input -
+            // which the CPU keeps in the FLUID list - was never found here: nums[x] stayed 0, best became
+            // 0, maxtry became 0, and this method returned before ever reaching pushPatternMulti. Batching
+            // was therefore silently off for EVERY pattern carrying a fluid input, so a fluid machine got
+            // one dose per AE2 crafting operation while item-only patterns batched normally (issue #331,
+            // "not swapping the non consumable fast enough", only observed on the fluid solidifier).
+            LinkedList<IAEStack<?>> is = new LinkedList<>();
             for (int i = 0; i < inv.getSizeInventory(); i++) {
-                if (inv.getStackInSlot(i) != null) {
-                    is.addLast(inv.getStackInSlot(i));
+                IAEStack<?> ae = typedSlot(inv, i);
+                if (ae != null && ae.getStackSize() > 0) {
+                    is.addLast(ae);
                 }
-            }
-            ListIterator<Object> itr = is.listIterator();
-            while (itr.hasNext()) {
-                Object o = itr.next();
-                if (o == null) {
-                    itr.remove();
-                }
-                if (((ItemStack) o).getItem() instanceof ItemFluidPacket) {
-                    o = (ItemFluidDrop.newStack(ItemFluidPacket.getFluidStack((ItemStack) o)));
-                }
-                itr.set(AEItemStack.create((ItemStack) o));
             }
 
-            IAEItemStack[] input = is.toArray(EMPTY);
+            IAEStack<?>[] input = is.toArray(EMPTY);
 
             long[] nums = new long[input.length];
             for (int x = 0; x < input.length; x++) {
-                IAEItemStack tmp = input[x].copy()
+                IAEStack<?> tmp = input[x].copy()
                     .setStackSize(Long.MAX_VALUE);
                 final IAEStack ais = this.inventory.extractItems(tmp, Actionable.MODULATE, this.machineSrc);
                 if (ais != null) {
@@ -310,15 +328,12 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
                 if (!found) {
                     // put stuff back..
                     for (int x = 0; x < ic.getSizeInventory(); x++) {
-                        ItemStack is = ic.getStackInSlot(x);
-                        if (is != null) {
-                            if (is.getItem() instanceof ItemFluidPacket) {
-
-                                is = ItemFluidDrop.newStack(ItemFluidPacket.getFluidStack(is));
-
-                            }
-
-                            this.inventory.injectItems(AEItemStack.create(is), Actionable.MODULATE, this.machineSrc);
+                        // Roll back with the SAME type the CPU handed over: injecting a fluid as an
+                        // ItemFluidDrop put it into the CPU's item list, so the fluid it had extracted was
+                        // never returned and a phantom drop was left behind.
+                        IAEStack<?> back = typedSlot(ic, x);
+                        if (back != null) {
+                            this.inventory.injectItems(back, Actionable.MODULATE, this.machineSrc);
                         }
                     }
                     ic = null;
@@ -336,16 +351,10 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
                     if (ic != null) {
                         // put stuff back..
                         for (int x = 0; x < ic.getSizeInventory(); x++) {
-                            ItemStack is = ic.getStackInSlot(x);
-
-                            if (is != null) {
-                                if (is.getItem() instanceof ItemFluidPacket) {
-
-                                    is = ItemFluidDrop.newStack(ItemFluidPacket.getFluidStack(is));
-
-                                }
-                                this.inventory
-                                    .injectItems(AEItemStack.create(is), Actionable.MODULATE, this.machineSrc);
+                            // same typed rollback as above
+                            IAEStack<?> back = typedSlot(ic, x);
+                            if (back != null) {
+                                this.inventory.injectItems(back, Actionable.MODULATE, this.machineSrc);
                             }
                         }
                     }

@@ -51,6 +51,7 @@ import appeng.crafting.CraftingLink;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.util.item.AEFluidStack;
+import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.util.GTUtility;
@@ -268,6 +269,17 @@ boolean returnAll=true;
         appeng.api.storage.data.IAEStack<?> items, Actionable mode) {
         if (items instanceof IAEItemStack) {
             return injectCraftedItems(link, (IAEItemStack) items, mode);
+        }
+        // A crafted FLUID lands here now that AE2 stores and crafts fluids natively, and used to be
+        // handed straight back as unwanted - which made the ItemFluidDrop branch in the legacy overload
+        // below unreachable, so a fluid this tunnel had requested was never collected into cacheFR.
+        // `waiting` is keyed on the legacy drop view (pushPattern fills it from the deprecated
+        // getCondensedOutputs), so convert to that view, run the same accounting, and convert whatever
+        // is left back to a fluid for the caller.
+        IAEItemStack legacy = Platform.stackConvert(items);
+        if (legacy != null) {
+            IAEItemStack rest = injectCraftedItems(link, legacy, mode);
+            return rest == null ? null : Platform.convertStack(rest);
         }
         return items;
     }

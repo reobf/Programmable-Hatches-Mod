@@ -392,6 +392,12 @@ public class CommonProxy {
         registrar.registerBodyProvider(TileRequestTunnel.provider, BlockRequestTunnel.class);
         registrar.registerNBTProvider(TileRequestTunnel.provider, BlockRequestTunnel.class);
 
+        // Tooltip renderers draw with the FontRenderer, so the class is @SideOnly(CLIENT); only ever
+        // touch it on a physical client (the static call is not resolved until executed).
+        if (cpw.mods.fml.common.FMLCommonHandler.instance().getSide().isClient()) {
+            reobf.proghatches.client.WailaFractionRenderer.register(registrar);
+        }
+
     }
 
     // register server commands in this event handler (Remove if not needed)

@@ -1675,18 +1675,19 @@ public class BufferedDualInputHatch extends DualInputHatch
 		}
 
 		DualInvBuffer buff;
-		long piority;
+		Copies piority;
 		final boolean reverse;
 
 		@Override
 		public String toString() {
-			return "" + piority;
+			return piority.display();
 		}
 
 		@Override
 		public int compareTo(PiorityBuffer o) {
-
-			int c = Long.compare(piority, o.piority);
+			// a buffer whose slots disagree is the least useful in EITHER direction
+			if (piority.broken() != o.piority.broken()) return piority.broken() ? 1 : -1;
+			int c = piority.compareTo(o.piority);
 			return reverse ? c : -c;
 		}
 
@@ -1887,7 +1888,9 @@ public class BufferedDualInputHatch extends DualInputHatch
 									(a, b) -> a.append(b))
 							.toString());
 
-			sub.setLong("possibleCopies", (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times);
+			Copies copies = rt.result(inv.isEmpty());
+			sub.setLong("copiesNum", copies.num);
+			sub.setLong("copiesDen", copies.den);
 		});
 
 		super.getWailaNBTData(player, tile, tag, world, x, y, z);
@@ -1904,11 +1907,92 @@ public class BufferedDualInputHatch extends DualInputHatch
 		}
 	}
 
+	/**
+	 * How many copies of its recorded recipe a buffer holds, as the EXACT ratio stored / single,
+	 * reduced by gcd. Issue #332: a x6 pattern records a 24-iron single; once the machine has taken
+	 * 16, the 8 that remain are 1/3 of a single. The old integer count required stored to be a
+	 * whole multiple of single, called 1/3 "broken" and sorted that buffer last, which scrambled the
+	 * order for every multiplied pattern. A ratio has no such cliff: 1/3 sorts between 0 and 1, and
+	 * nothing anywhere needs to know what the pattern's multiplier was. Only genuine inconsistency
+	 * is BROKEN now - slots whose ratios disagree, or an item that does not match its single.
+	 * <p>
+	 * Comparison cross-multiplies; stored amounts are ItemStackG longs, so the exact path can
+	 * overflow and falls back to BigInteger when it does.
+	 */
+	public static final class Copies implements Comparable<Copies> {
+
+		static final Copies BROKEN = new Copies(-1, 1);
+		static final Copies ZERO = new Copies(0, 1);
+		/** WAILA tooltip renderer id, implemented client-side by reobf.proghatches.client.WailaFractionRenderer. */
+		public static final String WAILA_RENDERER = "proghatches.fraction";
+
+		final long num;
+		final long den;
+
+		private Copies(long num, long den) {
+			this.num = num;
+			this.den = den;
+		}
+
+		static Copies of(long stored, long single) {
+			if (single <= 0 || stored < 0) return BROKEN;
+			long g = gcd(stored, single);
+			return new Copies(stored / g, single / g);
+		}
+
+		private static long gcd(long a, long b) {
+			while (b != 0) {
+				long t = a % b;
+				a = b;
+				b = t;
+			}
+			return a == 0 ? 1 : a;
+		}
+
+		boolean broken() {
+			return num < 0;
+		}
+
+		boolean sameAs(Copies o) {
+			return num == o.num && den == o.den; // both reduced
+		}
+
+		@Override
+		public int compareTo(Copies o) {
+			if (broken() || o.broken()) return Boolean.compare(broken(), o.broken());
+			try {
+				return Long.compare(Math.multiplyExact(num, o.den), Math.multiplyExact(o.num, den));
+			} catch (ArithmeticException overflow) {
+				return java.math.BigInteger.valueOf(num).multiply(java.math.BigInteger.valueOf(o.den))
+					.compareTo(java.math.BigInteger.valueOf(o.num).multiply(java.math.BigInteger.valueOf(den)));
+			}
+		}
+
+		/** "3" for a whole number, otherwise "1.75 (7/4)". Plain text, for logs and toString. */
+		String display() {
+			if (broken()) return "?";
+			if (den == 1) return Long.toString(num);
+			return String.format("%.2f (%d/%d)", num / (double) den, num, den);
+		}
+
+		/**
+		 * WAILA line fragment: a whole number as text, anything else as a mixed number whose fraction
+		 * is drawn stacked (numerator over a bar over denominator) by the client renderer registered
+		 * under {@link #WAILA_RENDERER}. 7/4 becomes "1" plus a stacked 1/4.
+		 */
+		String waila() {
+			if (broken()) return "?";
+			if (den == 1) return Long.toString(num);
+			return mcp.mobius.waila.api.SpecialChars.getRenderString(WAILA_RENDERER,
+				Long.toString(num / den), Long.toString(num % den), Long.toString(den));
+		}
+	}
+
 	private static class RecipeTracker {
 
 		boolean broken;
-		long times;
-		boolean first = true;
+		/** Ratio agreed on by every slot compared so far; null until the first one. */
+		Copies times;
 		boolean onceCompared;
 
 		public void track(@Nonnull ItemStack recipe, @Nullable ItemStackG mStoredItemInternal) {
@@ -1940,7 +2024,6 @@ public class BufferedDualInputHatch extends DualInputHatch
 		}
 
 		public void track(int a, long b, boolean ignoreEmpty) {
-			long t = 0;
 			if (a == 0) {
 				broken = true;
 				return;
@@ -1950,27 +2033,23 @@ public class BufferedDualInputHatch extends DualInputHatch
 					broken = true;
 				return;
 			}
-			if (b % a != 0) {
-				broken = true;
-				return;
+			Copies t = Copies.of(b, a);
+			onceCompared = true;
+			if (times == null) {
+				times = t;
+			} else if (!times.sameAs(t)) {
+				broken = true; // this slot holds a different fraction of a single than the others
 			}
-			t = b / a;
-			if (t != times) {
-				onceCompared = true;
-				if (first) {
-					first = false;
-					times = t;
-					return;
-				} else {
-					broken = true;
-					return;
-				}
-			}
+		}
 
+		/** The verdict: BROKEN on inconsistency or when a non-empty buffer had nothing comparable. */
+		Copies result(boolean bufferEmpty) {
+			if (broken || (!onceCompared && !bufferEmpty)) return Copies.BROKEN;
+			return times == null ? Copies.ZERO : times;
 		}
 	}
 
-	public long getPossibleCopies(DualInvBuffer toCheck) {
+	public Copies getPossibleCopies(DualInvBuffer toCheck) {
 		DualInvBuffer inv = toCheck;
 		RecipeTracker rt = new RecipeTracker();
 
@@ -1985,7 +2064,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 				.filter(ss -> ss.holded.getFluidAmount() > 0).forEach(ss -> {
 					rt.track(ss.holded, inv.mStoredFluidInternal[ss.index]);
 				});
-		return (rt.broken || (!rt.onceCompared && !inv.isEmpty())) ? -1 : rt.times;
+		return rt.result(inv.isEmpty());
 
 	}
 
@@ -2042,8 +2121,8 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 			}
 			String cpinfo = "";
-			long copies = sub.getLong("possibleCopies");
-			if (copies == -1 && (sub.getBoolean("locked"))// if not locked, do
+			Copies copies = new Copies(sub.getLong("copiesNum"), Math.max(1, sub.getLong("copiesDen")));
+			if (copies.broken() && (sub.getBoolean("locked"))// if not locked, do
 															// not warn about
 															// the copies
 					&& (!sub.getBoolean("empty"))// if empty, actual copies will
@@ -2051,9 +2130,9 @@ public class BufferedDualInputHatch extends DualInputHatch
 													// broken, so do not warn.
 			)
 				cpinfo = cpinfo + LangManager.translateToLocal("programmable_hatches.buffer.waila.broken");
-			if (copies > 0) {
+			if (copies.num > 0) {
 				cpinfo = cpinfo + LangManager.translateToLocalFormatted("programmable_hatches.buffer.waila.copies",
-						copies + "");
+						copies.waila());
 				if (!sub.getBoolean("locked")) {
 					cpinfo += "???STRANGE SITUATION???";
 				}

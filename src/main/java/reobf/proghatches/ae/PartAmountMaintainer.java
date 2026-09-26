@@ -1,5 +1,7 @@
 package reobf.proghatches.ae;
 
+import static gregtech.api.enums.Mods.GregTech;
+
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,20 +28,29 @@ import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.util.BlockPos;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.gtnewhorizons.modularui.api.ModularUITextures;
-import com.gtnewhorizons.modularui.api.drawable.IDrawable;
-import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
-import com.gtnewhorizons.modularui.api.forge.ItemStackHandler;
-import com.gtnewhorizons.modularui.api.math.Alignment;
-import com.gtnewhorizons.modularui.api.math.Color;
-import com.gtnewhorizons.modularui.api.screen.ModularWindow;
-import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
-import com.gtnewhorizons.modularui.common.internal.wrapper.BaseSlot;
-import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
-import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
-import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
-import com.gtnewhorizons.modularui.common.widget.SlotWidget;
-import com.gtnewhorizons.modularui.common.widget.TextWidget;
+import com.cleanroommc.modularui.api.IGuiHolder;
+import com.cleanroommc.modularui.api.drawable.IKey;
+import com.cleanroommc.modularui.drawable.ItemDrawable;
+import com.cleanroommc.modularui.drawable.UITexture;
+import com.cleanroommc.modularui.factory.SidedPosGuiData;
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.ModularScreen;
+import com.cleanroommc.modularui.screen.UISettings;
+import com.cleanroommc.modularui.utils.Alignment;
+import com.cleanroommc.modularui.utils.Color;
+import com.cleanroommc.modularui.utils.MouseData;
+import com.cleanroommc.modularui.utils.item.ItemStackHandler;
+import com.cleanroommc.modularui.value.sync.BooleanSyncValue;
+import com.cleanroommc.modularui.value.sync.IntSyncValue;
+import com.cleanroommc.modularui.value.sync.LongSyncValue;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.value.sync.PhantomItemSlotSH;
+import com.cleanroommc.modularui.widgets.CycleButtonWidget;
+import com.cleanroommc.modularui.widgets.TextWidget;
+import com.cleanroommc.modularui.widgets.slot.ItemSlot;
+import com.cleanroommc.modularui.widgets.slot.ModularSlot;
+import com.cleanroommc.modularui.widgets.slot.PhantomItemSlot;
+import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
@@ -85,14 +96,13 @@ import appeng.util.item.AEItemStack;
 import appeng.util.item.AEItemStackType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.gui.modularui.GTUITextures;
+import gregtech.api.modularui2.GTGuiTextures;
+import gregtech.api.modularui2.GTGuiThemes;
+import gregtech.api.modularui2.GTModularScreen;
 import gregtech.api.util.GTUtility;
-import reobf.proghatches.eucrafting.EUUtil;
-import reobf.proghatches.eucrafting.IGuiProvidingPart;
-import reobf.proghatches.gt.metatileentity.util.polyfill.NumericWidget;
 
 public class PartAmountMaintainer extends PartBasicState
-    implements IGuiProvidingPart, IGridTickable, IPowerChannelState, ICraftingRequester {
+    implements IGuiHolder<SidedPosGuiData>, IGridTickable, IPowerChannelState, ICraftingRequester {
 
     @Override
     public IConfigManager getConfigManager() {
@@ -504,17 +514,21 @@ public class PartAmountMaintainer extends PartBasicState
         if (player.isSneaking()) return false;
         TileEntity t = this.getTile();
         // System.out.println(getSide());
-        EUUtil.open(player, player.getEntityWorld(), t.xCoord, t.yCoord, t.zCoord, getSide());
+        PartGuiFactory.INSTANCE.open(player, t, getSide());
         // System.out.println(player.getHeldItem());
         return true;
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
-    public ModularWindow createWindow(UIBuildContext buildContext) {
-        ModularWindow.Builder builder = ModularWindow.builder(176, 107 + 20);
+    public ModularScreen createScreen(SidedPosGuiData data, ModularPanel mainPanel) {
+        return new GTModularScreen(mainPanel, GTGuiThemes.STANDARD);
+    }
 
-        builder.setBackground(ModularUITextures.VANILLA_BACKGROUND);
-        builder.bindPlayerInventory(buildContext.getPlayer());
+    @Override
+    public ModularPanel buildUI(SidedPosGuiData data, PanelSyncManager syncManager, UISettings settings) {
+        ModularPanel panel = ModularPanel.defaultPanel("amount_maintainer", 176, 107 + 20);
+        panel.bindPlayerInventory();
 
         String freqTooltip = String.format("%X", freq)
             .replaceAll("(.{4})", "$0 ")
@@ -532,24 +546,19 @@ public class PartAmountMaintainer extends PartBasicState
             is.setStackInSlot(0, stack);
         }
 
-        builder.widget(TextWidget.dynamicString(() -> {
-            try {
-                PartP2PTunnel p2p = freq == 0 ? null
-                    : getProxy().getP2P()
-                        .getInput(freq);
-                if (p2p.isActive() && p2p.isPowered()) {
-                    return StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.online");
-                }
-            } catch (Exception e) {}
-
-            return StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.offline");
-
-        })
-            .setPos(30, 10));
-        builder.widget(new SlotWidget(new BaseSlot(is, 0, true)) {
+        BooleanSyncValue online = new BooleanSyncValue(() -> getSignal() != null);
+        syncManager.syncValue("online", online);
+        panel.child(
+            new TextWidget<>(
+                IKey.dynamic(
+                    () -> StatCollector.translateToLocal(
+                        online.getBoolValue() ? "proghatches.amountmaintainer.redstone.online"
+                            : "proghatches.amountmaintainer.redstone.offline")))
+                .pos(30, 10));
+        panel.child(new PhantomItemSlot().syncHandler(new PhantomItemSlotSH(new ModularSlot(is, 0)) {
 
             @Override
-            protected void phantomClick(ClickData clickData, ItemStack cursorStack) {
+            protected void phantomClick(MouseData mouseData, ItemStack cursorStack) {
                 if (cursorStack == null) {
                     freq = 0;
                     is.setStackInSlot(0, null);
@@ -588,15 +597,15 @@ public class PartAmountMaintainer extends PartBasicState
 
             }
 
-        }.disableShiftInsert()
-            .setPos(3 + 4, 3)
-            .addTooltip(StatCollector.translateToLocal("proghatches.amountmaintainer.memorycard")));
+        })
+            .pos(3 + 4, 3)
+            .addTooltipLine(StatCollector.translateToLocal("proghatches.amountmaintainer.memorycard")));
 
         ItemStackHandler iss = new ItemStackHandler(mark);
-        builder.widget(new SlotWidget(new BaseSlot(iss, 0, true)) {
+        panel.child(new PhantomItemSlot().syncHandler(new PhantomItemSlotSH(new ModularSlot(iss, 0)) {
 
             @Override
-            protected void phantomClick(ClickData clickData, ItemStack cursorStack) {
+            protected void phantomClick(MouseData mouseData, ItemStack cursorStack) {
                 if (cursorStack == null) {
                     mark[0] = null;
 
@@ -610,20 +619,21 @@ public class PartAmountMaintainer extends PartBasicState
 
             }
 
-        }.setPos(60, 3)
-            .addTooltip(StatCollector.translateToLocal("proghatches.amountmaintainer.phantomslot")));
+        })
+            .pos(60, 3)
+            .addTooltipLine(StatCollector.translateToLocal("proghatches.amountmaintainer.phantomslot")));
 
-        builder.widget(
-            new NumericWidget().setSetter(val -> amount = (long) val)
-                .setGetter(() -> amount)
-                .setBounds(1, 9_007_199_254_740_991D)
+        panel.child(
+            new TextFieldWidget().value(new LongSyncValue(() -> amount, val -> amount = val).allowC2S())
+                .formatAsInteger(true)
+                .numbersLong(1, 9_007_199_254_740_991L)
                 .setScrollValues(1, 4, 64)
                 .setTextAlignment(Alignment.Center)
-                .setTextColor(Color.WHITE.normal)
-                .setSize(60, 18)
-                .setPos(60 + 18, 3)
-                .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD)
-                .addTooltips(
+                .setTextColor(Color.WHITE.main)
+                .size(60, 18)
+                .pos(60 + 18, 3)
+                .background(GTGuiTextures.BACKGROUND_TEXT_FIELD)
+                .addTooltipStringLines(
                     Arrays.asList(
                         StatCollector.translateToLocal("proghatches.amountmaintainer.amount.0"),
                         StatCollector.translateToLocal("proghatches.amountmaintainer.amount.1"),
@@ -632,66 +642,47 @@ public class PartAmountMaintainer extends PartBasicState
 
                 ));
 
-        builder.widget(
-            new CycleButtonWidget().setGetter(() -> mode)
-                .setSetter(s -> mode = s)
-                .setLength(2)
-                .setTextureGetter(s -> {
-                    if (s == 0) return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ITEM;
-                    if (s == 1) return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_FLUID;
-                    return GTUITextures.OVERLAY_BUTTON_VOID_EXCESS_ALL;
-                })
+        panel.child(
+            new CycleButtonWidget().value(new IntSyncValue(() -> mode, s -> mode = s).allowC2S())
+                .length(2)
+                .stateOverlay(0, GTGuiTextures.OVERLAY_BUTTON_VOID_EXCESS_ITEM)
+                .stateOverlay(1, GTGuiTextures.OVERLAY_BUTTON_VOID_EXCESS_FLUID)
                 .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.0"))
                 .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.phantomclick.mode.1"))
-                .setBackground(() -> {
-                    {
-                        return new IDrawable[] { GTUITextures.BUTTON_STANDARD, };
-                    }
-                })
+                .background(GTGuiTextures.BUTTON_STANDARD)
+                .size(18, 18)
+                .pos(120 + 20, 3));
 
-                .setSize(18, 18)
-                .setPos(120 + 20, 3));
-
-        builder.widget(
-            new CycleButtonWidget().setGetter(() -> redstone)
-                .setSetter(s -> redstone = s)
-                .setLength(4)
-                .setTextureGetter(s -> {
-
-                    return GTUITextures.OVERLAY_BUTTON_REDSTONE_ON;
-                })
+        panel.child(
+            new CycleButtonWidget().value(new IntSyncValue(() -> redstone, s -> redstone = s).allowC2S())
+                .length(4)
                 .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.mode.0"))
                 .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.mode.1"))
                 .addTooltip(2, StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.mode.2"))
                 .addTooltip(3, StatCollector.translateToLocal("proghatches.amountmaintainer.redstone.mode.3"))
+                .background(GTGuiTextures.BUTTON_STANDARD)
+                .overlay(GTGuiTextures.OVERLAY_BUTTON_REDSTONE_ON)
+                .size(18, 18)
+                .pos(3 + 4, 3 + 18));
 
-                .setBackground(() -> {
-                    {
-                        return new IDrawable[] { GTUITextures.BUTTON_STANDARD, };
-                    }
-                })
-
-                .setSize(18, 18)
-                .setPos(3 + 4, 3 + 18));
-
-        builder.widget(
-            new DrawableWidget().setDrawable(GTUITextures.OVERLAY_BUTTON_REDSTONE_ON)
-                .setPos(3 + 4 + 20, 3 + 18)
-                .setSize(18, 18)
-                .setEnabled(s -> { return on; })
-                .addTooltip(
+        panel.child(
+            GTGuiTextures.OVERLAY_BUTTON_REDSTONE_ON.asWidget()
+                .pos(3 + 4 + 20, 3 + 18)
+                .size(18, 18)
+                .setEnabledIf(s -> on)
+                .addTooltipLine(
                     StatCollector.translateToLocalFormatted("proghatches.amountmaintainer.redstone.state.on", amount)));
-        builder.widget(
-            new DrawableWidget().setDrawable(GTUITextures.OVERLAY_BUTTON_REDSTONE_OFF)
-                .setPos(3 + 4 + 20, 3 + 18)
-                .setSize(18, 18)
-                .setEnabled(s -> !on)
-                .addTooltip(
+        panel.child(
+            GTGuiTextures.OVERLAY_BUTTON_REDSTONE_OFF.asWidget()
+                .pos(3 + 4 + 20, 3 + 18)
+                .size(18, 18)
+                .setEnabledIf(s -> !on)
+                .addTooltipLine(
                     StatCollector.translateToLocalFormatted("proghatches.amountmaintainer.redstone.state.off")));
-        builder.widget(new FakeSyncWidget.BooleanSyncer(() -> {
+        syncManager.syncValue("on", new BooleanSyncValue(() -> {
             on = isOn();
             return on;
-        }, s -> on = s).setSynced(true, false));
+        }, s -> on = s));
 
         ItemStackHandler iss0 = new ItemStackHandler(upgrade) {
 
@@ -708,38 +699,30 @@ public class PartAmountMaintainer extends PartBasicState
             };
         };
 
-        builder.widget(new SlotWidget(new BaseSlot(iss0, 0)) {
+        panel.child(
+            new ItemSlot().slot(new ModularSlot(iss0, 0))
+                .pos(60, 3 + 20)
+                .addTooltipLine(StatCollector.translateToLocal("proghatches.amountmaintainer.rscard")));
 
-        }.setPos(60, 3 + 20)
-            .addTooltip(StatCollector.translateToLocal("proghatches.amountmaintainer.rscard")));
-
-        builder.widget(
-            new CycleButtonWidget().setGetter(() -> rsmode)
-                .setSetter(s -> rsmode = s)
-                .setLength(6)
-                .setTextureGetter(s -> {
-                    if (s == 0) return new ItemDrawable(new ItemStack(Items.redstone));
-                    if (s == 1) return new ItemDrawable(new ItemStack(Items.gunpowder));
-                    if (s == 2) return GTUITextures.OVERLAY_BUTTON_REDSTONE_ON;
-                    if (s == 3) return GTUITextures.OVERLAY_BUTTON_REDSTONE_OFF;
-                    if (s == 4) return GTUITextures.OVERLAY_BUTTON_ARROW_GREEN_UP;
-                    return GTUITextures.OVERLAY_BUTTON_ARROW_GREEN_DOWN;
-                })
+        panel.child(
+            new CycleButtonWidget().value(new IntSyncValue(() -> rsmode, s -> rsmode = s).allowC2S())
+                .length(6)
+                .stateOverlay(0, new ItemDrawable(new ItemStack(Items.redstone)))
+                .stateOverlay(1, new ItemDrawable(new ItemStack(Items.gunpowder)))
+                .stateOverlay(2, GTGuiTextures.OVERLAY_BUTTON_REDSTONE_ON)
+                .stateOverlay(3, GTGuiTextures.OVERLAY_BUTTON_REDSTONE_OFF)
+                .stateOverlay(4, UITexture.fullImage(GregTech.ID, "gui/overlay_button/arrow_green_up"))
+                .stateOverlay(5, UITexture.fullImage(GregTech.ID, "gui/overlay_button/arrow_green_down"))
                 .addTooltip(0, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.0"))
                 .addTooltip(1, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.1"))
                 .addTooltip(2, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.2"))
                 .addTooltip(3, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.3"))
                 .addTooltip(4, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.4"))
                 .addTooltip(5, StatCollector.translateToLocal("proghatches.amountmaintainer.rscard.mode.5"))
-
-                .setBackground(() -> {
-                    {
-                        return new IDrawable[] { GTUITextures.BUTTON_STANDARD, };
-                    }
-                })
-                .setEnabled((a) -> (upgrade[0] != null))
-                .setSize(18, 18)
-                .setPos(60 + 20, 3 + 20));
+                .background(GTGuiTextures.BUTTON_STANDARD)
+                .setEnabledIf((a) -> (upgrade[0] != null))
+                .size(18, 18)
+                .pos(60 + 20, 3 + 20));
 
         ItemStackHandler iss1 = new ItemStackHandler(upgrade) {
 
@@ -756,25 +739,25 @@ public class PartAmountMaintainer extends PartBasicState
             };
         };
 
-        builder.widget(new SlotWidget(new BaseSlot(iss1, 1)) {
+        panel.child(
+            new ItemSlot().slot(new ModularSlot(iss1, 1))
+                .pos(60 + 40, 3 + 20)
+                .addTooltipLine(StatCollector.translateToLocal("proghatches.amountmaintainer.craftcard")));
 
-        }.setPos(60 + 40, 3 + 20)
-            .addTooltip(StatCollector.translateToLocal("proghatches.amountmaintainer.craftcard")));
-
-        builder.widget(
-            new NumericWidget().setSetter(val -> interval = (int) val)
-                .setGetter(() -> interval)
-                .setBounds(1, 400)
+        panel.child(
+            new TextFieldWidget().value(new IntSyncValue(() -> interval, val -> interval = val).allowC2S())
+                .formatAsInteger(true)
+                .numbersInt(1, 400)
                 .setScrollValues(1, 4, 64)
                 .setTextAlignment(Alignment.Center)
-                .setTextColor(Color.WHITE.normal)
-                .setSize(40, 18)
-                .setPos(60 + 18 + 40, 3 + 20)
-                .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD)
-                .addTooltips(Arrays.asList(StatCollector.translateToLocal("proghatches.amountmaintainer.interval.0"))
+                .setTextColor(Color.WHITE.main)
+                .size(40, 18)
+                .pos(60 + 18 + 40, 3 + 20)
+                .background(GTGuiTextures.BACKGROUND_TEXT_FIELD)
+                .addTooltipStringLines(Arrays.asList(StatCollector.translateToLocal("proghatches.amountmaintainer.interval.0"))
 
                 ));
-        return builder.build();
+        return panel;
     }
 
     private boolean on;

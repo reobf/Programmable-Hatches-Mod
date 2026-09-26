@@ -369,6 +369,7 @@ public class CommonProxy {
         // AEApi.instance().registries().interfaceTerminal().register(TileFluidInterface.class);
         new Registration().run();
         EUUtil.register();
+        com.cleanroommc.modularui.factory.GuiManager.registerFactory(reobf.proghatches.ae.PartGuiFactory.INSTANCE);
 
     }
 

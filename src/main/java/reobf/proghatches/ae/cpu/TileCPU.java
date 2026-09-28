@@ -44,11 +44,6 @@ import com.gtnewhorizon.structurelib.structure.IStructureElementChain;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
-import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
-import com.gtnewhorizons.modularui.common.widget.DynamicPositionedColumn;
-import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
-import com.gtnewhorizons.modularui.common.widget.SlotWidget;
-import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import appeng.api.AEApi;
 import appeng.api.config.CraftingAllow;
@@ -877,79 +872,98 @@ public boolean isOn() {
 	return this.isAllowedToWork();
 }
 @Override
-public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
-		ItemStack aTool) {
-	
-	
-	if(clusterData.size()==1&&clusterData.keySet().iterator().next().isBusy()==false){
-		
-		
-		boolean any=false;
-	if(!acc.iterator().hasNext())
-	{}
-	else{
-		any=true;
-	
-	refund(acc);
-	acc.clear();
-	}
-		
-	if(!accCondenser.iterator().hasNext())
-	{}
-	else{
-		any=true;
-	
-	refund(accCondenser);
-	accCondenser.clear();
-	}
-	
-	if(!any)
-	aPlayer.addChatComponentMessage(new ChatComponentText("Nothing to refund."));
-	else
-	aPlayer.addChatComponentMessage(new ChatComponentText("Refunded."));
-	
-	updateAccCache();
-	updateCondenserCache();
-		}
-		
-		
-	
-	
-	
-	
-	super.onScrewdriverRightClick(side, aPlayer, aX, aY, aZ, aTool);
+public boolean supportsSingleRecipeLocking() {
+	// Issue #336: the CPU runs no GT recipes, but MTEMultiBlockBase defaults this to true, so GT's
+	// screwdriver action toggled a meaningless "single recipe lock" and its chat message hid the
+	// refund action below. Declaring no support also stops the flag being written to NBT.
+	return false;
 }
 
 @Override
-public void addUIWidgets(com.gtnewhorizons.modularui.api.screen.ModularWindow.Builder builder,
-		UIBuildContext buildContext) {
-	
-	super.addUIWidgets(builder, buildContext);
-	builder.widgets(new FakeSyncWidget.LongSyncer(()->this.accCache, s->this.accCache=s).setSynced(true, false));
-	builder.widgets(new FakeSyncWidget.LongSyncer(()->this.usedAccCache, s->this.usedAccCache=s).setSynced(true, false));
-	builder.widgets(new FakeSyncWidget.LongSyncer(()->this.accCacheCondenser, s->this.accCacheCondenser=s).setSynced(true, false));
+public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
+		ItemStack aTool) {
+	// Screwdriver = eject the parallel processing units, nothing else. Only possible while the
+	// single virtual cluster is idle; say so instead of silently doing nothing (#336).
+	// The gate is the old one (exactly one cluster and it is idle). The message names the real
+	// cause: while a job runs, onPostTick keeps a busy cluster AND a fresh idle one, so size() is 2
+	// then, and a finished job whose leftovers are not collected keeps its cluster alive too.
+	if (clusterData.size() != 1 || clusterData.keySet().iterator().next().isBusy()) {
+		String why;
+		if (clusterData.keySet().stream().anyMatch(CraftingCPUCluster::isBusy)) {
+			why = "A crafting job is still running on this CPU, cannot refund now.";
+		} else if (clusterData.isEmpty()) {
+			why = "No virtual CPU allocated yet, try again in a moment.";
+		} else {
+			why = "A finished job still holds items in this CPU, collect them first.";
+		}
+		aPlayer.addChatComponentMessage(new ChatComponentText(why));
+		return;
+	}
 
+	boolean any = false;
+	if (acc.iterator().hasNext()) {
+		any = true;
+		refund(acc);
+		acc.clear();
+	}
+	if (accCondenser.iterator().hasNext()) {
+		any = true;
+		refund(accCondenser);
+		accCondenser.clear();
+	}
+
+	aPlayer.addChatComponentMessage(new ChatComponentText(any ? "Refunded." : "Nothing to refund."));
+
+	updateAccCache();
+	updateCondenserCache();
 }
+
+// ===================== MUI2 =====================
+// GT 5.09.54 builds multiblock GUIs through getGui() (useMui2() is true), so the MUI1
+// addUIWidgets/drawTexts pair this replaced was never called any more and the two status lines had
+// silently disappeared from the CPU's screen. Same port pattern as LargeProgrammingCircuitProvider.
 long usedAccCache;
-protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inventorySlot) {
 
-    super.drawTexts(screenElements, inventorySlot);
-    screenElements.setSpace(0);
-    screenElements.setPos(0, 0);
-    // make it look same on 2.7.2-
-    // 2.7.2- set it to a non zero value
-    screenElements.widget(new TextWidget().setStringSupplier(
-    		() -> "Accelerators in use/total:"+usedAccCache+"/"+accCache
+@Override
+protected gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui<?> getGui() {
+	return new Gui(this);
+}
 
-    )
-        .setDefaultColor(COLOR_TEXT_WHITE.get()));
-    screenElements.widget(new TextWidget().setStringSupplier(
-    		() -> "Dumper:"+accCacheCondenser
+private static class Gui extends gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui<TileCPU> {
 
-    )
-        .setDefaultColor(COLOR_TEXT_WHITE.get()).setEnabled(s->accCacheCondenser>0));
-  
+	Gui(TileCPU mb) {
+		super(mb);
+	}
 
+	@Override
+	protected com.cleanroommc.modularui.widgets.ListWidget<com.cleanroommc.modularui.api.widget.IWidget, ?> createTerminalTextWidget(
+		com.cleanroommc.modularui.value.sync.PanelSyncManager syncManager,
+		com.cleanroommc.modularui.screen.ModularPanel parent) {
+		com.cleanroommc.modularui.value.sync.LongSyncValue accSync =
+			new com.cleanroommc.modularui.value.sync.LongSyncValue(() -> multiblock.accCache, v -> multiblock.accCache = v);
+		com.cleanroommc.modularui.value.sync.LongSyncValue usedSync =
+			new com.cleanroommc.modularui.value.sync.LongSyncValue(() -> multiblock.usedAccCache, v -> multiblock.usedAccCache = v);
+		com.cleanroommc.modularui.value.sync.LongSyncValue condenserSync =
+			new com.cleanroommc.modularui.value.sync.LongSyncValue(() -> multiblock.accCacheCondenser, v -> multiblock.accCacheCondenser = v);
+		syncManager.syncValue("cpu_acc", accSync);
+		syncManager.syncValue("cpu_acc_used", usedSync);
+		syncManager.syncValue("cpu_condenser", condenserSync);
+		return super.createTerminalTextWidget(syncManager, parent)
+			.child(
+				com.cleanroommc.modularui.api.drawable.IKey
+					.dynamic(() -> "Accelerators in use/total:" + usedSync.getValue() + "/" + accSync.getValue())
+					.color(com.cleanroommc.modularui.utils.Color.WHITE.main)
+					.asWidget()
+					.marginBottom(2)
+					.fullWidth())
+			.child(
+				com.cleanroommc.modularui.api.drawable.IKey.dynamic(() -> "Dumper:" + condenserSync.getValue())
+					.color(com.cleanroommc.modularui.utils.Color.WHITE.main)
+					.asWidget()
+					.setEnabledIf(w -> condenserSync.getValue() > 0)
+					.marginBottom(2)
+					.fullWidth());
+	}
 }
 
 public long getCondenser() {

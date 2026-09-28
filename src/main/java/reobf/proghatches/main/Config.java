@@ -30,6 +30,7 @@ public class Config {
     public static boolean dev;
     public static boolean experimentalOptimize = true;
     public static boolean sleep = true;
+    public static boolean hoistCircuitRequests = true;
     public static boolean MECover = false;
     public static boolean delayUnlock = true;
     public static boolean fastPatternDualInput = true;
@@ -77,6 +78,11 @@ public class Config {
             "Experimental",
             sleep,
             "When on, hatch will sleep when not busy, to ease server load.");
+        hoistCircuitRequests = configuration.getBoolean(
+            "Hoist virtual circuit requests",
+            "Experimental",
+            hoistCircuitRequests,
+            "When on, a virtual circuit listed as a plain input of a processing pattern is taken out of that pattern's inputs during AE2 crafting calculation; once the rest of the tree is solved the total is settled directly, without going through the calculator, so circuits use no calculation steps. A virtual circuit is then taken from ME storage or made by a circuit provider and by nothing else; if neither can supply it the job reports it as missing, even when an ordinary pattern could craft it. The crafting tree view then shows the circuits once under the final pattern instead of under every node.");
         MECover = configuration.getBoolean(
             "MECover on MEHatch",
             "Experimental",

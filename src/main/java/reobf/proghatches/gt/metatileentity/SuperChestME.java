@@ -718,10 +718,19 @@ public class SuperChestME extends MTEHatch
                 mInventory[0].stackSize += is.stackSize;
                 mInventory[i] = null;
             } else {
-                int to = Math.min(cap() - mInventory[0].stackSize, is.stackSize);
+                int to = Math.max(0, Math.min(cap() - mInventory[0].stackSize, is.stackSize));
                 mInventory[0].stackSize += to;
-                mInventory[i].stackSize -= to;
-                needToSort = true;
+                if (voidOverflow) {
+                    // Overflow voiding used to exist only on the AE route (UnlimitedWrapper.injectItems).
+                    // Items that arrive through the 16 input slots (pipes, conveyors, hoppers, the GUI)
+                    // are merged here, and with the chest full the remainder simply stayed in the slot
+                    // until all 16 were clogged and the feeder backed up. Same item as the stored one is
+                    // guaranteed by the check above, so the remainder is exactly what must be voided.
+                    mInventory[i] = null;
+                } else {
+                    mInventory[i].stackSize -= to;
+                    needToSort = true;
+                }
             }
         }
         if (needToSort) fillStacksIntoFirstSlots();

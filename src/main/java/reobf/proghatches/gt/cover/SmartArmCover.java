@@ -1032,7 +1032,7 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
             "min",
             s -> s.stream()
                 .reduce((a, b) -> {
-                    if (a instanceof SimpleParser.Rational && a instanceof SimpleParser.Rational) {
+                    if (a instanceof SimpleParser.Rational && b instanceof SimpleParser.Rational) {
                         SimpleParser.Rational aa = (Rational) a;
                         SimpleParser.Rational bb = (Rational) b;
                         boolean f1 = aa.num * bb.den < aa.den * bb.num;

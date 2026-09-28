@@ -1436,7 +1436,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
                     IAEItemStack get = getProxy().getStorage()
                         .getItemInventory()
                         .extractItems(toextract, Actionable.MODULATE, getRequestSource());
-                    if (get == null || get.getStackSize() != get.getStackSize()) {
+                    if (get == null || get.getStackSize() != delta) {
                         MyMod.LOG.fatal("cannot extract!");
                         controller.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
                         return SimpleCheckRecipeResult.ofFailurePersistOnShutdown("stocking_bus_fail_extraction");
@@ -1473,7 +1473,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
                     IAEFluidStack get = getProxy().getStorage()
                         .getFluidInventory()
                         .extractItems(toextract, Actionable.MODULATE, getRequestSource());
-                    if (get == null || get.getStackSize() != get.getStackSize()) {
+                    if (get == null || get.getStackSize() != delta) {
                         MyMod.LOG.fatal("cannot extract!");
                         controller.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
                         return SimpleCheckRecipeResult.ofFailurePersistOnShutdown("stocking_bus_fail_extraction");

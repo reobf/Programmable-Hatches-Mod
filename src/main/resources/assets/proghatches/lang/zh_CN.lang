@@ -827,3 +827,6 @@ programmable_hatches.gt.normalopt.1=勾选: 修改样板本身
 item.proghatches.ctrlinvertedterminal.name=流体终端(C)
 item.ctrlinvertedterminal.name.tooltip.0=手持含有流体的容器或者点击流体时
 item.ctrlinvertedterminal.name.tooltip.1=自动反转你的Ctrl键
+proghatches.fastcircuit.title=§b虚拟电路快速通道
+proghatches.fastcircuit.instant=§a快速合成通道 不占用CPU
+proghatches.fastcircuit.provider=由电路提供器生成 不占用计算步数

@@ -829,3 +829,6 @@ programmable_hatches.gt.normalopt.1=Checked: Modify Pattern itself
 item.proghatches.ctrlinvertedterminal.name=Fluid Terminal (C)
 item.ctrlinvertedterminal.name.tooltip.0=When holding an item that contains fluid or clicking on fluid stack,
 item.ctrlinvertedterminal.name.tooltip.1=invert your Control key
+proghatches.fastcircuit.title=§bVirtual Circuit Fast Channel
+proghatches.fastcircuit.instant=§aInstant channel, does not occupy the CPU
+proghatches.fastcircuit.provider=Made by the circuit provider, uses no calculation steps

@@ -658,8 +658,8 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		private boolean fluidEqualsIngoreAmount(FluidTank a, FluidTank b) {
 
-			if (a.getFluid() == null && a.getFluid() == null)
-				return true;
+			if (a.getFluid() == null || b.getFluid() == null)
+				return a.getFluid() == null && b.getFluid() == null;
 			if (a.getFluid() != null && (!a.getFluid().equals(b.getFluid())))
 				return false;
 
@@ -668,8 +668,8 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		private boolean fluidEqualsIngoreAmount(FluidTankG a, FluidTank b) {
 
-			if (a.getFluid() == null && a.getFluid() == null)
-				return true;
+			if (a.getFluid() == null || b.getFluid() == null)
+				return a.getFluid() == null && b.getFluid() == null;
 			if (a.getFluid() != null && (!a.getFluid().equals(b.getFluid())))
 				return false;
 
@@ -2149,7 +2149,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			currenttip.add(prefix + "#" + s + " " + info + " " + cpinfo);
 			String lock_item = sub.getString("lock_item");
 			String lock_fluid = sub.getString("lock_fluid");
-			if ((!lock_item.isEmpty()) && (!lock_item.isEmpty())) {
+			if ((!lock_item.isEmpty()) || (!lock_fluid.isEmpty())) {
 				// currenttip.add();
 				currenttip.add(" " + LangManager.translateToLocal("programmable_hatches.buffer.waila.present"));
 

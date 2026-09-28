@@ -202,6 +202,8 @@ public static boolean loaded;
         retLate.add("part2.MixinEIOBundle");
         retLate.add("part2.MixinContextNoCircuitCache");
         retLate.add("part2.MixinExtractIntercept");
+        retLate.add("part2.MixinCircuitHoistStrip");
+        retLate.add("part2.MixinCircuitHoistFlush");
         retLate.add("part2.MixinMUI2CircuitSlot");
         retLate.add("part2.MixinCountPassthrough");
         retLate.add("part2.MixinNewDualInterface");

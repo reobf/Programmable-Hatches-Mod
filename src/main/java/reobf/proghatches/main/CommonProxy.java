@@ -369,7 +369,11 @@ public class CommonProxy {
         // AEApi.instance().registries().interfaceTerminal().register(TileFluidInterface.class);
         new Registration().run();
         EUUtil.register();
-        com.cleanroommc.modularui.factory.GuiManager.registerFactory(reobf.proghatches.ae.PartGuiFactory.INSTANCE);
+        com.cleanroommc.modularui.factory.GuiManager.registerFactory(reobf.proghatches.ae.PartGuiFactoryPH.INSTANCE);
+        // crafting-tree packets carry the task type by id, so both sides must know this one
+        appeng.crafting.v2.CraftingTreeSerializer.registerSerializable(
+            reobf.proghatches.ae.FastCircuitTask.SERIAL_ID,
+            reobf.proghatches.ae.FastCircuitTask.class);
 
     }
 

@@ -514,7 +514,8 @@ public class PartAmountMaintainer extends PartBasicState
         if (player.isSneaking()) return false;
         TileEntity t = this.getTile();
         // System.out.println(getSide());
-        PartGuiFactory.INSTANCE.open(player, t, getSide());
+        PartGuiFactoryPH.INSTANCE.open(player, t, getSide())
+        ;
         // System.out.println(player.getHeldItem());
         return true;
     }

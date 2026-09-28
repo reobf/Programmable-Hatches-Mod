@@ -16,11 +16,11 @@ import com.cleanroommc.modularui.factory.SidedTileEntityGuiFactory;
 import appeng.api.parts.IPartHost;
 
 // MUI2 counterpart of EUUtil.PART_MODULAR_UI: opens the gui of any AE part that is an IGuiHolder
-public class PartGuiFactory extends AbstractUIFactory<SidedPosGuiData> {
+public class PartGuiFactoryPH extends AbstractUIFactory<SidedPosGuiData> {
 
-    public static final PartGuiFactory INSTANCE = new PartGuiFactory();
+    public static final PartGuiFactoryPH INSTANCE = new PartGuiFactoryPH();
 
-    private PartGuiFactory() {
+    private PartGuiFactoryPH() {
         super("proghatches:part");
     }
 

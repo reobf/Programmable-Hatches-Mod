@@ -1,5 +1,7 @@
 package reobf.proghatches.main.mixin.mixins.part2;
 
+import java.util.function.ObjLongConsumer;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,10 +26,11 @@ import gregtech.common.tileentities.machines.outputme.util.AECacheCounter;
 import reobf.proghatches.gt.metatileentity.StorageOutputBus;
 import reobf.proghatches.gt.metatileentity.StorageOutputHatch;
 import reobf.proghatches.gt.metatileentity.util.IMEHatchOverrided;
+import reobf.proghatches.gt.metatileentity.util.IMEOutputCacheDrain;
 
 @Mixin(value=MTEHatchOutputMEBase.class,remap  =false)
-public class MixinMEOutput2CPU {
-	
+public class MixinMEOutput2CPU implements IMEOutputCacheDrain {
+
 	@Shadow
 	 private  gregtech.common.tileentities.machines.outputme.base.MTEHatchOutputMEBase.Environment env;
 	@Shadow @Final
@@ -35,7 +38,15 @@ public class MixinMEOutput2CPU {
 	@Shadow
 	  public AENetworkProxy getProxy() {
 		return null;}
-	
+
+	@Override
+	public void proghatches$drainCache(ObjLongConsumer<IAEStack<?>> sink) {
+		cache.updateAll((stack, amount) -> {
+			sink.accept(stack, amount);
+			return 0;
+		});
+	}
+
 	@Inject(
 	        method = "flushCachedStack",
 	        at = @At(

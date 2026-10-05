@@ -7,7 +7,6 @@ import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1255,29 +1254,10 @@ public class IngredientDistributor extends MTEEnhancedMultiBlockBase<IngredientD
 
     static BaseActionSource fakeSource = new BaseActionSource();
 
-    static Method[] cache;
-
     static BaseActionSource getActionSourceFor(Object o) {
-        if (cache == null) try {
-            cache = new Method[2];
-            cache[0] = MTEHatchOutputBusME.class.getDeclaredMethod("getRequest");
-            cache[1] = MTEHatchOutputME.class.getDeclaredMethod("getRequest");
-            cache[0].setAccessible(true);
-            cache[1].setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            cache = new Method[0];;
-            e.printStackTrace();
-        }
-        if (cache.length == 0) return fakeSource;
-
-        try {
-            if (o instanceof MTEHatchOutputBusME) return (BaseActionSource) cache[0].invoke(o);
-            if (o instanceof MTEHatchOutputME) return (BaseActionSource) cache[1].invoke(o);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        throw new RuntimeException("err");
+        if (o instanceof MTEHatchOutputBusME bus) return bus.getActionSource();
+        if (o instanceof MTEHatchOutputME hatch) return hatch.getActionSource();
+        throw new IllegalArgumentException("not an ME output hatch: " + o);
     }
 
     private static boolean sameType(IAEFluidStack a, FluidStack b) {

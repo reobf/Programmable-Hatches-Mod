@@ -101,6 +101,7 @@ import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
 import reobf.proghatches.gt.metatileentity.DualInputHatch;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.PatternHousing;
+import reobf.proghatches.gt.metatileentity.util.IMEOutputCacheDrain;
 import reobf.proghatches.main.Config;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.registration.Registration;
@@ -751,17 +752,6 @@ public class MultiblockProxy extends MTEEnhancedMultiBlockBase<MultiblockProxy>
 
     IItemList<IAEItemStack> cacheitem = StorageChannel.ITEMS.<IAEItemStack>createList();
     IItemList<IAEFluidStack> cachefluid = StorageChannel.FLUIDS.<IAEFluidStack>createList();
-    static Field f1, f2;
-    static {
-        try {
-            f1 = MTEHatchOutputBusME.class.getDeclaredField("itemCache");
-            f1.setAccessible(true);
-            f2 = MTEHatchOutputME.class.getDeclaredField("fluidCache");
-            f2.setAccessible(true);
-        } catch (Exception e) {
-            new AssertionError(e);
-        }
-    }
     boolean instant;
     IFluidHandler virtualTargetF = new IFluidHandler() {
 
@@ -912,18 +902,11 @@ public class MultiblockProxy extends MTEEnhancedMultiBlockBase<MultiblockProxy>
                     }
                     if (bus instanceof MTEHatchOutputBusME) {
                         MTEHatchOutputBusME me = (MTEHatchOutputBusME) bus;
-                        try {
-                            IItemList<IAEItemStack> cache = (IItemList<IAEItemStack>) f1.get(me);
-
-                            for (IAEItemStack s : cache) {
-                                if (s.getStackSize() == 0) continue;
-                                this.cacheitem.add(s);
-                                s.setStackSize(0);
-                            }
-
-                        }
-
-                        catch (Exception e) {}
+                        ((IMEOutputCacheDrain) me.getProvider()).proghatches$drainCache((key, size) -> {
+                            IAEItemStack s = ((IAEItemStack) key).copy();
+                            s.setStackSize(size);
+                            this.cacheitem.add(s);
+                        });
                     }
 
                 }
@@ -939,18 +922,11 @@ public class MultiblockProxy extends MTEEnhancedMultiBlockBase<MultiblockProxy>
 
                     if (bus instanceof MTEHatchOutputME) {
                         MTEHatchOutputME me = (MTEHatchOutputME) bus;
-                        try {
-                            IItemList<IAEFluidStack> cache = (IItemList<IAEFluidStack>) f2.get(me);
-
-                            for (IAEFluidStack s : cache) {
-                                if (s.getStackSize() == 0) continue;
-                                this.cachefluid.add(s);
-                                s.setStackSize(0);
-                            }
-
-                        }
-
-                        catch (Exception e) {}
+                        ((IMEOutputCacheDrain) me.getProvider()).proghatches$drainCache((key, size) -> {
+                            IAEFluidStack s = ((IAEFluidStack) key).copy();
+                            s.setStackSize(size);
+                            this.cachefluid.add(s);
+                        });
 
                     }
                 }

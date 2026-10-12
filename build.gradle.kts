@@ -61,3 +61,20 @@ java {
         vendor.set(JvmVendorSpec.ADOPTIUM)
     }
 }
+
+// The page/mask state is independent of Minecraft and needs no test framework or game bootstrap.
+val patternSlotMaskTest by sourceSets.creating {
+    compileClasspath = files(sourceSets.main.get().output)
+    runtimeClasspath = output + compileClasspath
+}
+val testPatternSlotMask by tasks.registering(JavaExec::class) {
+    group = "verification"
+    description = "Checks pattern-page growth, persistence recovery, and sparse slot iteration."
+    dependsOn(tasks.named(patternSlotMaskTest.classesTaskName))
+    classpath = patternSlotMaskTest.runtimeClasspath
+    mainClass.set("reobf.proghatches.gt.metatileentity.util.PatternSlotMaskTest")
+    javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
+}
+tasks.check {
+    dependsOn(testPatternSlotMask)
+}

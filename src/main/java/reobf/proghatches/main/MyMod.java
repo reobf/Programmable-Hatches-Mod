@@ -131,6 +131,7 @@ import reobf.proghatches.eucrafting.PartLazerP2P;
 import reobf.proghatches.fmp.PH_FMP;
 import reobf.proghatches.gt.metatileentity.DualInputHachOC;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
+import reobf.proghatches.gt.metatileentity.SuperPatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatchInventoryMappingSlave;
 import reobf.proghatches.gt.metatileentity.PatternHousing;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
@@ -316,6 +317,7 @@ public class MyMod {
     @Mod.EventHandler
 
     public void preInit(FMLPreInitializationEvent event) {
+        JarNameCheck.check(event.getSourceFile());
        // FluidConvertingInventoryAdaptor.class.getFields();
         net.registerMessage(new OpenPartGuiMessage.Handler(), OpenPartGuiMessage.class, 0, Side.CLIENT);
         net.registerMessage(new PriorityMessage.Handler(), PriorityMessage.class, 1, Side.SERVER);
@@ -551,6 +553,8 @@ public class MyMod {
             .register(TileFluidInterface_EU.class);*/
         get
             .register(PatternDualInputHatch.Inst.class);
+        get
+            .register(SuperPatternDualInputHatch.class);
         get
         .register(RecipeFilterCRIB.Inst2.class);       
         get

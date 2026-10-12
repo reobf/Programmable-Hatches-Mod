@@ -2258,6 +2258,20 @@ public class PHRecipes implements Runnable {
             .eut(30*4*4*4*4*4*4).metadata(ADDITIVE_AMOUNT, 64)
             .addTo(RecipeMaps.implosionRecipes);
 
+            GTValues.RA.stdBuilder()
+                .itemInputs(
+                    new ItemStack(GregTechAPI.sBlockMachines, 1,
+                        Config.metaTileEntityOffset + Registration.ExPatternOffset),
+                    new ItemStack(MyMod.smartarm, 64, 8),
+                    new ItemStack(MyMod.smartarm, 32, 9),
+                    new ItemStack(MyMod.smartarm, 16, 10))
+                .itemOutputs(new ItemStack(
+                    GregTechAPI.sBlockMachines, 1,
+                    Config.metaTileEntityOffset + Registration.SuperPatternOffset))
+                .duration(1)
+                .eut(30*4*4*4*4*4*4*4)
+                .addTo(RecipeMaps.assemblerRecipes);
+
 
             GTValues.RA.stdBuilder()
             .itemInputs(

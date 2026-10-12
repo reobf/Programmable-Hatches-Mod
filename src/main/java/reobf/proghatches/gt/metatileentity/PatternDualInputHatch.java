@@ -545,7 +545,7 @@ public int page() {
         saved = aNBT.getLong("saved");
         super.loadNBTData(aNBT);
         multiplier = aNBT.getIntArray("multiplier");
-        if (multiplier.length < 36) multiplier = new int[36];
+        if (multiplier.length < pattern.length) multiplier = Arrays.copyOf(multiplier, pattern.length);
         for (int i = 0; i < multiplier.length; i++) {
             multiplier[i] = Math.max(multiplier[i], 1);
         }
@@ -1096,30 +1096,26 @@ public int page() {
                 continue;
             }
 
-            if (patternItemCache[index] == pattern[index]) {// just compare
-                                                            // object id
-                craftingTracker.addCraftingOption(this, patternDetailCache[index]);
-                continue;
+            if (patternItemCache[index] != slot) {
+                patternItemCache[index] = slot;
+                patternDetailCache[index] = null;
+                ICraftingPatternDetails details = null;
+                try {
+                    details = ((ICraftingPatternItem) slot.getItem()).getPatternForItem(
+                        slot,
+                        this.getBaseMetaTileEntity()
+                            .getWorld());
+                } catch (Exception e) {}
+                if (details == null) {
+                    MyMod.LOG.warn(
+                        "Found an invalid pattern in slot " + index + " at " + getBaseMetaTileEntity().getCoords()
+                            + " in dim "
+                            + getBaseMetaTileEntity().getWorld().provider.dimensionId);
+                } else {
+                    patternDetailCache[index] = multiplier[index] == 1 ? details : new DA(details, multiplier[index]);
+                }
             }
-
-            ICraftingPatternDetails details = null;
-            try {
-                details = ((ICraftingPatternItem) slot.getItem()).getPatternForItem(
-                    slot,
-                    this.getBaseMetaTileEntity()
-                        .getWorld());
-            } catch (Exception e) {}
-            if (details == null) {
-                MyMod.LOG.warn(
-                    "Found an invalid pattern at " + getBaseMetaTileEntity().getCoords()
-                        + " in dim "
-                        + getBaseMetaTileEntity().getWorld().provider.dimensionId);
-                continue;
-            }
-            patternItemCache[index] = pattern[index];
-
-            patternDetailCache[index] = multiplier[index] == 1 ? details : new DA(details, multiplier[index]);
-            craftingTracker.addCraftingOption(this, patternDetailCache[index]);
+            if (patternDetailCache[index] != null) craftingTracker.addCraftingOption(this, patternDetailCache[index]);
 
         }
 
@@ -1437,15 +1433,19 @@ public int getCircuitSlot() {
 		IInventory patternInv = this.getPatterns();
 
 		for (int i = 0; i < patternInv.getSizeInventory(); i++) {
-			ItemStack stack = patternInv.getStackInSlot(i);
+			ItemStack raw = patternInv.getStackInSlot(i);
 
-			if (stack == null) {
+			if (raw == null) {
 				continue;
 			}
+			ItemStack stack = raw;
 			if(multiplier[i]>1){
-				stack=new PatternDualInputHatch.DA(
-						((ICraftingPatternItem)stack.getItem()).getPatternForItem(stack,this.getBaseMetaTileEntity().getWorld())
-						, multiplier[i]).getPattern();
+				ICraftingPatternDetails details = null;
+				try {
+					details = ((ICraftingPatternItem) raw.getItem()).getPatternForItem(raw, this.getBaseMetaTileEntity().getWorld());
+				} catch (Exception ignored) {}
+				if (details == null) continue;
+				stack = new PatternDualInputHatch.DA(details, multiplier[i]).getPattern();
 			}
 			/*if ((stack.getItem() instanceof ItemFakePattern) && (stack.hasTagCompound() == true)
 					&& (3 == stack.getTagCompound().getInteger("type"))) {
@@ -1463,15 +1463,16 @@ public int getCircuitSlot() {
 				continue;
 			Integer bitMultiplier = pair.getValue();
 			if (bitMultiplier == 0)
-				return;
+				continue;
 			boolean isDividing = false;
 			if (bitMultiplier < 0) {
 				isDividing = true;
 				bitMultiplier = -bitMultiplier;
 			}
 			if(normalopt) {
-				 PatternMultiplierHelper.applyModification(stack, bitMultiplier);
-				 patternInv.setInventorySlotContents(i, stack);
+				 ItemStack modified = raw.copy();
+				 PatternMultiplierHelper.applyModification(modified, isDividing ? -bitMultiplier : bitMultiplier);
+				 patternInv.setInventorySlotContents(i, modified);
 			}
 			else {
 			multiplier[i] = isDividing ? multiplier[i] >> bitMultiplier : multiplier[i] << bitMultiplier;
@@ -1506,7 +1507,7 @@ public int getCircuitSlot() {
 	//   page 3: batch multiplier op. (also hosts the refund button)
 	// Ported from the legacy MUI1 pattern window (createPatternWindow / addUIWidgets).
 
-	private com.cleanroommc.modularui.widgets.ButtonWidget<?> createRefundButton2(PanelSyncManager syncManager) {
+	protected com.cleanroommc.modularui.widgets.ButtonWidget<?> createRefundButton2(PanelSyncManager syncManager) {
 		InteractionSyncHandler refund = new InteractionSyncHandler().setOnMousePressed(data -> {
 			PatternDualInputHatch.this.dirty = true;
 			try {

@@ -54,6 +54,7 @@ import reobf.proghatches.gt.metatileentity.MultiCircuitInputBus;
 import reobf.proghatches.gt.metatileentity.NBTHatchMECatalyst;
 import reobf.proghatches.gt.metatileentity.NBTHatchMEFocus;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
+import reobf.proghatches.gt.metatileentity.SuperPatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatchInventoryMappingSlave;
 import reobf.proghatches.gt.metatileentity.PhantomInputBus;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
@@ -143,6 +144,7 @@ public class Registration implements Runnable {
     public static final int StorageOutputHatch = 178;
     public final static int ExPatternOffset = 179;
     public final static int ExPatternOffsetAutogen=180;
+    public final static int SuperPatternOffset = 181;
     @SuppressWarnings("deprecation")
     @Override
     public void run() {
@@ -396,6 +398,11 @@ public class Registration implements Runnable {
                 24,
                 true,2){public int page() {return 2;};};
                 
+        new SuperPatternDualInputHatch(
+                Config.metaTileEntityOffset + SuperPatternOffset,
+                "hatch.input.buffered.me.super",
+                LangManager.translateToLocal("hatch.input.buffered.me.super.name"));
+
         new RecipeFilterCRIB(
                 Config.metaTileEntityOffset + ExPatternOffsetAutogen,
                 "hatch.input.buffered.me.autogen",

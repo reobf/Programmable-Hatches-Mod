@@ -854,3 +854,20 @@ proghatch.itemfixer2.chat.done.network.setone=已将 %s 个样板中的编程器
 proghatch.itemfixer2.chat.confirm.clear=将清除 %s 个样板中的编程器电路 涉及 %s 个设备 清除后无法恢复 %s秒内再次右键确认
 proghatch.itemfixer2.chat.confirm.setone=将把 %s 个样板中的编程器电路数量设为1 涉及 %s 个设备 %s秒内再次右键确认
 proghatch.itemfixer2.chat.skipped=%s 个样板除编程器电路外没有其它输入 清除后会失效 已跳过
+
+hatch.input.buffered.me.super.name=编程样板输入总成 MK.III
+proghatches.super_pattern.refund=退回
+proghatches.super_pattern.drag=按住拖动
+proghatches.super_pattern.patterns=样板
+proghatches.super_pattern.individual=单格倍率
+proghatches.super_pattern.batch=批量倍率（所有已放样板的格子）
+proghatches.super_pattern.previous=上一页样板
+proghatches.super_pattern.next=下一页样板
+proghatches.super_pattern.page=第 %s / %s 页
+proghatches.super_pattern.range=样板槽位 %s–%s
+proghatches.super_pattern.capacity=已解锁容量：%s / %s 个样板
+proghatches.super_pattern.unlock=填满所有已解锁槽位后增加 36 格，最多 10 页；已解锁页不会缩减。
+proghatches.super_pattern.multiplier=第 %s 格倍率：%s
+proghatches.super_pattern.multiply=将所有页中已放样板格子的倍率乘以 %s。
+proghatches.super_pattern.set=将所有页中已放样板格子的倍率设为 %s。
+proghatches.super_pattern.factor=xN 和 =N 操作使用的 N 值

@@ -858,11 +858,15 @@ proghatch.itemfixer2.chat.confirm.setone=This will set the programming circuit a
 proghatch.itemfixer2.chat.skipped=Skipped %s pattern(s) whose only input is the programming circuit, clearing would break them
 
 hatch.input.buffered.me.super.name=Programmable Crafting Input Buffer MK.III
-proghatches.super_pattern.refund=Refund
-proghatches.super_pattern.drag=Hold to drag
-proghatches.super_pattern.patterns=Patterns
-proghatches.super_pattern.individual=Individual Multiplier Op.
-proghatches.super_pattern.batch=Batch Multiplier Op. (all occupied slots)
+proghatches.pattern_window.refund=Refund
+proghatches.pattern_window.refund.tooltip=Return all internally stored items back to AE
+proghatches.pattern_window.drag=Hold to drag
+proghatches.pattern_window.patterns=Patterns
+proghatches.pattern_window.individual=Individual Multiplier Op.
+proghatches.pattern_window.batch=Batch Multiplier Op.
+proghatches.pattern_window.multiply=Multiply every slot's multiplier by %s
+proghatches.pattern_window.set=Set every slot's multiplier to %s
+proghatches.pattern_window.factor=N for the xN and =N operations
 proghatches.super_pattern.previous=Previous pattern page
 proghatches.super_pattern.next=Next pattern page
 proghatches.super_pattern.page=Page %s / %s
@@ -872,4 +876,3 @@ proghatches.super_pattern.unlock=Fill all unlocked slots to add 36 more (up to 1
 proghatches.super_pattern.multiplier=Slot %s multiplier: %s
 proghatches.super_pattern.multiply=Multiply every occupied slot's multiplier by %s (all pages).
 proghatches.super_pattern.set=Set every occupied slot's multiplier to %s (all pages).
-proghatches.super_pattern.factor=N for the xN and =N operations

@@ -1767,7 +1767,7 @@ public boolean playerConfigClient;
 			}
 			refresh();
 		}).pos(3, 3)
-			.tooltip(t -> t.addLine(IKey.str("x2"))));
+			.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.multiply", 2))));
 		page3.child(IKey.str("x2")
 			.asWidget()
 			.pos(3 + 3, 3));
@@ -1775,7 +1775,7 @@ public boolean playerConfigClient;
 			for (int i = 0; i < 36; i++) multiplier[i] = 1;
 			refresh();
 		}).pos(3 + 16, 3)
-			.tooltip(t -> t.addLine(IKey.str("=1"))));
+			.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.set", 1))));
 		page3.child(IKey.str("=1")
 			.asWidget()
 			.pos(3 + 3 + 16, 3));
@@ -1786,7 +1786,7 @@ public boolean playerConfigClient;
 			}
 			refresh();
 		}).pos(3, 3 + 32)
-			.tooltip(t -> t.addLine(IKey.str("xN"))));
+			.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.multiply", () -> new Object[] { n }))));
 		page3.child(IKey.dynamic(() -> "x" + n)
 			.asWidget()
 			.pos(3 + 3, 3 + 32));
@@ -1794,7 +1794,7 @@ public boolean playerConfigClient;
 			for (int i = 0; i < 36; i++) multiplier[i] = n;
 			refresh();
 		}).pos(3 + 16, 3 + 32)
-			.tooltip(t -> t.addLine(IKey.str("=N"))));
+			.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.set", () -> new Object[] { n }))));
 		page3.child(IKey.dynamic(() -> "=" + n)
 			.asWidget()
 			.pos(3 + 3 + 16, 3 + 32));
@@ -1808,7 +1808,7 @@ public boolean playerConfigClient;
 			.formatAsInteger(true)
 			.numbersInt(Integer.MIN_VALUE, Integer.MAX_VALUE)
 			.setTextColor(com.cleanroommc.modularui.utils.Color.WHITE.main)
-			.tooltip(t -> t.addLine(IKey.str("N=")))
+			.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.factor")))
 			.size(60, 18)
 			.pos(3, 3 + 32 + 18)
 			.background(GTGuiTextures.BACKGROUND_TEXT_FIELD));
@@ -1904,16 +1904,16 @@ public boolean playerConfigClient;
 			.child(new PatternDualInputHatch.DragTab()
 				.background(GuiTextures.TAB_RIGHT.get(-1, false), dragIcon)
 				.size(TAB_W, 28)
-				.tooltip(t -> t.addLine(IKey.str("Hold to drag"))))
+				.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.drag"))))
 			.child(new PageButton(0, tabController).tab(GuiTextures.TAB_RIGHT, 0)
 				.overlay(tab1)
-				.tooltip(t -> t.addLine(IKey.str("Patterns"))))
+				.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.patterns"))))
 			.child(new PageButton(1, tabController).tab(GuiTextures.TAB_RIGHT, 0)
 				.overlay(tab2)
-				.tooltip(t -> t.addLine(IKey.str("Individual Multiplier Op."))))
+				.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.individual"))))
 			.child(new PageButton(2, tabController).tab(GuiTextures.TAB_RIGHT, 0)
 				.overlay(tab3)
-				.tooltip(t -> t.addLine(IKey.str("Batch Multiplier Op.")))));
+				.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.batch")))));
 
 		builder.child(new PagedWidget<>().controller(tabController)
 			.pos(0, 0)

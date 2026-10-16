@@ -1028,35 +1028,37 @@ int off=0;
                 } catch (Exception e) {}
             }
 
-            int hash = providers.hashCode();
-            if (lasthash != hash || cacheState == CacheState.POWEROFF || cacheState == CacheState.CRASH) {
-                cacheState = CacheState.UPDATED;
-                forceUpdatePattern = true;
-            }
-            lasthash = hash;
-            boolean any = false;
-            if (cacheState.shouldCheck() && mMachine) {
-                if (aTick % 20 == ran) {
+            if (mStartUpCheck <= 0) {
+                int hash = providers.hashCode();
+                if (lasthash != hash || cacheState == CacheState.POWEROFF || cacheState == CacheState.CRASH) {
+                    cacheState = CacheState.UPDATED;
+                    forceUpdatePattern = true;
+                }
+                lasthash = hash;
+                boolean any = false;
+                if (cacheState.shouldCheck() && mMachine) {
+                    if (aTick % 20 == ran) {
 
-                    for (ICircuitProvider p : providers) {
-                        if (p.patternDirty()) {
-                            any = true;
-                            p.clearDirty();
+                        for (ICircuitProvider p : providers) {
+                            if (p.patternDirty()) {
+                                any = true;
+                                p.clearDirty();
+                            }
+
                         }
 
                     }
-
+                }
+                if (any || forceUpdatePattern) {
+                    cacheState = CacheState.DIRTY;
+                    forceUpdatePattern = !postEvent();
                 }
             }
-            if (any || forceUpdatePattern) {
-                forceUpdatePattern = false;
-                cacheState = CacheState.DIRTY;
-                postEvent();
-            }
         } else {
-            if (patternCache.size() > 0) postEvent();
+            boolean hadPatterns = !patternCache.isEmpty();
             patternCache.clear();
             cacheState = CacheState.POWEROFF;
+            if (hadPatterns) postEvent();
 
         }
 
@@ -1130,20 +1132,17 @@ int off=0;
 
     @MENetworkEventSubscribe
     public void powerChange(MENetworkPowerStatusChange w) {
-        // System.out.println("xxxxxxxxxxx1");
-        cacheState = CacheState.DIRTY;
+        forceUpdatePattern = true;
     }
 
     @MENetworkEventSubscribe
     public void powerChange(MENetworkChannelChanged w) {
-        // System.out.println("xxxxxxxxxxx2");
-        cacheState = CacheState.DIRTY;
+        forceUpdatePattern = true;
     }
 
     @MENetworkEventSubscribe
     public void powerChange(MENetworkChannelsChanged w) {
-        // System.out.println("xxxxxxxxxxx3");
-        cacheState = CacheState.DIRTY;
+        forceUpdatePattern = true;
     }
 
     @Override
@@ -1352,8 +1351,8 @@ int off=0;
 
     @Override
     public void gridChanged() {
-        // TODO Auto-generated method stub
         super.gridChanged();
+        forceUpdatePattern = true;
     }
 
     @Override

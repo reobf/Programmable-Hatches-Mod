@@ -539,10 +539,10 @@ public class SuperPatternDualInputHatch extends PatternDualInputHatch {
         batchTab.child(IKey.str("N").asWidget().pos(3, 53));
         batchTab.child(new TextFieldWidget().value(new IntSyncValue(() -> n, v -> n = Math.max(1, v)).allowC2S())
             .formatAsInteger(true).numbersInt(1, Integer.MAX_VALUE).setMaxLength(10)
-            .tooltip(t -> t.addLine(IKey.lang("proghatches.super_pattern.factor")))
+            .tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.factor")))
             .size(60, 18).pos(15, 49).background(GTGuiTextures.BACKGROUND_TEXT_FIELD));
         batchTab.child(createRefundButton2(sync).pos(3, 81));
-        batchTab.child(IKey.lang("proghatches.super_pattern.refund").asWidget().pos(21, 85));
+        batchTab.child(IKey.lang("proghatches.pattern_window.refund").asWidget().pos(21, 85));
 
         Item glove = GameRegistry.findItem("miscutils", "GTPP.bauble.fireprotection.0.name");
         IDrawable dragIcon = glove == null ? GTGuiTextures.OVERLAY_BUTTON_PLUS_LARGE.asIcon().size(18, 18)
@@ -551,20 +551,20 @@ public class SuperPatternDualInputHatch extends PatternDualInputHatch {
         panel.child(new Column().coverChildren().pos(width - 3, -1)
             .child(new DragTab().background(GuiTextures.TAB_RIGHT.get(-1, false),
                 dragIcon).size(32, 28)
-                .tooltip(t -> t.addLine(IKey.lang("proghatches.super_pattern.drag"))))
+                .tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.drag"))))
             .child(tabButton(0, tabs)
                 .overlay(new ItemDrawable(AEApi.instance().definitions().items().encodedPattern().maybeStack(1).get())
                     .asIcon().size(18, 18))
-                .tooltip(t -> t.addLine(IKey.lang("proghatches.super_pattern.patterns"))
+                .tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.patterns"))
                     .addLine(IKey.lang("proghatches.super_pattern.capacity",
                         () -> new Object[] {view.pages * PAGE_SIZE, CAPACITY}))
                     .addLine(IKey.lang("proghatches.super_pattern.unlock"))))
             .child(tabButton(1, tabs)
                 .overlay(GTGuiTextures.OVERLAY_BUTTON_BATCH_MODE_OFF.asIcon().size(18, 18))
-                .tooltip(t -> t.addLine(IKey.lang("proghatches.super_pattern.individual"))))
+                .tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.individual"))))
             .child(tabButton(2, tabs)
                 .overlay(GTGuiTextures.OVERLAY_BUTTON_BATCH_MODE_ON.asIcon().size(18, 18))
-                .tooltip(t -> t.addLine(IKey.lang("proghatches.super_pattern.batch")))));
+                .tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.batch")))));
         panel.child(new PagedWidget<>().controller(tabs).pos(0, 0).size(width, contentHeight)
             .addPage(patternsTab).addPage(individualTab).addPage(batchTab));
 

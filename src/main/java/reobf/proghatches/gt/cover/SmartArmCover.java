@@ -778,6 +778,17 @@ public class SmartArmCover extends CoverBehaviorBase<SmartArmCover.Data> {
         return true;
     }
 
+    // performTransfer accesses the covered machine through this side; like CoverArm, let items pass
+    @Override
+    public boolean letsItemsIn(int slot) {
+        return true;
+    }
+
+    @Override
+    public boolean letsItemsOut(int slot) {
+        return true;
+    }
+
     static final int[] empty = new int[0];
     public static final int[][] tier = new int[][] { { 1600, 1 }, { 400, 1 }, { 100, 1 }, { 20, 1 }, { 4, 1 }, { 1, 2 },
         { 1, 4 }, { 1, 8 }, { 1, 16 }, { 1, 32 }, { 1, 64 }, { 1, 64 }, { 1, 64 }, { 1, 64 }, { 1, 64 },

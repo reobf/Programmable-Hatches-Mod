@@ -682,14 +682,11 @@ public class AECover extends CoverBehaviorBase<AECover.Data> {
 
     }
 
-    public boolean onCoverRightClick(ForgeDirection side, int aCoverID, Data aCoverVariable, ICoverable aTileEntity,
-        EntityPlayer aPlayer, float aX, float aY, float aZ) {
-        if (aCoverVariable.nonShiftClick(side, aCoverID, aCoverVariable, aTileEntity, aPlayer)) {
-            return true;
-        }
-        openGUI(side, aCoverID, aCoverVariable, aTileEntity, aPlayer);
-        return false;
-    };
+    @Override
+    public boolean onCoverRightClick(EntityPlayer aPlayer, float aX, float aY, float aZ) {
+        if (aPlayer.worldObj.isRemote) return false;
+        return coverData.nonShiftClick(coverSide, this.coverID, coverData, coveredTile.get(), aPlayer);
+    }
 
     @Override
     public void onCoverScrewdriverClick(EntityPlayer aPlayer, float aX, float aY, float aZ) {

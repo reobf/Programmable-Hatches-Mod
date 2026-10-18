@@ -111,8 +111,16 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
 
         @Override
         public void removePart(ForgeDirection side, boolean suppressUpdate) {
-            // TODO Auto-generated method stub
-
+            // the part is reused, drop its own patterns here or copyContents will dupe them
+            IInventory patterns = duality.getInterfaceDuality().getPatterns();
+            ArrayList<ItemStack> drops = new ArrayList<>();
+            for (int i = 0; i < patterns.getSizeInventory(); i++) {
+                ItemStack is = patterns.getStackInSlot(i);
+                if (is == null) continue;
+                drops.add(is);
+                patterns.setInventorySlotContents(i, null);
+            }
+            if (!drops.isEmpty()) Platform.spawnDrops(pos.getWorld(), pos.x, pos.y, pos.z, drops);
         }
 
         @Override
@@ -171,8 +179,9 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
 
         @Override
         public IPart getPart(ForgeDirection side) {
-            // TODO Auto-generated method stub
-            return null;
+            if (!replacing) return null;
+            replacing = false;
+            return duality;
         }
 
         @Override
@@ -219,9 +228,12 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
 
         @Override
         public ForgeDirection addPart(ItemStack is, ForgeDirection side, EntityPlayer owner) {
-            // TODO Auto-generated method stub
-            return null;
+            // for PartP2PTunnel.replacePartInWorld, just reuse the part
+            replacing = true;
+            return side;
         }
+
+        private boolean replacing;
 
         @Override
         public ForgeDirection getActualSide() {
@@ -628,15 +640,13 @@ public class InterfaceP2PNoFluidData implements AECover.IMemoryCardSensitive, Da
                         /* if (newBus instanceof PartP2PTunnel<?>newTunnel) */ {
 
                             ArrayList<ItemStack> drops = new ArrayList<>();
-                            for (int i = 0; i < duality.getPatterns()
-                                .getSizeInventory(); i++) {
-                                if (duality.getPatterns()
-                                    .getStackInSlot(i) == null) continue;
-                                drops.add(
-                                    duality.getPatterns()
-                                        .getStackInSlot(i));
-                                duality.getPatterns()
-                                    .setInventorySlotContents(i, null);
+                            // getPatterns() of an output returns the input's patterns
+                            IInventory patterns = duality.getInterfaceDuality()
+                                .getPatterns();
+                            for (int i = 0; i < patterns.getSizeInventory(); i++) {
+                                if (patterns.getStackInSlot(i) == null) continue;
+                                drops.add(patterns.getStackInSlot(i));
+                                patterns.setInventorySlotContents(i, null);
                             }
                             Platform.spawnDrops(pos.getWorld(), pos.x, pos.y, pos.z, drops);
 

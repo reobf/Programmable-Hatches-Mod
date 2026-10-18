@@ -102,7 +102,7 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
 
     IPartHost fakehost = new Host();
 
-    public class Host implements IPartHost, IActualSideProvider, InterfaceData.DisabledInventory {
+    public class Host implements IPartHost, IActualSideProvider, InterfaceData.DisabledInventory, IReusedP2PHost {
 
         @Override
         public SelectedPart selectPart(Vec3 pos) {
@@ -112,7 +112,13 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
 
         @Override
         public void removePart(ForgeDirection side, boolean suppressUpdate) {
-            // the part is reused, drop its own patterns here or copyContents will dupe them
+            wasOutput = duality.isOutput();
+        }
+
+        // same rule as PartP2PInterface.copyContents: patterns are kept only from input to input
+        @Override
+        public void afterPartReused() {
+            if (!wasOutput && !duality.isOutput()) return;
             IInventory patterns = duality.getInterfaceDuality().getPatterns();
             ArrayList<ItemStack> drops = new ArrayList<>();
             for (int i = 0; i < patterns.getSizeInventory(); i++) {
@@ -235,6 +241,7 @@ public class InterfaceP2PData implements AECover.IMemoryCardSensitive, Data, IIn
         }
 
         private boolean replacing;
+        private boolean wasOutput;
 
         @Override
         public ForgeDirection getActualSide() {

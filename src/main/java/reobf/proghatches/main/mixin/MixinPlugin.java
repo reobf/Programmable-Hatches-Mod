@@ -209,6 +209,7 @@ public static boolean loaded;
         retLate.add("part2.MixinNewDualInterface");
         retLate.add("part2.MixinMEOutput2CPU");
         retLate.add("part2.MixinDoNotSleep");
+        retLate.add("part2.MixinP2PInterfaceReuse");
         //retLate.add("part2.x");
         //retLate.add("part2.MixinCraftRevive");
         if (FMLLaunchHandler.side()

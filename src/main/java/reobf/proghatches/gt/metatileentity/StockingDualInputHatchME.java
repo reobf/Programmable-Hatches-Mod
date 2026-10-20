@@ -1251,12 +1251,12 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
                 }
             }
             phLastAllowedToWork = phAllowed;
-            if (aTimer % 64 == 0) configureAEWatchers(); // marks can change via GUI/autopull/NBT paste
             interval=Math.max(1, interval);
             if (aTimer % interval == 0 && autoPullItemList) {
                 refreshItemList();
                 refreshItemListF();
             }
+            phCheckMarks();
             if (aTimer % 20 == 0) {
                 getBaseMetaTileEntity().setActive(isActive());
             }
@@ -1336,13 +1336,59 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
         configureAEWatchers();
     }
 
+    /** The marks the AE watcher was last configured with, see phCheckMarks. */
+    private final ItemStack[] phWatchedI = new ItemStack[16];
+    private final FluidStack[] phWatchedF = new FluidStack[16];
+
     private void configureAEWatchers() {
+        for (int i = 0; i < 16; i++) {
+            phWatchedI[i] = i_mark[i] == null ? null : i_mark[i].copy();
+            phWatchedF[i] = f_mark[i] == null ? null : f_mark[i].copy();
+        }
         if (phStackWatcher == null) return;
         phStackWatcher.clear();
         for (int i = 0; i < 16; i++) {
             if (i_mark[i] != null) phStackWatcher.add(AEItemStack.create(i_mark[i]));
             if (f_mark[i] != null) phStackWatcher.add(AEFluidStack.create(f_mark[i]));
         }
+    }
+
+    /**
+     * Marks change through auto-pull, the GUI and NBT/Matter Manipulator pastes. The watcher only reports
+     * types it already watches, so a type entering the marks (restocked after running out, or now above the
+     * minimum amount) is announced here, the way GT's auto-pull busses do in refreshItemList.
+     */
+    private void phCheckMarks() {
+        boolean changed = false;
+        for (int i = 0; i < 16 && !changed; i++) {
+            changed = !GTUtility.areStacksEqualOrNull(i_mark[i], phWatchedI[i]) || !sameFluid(f_mark[i], phWatchedF[i]);
+        }
+        if (!changed) return;
+        boolean gained = false;
+        for (int i = 0; i < 16 && !gained; i++) {
+            gained = i_mark[i] != null && !containsItem(phWatchedI, i_mark[i])
+                || f_mark[i] != null && !containsFluid(phWatchedF, f_mark[i]);
+        }
+        configureAEWatchers();
+        if (gained) {
+            for (gregtech.common.tileentities.machines.IHatchWatcher w : phWatcherMirror) {
+                w.scheduleRecipeCheck(gregtech.common.tileentities.machines.RecipeCheckReason.IMMEDIATE);
+            }
+        }
+    }
+
+    private static boolean sameFluid(FluidStack a, FluidStack b) {
+        return a == null ? b == null : a.isFluidEqual(b);
+    }
+
+    private static boolean containsItem(ItemStack[] marks, ItemStack stack) {
+        for (ItemStack m : marks) if (GTUtility.areStacksEqual(m, stack)) return true;
+        return false;
+    }
+
+    private static boolean containsFluid(FluidStack[] marks, FluidStack stack) {
+        for (FluidStack m : marks) if (stack.isFluidEqual(m)) return true;
+        return false;
     }
 
     @Override

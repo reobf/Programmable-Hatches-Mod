@@ -1,5 +1,10 @@
 package reobf.proghatches.main.mixin.mixins.cpu;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -16,6 +21,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 
 import appeng.api.config.CraftingAllow;
 import appeng.api.networking.IGrid;
+import appeng.api.networking.IGridHost;
 import appeng.api.networking.crafting.ICraftingJob;
 import appeng.api.networking.crafting.ICraftingLink;
 import appeng.api.networking.crafting.ICraftingRequester;
@@ -26,6 +32,7 @@ import appeng.api.networking.security.MachineSource;
 import appeng.me.GridAccessException;
 import appeng.me.cache.CraftingGridCache;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
+import appeng.tile.crafting.TileCraftingMonitorTile;
 import net.minecraftforge.common.util.ForgeDirection;
 import reobf.proghatches.ae.cpu.IExternalManager;
 import reobf.proghatches.ae.cpu.IExternalManagerHolder;
@@ -78,10 +85,33 @@ public class MixinCPU implements IExternalManagerHolder{
 	
 	@Shadow
 	private int remainingOperations;
+	@Shadow
+	@Final
+	protected LinkedList<TileCraftingMonitorTile> status;
+
+	@Shadow
+	protected void updateCPU() {}
+
+	// virtual clusters have no blocks, so OC's finalOutput finds no crafting monitor among getTiles()
+	@Unique
+	private TileCraftingMonitorTile proghatches$monitor;
+
 	@Override
 	public void acceptIExternalManager(TileCPU a) {
 		ex=a;
 		machineSrc=new MachineSource( a.fakeCPU());
+		if (proghatches$monitor == null) {
+			proghatches$monitor = new TileCraftingMonitorTile();
+			status.add(proghatches$monitor);
+		}
+	}
+
+	@Inject(at = @At("HEAD"), method = "getTiles", cancellable = true, require = 1)
+	public void getTiles(CallbackInfoReturnable<Iterator<IGridHost>> ci) {
+		if (ex != null && proghatches$monitor != null) {
+			updateCPU();
+			ci.setReturnValue(Collections.<IGridHost>singletonList(proghatches$monitor).iterator());
+		}
 	}
 
 	@Override

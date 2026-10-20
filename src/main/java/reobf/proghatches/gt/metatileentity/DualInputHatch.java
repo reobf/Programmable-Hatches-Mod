@@ -2444,7 +2444,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			}.slot(new ModularSlot(new GhostCircuitItemStackHandler(mte),0)).pos(0, 0);
 		}
 
-		ItemSlot catalystSlot2(ArrayList<ItemStack> inv) {
+		ItemSlot catalystSlot2(ArrayList<ItemStack> inv, int index) {
 
 			ItemSlot is = new ItemSlot() {
 				public Result onMousePressed(int mouseButton) {
@@ -2453,7 +2453,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 					return super.onMousePressed(mouseButton);
 				};
 			}.slot(new ModularSlot(new ItemStackHandler(inv) {
-			}, 0) {
+			}, index) {
 				@Override
 				public int getSlotStackLimit() {
 					return 0;
@@ -2565,7 +2565,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			builder.size(36 + 18 * 3, 36 + 18 * 4);
 			builder.child(circuitSlot2(this,syncManager).pos(8 - 1, 8 - 1));
 			for (int i = 0; i < shared.circuitUpgrades; i++)
-				builder.child(catalystSlot2((shared.circuitInv)).pos(8 - 1, 8 - 1 + 18 + 18 * i));
+				builder.child(catalystSlot2(shared.circuitInv, i).pos(8 - 1, 8 - 1 + 18 + 18 * i));
 			int posoffset = 0;
 			for (int i = 0; i < shared.itemMEUpgrades; i++) {
 				final int fi = i;

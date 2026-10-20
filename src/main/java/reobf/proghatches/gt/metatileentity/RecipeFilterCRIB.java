@@ -6,9 +6,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
@@ -16,6 +18,19 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.cleanroommc.modularui.api.IPanelHandler;
+import com.cleanroommc.modularui.api.drawable.IKey;
+import com.cleanroommc.modularui.factory.PosGuiData;
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.ModularScreen;
+import com.cleanroommc.modularui.screen.UISettings;
+import com.cleanroommc.modularui.utils.Color;
+import com.cleanroommc.modularui.value.sync.IntSyncValue;
+import com.cleanroommc.modularui.value.sync.InteractionSyncHandler;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.widget.sizer.Area;
+import com.cleanroommc.modularui.widgets.ButtonWidget;
+import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 import com.glodblock.github.loader.ItemAndBlockHolder;
 import com.glodblock.github.util.FluidPatternDetails;
 import com.google.common.collect.ImmutableList;
@@ -40,6 +55,7 @@ import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
+import appeng.api.networking.crafting.ICraftingMedium;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.crafting.ICraftingProvider;
 import appeng.api.networking.crafting.ICraftingProviderHelper;
@@ -77,6 +93,7 @@ import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.RecipeMapWorkable;
 import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.modularui2.GTGuiTextures;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.util.GTRecipe;
 import gregtech.common.blocks.ItemMachines;
@@ -179,6 +196,7 @@ public class RecipeFilterCRIB extends PatternDualInputHatch  {
 	ItemStack filterCache;
 	ItemList genPatterns=new ItemList();
 	ICraftingPatternDetails[] genPatternsDetails=new ICraftingPatternDetails[]{};
+	int genMultiplier=1;
 	String modeHint;
 	String modeHintLangKey;
 	int recipeIndex;
@@ -203,6 +221,7 @@ public void saveNBTData(NBTTagCompound aNBT) {
     aNBT.setTag("genPatterns", tagList);
 	
     aNBT.setLong("randomID",randomID);
+    aNBT.setInteger("genMultiplier",genMultiplier);
 	super.saveNBTData(aNBT);
 }
 @Override
@@ -227,18 +246,20 @@ public void loadNBTData(NBTTagCompound aNBT) {
 		genPatternsDetails[i++]=((ICraftingPatternItem)p.getItem()).getPatternForItem(p.getItemStack(), this.getBaseMetaTileEntity().getWorld());
 	}
 	randomID=aNBT.getLong("randomID");
+	genMultiplier=Math.max(1,aNBT.getInteger("genMultiplier"));
 	super.loadNBTData(aNBT);
 }
 
 /*
- * Matter Manipulator support: on top of what PatternDualInputHatch copies this carries the two
+ * Matter Manipulator support: on top of what PatternDualInputHatch copies this carries the
  * settings this class owns - the machine whose recipe list is exposed (filter, a template copy of
- * the player's held stack that is never dropped again, so this is config and not an item) and which
- * of that machine's recipe maps is selected (recipeIndex) - then restarts the generator so the
- * patterns are rebuilt on the target. Deliberately NOT copied: genPatterns / genPatternsDetails /
- * filterCache / modeHint (derived output, routinely thousands of encoded patterns that would have
- * to survive MM's JSON round trip, and all reproducible from filter + recipeIndex) and randomID
- * (the AE ILocatable serial / wireless-terminal encryption key, which must stay unique per machine).
+ * the player's held stack that is never dropped again, so this is config and not an item), which
+ * of that machine's recipe maps is selected (recipeIndex) and the multiplier of the generated
+ * patterns (genMultiplier) - then restarts the generator so the patterns are rebuilt on the target.
+ * Deliberately NOT copied: genPatterns / genPatternsDetails / filterCache / modeHint (derived
+ * output, routinely thousands of encoded patterns that would have to survive MM's JSON round trip,
+ * and all reproducible from filter + recipeIndex) and randomID (the AE ILocatable serial /
+ * wireless-terminal encryption key, which must stay unique per machine).
  */
 @Override
 public NBTTagCompound getCopiedData(EntityPlayer player) {
@@ -249,6 +270,7 @@ public NBTTagCompound getCopiedData(EntityPlayer player) {
 		.writeToNBT(f);
 	ret.setTag("filter", f);
 	ret.setInteger("recipeIndex", recipeIndex);
+	ret.setInteger("genMultiplier", genMultiplier);
 	return ret;
 }
 
@@ -259,6 +281,7 @@ public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
 	// an empty tag loads back as null, i.e. "no machine selected"
 	if (nbt.hasKey("filter")) filter = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("filter"));
 	if (nbt.hasKey("recipeIndex")) recipeIndex = Math.max(0, nbt.getInteger("recipeIndex"));
+	if (nbt.hasKey("genMultiplier")) setGenMultiplier(nbt.getInteger("genMultiplier"));
 	if (!super.pasteCopiedData(player, nbt)) return false;
 	// Rebuild the generated patterns the way onScrewdriverRightClick / onRightclick do: pick the
 	// recipe map, then hand the work to the staged generator that onPostTick's step() drives on the
@@ -530,15 +553,123 @@ private void postChangeInner(StorageChannel c,IAEItemStack is){
     	return all;
     }
     
+    private ICraftingPatternDetails[] offered=new ICraftingPatternDetails[]{};
+    private ICraftingPatternDetails[] offeredFrom;
+    private int offeredMultiplier;
+
+    // every regeneration assigns a new genPatternsDetails array
+    private ICraftingPatternDetails[] offeredPatterns() {
+        if (offeredFrom != genPatternsDetails || offeredMultiplier != genMultiplier) {
+            List<ICraftingPatternDetails> list = new ArrayList<>(genPatternsDetails.length);
+            for (ICraftingPatternDetails d : genPatternsDetails) {
+                if (d != null) list.add(genMultiplier > 1 ? new DA(d, genMultiplier) : d);
+            }
+            offered = list.toArray(new ICraftingPatternDetails[0]);
+            offeredFrom = genPatternsDetails;
+            offeredMultiplier = genMultiplier;
+        }
+        return offered;
+    }
+
     @Override
     public void provideCrafting(ICraftingProviderHelper craftingTracker) {
         if (!isActive()) return;
-        
-    
-        for(ICraftingPatternDetails d:genPatternsDetails){craftingTracker.addCraftingOption(this, d);}
-    
-    
-    
+        for (ICraftingPatternDetails d : offeredPatterns()) craftingTracker.addCraftingOption(this, d);
+    }
+
+    public static ICraftingPatternDetails basePattern(ICraftingPatternDetails d) {
+        return d instanceof DA ? ((DA) d).p : d;
+    }
+
+    /**
+     * What CraftingGridCache.getMediums falls back to: a running job asks for the exact pattern it
+     * was planned with, which is gone once the multiplier changed, so it is pushed to the buffers
+     * that still offer the same recipe and keeps its own amounts.
+     */
+    public static Map<ICraftingPatternDetails, List<ICraftingMedium>> indexByBasePattern(
+        Map<ICraftingPatternDetails, List<ICraftingMedium>> craftingMethods) {
+        Map<ICraftingPatternDetails, List<ICraftingMedium>> index = new HashMap<>();
+        for (Map.Entry<ICraftingPatternDetails, List<ICraftingMedium>> e : craftingMethods.entrySet()) {
+            for (ICraftingMedium medium : e.getValue()) {
+                if (medium instanceof RecipeFilterCRIB) index.computeIfAbsent(basePattern(e.getKey()), k -> new ArrayList<>())
+                    .add(medium);
+            }
+        }
+        return index;
+    }
+
+    void setGenMultiplier(long value) {
+        int v = (int) Math.max(1, Math.min(Integer.MAX_VALUE, value));
+        if (v == genMultiplier) return;
+        genMultiplier = v;
+        needPatternSync = true;
+        markDirty();
+    }
+
+    @Override
+    public void populateUI(ModularPanel builder, PosGuiData data, PanelSyncManager syncManager,
+        UISettings uiSettings) {
+        super.populateUI(builder, data, syncManager, uiSettings);
+        syncManager.syncValue("gen_multiplier", new IntSyncValue(() -> genMultiplier, v -> genMultiplier = v));
+        IPanelHandler panel = syncManager.syncedPanel("gen_multiplier_panel", true,
+            (manager, handler) -> createMultiplierWindow(manager));
+        builder.child(new ButtonWidget<>().onMousePressed(mouseButton -> {
+            panel.openPanel();
+            return panel.isPanelOpen();
+        })
+            .background(GTGuiTextures.BUTTON_STANDARD, GTGuiTextures.OVERLAY_BUTTON_BATCH_MODE_ON)
+            .tooltip(t -> t.addLine(IKey.lang("proghatches.gen_multiplier", () -> new Object[] { genMultiplier })))
+            .size(16, 16)
+            .pos(getGUIWidth() - 18 - 3, 5 + 16 + 2 + 16 + 2));
+    }
+
+    private ModularPanel createMultiplierWindow(PanelSyncManager syncManager) {
+        ModularPanel panel = new ModularPanel("gen_multiplier_window") {
+
+            @Override
+            public void onOpen(ModularScreen screen) {
+                Area main = screen.getMainPanel().getArea();
+                this.left(main.x() + main.w()).top(main.y());
+                super.onOpen(screen);
+            }
+        };
+        panel.size(3 + 4 * 24 + 3 * 2 + 3, 16 + 16 + 2 + 18 + 3);
+        panel.child(IKey.lang("proghatches.gen_multiplier.short", () -> new Object[] { genMultiplier })
+            .asWidget()
+            .pos(4, 4));
+        panel.child(multiplierButton(syncManager, "gen_x2", "x2", () -> setGenMultiplier(genMultiplier * 2L))
+            .tooltip(t -> t.addLine(IKey.lang("proghatches.gen_multiplier.multiply", 2)))
+            .pos(3, 16));
+        panel.child(multiplierButton(syncManager, "gen_set1", "=1", () -> setGenMultiplier(1))
+            .tooltip(t -> t.addLine(IKey.lang("proghatches.gen_multiplier.set", 1)))
+            .pos(3 + 26, 16));
+        panel.child(multiplierButton(syncManager, "gen_xn", "xN", () -> setGenMultiplier((long) genMultiplier * n))
+            .tooltip(t -> t.addLine(IKey.lang("proghatches.gen_multiplier.multiply", () -> new Object[] { n })))
+            .pos(3 + 26 * 2, 16));
+        panel.child(multiplierButton(syncManager, "gen_setn", "=N", () -> setGenMultiplier(n))
+            .tooltip(t -> t.addLine(IKey.lang("proghatches.gen_multiplier.set", () -> new Object[] { n })))
+            .pos(3 + 26 * 3, 16));
+        panel.child(new TextFieldWidget().value(new IntSyncValue(() -> n, v -> n = Math.max(1, v)).allowC2S())
+            .formatAsInteger(true)
+            .numbersInt(1, Integer.MAX_VALUE)
+            .setTextColor(Color.WHITE.main)
+            .tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.factor")))
+            .size(4 * 24 + 3 * 2, 18)
+            .pos(3, 16 + 16 + 2)
+            .background(GTGuiTextures.BACKGROUND_TEXT_FIELD));
+        return panel;
+    }
+
+    private ButtonWidget<?> multiplierButton(PanelSyncManager syncManager, String key, String label, Runnable action) {
+        // InteractionSyncHandler runs the action on the client too
+        InteractionSyncHandler handler = new InteractionSyncHandler().setOnMousePressed(d -> {
+            if (getBaseMetaTileEntity().isServerSide()) action.run();
+        });
+        syncManager.syncValue(key, handler);
+        return new ButtonWidget<>().syncHandler(handler)
+            .background(GTGuiTextures.BUTTON_STANDARD)
+            .overlay(IKey.str(label))
+            .size(24, 16);
     }
     @Override
     public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,

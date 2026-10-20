@@ -867,6 +867,10 @@ proghatches.pattern_window.batch=Batch Multiplier Op.
 proghatches.pattern_window.multiply=Multiply every slot's multiplier by %s
 proghatches.pattern_window.set=Set every slot's multiplier to %s
 proghatches.pattern_window.factor=N for the xN and =N operations
+proghatches.gen_multiplier=Generated pattern multiplier: x%s
+proghatches.gen_multiplier.short=Multiplier: x%s
+proghatches.gen_multiplier.multiply=Multiply the multiplier of all generated patterns by %s
+proghatches.gen_multiplier.set=Set the multiplier of all generated patterns to %s
 proghatches.super_pattern.previous=Previous pattern page
 proghatches.super_pattern.next=Next pattern page
 proghatches.super_pattern.page=Page %s / %s

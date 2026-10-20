@@ -1313,6 +1313,8 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
     // This hatch samples the ME network lazily in startRecipeProcessing(), so nothing schedules a
     // recipe check when the network gains matching items. Mirror GT's stocking bus: register an AE
     // stack watcher for the configured marks and give watching controllers a THROTTLED nudge on change.
+    // Like GT, the watcher is only used with MachineStats.machines.useStackWatcher on; with it off
+    // (the default) the watching controllers poll instead, see needsPeriodicChecks.
     private appeng.api.networking.storage.IStackWatcher phStackWatcher;
     /** See onPostTick, issue #327: last tick's isAllowedToWork(), used to detect the false->true edge. */
     private boolean phLastAllowedToWork = true;
@@ -1328,6 +1330,11 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
     public void removeWatcher(gregtech.common.tileentities.machines.IHatchWatcher watcher) {
         super.removeWatcher(watcher);
         phWatcherMirror.remove(watcher);
+    }
+
+    @Override
+    public boolean needsPeriodicChecks() {
+        return !gregtech.common.config.MachineStats.machines.useStackWatcher;
     }
 
     @Override
@@ -1347,6 +1354,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
         }
         if (phStackWatcher == null) return;
         phStackWatcher.clear();
+        if (!gregtech.common.config.MachineStats.machines.useStackWatcher) return;
         for (int i = 0; i < 16; i++) {
             if (i_mark[i] != null) phStackWatcher.add(AEItemStack.create(i_mark[i]));
             if (f_mark[i] != null) phStackWatcher.add(AEFluidStack.create(f_mark[i]));

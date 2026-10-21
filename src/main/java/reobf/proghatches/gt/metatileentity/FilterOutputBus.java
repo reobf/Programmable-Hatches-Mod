@@ -1,7 +1,6 @@
 package reobf.proghatches.gt.metatileentity;
 
 import com.gtnewhorizon.gtnhlib.item.ItemTransfer;
-import java.util.Optional;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -87,16 +86,11 @@ public class FilterOutputBus extends MTEHatchOutputBus {
 
     @Override
     public void setInventorySlotContents(int aIndex, ItemStack aStack) {
-        if (protectFlag) {
-
-            if (aStack == null) {
-                Optional.ofNullable(this.mInventory[aIndex])
-                    .ifPresent(s -> s.stackSize = 0);
-                return;
-            }
-
+        // ItemTransfer hands the slot's own stack to the target when it empties a slot, so the phantom must be a copy
+        if (protectFlag && aStack == null && aIndex >= 0 && aIndex < mInventory.length && mInventory[aIndex] != null) {
+            aStack = mInventory[aIndex].copy();
+            aStack.stackSize = 0;
         }
-
         super.setInventorySlotContents(aIndex, aStack);
     }
 
@@ -131,7 +125,8 @@ public class FilterOutputBus extends MTEHatchOutputBus {
                 // mInventory[i] = null;
             }
         }
-
+        // what MTEHatchOutputBus.onPostTick does after its own eject: freed space can unblock an ITEM_OUTPUT_FULL recipe
+        if (aBaseMetaTileEntity.isServerSide()) detectInventoryChange();
     }
 
 }

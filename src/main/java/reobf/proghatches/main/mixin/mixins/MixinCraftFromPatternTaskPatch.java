@@ -3,15 +3,13 @@ package reobf.proghatches.main.mixin.mixins;
 import java.util.Arrays;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import appeng.api.networking.crafting.ICraftingPatternDetails;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.crafting.v2.resolvers.CraftableItemResolver.CraftFromPatternTask;
 import reobf.proghatches.eucrafting.IInputMightBeEmptyPattern;
@@ -36,23 +34,31 @@ public class MixinCraftFromPatternTaskPatch {
      * return shouldPatch();
      * }
      */
-    @Shadow(remap = false)
-    protected IAEStack[] patternInputs;
+    @WrapOperation(
+        method = "<init>(Lappeng/crafting/v2/CraftingRequest;Lappeng/api/networking/crafting/ICraftingPatternDetails;IZZ)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lappeng/api/networking/crafting/ICraftingPatternDetails;getCondensedAEInputs()[Lappeng/api/storage/data/IAEStack;"),
+        remap = false,
+        require = 1)
+    private IAEStack<?>[] dropEmptyInputs(ICraftingPatternDetails pattern, Operation<IAEStack<?>[]> original) {
+        IAEStack<?>[] inputs = original.call(pattern);
+        if (!(pattern instanceof IInputMightBeEmptyPattern)) return inputs;
+        return Arrays.stream(inputs)
+            .filter(s -> s != null && s.getStackSize() > 0)
+            .toArray(IAEStack<?>[]::new);
+    }
 
-    @Inject(method = "<init>", at = { @At("RETURN") }, remap = false, require = 1)
-    // public void calculateOneStep(CraftingRequest<IAEItemStack> request, ICraftingPatternDetails pattern,
-    // int priority, boolean allowSimulation, boolean isComplex,CallbackInfo xx){
-    public void calculateOneStep(CallbackInfo xx, @Local(argsOnly = true) ICraftingPatternDetails pattern) {
-
-        // if(shouldPatch())
-        if (pattern instanceof IInputMightBeEmptyPattern) {
-
-            patternInputs = Arrays.stream(patternInputs)
-                .filter(s -> s.getStackSize() > 0)
-                .toArray(IAEStack[]::new);
-
-        }
-
+    @WrapOperation(
+        method = "<init>(Lappeng/crafting/v2/CraftingRequest;Lappeng/api/networking/crafting/ICraftingPatternDetails;IZZ)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lappeng/crafting/v2/resolvers/CraftableItemResolver$CraftFromPatternTask;hasZeroSizedStack([Lappeng/api/storage/data/IAEStack;)Z"),
+        remap = false,
+        require = 0)
+    private boolean allowEmptyInputPattern(IAEStack<?>[] stacks, Operation<Boolean> original,
+        @Local(argsOnly = true) ICraftingPatternDetails pattern) {
+        return !(pattern instanceof IInputMightBeEmptyPattern) && original.call((Object) stacks);
     }
 
 }

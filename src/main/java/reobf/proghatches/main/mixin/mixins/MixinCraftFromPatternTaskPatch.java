@@ -55,7 +55,8 @@ public class MixinCraftFromPatternTaskPatch {
             value = "INVOKE",
             target = "Lappeng/crafting/v2/resolvers/CraftableItemResolver$CraftFromPatternTask;hasZeroSizedStack([Lappeng/api/storage/data/IAEStack;)Z"),
         remap = false,
-        require = 0)
+        require = 0,
+        expect = 0)
     private boolean allowEmptyInputPattern(IAEStack<?>[] stacks, Operation<Boolean> original,
         @Local(argsOnly = true) ICraftingPatternDetails pattern) {
         return !(pattern instanceof IInputMightBeEmptyPattern) && original.call((Object) stacks);

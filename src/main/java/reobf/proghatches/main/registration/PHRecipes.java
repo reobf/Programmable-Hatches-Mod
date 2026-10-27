@@ -956,7 +956,7 @@ public class PHRecipes implements Runnable {
                 new ItemStack[] { new ItemStack(ocae, 1, 0), new ItemStack(ocae, 1, 1), new ItemStack(ocae, 1, 2)// any
                                                                                                                  // tier
                 },
-                new ItemStack(GameRegistry.findItem("ae2fc", "fluid_interface"), 1, 77))
+                new ItemStack(GameRegistry.findItem("ae2fc", "fluid_interface"), 1, 0))
             .itemOutputs(new ItemStack(MyMod.iohub, 1, 0))
             .duration(1 * SECONDS)
             .eut(480)

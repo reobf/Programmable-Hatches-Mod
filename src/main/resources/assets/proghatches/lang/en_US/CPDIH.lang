@@ -1,0 +1,11 @@
+Item/Fluid Input for Multiblocks
+Contents are always separated with other bus/hatch
+Programming Cover function integrated
+Patterns are split into 4 groups in column order; the group sizes are set on the config page and the pattern page marks each group with stripes
+Publishes balanced patterns: items that are both input and output (seeds/catalysts) come from the seed stock
+Seeds used are recovered from this ME network's incoming items (any source)
+Outputs must go back into the same ME network
+Patterns can be assigned to lanes that send their inputs to bound buffered dual input hatches of other machines
+Buffer: {bufferNum}
+{slots} Slots
+Capacity: 2^63-1 L{mMultiFluid?} x{fluidSlots} types of fluid{mMultiFluid:}{mMultiFluid!}

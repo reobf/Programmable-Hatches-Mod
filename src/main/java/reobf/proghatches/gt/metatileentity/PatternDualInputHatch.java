@@ -109,7 +109,11 @@ import reobf.proghatches.gt.metatileentity.DualInputHatch.Net;
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch.DA;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
 import reobf.proghatches.gt.metatileentity.bufferutil.LongWrapper;
+import reobf.proghatches.gt.metatileentity.chance.ChanceData;
+import reobf.proghatches.gt.metatileentity.chance.ChanceMark;
 import reobf.proghatches.gt.metatileentity.util.IMultiplePatternPushable;
+import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
+import reobf.proghatches.gt.metatileentity.util.PushStaging;
 import reobf.proghatches.gt.metatileentity.util.ISpecialOptimize;
 import reobf.proghatches.gt.metatileentity.util.MappingItemHandler;
 import com.cleanroommc.modularui.api.IPanelHandler;
@@ -359,7 +363,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
         return requestSource;
     }
 
-    private void refundAll() throws Exception {
+    void refundAll() throws Exception {
         markDirty();
         dirty = true;
         BaseActionSource src = getRequest();
@@ -590,8 +594,7 @@ public int page() {
     @Override
     public NBTTagCompound getCopiedData(EntityPlayer player) {
         NBTTagCompound ret = super.getCopiedData(player);
-        // clone(): setIntArray keeps the array by reference, so the tag must not alias the live field
-        ret.setIntArray("multiplier", multiplier.clone());
+        ret.setTag("multiplier", IDataCopyablePlaceHolder.intsToTag(multiplier));
         ret.setBoolean("restrictToInt", restrictToInt);
         ret.setBoolean("allowopt", allowopt);
         ret.setBoolean("normalopt", normalopt);
@@ -604,7 +607,7 @@ public int page() {
         if (nbt == null || !getCopiedDataIdentifier(player)
             .equals(nbt.getString("type"))) return false;
         if (nbt.hasKey("multiplier")) {
-            int[] src = nbt.getIntArray("multiplier");
+            int[] src = IDataCopyablePlaceHolder.intsFromTag(nbt.getTag("multiplier"));
             for (int i = 0; i < Math.min(src.length, multiplier.length); i++) {
                 // loadNBTData applies the same floor: a 0 or negative multiplier is not usable
                 multiplier[i] = Math.max(src[i], 1);
@@ -669,6 +672,13 @@ public int page() {
     public int n = 1;
     public boolean skipActiveCheck;
 
+    public void setPatternMultiplier(int slot, int m) {
+        multiplier[slot] = Math.max(1, m);
+        markDirty();
+        onPatternChange();
+        refresh();
+    }
+
     @Override
     public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
         if (!isActive() && !skipActiveCheck) return false;
@@ -681,31 +691,10 @@ public int page() {
             }
         }
 
-        int items = 0;
-        int fluids = 0;
-        int size = table.getSizeInventory();
-        for (int i = 0; i < size; i++) {
-            ItemStack itemStack = table.getStackInSlot(i);
-            if (itemStack == null) continue;
-            if (itemStack.getItem() instanceof ItemFluidPacket) {
-                fluids++;
-                if (fluids > this.fluidSlots()) {
-                    clearInv();
-                    return false;
-                }
-
-                mStoredFluid[fluids - 1].setFluidDirect(ItemFluidPacket.getFluidStack(itemStack));
-
-            } else {
-                items++;
-                if (items > page()*16) {
-                    clearInv();
-                    return false;
-                }
-                mInventory[items - 1] = itemStack;
-
-            }
-        }
+        PushStaging staging = PushStaging
+            .split(table, Integer.MAX_VALUE, true, ix -> ix < page() * 16, Integer.MAX_VALUE, true, fluidSlots());
+        if (staging == null) return false;
+        staging.stageInto(mInventory, mStoredFluid);
         markDirty();
         dirty = true;
         // inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)
@@ -724,12 +713,23 @@ public int page() {
          * check=currentID; }
          */
 
-        DualInvBuffer theBuffer = /* ((BufferedDualInputHatch) master). */classifyForce();
+        ChanceData chance = ChanceMark.isMarked(patternDetails) ? ChanceData.of(patternDetails) : null;
+        DualInvBuffer theBuffer = classifyChance(chance);
+        if (theBuffer == null && chance != null) {
+            staging.unstageFrom(mInventory, mStoredFluid);
+            return false;
+        }
         if (theBuffer != null) {
             theBuffer.onChange();
+            if (chance != null) theBuffer.chancePush(patternDetails, 1);
         }
         justHadNewItems = true;
         return true;
+    }
+
+    /** Files the staged inputs; a chance pattern lands only in a buffer of its own outputs. */
+    private DualInvBuffer classifyChance(ChanceData chance) {
+        return classifyWith(chance);
     }
 
     private boolean isEmpty() {
@@ -1288,31 +1288,10 @@ boolean allowopt=true;
             }
         }
 
-        int items = 0;
-        int fluids = 0;
-        int size = table.getSizeInventory();
-        for (int i = 0; i < size; i++) {
-            ItemStack itemStack = table.getStackInSlot(i);
-            if (itemStack == null) continue;
-            if (itemStack.getItem() instanceof ItemFluidPacket) {
-                fluids++;
-                if (fluids > this.fluidSlots()) {
-                    clearInv();
-                    return AZERO;
-                }
-
-                mStoredFluid[fluids - 1].setFluidDirect(ItemFluidPacket.getFluidStack(itemStack));
-
-            } else {
-                items++;
-                if (items > page()*16) {
-                    clearInv();
-                    return AZERO;
-                }
-                mInventory[items - 1] = itemStack;
-
-            }
-        }
+        PushStaging staging = PushStaging
+            .split(table, Integer.MAX_VALUE, true, ix -> ix < page() * 16, Integer.MAX_VALUE, true, fluidSlots());
+        if (staging == null) return AZERO;
+        staging.stageInto(mInventory, mStoredFluid);
         markDirty();
         dirty = true;
         // classify();
@@ -1326,7 +1305,12 @@ boolean allowopt=true;
          * check=currentID; }
          */
 
-        DualInvBuffer theBuffer = /* ((BufferedDualInputHatch) master). */classifyForce();
+        ChanceData chance = ChanceMark.isMarked(patternDetails) ? ChanceData.of(patternDetails) : null;
+        DualInvBuffer theBuffer = classifyChance(chance);
+        if (theBuffer == null && chance != null) {
+            staging.unstageFrom(mInventory, mStoredFluid);
+            return AZERO;
+        }
 
         // if(theBuffer!=null){
         suc++;
@@ -1348,44 +1332,22 @@ boolean allowopt=true;
                 , maxTodo);
 
             if (todo > 0) {
-                for (int ix = 0; ix < theBuffer.i; ix++) {
-                    // non-consumable: already unwrapped into the circuit region by programLocal(),
-                    // extra doses must not re-materialise the wrapper as a consumable (issue #331)
-                    if (theBuffer.isUnwrappedCircuitSlot(ix)) continue;
-                    if (theBuffer.mStoredItemInternalSingle[ix] != null) {
-                        if (theBuffer.mStoredItemInternal[ix] == null) {
-                            theBuffer.mStoredItemInternal[ix] = ItemStackG
-                                .neo(theBuffer.mStoredItemInternalSingle[ix].copy());
-                            theBuffer.mStoredItemInternal[ix].stackSize(0);// circuit?
-                        }
-                        theBuffer.mStoredItemInternal[ix]
-                            .stackSizeInc(new LongWrapper(theBuffer.mStoredItemInternalSingle[ix].stackSize *1L* todo));
-                    }
-                }
-
-                for (int ix = 0; ix < theBuffer.f; ix++) {
-                    if (theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount() > 0) {
-                        if (theBuffer.mStoredFluidInternal[ix].getFluidAmount() <= 0) {
-                            FluidStack zerof = theBuffer.mStoredFluidInternalSingle[ix].getFluid()
-                                .copy();
-                            zerof.amount = 0;
-                            theBuffer.mStoredFluidInternal[ix].setFluid(zerof);
-
-                        }
-                        theBuffer.mStoredFluidInternal[ix]
-                            .amountAcc(theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount() * 1l * todo);
-                    }
-                }
-                theBuffer.nonempty=true;
+                addExtraRuns(theBuffer, todo);
                 suc += todo;
             }
             theBuffer.onChange();
+            if (chance != null) theBuffer.chancePush(patternDetails, suc);
         }
 
         saved += suc;
 
         justHadNewItems = true;
         return new int[] { suc };
+    }
+
+    @Override
+    PushStaging stageParts(List<PushStaging.Part> parts) {
+        return PushStaging.splitParts(parts, Integer.MAX_VALUE, ix -> ix < page() * 16, Integer.MAX_VALUE, fluidSlots());
     }
 
     long saved;
@@ -1735,9 +1697,25 @@ public int getCircuitSlot() {
 		}
 	}
 
+	// Hooks for subclasses that reuse createPatternWindow2; the defaults keep the stock window.
+	protected boolean showMultiplierPages() {
+		return true;
+	}
+
+	protected com.cleanroommc.modularui.api.drawable.IDrawable[] patternSlotBackground(int slot) {
+		return new com.cleanroommc.modularui.api.drawable.IDrawable[] { GTGuiTextures.SLOT_ITEM_STANDARD };
+	}
+
+	/** Adds pages from index firstIndex on, with one tab each; returns the number of tabs added. */
+	protected int addExtraPatternWindowPages(PanelSyncManager syncManager, PagedWidget<?> paged, ParentWidget<?> tabs,
+		PagedWidget.Controller controller, int firstIndex) {
+		return 0;
+	}
+
 	protected ModularPanel createPatternWindow2(PanelSyncManager syncManager, IPanelHandler panelHandler) {
 		final int WIDTH = 18 * 4 + 6;     // page content width (4 slots wide)
 		final int HEIGHT = 18 * 9 + 6;
+		final boolean multPages = showMultiplierPages();
 		// Panel is content-width only; the right-side tabs protrude past its right edge.
 		// (Widening the panel area to wrap the tabs was rejected: the extra area is visually
 		// transparent but still part of the panel, so clicking that empty corner triggered a
@@ -1796,6 +1774,7 @@ public int getCircuitSlot() {
 		// server-side. Route each click through an InteractionSyncHandler (the click is
 		// synced to the server, where the action runs), mirroring the legacy MUI1
 		// com.cleanroommc.modularui.widgets.ButtonWidget.setOnClick behaviour which auto-synced clicks to the server.
+		if (multPages) {
 		page3.child(makeBatchButton(syncManager, "batch_x2", () -> {
 			for (int i = 0; i < 36; i++) {
 				multiplier[i] *= 2;
@@ -1854,6 +1833,7 @@ public int getCircuitSlot() {
 		page3.child(IKey.lang("proghatches.pattern_window.refund")
 			.asWidget()
 			.pos(3 + 18, 3 + 32 + 18 + 18 + 4 + 4));
+		}
 
 		// shared handler: use one handler for pattern + display slots so shift-clicking
 		// a pattern doesn't transfer it between pattern slots instead of to player inv.
@@ -1886,6 +1866,7 @@ public int getCircuitSlot() {
 			// ItemSlot). PatternSlot takes getItemStackForNEI(0), which zeroes both, then draws the
 			// count itself. Item outputs were never affected - they carry no mFluidDisplayAmount.
 			// Fixes issue #329.
+			if (multPages) {
 			page2.child(new PatternSlot().slot(new ModularSlot(shared_handler, i).accessibility(false, false))
 				.pos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
 				.background(GTGuiTextures.SLOT_ITEM_STANDARD));
@@ -1902,6 +1883,7 @@ public int getCircuitSlot() {
 				.setTextColor(com.cleanroommc.modularui.utils.Color.RED.main)
 				.pos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
 				.size(18, 18));
+			}
 
 			// ---- page 1: interactive pattern slot + multiplier text overlay ----
 			// Same output-rendering fix as page 2, see the comment there (issue #329).
@@ -1912,7 +1894,7 @@ public int getCircuitSlot() {
 				.filter(itemStack -> panelHandler.isPanelOpen() && itemStack.getItem() instanceof ICraftingPatternItem)
 				.changeListener((newItem, onlyAmountChanged, client, init) -> onPatternChange()))
 				.pos((i % 4) * 18 + 3, (i / 4) * 18 + 3)
-				.background(GTGuiTextures.SLOT_ITEM_STANDARD));
+				.background(patternSlotBackground(i)));
 
 			// Multiplier label drawn on top of the slot. It must NOT take part in hit-testing:
 			// layered over the slot, a normal TextWidget sits above the slot in the hovered
@@ -1929,41 +1911,46 @@ public int getCircuitSlot() {
 				.size(18, 18));
 		}
 
+		ParentWidget<?> tabs = new com.cleanroommc.modularui.widgets.layout.Column().coverChildren()
+			.pos(WIDTH - 3, -1);
+		// First tab slot = GT++ heat-protection glove, used as a drag handle. It is a
+		// DragTab (forwards the drag to the panel by repositioning it live each frame, so
+		// no jump even though the tab protrudes outside the panel area), NOT a PageButton,
+		// so it moves the window and does not switch pages.
+		tabs.child(new DragTab()
+			.background(GuiTextures.TAB_RIGHT.get(-1, false), dragIcon)
+			.size(TAB_W, 28)
+			.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.drag"))));
+		tabs.child(new PageButton(0, tabController).tab(GuiTextures.TAB_RIGHT, 0)
+			.overlay(tab1)
+			.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.patterns"))));
+		PagedWidget<?> paged = new PagedWidget<>().controller(tabController)
+			.pos(0, 0)
+			.size(WIDTH, HEIGHT);
+		paged.addPage(page1);
+		if (multPages) {
+			tabs.child(new PageButton(1, tabController).tab(GuiTextures.TAB_RIGHT, 0)
+				.overlay(tab2)
+				.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.individual"))));
+			tabs.child(new PageButton(2, tabController).tab(GuiTextures.TAB_RIGHT, 0)
+				.overlay(tab3)
+				.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.batch"))));
+			paged.addPage(page2);
+			paged.addPage(page3);
+		}
+		int tabCount = (multPages ? 4 : 2)
+			+ addExtraPatternWindowPages(syncManager, paged, tabs, tabController, multPages ? 3 : 1);
+
 		// Invisible backing behind the (protruding) tab strip, marked as an NEI/recipe-viewer
 		// exclusion area. The strip sits outside the panel's own area, so the panel's auto
 		// NEI exclusion doesn't cover it; this widget does. It draws nothing and clicks pass
 		// through to the tabs rendered on top of it.
 		builder.child(new com.cleanroommc.modularui.widget.Widget<>()
 			.pos(WIDTH - 3, -1)
-			.size(TAB_W, 28 * 4)
+			.size(TAB_W, 28 * tabCount)
 			.excludeAreaInRecipeViewer());
-
-		builder.child(new com.cleanroommc.modularui.widgets.layout.Column().coverChildren()
-			.pos(WIDTH - 3, -1)
-			// First tab slot = GT++ heat-protection glove, used as a drag handle. It is a
-			// DragTab (forwards the drag to the panel by repositioning it live each frame, so
-			// no jump even though the tab protrudes outside the panel area), NOT a PageButton,
-			// so it moves the window and does not switch pages.
-			.child(new DragTab()
-				.background(GuiTextures.TAB_RIGHT.get(-1, false), dragIcon)
-				.size(TAB_W, 28)
-				.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.drag"))))
-			.child(new PageButton(0, tabController).tab(GuiTextures.TAB_RIGHT, 0)
-				.overlay(tab1)
-				.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.patterns"))))
-			.child(new PageButton(1, tabController).tab(GuiTextures.TAB_RIGHT, 0)
-				.overlay(tab2)
-				.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.individual"))))
-			.child(new PageButton(2, tabController).tab(GuiTextures.TAB_RIGHT, 0)
-				.overlay(tab3)
-				.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.batch")))));
-
-		builder.child(new PagedWidget<>().controller(tabController)
-			.pos(0, 0)
-			.size(WIDTH, HEIGHT)
-			.addPage(page1)
-			.addPage(page2)
-			.addPage(page3));
+		builder.child(tabs);
+		builder.child(paged);
 
 		return builder;
 	}

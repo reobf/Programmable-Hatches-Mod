@@ -35,6 +35,7 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 
 import com.glodblock.github.common.item.ItemFluidPacket;
+import reobf.proghatches.gt.metatileentity.util.PushStaging;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
@@ -509,54 +510,16 @@ public class MultiblockProxy extends MTEEnhancedMultiBlockBase<MultiblockProxy>
                 return false;
             }
 
-            int i = 0;
-            int f = 0;
-            int ilimit = master.getInventoryStackLimit();
-            int flimit = master.getInventoryFluidLimit();
-            boolean isplit = master.disableLimited;
-            boolean fsplit = master.fluidLimit == 0;
-            for (int index = 0; index < table.getSizeInventory(); index++) {
-                ItemStack is = (table.getStackInSlot(index));
-                if (is == null) continue;
-                is = is.copy();
-                if (is.getItem() instanceof ItemFluidPacket) {
-                    FluidStack fs = ItemFluidPacket.getFluidStack(is);
-                    if (fs == null) {
-                        continue;
-                    }
-                    while (fs.amount > 0) {
-                        if (f >= master.mStoredFluid.length) {
-                            clearInv(master);
-                            return false;
-                        }
-                        int tosplit = Math.min(fs.amount, flimit);
-                        fs.amount -= tosplit;
-                        if ((!fsplit) && fs.amount > 0) {
-                            clearInv(master);
-                            return false;
-                        }
-                        FluidStack splitted = new FluidStack(fs.getFluid(), tosplit);
-                        master.mStoredFluid[f].setFluidDirect(splitted);
-                        f++;
-                    }
-
-                } else {
-                    while (is.stackSize > 0) {
-                        if (master.isValidSlot(i) == false) {
-                            clearInv(master);
-                            return false;
-                        }
-                        ItemStack splitted = is.splitStack(Math.min(is.stackSize, ilimit));
-                        if ((!isplit) && is.stackSize > 0) {
-                            clearInv(master);
-                            return false;
-                        }
-                        master.mInventory[i] = splitted;
-                        i++;
-                    }
-                }
-
-            }
+            PushStaging staging = PushStaging.split(
+                table,
+                master.getInventoryStackLimit(),
+                master.disableLimited,
+                master::isValidSlot,
+                master.getInventoryFluidLimit(),
+                master.fluidLimit == 0,
+                master.mStoredFluid.length);
+            if (staging == null) return false;
+            staging.stageInto(master.mInventory, master.mStoredFluid);
             if (master instanceof BufferedDualInputHatch) {
                 BufferedDualInputHatch m = (BufferedDualInputHatch) master;
 

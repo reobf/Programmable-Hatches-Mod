@@ -22,6 +22,7 @@ import gregtech.api.util.GTModHandler;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import reobf.proghatches.Tags;
 import reobf.proghatches.ae.BlockAutoFillerMKII;
+import reobf.proghatches.ae.BlockChanceController;
 import reobf.proghatches.ae.BlockCraftingCondenser;
 import reobf.proghatches.ae.BlockCyclicPatternSubmitter;
 //import reobf.proghatches.ae.BlockFluidDiscretizerMKII;
@@ -38,6 +39,7 @@ import reobf.proghatches.ae.ItemPartStockingExportBus;
 import reobf.proghatches.ae.ItemPartStorageProxy;
 import reobf.proghatches.ae.ItemPartSubnetExciter;
 import reobf.proghatches.ae.TileAutoFillerMKII;
+import reobf.proghatches.ae.TileChanceController;
 import reobf.proghatches.ae.TileCraftingCondenser;
 import reobf.proghatches.ae.TileCyclicPatternSubmitter;
 //import reobf.proghatches.ae.TileFluidDiscretizerMKII;
@@ -67,6 +69,7 @@ import reobf.proghatches.eucrafting.ItemEUToken;
 import reobf.proghatches.eucrafting.ItemPartLazerP2P;
 import reobf.proghatches.item.ItemBadge;
 import reobf.proghatches.item.ItemBookTutorial;
+import reobf.proghatches.item.ItemChanceToolkit;
 import reobf.proghatches.item.ItemDedicatedCover;
 import reobf.proghatches.item.ItemFakePattern;
 import reobf.proghatches.item.ItemFixer;
@@ -143,6 +146,10 @@ public class CommonProxy {
             MyMod.toolkit = new ItemProgrammingToolkit().setUnlocalizedName("prog_toolkit")
                 .setTextureName("NOTSET"),
             "prog_toolkit");
+        GameRegistry.registerItem(
+            MyMod.chance_toolkit = new ItemChanceToolkit().setUnlocalizedName("chance_toolkit")
+                .setTextureName("NOTSET"),
+            "chance_toolkit");
         GameRegistry.registerItem(
             MyMod.smartarm = new ItemSmartArm().setUnlocalizedName("proghatches.smartarm")
                 .setTextureName("NOTSET"),
@@ -295,6 +302,12 @@ public class CommonProxy {
             MyMod.autofiller = new BlockAutoFillerMKII(),
             ItemBlockTooltip.class,
             "autofillerMKII",
+            new Object[] { "" });
+        GameRegistry.registerTileEntity(TileChanceController.class, "proghatches.chance_controller");
+        GameRegistry.registerBlock(
+            MyMod.chance_controller = new BlockChanceController(),
+            ItemBlockTooltip.class,
+            "chance_controller",
             new Object[] { "" });
         /*GameRegistry.registerBlock(
                 MyMod.fd = new BlockFluidDiscretizerMKII(),

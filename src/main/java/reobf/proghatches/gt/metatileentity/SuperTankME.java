@@ -52,6 +52,7 @@ import com.gtnewhorizons.modularui.common.widget.textfield.TextFieldWidget;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
@@ -93,7 +94,6 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.util.GTUtility;
-import reobf.proghatches.gt.metatileentity.SuperChestME.SilentCloseable;
 import reobf.proghatches.gt.metatileentity.util.BaseSlotPatched;
 import reobf.proghatches.gt.metatileentity.util.IDataCopyablePlaceHolder;
 import reobf.proghatches.gt.metatileentity.util.IStoageCellUpdate;
@@ -221,9 +221,6 @@ public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxya
 
     @Override
     public List<IMEInventoryHandler> getCellArray(StorageChannel channel) {
-        if (freezeFlag) {
-            return ImmutableList.of();
-        }
         if (channel == StorageChannel.FLUIDS) return ImmutableList.of(handler);
         else return ImmutableList.of();
 
@@ -334,6 +331,11 @@ public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxya
         public int getPriority() {
             return piority;
         };
+
+        @Override
+        public boolean canAccept(IAEStack input) {
+            return !refunding && super.canAccept(input);
+        }
 
         {
             updateFilter = s -> this.setPartitionList(new PrecisePriorityList(s));
@@ -764,31 +766,6 @@ public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxya
         if (needToSort) fillStacksIntoFirstSlots();
     }
 
-    boolean freezeFlag;
-
-    // use in try-finally
-    public SilentCloseable freeze() {
-        freezeFlag = true;
-        post();
-        try {
-            this.getProxy()
-                .getGrid()
-                .postEvent(new MENetworkCellArrayUpdate());
-        } catch (GridAccessException e) {}
-        return new SilentCloseable() {
-
-            @Override
-            public void close() {
-                freezeFlag = false;
-                try {
-                    getProxy().getGrid()
-                        .postEvent(new MENetworkCellArrayUpdate());
-                } catch (GridAccessException e) {}
-            }
-        };
-
-    }
-
     ButtonWidget createRefundButton(IWidgetBuilder<?> builder) {
 
         Widget button = new ButtonWidget().setOnClick((clickData, widget) -> {
@@ -805,15 +782,21 @@ public class SuperTankME extends MTEHatch implements ICellContainer, IGridProxya
         return (ButtonWidget) button;
     }
 
+    boolean refunding;
+
+    /** The tank's own cell accepts nothing while it hands its content to the rest of the network. */
     public void refund() {
-        try (SilentCloseable __ = freeze()) {
+        refunding = true;
+        try {
             if (content.getFluidAmount() > 0) {
                 IAEFluidStack left = getProxy().getStorage()
                     .getFluidInventory()
                     .injectItems(AEFluidStack.create(content.getFluid()), Actionable.MODULATE, new MachineSource(this));
                 content.setFluid(left == null ? null : left.getFluidStack());
             }
-        } catch (GridAccessException e) {} finally {}
+        } catch (GridAccessException e) {} finally {
+            refunding = false;
+        }
         markDirty();
     }
 

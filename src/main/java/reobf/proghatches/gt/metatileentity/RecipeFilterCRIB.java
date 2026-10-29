@@ -591,7 +591,7 @@ private void postChangeInner(StorageChannel c,IAEItemStack is){
         Map<ICraftingPatternDetails, List<ICraftingMedium>> index = new HashMap<>();
         for (Map.Entry<ICraftingPatternDetails, List<ICraftingMedium>> e : craftingMethods.entrySet()) {
             for (ICraftingMedium medium : e.getValue()) {
-                if (medium instanceof RecipeFilterCRIB) index.computeIfAbsent(basePattern(e.getKey()), k -> new ArrayList<>())
+                if (medium instanceof RecipeFilterCRIB || medium instanceof CyclicPatternDualInputHatch) index.computeIfAbsent(basePattern(e.getKey()), k -> new ArrayList<>())
                     .add(medium);
             }
         }

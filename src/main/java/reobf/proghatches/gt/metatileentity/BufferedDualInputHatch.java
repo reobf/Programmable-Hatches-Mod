@@ -76,7 +76,10 @@ import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.cleanroommc.modularui.value.sync.BooleanSyncValue;
 import com.cleanroommc.modularui.value.sync.IntSyncValue;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.value.sync.GenericSyncValue;
 import com.cleanroommc.modularui.value.sync.SyncHandler;
+import com.cleanroommc.modularui.drawable.GuiDraw;
+import com.cleanroommc.modularui.screen.RichTooltip;
 import com.cleanroommc.modularui.widget.ScrollWidget;
 import com.cleanroommc.modularui.widget.scroll.VerticalScrollData;
 import com.cleanroommc.modularui.widgets.ToggleButton;
@@ -84,6 +87,7 @@ import com.cleanroommc.modularui.widgets.slot.FluidSlot;
 import com.cleanroommc.modularui.widgets.slot.ItemSlot;
 import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import com.glodblock.github.common.item.ItemFluidPacket;
+import reobf.proghatches.gt.metatileentity.util.PushStaging;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Table;
@@ -113,7 +117,13 @@ import com.gtnewhorizons.modularui.common.widget.SyncedWidget;
 import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import appeng.api.networking.crafting.ICraftingPatternDetails;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.util.DimensionalCoord;
+import reobf.proghatches.ae.TileChanceController;
+import reobf.proghatches.gt.metatileentity.chance.ChanceData;
+import reobf.proghatches.gt.metatileentity.chance.ChanceMark;
+import reobf.proghatches.gt.metatileentity.chance.ChanceTracker;
+import reobf.proghatches.gt.metatileentity.chance.ChanceView;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -483,6 +493,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			tag.setBoolean("recipeLocked", recipeLocked);
 			tag.setBoolean("lock", lock);
 			tag.setInteger("unlockDelay", unlockDelay);
+			if (chance != null) tag.setTag("chance", chance.toTag());
 			return tag;
 		}
 
@@ -529,6 +540,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			recipeLocked = tag.getBoolean("recipeLocked");
 			lock = tag.getBoolean("lock");
 			unlockDelay = tag.getInteger("unlockDelay");
+			chance = tag.hasKey("chance") ? ChanceData.fromTag(tag.getCompoundTag("chance")) : null;
 			if (recipeLocked) treeInsert(this); // rebuild the (transient) tree on load
 		}
 
@@ -609,7 +621,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		 * 0->not ready 1->ready 2->replaced
 		 */
 		public int clearRecipeIfNeeded() {
-			if (lock) {
+			if (lock || chanceHeld()) {
 				unlockDelay = 0;
 				return !recipeLocked ? 1 : 0;
 			}
@@ -641,6 +653,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 				}
 				recipeLocked = false;
+				chance = null;
 				//PID = 0;
 				/*
 				 * if(detail!=null){ int index=inv0.indexOf(this); DualInvBuffer
@@ -777,7 +790,119 @@ public class BufferedDualInputHatch extends DualInputHatch
 		 */
 		public boolean inTree;
 
+		public ChanceData chance;
+
+		public BufferedDualInputHatch hatch() {
+			return BufferedDualInputHatch.this;
+		}
+
+		public boolean chanceHeld() {
+			return chance != null && chance.pending;
+		}
+
+		public void chancePush(ICraftingPatternDetails details, long copies) {
+			if (chance == null) chance = ChanceData.of(details);
+			chance.onPush(copies);
+			markDirty();
+		}
+
+		/** A buffer holding a chance pattern takes only pushes of a pattern with the same outputs, and only those. */
+		boolean chanceAccepts() {
+			ChanceData in = incomingChance;
+			return in == null ? chance == null : chance != null && chance.sameOutputs(in);
+		}
+
+		public List<IAEStack<?>> chanceContents() {
+			List<IAEStack<?>> list = new ArrayList<>();
+			for (int ix = 0; ix < i; ix++) if (mStoredItemInternal[ix] != null)
+				for (ItemStack s : mStoredItemInternal[ix].flat()) ChanceData.add(list, ChanceData.of(s));
+			for (int ix = 0; ix < f; ix++)
+				for (FluidStack s : mStoredFluidInternal[ix].flat()) ChanceData.add(list, ChanceData.of(s));
+			return list;
+		}
+
+		private List<Integer> chanceSlots(IAEStack<?> s) {
+			List<Integer> slots = new ArrayList<>();
+			if (s.isItem()) {
+				for (int ix = 0; ix < i; ix++) {
+					ItemStack single = mStoredItemInternalSingle[ix];
+					if (single != null && single.stackSize > 0 && !isUnwrappedCircuitSlot(ix)
+						&& ChanceData.same(s, ChanceData.of(single))) slots.add(ix);
+				}
+			} else {
+				for (int ix = 0; ix < f; ix++) {
+					FluidStack single = mStoredFluidInternalSingle[ix].getFluid();
+					if (single != null && single.amount > 0 && ChanceData.same(s, ChanceData.of(single))) slots.add(ix);
+				}
+			}
+			return slots;
+		}
+
+		private long chanceSingle(int ix, boolean item) {
+			return item ? mStoredItemInternalSingle[ix].stackSize : mStoredFluidInternalSingle[ix].getFluidAmount();
+		}
+
+		/** How much of this input still fits, split over its slots the way chanceAdd splits a refill. */
+		public long chanceRoom(IAEStack<?> s) {
+			List<Integer> slots = chanceSlots(s);
+			long total = 0;
+			for (int ix : slots) total += chanceSingle(ix, s.isItem());
+			long room = slots.isEmpty() ? 0 : Long.MAX_VALUE;
+			for (int ix : slots) {
+				long now = s.isItem() ? (mStoredItemInternal[ix] == null ? 0 : mStoredItemInternal[ix].stackSize())
+					: mStoredFluidInternal[ix].getFluidAmount();
+				long free = Math.max(0, (s.isItem() ? itemLimit() : fluidLimit()) - now);
+				room = Math.min(room, ChanceData.satMul(free, total) / chanceSingle(ix, s.isItem()));
+			}
+			return room;
+		}
+
+		/** Adds a refill to the recorded recipe's slots, split like the recorded single; all or nothing. */
+		public boolean chanceAdd(List<IAEStack<?>> stacks) {
+			for (IAEStack<?> s : stacks) if (chanceSlots(s).isEmpty()) return false;
+			for (IAEStack<?> s : stacks) {
+				List<Integer> slots = chanceSlots(s);
+				long total = 0;
+				for (int ix : slots) total += chanceSingle(ix, s.isItem());
+				long left = s.getStackSize();
+				for (int n = 0; n < slots.size(); n++) {
+					int ix = slots.get(n);
+					long share = n == slots.size() - 1 ? left
+						: s.getStackSize() * chanceSingle(ix, s.isItem()) / total;
+					if (share <= 0) continue;
+					left -= share;
+					if (s.isItem()) {
+						if (mStoredItemInternal[ix] == null) {
+							ItemStack c = mStoredItemInternalSingle[ix].copy();
+							c.stackSize = (int) Math.min(share, Integer.MAX_VALUE);
+							mStoredItemInternal[ix] = ItemStackG.neo(c);
+							if (share > Integer.MAX_VALUE)
+								mStoredItemInternal[ix].stackSizeInc(new LongWrapper(share - Integer.MAX_VALUE));
+						} else mStoredItemInternal[ix].stackSizeInc(new LongWrapper(share));
+					} else {
+						FluidStack c = mStoredFluidInternalSingle[ix].getFluid().copy();
+						while (share > 0) {
+							c.amount = (int) Math.min(share, Integer.MAX_VALUE);
+							share -= c.amount;
+							mStoredFluidInternal[ix].fill(c.copy(), true);
+						}
+					}
+				}
+			}
+			nonempty = true;
+			tickFirstClassify = -1;
+			markJustHadNewItems();
+			onClassify();
+			onChange();
+			justHadNewItems = true;
+			markDirty();
+			if (getBaseMetaTileEntity() instanceof gregtech.api.interfaces.tileentity.IHasInventory inv)
+				inv.markInventoryBeenModified();
+			return true;
+		}
+
 		public boolean classify(ListeningFluidTank[] fin, ItemStack[] iin, boolean removeInputOnSuccess) {
+			if (!chanceAccepts()) return false;
 			int indexItem=-1;
 			int indexFluid=-1;
 			boolean hasJob = false;
@@ -835,6 +960,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		 * and adopts the recorded tag (accumulation fills from the recorded single anyway).
 		 */
 		public boolean classifyMatched(ListeningFluidTank[] fin, ItemStack[] iin, boolean removeInputOnSuccess) {
+			if (!chanceAccepts()) return false;
 			int indexFluid = -1;
 			int indexItem = -1;
 			for (int ix = 0; ix < f; ix++) if (mStoredFluidInternalSingle[ix].getFluid() != null) indexFluid = ix;
@@ -1004,6 +1130,82 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 	// private long lastMark;
 	// avoid setting justHadNewItems to true every tick
+	/** The chance pattern being pushed while classifyForce files it; null for every other insertion. */
+	ChanceData incomingChance;
+
+	/** Asks the network's chance controller to refill every buffer whose remaining inputs cannot cover what it owes. */
+	void chanceTick() {
+		TileChanceController controller = null;
+		boolean looked = false;
+		for (DualInvBuffer b : inv0) {
+			ChanceData c = b.chance;
+			if (c == null || !c.pending) continue;
+			if (!looked) {
+				if (!ChanceTracker.online(this)) return;
+				controller = ChanceTracker.findController(this);
+				looked = true;
+			}
+			if (controller == null || c.fruitless()) {
+				c.pending = false;
+				c.clearDebt();
+				c.refilledRuns = 0;
+				c.idle = 0;
+				markDirty();
+				continue;
+			}
+			controller.tryRefill(this, b);
+		}
+	}
+
+	/** Files the staged inputs; a chance pattern lands only in a buffer of its own outputs. */
+	DualInvBuffer classifyWith(ChanceData chance) {
+		incomingChance = chance;
+		try {
+			return classifyForce();
+		} finally {
+			incomingChance = null;
+		}
+	}
+
+	ChanceView.Buffer chanceView(int ind) {
+		if (ind >= inv0.size() || inv0.get(ind).chance == null) return ChanceView.Buffer.NONE;
+		ChanceData c = inv0.get(ind).chance;
+		List<ChanceView.Out> outs = new ArrayList<>();
+		for (int j = 0; j < c.outputs.size(); j++) outs.add(new ChanceView.Out(ChanceView.Shown.of(c.outputs.get(j)),
+				c.debt[j], c.promised(j, c.refilledRuns)));
+		return new ChanceView.Buffer(c.pending, c.copies(c.refilledRuns), outs);
+	}
+
+	GenericSyncValue<ChanceView.Buffer, ?> chanceSync(PanelSyncManager syncManager, String key, int ind) {
+		ChanceView.Buffer[] client = { ChanceView.Buffer.NONE };
+		GenericSyncValue<ChanceView.Buffer, ?> v = GenericSyncValue.builder(ChanceView.Buffer.class)
+				.getter(() -> isRemote() ? client[0] : chanceView(ind)).setter(s -> client[0] = s)
+				.adapter(ChanceView.Buffer.ADAPTER).copyImmutable().build();
+		syncManager.syncValue(key, v);
+		return v;
+	}
+
+	static void chanceTooltip(RichTooltip t, ChanceView.Buffer v) {
+		if (!v.isChance()) return;
+		t.addLine(StatCollector.translateToLocal("proghatches.chance.buffer"));
+		for (ChanceView.Out o : v.outs) t.add(o.shown.icon().asIcon().size(8)).add(" " + StatCollector
+				.translateToLocalFormatted("proghatches.chance.expected", o.shown.name(), o.expected)).newLine();
+		if (v.copies > 0) {
+			t.addLine(StatCollector.translateToLocalFormatted("proghatches.chance.refilled", ChanceView.num(v.copies)));
+			for (ChanceView.Out o : v.outs) t.add(o.shown.icon().asIcon().size(8)).add(" " + StatCollector
+					.translateToLocalFormatted("proghatches.chance.refilled.item", o.shown.name(), ChanceView.num(o.refilled)))
+					.newLine();
+		}
+		if (v.pending) t.addLine(StatCollector.translateToLocal("proghatches.chance.pending"));
+	}
+
+	static com.cleanroommc.modularui.api.drawable.IDrawable chanceBadge(GenericSyncValue<ChanceView.Buffer, ?> status) {
+		return (context, x, y, w, h, theme) -> {
+			if (!status.getValue().isChance()) return;
+			GuiDraw.drawText("%", x + w - 6, y, 1, 0xFFE63C, true);
+		};
+	}
+
 	public void markJustHadNewItems() {
 		/*
 		 * long now=this.getBaseMetaTileEntity().getTimer();
@@ -1127,6 +1329,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		super.onPostTick(aBaseMetaTileEntity, aTick);
 		if (aBaseMetaTileEntity.getWorld().isRemote)
 			return;
+		if (aTick % 20 == 7) chanceTick();
 
 		/*toDisconnect.forEach(s -> {
 			s.wrapped = null;
@@ -1211,7 +1414,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			if (inv0.size() > bufferNum) {
 				boolean exfull = true;
 				for (int i = bufferNum; i < inv0.size(); i++) {
-					if (inv0.get(i).isEmpty()) {
+					if (inv0.get(i).isEmpty() && !inv0.get(i).chanceHeld()) {
 						// isEmpty() ignores recipeLocked: the buffer may leave inv0 with a recipe
 						// still recorded (delayed unlock) — prune it or the tree would keep serving
 						// a buffer that no longer exists
@@ -1250,6 +1453,8 @@ public class BufferedDualInputHatch extends DualInputHatch
 							to.recipeLocked = from.recipeLocked;
 							to.tickFirstClassify = from.tickFirstClassify;
 							to.unlockDelay = from.unlockDelay;
+							to.chance = from.chance;
+							from.chance = null;
 							if (to.recipeLocked) treeInsert(to);
 							inv0.remove(bufferNum);
 							break;
@@ -1409,6 +1614,85 @@ public class BufferedDualInputHatch extends DualInputHatch
 			}
 		}
 
+	}
+
+	/** Adds todo more runs of theBuffer's recorded single. The caller guarantees todo <= theBuffer.space(). */
+	void addExtraRuns(DualInvBuffer theBuffer, long todo) {
+		if (todo <= 0) return;
+		for (int ix = 0; ix < theBuffer.i; ix++) {
+			// non-consumable: already unwrapped into the circuit region by programLocal(),
+			// extra doses must not re-materialise the wrapper as a consumable (issue #331)
+			if (theBuffer.isUnwrappedCircuitSlot(ix)) continue;
+			if (theBuffer.mStoredItemInternalSingle[ix] != null) {
+				if (theBuffer.mStoredItemInternal[ix] == null) {
+					theBuffer.mStoredItemInternal[ix] = ItemStackG
+						.neo(theBuffer.mStoredItemInternalSingle[ix].copy());
+					theBuffer.mStoredItemInternal[ix].stackSize(0);// circuit?
+				}
+				theBuffer.mStoredItemInternal[ix]
+					.stackSizeInc(new LongWrapper(theBuffer.mStoredItemInternalSingle[ix].stackSize * todo));
+			}
+		}
+
+		for (int ix = 0; ix < theBuffer.f; ix++) {
+			if (theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount() > 0) {
+				if (theBuffer.mStoredFluidInternal[ix].getFluidAmount() <= 0) {
+					FluidStack zerof = theBuffer.mStoredFluidInternalSingle[ix].getFluid()
+						.copy();
+					zerof.amount = 0;
+					theBuffer.mStoredFluidInternal[ix].setFluid(zerof);
+
+				}
+				theBuffer.mStoredFluidInternal[ix]
+					.amountAcc(theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount() * todo);
+			}
+		}
+		theBuffer.nonempty = true;
+	}
+
+	/** One run cut into this hatch's input slots, or null if it does not fit them. */
+	PushStaging stageParts(List<PushStaging.Part> parts) {
+		return PushStaging.splitParts(parts, getInventoryStackLimit(), this::isValidSlot, getInventoryFluidLimit(),
+			mStoredFluid.length);
+	}
+
+	/**
+	 * Stages one run into the input slots, files it into a buffer and adds as many more runs as that buffer has
+	 * room for. A run no buffer can take is taken back out of the input slots.
+	 *
+	 * @return runs taken; 0 while the input slots are occupied or no buffer is free, -1 if one run does not fit
+	 *         the input slots
+	 */
+	long takeRuns(List<PushStaging.Part> run, long runs) {
+		return takeRuns(run, runs, null);
+	}
+
+	/** As above; a run of a marked pattern is booked as that pattern's copies. */
+	long takeRuns(List<PushStaging.Part> run, long runs, ICraftingPatternDetails details) {
+		if (runs <= 0 || isRemote() || !isInputEmpty()) return 0;
+		PushStaging st = stageParts(run);
+		if (st == null) return -1;
+		st.stageInto(mInventory, mStoredFluid);
+		ChanceData chance = ChanceMark.isMarked(details) ? ChanceData.of(details) : null;
+		DualInvBuffer b = classifyWith(chance);
+		if (b == null) {
+			st.unstageFrom(mInventory, mStoredFluid);
+			return 0;
+		}
+		markDirty();
+		dirty = true;
+		justHadNewItems = true;
+		long taken = 1;
+		if (runs > 1) {
+			long n = Math.min(runs - 1, Math.max(0, b.space()));
+			addExtraRuns(b, n);
+			taken += n;
+		}
+		if (chance != null) b.chancePush(details, taken);
+		b.onChange();
+		if (getBaseMetaTileEntity() instanceof gregtech.api.interfaces.tileentity.IHasInventory inv)
+			inv.markInventoryBeenModified();
+		return taken;
 	}
 
 	public DualInvBuffer classifyForce() {
@@ -2795,55 +3079,12 @@ public class BufferedDualInputHatch extends DualInputHatch
 			if (!isInputEmpty(master)) {
 				return false;
 			}
-			int i = 0;
-			int f = 0;
-			int ilimit = master.getInventoryStackLimit();
-			int flimit = master.getInventoryFluidLimit();
-			boolean isplit = master.disableLimited;
-			boolean fsplit = master.fluidLimit == 0;
-			for (int index = 0; index < table.getSizeInventory(); index++) {
-				ItemStack is = (table.getStackInSlot(index));
-				if (is == null)
-					continue;
-				is = is.copy();
-				if (is.getItem() instanceof ItemFluidPacket) {
-					FluidStack fs = ItemFluidPacket.getFluidStack(is);
-					if (fs == null) {
-						continue;
-					}
-					while (fs.amount > 0) {
-						if (f >= master.mStoredFluid.length) {
-							clearInv(master);
-							return false;
-						}
-						int tosplit = Math.min(fs.amount, flimit);
-						fs.amount -= tosplit;
-						if ((!fsplit) && fs.amount > 0) {
-							clearInv(master);
-							return false;
-						}
-						FluidStack splitted = new FluidStack(fs.getFluid(), tosplit);
-						master.mStoredFluid[f].setFluidDirect(splitted);
-						f++;
-					}
-
-				} else {
-					while (is.stackSize > 0) {
-						if (master.isValidSlot(i) == false) {
-							clearInv(master);
-							return false;
-						}
-						ItemStack splitted = is.splitStack(Math.min(is.stackSize, ilimit));
-						if ((!isplit) && is.stackSize > 0) {
-							clearInv(master);
-							return false;
-						}
-						master.mInventory[i] = splitted;
-						i++;
-					}
-				}
-
-			}
+			PushStaging staging = PushStaging.split(table, master.getInventoryStackLimit(), master.disableLimited,
+					master::isValidSlot, master.getInventoryFluidLimit(), master.fluidLimit == 0,
+					master.mStoredFluid.length);
+			if (staging == null)
+				return false;
+			staging.stageInto(master.mInventory, master.mStoredFluid);
 			if (master instanceof BufferedDualInputHatch) {
 
 				DualInvBuffer buff = ((BufferedDualInputHatch) master).classifyForce();
@@ -3123,18 +3364,22 @@ public class BufferedDualInputHatch extends DualInputHatch
 			//String sg="slot_group_buffer_"+id;
 			//syncManager.getSlotGroup(sg);
 			
-			final IPanelHandler panel = syncManager.syncedPanel("buffer_panel_sync_"+id, true, 
+			final IPanelHandler panel = syncManager.syncedPanel("buffer_panel_sync_"+id, true,
 					(manager, handler) -> createBufferWindow2(manager,id));
-	
+			GenericSyncValue<ChanceView.Buffer, ?> chance = chanceSync(syncManager, "sync_chance_" + id, id);
+
 			com.cleanroommc.modularui.widgets.ButtonWidget button=new com.cleanroommc.modularui.widgets.ButtonWidget<>()
 			.onMousePressed(s->{
 				panel.openPanel();
 				return panel.isPanelOpen();
 			})
-			.background(GTGuiTextures.BUTTON_STANDARD,OVERLAY_BUTTON_PLUS_LARGE)
-			.tooltipBuilder(s->{
+			.background(GTGuiTextures.BUTTON_STANDARD,OVERLAY_BUTTON_PLUS_LARGE, chanceBadge(chance))
+			.tooltipDynamic(s->{
 				s.addLine(LangManager.translateToLocalFormatted("programmable_hatches.gt.buffer", "" + id));
-			})	.size(BTN)
+				chanceTooltip(s, chance.getValue());
+			})
+			.tooltipAutoUpdate(true)
+			.size(BTN)
 			.pos(xoffset + BTN * (id % COLS), yoffset + BTN * (id / COLS));
 			
 			
@@ -3248,24 +3493,26 @@ public class BufferedDualInputHatch extends DualInputHatch
 			
 			
 			
+			GenericSyncValue<ChanceView.Buffer, ?> chance = chanceSync(syncManager, "sync_chance_" + ind, ind);
 			builder.child(new ToggleButton().value(new BooleanSyncValue(
 					()->inv0.get(ind).lock
 					,
 					s->{inv0.get(ind).lock=s;inv0.get(ind).clearRecipeIfNeeded();}
 					).allowC2S())
-                    .overlay(false, GTGuiTextures.OVERLAY_BUTTON_RECIPE_UNLOCKED)
-                    .overlay(true, GTGuiTextures.OVERLAY_BUTTON_RECIPE_LOCKED)
+                    .overlay(false, GTGuiTextures.OVERLAY_BUTTON_RECIPE_UNLOCKED, chanceBadge(chance))
+                    .overlay(true, GTGuiTextures.OVERLAY_BUTTON_RECIPE_LOCKED, chanceBadge(chance))
                     .size(16).pos(3+18*5, 3+18*3))
-			.tooltip(s->{
-				
+			.tooltipDynamic(s->{
 				s.addLine(StatCollector.translateToLocal("programmable_hatches.gt.lockbuffer"));
-				
+				chanceTooltip(s, chance.getValue());
 			})
-			
+			.tooltipAutoUpdate(true)
 			;
 			BooleanSyncValue recipeLocked;
 			syncManager.syncValue("sync_recipeLocked_"+ind, recipeLocked=new BooleanSyncValue(()->inv0.get(ind).recipeLocked).allowC2S());
 			builder.child(IKey.dynamic(() -> recipeLocked.getBoolValue() ? "§4Lock" : "§aIdle").asWidget()
+					.tooltipDynamic(s -> chanceTooltip(s, chance.getValue()))
+					.tooltipAutoUpdate(true)
 					.pos(3 + 18 * 5, 3 + 18 * 2).size(16));
 			
 			

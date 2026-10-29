@@ -8,10 +8,15 @@ import net.minecraftforge.common.util.ForgeDirection;
 import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
+import gregtech.common.tileentities.machines.IDualInputHatch;
 import reobf.proghatches.gt.cover.IProgrammer;
 
 @Mixin(value = MTEMultiBlockBase.class, remap = false)
@@ -24,21 +29,36 @@ public abstract class MixinHandleProgrammingOnRecipeStart {
     public MTEHatchInputBus startRecipeProcessing(MTEHatchInputBus a) {
     	//spotless:on
         try {
-            MTEHatchInputBus bus = (MTEHatchInputBus) a;
-            Arrays.stream(ForgeDirection.VALID_DIRECTIONS)
-                .map(
-                    s -> bus.getBaseMetaTileEntity()
-                        .getCoverAtSide(s))
-                .filter(Objects::nonNull)
-                .filter(s -> s instanceof IProgrammer)
-                .forEach(s -> ((IProgrammer) s).impl(bus.getBaseMetaTileEntity()));;
-
+            program(a.getBaseMetaTileEntity());
         } catch (Exception e) {
             // huh?
             e.printStackTrace();
         }
         return a;
 
+    }
+
+    /** Dual input hatches are listed apart from the input busses, so their covers are applied here. */
+    @Inject(method = "startRecipeProcessing", at = @At("HEAD"), require = 1)
+    private void proghatches$programDualInputHatches(CallbackInfo ci) {
+        Object self = this;
+        for (IDualInputHatch hatch : ((MTEMultiBlockBase) self).mDualInputHatches) {
+            if (!(hatch instanceof MetaTileEntity mte) || !mte.isValid()) continue;
+            try {
+                program(mte.getBaseMetaTileEntity());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void program(IGregTechTileEntity base) {
+        if (base == null) return;
+        Arrays.stream(ForgeDirection.VALID_DIRECTIONS)
+            .map(base::getCoverAtSide)
+            .filter(Objects::nonNull)
+            .filter(s -> s instanceof IProgrammer)
+            .forEach(s -> ((IProgrammer) s).impl(base));
     }
     // spotless:off
     /*

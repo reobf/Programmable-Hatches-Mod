@@ -40,6 +40,7 @@ import net.minecraftforge.fluids.FluidTank;
 
 import com.cleanroommc.modularui.value.sync.IntSyncValue;
 import com.glodblock.github.common.item.ItemFluidPacket;
+import reobf.proghatches.gt.metatileentity.util.PushStaging;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -988,54 +989,16 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                 return false;
             }
 
-            int i = 0;
-            int f = 0;
-            int ilimit = master.getInventoryStackLimit();
-            int flimit = master.getInventoryFluidLimit();
-            boolean isplit = master.disableLimited;
-            boolean fsplit = master.fluidLimit == 0;
-            for (int index = 0; index < table.getSizeInventory(); index++) {
-                ItemStack is = (table.getStackInSlot(index));
-                if (is == null) continue;
-                is = is.copy();
-                if (is.getItem() instanceof ItemFluidPacket) {
-                    FluidStack fs = ItemFluidPacket.getFluidStack(is);
-                    if (fs == null) {
-                        continue;
-                    }
-                    while (fs.amount > 0) {
-                        if (f >= master.mStoredFluid.length) {
-                            clearInv(master);
-                            return false;
-                        }
-                        int tosplit = Math.min(fs.amount, flimit);
-                        fs.amount -= tosplit;
-                        if ((!fsplit) && fs.amount > 0) {
-                            clearInv(master);
-                            return false;
-                        }
-                        FluidStack splitted = new FluidStack(fs.getFluid(), tosplit);
-                        master.mStoredFluid[f].setFluidDirect(splitted);
-                        f++;
-                    }
-
-                } else {
-                    while (is.stackSize > 0) {
-                        if (master.isValidSlot(i) == false) {
-                            clearInv(master);
-                            return false;
-                        }
-                        ItemStack splitted = is.splitStack(Math.min(is.stackSize, ilimit));
-                        if ((!isplit) && is.stackSize > 0) {
-                            clearInv(master);
-                            return false;
-                        }
-                        master.mInventory[i] = splitted;
-                        i++;
-                    }
-                }
-
-            }
+            PushStaging staging = PushStaging.split(
+                table,
+                master.getInventoryStackLimit(),
+                master.disableLimited,
+                master::isValidSlot,
+                master.getInventoryFluidLimit(),
+                master.fluidLimit == 0,
+                master.mStoredFluid.length);
+            if (staging == null) return false;
+            staging.stageInto(master.mInventory, master.mStoredFluid);
             if (master instanceof BufferedDualInputHatch) {
                 BufferedDualInputHatch m = (BufferedDualInputHatch) master;
 
@@ -1239,54 +1202,16 @@ public boolean playerConfigClient;
                 return AZERO;
             }
 
-            int i = 0;
-            int f = 0;
-            int ilimit = master.getInventoryStackLimit();
-            int flimit = master.getInventoryFluidLimit();
-            boolean isplit = master.disableLimited;
-            boolean fsplit = master.fluidLimit == 0;
-            for (int index = 0; index < table.getSizeInventory(); index++) {
-                ItemStack is = (table.getStackInSlot(index));
-                if (is == null) continue;
-                is = is.copy();
-                if (is.getItem() instanceof ItemFluidPacket) {
-                    FluidStack fs = ItemFluidPacket.getFluidStack(is);
-                    if (fs == null) {
-                        continue;
-                    }
-                    while (fs.amount > 0) {
-                        if (f >= master.mStoredFluid.length) {
-                            clearInv(master);
-                            return AZERO;
-                        }
-                        int tosplit = Math.min(fs.amount, flimit);
-                        fs.amount -= tosplit;
-                        if ((!fsplit) && fs.amount > 0) {
-                            clearInv(master);
-                            return AZERO;
-                        }
-                        FluidStack splitted = new FluidStack(fs.getFluid(), tosplit);
-                        master.mStoredFluid[f].setFluidDirect(splitted);
-                        f++;
-                    }
-
-                } else {
-                    while (is.stackSize > 0) {
-                        if (master.isValidSlot(i) == false) {
-                            clearInv(master);
-                            return AZERO;
-                        }
-                        ItemStack splitted = is.splitStack(Math.min(is.stackSize, ilimit));
-                        if ((!isplit) && is.stackSize > 0) {
-                            clearInv(master);
-                            return AZERO;
-                        }
-                        master.mInventory[i] = splitted;
-                        i++;
-                    }
-                }
-
-            }
+            PushStaging staging = PushStaging.split(
+                table,
+                master.getInventoryStackLimit(),
+                master.disableLimited,
+                master::isValidSlot,
+                master.getInventoryFluidLimit(),
+                master.fluidLimit == 0,
+                master.mStoredFluid.length);
+            if (staging == null) return AZERO;
+            staging.stageInto(master.mInventory, master.mStoredFluid);
             suc++;
             maxTodo--;
 
@@ -1374,8 +1299,7 @@ public boolean playerConfigClient;
         ret.setInteger("masterZ", masterZ);
         ret.setBoolean("masterSet", masterSet);
         ret.setBoolean("additionalConnection", additionalConnection);
-        // clone: NBTTagIntArray keeps the array reference, never hand out the live field
-        ret.setIntArray("multiplier", multiplier.clone());
+        ret.setTag("multiplier", IDataCopyablePlaceHolder.intsToTag(multiplier));
         ret.setBoolean("allowopt", allowopt);
         ret.setBoolean("inherit", inherit);
         ret.setBoolean("normalopt", normalopt);
@@ -1398,7 +1322,7 @@ public boolean playerConfigClient;
         if (nbt.hasKey("multiplier")) {
             // copy into the existing (always >= 36 long) array, bounded, and re-apply loadNBTData's
             // Math.max(x, 1) sanitisation so a short/zeroed tag can never break the i < 36 loops
-            int[] src = nbt.getIntArray("multiplier");
+            int[] src = IDataCopyablePlaceHolder.intsFromTag(nbt.getTag("multiplier"));
             int n = Math.min(src.length, multiplier.length);
             for (int i = 0; i < n; i++) {
                 multiplier[i] = Math.max(src[i], 1);

@@ -78,3 +78,19 @@ val testPatternSlotMask by tasks.registering(JavaExec::class) {
 tasks.check {
     dependsOn(testPatternSlotMask)
 }
+
+val cyclicAnalysisTest by sourceSets.creating {
+    compileClasspath = files(sourceSets.main.get().output)
+    runtimeClasspath = output + compileClasspath
+}
+val testCyclicAnalysis by tasks.registering(JavaExec::class) {
+    group = "verification"
+    description = "Checks the cyclic pattern balancing search."
+    dependsOn(tasks.named(cyclicAnalysisTest.classesTaskName))
+    classpath = cyclicAnalysisTest.runtimeClasspath
+    mainClass.set("reobf.proghatches.gt.metatileentity.cycle.CycleAnalyzerTest")
+    javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
+}
+tasks.check {
+    dependsOn(testCyclicAnalysis)
+}

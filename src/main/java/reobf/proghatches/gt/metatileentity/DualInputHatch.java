@@ -1329,6 +1329,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		tag.setInteger("x", aBaseMetaTileEntity.getXCoord());
 		tag.setInteger("y", aBaseMetaTileEntity.getYCoord());
 		tag.setInteger("z", aBaseMetaTileEntity.getZCoord());
+		tag.setInteger("dim", aBaseMetaTileEntity.getWorld().provider.dimensionId);
 
 		dataStick.stackTagCompound = tag;
 		dataStick.setStackDisplayName("ProgHatches Dual Input Hatch Link Data Stick (" + aBaseMetaTileEntity.getXCoord()
@@ -1501,8 +1502,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 	@Override
 	public boolean allowSelectCircuit() {
-
-		return shared.isDummy();
+		return true;
 	}
 
 
@@ -2168,7 +2168,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 		public ModularPanel create(PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings){
 			ModularPanel builder = GTGuis.mteTemplatePanelBuilder(this, data, syncManager,uiSettings)
-					.doesAddGregTechLogo(false).doesAddGhostCircuitSlot(allowSelectCircuit()).build();
+					.doesAddGregTechLogo(false).doesAddGhostCircuitSlot(shared.isDummy()).build();
 			return builder;
 		}
 		@SuppressWarnings("deprecation")
@@ -2192,7 +2192,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 																											// to
 																											// client
 
-			if (!allowSelectCircuit()) {
+			if (!shared.isDummy()) {
 				builder.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>().onUpdateListener(s -> {
 					s.background(GTGuiTextures.BUTTON_STANDARD,
 
@@ -2444,16 +2444,25 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			}.slot(new ModularSlot(new GhostCircuitItemStackHandler(mte),0)).pos(0, 0);
 		}
 
+		/** An extra circuit slot: a phantom mark of size 0, set from the item on the cursor, cleared by a click. */
 		ItemSlot catalystSlot2(ArrayList<ItemStack> inv, int index) {
 
-			ItemSlot is = new ItemSlot() {
-				public Result onMousePressed(int mouseButton) {
-					//if (getSlot().getHasStack())
-					//	getSlot().putStack(null);
-					return super.onMousePressed(mouseButton);
-				};
-			}.slot(new ModularSlot(new ItemStackHandler(inv) {
-			}, index) {
+			ItemSlot is = new PhantomItemSlot() {
+
+				@Override
+				public boolean handleDragAndDrop(ItemStack draggedStack, int button) {
+					return false;
+				}
+			}.syncHandler(new reobf.proghatches.gt.metatileentity.util.ClearableMarkSlotSH(
+					new ModularSlot(new ItemStackHandler(inv), index) {
+
+				@Override
+				public void putStack(ItemStack stack) {
+					if (stack != null)
+						stack.stackSize = 0;
+					super.putStack(stack);
+				}
+
 				@Override
 				public int getSlotStackLimit() {
 					return 0;
@@ -2467,8 +2476,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 					// (watcher list is empty on the client side, so this is server-only in effect)
 					notifyWatchers();
 				}
-			}).pos(0, 0);
-			// is.getSyncHandler().isPhantom();
+			})).pos(0, 0);
 
 			return is;
 

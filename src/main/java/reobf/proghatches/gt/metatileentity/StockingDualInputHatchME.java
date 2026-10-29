@@ -1936,6 +1936,7 @@ public class StockingDualInputHatchME extends MTEHatchInputBus
         tag.setInteger("x", aBaseMetaTileEntity.getXCoord());
         tag.setInteger("y", aBaseMetaTileEntity.getYCoord());
         tag.setInteger("z", aBaseMetaTileEntity.getZCoord());
+        tag.setInteger("dim", aBaseMetaTileEntity.getWorld().provider.dimensionId);
 
         dataStick.stackTagCompound = tag;
         dataStick.setStackDisplayName(

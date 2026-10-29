@@ -2013,6 +2013,38 @@ public class PHRecipes implements Runnable {
             .eut(30)
             .addTo(RecipeMaps.assemblerRecipes);
 
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                new ItemStack(MyMod.toolkit, 0, OreDictionary.WILDCARD_VALUE),
+                Api.INSTANCE.definitions()
+                    .materials()
+                    .blankPattern()
+                    .maybeStack(1)
+                    .get(),
+                GTUtility.getIntegratedCircuit(9))
+            .itemOutputs(new ItemStack(MyMod.chance_toolkit))
+            .duration(10 * SECONDS)
+            .eut(480)
+            .addTo(RecipeMaps.assemblerRecipes);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                Api.INSTANCE.definitions()
+                    .blocks()
+                    .iface()
+                    .maybeStack(1)
+                    .get(),
+                Api.INSTANCE.definitions()
+                    .blocks()
+                    .craftingUnit()
+                    .maybeStack(1)
+                    .get(),
+                new ItemStack(MyMod.chance_toolkit, 0, OreDictionary.WILDCARD_VALUE))
+            .itemOutputs(new ItemStack(MyMod.chance_controller))
+            .duration(20 * SECONDS)
+            .eut(480)
+            .addTo(RecipeMaps.assemblerRecipes);
+
         rec = new ShapelessOreRecipe(
             new ItemStack(MyMod.emitterpattern),
 

@@ -1,0 +1,64 @@
+{
+  "format_version": 2,
+  "size": [6, 6, 5],
+  "palette": {
+    "C": {"name": "appliedenergistics2:tile.BlockCreativeEnergyController", "meta": 1, "label": "ME Self-Powered Controller"},
+    "D": {"name": "appliedenergistics2:tile.BlockDrive", "meta": 0, "label": "ME Drive"},
+    "P": {"name": "programmablehatches:chance_controller", "meta": 0, "label": "Chance Pattern Controller"},
+    "S": {"name": "appliedenergistics2:tile.BlockCraftingStorage", "meta": 0, "label": "1k Crafting Storage"},
+    "U": {"name": "appliedenergistics2:tile.BlockCraftingUnit", "meta": 0, "label": "Crafting Unit"}
+  },
+  "layers": [
+    [
+      "U.....",
+      "......",
+      "......",
+      "......",
+      "......"
+    ],
+    [
+      "S.....",
+      "D.....",
+      "C.....",
+      "P.....",
+      "......"
+    ],
+    [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+    ],
+    [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+    ],
+    [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+    ],
+    [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+    ]
+  ],
+  "annotations": {
+    "labels": {
+      "controller": [0, 1, 2],
+      "drive": [0, 1, 1],
+      "chance_controller": [0, 1, 3],
+      "cpu_storage": [0, 1, 0],
+      "cpu_unit": [0, 0, 0]
+    }
+  }
+}

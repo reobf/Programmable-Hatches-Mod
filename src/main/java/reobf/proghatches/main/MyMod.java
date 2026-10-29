@@ -136,6 +136,7 @@ import reobf.proghatches.gt.metatileentity.PatternDualInputHatchInventoryMapping
 import reobf.proghatches.gt.metatileentity.PatternHousing;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
 import reobf.proghatches.gt.metatileentity.RecipeFilterCRIB;
+import reobf.proghatches.gt.metatileentity.CyclicPatternDualInputHatch;
 import reobf.proghatches.item.ItemBookTutorial;
 import reobf.proghatches.item.ItemProgrammingToolkit;
 import reobf.proghatches.keybinding.KeyBindings;
@@ -556,7 +557,9 @@ public class MyMod {
         get
             .register(SuperPatternDualInputHatch.class);
         get
-        .register(RecipeFilterCRIB.Inst2.class);       
+        .register(RecipeFilterCRIB.Inst2.class);
+        get
+            .register(CyclicPatternDualInputHatch.CInst.class);
         get
             .register(PatternDualInputHatchInventoryMappingSlave.class);
 
@@ -964,6 +967,16 @@ public class MyMod {
         }
     }
 
+    @SubscribeEvent
+    public void onPlayerClone(net.minecraftforge.event.entity.player.PlayerEvent.Clone event) {
+        if (event.original.getExtendedProperties(GET_PROGHATCHBOOK) instanceof Prop old
+            && event.entityPlayer.getExtendedProperties(GET_PROGHATCHBOOK) instanceof Prop now
+            && old != now) {
+            now.get = old.get;
+            now.alert_mask = old.alert_mask;
+        }
+    }
+
     public static class Prop implements IExtendedEntityProperties {
 
         boolean get;
@@ -1003,6 +1016,8 @@ public class MyMod {
     public static Item ma_p2p_part;
     public static ItemMAConduit ma_conduit;
     public static Block circuit_interceptor;
+    public static Block chance_controller;
+    public static Item chance_toolkit;
     public static BlockMolecularAssemblerInterface ma_iface;
     public static BlockAutoFillerMKII autofiller;
     // public static Block occonfigurator;
@@ -1017,6 +1032,12 @@ public class MyMod {
 	public static Item ctrlinvertedterminal;
 
 	//public static BlockFluidDiscretizerMKII fd;
+
+    @SubscribeEvent
+    public void chancePatternTooltip(net.minecraftforge.event.entity.player.ItemTooltipEvent event) {
+        if (reobf.proghatches.gt.metatileentity.chance.ChanceMark.isMarked(event.itemStack))
+            event.toolTip.add(LangManager.translateToLocal("proghatches.chance.pattern"));
+    }
 
     @SubscribeEvent(priority = EventPriority.HIGH, receiveCanceled = false)
     public void pretick(final TickEvent.ServerTickEvent event) {

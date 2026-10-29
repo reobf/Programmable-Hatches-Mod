@@ -61,6 +61,7 @@ import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProviderPrefabricated;
 import reobf.proghatches.gt.metatileentity.ProviderChainer;
 import reobf.proghatches.gt.metatileentity.RecipeFilterCRIB;
+import reobf.proghatches.gt.metatileentity.CyclicPatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.RemoteInputBus;
 import reobf.proghatches.gt.metatileentity.RemoteInputHatch;
 import reobf.proghatches.gt.metatileentity.StockingDualInputHatchME;
@@ -145,6 +146,7 @@ public class Registration implements Runnable {
     public final static int ExPatternOffset = 179;
     public final static int ExPatternOffsetAutogen=180;
     public final static int SuperPatternOffset = 181;
+    public final static int CyclicPatternOffset = 182;
     @SuppressWarnings("deprecation")
     @Override
     public void run() {
@@ -410,8 +412,13 @@ public class Registration implements Runnable {
                 10,
                 true,
                 24,
-                true,2){public int page() {return 2;};};                
-                
+                true,2){public int page() {return 2;};};
+        new CyclicPatternDualInputHatch(
+            Config.metaTileEntityOffset + CyclicPatternOffset,
+            "hatch.input.buffered.me.cyclic",
+            LangManager.translateToLocal("hatch.input.buffered.me.cyclic.name"),
+            10, true, 24, true, 1);
+
                 
                 
         new PatternDualInputHatch(

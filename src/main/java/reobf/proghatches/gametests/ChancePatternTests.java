@@ -81,12 +81,12 @@ import tectech.thing.CustomItemList;
 @GameTestHolder(value = MyMod.MODID, templatePrefix = "chance")
 public class ChancePatternTests {
 
-    private static final TestPos SIFTER = at(3, 1, 0);
-    private static final TestPos HATCH = at(1, 1, 2);
-    private static final TestPos OUTPUT_BUS = at(1, 1, 1);
-    private static final TestPos ENERGY = at(2, 0, 0);
-    private static final TestPos MAINTENANCE = at(4, 0, 0);
-    private static final TestPos MUFFLER = at(3, 5, 0);
+    static final TestPos SIFTER = at(3, 1, 0);
+    static final TestPos HATCH = at(1, 1, 2);
+    static final TestPos OUTPUT_BUS = at(1, 1, 1);
+    static final TestPos ENERGY = at(2, 0, 0);
+    static final TestPos MAINTENANCE = at(4, 0, 0);
+    static final TestPos MUFFLER = at(3, 5, 0);
 
     private static final long STOCK = 64;
     private static final BaseActionSource SOURCE = new BaseActionSource();
@@ -908,14 +908,17 @@ public class ChancePatternTests {
         }
     }
 
-    private static Multiblock buildSifter(GameTestHelper helper, boolean creative, boolean cyclic) {
+    static Multiblock buildSifter(GameTestHelper helper, boolean creative, boolean cyclic) {
+        return buildSifter(
+            helper,
+            creative,
+            Config.metaTileEntityOffset + (cyclic ? Registration.CyclicPatternOffset : Registration.PatternOffset));
+    }
+
+    static Multiblock buildSifter(GameTestHelper helper, boolean creative, int hatchId) {
         IGregTechTileEntity controller = place(helper, SIFTER, ItemList.LargeSifter, ForgeDirection.NORTH);
         ((IConstructable) controller.getMetaTileEntity()).construct(ItemList.LargeSifter.get(1), false);
-        place(
-            helper,
-            HATCH,
-            Config.metaTileEntityOffset + (cyclic ? Registration.CyclicPatternOffset : Registration.PatternOffset),
-            ForgeDirection.WEST);
+        place(helper, HATCH, hatchId, ForgeDirection.WEST);
         place(helper, OUTPUT_BUS, ItemList.Hatch_Output_Bus_ME, ForgeDirection.WEST);
         place(helper, ENERGY, creative ? ItemList.DebugEnergyHatch : ItemList.Hatch_Energy_LV, ForgeDirection.NORTH);
         place(
@@ -947,13 +950,13 @@ public class ChancePatternTests {
         return sifter;
     }
 
-    private static IGregTechTileEntity place(GameTestHelper helper, TestPos pos, IItemContainer item,
+    static IGregTechTileEntity place(GameTestHelper helper, TestPos pos, IItemContainer item,
         ForgeDirection facing) {
         return place(helper, pos, item.get(1)
             .getItemDamage(), facing);
     }
 
-    private static IGregTechTileEntity place(GameTestHelper helper, TestPos pos, int id, ForgeDirection facing) {
+    static IGregTechTileEntity place(GameTestHelper helper, TestPos pos, int id, ForgeDirection facing) {
         TestPos abs = helper.absolute(pos);
         World world = helper.getWorld();
         world.setBlock(
@@ -969,19 +972,19 @@ public class ChancePatternTests {
         return te;
     }
 
-    private static ItemStack sized(ItemStack stack, int size) {
+    static ItemStack sized(ItemStack stack, int size) {
         ItemStack s = stack.copy();
         s.stackSize = size;
         return s;
     }
 
-    private static NBTTagCompound itemTag(ItemStack stack) {
+    static NBTTagCompound itemTag(ItemStack stack) {
         NBTTagCompound tag = new NBTTagCompound();
         Platform.writeItemStackToNBT(stack, tag);
         return tag;
     }
 
-    private static IAEItemStack ae(ItemStack stack, long amount) {
+    static IAEItemStack ae(ItemStack stack, long amount) {
         IAEItemStack s = AEItemStack.create(stack);
         s.setStackSize(amount);
         return s;

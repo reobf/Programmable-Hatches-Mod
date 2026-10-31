@@ -31,6 +31,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -127,6 +128,7 @@ import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import gregtech.api.modularui2.GTGuis;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTUtility;
+import reobf.proghatches.util.ChatComponentHatchNameSuffix;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.gui.modularui.util.PatternSlot;
 import mcp.mobius.waila.api.IWailaConfigHandler;
@@ -794,6 +796,50 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         }
 
         return name.toString();
+    }
+
+    @Override
+    public String getRawName() {
+        if (hasCustomName()) {
+            return getCustomName();
+        }
+        T m = getMaster();
+        if (m == null) {
+            return getLocalName();
+        }
+        if (m instanceof IInterfaceViewable viewable) {
+            return viewable.getRawName();
+        }
+        ItemStack icon = m.getMachineCraftingIcon();
+        return (icon != null ? icon : m.getStackForm(1)).getUnlocalizedName();
+    }
+
+    @Override
+    public IChatComponent getNameSuffix() {
+        if (hasCustomName()) {
+            return null;
+        }
+        T m = getMaster();
+        if (m == null) {
+            return null;
+        }
+        IChatComponent suffix = new ChatComponentText("");
+        if (m instanceof IInterfaceViewable viewable) {
+            IChatComponent master = viewable.getNameSuffix();
+            if (master != null) suffix.appendSibling(master);
+        }
+        suffix.appendText("(Mapped)");
+        ItemStack circuit = m.mInventory[m.getCircuitSlot()];
+        if (circuit != null) {
+            IChatComponent own = ChatComponentHatchNameSuffix.of(new ItemStack[] { circuit }, null);
+            if (own != null) suffix.appendSibling(own);
+        }
+        return suffix;
+    }
+
+    @Override
+    public ItemStack getSelfRep() {
+        return getStackForm(1);
     }
 
     @Override

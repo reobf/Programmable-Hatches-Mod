@@ -19,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -101,6 +102,7 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTUtility;
+import reobf.proghatches.util.ChatComponentHatchNameSuffix;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
@@ -783,45 +785,35 @@ public int page() {
 
     @Override
     public String getName() {
-
         if (hasCustomName()) {
             return getCustomName();
         }
-        StringBuilder name = new StringBuilder();
-        if (getCrafterIcon() != null) {
-            name.append(getCrafterIcon().getDisplayName());
-        } else {
-            name.append(getLocalName());// getinventoryname()
+        ItemStack icon = getCrafterIcon();
+        String name = icon != null ? icon.getDisplayName() : getLocalName();
+        IChatComponent suffix = getNameSuffix();
+        return suffix == null ? name : name + suffix.getUnformattedText();
+    }
+
+    @Override
+    public String getRawName() {
+        if (hasCustomName()) {
+            return getCustomName();
         }
+        ItemStack icon = getCrafterIcon();
+        return icon != null ? icon.getUnlocalizedName() : getLocalName();
+    }
 
-        /*
-         * if (mInventory[SLOT_CIRCUIT] != null) { name.append(" - ");
-         * name.append(mInventory[SLOT_CIRCUIT].getItemDamage()); }
-         */
-
-        for (ItemStack is : this.shared.getDisplayItems()) {
-            name.append(" - ");
-
-            if (is.getItem() != GTUtility.getIntegratedCircuit(0)
-                .getItem()) {
-                name.append(is.getDisplayName());
-                if (is.getItemDamage() > 0) {
-                    name.append("@" + is.getItemDamage());
-                }
-            } else {
-                name.append(is.getItemDamage());
-            }
-
-            // if(is.stackSize>0){name.append("*"+is.stackSize);}
+    @Override
+    public IChatComponent getNameSuffix() {
+        if (hasCustomName()) {
+            return null;
         }
+        return ChatComponentHatchNameSuffix.of(shared.getDisplayItems(), shared.getDisplayFluid());
+    }
 
-        for (FluidStack is : this.shared.getDisplayFluid()) {
-            name.append(" - ");
-            name.append(is.getLocalizedName());
-            // if(is.amount>0){name.append("*"+is.amount);}
-        }
-
-        return name.toString();
+    @Override
+    public ItemStack getSelfRep() {
+        return getStackForm(1);
     }
 
     @Override

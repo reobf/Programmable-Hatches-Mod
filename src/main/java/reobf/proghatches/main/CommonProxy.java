@@ -387,6 +387,7 @@ public class CommonProxy {
         appeng.crafting.v2.CraftingTreeSerializer.registerSerializable(
             reobf.proghatches.ae.FastCircuitTask.SERIAL_ID,
             reobf.proghatches.ae.FastCircuitTask.class);
+        reobf.proghatches.util.ChatComponentHatchNameSuffix.register();
 
     }
 

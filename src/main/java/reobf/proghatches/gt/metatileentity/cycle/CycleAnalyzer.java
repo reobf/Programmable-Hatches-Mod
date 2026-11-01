@@ -301,12 +301,13 @@ public final class CycleAnalyzer {
                 List<CycleWarning<K>> balWarnings = new ArrayList<>();
                 boolean publishable = true;
                 for (int k : cyc) {
-                    if (seedIn[k] <= 0) continue;
+                    long back = net[k] < 0 ? seedIn[k] + net[k] : seedIn[k];
+                    if (back <= 0) continue;
                     K key = items.get(k);
-                    seeds.add(new CycleAmount<>(key, seedIn[k]));
+                    seeds.add(new CycleAmount<>(key, back));
                     long v;
                     try {
-                        v = Math.multiplyExact(seedIn[k], multiplier);
+                        v = Math.multiplyExact(back, multiplier);
                     } catch (ArithmeticException e) {
                         v = Long.MAX_VALUE;
                         publishable = false;
@@ -475,11 +476,11 @@ public final class CycleAnalyzer {
             List<BigInteger[]> eq = new ArrayList<>();
             for (int k : cyc) {
                 BigInteger[] sk = big(s[k]);
-                rows.add(sk);
+                if (!set[k].input) rows.add(sk);
                 if (set[k].output) continue;
                 int tol = set[k].tolerancePercent;
                 if (tol == 0) {
-                    eq.add(sk);
+                    if (!set[k].input) eq.add(sk);
                     BigInteger[] neg = new BigInteger[n];
                     for (int i = 0; i < n; i++) neg[i] = sk[i].negate();
                     rows.add(neg);
@@ -777,13 +778,14 @@ public final class CycleAnalyzer {
         }
 
         boolean prune(int next, long rem) {
-            for (int k : cyc) if (satAdd(nArr[next][k], satMul(rem, posMax[k][next])) < 0) return true;
+            for (int k : cyc)
+                if (!set[k].input && satAdd(nArr[next][k], satMul(rem, posMax[k][next])) < 0) return true;
             return false;
         }
 
         void leaf() {
             long[] net = nArr[n];
-            for (int k : cyc) if (net[k] < 0) return;
+            for (int k : cyc) if (!set[k].input && net[k] < 0) return;
             long seedTotal = 0;
             try {
                 for (int k : cyc) {

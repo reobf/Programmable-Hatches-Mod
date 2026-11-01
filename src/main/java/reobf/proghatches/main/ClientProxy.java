@@ -6,6 +6,7 @@ import net.minecraftforge.client.MinecraftForgeClient;
 import appeng.items.misc.ItemEncodedPattern;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import reobf.proghatches.ae.TileMolecularAssemblerInterface;
@@ -21,6 +22,7 @@ public class ClientProxy extends CommonProxy {
     public void preInit(FMLPreInitializationEvent event) {
 
         super.preInit(event);
+        if (Loader.isModLoaded("guidenh")) reobf.proghatches.client.guide.GuideNhIntegration.register();
         MinecraftForgeClient.registerItemRenderer(MyMod.progcircuit, new CircuitSpecialRenderer());
 
         ClientRegistry.bindTileEntitySpecialRenderer/*

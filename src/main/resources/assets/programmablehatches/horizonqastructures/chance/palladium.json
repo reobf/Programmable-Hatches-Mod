@@ -6,8 +6,7 @@
     "D": {"name": "appliedenergistics2:tile.BlockDrive", "meta": 0, "label": "ME Drive"},
     "P": {"name": "programmablehatches:chance_controller", "meta": 0, "label": "Chance Pattern Controller"},
     "S": {"name": "appliedenergistics2:tile.BlockCraftingStorage", "meta": 3, "label": "64k Crafting Storage"},
-    "U": {"name": "appliedenergistics2:tile.BlockCraftingUnit", "meta": 0, "label": "Crafting Unit"},
-    "A": {"name": "appliedenergistics2:tile.BlockEnergyAcceptor", "meta": 0, "label": "Energy Acceptor"}
+    "U": {"name": "appliedenergistics2:tile.BlockCraftingUnit", "meta": 0, "label": "Crafting Unit"}
   },
   "layers": [
     [
@@ -27,12 +26,12 @@
       "D.....",
       "C.....",
       "P.....",
-      "A.....",
-      "A.....",
-      "A.....",
-      "A.....",
-      "A.....",
-      "A....."
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
     ],
     [
       "......",

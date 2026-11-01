@@ -118,6 +118,15 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEFluidStack;
+import appeng.util.item.AEItemStack;
+import appeng.util.item.AEFluidStack;
+import reobf.proghatches.gt.metatileentity.util.AEInputBuffer;
+import reobf.proghatches.gt.metatileentity.util.AEInputItemHandler;
+import reobf.proghatches.gt.metatileentity.util.AEInputSlot;
+import reobf.proghatches.gt.metatileentity.util.AEInputFluidTank;
+import reobf.proghatches.gt.metatileentity.util.LongStacks;
 import appeng.api.util.DimensionalCoord;
 import reobf.proghatches.ae.TileChanceController;
 import reobf.proghatches.gt.metatileentity.chance.ChanceData;
@@ -409,8 +418,8 @@ public class BufferedDualInputHatch extends DualInputHatch
 		public boolean nonempty;
 		protected FluidTankG[] mStoredFluidInternal;
 		protected ItemStackG[] mStoredItemInternal;
-		protected FluidTank[] mStoredFluidInternalSingle;
-		protected ItemStack[] mStoredItemInternalSingle;
+		protected IAEFluidStack[] mStoredFluidInternalSingle;
+		protected IAEItemStack[] mStoredItemInternalSingle;
 		public boolean recipeLocked;
 		public int i;
 		public int f;
@@ -422,35 +431,11 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		// public boolean lock;
 		public boolean full() {
-			if(nonempty==false&&emptyopt)return false;
-			for (int index = 0; index < mStoredItemInternalSingle.length; index++) {
-				ItemStackG i = mStoredItemInternal[index];
-				ItemStack si = mStoredItemInternalSingle[index];
-				if (i != null) {
-					if (si != null && singleSlotLimit() - i.stackSize() < si.stackSize) {
-						return true;// over flow! count as full
-					}
 
-					if (i.stackSize() >= itemLimit()) {
-						return true;
-					}
-				}
-			}
+            if (!nonempty && emptyopt) return false;
+            return space() <= 0;
 
-			for (int index = 0; index < mStoredFluidInternalSingle.length; index++) {
-				FluidTankG i = mStoredFluidInternal[index];
-				FluidTank si = mStoredFluidInternalSingle[index];
-				if (si != null && singleSlotLimit() - i.getFluidAmount() < si.getFluidAmount()) {
-					return true;// over flow! count as full
-				}
-				if (i.getFluidAmount() >= fluidLimit()) {
-					return true;
-				}
-
-			}
-			return false;
-
-		}
+	}
 
 		public void updateSlots() {
 			nonempty=false;
@@ -467,101 +452,97 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		public NBTTagCompound toTag() {
 
-			NBTTagCompound tag = new NBTTagCompound();
-			//tag.setInteger("PID", PID);
-			for (int i = 0; i < mStoredFluidInternal.length; i++) {
-				if (mStoredFluidInternal[i] != null)
-					tag.setTag("mStoredFluidInternal" + i, mStoredFluidInternal[i].writeToNBT(new NBTTagCompound()));
-			}
-			for (int i = 0; i < mStoredFluidInternalSingle.length; i++) {
-				if (mStoredFluidInternalSingle[i] != null)
-					tag.setTag("mStoredFluidInternalSingle" + i,
-							mStoredFluidInternalSingle[i].writeToNBT(new NBTTagCompound()));
-			}
-			for (int i = 0; i < mStoredItemInternal.length; i++) {
-				if (mStoredItemInternal[i] != null)
-					tag.setTag("mStoredItemInternal" + i, writeToNBTG(mStoredItemInternal[i], new NBTTagCompound()));
-			}
-			for (int i = 0; i < mStoredItemInternalSingle.length; i++) {
-				if (mStoredItemInternalSingle[i] != null)
-					tag.setTag("mStoredItemInternalSingle" + i,
-							writeToNBT(mStoredItemInternalSingle[i], new NBTTagCompound()));
-			}
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setBoolean("aeRecipe", true);
+            for (int ix = 0; ix < mStoredFluidInternal.length; ix++)
+                tag.setTag("mStoredFluidInternal" + ix, mStoredFluidInternal[ix].writeToNBT(new NBTTagCompound()));
+            for (int ix = 0; ix < mStoredItemInternal.length; ix++)
+                if (mStoredItemInternal[ix] != null)
+                    tag.setTag("mStoredItemInternal" + ix, writeToNBTG(mStoredItemInternal[ix], new NBTTagCompound()));
+            for (int ix = 0; ix < f; ix++)
+                if (mStoredFluidInternalSingle[ix] != null)
+                    tag.setTag("mStoredFluidInternalSingle" + ix, LongStacks.write(mStoredFluidInternalSingle[ix]));
+            for (int ix = 0; ix < i; ix++)
+                if (mStoredItemInternalSingle[ix] != null)
+                    tag.setTag("mStoredItemInternalSingle" + ix, LongStacks.write(mStoredItemInternalSingle[ix]));
+            tag.setInteger("i", i);
+            tag.setInteger("f", f);
+            tag.setBoolean("recipeLocked", recipeLocked);
+            tag.setBoolean("lock", lock);
+            tag.setInteger("unlockDelay", unlockDelay);
+            if (chance != null) tag.setTag("chance", chance.toTag());
+            return tag;
 
-			tag.setInteger("i", i);
-			tag.setInteger("f", f);
-			tag.setBoolean("recipeLocked", recipeLocked);
-			tag.setBoolean("lock", lock);
-			tag.setInteger("unlockDelay", unlockDelay);
-			if (chance != null) tag.setTag("chance", chance.toTag());
-			return tag;
-		}
+	}
 
 		public void fromTag(NBTTagCompound tag) {
 
-			//PID = tag.getInteger("PID");
-			if (mStoredFluidInternal != null) {
-				for (int i = 0; i < mStoredFluidInternal.length; i++) {
-					if (tag.hasKey("mStoredFluidInternal" + i)) {
-						mStoredFluidInternal[i].readFromNBT(tag.getCompoundTag("mStoredFluidInternal" + i));
-						if(mStoredFluidInternal[i].getFluidAmount()>0)nonempty=true;
-					}
-				}
-			}
-			if (mStoredFluidInternalSingle != null) {
-				for (int i = 0; i < mStoredFluidInternalSingle.length; i++) {
-					if (tag.hasKey("mStoredFluidInternalSingle" + i)) {
-						mStoredFluidInternalSingle[i].readFromNBT(tag.getCompoundTag("mStoredFluidInternalSingle" + i));
-					}
-				}
-			}
-			if (mStoredItemInternal != null) {
-				for (int i = 0; i < mStoredItemInternal.length; i++) {
-					if (tag.hasKey("mStoredItemInternal" + i)) {
-						mStoredItemInternal[i] = loadItemStackFromNBTG(tag.getCompoundTag("mStoredItemInternal" + i));
-						if(mStoredItemInternal[i]!=null&&mStoredItemInternal[i].stackSize()>0)nonempty=true;
-					}
-				}
-			}
-			if (mStoredItemInternalSingle != null) {
-				for (int i = 0; i < mStoredItemInternalSingle.length; i++) {
-					if (tag.hasKey("mStoredItemInternalSingle" + i)) {
-						mStoredItemInternalSingle[i] = loadItemStackFromNBT(
-								tag.getCompoundTag("mStoredItemInternalSingle" + i));
-					}
-				}
-			}
-			if (i == 0)
-				if (tag.getInteger("i") > 0)
-					i = tag.getInteger("i");
-			if (f == 0)
-				if (tag.getInteger("f") > 0)
-					f = tag.getInteger("f");
-			recipeLocked = tag.getBoolean("recipeLocked");
-			lock = tag.getBoolean("lock");
-			unlockDelay = tag.getInteger("unlockDelay");
-			chance = tag.hasKey("chance") ? ChanceData.fromTag(tag.getCompoundTag("chance")) : null;
-			if (recipeLocked) treeInsert(this); // rebuild the (transient) tree on load
-		}
+            treeRemove(this);
+            int savedItems = tag.hasKey("i") ? tag.getInteger("i") : i;
+            int savedFluids = tag.hasKey("f") ? tag.getInteger("f") : f;
+            int oldItems = Math.max(i, savedItems), oldFluids = Math.max(f, savedFluids);
+            if (oldItems != i || oldFluids != f) init(oldItems, oldFluids);
+            Arrays.fill(mStoredItemInternal, null);
+            Arrays.fill(mStoredItemInternalSingle, null);
+            Arrays.fill(mStoredFluidInternalSingle, null);
+            nonempty = false;
+            for (int ix = 0; ix < mStoredFluidInternal.length; ix++) {
+                mStoredFluidInternal[ix].setFluid(null);
+                if (tag.hasKey("mStoredFluidInternal" + ix))
+                    mStoredFluidInternal[ix].readFromNBT(tag.getCompoundTag("mStoredFluidInternal" + ix));
+            }
+            for (int ix = 0; ix < savedItems; ix++)
+                if (tag.hasKey("mStoredItemInternal" + ix))
+                    mStoredItemInternal[ix] = loadItemStackFromNBTG(tag.getCompoundTag("mStoredItemInternal" + ix));
+            // The non-consumable circuit region starts after the saved consumable slot count.
+            for (int ix = 0; ix < v; ix++)
+                if (tag.hasKey("mStoredItemInternal" + (savedItems + ix)))
+                    mStoredItemInternal[i + ix] = loadItemStackFromNBTG(tag.getCompoundTag("mStoredItemInternal" + (savedItems + ix)));
+            for (int ix = 0; ix < f; ix++) {
+                String key = "mStoredFluidInternalSingle" + ix;
+                if (!tag.hasKey(key)) continue;
+                NBTTagCompound data = tag.getCompoundTag(key);
+                if (tag.getBoolean("aeRecipe")) mStoredFluidInternalSingle[ix] = AEFluidStack.loadFluidStackFromNBT(data);
+                else {
+                    FluidStack legacy = FluidStack.loadFluidStackFromNBT(data);
+                    if (legacy != null) mStoredFluidInternalSingle[ix] = LongStacks.fluid(legacy, legacy.amount);
+                }
+            }
+            for (int ix = 0; ix < i; ix++) {
+                String key = "mStoredItemInternalSingle" + ix;
+                if (!tag.hasKey(key)) continue;
+                NBTTagCompound data = tag.getCompoundTag(key);
+                if (tag.getBoolean("aeRecipe")) mStoredItemInternalSingle[ix] = AEItemStack.loadItemStackFromNBT(data);
+                else {
+                    ItemStack legacy = loadItemStackFromNBT(data);
+                    if (legacy != null) mStoredItemInternalSingle[ix] = LongStacks.item(legacy, legacy.stackSize);
+                }
+            }
+            if (!tag.getBoolean("aeRecipe")) {
+                LongStacks.joinLegacyItems(mStoredItemInternalSingle, mStoredItemInternal);
+                LongStacks.joinLegacyFluids(mStoredFluidInternalSingle, mStoredFluidInternal);
+            }
+            recipeLocked = tag.getBoolean("recipeLocked");
+            lock = tag.getBoolean("lock");
+            unlockDelay = tag.getInteger("unlockDelay");
+            chance = tag.hasKey("chance") ? ChanceData.fromTag(tag.getCompoundTag("chance")) : null;
+            nonempty = !itemSideEmpty() || !fluidSideEmpty();
+            if (recipeLocked) treeInsert(this);
+
+	}
 
 		int v = 4;
 
 		int unlockDelay = 0;
 
-		/** Contiguous mirror of the recorded recipe's fluid singles (null = empty slot). */
-		FluidStack[] singleBack;
 
 		public void init(int item, int fluid) {
 			i = item;
 			f = fluid;
 			mStoredFluidInternal = initFluidTack(new FluidTankG[fluid]);
-			singleBack = new FluidStack[fluid];
-			mStoredFluidInternalSingle = new FluidTank[fluid];
-			for (int ix = 0; ix < fluid; ix++) {
-				mStoredFluidInternalSingle[ix] = new BackedFluidTank(singleBack, ix);
-			}
+			mStoredFluidInternalSingle = new IAEFluidStack[fluid];
 			mStoredItemInternal = new ItemStackG[item + v];
-			mStoredItemInternalSingle = new ItemStack[item];
+			mStoredItemInternalSingle = new IAEItemStack[item];
 		}
 
 		private FluidTankG[] initFluidTack(FluidTankG[] t) {
@@ -645,9 +626,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 				}
 
 				treeRemove(this); // prune BEFORE the recorded keys below are wiped
-				for (FluidTank ft : mStoredFluidInternalSingle) {
-					ft.setFluid(null);
-				}
+				Arrays.fill(mStoredFluidInternalSingle, null);
 				for (int ii = 0; ii < i; ii++) {
 					mStoredItemInternalSingle[ii] = null;
 
@@ -712,30 +691,26 @@ public class BufferedDualInputHatch extends DualInputHatch
 		 * classify() with less check, for better performance
 		 */
 		public void firstClassify(ListeningFluidTank[] fin, ItemStack[] iin,int hintf,int hinti) {
-			tickFirstClassify = currentTick();
-			for (int ix = 0; ix < Math.min(f,hintf); ix++) {
-				mStoredFluidInternal[ix]
-						.setFluid(Optional.ofNullable(fin[ix].getFluid()).map(FluidStack::copy).orElse(null));
-				fin[ix].setFluidDirect(null);
-				nonempty=true;
-			}
-			for (int ix = 0; ix < Math.min(i,hinti); ix++) {
-				mStoredItemInternal[ix] = ItemStackG
-						.neo(Optional.ofNullable(iin[ix]).map(ItemStack::copy).orElse(null));
-				iin[ix] = null;
-				nonempty=true;
-			}
-			/*
-			 * Long tick=tickFirstClassify+2;
-			 * if(!tick.equals(scheduled.peekFirst())) { scheduled.push(tick); }
-			 */
 
-			markJustHadNewItems();
-			onClassify();
-			programLocal();
-			onChange();
-			justHadNewItems = true;
-		}
+            tickFirstClassify = currentTick();
+            for (int ix = 0; ix < f; ix++) {
+                IAEFluidStack single = mStoredFluidInternalSingle[ix];
+                FluidStack type = single == null ? null : single.getFluidStack();
+                if (type != null) type.amount = 0;
+                mStoredFluidInternal[ix].setFluid(type);
+                if (single != null) mStoredFluidInternal[ix].amountAcc(single.getStackSize());
+            }
+            for (int ix = 0; ix < i; ix++)
+                mStoredItemInternal[ix] = LongStacks.itemGroup(mStoredItemInternalSingle[ix]);
+            inputs().clear();
+            nonempty = true;
+            markJustHadNewItems();
+            onClassify();
+            programLocal();
+            onChange();
+            justHadNewItems = true;
+
+	}
 
 		/**
 		 * True when slot ix of the recorded recipe is a programming-circuit wrapper (MyMod.progcircuit)
@@ -748,8 +723,33 @@ public class BufferedDualInputHatch extends DualInputHatch
 		 * ordinary item in the buffer, and this predicate deliberately changes nothing there.
 		 */
 		boolean isUnwrappedCircuitSlot(int ix) {
-			ItemStack single = mStoredItemInternalSingle[ix];
+			IAEItemStack single = mStoredItemInternalSingle[ix];
 			return program && single != null && single.getItem() == MyMod.progcircuit;
+		}
+
+		boolean itemCounted(int ix) {
+			return LongStacks.amount(mStoredItemInternalSingle[ix]) > 0 && !isUnwrappedCircuitSlot(ix);
+		}
+
+		/** End (exclusive) of the consecutive recorded slots holding slot start's item; they share one capacity. */
+		int itemRun(int start) {
+			int end = start + 1;
+			if (!itemCounted(start)) return end;
+			while (end < i && itemCounted(end)
+				&& ChanceData.same(mStoredItemInternalSingle[start], mStoredItemInternalSingle[end])) end++;
+			return end;
+		}
+
+		boolean fluidCounted(int ix) {
+			return LongStacks.amount(mStoredFluidInternalSingle[ix]) > 0;
+		}
+
+		int fluidRun(int start) {
+			int end = start + 1;
+			if (!fluidCounted(start)) return end;
+			while (end < f && fluidCounted(end)
+				&& ChanceData.same(mStoredFluidInternalSingle[start], mStoredFluidInternalSingle[end])) end++;
+			return end;
 		}
 
 		private void programLocal() {
@@ -825,62 +825,55 @@ public class BufferedDualInputHatch extends DualInputHatch
 			List<Integer> slots = new ArrayList<>();
 			if (s.isItem()) {
 				for (int ix = 0; ix < i; ix++) {
-					ItemStack single = mStoredItemInternalSingle[ix];
-					if (single != null && single.stackSize > 0 && !isUnwrappedCircuitSlot(ix)
-						&& ChanceData.same(s, ChanceData.of(single))) slots.add(ix);
+					IAEItemStack single = mStoredItemInternalSingle[ix];
+					if (single != null && single.getStackSize() > 0 && !isUnwrappedCircuitSlot(ix)
+						&& ChanceData.same(s, single)) slots.add(ix);
 				}
 			} else {
 				for (int ix = 0; ix < f; ix++) {
-					FluidStack single = mStoredFluidInternalSingle[ix].getFluid();
-					if (single != null && single.amount > 0 && ChanceData.same(s, ChanceData.of(single))) slots.add(ix);
+					IAEFluidStack single = mStoredFluidInternalSingle[ix];
+					if (single != null && single.getStackSize() > 0 && ChanceData.same(s, single)) slots.add(ix);
 				}
 			}
 			return slots;
 		}
 
-		private long chanceSingle(int ix, boolean item) {
-			return item ? mStoredItemInternalSingle[ix].stackSize : mStoredFluidInternalSingle[ix].getFluidAmount();
+		private long chanceStored(int ix, boolean item) {
+			return item ? (mStoredItemInternal[ix] == null ? 0 : mStoredItemInternal[ix].stackSize())
+				: mStoredFluidInternal[ix].getFluidAmount();
 		}
 
-		/** How much of this input still fits, split over its slots the way chanceAdd splits a refill. */
+		/** How much of this input still fits in all of its slots together. */
 		public long chanceRoom(IAEStack<?> s) {
-			List<Integer> slots = chanceSlots(s);
-			long total = 0;
-			for (int ix : slots) total += chanceSingle(ix, s.isItem());
-			long room = slots.isEmpty() ? 0 : Long.MAX_VALUE;
-			for (int ix : slots) {
-				long now = s.isItem() ? (mStoredItemInternal[ix] == null ? 0 : mStoredItemInternal[ix].stackSize())
-					: mStoredFluidInternal[ix].getFluidAmount();
-				long free = Math.max(0, (s.isItem() ? itemLimit() : fluidLimit()) - now);
-				room = Math.min(room, ChanceData.satMul(free, total) / chanceSingle(ix, s.isItem()));
-			}
+			long room = 0;
+			for (int ix : chanceSlots(s)) room = ChanceData.sat(room,
+				Math.max(0, (s.isItem() ? itemLimit() : fluidLimit()) - chanceStored(ix, s.isItem())));
 			return room;
 		}
 
-		/** Adds a refill to the recorded recipe's slots, split like the recorded single; all or nothing. */
+		/** Adds a refill to the recorded recipe's slots, filling them in order up to the slot limit; all or nothing. */
 		public boolean chanceAdd(List<IAEStack<?>> stacks) {
 			for (IAEStack<?> s : stacks) if (chanceSlots(s).isEmpty()) return false;
 			for (IAEStack<?> s : stacks) {
 				List<Integer> slots = chanceSlots(s);
-				long total = 0;
-				for (int ix : slots) total += chanceSingle(ix, s.isItem());
+				long limit = s.isItem() ? itemLimit() : fluidLimit();
 				long left = s.getStackSize();
-				for (int n = 0; n < slots.size(); n++) {
+				for (int n = 0; n < slots.size() && left > 0; n++) {
 					int ix = slots.get(n);
 					long share = n == slots.size() - 1 ? left
-						: s.getStackSize() * chanceSingle(ix, s.isItem()) / total;
+						: Math.min(left, Math.max(0, limit - chanceStored(ix, s.isItem())));
 					if (share <= 0) continue;
 					left -= share;
 					if (s.isItem()) {
 						if (mStoredItemInternal[ix] == null) {
-							ItemStack c = mStoredItemInternalSingle[ix].copy();
+							ItemStack c = mStoredItemInternalSingle[ix].getItemStack();
 							c.stackSize = (int) Math.min(share, Integer.MAX_VALUE);
 							mStoredItemInternal[ix] = ItemStackG.neo(c);
 							if (share > Integer.MAX_VALUE)
 								mStoredItemInternal[ix].stackSizeInc(new LongWrapper(share - Integer.MAX_VALUE));
 						} else mStoredItemInternal[ix].stackSizeInc(new LongWrapper(share));
 					} else {
-						FluidStack c = mStoredFluidInternalSingle[ix].getFluid().copy();
+						FluidStack c = mStoredFluidInternalSingle[ix].getFluidStack();
 						while (share > 0) {
 							c.amount = (int) Math.min(share, Integer.MAX_VALUE);
 							share -= c.amount;
@@ -902,55 +895,28 @@ public class BufferedDualInputHatch extends DualInputHatch
 		}
 
 		public boolean classify(ListeningFluidTank[] fin, ItemStack[] iin, boolean removeInputOnSuccess) {
-			if (!chanceAccepts()) return false;
-			int indexItem=-1;
-			int indexFluid=-1;
-			boolean hasJob = false;
-			for (int ix = 0; ix < f; ix++) {
-				if (fin[ix].getFluidAmount() > 0) {
-					hasJob = true;
-				}
-				int result;
-				if (0!=(result=fluidEquals(mStoredFluidInternalSingle[ix], fin[ix]))) {
-					if ((fin[ix].getFluidAmount() > 0 && mStoredFluidInternal[ix].getFluidAmount() > 0)
-							&& !fluidEqualsIngoreAmount(mStoredFluidInternal[ix], fin[ix])) {
-						return false;
-					}
-				} else {
-					return false;
-				}
-				//result is not 0 here, 
-				//if result==1 this is a non-empty slot (and might be the last non-empty slot), record it for further optimization
-				//if result==2 this is an empty slot, so ignore it
 
-				if(result==1)indexFluid=ix;
+            if (!chanceAccepts() || !recipeLocked) return false;
+            AEInputBuffer input = inputs();
+            if (!recipeMatches(input.fluids, input.items, f, i)) return false;
+            if (space() <= 0) return false;
+            return accumulateMatched(fin, iin, removeInputOnSuccess, f - 1, i - 1);
 
-			}
-			for (int ix = 0; ix < i; ix++) {
-				if (iin[ix] != null && iin[ix].stackSize > 0) {
-					hasJob = true;
-				}
-				if (ItemStack.areItemStacksEqual(mStoredItemInternalSingle[ix], iin[ix])) {
-					if ((iin[ix] != null && mStoredItemInternal[ix] != null)
-							&& !areItemStacksEqualIngoreAmount(mStoredItemInternal[ix].getStack(), iin[ix])) {
-						return false;
-					}
-				} else {
-					return false;
-				}
-				//recorded fluid equals current fluid here
-				//so they are both empty or non-empty, so check one of them will work
-				//if check passes 
-				//this is a non-empty slot (and might be the last non-empty slot), record it for further optimization
-				if(mStoredItemInternalSingle[ix]!=null)indexItem=ix;
+	}
 
-			}
-			if (!hasJob) {
-				return false;
-			}
-//System.out.println(indexItem+" "+indexFluid);
-			return accumulateMatched(fin, iin, removeInputOnSuccess, indexFluid, indexItem);
-		}
+
+        private boolean recipeMatches(IAEFluidStack[] fluids, IAEItemStack[] items, int f, int i) {
+            for (int ix = 0; ix < Math.max(f, fluids.length); ix++)
+                if (!fluidSlotMatchesNoTag(ix < f ? mStoredFluidInternalSingle[ix] : null,
+                    ix < fluids.length ? fluids[ix] : null)) return false;
+            for (int ix = 0; ix < Math.max(i, items.length); ix++) {
+                IAEItemStack a = ix < i ? mStoredItemInternalSingle[ix] : null;
+                IAEItemStack b = ix < items.length ? items[ix] : null;
+                if (!itemSlotMatchesCheap(a, b) || (a != null &&
+                    !ItemStack.areItemStackTagsEqual(a.getItemStack(), b.getItemStack()))) return false;
+            }
+            return true;
+        }
 
 		/**
 		 * Tree-confirmed merge: the RecipeTree walk (cheap layers + item NBT layers) already proved
@@ -960,89 +926,58 @@ public class BufferedDualInputHatch extends DualInputHatch
 		 * and adopts the recorded tag (accumulation fills from the recorded single anyway).
 		 */
 		public boolean classifyMatched(ListeningFluidTank[] fin, ItemStack[] iin, boolean removeInputOnSuccess) {
-			if (!chanceAccepts()) return false;
-			int indexFluid = -1;
-			int indexItem = -1;
-			for (int ix = 0; ix < f; ix++) if (mStoredFluidInternalSingle[ix].getFluid() != null) indexFluid = ix;
-			for (int ix = 0; ix < i; ix++) if (mStoredItemInternalSingle[ix] != null) indexItem = ix;
-			if (indexFluid < 0 && indexItem < 0) return false; // no recorded recipe: nothing to merge
-			return accumulateMatched(fin, iin, removeInputOnSuccess, indexFluid, indexItem);
-		}
+
+            if (!chanceAccepts() || space() <= 0) return false;
+            return accumulateMatched(fin, iin, removeInputOnSuccess, f - 1, i - 1);
+
+	}
 
 		/** The action phase shared by classify() and classifyMatched(): accumulate one dose, consume inputs. */
 		private boolean accumulateMatched(ListeningFluidTank[] fin, ItemStack[] iin, boolean removeInputOnSuccess,
 				int indexFluid, int indexItem) {
-			for (int ix = 0; ix < indexFluid+1; ix++) {
-				mStoredFluidInternal[ix].fill(mStoredFluidInternalSingle[ix].getFluid(), true);
-				if (removeInputOnSuccess)
-					fin[ix].setFluidDirect(null);
-				else if (fin[ix].getFluid() != null)
-					fin[ix].setFluidDirect(fin[ix].getFluid().copy());
-				nonempty=true;
-			}
-			for (int ix = 0; ix < indexItem+1; ix++) {
-				if (mStoredItemInternalSingle[ix] != null)
-					if (mStoredItemInternal[ix] == null)
-						mStoredItemInternal[ix] = ItemStackG.neo(mStoredItemInternalSingle[ix].copy());
-					else
-						mStoredItemInternal[ix].stackSizeInc(new LongWrapper( mStoredItemInternalSingle[ix].stackSize));
-				if (removeInputOnSuccess)
-					iin[ix] = null;
-				else if (iin[ix] != null)
-					iin[ix] = iin[ix].copy();
-				nonempty=true;
-			}
-			tickFirstClassify = -1;// make it instantly accessible
-			markJustHadNewItems();
 
-			/*
-			 * Integer check = detailmap.get(Recipe.fromBuffer(this, false));
-			 * if(check==null){ currentID++;
-			 * detailmap.put(Recipe.fromBuffer(this, true),currentID );
-			 * check=currentID; this.PID=check; }
-			 */
+            addExtraRuns(this, 1);
+            if (removeInputOnSuccess) inputs().clear();
+            tickFirstClassify = -1;
+            markJustHadNewItems();
+            onClassify();
+            if (program) programLocal();
+            onChange();
+            justHadNewItems = true;
+            return true;
 
-			onClassify();
-			if (program)
-				programLocal();
-			onChange();
-			justHadNewItems = true;
-			return true;
-		}
+	}
 
 		public boolean recordRecipeOrClassify(ListeningFluidTank[] fin, ItemStack[] iin) {
-			int readyToRecord = clearRecipeIfNeeded();
-			if (readyToRecord == 2) {
-				return false;
-			}
-			int indexi=-1;
-			int indexf=-1;
-			// clearRecipeIfNeeded();
-			if (recipeLocked == false && readyToRecord == 1) {
-				boolean actuallyFound = false;
-				for (int ix = 0; ix < f; ix++) {
-					if (fin[ix].getFluidAmount() > 0) {
-						indexf=ix;
-						actuallyFound = true;
-						mStoredFluidInternalSingle[ix].setFluid(fin[ix].getFluid());
-					}
-				}
-				for (int ix = 0; ix < i; ix++) {
-					if (iin[ix] != null) {
-						indexi=ix;
-						actuallyFound = true;
-						mStoredItemInternalSingle[ix] = iin[ix].copy();
-					}
-				}
-				recipeLocked = actuallyFound;
-				if (actuallyFound) {
-					treeInsert(this);
-					firstClassify(fin, iin,indexf+1,indexi+1);
-				}
-				return actuallyFound;
-			}
-			return false;
-		}
+
+            if (clearRecipeIfNeeded() != 1 || recipeLocked) return false;
+            AEInputBuffer input = inputs();
+            boolean found = false;
+            for (int ix = 0; ix < input.fluids.length; ix++) {
+                IAEFluidStack stack = input.fluids[ix];
+                if (LongStacks.amount(stack) > Math.min(fluidLimit(), singleSlotLimit())) return false;
+                if (ix >= f && stack != null) return false;
+                found |= LongStacks.amount(stack) > 0;
+            }
+            for (int ix = 0; ix < input.items.length; ix++) {
+                IAEItemStack stack = input.items[ix];
+                if (LongStacks.amount(stack) > Math.min(itemLimit(), singleSlotLimit())) return false;
+                if (ix >= i && stack != null) return false;
+                found |= LongStacks.amount(stack) > 0;
+            }
+            if (!found) return false;
+            for (int ix = 0; ix < f; ix++)
+                mStoredFluidInternalSingle[ix] = ix < input.fluids.length && input.fluids[ix] != null
+                    ? input.fluids[ix].copy() : null;
+            for (int ix = 0; ix < i; ix++)
+                mStoredItemInternalSingle[ix] = ix < input.items.length && input.items[ix] != null
+                    ? input.items[ix].copy() : null;
+            recipeLocked = true;
+            treeInsert(this);
+            firstClassify(fin, iin, f, i);
+            return true;
+
+	}
 
 		@Override
 		public ItemStack[] getItemInputs() {
@@ -1084,41 +1019,123 @@ public class BufferedDualInputHatch extends DualInputHatch
 		}
 
 		public int space() {
-			long ret = Long.MAX_VALUE;
-			boolean found = false;
-			for (int ix = 0; ix < i; ix++) {
 
-				if (mStoredItemInternalSingle[ix] != null && mStoredItemInternalSingle[ix].stackSize > 0) {
-					long now = 0;
-					if (mStoredItemInternal[ix] != null)
-						now = mStoredItemInternal[ix].stackSize();
-					long tmp = (itemLimit() - now) / mStoredItemInternalSingle[ix].stackSize;
-					if (tmp <= ret) {
-						ret = tmp;
-						found = true;
-					}
-				}
-			}
-			for (int ix = 0; ix < f; ix++) {
-
-				if (mStoredFluidInternalSingle[ix].getFluidAmount() > 0) {
-					long now = mStoredFluidInternal[ix].getFluidAmount();
-
-					long tmp = (fluidLimit() - now) / mStoredFluidInternalSingle[ix].getFluidAmount();
-					if (tmp <= ret) {
-						ret = tmp;
-						found = true;
-					}
-				}
-			}
-
-			if (found)
-				return (int) Math.min(ret, Integer.MAX_VALUE);
-			return 0;
-
-		}
+            long room = Long.MAX_VALUE;
+            boolean found = false;
+            long itemCap = Math.min(itemLimit(), singleSlotLimit());
+            for (int ix = 0; ix < i;) {
+                int end = itemRun(ix);
+                if (itemCounted(ix)) {
+                    long single = 0, now = 0, limit = 0;
+                    for (int k = ix; k < end; k++) {
+                        single = ChanceData.sat(single, mStoredItemInternalSingle[k].getStackSize());
+                        now = ChanceData.sat(now, mStoredItemInternal[k] == null ? 0 : mStoredItemInternal[k].stackSize());
+                        limit = ChanceData.sat(limit, itemCap);
+                    }
+                    room = Math.min(room, Math.max(0, limit - now) / single);
+                    found = true;
+                }
+                ix = end;
+            }
+            long fluidCap = Math.min(fluidLimit(), singleSlotLimit());
+            for (int ix = 0; ix < f;) {
+                int end = fluidRun(ix);
+                if (fluidCounted(ix)) {
+                    long single = 0, now = 0, limit = 0;
+                    for (int k = ix; k < end; k++) {
+                        single = ChanceData.sat(single, mStoredFluidInternalSingle[k].getStackSize());
+                        now = ChanceData.sat(now, mStoredFluidInternal[k].getFluidAmount());
+                        limit = ChanceData.sat(limit, fluidCap);
+                    }
+                    room = Math.min(room, Math.max(0, limit - now) / single);
+                    found = true;
+                }
+                ix = end;
+            }
+            return found ? (int) Math.min(room, Integer.MAX_VALUE) : 0;
 
 	}
+
+	}
+
+
+    private AEInputItemHandler longInputHandler;
+
+    @Override
+    public ItemStackHandler getInventoryHandler() {
+        if (longInputHandler == null) longInputHandler = new AEInputItemHandler(this,
+            () -> this instanceof PatternDualInputHatch || disableLimited
+                ? Math.min(itemLimit(), singleSlotLimit()) : getInventoryStackLimit());
+        return longInputHandler;
+    }
+
+    @Override
+    public ModularSlot ModularSlot(com.cleanroommc.modularui.utils.item.IItemHandler handler, int index) {
+        if (handler instanceof AEInputItemHandler input && input.isInput(index)) return new AEInputSlot(input, index);
+        return super.ModularSlot(handler, index);
+    }
+
+    @Override
+    protected ItemSlot createInputItemSlot(int index) {
+        return new ItemSlot() {
+            @Override
+            @SideOnly(Side.CLIENT)
+            protected void drawSlotAmountText(int amount, String format) {
+                GuiDraw.drawStandardSlotAmountText(LongStacks.amount(inputs().items[index]), format, getArea());
+            }
+
+            @Override
+            public void buildTooltip(ItemStack stack, RichTooltip tooltip) {
+                super.buildTooltip(stack, tooltip);
+                if (stack != null) tooltip.addLine(java.text.NumberFormat.getIntegerInstance()
+                    .format(LongStacks.amount(inputs().items[index])));
+            }
+        };
+    }
+
+    @Override
+    protected FluidSlot createInputFluidSlot(int index) {
+        AEInputFluidTank tank = new AEInputFluidTank(this, index,
+            () -> this instanceof PatternDualInputHatch || fluidLimit == 0
+                ? Math.min(fluidLimit(), singleSlotLimit()) : getInventoryFluidLimit());
+        return new FluidSlot() {
+            @Override
+            protected void addToolTip(RichTooltip tooltip) {
+                FluidStack fluid = tank.getFluid();
+                if (fluid != null) {
+                    tooltip.addFromFluid(fluid);
+                    tooltip.addLine(IKey.lang("modularui2.fluid.amount",
+                        java.text.NumberFormat.getIntegerInstance().format(tank.amount()),
+                        java.text.NumberFormat.getIntegerInstance().format(tank.capacity()), getUnit()));
+                    addAdditionalFluidInfo(tooltip, fluid);
+                } else tooltip.addLine(IKey.lang("modularui2.fluid.empty"));
+                tooltip.addLine(IKey.lang("modularui2.fluid.click_combined"));
+            }
+        }.syncHandler(new com.cleanroommc.modularui.value.sync.FluidSlotSyncHandler(tank));
+    }
+
+    private AEInputBuffer longInputs;
+
+    public AEInputBuffer inputs() {
+        if (longInputs == null)
+            longInputs = new AEInputBuffer(mInventory, mStoredFluid, mInventory.length - 1);
+        return longInputs;
+    }
+
+    public void onInputChanged() {
+        dirty = true;
+        markDirty();
+        if (getBaseMetaTileEntity() instanceof gregtech.api.interfaces.tileentity.IHasInventory inventory)
+            inventory.markInventoryBeenModified();
+    }
+
+    public void syncInputViews() {
+        inputs().sync();
+    }
+
+    public void clearInputBuffer() {
+        inputs().clear();
+    }
 
 	int bufferNum;
 
@@ -1435,12 +1452,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 							// to.fromTag(from.toTag());//TODO shallow copy
 							// instead
 							moveTo(from.mStoredFluidInternal, to.mStoredFluidInternal);
-							// CONTENT copy, not object copy: the single tanks are views bound to
-							// their owning buffer's singleBack mirror (see BackedFluidTank)
-							for (int mi = 0; mi < Math.min(from.mStoredFluidInternalSingle.length,
-								to.mStoredFluidInternalSingle.length); mi++) {
-								to.mStoredFluidInternalSingle[mi].setFluid(from.mStoredFluidInternalSingle[mi].getFluid());
-							}
+                            moveTo(from.mStoredFluidInternalSingle, to.mStoredFluidInternalSingle);
 							moveTo(from.mStoredItemInternal, to.mStoredItemInternal);
 							moveTo(from.mStoredItemInternalSingle, to.mStoredItemInternalSingle);
 							to.nonempty=true;
@@ -1616,44 +1628,59 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 	}
 
-	/** Adds todo more runs of theBuffer's recorded single. The caller guarantees todo <= theBuffer.space(). */
+	/**
+	 * Adds todo more runs of theBuffer's recorded single. Consecutive slots of one type share the amount and are filled
+	 * in order up to the slot limit. The caller guarantees todo <= theBuffer.space().
+	 */
 	void addExtraRuns(DualInvBuffer theBuffer, long todo) {
-		if (todo <= 0) return;
-		for (int ix = 0; ix < theBuffer.i; ix++) {
-			// non-consumable: already unwrapped into the circuit region by programLocal(),
-			// extra doses must not re-materialise the wrapper as a consumable (issue #331)
-			if (theBuffer.isUnwrappedCircuitSlot(ix)) continue;
-			if (theBuffer.mStoredItemInternalSingle[ix] != null) {
-				if (theBuffer.mStoredItemInternal[ix] == null) {
-					theBuffer.mStoredItemInternal[ix] = ItemStackG
-						.neo(theBuffer.mStoredItemInternalSingle[ix].copy());
-					theBuffer.mStoredItemInternal[ix].stackSize(0);// circuit?
-				}
-				theBuffer.mStoredItemInternal[ix]
-					.stackSizeInc(new LongWrapper(theBuffer.mStoredItemInternalSingle[ix].stackSize * todo));
-			}
-		}
 
-		for (int ix = 0; ix < theBuffer.f; ix++) {
-			if (theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount() > 0) {
-				if (theBuffer.mStoredFluidInternal[ix].getFluidAmount() <= 0) {
-					FluidStack zerof = theBuffer.mStoredFluidInternalSingle[ix].getFluid()
-						.copy();
-					zerof.amount = 0;
-					theBuffer.mStoredFluidInternal[ix].setFluid(zerof);
+        if (todo <= 0) return;
+        long itemCap = Math.min(itemLimit(), singleSlotLimit());
+        for (int ix = 0; ix < theBuffer.i;) {
+            int end = theBuffer.itemRun(ix);
+            long left = 0;
+            if (theBuffer.itemCounted(ix)) for (int k = ix; k < end; k++)
+                left = Math.addExact(left, Math.multiplyExact(theBuffer.mStoredItemInternalSingle[k].getStackSize(), todo));
+            for (int k = ix; k < end && left > 0; k++) {
+                ItemStackG stored = theBuffer.mStoredItemInternal[k];
+                long now = stored == null ? 0 : stored.stackSize();
+                long put = k == end - 1 ? left : Math.min(left, Math.max(0, itemCap - now));
+                if (put <= 0) continue;
+                if (stored == null) theBuffer.mStoredItemInternal[k] =
+                    LongStacks.itemGroup(theBuffer.mStoredItemInternalSingle[k].copy().setStackSize(put));
+                else stored.stackSizeInc(new LongWrapper(put));
+                left -= put;
+            }
+            ix = end;
+        }
+        long fluidCap = Math.min(fluidLimit(), singleSlotLimit());
+        for (int ix = 0; ix < theBuffer.f;) {
+            int end = theBuffer.fluidRun(ix);
+            long left = 0;
+            if (theBuffer.fluidCounted(ix)) for (int k = ix; k < end; k++)
+                left = Math.addExact(left, Math.multiplyExact(theBuffer.mStoredFluidInternalSingle[k].getStackSize(), todo));
+            for (int k = ix; k < end && left > 0; k++) {
+                FluidTankG stored = theBuffer.mStoredFluidInternal[k];
+                long put = k == end - 1 ? left : Math.min(left, Math.max(0, fluidCap - stored.getFluidAmount()));
+                if (put <= 0) continue;
+                if (stored.getFluid() == null) {
+                    FluidStack type = theBuffer.mStoredFluidInternalSingle[k].getFluidStack();
+                    type.amount = 0;
+                    stored.setFluid(type);
+                }
+                stored.amountAcc(put);
+                left -= put;
+            }
+            ix = end;
+        }
+        theBuffer.nonempty = true;
 
-				}
-				theBuffer.mStoredFluidInternal[ix]
-					.amountAcc(theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount() * todo);
-			}
-		}
-		theBuffer.nonempty = true;
 	}
 
 	/** One run cut into this hatch's input slots, or null if it does not fit them. */
 	PushStaging stageParts(List<PushStaging.Part> parts) {
 		return PushStaging.splitParts(parts, getInventoryStackLimit(), this::isValidSlot, getInventoryFluidLimit(),
-			mStoredFluid.length);
+            mStoredFluid.length);
 	}
 
 	/**
@@ -1672,11 +1699,11 @@ public class BufferedDualInputHatch extends DualInputHatch
 		if (runs <= 0 || isRemote() || !isInputEmpty()) return 0;
 		PushStaging st = stageParts(run);
 		if (st == null) return -1;
-		st.stageInto(mInventory, mStoredFluid);
+		st.stageInto(inputs());
 		ChanceData chance = ChanceMark.isMarked(details) ? ChanceData.of(details) : null;
 		DualInvBuffer b = classifyWith(chance);
 		if (b == null) {
-			st.unstageFrom(mInventory, mStoredFluid);
+			inputs().clear();
 			return 0;
 		}
 		markDirty();
@@ -1769,7 +1796,11 @@ public class BufferedDualInputHatch extends DualInputHatch
 		if (aNBT.hasKey("x") == false)
 			return;
 		dirty = aNBT.getBoolean("dirty");
-		int iex = aNBT.getInteger("exinvlen");
+		int iex = Math.max(0, aNBT.getInteger("exinvlen"));
+        while (inv0.size() > bufferNum) {
+            DualInvBuffer removed = inv0.remove(inv0.size() - 1);
+            treeRemove(removed);
+        }
 		boolean warn = false;
 		for (int i = 0; i < bufferNum + iex; i++) {
 			final int ii = i;
@@ -1805,10 +1836,18 @@ public class BufferedDualInputHatch extends DualInputHatch
 		// up (its consumers have been commented out for a long time) and the RecipeTree covers
 		// recipe identity now. Old saves load fine; the stale tags are simply dropped.
 		super.loadNBTData(aNBT);
+        longInputs = new AEInputBuffer(mInventory, mStoredFluid, mInventory.length - 1);
+        if (aNBT.hasKey("aeInputBuffer")) longInputs.load(aNBT.getCompoundTag("aeInputBuffer"));
+        else {
+            LongStacks.joinLegacyItems(longInputs.items, null);
+            LongStacks.joinLegacyFluids(longInputs.fluids, null);
+            longInputs.refreshViews();
+        }
 	}
 
 	@Override
 	public void saveNBTData(NBTTagCompound aNBT) {
+        NBTTagCompound input = inputs().save();
 		aNBT.setBoolean("dirty", dirty);
 		for (int i = 0; i < inv0.size(); i++)
 
@@ -1823,6 +1862,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		aNBT.setInteger("preventSleep", preventSleep);
 
 		super.saveNBTData(aNBT);
+        aNBT.setTag("aeInputBuffer", input);
 	}
 
 	/*
@@ -2150,29 +2190,27 @@ public class BufferedDualInputHatch extends DualInputHatch
 			sub.setBoolean("locked", inv.recipeLocked);
 			sub.setBoolean("empty", inv.isEmpty());
 			//sub.setInteger("patternID", inv.PID);
-			RecipeTracker rt = new RecipeTracker();
-
 			sub.setString("lock_item",
 					IntStream.range(0, inv.mStoredItemInternalSingle.length)
 							.mapToObj(ss -> new IndexedObject<>(ss, inv.mStoredItemInternalSingle[ss]))
 							.filter(ss -> ss.holded != null).map(ss -> {
-								rt.track(ss.holded, inv.mStoredItemInternal[ss.index]);
-								return "#" + ss.index + ":" + ss.holded.getDisplayName() + "x" + ss.holded.stackSize;
+
+								return "#" + ss.index + ":" + ss.holded.getItemStack().getDisplayName() + "x" + ss.holded.getStackSize();
 							}).collect(StringBuilder::new, (a, b) -> a.append(((a.length() == 0) ? "" : "\n") + b),
 									(a, b) -> a.append(b))
 							.toString());
 			sub.setString("lock_fluid",
 					IntStream.range(0, inv.mStoredFluidInternalSingle.length)
 							.mapToObj(ss -> new IndexedObject<>(ss, inv.mStoredFluidInternalSingle[ss]))
-							.filter(ss -> ss.holded.getFluidAmount() > 0).map(ss -> {
-								rt.track(ss.holded, inv.mStoredFluidInternal[ss.index]);
-								return "#" + ss.index + ":" + ss.holded.getFluid().getLocalizedName() + "x"
-										+ ss.holded.getFluidAmount();
+							.filter(ss -> LongStacks.amount(ss.holded) > 0).map(ss -> {
+
+								return "#" + ss.index + ":" + ss.holded.getFluidStack().getLocalizedName() + "x"
+										+ ss.holded.getStackSize();
 							}).collect(StringBuilder::new, (a, b) -> a.append(((a.length() == 0) ? "" : "\n") + b),
 									(a, b) -> a.append(b))
 							.toString());
 
-			Copies copies = rt.result(inv.isEmpty());
+			Copies copies = getPossibleCopies(inv);
 			sub.setLong("copiesNum", copies.num);
 			sub.setLong("copiesDen", copies.den);
 		});
@@ -2272,85 +2310,35 @@ public class BufferedDualInputHatch extends DualInputHatch
 		}
 	}
 
-	private static class RecipeTracker {
 
-		boolean broken;
-		/** Ratio agreed on by every slot compared so far; null until the first one. */
-		Copies times;
-		boolean onceCompared;
-
-		public void track(@Nonnull ItemStack recipe, @Nullable ItemStackG mStoredItemInternal) {
-			if (recipe.getItem() instanceof ItemProgrammingCircuit) {
-				onceCompared = true;
-				return;
-			}
-			if (recipe.getItem() != (mStoredItemInternal == null ? null : mStoredItemInternal.getItem())) {
-				broken = true;
-				onceCompared = true;
-				return;
-			}
-			int a = recipe.stackSize;
-			long b = Optional.ofNullable(mStoredItemInternal).map(s -> s.stackSize()).orElse(0l);
-			track(a, b, false);
-		}
-
-		public void track(@Nonnull FluidTank recipe, @Nonnull FluidTankG storage) {
-			if (recipe.getFluid().getFluid() != Optional.of(storage).map(FluidTankG::getFluid).map(FluidStack::getFluid)
-					.orElse(null)) {
-				broken = true;
-				onceCompared = true;
-				return;
-			}
-
-			int a = recipe.getFluidAmount();
-			long b = storage.getFluidAmount();
-			track(a, b, false);
-		}
-
-		public void track(int a, long b, boolean ignoreEmpty) {
-			if (a == 0) {
-				broken = true;
-				return;
-				/* Actually impossible */}
-			if (b == 0) {
-				if (!ignoreEmpty)
-					broken = true;
-				return;
-			}
-			Copies t = Copies.of(b, a);
-			onceCompared = true;
-			if (times == null) {
-				times = t;
-			} else if (!times.sameAs(t)) {
-				broken = true; // this slot holds a different fraction of a single than the others
-			}
-		}
-
-		/** The verdict: BROKEN on inconsistency or when a non-empty buffer had nothing comparable. */
-		Copies result(boolean bufferEmpty) {
-			if (broken || (!onceCompared && !bufferEmpty)) return Copies.BROKEN;
-			return times == null ? Copies.ZERO : times;
-		}
-	}
-
-	public Copies getPossibleCopies(DualInvBuffer toCheck) {
-		DualInvBuffer inv = toCheck;
-		RecipeTracker rt = new RecipeTracker();
-
-		IntStream.range(0, inv.mStoredItemInternalSingle.length)
-				.mapToObj(ss -> new IndexedObject<>(ss, inv.mStoredItemInternalSingle[ss]))
-				.filter(ss -> ss.holded != null).forEach(ss -> {
-					rt.track(ss.holded, inv.mStoredItemInternal[ss.index]);
-				});
-
-		IntStream.range(0, inv.mStoredFluidInternalSingle.length)
-				.mapToObj(ss -> new IndexedObject<>(ss, inv.mStoredFluidInternalSingle[ss]))
-				.filter(ss -> ss.holded.getFluidAmount() > 0).forEach(ss -> {
-					rt.track(ss.holded, inv.mStoredFluidInternal[ss.index]);
-				});
-		return rt.result(inv.isEmpty());
-
-	}
+    public Copies getPossibleCopies(DualInvBuffer inv) {
+        if (inv.isEmpty()) return Copies.ZERO;
+        List<IAEStack<?>> required = new ArrayList<>(), actual = new ArrayList<>();
+        for (int ix = 0; ix < inv.i; ix++) {
+            IAEItemStack single = inv.mStoredItemInternalSingle[ix];
+            if (inv.isUnwrappedCircuitSlot(ix)) continue;
+            if (LongStacks.amount(single) > 0) ChanceData.add(required, single.copy());
+            ItemStackG stored = inv.mStoredItemInternal[ix];
+            if (stored != null && stored.stackSize() > 0)
+                ChanceData.add(actual, LongStacks.item(stored.getStack(), stored.stackSize()));
+        }
+        for (int ix = 0; ix < inv.f; ix++) {
+            IAEFluidStack single = inv.mStoredFluidInternalSingle[ix];
+            if (LongStacks.amount(single) > 0) ChanceData.add(required, single.copy());
+            FluidTankG stored = inv.mStoredFluidInternal[ix];
+            if (stored.getFluidAmount() > 0)
+                ChanceData.add(actual, LongStacks.fluid(stored.getFluid(), stored.getFluidAmount()));
+        }
+        Copies ratio = null;
+        for (IAEStack<?> single : required) {
+            int index = ChanceData.indexOf(actual, single);
+            if (index < 0) return Copies.BROKEN;
+            Copies next = Copies.of(actual.remove(index).getStackSize(), single.getStackSize());
+            if (ratio != null && !ratio.sameAs(next)) return Copies.BROKEN;
+            ratio = next;
+        }
+        return actual.isEmpty() ? (ratio == null ? Copies.ZERO : ratio) : Copies.BROKEN;
+    }
 
 	@Override
 	public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
@@ -2541,46 +2529,52 @@ public class BufferedDualInputHatch extends DualInputHatch
 		return super.endRecipeProcessingImpl(controller);
 	}
 
-	@Override
-	public void onBlockDestroyed() {
-		IGregTechTileEntity te = this.getBaseMetaTileEntity();
-		World aWorld = te.getWorld();
-		int aX = te.getXCoord();
-		short aY = te.getYCoord();
-		int aZ = te.getZCoord();
-		for (DualInvBuffer inv : this.inv0)
-			for (int i = 0; i < inv.mStoredItemInternal.length; i++) {
-				final ItemStackG tItem = inv.mStoredItemInternal[i];
-				if ((tItem != null) && (tItem.stackSize() > 0)) {
-					final EntityItem tItemEntity = new EntityItem(aWorld, aX + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
-							aY + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F, aZ + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
-							tItem.getStack());
 
-					tItemEntity.motionX = (XSTR_INSTANCE.nextGaussian() * 0.05D);
-					tItemEntity.motionY = (XSTR_INSTANCE.nextGaussian() * 0.25D);
-					tItemEntity.motionZ = (XSTR_INSTANCE.nextGaussian() * 0.05D);
-					aWorld.spawnEntityInWorld(tItemEntity);
-					tItem.stackSize(0);
-					inv.mStoredItemInternal[i] = null;
-				}
-			}
-		super.onBlockDestroyed();
-	}
+    @Override
+    public void onBlockDestroyed() {
+        syncInputViews();
+        for (DualInvBuffer buffer : inv0) {
+            for (int ix = 0; ix < buffer.mStoredItemInternal.length; ix++) {
+                ItemStackG stored = buffer.mStoredItemInternal[ix];
+                if (stored == null) continue;
+                for (ItemStack chunk : stored.flat()) dropInputChunk(chunk);
+                buffer.mStoredItemInternal[ix] = null;
+            }
+        }
+        AEInputBuffer input = inputs();
+        for (int ix = 0; ix < input.items.length; ix++) {
+            IAEItemStack stored = input.items[ix];
+            if (stored == null || !isValidSlot(ix) || !shouldDropItemAt(ix)) continue;
+            long left = stored.getStackSize();
+            while (left > 0) {
+                ItemStack chunk = stored.getItemStack();
+                chunk.stackSize = (int) Math.min(Integer.MAX_VALUE, left);
+                left -= chunk.stackSize;
+                dropInputChunk(chunk);
+            }
+            input.items[ix] = null;
+        }
+        input.refreshViews();
+        super.onBlockDestroyed();
+    }
+
+    private void dropInputChunk(ItemStack stack) {
+        if (stack == null || stack.stackSize <= 0) return;
+        IGregTechTileEntity tile = getBaseMetaTileEntity();
+        EntityItem drop = new EntityItem(tile.getWorld(), tile.getXCoord() + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
+            tile.getYCoord() + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F,
+            tile.getZCoord() + XSTR_INSTANCE.nextFloat() * 0.8F + 0.1F, stack.copy());
+        drop.motionX = XSTR_INSTANCE.nextGaussian() * 0.05D;
+        drop.motionY = XSTR_INSTANCE.nextGaussian() * 0.25D;
+        drop.motionZ = XSTR_INSTANCE.nextGaussian() * 0.05D;
+        tile.getWorld().spawnEntityInWorld(drop);
+        stack.stackSize = 0;
+    }
 
 	public boolean isInputEmpty() {
 
-		for (FluidTank f : mStoredFluid) {
-			if (f.getFluidAmount() > 0) {
-				return false;
-			}
-		}
-		for (ItemStack i : mInventory) {
+        return inputs().isEmpty();
 
-			if (i != null && i.stackSize > 0) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	/*
@@ -2682,72 +2676,52 @@ public class BufferedDualInputHatch extends DualInputHatch
 	 * any) is always in the input slot's own bucket; NBT is only deep-compared inside a bucket hit.
 	 */
 	static public int hashFluidSlotCheap(FluidStack fs) {
-		if (fs == null || fs.amount == 0) return 0;
-		return System.identityHashCode(fs.getFluid()) * 31 + fs.amount;
+
+        return hashFluidSlotCheap(fs == null ? null : LongStacks.fluid(fs, fs.amount));
+    }
+    static public int hashFluidSlotCheap(IAEFluidStack fs) {
+        if (fs == null || fs.getStackSize() == 0) return 0;
+        return System.identityHashCode(fs.getFluid()) * 31 + Long.hashCode(fs.getStackSize());
+
 	}
 
 	static public int hashItemSlotCheap(ItemStack s) {
-		if (s == null) return 0;
-		int h = System.identityHashCode(s.getItem());
-		h = h * 31 + Items.feather.getDamage(s);
-		h = h * 31 + s.stackSize;
-		return h;
-	}
 
-	/**
-	 * Recipe-single tank mirrored into one slot of the buffer's contiguous singleBack array; the
-	 * tank's own field stays the source of truth, only field assignments are mirrored (all of them
-	 * go through the overridden methods here — FluidTank.readFromNBT dispatches virtually to
-	 * setFluid). Same idea as BackedListeningFluidTank on the input side.
-	 */
-	static final class BackedFluidTank extends FluidTank {
+        return hashItemSlotCheap(s == null ? null : LongStacks.item(s, s.stackSize));
+    }
+    static public int hashItemSlotCheap(IAEItemStack s) {
+        if (s == null) return 0;
+        ItemStack type = s.getItemStack();
+        int h = System.identityHashCode(type.getItem());
+        h = h * 31 + Items.feather.getDamage(type);
+        return h * 31 + Long.hashCode(s.getStackSize());
 
-		private final FluidStack[] back;
-		private final int idx;
-
-		BackedFluidTank(FluidStack[] back, int idx) {
-			super(Integer.MAX_VALUE);
-			this.back = back;
-			this.idx = idx;
-		}
-
-		@Override
-		public void setFluid(FluidStack f) {
-			super.setFluid(f);
-			back[idx] = this.fluid;
-		}
-
-		@Override
-		public int fill(FluidStack resource, boolean doFill) {
-			try {
-				return super.fill(resource, doFill);
-			} finally {
-				back[idx] = this.fluid;
-			}
-		}
-
-		@Override
-		public FluidStack drain(int maxDrain, boolean doDrain) {
-			try {
-				return super.drain(maxDrain, doDrain);
-			} finally {
-				back[idx] = this.fluid;
-			}
-		}
 	}
 
 	/** Mirrors fluidEquals minus the tag comparison — never rejects anything fluidEquals accepts. */
 	static boolean fluidSlotMatchesNoTag(FluidStack fa, FluidStack fb) {
-		if (fa == null && fb == null) return true;
-		if ((fa == null ? 0 : fa.amount) != (fb == null ? 0 : fb.amount)) return false;
-		return fa == null || fb == null || fa.getFluid() == fb.getFluid();
+
+        return fluidSlotMatchesNoTag(fa == null ? null : LongStacks.fluid(fa, fa.amount),
+            fb == null ? null : LongStacks.fluid(fb, fb.amount));
+    }
+    static boolean fluidSlotMatchesNoTag(IAEFluidStack fa, IAEFluidStack fb) {
+        if (fa == null || fb == null) return fa == fb;
+        return fa.getStackSize() == fb.getStackSize() && fa.getFluid() == fb.getFluid();
+
 	}
 
 	/** The NBT-free half of ItemStack.areItemStacksEqual: null↔null, item, raw damage, stackSize. */
 	static boolean itemSlotMatchesCheap(ItemStack a, ItemStack b) {
-		if (a == null || b == null) return a == b;
-		return a.getItem() == b.getItem() && Items.feather.getDamage(a) == Items.feather.getDamage(b)
-			&& a.stackSize == b.stackSize;
+
+        return itemSlotMatchesCheap(a == null ? null : LongStacks.item(a, a.stackSize),
+            b == null ? null : LongStacks.item(b, b.stackSize));
+    }
+    static boolean itemSlotMatchesCheap(IAEItemStack a, IAEItemStack b) {
+        if (a == null || b == null) return a == b;
+        ItemStack av = a.getItemStack(), bv = b.getItemStack();
+        return av.getItem() == bv.getItem() && Items.feather.getDamage(av) == Items.feather.getDamage(bv)
+            && a.getStackSize() == b.getStackSize();
+
 	}
 
 	/** The tag half of ItemStack.areItemStacksEqual (null-safe deep equality). */
@@ -2790,7 +2764,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 			final byte sec;
 			final int slot;
-			/** FluidStack (A) / ItemStack (B) / NBTTagCompound or null (C). */
+			/** IAEFluidStack (A) / IAEItemStack (B) / NBTTagCompound or null (C). */
 			final Object key;
 			java.util.HashMap<Integer, java.util.ArrayList<Node>> children;
 			/** Recipes whose pair list ends exactly at this node. */
@@ -2817,15 +2791,14 @@ public class BufferedDualInputHatch extends DualInputHatch
 		 *
 		 * @return pair count
 		 */
-		private static int enumerate(FluidStack[] fback, ItemStack[] items, int f, int i, int[] ck, byte[] sec,
+		private static int enumerate(IAEFluidStack[] fback, IAEItemStack[] items, int f, int i, int[] ck, byte[] sec,
 			int[] slot, Object[] content) {
 			int n = 0;
-			// fluids scan the contiguous backend mirror (see BackedListeningFluidTank/BackedFluidTank):
-			// NullScan hops the null runs; a non-null 0-amount stack just needs the follow-up check
+            // Skip empty logical slots; counts stay long throughout the tree.
 			for (int s = reobf.proghatches.util.NullScan.lastNonNull(fback, Math.min(f, fback.length) - 1); s >= 0;
 				s = s == 0 ? -1 : reobf.proghatches.util.NullScan.lastNonNull(fback, s - 1)) {
-				FluidStack fs = fback[s];
-				if (fs.amount == 0) continue;
+				IAEFluidStack fs = fback[s];
+				if (fs.getStackSize() == 0) continue;
 				sec[n] = SEC_FLUID;
 				slot[n] = s;
 				content[n] = fs;
@@ -2837,7 +2810,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			// getLong under compressed oops; plain-loop fallback inside)
 			for (int s = reobf.proghatches.util.NullScan.lastNonNull(items, Math.min(i, items.length) - 1); s >= 0;
 				s = s == 0 ? -1 : reobf.proghatches.util.NullScan.lastNonNull(items, s - 1)) {
-				ItemStack st = items[s];
+				IAEItemStack st = items[s];
 				sec[n] = SEC_ITEM;
 				slot[n] = s;
 				content[n] = st;
@@ -2846,10 +2819,10 @@ public class BufferedDualInputHatch extends DualInputHatch
 			}
 			int itemsEnd = n;
 			for (int k = itemsStart; k < itemsEnd; k++) {
-				ItemStack st = (ItemStack) content[k];
+				IAEItemStack st = (IAEItemStack) content[k];
 				sec[n] = SEC_TAG;
 				slot[n] = slot[k];
-				content[n] = st.stackTagCompound;
+				content[n] = st.getItemStack().stackTagCompound;
 				n++;
 			}
 			return n;
@@ -2863,8 +2836,8 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 		private static boolean nodeMatches(Node n, byte sec, int slot, Object content) {
 			if (n.sec != sec) return false;
-			if (sec == SEC_FLUID) return n.slot == slot && fluidSlotMatchesNoTag((FluidStack) n.key, (FluidStack) content);
-			if (sec == SEC_ITEM) return n.slot == slot && itemSlotMatchesCheap((ItemStack) n.key, (ItemStack) content);
+			if (sec == SEC_FLUID) return n.slot == slot && fluidSlotMatchesNoTag((IAEFluidStack) n.key, (IAEFluidStack) content);
+			if (sec == SEC_ITEM) return n.slot == slot && itemSlotMatchesCheap((IAEItemStack) n.key, (IAEItemStack) content);
 			return tagMatches(n.key, content);
 		}
 
@@ -2875,7 +2848,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			byte[] sec = new byte[cap];
 			int[] slot = new int[cap];
 			Object[] content = new Object[cap];
-			int n = enumerate(buf.singleBack, buf.mStoredItemInternalSingle, f, i, ck, sec, slot, content);
+			int n = enumerate(buf.mStoredFluidInternalSingle, buf.mStoredItemInternalSingle, f, i, ck, sec, slot, content);
 			if (n == 0) return; // nothing recorded: never inserted (recordRecipeOrClassify can't produce this)
 			Node cur = root;
 			for (int d = 0; d < n; d++) {
@@ -2906,7 +2879,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			byte[] sec = new byte[cap];
 			int[] slot = new int[cap];
 			Object[] content = new Object[cap];
-			int n = enumerate(buf.singleBack, buf.mStoredItemInternalSingle, f, i, ck, sec, slot, content);
+			int n = enumerate(buf.mStoredFluidInternalSingle, buf.mStoredItemInternalSingle, f, i, ck, sec, slot, content);
 			Node[] chain = new Node[n + 1];
 			int[] cks = new int[n];
 			chain[0] = root;
@@ -2942,7 +2915,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 		 * tags), or null. Fails at the first divergence; pair 0 already compares the highest
 		 * occupied slot.
 		 */
-		public java.util.ArrayList<DualInvBuffer> lookup(FluidStack[] fin, ItemStack[] iin, int f, int i) {
+		public java.util.ArrayList<DualInvBuffer> lookup(IAEFluidStack[] fin, IAEItemStack[] iin, int f, int i) {
 			int cap = f + i + i;
 			int[] ck = new int[cap];
 			byte[] sec = new byte[cap];
@@ -2985,7 +2958,8 @@ public class BufferedDualInputHatch extends DualInputHatch
 	}
 
 	java.util.ArrayList<DualInvBuffer> treeLookup() {
-		return recipeTree.lookup(this.mStoredFluidBack, this.mInventory, this.mStoredFluid.length, this.mInventory.length - 1);
+		syncInputViews();
+        return recipeTree.lookup(inputs().fluids, inputs().items, mStoredFluid.length, mInventory.length - 1);
 	}
 
 	/**
@@ -3032,31 +3006,13 @@ public class BufferedDualInputHatch extends DualInputHatch
 
 	public boolean isInputEmpty(BufferedDualInputHatch master) {
 
-		for (FluidTank f : master.mStoredFluid) {
-			if (f.getFluidAmount() > 0) {
-				return false;
-			}
-		}
-		for (ItemStack i : master.mInventory) {
+        return master.isInputEmpty();
 
-			if (i != null && i.stackSize > 0) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	public void clearInv(BufferedDualInputHatch master) {
 
-		for (FluidTank f : master.mStoredFluid) {
-			f.setFluid(null);
-		}
-		for (int i = 0; i < master.mInventory.length; i++) {
-
-			if (master.isValidSlot(i)) {
-				master.mInventory[i] = null;
-			}
-		}
+        master.clearInputBuffer();
 
 	}
 
@@ -3084,7 +3040,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 					master.mStoredFluid.length);
 			if (staging == null)
 				return false;
-			staging.stageInto(master.mInventory, master.mStoredFluid);
+			staging.stageInto(master.inputs());
 			if (master instanceof BufferedDualInputHatch) {
 
 				DualInvBuffer buff = ((BufferedDualInputHatch) master).classifyForce();
@@ -3285,8 +3241,13 @@ public class BufferedDualInputHatch extends DualInputHatch
 		@Override
 		public void populateUI(ModularPanel builder, PosGuiData data, PanelSyncManager syncManager,
 				UISettings uiSettings) {
-			super.populateUI(builder, data, syncManager, uiSettings);
-			
+            super.populateUI(builder, data, syncManager, uiSettings);
+            syncManager.syncValue("long_input_contents", GenericSyncValue.builder(NBTTagCompound.class)
+                .getter(() -> inputs().save())
+                .setter(tag -> inputs().load(tag))
+                .adapter(com.cleanroommc.modularui.utils.serialization.ByteBufAdapters.NBT)
+                .copy(tag -> (NBTTagCompound) tag.copy()).build());
+
 			syncManager.syncedPanel("EX_Config", true, 
 					(manager, handler) -> createWindowEX2(manager));
 	

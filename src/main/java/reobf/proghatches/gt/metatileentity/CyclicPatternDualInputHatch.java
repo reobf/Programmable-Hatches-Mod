@@ -284,10 +284,11 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
 
         long target;
         boolean output = true;
+        boolean input;
         int tol = 5;
 
         CycleItemSetting toCore() {
-            return new CycleItemSetting(target, output, tol);
+            return new CycleItemSetting(target, output, input, tol);
         }
     }
 
@@ -296,15 +297,17 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         final List<IAEStack<?>> run;
         long runs;
         final int lane;
+        final boolean circuitsPaid;
         /** The marked pattern the run belongs to, so the hatch that takes it books the copies; null when unmarked. */
         final ItemStack pattern;
         ICraftingPatternDetails details;
 
-        Dose(List<IAEStack<?>> run, long runs, int lane, ItemStack pattern) {
+        Dose(List<IAEStack<?>> run, long runs, int lane, ItemStack pattern, boolean circuitsPaid) {
             this.run = run;
             this.runs = runs;
             this.lane = lane;
             this.pattern = pattern;
+            this.circuitsPaid = circuitsPaid;
         }
     }
 
@@ -312,14 +315,16 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
 
         final int group;
         final CycleBalancing<SKey> bal;
+        final List<CycleAmount<SKey>> inputs;
         final List<IAEStack<?>>[] memberRun;
         final int[] memberLane;
         final ItemStack[] memberPattern;
 
         BalRef(int group, CycleBalancing<SKey> bal, List<IAEStack<?>>[] memberRun, int[] memberLane,
-            ItemStack[] memberPattern) {
+            ItemStack[] memberPattern, List<CycleAmount<SKey>> inputs) {
             this.group = group;
             this.bal = bal;
+            this.inputs = inputs;
             this.memberRun = memberRun;
             this.memberLane = memberLane;
             this.memberPattern = memberPattern;
@@ -791,13 +796,6 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         for (int g = 0; g < GROUPS; g++) {
             if (analysis[g] == null) continue;
             for (CycleBalancing<SKey> bal : analysis[g].getPublishable()) {
-                ItemStack ps = buildCyclicPatternStack(g, bal);
-                if (ps == null) continue;
-                ICraftingPatternDetails det = null;
-                try {
-                    det = ((ICraftingPatternItem) ps.getItem()).getPatternForItem(ps, w);
-                } catch (Exception ignored) {}
-                if (det == null || lookup.containsKey(det)) continue;
                 int[] ids = bal.getPatternIds();
                 long[] runs = bal.getRuns();
                 @SuppressWarnings("unchecked")
@@ -822,7 +820,22 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                     }
                 }
                 if (!ok) continue;
-                lookup.put(det, new BalRef(g, bal, mr, lanes, mp));
+                List<CycleAmount<SKey>> inputs;
+                try {
+                    inputs = executionInputs(bal, mr);
+                } catch (ArithmeticException e) {
+                    CycleWarning<SKey> warning = new CycleWarning<>(CycleWarning.Code.OVERFLOW, null, -1, 0, 0);
+                    if (!hatchWarnings.get(g).contains(warning)) hatchWarnings.get(g).add(warning);
+                    continue;
+                }
+                ItemStack ps = buildCyclicPatternStack(g, bal, inputs);
+                if (ps == null) continue;
+                ICraftingPatternDetails det = null;
+                try {
+                    det = ((ICraftingPatternItem) ps.getItem()).getPatternForItem(ps, w);
+                } catch (Exception ignored) {}
+                if (det == null || lookup.containsKey(det)) continue;
+                lookup.put(det, new BalRef(g, bal, mr, lanes, mp, inputs));
                 list.add(det);
             }
         }
@@ -855,9 +868,25 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         return sb.toString();
     }
 
-    ItemStack buildCyclicPatternStack(int g, CycleBalancing<SKey> b) {
+    static List<CycleAmount<SKey>> executionInputs(CycleBalancing<SKey> balancing, List<IAEStack<?>>[] members) {
+        LinkedHashMap<SKey, Long> amounts = new LinkedHashMap<>();
+        for (CycleAmount<SKey> input : balancing.getNetInputs()) amounts.merge(input.key, input.amount, Math::addExact);
+        long[] runs = balancing.getRuns();
+        for (int i = 0; i < runs.length; i++) {
+            if (runs[i] <= 0) continue;
+            for (IAEStack<?> input : members[i]) if (isCircuit(input)) {
+                long amount = Math.multiplyExact(input.getStackSize(), runs[i]);
+                amounts.merge(SKey.of(input), amount, Math::addExact);
+            }
+        }
+        List<CycleAmount<SKey>> result = new ArrayList<>();
+        for (Map.Entry<SKey, Long> input : amounts.entrySet()) result.add(new CycleAmount<>(input.getKey(), input.getValue()));
+        return List.copyOf(result);
+    }
+
+    ItemStack buildCyclicPatternStack(int g, CycleBalancing<SKey> b, List<CycleAmount<SKey>> executionInputs) {
         List<IAEStack<?>> inputs = new ArrayList<>();
-        for (CycleAmount<SKey> c : b.getNetInputs()) inputs.add(c.key.toAE(c.amount));
+        for (CycleAmount<SKey> c : executionInputs) inputs.add(c.key.toAE(c.amount));
         List<IAEStack<?>> outputs = new ArrayList<>();
         for (CycleAmount<SKey> c : b.getNetOutputs()) outputs.add(c.key.toAE(c.amount));
         if (inputs.isEmpty() || outputs.isEmpty()) return null;
@@ -914,7 +943,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         BalRef ref = lookup.get(RecipeFilterCRIB.basePattern(details));
         if (ref == null) return false;
         if (!doses.isEmpty() || !isInputEmpty()) return false;
-        long k = copiesFromTable(table, ref.bal.getNetInputs());
+        long k = copiesFromTable(table, ref.inputs);
         if (k <= 0) return false;
         List<CycleAmount<SKey>> seedList = ref.bal.getSeeds();
         long[] need = new long[seedList.size()];
@@ -937,7 +966,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
             }
             for (int j = 0; j < runs.length; j++) {
                 if (runs[j] > 0) add.add(
-                    new Dose(ref.memberRun[j], Math.multiplyExact(runs[j], k), ref.memberLane[j], ref.memberPattern[j]));
+                    new Dose(ref.memberRun[j], Math.multiplyExact(runs[j], k), ref.memberLane[j], ref.memberPattern[j], true));
             }
         } catch (ArithmeticException e) {
             return false;
@@ -987,7 +1016,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                     if (is == null) return 0;
                     key = SKey.of(is);
                 }
-                if (isCircuit(key.st)) continue;
+                if (amt <= 0) return 0;
                 got.merge(key, amt, Math::addExact);
             }
             if (got.size() != base.size()) return 0;
@@ -1013,6 +1042,13 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         boolean changed = false;
         for (Iterator<Dose> it = doses.iterator(); it.hasNext();) {
             Dose d = it.next();
+            if (!d.circuitsPaid && d.run.stream().anyMatch(CyclicPatternDualInputHatch::isCircuit)) {
+                it.remove();
+                refundDose(d);
+                MyMod.LOG.warn("Refunded a legacy cyclic dose whose programming circuits were not supplied");
+                changed = true;
+                continue;
+            }
             if (blocked.contains(d.lane)) continue;
             BufferedDualInputHatch t = d.lane == 0 ? this : laneHatch(d.lane);
             long taken = 0;
@@ -1621,6 +1657,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                         .toNBTGeneric());
                 c.setLong("target", e.getValue().target);
                 c.setBoolean("out", e.getValue().output);
+                c.setBoolean("in", e.getValue().input);
                 c.setInteger("tol", e.getValue().tol);
                 list.appendTag(c);
             }
@@ -1639,6 +1676,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
             CycSetting s = new CycSetting();
             s.target = Math.max(0, c.getLong("target"));
             s.output = c.getBoolean("out");
+            s.input = c.getBoolean("in");
             s.tol = Math.max(0, Math.min(100, c.getInteger("tol")));
             settings.get(g)
                 .put(SKey.of(k), s);
@@ -1673,6 +1711,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
             NBTTagCompound c = new NBTTagCompound();
             c.setLong("runs", d.runs);
             c.setInteger("lane", d.lane);
+            c.setBoolean("circuitsPaid", d.circuitsPaid);
             NBTTagList in = new NBTTagList();
             for (IAEStack<?> s : d.run) in.appendTag(s.toNBTGeneric());
             c.setTag("in", in);
@@ -1722,7 +1761,8 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 if (run.isEmpty()) continue;
                 ItemStack pattern = c.hasKey("pattern") ? ItemStack.loadItemStackFromNBT(c.getCompoundTag("pattern"))
                     : null;
-                doses.add(new Dose(run, runs, Math.max(0, Math.min(LANES, c.getInteger("lane"))), pattern));
+                doses.add(new Dose(run, runs, Math.max(0, Math.min(LANES, c.getInteger("lane"))), pattern,
+                    c.getBoolean("circuitsPaid")));
             }
             recountOwed();
             analysisDirty = true;
@@ -1792,6 +1832,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
 
     final long[][] cTarget = new long[GROUPS][MAX_ROWS];
     final boolean[][] cOut = new boolean[GROUPS][MAX_ROWS];
+    final boolean[][] cIn = new boolean[GROUPS][MAX_ROWS];
     final int[][] cTol = new int[GROUPS][MAX_ROWS];
 
     {
@@ -1852,6 +1893,14 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         CycSetting s = editSetting(g, r);
         if (s == null) return;
         s.output = v;
+        analysisDirty = true;
+        markDirty();
+    }
+
+    void setInput(int g, int r, boolean v) {
+        CycSetting s = editSetting(g, r);
+        if (s == null) return;
+        s.input = v;
         analysisDirty = true;
         markDirty();
     }
@@ -2235,21 +2284,21 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 .tooltipBuilder(t -> addLangLines(t, "proghatches.cyclic.tab.balancing")));
         paged.addPage(createBalancingPage(sm));
         tabs.child(
-            new PageButton(firstIndex + 1, controller).tab(GuiTextures.TAB_RIGHT, 0)
+            new PageButton(firstIndex + 1, controller).name("cyclic_lanes_tab").tab(GuiTextures.TAB_RIGHT, 0)
                 .overlay(
                     new ItemDrawable(ItemList.Conveyor_Module_LV.get(1)).asIcon()
                         .size(16, 16))
                 .tooltipBuilder(t -> addLangLines(t, "proghatches.cyclic.tab.lanes")));
         paged.addPage(createLanePage(sm));
         tabs.child(
-            new PageButton(firstIndex + 2, controller).tab(GuiTextures.TAB_RIGHT, 0)
+            new PageButton(firstIndex + 2, controller).name("cyclic_bind_tab").tab(GuiTextures.TAB_RIGHT, 0)
                 .overlay(
                     new ItemDrawable(ItemList.Tool_DataStick.get(1)).asIcon()
                         .size(16, 16))
                 .tooltipBuilder(t -> addLangLines(t, "proghatches.cyclic.tab.bind")));
         paged.addPage(createBindPage(sm));
         tabs.child(
-            new PageButton(firstIndex + 3, controller).tab(GuiTextures.TAB_RIGHT, 0)
+            new PageButton(firstIndex + 3, controller).name("cyclic_config_tab").tab(GuiTextures.TAB_RIGHT, 0)
                 .overlay(
                     new ItemDrawable(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Iron, 1)).asIcon()
                         .size(18, 18))
@@ -2279,7 +2328,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         return slot < cLanes.length() ? Math.max(0, Math.min(LANES, cLanes.charAt(slot) - '0')) : 0;
     }
 
-    private String laneInfo(int lane) {
+    String laneInfo(int lane) {
         int s = laneState(lane);
         if (s == LANE_UNBOUND) return "0";
         IGregTechTileEntity me = getBaseMetaTileEntity();
@@ -2287,7 +2336,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         return s + "," + (me.getXCoord() + o[0]) + "," + (me.getYCoord() + o[1]) + "," + (me.getZCoord() + o[2]);
     }
 
-    private ItemStack laneIcon(int lane) {
+    ItemStack laneIcon(int lane) {
         int s = laneState(lane);
         if (s == LANE_OK) {
             BufferedDualInputHatch t = laneHatch(lane);
@@ -2455,7 +2504,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 });
             sm.syncValue("cyc_lane_" + i, ih);
             page.child(
-                new ButtonWidget<>().syncHandler(ih)
+                new ButtonWidget<>().name("cyclic_lane_" + i).syncHandler(ih)
                     .background(IDrawable.EMPTY)
                     .hoverBackground(new Rectangle().color(0x40FFFFFF))
                     .tooltipDynamic(t -> laneSlotTooltip(ii, t))
@@ -2543,7 +2592,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
             IDrawable bound = IDrawable.of(GTGuiTextures.SLOT_ITEM_STANDARD, laneRing(l));
             IDrawable unboundHover = IDrawable.of(unbound, hover), boundHover = IDrawable.of(bound, hover);
             page.child(
-                new ButtonWidget<>().syncHandler(bh)
+                new ButtonWidget<>().name("cyclic_bind_" + l).syncHandler(bh)
                     .background(new DynamicDrawable(() -> clientLaneState(ll) == LANE_UNBOUND ? unbound : bound))
                     .hoverBackground(
                         new DynamicDrawable(() -> clientLaneState(ll) == LANE_UNBOUND ? unboundHover : boundHover))
@@ -2687,6 +2736,17 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 .tooltipBuilder(true, t -> addLangLines(t, "proghatches.cyclic.output"))
                 .tooltipBuilder(false, t -> addLangLines(t, "proghatches.cyclic.output.off"))
                 .pos(1, 19)
+                .size(16, 16));
+        row.child(
+            new ToggleButton().value(new BooleanSyncValue(() -> isServer() ? getSetting(g, r).input : cIn[g][r], v -> {
+                if (isServer()) setInput(g, r, v);
+                else cIn[g][r] = v;
+            }).allowC2S())
+                .overlay(true, GTGuiTextures.OVERLAY_BUTTON_CHECKMARK)
+                .overlay(false, GTGuiTextures.OVERLAY_BUTTON_CROSS)
+                .tooltipBuilder(true, t -> addLangLines(t, "proghatches.cyclic.input"))
+                .tooltipBuilder(false, t -> addLangLines(t, "proghatches.cyclic.input.off"))
+                .pos(52, 19)
                 .size(16, 16));
         row.child(
             new TextFieldWidget().value(new IntSyncValue(() -> isServer() ? getSetting(g, r).tol : cTol[g][r], v -> {

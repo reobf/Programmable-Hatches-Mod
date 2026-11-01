@@ -989,6 +989,8 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
     }
 
     public boolean isInputEmpty(T master) {
+        if (master instanceof BufferedDualInputHatch buffered) return buffered.isInputEmpty();
+
 
         for (FluidTank f : master.mStoredFluid) {
             if (f.getFluidAmount() > 0) {
@@ -1005,7 +1007,10 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
     }
 
     public void clearInv(T master) {
-
+        if (master instanceof BufferedDualInputHatch buffered) {
+            buffered.clearInputBuffer();
+            return;
+        }
         for (FluidTank f : master.mStoredFluid) {
             f.setFluid(null);
         }
@@ -1035,16 +1040,11 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
                 return false;
             }
 
-            PushStaging staging = PushStaging.split(
-                table,
-                master.getInventoryStackLimit(),
-                master.disableLimited,
-                master::isValidSlot,
-                master.getInventoryFluidLimit(),
-                master.fluidLimit == 0,
-                master.mStoredFluid.length);
+            PushStaging staging = PushStaging.split(table, master.getInventoryStackLimit(), master.disableLimited,
+                master::isValidSlot, master.getInventoryFluidLimit(), master.fluidLimit == 0, master.mStoredFluid.length);
             if (staging == null) return false;
-            staging.stageInto(master.mInventory, master.mStoredFluid);
+            if (master instanceof BufferedDualInputHatch buffered) staging.stageInto(buffered.inputs());
+            else staging.stageInto(master.mInventory, master.mStoredFluid);
             if (master instanceof BufferedDualInputHatch) {
                 BufferedDualInputHatch m = (BufferedDualInputHatch) master;
 
@@ -1248,16 +1248,11 @@ public boolean playerConfigClient;
                 return AZERO;
             }
 
-            PushStaging staging = PushStaging.split(
-                table,
-                master.getInventoryStackLimit(),
-                master.disableLimited,
-                master::isValidSlot,
-                master.getInventoryFluidLimit(),
-                master.fluidLimit == 0,
-                master.mStoredFluid.length);
+            PushStaging staging = PushStaging.split(table, master.getInventoryStackLimit(), master.disableLimited,
+                master::isValidSlot, master.getInventoryFluidLimit(), master.fluidLimit == 0, master.mStoredFluid.length);
             if (staging == null) return AZERO;
-            staging.stageInto(master.mInventory, master.mStoredFluid);
+            if (master instanceof BufferedDualInputHatch buffered) staging.stageInto(buffered.inputs());
+            else staging.stageInto(master.mInventory, master.mStoredFluid);
             suc++;
             maxTodo--;
 
@@ -1280,35 +1275,7 @@ public boolean playerConfigClient;
                     int todo = Math.min(theBuffer.space(), maxTodo);
 
                     if (todo > 0) {
-                        for (int ix = 0; ix < theBuffer.i; ix++) {
-                            // non-consumable: already unwrapped into the circuit region by programLocal(),
-                            // extra doses must not re-materialise the wrapper as a consumable (issue #331)
-                            if (theBuffer.isUnwrappedCircuitSlot(ix)) continue;
-                            if (theBuffer.mStoredItemInternalSingle[ix] != null) {
-                                if (theBuffer.mStoredItemInternal[ix] == null) {
-                                    theBuffer.mStoredItemInternal[ix] = ItemStackG
-                                        .neo(theBuffer.mStoredItemInternalSingle[ix].copy());
-                                    theBuffer.mStoredItemInternal[ix].stackSize(0);// circuit?
-                                }
-                                theBuffer.mStoredItemInternal[ix]
-                                    .stackSizeInc(new LongWrapper(theBuffer.mStoredItemInternalSingle[ix].stackSize *1L* todo));
-                            }
-                        }
-
-                        for (int ix = 0; ix < theBuffer.f; ix++) {
-                            if (theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount() > 0) {
-                                if (theBuffer.mStoredFluidInternal[ix].getFluidAmount() <= 0) {
-                                    FluidStack zerof = theBuffer.mStoredFluidInternalSingle[ix].getFluid()
-                                        .copy();
-                                    zerof.amount = 0;
-                                    theBuffer.mStoredFluidInternal[ix].setFluid(zerof);
-
-                                }
-                                theBuffer.mStoredFluidInternal[ix]
-                                    .amountAcc(theBuffer.mStoredFluidInternalSingle[ix].getFluidAmount() * 1l * todo);
-                            }
-                        }
-                        theBuffer.nonempty=true;
+                        m.addExtraRuns(theBuffer, todo);
                         suc += todo;
                     }
                     theBuffer.onChange();

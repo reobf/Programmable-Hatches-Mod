@@ -17,14 +17,16 @@ import appeng.util.inv.MEInventoryCrafting;
 
 /**
  * Stages a pushed pattern into a hatch's input slots. The ItemStack view of an MEInventoryCrafting is clamped to
- * Integer.MAX_VALUE while the CPU has already taken the full long amount, so the real size is read from the AE stack
- * and anything above a slot's limit is cut into several slots, full chunks first, so the same pattern always stages
- * the same way.
+ * Integer.MAX_VALUE while the CPU has already taken the full long amount, so the real size is read from the AE stack.
+ * Pattern hatches take one logical AE slot per input; other hatches cut each input into chunks of their slot limit.
  */
 public final class PushStaging {
 
     public final List<ItemStack> items = new ArrayList<>();
     public final List<FluidStack> fluids = new ArrayList<>();
+    public final List<IAEItemStack> longItems = new ArrayList<>();
+    public final List<IAEFluidStack> longFluids = new ArrayList<>();
+
 
     private PushStaging() {}
 
@@ -38,7 +40,7 @@ public final class PushStaging {
             try {
                 return Math.multiplyExact(ItemFluidPacket.getFluidAmount(view), Math.max(1, packets));
             } catch (ArithmeticException e) {
-                return Long.MAX_VALUE;
+                return -1;
             }
         }
         if (ae instanceof IAEItemStack && ((IAEItemStack) ae).isSameType(view)) return ae.getStackSize();
@@ -56,6 +58,7 @@ public final class PushStaging {
             ItemStack view = table.getStackInSlot(slot);
             if (view == null) continue;
             long rest = realSize(table, slot, view);
+            if (rest < 0) return null;
             if (view.getItem() instanceof ItemFluidPacket) {
                 FluidStack type = ItemFluidPacket.getFluidStack(view);
                 if (type == null) continue;
@@ -65,6 +68,51 @@ public final class PushStaging {
             }
         }
         return ret;
+    }
+
+
+    public static PushStaging logical(InventoryCrafting table, long itemLimit, IntPredicate validItemSlot,
+        long fluidLimit, int fluidSlots) {
+        List<Part> parts = new ArrayList<>();
+        for (int slot = 0; slot < table.getSizeInventory(); slot++) {
+            ItemStack view = table.getStackInSlot(slot);
+            if (view == null) continue;
+            long amount = realSize(table, slot, view);
+            if (view.getItem() instanceof ItemFluidPacket) {
+                FluidStack fluid = ItemFluidPacket.getFluidStack(view);
+                if (fluid == null || amount <= 0) return null;
+                parts.add(Part.fluid(fluid, amount));
+            } else {
+                if (amount <= 0) return null;
+                parts.add(Part.item(view, amount));
+            }
+        }
+        return logicalParts(parts, itemLimit, validItemSlot, fluidLimit, fluidSlots);
+    }
+
+    public static PushStaging logicalParts(List<Part> parts, long itemLimit, IntPredicate validItemSlot,
+        long fluidLimit, int fluidSlots) {
+        PushStaging result = new PushStaging();
+        for (Part p : parts) {
+            if (p == null) continue;
+            if (p.amount <= 0) return null;
+            if (p.fluid != null) {
+                if (p.amount > fluidLimit || result.longFluids.size() >= fluidSlots) return null;
+                result.longFluids.add(LongStacks.fluid(p.fluid, p.amount));
+            } else if (p.item != null) {
+                if (p.amount > itemLimit || !validItemSlot.test(result.longItems.size())) return null;
+                result.longItems.add(LongStacks.item(p.item, p.amount));
+            } else return null;
+        }
+        return result;
+    }
+
+    public void stageInto(AEInputBuffer buffer) {
+        if (!buffer.isEmpty()) throw new IllegalStateException("Input buffer is occupied");
+        buffer.clear();
+        for (int i = 0; i < longItems.size(); i++) buffer.items[i] = longItems.get(i).copy();
+        for (int i = 0; i < longFluids.size(); i++) buffer.fluids[i] = longFluids.get(i).copy();
+        buffer.refreshViews();
     }
 
     public static final class Part {
@@ -117,6 +165,7 @@ public final class PushStaging {
             ItemStack is = type.copy();
             is.stackSize = chunk;
             items.add(is);
+            longItems.add(LongStacks.item(is, chunk));
         }
         return true;
     }
@@ -131,6 +180,7 @@ public final class PushStaging {
             FluidStack fs = type.copy();
             fs.amount = chunk;
             fluids.add(fs);
+            longFluids.add(LongStacks.fluid(fs, chunk));
         }
         return true;
     }

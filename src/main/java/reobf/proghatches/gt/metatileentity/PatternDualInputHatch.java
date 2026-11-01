@@ -401,7 +401,7 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
                             .storage()
                             .createFluidStack(fluidStack),
                         src);
-                    fluidStack.amount = 0;
+                    fluidStack.amount = rest == null ? 0 : (int) rest.getStackSize();
                 } ;
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -422,22 +422,22 @@ public class PatternDualInputHatch extends BufferedDualInputHatch implements ICr
                 }
             })
             .forEach(consumer);;
-        consumer.accept(new Inv() {
 
-            @Override
-            ItemStack[] geti() {
+        syncInputViews();
+        var input = inputs();
+        for (int i = 0; i < input.items.length; i++) {
+            IAEItemStack stack = input.items[i];
+            if (stack != null && stack.getStackSize() > 0)
+                input.items[i] = Platform.poweredInsert(getProxy().getEnergy(), sg, stack.copy(), src);
+        }
+        IMEMonitor<IAEFluidStack> fluids = getProxy().getStorage().getFluidInventory();
+        for (int i = 0; i < input.fluids.length; i++) {
+            IAEFluidStack stack = input.fluids[i];
+            if (stack != null && stack.getStackSize() > 0)
+                input.fluids[i] = Platform.poweredInsert(getProxy().getEnergy(), fluids, stack.copy(), src);
+        }
+        input.refreshViews();
 
-                return mInventory;
-            }
-
-            @Override
-            FluidStack[] getf() {
-
-                return Arrays.stream(mStoredFluid)
-                    .map(s -> s.getFluid())
-                    .toArray(FluidStack[]::new);
-            }
-        });
 
     }
 
@@ -630,10 +630,7 @@ public int page() {
     }
 
     private void clearInv() {
-
-        for (int i = 0; i < page()*16; i++) mInventory[i] = null;
-        for (int i = 0; i < this.fluidSlots(); i++) mStoredFluid[i].setFluid(null);;
-
+        clearInputBuffer();
     }
 
      boolean postMEPatternChange() {
@@ -694,9 +691,10 @@ public int page() {
         }
 
         PushStaging staging = PushStaging
-            .split(table, Integer.MAX_VALUE, true, ix -> ix < page() * 16, Integer.MAX_VALUE, true, fluidSlots());
+            .logical(table, Math.min(itemLimit(), singleSlotLimit()), ix -> ix < page() * 16,
+                Math.min(fluidLimit(), singleSlotLimit()), fluidSlots());
         if (staging == null) return false;
-        staging.stageInto(mInventory, mStoredFluid);
+        staging.stageInto(inputs());
         markDirty();
         dirty = true;
         // inv0.recordRecipeOrClassify(this.mStoredFluid, mInventory)
@@ -718,7 +716,7 @@ public int page() {
         ChanceData chance = ChanceMark.isMarked(patternDetails) ? ChanceData.of(patternDetails) : null;
         DualInvBuffer theBuffer = classifyChance(chance);
         if (theBuffer == null && chance != null) {
-            staging.unstageFrom(mInventory, mStoredFluid);
+            clearInputBuffer();
             return false;
         }
         if (theBuffer != null) {
@@ -735,13 +733,7 @@ public int page() {
     }
 
     private boolean isEmpty() {
-        for (ItemStack is : mInventory) {
-            if (is != null && is.stackSize > 0) return false;
-        }
-        for (FluidTank is : mStoredFluid) {
-            if (is.getFluidAmount() > 0) return false;
-        }
-        return true;
+        return isInputEmpty();
     }
 
     @Override
@@ -1281,9 +1273,10 @@ boolean allowopt=true;
         }
 
         PushStaging staging = PushStaging
-            .split(table, Integer.MAX_VALUE, true, ix -> ix < page() * 16, Integer.MAX_VALUE, true, fluidSlots());
+            .logical(table, Math.min(itemLimit(), singleSlotLimit()), ix -> ix < page() * 16,
+                Math.min(fluidLimit(), singleSlotLimit()), fluidSlots());
         if (staging == null) return AZERO;
-        staging.stageInto(mInventory, mStoredFluid);
+        staging.stageInto(inputs());
         markDirty();
         dirty = true;
         // classify();
@@ -1300,7 +1293,7 @@ boolean allowopt=true;
         ChanceData chance = ChanceMark.isMarked(patternDetails) ? ChanceData.of(patternDetails) : null;
         DualInvBuffer theBuffer = classifyChance(chance);
         if (theBuffer == null && chance != null) {
-            staging.unstageFrom(mInventory, mStoredFluid);
+            clearInputBuffer();
             return AZERO;
         }
 
@@ -1339,7 +1332,8 @@ boolean allowopt=true;
 
     @Override
     PushStaging stageParts(List<PushStaging.Part> parts) {
-        return PushStaging.splitParts(parts, Integer.MAX_VALUE, ix -> ix < page() * 16, Integer.MAX_VALUE, fluidSlots());
+        return PushStaging.logicalParts(parts, Math.min(itemLimit(), singleSlotLimit()), ix -> ix < page() * 16,
+            Math.min(fluidLimit(), singleSlotLimit()), fluidSlots());
     }
 
     long saved;
@@ -1508,6 +1502,7 @@ public int getCircuitSlot() {
 			.tooltip(t -> t.addLine(
 				IKey.str(LangManager.translateToLocalFormatted("programmable_hatches.gt.pattern"))))
 			.size(16, 16)
+			.name("open_patterns")
 			.pos(getGUIWidth() - 18 - 3, 5 + 16 + 2 + 16 + 2));
 	}
 
@@ -1913,7 +1908,7 @@ public int getCircuitSlot() {
 			.background(GuiTextures.TAB_RIGHT.get(-1, false), dragIcon)
 			.size(TAB_W, 28)
 			.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.drag"))));
-		tabs.child(new PageButton(0, tabController).tab(GuiTextures.TAB_RIGHT, 0)
+		tabs.child(new PageButton(0, tabController).name("patterns_tab").tab(GuiTextures.TAB_RIGHT, 0)
 			.overlay(tab1)
 			.tooltip(t -> t.addLine(IKey.lang("proghatches.pattern_window.patterns"))));
 		PagedWidget<?> paged = new PagedWidget<>().controller(tabController)

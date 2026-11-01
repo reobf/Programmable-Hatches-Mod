@@ -1474,6 +1474,20 @@ public class PHRecipes implements Runnable {
                 .addTo(RecipeMaps.formingPressRecipes);
 
             GTValues.RA.stdBuilder()
+                .itemInputs(Hatch_Input_Bus_HV.get(1), Materials.Steel.getPlates(1))
+                .itemOutputs(new ItemStack(MyMod.upgrades, 1, 4))
+                .duration(100 * SECONDS)
+                .eut(480 * 4 * 4)
+                .addTo(RecipeMaps.formingPressRecipes);
+
+            GTValues.RA.stdBuilder()
+                .itemInputs(Hatch_Input_HV.get(1), Materials.Steel.getPlates(1))
+                .itemOutputs(new ItemStack(MyMod.upgrades, 1, 5))
+                .duration(100 * SECONDS)
+                .eut(480 * 4 * 4)
+                .addTo(RecipeMaps.formingPressRecipes);
+
+            GTValues.RA.stdBuilder()
                 .itemInputs(Hatch_Input_Bus_ULV.get(16), Materials.Steel.getPlates(1))
                 .itemOutputs(new ItemStack(MyMod.upgrades, 1, 0))
                 .duration(100 * SECONDS)

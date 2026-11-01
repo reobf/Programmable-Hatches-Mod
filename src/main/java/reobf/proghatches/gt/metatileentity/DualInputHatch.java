@@ -1560,6 +1560,10 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 				markedItems.add(null);
 			while (markedFluid.size() < fluidMEUpgrades)
 				markedFluid.add(null);
+			while (manualItems.size() < manualUpgrades)
+				manualItems.add(null);
+			while (manualFluids.size() < manualFluidUpgrades)
+				manualFluids.add(null);
 
 		}
 
@@ -1571,6 +1575,16 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 		}
 
 		public boolean endRecipeProcessing(MTEMultiBlockBase controller) {
+			for (int i = 0; i < manualItems.size(); i++) {
+				ItemStack is = manualItems.get(i);
+				if (is != null && is.stackSize <= 0)
+					manualItems.set(i, null);
+			}
+			for (int i = 0; i < manualFluids.size(); i++) {
+				FluidStack fs = manualFluids.get(i);
+				if (fs != null && fs.amount <= 0)
+					manualFluids.set(i, null);
+			}
 			if (isDummy())
 				return true;
 			boolean storageMissing = false;
@@ -1699,6 +1713,21 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			if (fluidMEUpgrades > 0)
 				te.getWorld().spawnEntityInWorld(new EntityItem(te.getWorld(), te.getXCoord(), te.getYCoord(),
 						te.getZCoord(), new ItemStack(MyMod.upgrades, fluidMEUpgrades, 2)));
+			if (manualUpgrades > 0)
+				te.getWorld().spawnEntityInWorld(new EntityItem(te.getWorld(), te.getXCoord(), te.getYCoord(),
+						te.getZCoord(), new ItemStack(MyMod.upgrades, manualUpgrades, 4)));
+			for (int i = 0; i < manualItems.size(); i++) {
+				ItemStack is = manualItems.get(i);
+				if (is != null && is.stackSize > 0)
+					te.getWorld().spawnEntityInWorld(new EntityItem(te.getWorld(), te.getXCoord(), te.getYCoord(),
+							te.getZCoord(), is.copy()));
+				manualItems.set(i, null);
+			}
+			if (manualFluidUpgrades > 0)
+				te.getWorld().spawnEntityInWorld(new EntityItem(te.getWorld(), te.getXCoord(), te.getYCoord(),
+						te.getZCoord(), new ItemStack(MyMod.upgrades, manualFluidUpgrades, 5)));
+			for (int i = 0; i < manualFluids.size(); i++)
+				manualFluids.set(i, null);
 		}
 
 		public NBTTagCompound serList(ArrayList<ItemStack> ls) {
@@ -1746,6 +1775,9 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			all.addAll(circuitInv);
 			all.add(mInventory[getCircuitSlot()]);
 			all.addAll(markedItems);
+			for (ItemStack is : manualItems)
+				if (is != null && is.stackSize > 0)
+					all.add(is);
 			all.removeIf(Objects::isNull);
 			return all.toArray(new ItemStack[0]);
 		}
@@ -1754,6 +1786,9 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 			ArrayList<FluidStack> all = new ArrayList<>();
 			all.addAll(markedFluid);
+			for (FluidStack fs : manualFluids)
+				if (fs != null && fs.amount > 0)
+					all.add(fs);
 			all.removeIf(Objects::isNull);
 			return all.toArray(new FluidStack[0]);
 		}
@@ -1785,6 +1820,9 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			ArrayList<ItemStack> all = new ArrayList<>();
 			all.addAll(circuitInv);
 			all.add(mInventory[getCircuitSlot()]);
+			for (ItemStack is : manualItems)
+				if (is != null && is.stackSize > 0)
+					all.add(is);
 			if (recipe == false) {
 				if (!broken)
 					broken();
@@ -1802,28 +1840,39 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			if (off) {
 				return new FluidStack[0];
 			}
+			ArrayList<FluidStack> all = new ArrayList<>();
+			for (FluidStack fs : manualFluids)
+				if (fs != null && fs.amount > 0)
+					all.add(fs);
 			if (recipe == false) {
 				if (!broken)
 					broken();
 				// Thread.dumpStack();
 				broken = true;
-				return new FluidStack[0];
+				return all.toArray(new FluidStack[0]);
 			}
-			ArrayList<FluidStack> all = new ArrayList<>();
 			all.addAll(cachedFluid);
 			all.removeIf(Objects::isNull);
 			return all.toArray(new FluidStack[0]);
 		}
 
 		public boolean isDummy() {
-			return circuitUpgrades + itemMEUpgrades + fluidMEUpgrades == 0;
+			return circuitUpgrades + itemMEUpgrades + fluidMEUpgrades + manualUpgrades + manualFluidUpgrades == 0;
+		}
+
+		public int stockingUpgrades() {
+			return itemMEUpgrades + fluidMEUpgrades + manualUpgrades + manualFluidUpgrades;
 		}
 
 		public int circuitUpgrades;
 		public int itemMEUpgrades;
 		public int fluidMEUpgrades;
 		public int infbufUpgrades;
+		public int manualUpgrades;
+		public int manualFluidUpgrades;
 		public ArrayList<ItemStack> circuitInv = new ArrayList<>();
+		public ArrayList<ItemStack> manualItems = new ArrayList<>();
+		public ArrayList<FluidStack> manualFluids = new ArrayList<>();
 
 		public void clearCircuit() {
 			mInventory[getCircuitSlot()] = null;
@@ -1852,9 +1901,13 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			tag.setInteger("itemMEUpgrades", itemMEUpgrades);
 			tag.setInteger("fluidMEUpgrades", fluidMEUpgrades);
 			tag.setInteger("infbufUpgrades", infbufUpgrades);
+			tag.setInteger("manualUpgrades", manualUpgrades);
+			tag.setInteger("manualFluidUpgrades", manualFluidUpgrades);
 			tag.setTag("circuitInv", serList(circuitInv));
 			tag.setTag("markedItems", serList(markedItems));
 			tag.setTag("markedFluid", serListF(markedFluid));
+			tag.setTag("manualItems", serList(manualItems));
+			tag.setTag("manualFluids", serListF(manualFluids));
 			return tag;
 		}
 
@@ -1864,9 +1917,17 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			itemMEUpgrades = tag.getInteger("itemMEUpgrades");
 			fluidMEUpgrades = tag.getInteger("fluidMEUpgrades");
 			infbufUpgrades = tag.getInteger("infbufUpgrades");
+			manualUpgrades = tag.getInteger("manualUpgrades");
+			manualFluidUpgrades = tag.getInteger("manualFluidUpgrades");
 			circuitInv = deserList(tag.getCompoundTag("circuitInv"));
 			markedItems = deserList(tag.getCompoundTag("markedItems"));
 			markedFluid = deserListF(tag.getCompoundTag("markedFluid"));
+			manualItems = deserList(tag.getCompoundTag("manualItems"));
+			while (manualItems.size() < manualUpgrades)
+				manualItems.add(null);
+			manualFluids = deserListF(tag.getCompoundTag("manualFluids"));
+			while (manualFluids.size() < manualFluidUpgrades)
+				manualFluids.add(null);
 			while (circuitInv.size() > circuitUpgrades)
 				circuitInv.remove(circuitInv.size() - 1);
 			while (circuitInv.size() < circuitUpgrades)
@@ -1894,7 +1955,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 				}
 			}
 			if (damage == 1) {
-				if (itemMEUpgrades + fluidMEUpgrades < 4) {
+				if (stockingUpgrades() < 4) {
 
 					itemMEUpgrades++;
 					heldItem.stackSize--;
@@ -1903,9 +1964,27 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 				}
 			}
 			if (damage == 2) {
-				if (itemMEUpgrades + fluidMEUpgrades < 4) {
+				if (stockingUpgrades() < 4) {
 
 					fluidMEUpgrades++;
+					heldItem.stackSize--;
+					successInstall();
+
+				}
+			}
+			if (damage == 4) {
+				if (stockingUpgrades() < 4) {
+
+					manualUpgrades++;
+					heldItem.stackSize--;
+					successInstall();
+
+				}
+			}
+			if (damage == 5) {
+				if (stockingUpgrades() < 4) {
+
+					manualFluidUpgrades++;
 					heldItem.stackSize--;
 					successInstall();
 
@@ -2247,28 +2326,28 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			switch (slotTierOverride(mTier)) {
 			case 0:
 				genSlots = () -> gridTemplate1by1X(
-						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
+						index -> createInputItemSlot(index).slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
 				fluidslot_pos_index = 0;
 				break;
 			case 1:
 				genSlots = () -> gridTemplate2by2X(
-						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
+						index -> createInputItemSlot(index).slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
 				fluidslot_pos_index = 1;
 				break;
 			case 2:
 				genSlots = () -> gridTemplate3by3X(
-						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
+						index -> createInputItemSlot(index).slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
 				fluidslot_pos_index = 2;
 				break;
 			default:
 				genSlots = () -> gridTemplate4by4X(
-						index -> new ItemSlot().slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
+						index -> createInputItemSlot(index).slot((ModularSlot(inventoryHandler, index)).slotGroup(sg))).pos(0,0);
 				fluidslot_pos_index = 3;
 			}
 			genSlotsFluid = 
 					mStoredFluid.length==0?()->new Grid().coverChildren().pos(0, 0):
 					() -> new Grid().coverChildren().pos(0, 0).mapTo(1*fluidSlotsPerRow(), mStoredFluid.length,
-					index -> new FluidSlot().syncHandler(new FluidSlotSyncHandler(mStoredFluid[index])));
+					index -> createInputFluidSlot(index));
 
 			ScrollWidget<?> list = new ScrollWidget<>(new VerticalScrollData()).size(18*fluidSlotsPerRow());
 			list.getScrollArea().getScrollY().setScrollSize(18 * mStoredFluid.length/fluidSlotsPerRow());
@@ -2389,6 +2468,14 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 
 								.setPos(7 + 1 * 18, 62 - 18 - moveButtons() * 18));*/
 		}
+        protected FluidSlot createInputFluidSlot(int index) {
+            return new FluidSlot().syncHandler(new FluidSlotSyncHandler(mStoredFluid[index]));
+        }
+
+        protected ItemSlot createInputItemSlot(int index) {
+            return new ItemSlot();
+        }
+
 		public ModularSlot ModularSlot(IItemHandler  inventoryHandler, int index) {
 
 			com.cleanroommc.modularui.widgets.slot.ModularSlot slot = new ModularSlot(inventoryHandler, index) {
@@ -2658,10 +2745,77 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 						.pos(8 - 1 + 18 * 3 + 4, 8 - 1 + 18 * posoffset));
 				posoffset++;
 			}
-
+			com.cleanroommc.modularui.widgets.slot.SlotGroup manualGroup = new com.cleanroommc.modularui.widgets.slot.SlotGroup(
+					"shared_manual", 1, true);
+			syncManager.registerSlotGroup(manualGroup);
+			for (int i = 0; i < shared.manualUpgrades; i++) {
+				builder.child(manualSlot(shared.manualItems, i, manualGroup).pos(8 - 1 + 18 + 4, 8 - 1 + 18 * posoffset));
+				posoffset++;
+			}
+			for (int i = 0; i < shared.manualFluidUpgrades; i++) {
+				builder.child(manualFluidSlot(shared.manualFluids, i).pos(8 - 1 + 18 + 4, 8 - 1 + 18 * posoffset));
+				posoffset++;
+			}
 
 			return builder;
 
+		}
+
+		/** A real fluid slot sized like the hatch's own tanks; every buffer shares it and recipes drain it directly. */
+		FluidSlot manualFluidSlot(ArrayList<FluidStack> inv, int index) {
+			FluidStackTank tank = new FluidStackTank(() -> inv.get(index), s -> inv.set(index, s), () -> getCapacity()) {
+
+				@Override
+				public int fill(FluidStack resource, boolean doFill) {
+					int filled = super.fill(resource, doFill);
+					if (doFill && filled > 0) {
+						markDirty();
+						notifyWatchers();
+					}
+					return filled;
+				}
+
+				@Override
+				public FluidStack drain(int maxDrain, boolean doDrain) {
+					FluidStack drained = super.drain(maxDrain, doDrain);
+					if (doDrain && drained != null && drained.amount > 0)
+						markDirty();
+					return drained;
+				}
+			};
+			boolean buffered = this instanceof BufferedDualInputHatch;
+			return new FluidSlot() {
+
+				@Override
+				protected void addToolTip(com.cleanroommc.modularui.screen.RichTooltip tooltip) {
+					super.addToolTip(tooltip);
+					tooltip.addLine(IKey.str(StatCollector.translateToLocal("programmable_hatches.gt.fluid.manual.0")));
+					tooltip.addLine(IKey.str(StatCollector.translateToLocal("programmable_hatches.gt.fluid.manual.1")));
+					if (buffered)
+						tooltip.addLine(IKey.str(StatCollector.translateToLocal("programmable_hatches.gt.item.manual.2")));
+				}
+			}.syncHandler(new FluidSlotSyncHandler(tank));
+		}
+
+		/** A real item slot whose contents every buffer shares; recipes consume from it directly. */
+		ItemSlot manualSlot(ArrayList<ItemStack> inv, int index,
+				com.cleanroommc.modularui.widgets.slot.SlotGroup group) {
+			ItemSlot is = new ItemSlot().slot(new ModularSlot(new ItemStackHandler(inv), index) {
+
+				@Override
+				public void onSlotChanged() {
+					super.onSlotChanged();
+					markDirty();
+					notifyWatchers();
+				}
+			}.slotGroup(group));
+			is.addTooltipStringLines((this instanceof BufferedDualInputHatch)
+					? ImmutableList.of(StatCollector.translateToLocal("programmable_hatches.gt.item.manual.0"),
+							StatCollector.translateToLocal("programmable_hatches.gt.item.manual.1"),
+							StatCollector.translateToLocal("programmable_hatches.gt.item.manual.2"))
+					: ImmutableList.of(StatCollector.translateToLocal("programmable_hatches.gt.item.manual.0"),
+							StatCollector.translateToLocal("programmable_hatches.gt.item.manual.1")));
+			return is;
 		}
 
 		protected ModularPanel createInsertionWindow2(PanelSyncManager syncManager) {

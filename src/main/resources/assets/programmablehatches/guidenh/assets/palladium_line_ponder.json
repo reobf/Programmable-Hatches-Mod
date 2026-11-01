@@ -1,0 +1,2352 @@
+{
+  "$schema": "guidenh://schema/ponder.json",
+  "totalTime": 1560,
+  "keyframes": [
+    {
+      "time": 0,
+      "labelKey": "proghatches.guide.pd.label.overview",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.overview",
+          "text": "The palladium line. Press play to see it built step by step.",
+          "x": 3.0,
+          "y": 7.0,
+          "z": 5.0,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 60,
+      "labelKey": "proghatches.guide.pd.label.me",
+      "blockChanges": [
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 6,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 6,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 6,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 7,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 7,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 7,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 8,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 8,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 8,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 5,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 6,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 6,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 6,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 6,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 7,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 7,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 7,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 7,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 8,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 8,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 8,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 8,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 9,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 6,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 6,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 6,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 7,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 7,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 7,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 8,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 8,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 8,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        }
+      ],
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.me",
+          "text": "ME network: controller, drive, crafting CPU, Chance Pattern Controller and Programming Circuit Provider",
+          "x": 0.5,
+          "y": 2.3,
+          "z": 2.0,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F",
+          "hlMinX": 0.0,
+          "hlMinY": 0.0,
+          "hlMinZ": 0.0,
+          "hlMaxX": 1.0,
+          "hlMaxY": 3.0,
+          "hlMaxZ": 4.0,
+          "highlightColor": "0x607FC47F"
+        }
+      ]
+    },
+    {
+      "time": 140,
+      "labelKey": "proghatches.guide.pd.label.reactor",
+      "blockChanges": [
+        {
+          "x": 1,
+          "y": 0,
+          "z": 6,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 6,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 7,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 7,
+          "block": "gregtech:gt.blockcasings5"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 7,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 8,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 8,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 8,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 6,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 2,
+          "nbt": "{lastParallel:0,mWasShutdown:0b,mPollution:0,mMaxProgresstime:0,mEUt:0,mInputDisabled:0b,mSoftMallet:0b,checkRecipeResultID:\"simple_result\",mLockedToSingleRecipe:0b,mCrowbar:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},mWrench:0b,mSolderingTool:0b,makePowerfailEvents:1b,mOwnerName:\"\"\"\",alwaysMaxParallel:1b,mMuffler:0b,shutDownReasonID:\"simple_result\",mOwnerUuid:\"\"\"\",mEfficiency:0,mColor:0b,mID:1169,Inventory:[],mEfficiencyIncrease:0,usesTurbine:0b,mActive:0b,mRedstone:0b,mFacing:2s,inputSeparation:0b,mProgresstime:0,batchMode:1b,mWorks:0b,mStoredEnergy:0L,eFlip:0b,mOutputDisabled:0b,mHardHammer:0b,voidingMode:\"none\",mStoredSteam:0L,mOtherUpgrades:0b,canBeMuffled:1b,mLightValue:0b,mTotalRunTime:14L,mLastWorkingTick:0L,eRotation:0b,nbtVersion:509054264,mScrewdriver:0b,mRuntime:0,checkRecipeResult:{success:0b,persistsOnShutdown:0b,key:\"none\"},mLockUpgrade:0b,id:\"BaseMetaTileEntity\",shutDownReason:{wasCritical:0b,key:\"none\"},recipesDone:0L,powerPanelMaxParallel:1}"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 7,
+          "block": "gregtech:gt.blockcasings8",
+          "meta": 1
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 7,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 8,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 8,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 6,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 6,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 6,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 7,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 7,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 7,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 8,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 8,
+          "block": "gregtech:gt.blockcasings8"
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 8,
+          "block": "gregtech:gt.blockcasings8"
+        }
+      ],
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.reactor",
+          "text": "Large Chemical Reactor, running the ammonia recycling and precipitation patterns",
+          "x": 2.5,
+          "y": 3.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F",
+          "hlMinX": 1.0,
+          "hlMinY": 0.0,
+          "hlMinZ": 6.0,
+          "hlMaxX": 4.0,
+          "hlMaxY": 3.0,
+          "hlMaxZ": 9.0,
+          "highlightColor": "0x607FC47F"
+        }
+      ]
+    },
+    {
+      "time": 220,
+      "labelKey": "proghatches.guide.pd.label.reactorHatches",
+      "blockChanges": [
+        {
+          "x": 2,
+          "y": 0,
+          "z": 6,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 2,
+          "nbt": "{mWasShutdown:0b,mRotation:0b,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:48,nbtVersion:509054264,mOwnerName:\"\"\"\",mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:15497,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},texturePage:1,mRedstone:0b,mFacing:0s}"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 6,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 1,
+          "nbt": "{mWasShutdown:0b,proxy:{g:111L,p:-1,k:-1L},mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,cache:[],mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,additionalConnection:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:48,nbtVersion:509054264,mOwnerName:\"\"\"\",myPriority:0,mMuffler:0b,cacheMode:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mColor:0b,mID:2710,refreshTime:40,Inventory:[],id:\"BaseMetaTileEntity\",checkMode:0b,mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},texturePage:1,baseCapacity:1600L,mRedstone:0b,mFacing:4s}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 6,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 3,
+          "nbt": "{mWasShutdown:0b,debugAmperage:2,mWorks:0b,mStoredEnergy:9223372036854775807L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,refillInterval:600,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},debugVTier:6,textureIndex:48,nbtVersion:509054264,mOwnerName:\"\"\"\",mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:11304,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},texturePage:1,mRedstone:0b,mFacing:5s}"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 7,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 3,
+          "nbt": "{BUFFER_17:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mWasShutdown:0b,justHadNewItems:0b,cycLaneOffsets:[0:{l:1,dx:0,dy:0,dz:-5}],updateEveryTick:0b,reversePiority:0b,proxy:{g:111L,p:-1,k:-1L},restrictToInt:0b,additionalConnection:0b,BUFFER_0:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},BUFFER_19:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},migrationCircuitSlot:1b,BUFFER_15:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mMultiFluid:1b,mColor:0b,mFluid0:{Empty:\"\"\"\"},cycMultiplier:1,Inventory:[],BUFFER_16:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_14:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_18:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},multiplier:{__guidenh_int_array_v1:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,]},exinvlen:0,mRedstone:0b,mFacing:4s,cycLanes:{__guidenh_int_array_v1:[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,]},mFluid2:{Empty:\"\"\"\"},x:1,disableLimited:1b,BUFFER_2:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_4:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},cycSettings:[0:{in:0b,g:0,target:64L,k:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:55s,Cnt:1L,Count:0b,Craft:0b},out:0b,tol:5},1:{in:1b,g:0,target:24000L,k:{StackType:\"fluid\",FluidName:\"palladium enriched ammonia\",Count:0b,Cnt:1L,Req:0L,Craft:0b},out:0b,tol:5},2:{in:0b,g:0,target:60L,k:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:53s,Cnt:1L,Count:0b,Craft:0b},out:0b,tol:0}],nbtVersion:509054264,mLockUpgrade:0b,id:\"BaseMetaTileEntity\",cycDoses:[],mFluid15:{Empty:\"\"\"\"},mFluid11:{Empty:\"\"\"\"},mFluid13:{Empty:\"\"\"\"},CMMode:0b,disableFilter:1b,cycAutoSeedMult:1,mFluid14:{Empty:\"\"\"\"},mInputDisabled:0b,BUFFER_8:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_7:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},merge:0b,cycAutoSeedChanceMult:4,BUFFER_6:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},allowopt:1b,mFluid5:{Empty:\"\"\"\"},dirty:0b,mFluid7:{Empty:\"\"\"\"},mFluid6:{Empty:\"\"\"\"},BUFFER_20:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_21:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_22:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mFluid8:{Empty:\"\"\"\"},mOwnerName:\"\"\"\",z:7,mFluid4:{Empty:\"\"\"\"},BUFFER_11:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mID:22182,normalopt:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,shared:{manualFluidUpgrades:0,fluidCapUpgrades:0,manualItems:{len:0},fluidMEUpgrades:0,itemMEUpgrades:0,infbufUpgrades:0,manualFluids:{len:0},markedItems:{len:0},circuitUpgrades:0,markedFluid:{len:0},circuitInv:{len:0},manualUpgrades:0},program:1b,BUFFER_10:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_12:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},cycSeeds:[0:{k:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:53s,Cnt:1L,Count:0b,Craft:0b},owed:0L,stock:60L},1:{k:{StackType:\"fluid\",FluidName:\"palladium enriched ammonia\",Count:0b,Cnt:1L,Req:0L,Craft:0b},owed:0L,stock:24000L},2:{k:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:55s,Cnt:1L,Count:0b,Craft:0b},owed:0L,stock:64L}],mActive:0b,y:1,BUFFER_13:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mStoredEnergy:0L,BUFFER_3:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mWorks:0b,disableSort:1b,cycGroups:{__guidenh_int_array_v1:[9,18,27,]},mOutputDisabled:0b,mOtherUpgrades:0b,mStoredSteam:0L,mFluid1:{Empty:\"\"\"\"},mLightValue:0b,mFluid3:{Empty:\"\"\"\"},mFluid9:{Empty:\"\"\"\"},fluidLimit:1,BUFFER_1:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},cycAutoSeed:1b,preventSleep:0,textureIndex:48,BUFFER_23:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_5:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},patternSlots:{i0:{tag:{in:[0:{Damage:0s,StackType:\"item\",id:\"programmablehatches:prog_circuit\",Req:0L,Count:0b,Cnt:1L,tag:{targetCircuit:{Count:1b,Damage:9s,string_id:\"gregtech:gt.integrated_circuit\"}},Craft:0b},1:{Damage:53s,StackType:\"item\",id:\"bartworks:gt.bwMetaGenerateddust\",Req:0L,Count:0b,Cnt:9L,Craft:0b},2:{Req:0L,FluidName:\"palladium enriched ammonia\",Cnt:9000L,Count:0b,StackType:\"fluid\",Craft:0b}],combine:0,Outputs:[0:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:55s,Cnt:16L,Count:0b,Craft:0b},1:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:54s,Cnt:2L,Count:0b,Craft:0b}],out:[0:{Damage:55s,StackType:\"item\",id:\"bartworks:gt.bwMetaGenerateddust\",Req:0L,Count:0b,Cnt:16L,Craft:0b},1:{Damage:54s,StackType:\"item\",id:\"bartworks:gt.bwMetaGenerateddust\",Req:0L,Count:0b,Cnt:2L,Craft:0b}],Inputs:[0:{Req:0L,id:\"programmablehatches:prog_circuit\",StackType:\"item\",Damage:0s,Count:0b,tag:{targetCircuit:{Count:1b,Damage:9s,string_id:\"gregtech:gt.integrated_circuit\"}},Cnt:1L,Craft:0b},1:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:53s,Cnt:9L,Count:0b,Craft:0b},2:{StackType:\"fluid\",FluidName:\"palladium enriched ammonia\",Count:0b,Cnt:9000L,Req:0L,Craft:0b}],beSubstitute:0b},Damage:0s,Count:1b,id:\"ae2fc:fluid_encoded_pattern\"},i4:{tag:{in:[0:{Damage:55s,StackType:\"item\",id:\"bartworks:gt.bwMetaGenerateddust\",Req:0L,Count:0b,Cnt:16L,Craft:0b}],Inputs:[0:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:55s,Cnt:16L,Count:0b,Craft:0b}],out:[0:{Damage:53s,StackType:\"item\",id:\"bartworks:gt.bwMetaGenerateddust\",Req:0L,Count:0b,Cnt:15L,Craft:0b}],Outputs:[0:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:53s,Cnt:15L,Count:0b,Craft:0b}],combine:0,beSubstitute:0b,phChance:1b},Damage:0s,Count:1b,id:\"ae2fc:fluid_encoded_pattern\"},i8:{tag:{in:[0:{Damage:0s,StackType:\"item\",id:\"programmablehatches:prog_circuit\",Req:0L,Count:0b,Cnt:1L,tag:{targetCircuit:{Count:1b,Damage:1s,string_id:\"gregtech:gt.integrated_circuit\"}},Craft:0b},1:{Damage:53s,StackType:\"item\",id:\"bartworks:gt.bwMetaGenerateddust\",Req:0L,Count:0b,Cnt:1L,Craft:0b},2:{Req:0L,FluidName:\"ammonia\",Cnt:1000L,Count:0b,StackType:\"fluid\",Craft:0b}],combine:0,Outputs:[0:{StackType:\"fluid\",FluidName:\"palladium enriched ammonia\",Count:0b,Cnt:1000L,Req:0L,Craft:0b}],out:[0:{Req:0L,FluidName:\"palladium enriched ammonia\",Cnt:1000L,Count:0b,StackType:\"fluid\",Craft:0b}],Inputs:[0:{Req:0L,id:\"programmablehatches:prog_circuit\",StackType:\"item\",Damage:0s,Count:0b,tag:{targetCircuit:{Count:1b,Damage:1s,string_id:\"gregtech:gt.integrated_circuit\"}},Cnt:1L,Craft:0b},1:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:53s,Cnt:1L,Count:0b,Craft:0b},2:{StackType:\"fluid\",FluidName:\"ammonia\",Count:0b,Cnt:1000L,Req:0L,Craft:0b}],beSubstitute:0b},Damage:0s,Count:1b,id:\"ae2fc:fluid_encoded_pattern\"}},BUFFER_9:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},autoAppend:0b,saved:0L,shutDownReason:{wasCritical:0b,key:\"none\"},mFluid10:{Empty:\"\"\"\"},mFluid12:{Empty:\"\"\"\"},texturePage:1}"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 8,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 1,
+          "nbt": "{mWasShutdown:0b,proxy:{g:111L,p:-1,k:-1L},mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,cache:[],mOutputDisabled:0b,mMode:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,additionalConnection:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:48,nbtVersion:509054264,mOwnerName:\"\"\"\",myPriority:0,mMuffler:0b,cacheMode:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mColor:0b,mID:2713,refreshTime:40,Inventory:[],id:\"BaseMetaTileEntity\",checkMode:0b,mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},texturePage:1,baseCapacity:128000L,mRedstone:0b,mFacing:4s}"
+        }
+      ],
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.reactorHatches",
+          "text": "Cyclic Pattern Crafting Input Buffer, next to the ME output bus and hatch",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F",
+          "hlMinX": 1.0,
+          "hlMinY": 1.0,
+          "hlMinZ": 7.0,
+          "hlMaxX": 2.0,
+          "hlMaxY": 2.0,
+          "hlMaxZ": 8.0,
+          "highlightColor": "0x607FC47F"
+        }
+      ]
+    },
+    {
+      "time": 300,
+      "labelKey": "proghatches.guide.pd.label.sifter",
+      "blockChanges": [
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 0,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 0,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 0,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 2,
+          "nbt": "{lastParallel:0,mWasShutdown:0b,mPollution:0,mMaxProgresstime:0,mEUt:0L,mInputDisabled:0b,mSoftMallet:0b,checkRecipeResultID:\"simple_result\",mLockedToSingleRecipe:0b,mCrowbar:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},mWrench:0b,mSolderingTool:0b,makePowerfailEvents:1b,mOwnerName:\"\"\"\",alwaysMaxParallel:1b,mMuffler:0b,shutDownReasonID:\"simple_result\",mOwnerUuid:\"\"\"\",mEfficiency:0,mColor:0b,mID:15542,Inventory:[],mEfficiencyIncrease:0,usesTurbine:0b,mActive:0b,mRedstone:0b,mFacing:2s,inputSeparation:1b,mProgresstime:0,batchMode:1b,mWorks:0b,mStoredEnergy:0L,eFlip:0b,mOutputDisabled:0b,mHardHammer:0b,voidingMode:\"none\",mStoredSteam:0L,mOtherUpgrades:0b,canBeMuffled:1b,mLightValue:0b,mTotalRunTime:14L,mLastWorkingTick:0L,eRotation:0b,nbtVersion:509054264,mScrewdriver:0b,mRuntime:0,checkRecipeResult:{success:0b,persistsOnShutdown:0b,key:\"none\"},mLockUpgrade:0b,id:\"BaseMetaTileEntity\",shutDownReason:{wasCritical:0b,key:\"none\"},recipesDone:0L,powerPanelMaxParallel:1}"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 0,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 0,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 4,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 4,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "z": 0,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 4,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "z": 4,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "z": 0,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "z": 0,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "z": 4,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "z": 4,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "z": 0,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "z": 0,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "z": 0,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "z": 0,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "z": 0,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 6
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "z": 4,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "z": 4,
+          "block": "gregtech:gt.blockframes",
+          "meta": 305
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "z": 0,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "z": 0,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "z": 0,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "z": 0,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "z": 1,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "z": 2,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "z": 3,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "z": 4,
+          "block": "miscutils:gtplusplus.blockcasings.2",
+          "meta": 5
+        }
+      ],
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.sifter",
+          "text": "Large Sifter, running the sift pattern",
+          "x": 3.5,
+          "y": 6.3,
+          "z": 2.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F",
+          "hlMinX": 1.0,
+          "hlMinY": 0.0,
+          "hlMinZ": 0.0,
+          "hlMaxX": 6.0,
+          "hlMaxY": 6.0,
+          "hlMaxZ": 5.0,
+          "highlightColor": "0x607FC47F"
+        }
+      ]
+    },
+    {
+      "time": 380,
+      "labelKey": "proghatches.guide.pd.label.sifterHatches",
+      "blockChanges": [
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 3,
+          "nbt": "{mWasShutdown:0b,debugAmperage:2,mWorks:0b,mStoredEnergy:9223372036854775807L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,refillInterval:600,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},debugVTier:3,textureIndex:85,nbtVersion:509054264,mOwnerName:\"\"\"\",mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:11304,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},texturePage:0,mRedstone:0b,mFacing:2s}"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 0,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 2,
+          "nbt": "{mWasShutdown:0b,mRotation:0b,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:85,nbtVersion:509054264,mOwnerName:\"\"\"\",mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:15497,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},texturePage:0,mRedstone:0b,mFacing:2s}"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 1,
+          "nbt": "{mWasShutdown:0b,proxy:{g:111L,p:-1,k:-1L},mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,cache:[],mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,additionalConnection:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:85,nbtVersion:509054264,mOwnerName:\"\"\"\",myPriority:0,mMuffler:0b,cacheMode:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mColor:0b,mID:2710,refreshTime:40,Inventory:[],id:\"BaseMetaTileEntity\",checkMode:0b,mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},texturePage:0,baseCapacity:1600L,mRedstone:0b,mFacing:4s}"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 3,
+          "nbt": "{BUFFER_17:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mWasShutdown:0b,justHadNewItems:0b,mInputDisabled:0b,mFluid14:{Empty:\"\"\"\"},updateEveryTick:0b,reversePiority:0b,proxy:{g:111L,p:-1,k:-1L},BUFFER_8:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_7:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},recipeMap:\"gt.recipe.sifter\",Inventory:[],program:1b,mFluid8:{Empty:\"\"\"\"},BUFFER_22:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},merge:0b,BUFFER_21:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_6:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},allowopt:1b,mFluid6:{Empty:\"\"\"\"},mFluid7:{Empty:\"\"\"\"},dirty:0b,mFluid5:{Empty:\"\"\"\"},restrictToInt:0b,BUFFER_20:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},additionalConnection:0b,BUFFER_0:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},shared:{manualFluidUpgrades:0,fluidCapUpgrades:0,manualItems:{len:0},fluidMEUpgrades:0,itemMEUpgrades:0,infbufUpgrades:0,manualFluids:{len:0},markedItems:{len:0},circuitUpgrades:0,markedFluid:{len:0},circuitInv:{len:0},manualUpgrades:0},BUFFER_19:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mFluid0:{Empty:\"\"\"\"},mMuffler:0b,mOwnerName:\"\"\"\",migrationCircuitSlot:1b,mFluid4:{Empty:\"\"\"\"},BUFFER_15:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mOwnerUuid:\"\"\"\",mMultiFluid:1b,normalopt:0b,shutDownReasonID:\"simple_result\",mColor:0b,mID:22069,BUFFER_11:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_10:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_16:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_14:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_12:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_18:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mActive:0b,multiplier:{__guidenh_int_array_v1:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,]},exinvlen:0,mRedstone:0b,mFacing:4s,disableSort:1b,BUFFER_13:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mFluid2:{Empty:\"\"\"\"},BUFFER_3:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mWorks:0b,mStoredEnergy:0L,disableLimited:1b,mOutputDisabled:0b,mFluid1:{Empty:\"\"\"\"},mOtherUpgrades:0b,mStoredSteam:0L,BUFFER_2:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},BUFFER_4:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},mFluid3:{Empty:\"\"\"\"},mLightValue:0b,mFluid9:{Empty:\"\"\"\"},fluidLimit:1,BUFFER_23:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},textureIndex:85,preventSleep:0,BUFFER_1:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},nbtVersion:509054264,BUFFER_5:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},patternSlots:{},autoAppend:0b,BUFFER_9:{mStoredFluidInternalSingle10:{Empty:\"\"\"\"},mStoredFluidInternalSingle14:{Empty:\"\"\"\"},mStoredFluidInternal7:{therest:[]},mStoredFluidInternal12:{therest:[]},mStoredFluidInternalSingle8:{Empty:\"\"\"\"},mStoredFluidInternal11:{therest:[]},unlockDelay:0,mStoredFluidInternalSingle11:{Empty:\"\"\"\"},mStoredFluidInternalSingle13:{Empty:\"\"\"\"},mStoredFluidInternalSingle15:{Empty:\"\"\"\"},f:16,mStoredFluidInternalSingle1:{Empty:\"\"\"\"},mStoredFluidInternalSingle9:{Empty:\"\"\"\"},mStoredFluidInternalSingle7:{Empty:\"\"\"\"},mStoredFluidInternalSingle3:{Empty:\"\"\"\"},mStoredFluidInternalSingle4:{Empty:\"\"\"\"},mStoredFluidInternalSingle6:{Empty:\"\"\"\"},mStoredFluidInternalSingle0:{Empty:\"\"\"\"},mStoredFluidInternalSingle5:{Empty:\"\"\"\"},mStoredFluidInternalSingle12:{Empty:\"\"\"\"},i:16,mStoredFluidInternalSingle2:{Empty:\"\"\"\"},mStoredFluidInternal9:{therest:[]},mStoredFluidInternal14:{therest:[]},mStoredFluidInternal1:{therest:[]},recipeLocked:0b,mStoredFluidInternal10:{therest:[]},mStoredFluidInternal2:{therest:[]},lock:0b,mStoredFluidInternal8:{therest:[]},mStoredFluidInternal15:{therest:[]},mStoredFluidInternal0:{therest:[]},mStoredFluidInternal13:{therest:[]},mStoredFluidInternal3:{therest:[]},mStoredFluidInternal4:{therest:[]},mStoredFluidInternal6:{therest:[]},mStoredFluidInternal5:{therest:[]}},saved:0L,mFluid13:{Empty:\"\"\"\"},mFluid12:{Empty:\"\"\"\"},mLockUpgrade:0b,id:\"BaseMetaTileEntity\",shutDownReason:{wasCritical:0b,key:\"none\"},mFluid15:{Empty:\"\"\"\"},mFluid11:{Empty:\"\"\"\"},mFluid10:{Empty:\"\"\"\"},texturePage:0,CMMode:0b,disableFilter:1b}"
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "z": 0,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 1,
+          "nbt": "{mWasShutdown:0b,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:85,nbtVersion:509054264,mOwnerName:\"\"\"\",mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:91,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},texturePage:0,mRedstone:0b,mFacing:1s}"
+        }
+      ],
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.sifterHatches",
+          "text": "Programmable Crafting Input Buffer, receiving the sift pattern through a lane",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 2.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F",
+          "hlMinX": 1.0,
+          "hlMinY": 1.0,
+          "hlMinZ": 2.0,
+          "hlMaxX": 2.0,
+          "hlMaxY": 2.0,
+          "hlMaxZ": 3.0,
+          "highlightColor": "0x607FC47F"
+        }
+      ]
+    },
+    {
+      "time": 460,
+      "labelKey": "proghatches.guide.pd.label.link",
+      "blockChanges": [
+        {
+          "x": 0,
+          "y": 1,
+          "z": 4,
+          "block": "appliedenergistics2:tile.BlockCableBus",
+          "nbt": "{__guidenh_encoded_keys_v1:[0:{v:{Damage:16s,Count:1b,id:\"appliedenergistics2:item.ItemMultiPart\"},k:\"def:6\"},1:{v:{part:{g:111L,p:-1,k:-1L}},k:\"extra:6\"}],id:\"BlockCableBus\",hasRedstone:2}"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 5,
+          "block": "appliedenergistics2:tile.BlockCableBus",
+          "nbt": "{__guidenh_encoded_keys_v1:[0:{v:{Damage:16s,Count:1b,id:\"appliedenergistics2:item.ItemMultiPart\"},k:\"def:6\"},1:{v:{part:{g:111L,p:-1,k:-1L}},k:\"extra:6\"}],id:\"BlockCableBus\",hasRedstone:2}"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 6,
+          "block": "appliedenergistics2:tile.BlockCableBus",
+          "nbt": "{__guidenh_encoded_keys_v1:[0:{v:{Damage:16s,Count:1b,id:\"appliedenergistics2:item.ItemMultiPart\"},k:\"def:6\"},1:{v:{part:{g:111L,p:-1,k:-1L}},k:\"extra:6\"}],id:\"BlockCableBus\",hasRedstone:2}"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 7,
+          "block": "appliedenergistics2:tile.BlockCableBus",
+          "nbt": "{__guidenh_encoded_keys_v1:[0:{v:{Damage:16s,Count:1b,id:\"appliedenergistics2:item.ItemMultiPart\"},k:\"def:6\"},1:{v:{part:{g:111L,p:-1,k:-1L}},k:\"extra:6\"}],id:\"BlockCableBus\",hasRedstone:2}"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 8,
+          "block": "appliedenergistics2:tile.BlockCableBus",
+          "nbt": "{__guidenh_encoded_keys_v1:[0:{v:{Damage:16s,Count:1b,id:\"appliedenergistics2:item.ItemMultiPart\"},k:\"def:6\"},1:{v:{part:{g:111L,p:-1,k:-1L}},k:\"extra:6\"}],id:\"BlockCableBus\",hasRedstone:2}"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 9,
+          "block": "appliedenergistics2:tile.BlockCableBus",
+          "nbt": "{__guidenh_encoded_keys_v1:[0:{v:{Damage:16s,Count:1b,id:\"appliedenergistics2:item.ItemMultiPart\"},k:\"def:6\"},1:{v:{part:{g:111L,p:-1,k:-1L}},k:\"extra:6\"}],id:\"BlockCableBus\",hasRedstone:2}"
+        }
+      ],
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.link",
+          "text": "Fluix ME glass cables join the hatches to one ME network",
+          "x": 0.5,
+          "y": 2.3,
+          "z": 7.0,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F",
+          "hlMinX": 0.0,
+          "hlMinY": 1.0,
+          "hlMinZ": 4.0,
+          "hlMaxX": 1.0,
+          "hlMaxY": 2.0,
+          "hlMaxZ": 10.0,
+          "highlightColor": "0x607FC47F"
+        }
+      ]
+    },
+    {
+      "time": 500,
+      "labelKey": "proghatches.guide.pd.label.recordTarget",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.recordTarget",
+          "text": "Left-click to record coordinates",
+          "x": 1.5,
+          "y": 2.8,
+          "z": 2.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F",
+          "hlMinX": 1.0,
+          "hlMinY": 1.0,
+          "hlMinZ": 2.0,
+          "hlMaxX": 2.0,
+          "hlMaxY": 2.0,
+          "hlMaxZ": 3.0,
+          "highlightColor": "0x607FC47F"
+        },
+        {
+          "type": "input",
+          "x": 1.0,
+          "y": 1.5,
+          "z": 2.5,
+          "inputType": "lmb",
+          "item": "gregtech:gt.metaitem.01:32708"
+        }
+      ]
+    },
+    {
+      "time": 580,
+      "labelKey": "proghatches.guide.pd.label.recordedTarget",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.recordedTarget",
+          "text": "Coordinates recorded; use this data stick to bind lane 1",
+          "x": 1.5,
+          "y": 2.8,
+          "z": 2.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F",
+          "hlMinX": 1.0,
+          "hlMinY": 1.0,
+          "hlMinZ": 2.0,
+          "hlMaxX": 2.0,
+          "hlMaxY": 2.0,
+          "hlMaxZ": 3.0,
+          "highlightColor": "0x607FC47F"
+        }
+      ]
+    },
+    {
+      "time": 620,
+      "labelKey": "proghatches.guide.pd.label.guiMain",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.guiMain",
+          "text": "Open the Cyclic Pattern Crafting Input Buffer, then click the plus button",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F",
+          "hlMinX": 1.0,
+          "hlMinY": 1.0,
+          "hlMinZ": 7.0,
+          "hlMaxX": 2.0,
+          "hlMaxY": 2.0,
+          "hlMaxZ": 8.0,
+          "highlightColor": "0x607FC47F"
+        }
+      ],
+      "modifyTileNBT": [
+        {
+          "x": 1,
+          "y": 1,
+          "z": 7,
+          "path": "patternSlots",
+          "value": "{i0:{tag:{in:[0:{Damage:0s,StackType:\"item\",id:\"programmablehatches:prog_circuit\",Req:0L,Cnt:1L,tag:{targetCircuit:{Damage:9s,Count:1b,string_id:\"gregtech:gt.integrated_circuit\"}},Count:0b,Craft:0b},1:{Damage:53s,StackType:\"item\",id:\"bartworks:gt.bwMetaGenerateddust\",Req:0L,Cnt:9L,Count:0b,Craft:0b},2:{StackType:\"fluid\",FluidName:\"palladium enriched ammonia\",Count:0b,Cnt:9000L,Req:0L,Craft:0b}],combine:0,Outputs:[0:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:55s,Count:0b,Cnt:16L,Craft:0b},1:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:54s,Count:0b,Cnt:2L,Craft:0b}],out:[0:{Damage:55s,StackType:\"item\",id:\"bartworks:gt.bwMetaGenerateddust\",Req:0L,Cnt:16L,Count:0b,Craft:0b},1:{Damage:54s,StackType:\"item\",id:\"bartworks:gt.bwMetaGenerateddust\",Req:0L,Cnt:2L,Count:0b,Craft:0b}],Inputs:[0:{Req:0L,id:\"programmablehatches:prog_circuit\",StackType:\"item\",Damage:0s,tag:{targetCircuit:{Damage:9s,Count:1b,string_id:\"gregtech:gt.integrated_circuit\"}},Cnt:1L,Count:0b,Craft:0b},1:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:53s,Count:0b,Cnt:9L,Craft:0b},2:{Req:0L,FluidName:\"palladium enriched ammonia\",Cnt:9000L,Count:0b,StackType:\"fluid\",Craft:0b}],beSubstitute:0b},Damage:0s,Count:1b,id:\"ae2fc:fluid_encoded_pattern\"}}"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 1,
+          "y": 1,
+          "z": 7,
+          "nbt": "{cycLanes:{__guidenh_int_array_v1:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,]},cycLaneOffsets:[]}"
+        }
+      ]
+    },
+    {
+      "time": 680,
+      "labelKey": "proghatches.guide.pd.label.guiOpen",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.guiOpen",
+          "text": "Open the pattern popup: the precipitation pattern is in the first slot",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 740,
+      "labelKey": "proghatches.guide.pd.label.guiSifter",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.guiSifter",
+          "text": "Place the chance sifting pattern in the next slot of the same group",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F",
+          "hlMinX": 1.0,
+          "hlMinY": 1.0,
+          "hlMinZ": 7.0,
+          "hlMaxX": 2.0,
+          "hlMaxY": 2.0,
+          "hlMaxZ": 8.0,
+          "highlightColor": "0x607FC47F"
+        }
+      ],
+      "modifyTileNBT": [
+        {
+          "x": 1,
+          "y": 1,
+          "z": 7,
+          "path": "patternSlots.i4",
+          "value": "{id:\"ae2fc:fluid_encoded_pattern\",Count:1b,Damage:0s,tag:{in:[0:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:55s,Count:0b,Cnt:16L,Craft:0b}],Inputs:[0:{Damage:55s,StackType:\"item\",id:\"bartworks:gt.bwMetaGenerateddust\",Req:0L,Cnt:16L,Count:0b,Craft:0b}],out:[0:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:53s,Count:0b,Cnt:15L,Craft:0b}],Outputs:[0:{Damage:53s,StackType:\"item\",id:\"bartworks:gt.bwMetaGenerateddust\",Req:0L,Cnt:15L,Count:0b,Craft:0b}],combine:0,beSubstitute:0b,phChance:1b}}"
+        }
+      ]
+    },
+    {
+      "time": 800,
+      "labelKey": "proghatches.guide.pd.label.guiEnrich",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.guiEnrich",
+          "text": "Place the ammonia recycling pattern in the third slot",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F",
+          "hlMinX": 1.0,
+          "hlMinY": 1.0,
+          "hlMinZ": 7.0,
+          "hlMaxX": 2.0,
+          "hlMaxY": 2.0,
+          "hlMaxZ": 8.0,
+          "highlightColor": "0x607FC47F"
+        }
+      ],
+      "modifyTileNBT": [
+        {
+          "x": 1,
+          "y": 1,
+          "z": 7,
+          "path": "patternSlots.i8",
+          "value": "{id:\"ae2fc:fluid_encoded_pattern\",Count:1b,Damage:0s,tag:{in:[0:{Req:0L,id:\"programmablehatches:prog_circuit\",StackType:\"item\",Damage:0s,Cnt:1L,Count:0b,tag:{targetCircuit:{Damage:1s,Count:1b,string_id:\"gregtech:gt.integrated_circuit\"}},Craft:0b},1:{Req:0L,id:\"bartworks:gt.bwMetaGenerateddust\",StackType:\"item\",Damage:53s,Count:0b,Cnt:1L,Craft:0b},2:{Req:0L,FluidName:\"ammonia\",Cnt:1000L,Count:0b,StackType:\"fluid\",Craft:0b}],combine:0,Inputs:[0:{Damage:0s,StackType:\"item\",id:\"programmablehatches:prog_circuit\",Req:0L,tag:{targetCircuit:{Damage:1s,Count:1b,string_id:\"gregtech:gt.integrated_circuit\"}},Count:0b,Cnt:1L,Craft:0b},1:{Damage:53s,StackType:\"item\",id:\"bartworks:gt.bwMetaGenerateddust\",Req:0L,Cnt:1L,Count:0b,Craft:0b},2:{StackType:\"fluid\",FluidName:\"ammonia\",Count:0b,Cnt:1000L,Req:0L,Craft:0b}],out:[0:{Req:0L,FluidName:\"palladium enriched ammonia\",Cnt:1000L,Count:0b,StackType:\"fluid\",Craft:0b}],Outputs:[0:{StackType:\"fluid\",FluidName:\"palladium enriched ammonia\",Count:0b,Cnt:1000L,Req:0L,Craft:0b}],beSubstitute:0b}}"
+        }
+      ]
+    },
+    {
+      "time": 880,
+      "labelKey": "proghatches.guide.pd.label.guiLanes",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.guiLanes",
+          "text": "All three patterns start on lane 0, running in this hatch",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 940,
+      "labelKey": "proghatches.guide.pd.label.guiLaneHint",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.guiLaneHint",
+          "text": "Scroll or click to change lanes; left-click the sifting pattern to select lane 1",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 980,
+      "labelKey": "proghatches.guide.pd.label.guiLaneSet",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.guiLaneSet",
+          "text": "The sifting slot turns blue for lane 1; both chemical patterns remain on lane 0",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 1060,
+      "labelKey": "proghatches.guide.pd.label.guiBind",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.guiBind",
+          "text": "Open lane bindings; lane 1 is waiting for a target input hatch",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 1120,
+      "labelKey": "proghatches.guide.pd.label.guiBindHint",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.guiBindHint",
+          "text": "The data stick stores the sifter input hatch position; carry it onto the lane 1 binding slot",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 1180,
+      "labelKey": "proghatches.guide.pd.label.guiBindDone",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.guiBindDone",
+          "text": "Lane 1 is bound; its slot shows the target icon and the connected state",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 1260,
+      "labelKey": "proghatches.guide.pd.label.guiLanesBound",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.guiLanesBound",
+          "text": "Sifting goes to the sifter through blue lane 1; precipitation and ammonia recycling run in this hatch",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 1360,
+      "labelKey": "proghatches.guide.pd.label.guiConfig",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.guiConfig",
+          "text": "The configuration page shows the cycle multiplier and chance seed multiplier",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 1480,
+      "labelKey": "proghatches.guide.pd.label.guiClose",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.pd.guiClose",
+          "text": "The popup closes; the three patterns remain in the cyclic hatch",
+          "x": 1.5,
+          "y": 2.3,
+          "z": 7.5,
+          "maxWidth": 160,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 1,
+          "y": 1,
+          "z": 7,
+          "nbt": "{cycLanes:{__guidenh_int_array_v1:[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,]},cycLaneOffsets:[0:{dz:-5,dy:0,dx:0,l:1}]}"
+        }
+      ]
+    }
+  ]
+}

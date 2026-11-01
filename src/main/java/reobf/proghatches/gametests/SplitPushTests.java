@@ -14,10 +14,12 @@ import com.gtnewhorizons.horizonqa.api.annotation.GameTestHolder;
 
 import appeng.api.storage.data.IAEItemStack;
 import appeng.container.ContainerNull;
+import appeng.util.InventoryAdaptor;
 import appeng.util.inv.MEInventoryCrafting;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
 import reobf.proghatches.gt.metatileentity.bufferutil.ItemStackG;
+import reobf.proghatches.gt.metatileentity.util.AEInputItemHandler;
 import reobf.proghatches.gt.metatileentity.util.LongStacks;
 import reobf.proghatches.gt.metatileentity.util.PushStaging;
 import reobf.proghatches.main.Config;
@@ -78,15 +80,67 @@ public class SplitPushTests {
         h.succeed();
     }
 
+    @GameTest(template = "sifter", timeoutTicks = 200)
+    public static void superfluidCmChunksFitItsBufferSlots(GameTestHelper h) {
+        BufferedDualInputHatch hatch = place(h, Config.metaTileEntityOffset + Registration.SuperFluidHatch);
+        h.assertEquals(hatch.itemLimit(), (long) hatch.getInventoryStackLimit(),
+            "An input slot holds what one buffer slot holds");
+        ItemStack type = new ItemStack(Blocks.stained_hardened_clay, 1, 5);
+        h.assertTrue(hatch.pushPatternCM(null, table(type, 128), ForgeDirection.UNKNOWN), "CM mode accepts the input");
+        h.assertTrue(hatch.isInputEmpty(), "The input is filed into a buffer");
+        assertRecorded(h, hatch, 64, 64);
+        h.succeed();
+    }
+
+    @GameTest(template = "sifter", timeoutTicks = 200)
+    public static void superfluidInterfaceChunksFitItsBufferSlots(GameTestHelper h) {
+        BufferedDualInputHatch hatch = place(h, Config.metaTileEntityOffset + Registration.SuperFluidHatch);
+        ItemStack type = new ItemStack(Blocks.stained_hardened_clay, 1, 6);
+        InventoryAdaptor adaptor = InventoryAdaptor.getAdaptor(hatch.getBaseMetaTileEntity(), ForgeDirection.WEST);
+        h.assertNull(adaptor.addItems(ChancePatternTests.sized(type, 128)), "A normal ME interface inserts the batch");
+        h.assertNotNull(hatch.classifyForce(), "The inserted batch is filed into a buffer");
+        h.assertTrue(hatch.isInputEmpty(), "Nothing stays in the input slots");
+        assertRecorded(h, hatch, 64, 64);
+        h.succeed();
+    }
+
+    @GameTest(template = "sifter", timeoutTicks = 200)
+    public static void guiUsesTheInputSlotCapacity(GameTestHelper h) {
+        BufferedDualInputHatch hatch = hatch(h);
+        AEInputItemHandler gui = (AEInputItemHandler) hatch.getInventoryHandler();
+        int limit = hatch.getInventoryStackLimit();
+        h.assertEquals(limit, gui.getSlotLimit(0), "The GUI slot holds what the input slot holds");
+        ItemStack rest = gui.insertItem(0, ChancePatternTests.sized(new ItemStack(Blocks.stained_hardened_clay, 1, 7), 200),
+            false);
+        h.assertEquals(200 - limit, rest == null ? 0 : rest.stackSize, "The rest stays on the cursor");
+        h.assertEquals((long) limit, gui.amount(0), "The slot is filled to its capacity");
+        h.succeed();
+    }
+
+    private static void assertRecorded(GameTestHelper h, BufferedDualInputHatch hatch, long... chunks) {
+        IAEItemStack[] single = (IAEItemStack[]) LongInputBufferTests.field(hatch.inv0.get(0), "mStoredItemInternalSingle");
+        for (int ix = 0; ix < chunks.length; ix++)
+            h.assertEquals(chunks[ix], LongStacks.amount(single[ix]), "Recorded slot " + ix);
+        h.assertNull(single[chunks.length], "No further slot is recorded");
+    }
+
     private static BufferedDualInputHatch hatch(GameTestHelper h) {
-        ChancePatternTests.buildSifter(h, true, Config.metaTileEntityOffset + Registration.BufferedDualInputHatchOffset + 4);
+        return place(h, Config.metaTileEntityOffset + Registration.BufferedDualInputHatchOffset + 4);
+    }
+
+    private static BufferedDualInputHatch place(GameTestHelper h, int id) {
+        ChancePatternTests.buildSifter(h, true, id);
         h.gtnh().multiBlockController(ChancePatternTests.SIFTER).getBaseMetaTileEntity().disableWorking();
         return (BufferedDualInputHatch) h.gtnh().metaTileEntity(ChancePatternTests.HATCH);
     }
 
     private static MEInventoryCrafting table(ItemStack type) {
+        return table(type, AMOUNT);
+    }
+
+    private static MEInventoryCrafting table(ItemStack type, long amount) {
         MEInventoryCrafting table = new MEInventoryCrafting(new ContainerNull(), 1, 1);
-        table.setInventorySlotContents(0, LongStacks.item(type, AMOUNT));
+        table.setInventorySlotContents(0, LongStacks.item(type, amount));
         return table;
     }
 

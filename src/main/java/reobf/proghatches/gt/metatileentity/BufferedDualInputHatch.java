@@ -309,6 +309,11 @@ public class BufferedDualInputHatch extends DualInputHatch
 		return (int) ((int) (32000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1)));
 	}
 
+	@Override
+	public int getInventoryStackLimit() {
+		return (int) Math.min(super.getInventoryStackLimit(), Math.min(itemLimit(), singleSlotLimit()));
+	}
+
 	public long fluidLimit() {
 
 		return (int) ((int) (128000 * Math.pow(2, mTier) / (mMultiFluid ? 4 : 1)));
@@ -1064,8 +1069,7 @@ public class BufferedDualInputHatch extends DualInputHatch
     @Override
     public ItemStackHandler getInventoryHandler() {
         if (longInputHandler == null) longInputHandler = new AEInputItemHandler(this,
-            () -> this instanceof PatternDualInputHatch || disableLimited
-                ? Math.min(itemLimit(), singleSlotLimit()) : getInventoryStackLimit());
+            () -> this instanceof PatternDualInputHatch ? Math.min(itemLimit(), singleSlotLimit()) : getInventoryStackLimit());
         return longInputHandler;
     }
 
@@ -1096,8 +1100,8 @@ public class BufferedDualInputHatch extends DualInputHatch
     @Override
     protected FluidSlot createInputFluidSlot(int index) {
         AEInputFluidTank tank = new AEInputFluidTank(this, index,
-            () -> this instanceof PatternDualInputHatch || fluidLimit == 0
-                ? Math.min(fluidLimit(), singleSlotLimit()) : getInventoryFluidLimit());
+            () -> this instanceof PatternDualInputHatch ? Math.min(fluidLimit(), singleSlotLimit())
+                : mStoredFluid[index].getCapacity());
         return new FluidSlot() {
             @Override
             protected void addToolTip(RichTooltip tooltip) {

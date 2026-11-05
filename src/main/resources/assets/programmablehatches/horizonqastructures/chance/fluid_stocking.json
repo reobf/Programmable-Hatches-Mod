@@ -1,0 +1,66 @@
+{
+  "format_version": 2,
+  "size": [
+    5,
+    4,
+    4
+  ],
+  "palette": {
+    "C": {
+      "name": "appliedenergistics2:tile.BlockCreativeEnergyController",
+      "meta": 1
+    },
+    "D": {
+      "name": "appliedenergistics2:tile.BlockDrive",
+      "meta": 0
+    },
+    "S": {
+      "name": "appliedenergistics2:tile.BlockCraftingStorage",
+      "meta": 0
+    },
+    "U": {
+      "name": "appliedenergistics2:tile.BlockCraftingUnit",
+      "meta": 0
+    }
+  },
+  "layers": [
+    [
+      "S....",
+      "D....",
+      "C....",
+      "....."
+    ],
+    [
+      "U....",
+      ".....",
+      ".....",
+      "....."
+    ],
+    [
+      ".....",
+      ".....",
+      ".....",
+      "....."
+    ],
+    [
+      ".....",
+      ".....",
+      ".....",
+      "....."
+    ]
+  ],
+  "annotations": {
+    "labels": {
+      "drive": [
+        0,
+        0,
+        1
+      ],
+      "cpu_storage": [
+        0,
+        0,
+        0
+      ]
+    }
+  }
+}

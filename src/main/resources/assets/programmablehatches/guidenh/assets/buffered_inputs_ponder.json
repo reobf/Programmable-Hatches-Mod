@@ -1,0 +1,382 @@
+{
+  "$schema": "guidenh://schema/ponder.json",
+  "totalTime": 960,
+  "keyframes": [
+    {
+      "time": 0,
+      "labelKey": "proghatches.guide.input.label.overview",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.input.overview",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 60,
+      "labelKey": "proghatches.guide.input.label.providerGui",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.input.providerGui",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 100,
+      "labelKey": "proghatches.guide.input.label.template",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.input.template",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        },
+        {
+          "type": "input",
+          "x": 1.5,
+          "y": 2.0,
+          "z": 2.5,
+          "inputType": "rmb",
+          "item": "gregtech:gt.metaitem.01:32351"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2,
+          "nbt": "{mWasShutdown:0b,mInputDisabled:0b,x:1,mWorks:0b,mStoredEnergy:0L,proxy:{g:2L,p:-1,k:-1L},disabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,additionalConnection:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:0,nbtVersion:509054264,mOwnerName:\"\",z:2,mMuffler:0b,mID:22048,mOwnerUuid:\"\",shutDownReasonID:\"simple_result\",mColor:0b,legacy:0b,Inventory:[0:{Damage:32351s,Count:1b,IntSlot:0,id:\"gregtech:gt.metaitem.01\"}],tech:1,mActive:0b,mLockUpgrade:0b,id:\"BaseMetaTileEntity\",shutDownReason:{wasCritical:0b,key:\"none\"},y:1,texturePage:0,mFacing:2s,mRedstone:0b,ret:[]}"
+        }
+      ],
+      "modifyTileNBT": [
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2,
+          "path": "proxy",
+          "value": "{g:2L,p:-1,k:-1L}"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2,
+          "path": "shutDownReason",
+          "value": "{wasCritical:0b,key:\"none\"}"
+        }
+      ]
+    },
+    {
+      "time": 150,
+      "labelKey": "proghatches.guide.input.label.secondTemplate",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.input.secondTemplate",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2,
+          "nbt": "{mWasShutdown:0b,mInputDisabled:0b,x:1,mWorks:0b,mStoredEnergy:0L,proxy:{g:2L,p:-1,k:-1L},disabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,additionalConnection:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:0,nbtVersion:509054264,mOwnerName:\"\",z:2,mMuffler:0b,mID:22048,mOwnerUuid:\"\",shutDownReasonID:\"simple_result\",mColor:0b,legacy:0b,Inventory:[0:{Damage:32351s,Count:1b,IntSlot:0,id:\"gregtech:gt.metaitem.01\"},1:{Damage:32350s,Count:1b,IntSlot:1,id:\"gregtech:gt.metaitem.01\"}],tech:1,mActive:0b,mLockUpgrade:0b,id:\"BaseMetaTileEntity\",shutDownReason:{wasCritical:0b,key:\"none\"},y:1,texturePage:0,mFacing:2s,mRedstone:0b,ret:[]}"
+        }
+      ],
+      "modifyTileNBT": [
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2,
+          "path": "proxy",
+          "value": "{g:2L,p:-1,k:-1L}"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2,
+          "path": "shutDownReason",
+          "value": "{wasCritical:0b,key:\"none\"}"
+        }
+      ]
+    },
+    {
+      "time": 200,
+      "labelKey": "proghatches.guide.input.label.provided",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.input.provided",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 280,
+      "labelKey": "proghatches.guide.input.label.pattern",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.input.pattern",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1,
+          "nbt": "{x:2,z:1,paintedColor:16b,FUZZY_MODE:\"IGNORE_ALL\",orientation_up:\"WEST\",SMART_BLOCK:\"NO\",pointAt:5,proxy:{g:2L,p:-1,k:-1L},orientation_forward:\"NORTH\",LOCK_CRAFTING_MODE:\"NONE\",INSERTION_MODE:\"DEFAULT\",INTERFACE_TERMINAL:\"YES\",id:\"BlockInterface\",y:1,PATTERN_OPTIMIZATION:\"YES\",BLOCK:\"YES\",ADVANCED_BLOCKING_MODE:\"DEFAULT\",waitingToSend:[],patterns:{__guidenh_encoded_keys_v1:[0:{v:{id:\"ae2fc:fluid_encoded_pattern\",Count:1b,Damage:0s,tag:{in:[0:{Damage:0s,StackType:\"item\",id:\"minecraft:iron_ingot\",Req:0L,Cnt:1L,Count:0b,Craft:0b},1:{Damage:0s,StackType:\"item\",id:\"programmablehatches:prog_circuit\",Req:0L,Count:0b,Cnt:1L,tag:{targetCircuit:{Damage:32350s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Craft:0b}],combine:0,Inputs:[0:{Req:0L,id:\"minecraft:iron_ingot\",StackType:\"item\",Damage:0s,Count:0b,Cnt:1L,Craft:0b},1:{Req:0L,id:\"programmablehatches:prog_circuit\",StackType:\"item\",Damage:0s,Count:0b,tag:{targetCircuit:{Damage:32350s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Cnt:1L,Craft:0b}],out:[0:{Damage:17032s,StackType:\"item\",id:\"gregtech:gt.metaitem.01\",Req:0L,Cnt:1L,Count:0b,Craft:0b}],Outputs:[0:{Req:0L,id:\"gregtech:gt.metaitem.01\",StackType:\"item\",Damage:17032s,Count:0b,Cnt:1L,Craft:0b}],beSubstitute:0b}},k:\"#1\"},1:{v:{id:\"ae2fc:fluid_encoded_pattern\",Count:1b,Damage:0s,tag:{in:[0:{Damage:0s,StackType:\"item\",id:\"minecraft:iron_ingot\",Req:0L,Cnt:1L,Count:0b,Craft:0b},1:{Damage:0s,StackType:\"item\",id:\"programmablehatches:prog_circuit\",Req:0L,Count:0b,Cnt:1L,tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Craft:0b}],combine:0,Inputs:[0:{Req:0L,id:\"minecraft:iron_ingot\",StackType:\"item\",Damage:0s,Count:0b,Cnt:1L,Craft:0b},1:{Req:0L,id:\"programmablehatches:prog_circuit\",StackType:\"item\",Damage:0s,Count:0b,tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Cnt:1L,Craft:0b}],out:[0:{Damage:23032s,StackType:\"item\",id:\"gregtech:gt.metaitem.01\",Req:0L,Cnt:2L,Count:0b,Craft:0b}],Outputs:[0:{Req:0L,id:\"gregtech:gt.metaitem.01\",StackType:\"item\",Damage:23032s,Count:0b,Cnt:2L,Craft:0b}],beSubstitute:0b}},k:\"#0\"}]},priority:0,inv:{item2:{},item1:{},item5:{},item3:{},item4:{},item6:{},item0:{},item7:{},item8:{}}}"
+        }
+      ],
+      "modifyTileNBT": [
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1,
+          "path": "proxy",
+          "value": "{g:2L,p:-1,k:-1L}"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1,
+          "path": "inv",
+          "value": "{item2:{},item1:{},item5:{},item3:{},item4:{},item6:{},item0:{},item7:{},item8:{}}"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1,
+          "path": "patterns",
+          "value": "{__guidenh_encoded_keys_v1:[0:{v:{id:\"ae2fc:fluid_encoded_pattern\",Count:1b,Damage:0s,tag:{in:[0:{Damage:0s,StackType:\"item\",id:\"minecraft:iron_ingot\",Req:0L,Cnt:1L,Count:0b,Craft:0b},1:{Damage:0s,StackType:\"item\",id:\"programmablehatches:prog_circuit\",Req:0L,Count:0b,Cnt:1L,tag:{targetCircuit:{Damage:32350s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Craft:0b}],combine:0,Inputs:[0:{Req:0L,id:\"minecraft:iron_ingot\",StackType:\"item\",Damage:0s,Count:0b,Cnt:1L,Craft:0b},1:{Req:0L,id:\"programmablehatches:prog_circuit\",StackType:\"item\",Damage:0s,Count:0b,tag:{targetCircuit:{Damage:32350s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Cnt:1L,Craft:0b}],out:[0:{Damage:17032s,StackType:\"item\",id:\"gregtech:gt.metaitem.01\",Req:0L,Cnt:1L,Count:0b,Craft:0b}],Outputs:[0:{Req:0L,id:\"gregtech:gt.metaitem.01\",StackType:\"item\",Damage:17032s,Count:0b,Cnt:1L,Craft:0b}],beSubstitute:0b}},k:\"#1\"},1:{v:{id:\"ae2fc:fluid_encoded_pattern\",Count:1b,Damage:0s,tag:{in:[0:{Damage:0s,StackType:\"item\",id:\"minecraft:iron_ingot\",Req:0L,Cnt:1L,Count:0b,Craft:0b},1:{Damage:0s,StackType:\"item\",id:\"programmablehatches:prog_circuit\",Req:0L,Count:0b,Cnt:1L,tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Craft:0b}],combine:0,Inputs:[0:{Req:0L,id:\"minecraft:iron_ingot\",StackType:\"item\",Damage:0s,Count:0b,Cnt:1L,Craft:0b},1:{Req:0L,id:\"programmablehatches:prog_circuit\",StackType:\"item\",Damage:0s,Count:0b,tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Cnt:1L,Craft:0b}],out:[0:{Damage:23032s,StackType:\"item\",id:\"gregtech:gt.metaitem.01\",Req:0L,Cnt:2L,Count:0b,Craft:0b}],Outputs:[0:{Req:0L,id:\"gregtech:gt.metaitem.01\",StackType:\"item\",Damage:23032s,Count:0b,Cnt:2L,Craft:0b}],beSubstitute:0b}},k:\"#0\"}]}"
+        }
+      ]
+    },
+    {
+      "time": 360,
+      "labelKey": "proghatches.guide.input.label.delivered",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.input.delivered",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "nbt": "{mStoredEnergy:0L,disableSort:1b,mWasShutdown:0b,justHadNewItems:0b,updateEveryTick:0b,x:3,mWorks:0b,reversePiority:0b,mInputDisabled:0b,disableLimited:1b,mOutputDisabled:0b,mStoredSteam:0L,merge:0b,mOtherUpgrades:0b,mLightValue:0b,dirty:0b,fluidLimit:1,autoAppend:0b,mID:22033,BUFFER_0:{lock:0b,f:1,aeRecipe:1b,mStoredFluidInternal0:{therest:[]},recipeLocked:0b,unlockDelay:0,i:4},mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},z:1,textureIndex:0,preventSleep:0,nbtVersion:509054264,mOwnerName:\"\",migrationCircuitSlot:1b,mMuffler:0b,shutDownReasonID:\"simple_result\",mOwnerUuid:\"\",mMultiFluid:0b,mColor:0b,aeInputBuffer:{item1:{id:\"programmablehatches:prog_circuit\",Req:0L,Damage:0s,Cnt:1L,tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Count:0b,Craft:0b},item0:{id:\"minecraft:iron_ingot\",Count:0b,Cnt:1L,Req:0L,Damage:0s,Craft:0b},version:1},mFluid0:{Empty:\"\"},shared:{manualFluidUpgrades:0,fluidCapUpgrades:0,manualItems:{len:0},fluidMEUpgrades:0,itemMEUpgrades:0,infbufUpgrades:0,manualFluids:{len:0},markedItems:{len:0},circuitUpgrades:0,circuitInv:{len:0},markedFluid:{len:0},manualUpgrades:0},program:1b,Inventory:[0:{Damage:0s,Count:1,IntSlot:0,id:\"minecraft:iron_ingot\"},1:{tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1,IntSlot:1,id:\"programmablehatches:prog_circuit\"}],mActive:0b,mLockUpgrade:0b,id:\"BaseMetaTileEntity\",shutDownReason:{wasCritical:0b,key:\"none\"},y:1,texturePage:0,CMMode:0b,mRedstone:0b,exinvlen:0,disableFilter:1b,mFacing:4s}"
+        }
+      ],
+      "modifyTileNBT": [
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "aeInputBuffer",
+          "value": "{item1:{id:\"programmablehatches:prog_circuit\",Req:0L,Damage:0s,Cnt:1L,tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Count:0b,Craft:0b},item0:{id:\"minecraft:iron_ingot\",Count:0b,Cnt:1L,Req:0L,Damage:0s,Craft:0b},version:1}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "mFluid0",
+          "value": "{Empty:\"\"}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "BUFFER_0",
+          "value": "{lock:0b,f:1,aeRecipe:1b,mStoredFluidInternal0:{therest:[]},recipeLocked:0b,unlockDelay:0,i:4}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "shared",
+          "value": "{manualFluidUpgrades:0,fluidCapUpgrades:0,manualItems:{len:0},fluidMEUpgrades:0,itemMEUpgrades:0,infbufUpgrades:0,manualFluids:{len:0},markedItems:{len:0},circuitUpgrades:0,circuitInv:{len:0},markedFluid:{len:0},manualUpgrades:0}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "shutDownReason",
+          "value": "{wasCritical:0b,key:\"none\"}"
+        }
+      ]
+    },
+    {
+      "time": 440,
+      "labelKey": "proghatches.guide.input.label.buffered",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.input.buffered",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "nbt": "{mStoredEnergy:0L,disableSort:1b,mWasShutdown:0b,justHadNewItems:1b,updateEveryTick:0b,x:3,mWorks:0b,reversePiority:0b,mInputDisabled:0b,disableLimited:1b,mOutputDisabled:0b,mStoredSteam:0L,merge:0b,mOtherUpgrades:0b,mLightValue:0b,dirty:0b,fluidLimit:1,autoAppend:0b,mID:22033,BUFFER_0:{f:1,lock:0b,mStoredItemInternal4:{id:\"gregtech:gt.metaitem.01\",therest:[],Count:0b,ICount:0,Damage:32351s},recipeLocked:1b,mStoredItemInternal0:{id:\"minecraft:iron_ingot\",therest:[],Count:1b,ICount:1,Damage:0s},aeRecipe:1b,mStoredFluidInternal0:{therest:[]},mStoredItemInternalSingle1:{id:\"programmablehatches:prog_circuit\",Req:0L,Damage:0s,Cnt:1L,tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Count:0b,Craft:0b},unlockDelay:0,mStoredItemInternalSingle0:{id:\"minecraft:iron_ingot\",Count:0b,Cnt:1L,Req:0L,Damage:0s,Craft:0b},i:4},mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},z:1,textureIndex:0,preventSleep:0,nbtVersion:509054264,mOwnerName:\"\",migrationCircuitSlot:1b,mMuffler:0b,shutDownReasonID:\"simple_result\",mOwnerUuid:\"\",mMultiFluid:0b,mColor:0b,aeInputBuffer:{version:1},mFluid0:{Empty:\"\"},shared:{manualFluidUpgrades:0,fluidCapUpgrades:0,manualItems:{len:0},fluidMEUpgrades:0,itemMEUpgrades:0,infbufUpgrades:0,manualFluids:{len:0},markedItems:{len:0},circuitUpgrades:0,circuitInv:{len:0},markedFluid:{len:0},manualUpgrades:0},program:1b,Inventory:[],mActive:0b,mLockUpgrade:0b,id:\"BaseMetaTileEntity\",shutDownReason:{wasCritical:0b,key:\"none\"},y:1,texturePage:0,CMMode:0b,mRedstone:0b,exinvlen:0,disableFilter:1b,mFacing:4s}"
+        }
+      ],
+      "modifyTileNBT": [
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "aeInputBuffer",
+          "value": "{version:1}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "mFluid0",
+          "value": "{Empty:\"\"}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "BUFFER_0",
+          "value": "{f:1,lock:0b,mStoredItemInternal4:{id:\"gregtech:gt.metaitem.01\",therest:[],Count:0b,ICount:0,Damage:32351s},recipeLocked:1b,mStoredItemInternal0:{id:\"minecraft:iron_ingot\",therest:[],Count:1b,ICount:1,Damage:0s},aeRecipe:1b,mStoredFluidInternal0:{therest:[]},mStoredItemInternalSingle1:{id:\"programmablehatches:prog_circuit\",Req:0L,Damage:0s,Cnt:1L,tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Count:0b,Craft:0b},unlockDelay:0,mStoredItemInternalSingle0:{id:\"minecraft:iron_ingot\",Count:0b,Cnt:1L,Req:0L,Damage:0s,Craft:0b},i:4}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "shared",
+          "value": "{manualFluidUpgrades:0,fluidCapUpgrades:0,manualItems:{len:0},fluidMEUpgrades:0,itemMEUpgrades:0,infbufUpgrades:0,manualFluids:{len:0},markedItems:{len:0},circuitUpgrades:0,circuitInv:{len:0},markedFluid:{len:0},manualUpgrades:0}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "shutDownReason",
+          "value": "{wasCritical:0b,key:\"none\"}"
+        }
+      ]
+    },
+    {
+      "time": 600,
+      "labelKey": "proghatches.guide.input.label.accumulated",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.input.accumulated",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "nbt": "{mStoredEnergy:0L,disableSort:1b,mWasShutdown:0b,justHadNewItems:1b,updateEveryTick:0b,x:3,mWorks:0b,reversePiority:0b,mInputDisabled:0b,disableLimited:1b,mOutputDisabled:0b,mStoredSteam:0L,merge:0b,mOtherUpgrades:0b,mLightValue:0b,dirty:0b,fluidLimit:1,autoAppend:0b,mID:22033,BUFFER_0:{f:1,lock:0b,mStoredItemInternal4:{id:\"gregtech:gt.metaitem.01\",therest:[],Count:0b,ICount:0,Damage:32351s},recipeLocked:1b,mStoredItemInternal0:{id:\"minecraft:iron_ingot\",therest:[],Count:2b,ICount:2,Damage:0s},aeRecipe:1b,mStoredFluidInternal0:{therest:[]},mStoredItemInternalSingle1:{id:\"programmablehatches:prog_circuit\",Req:0L,Damage:0s,Cnt:1L,tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Count:0b,Craft:0b},unlockDelay:0,mStoredItemInternalSingle0:{id:\"minecraft:iron_ingot\",Count:0b,Cnt:1L,Req:0L,Damage:0s,Craft:0b},i:4},mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},z:1,textureIndex:0,preventSleep:0,nbtVersion:509054264,mOwnerName:\"\",migrationCircuitSlot:1b,mMuffler:0b,shutDownReasonID:\"simple_result\",mOwnerUuid:\"\",mMultiFluid:0b,mColor:0b,aeInputBuffer:{version:1},mFluid0:{Empty:\"\"},shared:{manualFluidUpgrades:0,fluidCapUpgrades:0,manualItems:{len:0},fluidMEUpgrades:0,itemMEUpgrades:0,infbufUpgrades:0,manualFluids:{len:0},markedItems:{len:0},circuitUpgrades:0,circuitInv:{len:0},markedFluid:{len:0},manualUpgrades:0},program:1b,Inventory:[],mActive:0b,mLockUpgrade:0b,id:\"BaseMetaTileEntity\",shutDownReason:{wasCritical:0b,key:\"none\"},y:1,texturePage:0,CMMode:0b,mRedstone:0b,exinvlen:0,disableFilter:1b,mFacing:4s}"
+        }
+      ],
+      "modifyTileNBT": [
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "aeInputBuffer",
+          "value": "{version:1}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "mFluid0",
+          "value": "{Empty:\"\"}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "BUFFER_0",
+          "value": "{f:1,lock:0b,mStoredItemInternal4:{id:\"gregtech:gt.metaitem.01\",therest:[],Count:0b,ICount:0,Damage:32351s},recipeLocked:1b,mStoredItemInternal0:{id:\"minecraft:iron_ingot\",therest:[],Count:2b,ICount:2,Damage:0s},aeRecipe:1b,mStoredFluidInternal0:{therest:[]},mStoredItemInternalSingle1:{id:\"programmablehatches:prog_circuit\",Req:0L,Damage:0s,Cnt:1L,tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}},Count:0b,Craft:0b},unlockDelay:0,mStoredItemInternalSingle0:{id:\"minecraft:iron_ingot\",Count:0b,Cnt:1L,Req:0L,Damage:0s,Craft:0b},i:4}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "shared",
+          "value": "{manualFluidUpgrades:0,fluidCapUpgrades:0,manualItems:{len:0},fluidMEUpgrades:0,itemMEUpgrades:0,infbufUpgrades:0,manualFluids:{len:0},markedItems:{len:0},circuitUpgrades:0,circuitInv:{len:0},markedFluid:{len:0},manualUpgrades:0}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "path": "shutDownReason",
+          "value": "{wasCritical:0b,key:\"none\"}"
+        }
+      ]
+    },
+    {
+      "time": 760,
+      "labelKey": "proghatches.guide.input.label.bufferResult",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.input.bufferResult",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 900,
+      "labelKey": "proghatches.guide.input.label.done",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.input.done",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    }
+  ]
+}

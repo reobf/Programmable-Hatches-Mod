@@ -40,6 +40,7 @@ import com.hfstudio.guidenh.guide.internal.markdown.MdAstToMdxConverter;
 import com.hfstudio.guidenh.libs.mdast.MdAst;
 import com.hfstudio.guidenh.guide.compiler.ParsedGuidePage;
 import com.hfstudio.guidenh.libs.mdast.model.MdAstParent;
+import com.hfstudio.guidenh.libs.mdast.model.MdAstText;
 import com.hfstudio.guidenh.libs.mdast.mdx.model.MdxJsxElementFields;
 
 import bartworks.system.material.Werkstoff;
@@ -48,17 +49,25 @@ import gregtech.api.GregTechAPI;
 import reobf.proghatches.main.MyMod;
 
 /** The guide pages parse with GuideNH's own parser, and every item, machine, texture and parent they name exists. */
-@GameTestHolder(value = MyMod.MODID, templatePrefix = "chance")
+@GameTestHolder(value = MyMod.MODID, templatePrefix = "chance", requiredMods = {"guidenh"})
 public class GuidePageTests {
 
     private static final String[] LANGUAGES = { "zh_cn", "en_us" };
-    private static final String[] PAGES = { "index.md", "cyclic_patterns.md" };
+    private static final String[] PAGES = {
+        "index.md", "cyclic_patterns.md", "programmed_inputs.md", "chance_sifter.md",
+        "fluid_stocking.md", "large_provider.md", "recipe_map_inputs.md", "stock_control.md",
+        "input_routing.md", "network_tools.md",
+        "ma_routing.md", "assembly_line.md", "smart_arm.md", "special_inputs.md",
+        "crafting_throughput.md", "storage_outputs.md", "tools_upgrades.md", "oc_automation.md",
+        "reactor_control.md", "pattern_submitter.md", "buffer_tuning.md"
+    };
     private static final Set<String> TAGS = new HashSet<>(
         Arrays.asList(
             "ItemLink",
             "ItemImage",
             "FloatingImage",
             "RecipeFor",
+            "RecipeUsage",
             "SubPages",
             "Mermaid",
             "Flowchart",
@@ -75,53 +84,62 @@ public class GuidePageTests {
 
     @GameTest(template = "sifter", timeoutTicks = 100)
     public static void guidePagesParseAndResolve(GameTestHelper helper) {
+        List<String> failures = new ArrayList<>();
         for (String lang : LANGUAGES) for (String page : PAGES) {
             String path = guidePath(MyMod.MODID, lang, page);
-            String source = read(helper, path);
-            ParsedGuidePage parsed = PageCompiler
-                .parse(MyMod.MODID, lang, new ResourceLocation(MyMod.MODID, page), source);
-            helper.assertNull(parsed.getParseFailureMessage(), path + " should parse");
-            FrontmatterNavigation nav = parsed.getFrontmatter()
-                .navigationEntry();
-            helper.assertNotNull(nav, path + " should be in the navigation");
-            if (nav.iconItemId() != null) assertItem(helper, path, nav.iconItemId() + ":" + nav.iconItemMeta());
-            ResourceLocation parent = nav.parent();
-            if (parent != null) helper.assertTrue(
-                exists(guidePath(parent.getResourceDomain(), lang, parent.getResourcePath())),
-                path + ": parent " + parent + " should exist");
-            Object ids = parsed.getFrontmatter()
-                .additionalProperties()
-                .get("item_ids");
-            if (ids instanceof List<?>list) for (Object id : list) assertItem(helper, path, String.valueOf(id));
-            Map<String, Integer> seen = new HashMap<>();
-            walk(helper, path, source, parsed.getAstRoot(), seen);
-            Matcher diagram = MERMAID.matcher(source);
-            while (diagram.find()) {
-                String body = diagram.group(1);
-                String nodes = NODE_CONTENT.matcher(body)
-                    .replaceAll("");
-                Matcher content = NODE_CONTENT.matcher(body);
-                while (content.find()) {
-                    String id = content.group(1);
-                    helper.assertTrue(
-                        Pattern.compile("(?m)^\\s*" + Pattern.quote(id) + "[\\[({]")
-                            .matcher(nodes)
-                            .find(),
-                        path + ": NodeContent " + id + " should match a node of its diagram");
+            try {
+                String source = read(helper, path);
+                Matcher links = Pattern.compile("]\\(([^)#]+\\.md)(?:#[^)]*)?\\)").matcher(source);
+                while (links.find()) helper.assertTrue(
+                    exists(guidePath(MyMod.MODID, lang, links.group(1))), path + ": missing linked page " + links.group(1));
+                ParsedGuidePage parsed = PageCompiler
+                    .parse(MyMod.MODID, lang, new ResourceLocation(MyMod.MODID, page), source);
+                helper.assertNull(parsed.getParseFailureMessage(), path + " should parse");
+                FrontmatterNavigation nav = parsed.getFrontmatter()
+                    .navigationEntry();
+                helper.assertNotNull(nav, path + " should be in the navigation");
+                if (nav.iconItemId() != null) assertItem(helper, path, nav.iconItemId() + ":" + nav.iconItemMeta());
+                ResourceLocation parent = nav.parent();
+                if (parent != null) helper.assertTrue(
+                    exists(guidePath(parent.getResourceDomain(), lang, parent.getResourcePath())),
+                    path + ": parent " + parent + " should exist");
+                Object ids = parsed.getFrontmatter()
+                    .additionalProperties()
+                    .get("item_ids");
+                if (ids instanceof List<?>list) for (Object id : list) assertItem(helper, path, String.valueOf(id));
+                Map<String, Integer> seen = new HashMap<>();
+                walk(helper, path, source, parsed.getAstRoot(), seen);
+                Matcher diagram = MERMAID.matcher(source);
+                while (diagram.find()) {
+                    String body = diagram.group(1);
+                    String nodes = NODE_CONTENT.matcher(body)
+                        .replaceAll("");
+                    Matcher content = NODE_CONTENT.matcher(body);
+                    while (content.find()) {
+                        String id = content.group(1);
+                        helper.assertTrue(
+                            Pattern.compile("(?m)^\\s*" + Pattern.quote(id) + "[\\[({]")
+                                .matcher(nodes)
+                                .find(),
+                            path + ": NodeContent " + id + " should match a node of its diagram");
+                    }
                 }
-            }
-            for (String tag : TAGS) {
-                Matcher m = Pattern.compile("<" + tag + "[\\s/>]")
-                    .matcher(source);
-                int written = 0;
-                while (m.find()) written++;
-                helper.assertTrue(
-                    written == seen.getOrDefault(tag, 0),
-                    path + ": every <" + tag + "> written should be checked, written " + written
-                        + ", checked "
-                        + seen.getOrDefault(tag, 0));
+                for (String tag : TAGS) {
+                    Matcher m = Pattern.compile("<" + tag + "[\\s/>]")
+                        .matcher(source);
+                    int written = 0;
+                    while (m.find()) written++;
+                    helper.assertTrue(
+                        written == seen.getOrDefault(tag, 0),
+                        path + ": every <" + tag + "> written should be checked, written " + written
+                            + ", checked "
+                            + seen.getOrDefault(tag, 0));
+                }
+            } catch (AssertionError | RuntimeException e) {
+                failures.add(path + ": " + e.getMessage());
             }
         }
+        helper.assertTrue(failures.isEmpty(), String.join("\n", failures));
         helper.succeed();
     }
 
@@ -147,6 +165,8 @@ public class GuidePageTests {
     }
 
     private static void walk(GameTestHelper helper, String path, String source, Object node, Map<String, Integer> seen) {
+        if (node instanceof MdAstText text) helper.assertFalse(text.value.contains("**"),
+            path + ": bold markers are shown as text near \"" + text.value.trim() + "\"");
         if (node instanceof MdxJsxElementFields el) {
             checkTag(helper, path, el, seen);
             if ("GameScene".equals(el.name())) {
@@ -170,12 +190,14 @@ public class GuidePageTests {
         if (name == null || name.isEmpty() || Character.isLowerCase(name.charAt(0))) return;
         helper.assertTrue(TAGS.contains(name), path + ": <" + name + "> is outside the tags this guide uses");
         seen.merge(name, 1, Integer::sum);
-        if ("ItemLink".equals(name) || "ItemImage".equals(name) || "RecipeFor".equals(name))
+        boolean recipe = "RecipeFor".equals(name) || "RecipeUsage".equals(name);
+        if ("ItemLink".equals(name) || "ItemImage".equals(name) || recipe)
             assertItem(helper, path, el.getAttributeString("id", ""));
         if ("FlowNode".equals(name) && el.hasAttribute("item"))
             assertItem(helper, path, el.getAttributeString("item", ""));
-        if ("RecipeFor".equals(name) && el.hasAttribute("input"))
-            assertItem(helper, path, el.getAttributeString("input", ""));
+        if (recipe) for (String filter : new String[] { "input", "output" })
+            if (el.hasAttribute(filter)) for (String term : el.getAttributeString(filter, "").split("[,&]"))
+                assertItem(helper, path, term.trim().replaceFirst("^!", ""));
         if ("FloatingImage".equals(name)) {
             String src = el.getAttributeString("src", "");
             int colon = src.indexOf(':');

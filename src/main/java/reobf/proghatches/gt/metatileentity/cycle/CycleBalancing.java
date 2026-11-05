@@ -14,13 +14,15 @@ public final class CycleBalancing<K> {
     private final List<CycleAmount<K>> netOutputs;
     private final List<CycleAmount<K>> surplus;
     private final List<CycleAmount<K>> seeds;
+    private final List<CycleAmount<K>> start;
     private final List<CycleAmount<K>> seedNeed;
+    private final boolean[] growth;
     private final List<K> products;
     private final boolean publishable;
 
     CycleBalancing(long[] runs, int[] patternIds, List<CycleAmount<K>> netInputs, List<CycleAmount<K>> netOutputs,
-        List<CycleAmount<K>> surplus, List<CycleAmount<K>> seeds, List<CycleAmount<K>> seedNeed, List<K> products,
-        boolean publishable) {
+        List<CycleAmount<K>> surplus, List<CycleAmount<K>> seeds, List<CycleAmount<K>> start,
+        List<CycleAmount<K>> seedNeed, boolean[] growth, List<K> products, boolean publishable) {
         this.runs = runs.clone();
         this.patternIds = patternIds.clone();
         long sum = 0;
@@ -30,7 +32,9 @@ public final class CycleBalancing<K> {
         this.netOutputs = copy(netOutputs);
         this.surplus = copy(surplus);
         this.seeds = copy(seeds);
+        this.start = copy(start);
         this.seedNeed = copy(seedNeed);
+        this.growth = growth.clone();
         this.products = copy(products);
         this.publishable = publishable;
     }
@@ -67,8 +71,21 @@ public final class CycleBalancing<K> {
         return seeds;
     }
 
+    public List<CycleAmount<K>> getStart() {
+        return start;
+    }
+
     public List<CycleAmount<K>> getSeedNeed() {
         return seedNeed;
+    }
+
+    public boolean isGrowth(int member) {
+        return growth[member];
+    }
+
+    public boolean hasGrowth() {
+        for (int i = 0; i < growth.length; i++) if (growth[i] && runs[i] > 0) return true;
+        return false;
     }
 
     public List<K> getProducts() {
@@ -82,6 +99,7 @@ public final class CycleBalancing<K> {
     @Override
     public String toString() {
         return "runs=" + Arrays.toString(runs) + " products=" + products + " in=" + netInputs + " out=" + netOutputs
-            + " surplus=" + surplus + " seeds=" + seeds + " need=" + seedNeed + (publishable ? "" : " (unpublished)");
+            + " surplus=" + surplus + " seeds=" + seeds + " start=" + start + " need=" + seedNeed + " growth="
+            + Arrays.toString(growth) + (publishable ? "" : " (unpublished)");
     }
 }

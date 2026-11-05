@@ -24,6 +24,14 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.cleanroommc.modularui.factory.PosGuiData;
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.UISettings;
+import com.cleanroommc.modularui.utils.item.ItemStackHandler;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.widgets.slot.ItemSlot;
+import com.cleanroommc.modularui.widgets.slot.ModularSlot;
+
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
@@ -57,7 +65,7 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.item.AEItemStack;
 import gregtech.api.GregTechAPI;
-import gregtech.api.gui.modularui.GTUIInfos;
+import gregtech.api.modularui2.GTGuis;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.modularui.IAddUIWidgets;
@@ -586,8 +594,32 @@ public class ProgrammingCircuitProvider extends MTEHatch implements IAddUIWidget
 
     @Override
     public boolean onRightclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
-        GTUIInfos.openGTTileEntityUI(aBaseMetaTileEntity, aPlayer);
+        openGui(aPlayer);
         return true;
+    }
+
+    @Override
+    protected boolean useMui2() {
+        return true;
+    }
+
+    @Override
+    public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings) {
+        ModularPanel panel = GTGuis.mteTemplatePanelBuilder(this, data, syncManager, uiSettings)
+            .doesAddGregTechLogo(false).build();
+        ItemStackHandler templates = new ItemStackHandler(mInventory) {
+            @Override
+            protected void onContentsChanged(int slot) {
+                if (getBaseMetaTileEntity().isServerSide()) ProgrammingCircuitProvider.this.markDirty();
+            }
+        };
+        syncManager.registerSlotGroup("provider_templates", 4);
+        for (int i = 0; i < mInventory.length; i++) {
+            panel.child(new ItemSlot().name("provider_template_" + i)
+                .slot(new ModularSlot(templates, i).slotGroup("provider_templates"))
+                .pos(7 + (i % 4) * 18, 18 + (i / 4) * 18));
+        }
+        return panel;
     }
 
     @Override

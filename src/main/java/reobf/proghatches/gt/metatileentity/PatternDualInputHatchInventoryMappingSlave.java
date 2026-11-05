@@ -1390,63 +1390,11 @@ public boolean playerConfigClient;
     boolean normalopt;
     @Override
 	public void optimize(ItemStackMap<Pair<Object, Integer>> lookupMap) {
-		IInventory patternInv = this.getPatterns();
-
-		for (int i = 0; i < patternInv.getSizeInventory(); i++) {
-			ItemStack stack = patternInv.getStackInSlot(i);
-
-			if (stack == null) {
-				continue;
-			}
-			if(multiplier[i]>1){
-				stack=new PatternDualInputHatch.DA(
-						((ICraftingPatternItem)stack.getItem()).getPatternForItem(stack,this.getBaseMetaTileEntity().getWorld())
-						, multiplier[i]).getPattern();
-			}
-			/*if ((stack.getItem() instanceof ItemFakePattern) && (stack.hasTagCompound() == true)
-					&& (3 == stack.getTagCompound().getInteger("type"))) {
-				PatternDualInputHatch.DA parent = (DA) ((ItemFakePattern) stack.getItem()).getPatternForItem(stack,
-						null);
-				ICraftingPatternDetails wrapped = parent.p;
-
-				stack = wrapped.getPattern();
-			}*/
-			
-			
-
-			Pair<Object, Integer> pair = lookupMap.get(stack);
-			if (pair == null)
-				continue;
-			Integer bitMultiplier = pair.getValue();
-			if (bitMultiplier == 0)
-				return;
-			boolean isDividing = false;
-			if (bitMultiplier < 0) {
-				isDividing = true;
-				bitMultiplier = -bitMultiplier;
-			}
-			
-			if(normalopt) {
-				 PatternMultiplierHelper.applyModification(stack, bitMultiplier);
-				 patternInv.setInventorySlotContents(i, stack);
-			}
-			else {
-			multiplier[i] = isDividing ? multiplier[i] >> bitMultiplier : multiplier[i] << bitMultiplier;
-			if (multiplier[i] <= 0) {
-				multiplier[i] = 1;
-			}
-			}
-			markDirty();
-			onPatternChange(); 
-			refresh();
-			/*
-			 * ItemStack sCopy = sdtack.copy();
-			 * pair.getKey().applyModification(sCopy, pair.getValue());
-			 * patternInv.setInventorySlotContents(i, sCopy);
-			 */
-
-		}
-
+		if (!PatternDualInputHatch.optimizePatterns(getPatterns(), multiplier, normalopt,
+			getBaseMetaTileEntity().getWorld(), lookupMap)) return;
+		markDirty();
+		onPatternChange();
+		refresh();
 	}
     @Override
 	public void blacklist(ItemStackSet black) {

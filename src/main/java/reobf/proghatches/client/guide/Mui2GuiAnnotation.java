@@ -8,12 +8,14 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL30;
 
+import com.cleanroommc.modularui.api.IGuiHolder;
 import com.cleanroommc.modularui.screen.viewport.GuiContext;
 import com.hfstudio.guidenh.guide.document.LytRect;
 import com.hfstudio.guidenh.guide.render.RenderContext;
@@ -23,35 +25,34 @@ import com.hfstudio.guidenh.guide.scene.LytGuidebookScene;
 import com.hfstudio.guidenh.guide.scene.annotation.OverlayAnnotation;
 
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import reobf.proghatches.gt.metatileentity.CyclicPatternDualInputHatch;
-import reobf.proghatches.gt.metatileentity.CyclicPatternGuiPreview;
-import reobf.proghatches.gt.metatileentity.CyclicPatternGuiPreview.Click;
-import reobf.proghatches.gt.metatileentity.CyclicPatternGuiPreview.View;
+import reobf.proghatches.client.guide.Mui2GuiPreview.Click;
+import reobf.proghatches.client.guide.Mui2GuiPreview.View;
 import reobf.proghatches.main.MyMod;
 
 public final class Mui2GuiAnnotation extends OverlayAnnotation {
 
     private final LytGuidebookScene scene;
     private final int x, y, z, from, to;
-    private final String page;
     private final float scale;
     private final boolean showMain;
+    private final net.minecraftforge.common.util.ForgeDirection partSide;
     private final List<Click> clicks;
     private final GuiContext tooltipContext = new GuiContext();
     private int lastTick = -1;
-    private CyclicPatternGuiPreview preview;
+    private Mui2GuiPreview preview;
+    private View view;
     private TileEntity boundTile;
     private NBTTagCompound boundState;
     private boolean failed;
 
-    Mui2GuiAnnotation(LytGuidebookScene scene, int x, int y, int z, int from, int to, String page, float scale, boolean showMain, List<Click> clicks) {
+    Mui2GuiAnnotation(LytGuidebookScene scene, int x, int y, int z, int from, int to, float scale, boolean showMain, List<Click> clicks, net.minecraftforge.common.util.ForgeDirection partSide) {
         this.scene = scene;
+        this.partSide = partSide;
         this.x = x;
         this.y = y;
         this.z = z;
         this.from = from;
         this.to = to;
-        this.page = page;
         this.scale = scale;
         this.showMain = showMain;
         this.clicks = clicks;
@@ -68,9 +69,8 @@ public final class Mui2GuiAnnotation extends OverlayAnnotation {
 
     @Override
     public LytRect getBoundingRect(CameraSettings camera, LytRect viewport) {
-        if (!visible() || preview == null) return new LytRect(viewport.x(), viewport.y(), 0, 0);
-        View view = preview.view(showMain);
-        if (view.width() == 0) return new LytRect(viewport.x(), viewport.y(), 0, 0);
+        if (!visible() || preview == null || view == null || preview.bounds(showMain) == null)
+            return new LytRect(viewport.x(), viewport.y(), 0, 0);
         float fit = Math.min(scale, Math.min((viewport.width() - 16f) / view.width(),
             (viewport.height() - 16f) / view.height()));
         int w = Math.max(1, Math.round(view.width() * fit));
@@ -87,7 +87,8 @@ public final class Mui2GuiAnnotation extends OverlayAnnotation {
         if (failed) return;
         try {
             TileEntity tile = scene.getLevel().getTileEntity(x, y, z);
-            if (!(tile instanceof IGregTechTileEntity gt) || !(gt.getMetaTileEntity() instanceof CyclicPatternDualInputHatch)) {
+            if (!(tile instanceof IGregTechTileEntity) && !(tile instanceof IGuiHolder<?>)
+                && !(partSide != net.minecraftforge.common.util.ForgeDirection.UNKNOWN && tile instanceof appeng.api.parts.IPartHost)) {
                 release();
                 return;
             }
@@ -96,7 +97,9 @@ public final class Mui2GuiAnnotation extends OverlayAnnotation {
             int tick = scene.getPonderCurrentTickForExport();
             if (preview == null || tile != boundTile || !nbt.equals(boundState) || tick < lastTick) {
                 release();
-                preview = new CyclicPatternGuiPreview(scene.getLevel().getOrCreateFakeWorld(), nbt, page);
+                World world = scene.getLevel().getOrCreateFakeWorld();
+                if (view == null) view = Mui2GuiPreview.measure(world, nbt, clicks, showMain, partSide);
+                preview = new Mui2GuiPreview(world, nbt, partSide);
                 boundTile = tile;
                 boundState = nbt;
             }
@@ -104,7 +107,6 @@ public final class Mui2GuiAnnotation extends OverlayAnnotation {
             lastTick = tick;
             LytRect rect = getBoundingRect(camera, viewport);
             if (rect.width() == 0) return;
-            View view = preview.view(showMain);
             LytRect zero = context.toScreenRect(new LytRect(0, 0, 1, 1));
             float zoom = context instanceof VanillaRenderContext v ? v.getZoom() : 1;
             LytRect screenRect = rect;

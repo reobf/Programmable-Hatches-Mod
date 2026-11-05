@@ -44,7 +44,6 @@ import com.cleanroommc.modularui.drawable.DynamicDrawable;
 import com.cleanroommc.modularui.drawable.GuiDraw;
 import com.cleanroommc.modularui.drawable.GuiTextures;
 import com.cleanroommc.modularui.drawable.ItemDrawable;
-import com.cleanroommc.modularui.drawable.Rectangle;
 import com.cleanroommc.modularui.drawable.UITexture;
 import com.cleanroommc.modularui.screen.RichTooltip;
 import com.cleanroommc.modularui.screen.viewport.ModularGuiContext;
@@ -195,6 +194,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
     int cycMultiplier = 1;
     boolean autoSeed = true;
     int autoSeedMult = 1, autoSeedChanceMult = 4;
+    int growthPercent = 50;
     final int[] groupEnd = { 9, 18, 27 };
 
     @SuppressWarnings("unchecked")
@@ -203,6 +203,8 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
     final ItemStack[] analysedPattern = new ItemStack[36];
     @SuppressWarnings("unchecked")
     List<IAEStack<?>>[] memberRuns = new List[36];
+    @SuppressWarnings("unchecked")
+    List<CycleAmount<SKey>>[] memberIn = new List[36], memberOut = new List[36];
     boolean analysisDirty = true;
     long nextAnalysisTick;
     ICraftingPatternDetails[] published = {};
@@ -278,6 +280,8 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
 
         long stock;
         long owed;
+        long flight;
+        long borrowed;
     }
 
     static final class CycSetting {
@@ -301,13 +305,43 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         /** The marked pattern the run belongs to, so the hatch that takes it books the copies; null when unmarked. */
         final ItemStack pattern;
         ICraftingPatternDetails details;
+        final boolean growth;
+        final List<CycleAmount<SKey>> seed, yield;
+        final String batch;
 
         Dose(List<IAEStack<?>> run, long runs, int lane, ItemStack pattern, boolean circuitsPaid) {
+            this(run, runs, lane, pattern, circuitsPaid, false, null, null, null);
+        }
+
+        Dose(List<IAEStack<?>> run, long runs, int lane, ItemStack pattern, boolean circuitsPaid, boolean growth,
+            List<CycleAmount<SKey>> seed, List<CycleAmount<SKey>> yield, String batch) {
             this.run = run;
             this.runs = runs;
             this.lane = lane;
             this.pattern = pattern;
             this.circuitsPaid = circuitsPaid;
+            this.growth = growth;
+            this.seed = seed;
+            this.yield = yield;
+            this.batch = batch;
+        }
+
+        boolean sameWork(Dose o) {
+            if (lane != o.lane || circuitsPaid != o.circuitsPaid || growth != o.growth || run.size() != o.run.size()
+                || !ItemStack.areItemStacksEqual(pattern, o.pattern)
+                || !java.util.Objects.equals(batch, o.batch)
+                || !java.util.Objects.equals(seed, o.seed)
+                || !java.util.Objects.equals(yield, o.yield)) return false;
+            for (int i = 0; i < run.size(); i++) {
+                IAEStack<?> a = run.get(i), b = o.run.get(i);
+                if (!a.equals(b) || a.getStackSize() != b.getStackSize()) return false;
+            }
+            return true;
+        }
+
+        boolean pays(SKey k) {
+            if (seed != null) for (CycleAmount<SKey> c : seed) if (c.key.equals(k)) return true;
+            return false;
         }
     }
 
@@ -319,15 +353,27 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         final List<IAEStack<?>>[] memberRun;
         final int[] memberLane;
         final ItemStack[] memberPattern;
+        final List<CycleAmount<SKey>>[] memberSeed, memberYield;
+        final List<CycleAmount<SKey>> cyclicInputs;
+        final String batch;
 
         BalRef(int group, CycleBalancing<SKey> bal, List<IAEStack<?>>[] memberRun, int[] memberLane,
-            ItemStack[] memberPattern, List<CycleAmount<SKey>> inputs) {
+            ItemStack[] memberPattern, List<CycleAmount<SKey>> inputs, List<CycleAmount<SKey>>[] memberSeed,
+            List<CycleAmount<SKey>>[] memberYield, List<CycleAmount<SKey>> cyclicInputs) {
             this.group = group;
             this.bal = bal;
             this.inputs = inputs;
             this.memberRun = memberRun;
             this.memberLane = memberLane;
             this.memberPattern = memberPattern;
+            this.memberSeed = memberSeed;
+            this.memberYield = memberYield;
+            this.cyclicInputs = cyclicInputs;
+            batch = group + "/" + join(bal.getPatternIds()) + "/" + join(bal.getRuns());
+        }
+
+        boolean ahead() {
+            return bal.hasGrowth();
         }
     }
 
@@ -352,6 +398,12 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
             else parts.add(PushStaging.Part.item(((IAEItemStack) s).getItemStack(), s.getStackSize()));
         }
         return parts;
+    }
+
+    static List<CycleAmount<SKey>> cyclicPart(List<CycleAmount<SKey>> amounts, Set<SKey> cyclic) {
+        List<CycleAmount<SKey>> ret = new ArrayList<>();
+        if (amounts != null) for (CycleAmount<SKey> c : amounts) if (cyclic.contains(c.key)) ret.add(c);
+        return List.copyOf(ret);
     }
 
     private static List<CycleAmount<SKey>> toAmounts(IAEStack<?>[] arr) {
@@ -503,10 +555,12 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
             }
             if (laneBadSince[l] == 0) laneBadSince[l] = now;
             else if (now - laneBadSince[l] >= 200) {
+                Set<String> batches = new HashSet<>();
+                for (Dose d : doses) if (d.lane == l && d.batch != null) batches.add(d.batch);
                 List<Dose> stranded = new ArrayList<>();
                 for (Iterator<Dose> it = doses.iterator(); it.hasNext();) {
                     Dose d = it.next();
-                    if (d.lane == l) {
+                    if (d.lane == l || d.batch != null && batches.contains(d.batch)) {
                         stranded.add(d);
                         it.remove();
                     }
@@ -517,6 +571,20 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 markDirty();
             }
         }
+    }
+
+    void abortBatches(Set<String> batches) {
+        if (batches.isEmpty()) return;
+        List<Dose> drop = new ArrayList<>();
+        for (Iterator<Dose> it = doses.iterator(); it.hasNext();) {
+            Dose d = it.next();
+            if (d.batch != null && batches.contains(d.batch)) {
+                drop.add(d);
+                it.remove();
+            }
+        }
+        for (Dose d : drop) refundDose(d);
+        markDirty();
     }
 
     private NBTTagList writeLaneOffsets() {
@@ -683,6 +751,8 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
     void startAnalysis() {
         World w = getBaseMetaTileEntity().getWorld();
         Arrays.fill(memberRuns, null);
+        Arrays.fill(memberIn, null);
+        Arrays.fill(memberOut, null);
         AnalysisRun ar = new AnalysisRun();
         ar.withdrawn = analysisRun != null && analysisRun.withdrawn;
         for (int g = 0; g < GROUPS; g++) {
@@ -738,6 +808,8 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                     continue;
                 }
                 memberRuns[s] = run;
+                memberIn[s] = in;
+                memberOut[s] = out;
                 for (CycleAmount<SKey> c : in) consumed.add(c.key);
                 for (CycleAmount<SKey> c : out) produced.add(c.key);
             }
@@ -835,7 +907,15 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                     det = ((ICraftingPatternItem) ps.getItem()).getPatternForItem(ps, w);
                 } catch (Exception ignored) {}
                 if (det == null || lookup.containsKey(det)) continue;
-                lookup.put(det, new BalRef(g, bal, mr, lanes, mp, inputs));
+                Set<SKey> cyc = new HashSet<>(analysis[g].getCyclic());
+                @SuppressWarnings("unchecked")
+                List<CycleAmount<SKey>>[] seedOf = new List[ids.length], yieldOf = new List[ids.length];
+                for (int j = 0; j < ids.length; j++) {
+                    seedOf[j] = cyclicPart(memberIn[ids[j]], cyc);
+                    yieldOf[j] = cyclicPart(memberOut[ids[j]], cyc);
+                }
+                lookup.put(det, new BalRef(g, bal, mr, lanes, mp, inputs, seedOf, yieldOf,
+                    cyclicPart(bal.getNetInputs(), cyc)));
                 list.add(det);
             }
         }
@@ -942,22 +1022,24 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         if (!getBaseMetaTileEntity().isServerSide()) return false;
         BalRef ref = lookup.get(RecipeFilterCRIB.basePattern(details));
         if (ref == null) return false;
-        if (!doses.isEmpty() || !isInputEmpty()) return false;
+        boolean ahead = growthPercent > 0 && ref.ahead();
+        if (!isInputEmpty() || !ahead && !doses.isEmpty()) return false;
         long k = copiesFromTable(table, ref.inputs);
         if (k <= 0) return false;
-        List<CycleAmount<SKey>> seedList = ref.bal.getSeeds();
-        long[] need = new long[seedList.size()];
-        SeedState[] states = new SeedState[seedList.size()];
+        Ledger ledger = ahead ? new Ledger() : null;
+        Map<SKey, Long> owe = new LinkedHashMap<>(), supplied = new LinkedHashMap<>();
         List<Dose> add = new ArrayList<>();
         try {
-            for (int i = 0; i < need.length; i++) {
-                CycleAmount<SKey> sd = seedList.get(i);
-                need[i] = Math.multiplyExact(sd.amount, k);
-                SeedState st = seeds.get(sd.key);
-                if (st == null || st.stock < need[i]) return false;
-                Math.addExact(st.owed, need[i]);
-                states[i] = st;
+            for (CycleAmount<SKey> c : ref.bal.getStart()) {
+                SeedState st = seeds.get(c.key);
+                if (ahead ? ledger.held(c.key) < c.amount
+                    : st == null || st.stock < Math.multiplyExact(c.amount, k)) return false;
             }
+            for (CycleAmount<SKey> c : ref.bal.getSeeds()) {
+                SeedState st = seeds.get(c.key);
+                owe.put(c.key, Math.addExact(st == null ? 0 : st.owed, Math.multiplyExact(c.amount, k)));
+            }
+            for (CycleAmount<SKey> c : ref.cyclicInputs) supplied.put(c.key, Math.multiplyExact(c.amount, k));
             long[] runs = ref.bal.getRuns();
             for (int j = 0; j < runs.length; j++) {
                 if (runs[j] <= 0 || ref.memberLane[j] == 0) continue;
@@ -965,22 +1047,29 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 if (t == null || t.stageParts(toParts(runFor(t, ref.memberRun[j]))) == null) return false;
             }
             for (int j = 0; j < runs.length; j++) {
-                if (runs[j] > 0) add.add(
-                    new Dose(ref.memberRun[j], Math.multiplyExact(runs[j], k), ref.memberLane[j], ref.memberPattern[j], true));
+                if (runs[j] > 0) add.add(new Dose(ref.memberRun[j], Math.multiplyExact(runs[j], k), ref.memberLane[j],
+                    ref.memberPattern[j], true, ref.bal.isGrowth(j), ref.memberSeed[j], ref.memberYield[j], ref.batch));
             }
         } catch (ArithmeticException e) {
             return false;
         }
-        for (int i = 0; i < need.length; i++) {
-            states[i].stock -= need[i];
-            states[i].owed += need[i];
-        }
-        doses.addAll(add);
+        for (Map.Entry<SKey, Long> e : owe.entrySet())
+            seeds.computeIfAbsent(e.getKey(), x -> new SeedState()).owed = e.getValue();
+        for (Map.Entry<SKey, Long> e : supplied.entrySet()) addStock(e.getKey(), e.getValue());
+        for (Dose d : add) queue(d);
         recountOwed();
         markDirty();
         registerInterceptor();
         drainDoses();
         return true;
+    }
+
+    void queue(Dose d) {
+        for (Dose o : doses) if (o.sameWork(d) && o.runs <= Long.MAX_VALUE - d.runs) {
+            o.runs += d.runs;
+            return;
+        }
+        doses.add(d);
     }
 
     @Override
@@ -990,7 +1079,78 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
 
     @Override
     public boolean isBusy() {
-        return !isInputEmpty() || !doses.isEmpty();
+        return !isInputEmpty() || !doses.isEmpty() && !acceptsAhead();
+    }
+
+    boolean acceptsAhead() {
+        if (growthPercent <= 0) return false;
+        for (BalRef r : lookup.values()) if (r.ahead()) return true;
+        return false;
+    }
+
+    static int clampPercent(int v) {
+        return Math.max(0, Math.min(100, v));
+    }
+
+    static long satAdd(long a, long b) {
+        return a > Long.MAX_VALUE - b ? Long.MAX_VALUE : a + b;
+    }
+
+    static long satMul(long a, long b) {
+        return a == 0 || b <= Long.MAX_VALUE / a ? a * b : Long.MAX_VALUE;
+    }
+
+    static long amountOf(List<CycleAmount<SKey>> list, SKey k) {
+        if (list != null) for (CycleAmount<SKey> c : list) if (c.key.equals(k)) return c.amount;
+        return 0;
+    }
+
+    final class Ledger {
+
+        final Map<SKey, Long> pending = new HashMap<>(), dynamic = new HashMap<>();
+
+        Ledger() {
+            Map<SKey, Long> use = new HashMap<>(), give = new HashMap<>();
+            for (Dose d : doses) {
+                if (d.seed == null) continue;
+                for (CycleAmount<SKey> c : d.seed)
+                    pending.merge(c.key, satMul(c.amount, d.runs), CyclicPatternDualInputHatch::satAdd);
+                if (d.growth) continue;
+                for (CycleAmount<SKey> c : d.seed)
+                    use.merge(c.key, satMul(c.amount, d.runs), CyclicPatternDualInputHatch::satAdd);
+                for (CycleAmount<SKey> c : d.yield)
+                    give.merge(c.key, satMul(c.amount, d.runs), CyclicPatternDualInputHatch::satAdd);
+            }
+            for (Map.Entry<SKey, Long> e : use.entrySet()) {
+                long net = e.getValue() - give.getOrDefault(e.getKey(), 0L);
+                if (net > 0) dynamic.put(
+                    e.getKey(),
+                    net > Long.MAX_VALUE / 100 ? net / 100 * growthPercent : net * growthPercent / 100);
+            }
+        }
+
+        long pending(SKey k) {
+            return pending.getOrDefault(k, 0L);
+        }
+
+        long target(SKey k) {
+            return dynamic.getOrDefault(k, 0L);
+        }
+
+        long held(SKey k) {
+            SeedState st = seeds.get(k);
+            return (st == null ? 0 : satAdd(st.stock, st.owed)) - pending(k);
+        }
+
+        long excess(SKey k) {
+            SeedState st = seeds.get(k);
+            return (st == null ? 0 : satAdd(st.stock, Math.min(st.flight, st.owed))) - held(k);
+        }
+
+        long room(SKey k) {
+            long t = target(k), e = excess(k);
+            return e < 0 ? satAdd(t, e == Long.MIN_VALUE ? Long.MAX_VALUE : -e) : t - e;
+        }
     }
 
     long copiesFromTable(InventoryCrafting table, List<CycleAmount<SKey>> base) {
@@ -1038,7 +1198,6 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
     /** Hands queued doses to their lane's hatch; a lane that cannot take more keeps its doses in order. */
     void drainDoses() {
         if (doses.isEmpty()) return;
-        Set<Integer> blocked = new HashSet<>();
         boolean changed = false;
         for (Iterator<Dose> it = doses.iterator(); it.hasNext();) {
             Dose d = it.next();
@@ -1047,34 +1206,123 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 refundDose(d);
                 MyMod.LOG.warn("Refunded a legacy cyclic dose whose programming circuits were not supplied");
                 changed = true;
+            }
+        }
+        Set<String> hold = new HashSet<>(), unfit = new HashSet<>();
+        for (Dose d : doses) {
+            if (d.batch == null) continue;
+            BufferedDualInputHatch t = d.lane == 0 ? this : laneHatch(d.lane);
+            if (t == null) {
+                hold.add(d.batch);
                 continue;
             }
-            if (blocked.contains(d.lane)) continue;
+            List<IAEStack<?>> run = runFor(t, d.run);
+            if (!run.isEmpty() && t.stageParts(toParts(run)) == null) unfit.add(d.batch);
+        }
+        if (!unfit.isEmpty()) {
+            MyMod.LOG.warn("cyclic doses do not fit the input slots of their lanes, refunded the rounds of " + unfit);
+            abortBatches(unfit);
+            changed = true;
+        }
+        Map<SKey, Long> reserve = new HashMap<>();
+        boolean others = false;
+        for (Dose d : doses) {
+            if (!d.growth) others = true;
+            else if (d.seed != null) for (CycleAmount<SKey> c : d.seed) reserve.merge(c.key, c.amount, Math::max);
+        }
+        Map<SKey, Long> room = null;
+        if (growthPercent > 0) {
+            Ledger l = new Ledger();
+            room = new HashMap<>();
+            for (Dose d : doses) if (d.growth && d.yield != null) for (CycleAmount<SKey> c : d.yield)
+                room.computeIfAbsent(c.key, l::room);
+        }
+        boolean[] starved = { false };
+        Set<String> aborted = new HashSet<>();
+        int handed = handOut(true, room, null, null, hold, aborted);
+        handed += handOut(false, null, reserve, starved, hold, aborted);
+        if (room != null && handed == 0 && (starved[0] || !others))
+            handed += handOut(true, null, null, null, hold, aborted);
+        abortBatches(aborted);
+        if (changed || handed > 0) markDirty();
+    }
+
+    private int handOut(boolean growth, Map<SKey, Long> room, Map<SKey, Long> reserve, boolean[] starved,
+        Set<String> hold, Set<String> aborted) {
+        Set<Integer> blocked = new HashSet<>();
+        int handed = 0;
+        for (Iterator<Dose> it = doses.iterator(); it.hasNext();) {
+            Dose d = it.next();
+            if (d.growth != growth || blocked.contains(d.lane) || d.batch != null && hold.contains(d.batch)) continue;
+            long want = Math.min(d.runs, afford(d, reserve));
+            if (want <= 0) {
+                if (starved != null) starved[0] = true;
+                continue;
+            }
+            if (room != null) want = Math.min(want, roomFor(d, room));
+            if (want <= 0) continue;
             BufferedDualInputHatch t = d.lane == 0 ? this : laneHatch(d.lane);
             long taken = 0;
             if (t != null) {
                 List<IAEStack<?>> run = runFor(t, d.run);
-                taken = run.isEmpty() ? d.runs : t.takeRuns(toParts(run), d.runs, doseDetails(d));
+                taken = run.isEmpty() ? want : t.takeRuns(toParts(run), want, doseDetails(d));
             }
             if (taken < 0) {
                 MyMod.LOG.warn("cyclic dose does not fit the input slots of lane " + d.lane + ", refunded");
                 it.remove();
                 refundDose(d);
-                changed = true;
-                continue;
-            }
-            if (taken >= d.runs) {
-                it.remove();
-                changed = true;
+                if (d.batch != null) {
+                    aborted.add(d.batch);
+                    hold.add(d.batch);
+                }
+                handed++;
                 continue;
             }
             if (taken > 0) {
+                pay(d, taken, room);
                 d.runs -= taken;
-                changed = true;
+                if (d.runs <= 0) it.remove();
+                handed++;
             }
-            blocked.add(d.lane);
+            if (taken < want) blocked.add(d.lane);
         }
-        if (changed) markDirty();
+        return handed;
+    }
+
+    private long afford(Dose d, Map<SKey, Long> reserve) {
+        long n = Long.MAX_VALUE;
+        if (d.seed != null) for (CycleAmount<SKey> c : d.seed) {
+            SeedState st = seeds.get(c.key);
+            long have = st == null ? 0 : st.stock;
+            if (reserve != null) have -= reserve.getOrDefault(c.key, 0L);
+            n = Math.min(n, Math.max(0, have) / c.amount);
+        }
+        return n;
+    }
+
+    private static long roomFor(Dose d, Map<SKey, Long> room) {
+        long n = 0;
+        for (CycleAmount<SKey> c : d.yield) {
+            long gain = c.amount - amountOf(d.seed, c.key), r = room.getOrDefault(c.key, 0L);
+            if (gain > 0 && r > 0) n = Math.max(n, r / gain + (r % gain == 0 ? 0 : 1));
+        }
+        return n;
+    }
+
+    private void pay(Dose d, long runs, Map<SKey, Long> room) {
+        if (d.seed != null) for (CycleAmount<SKey> c : d.seed) seeds.get(c.key).stock -= c.amount * runs;
+        if (d.yield == null) return;
+        for (CycleAmount<SKey> c : d.yield) {
+            SeedState st = seeds.computeIfAbsent(c.key, x -> new SeedState());
+            st.flight = satAdd(st.flight, satMul(c.amount, runs));
+            long gain = c.amount - amountOf(d.seed, c.key);
+            if (d.growth && room != null && gain > 0)
+                room.computeIfPresent(c.key, (x, r) -> Math.max(0, r) - satMul(gain, runs));
+        }
+    }
+
+    boolean hasDoses() {
+        return !doses.isEmpty();
     }
 
     @Override
@@ -1270,7 +1518,11 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
     final SeedInput seedInput = new SeedInput();
 
     private void insertOrKeep(SKey key, long amount) {
-        if (amount <= 0) return;
+        addStock(key, insertToMe(key, amount));
+    }
+
+    private long insertToMe(SKey key, long amount) {
+        if (amount <= 0) return 0;
         long rest = amount;
         selfIo = true;
         try {
@@ -1290,7 +1542,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         } catch (GridAccessException ignored) {} finally {
             selfIo = false;
         }
-        addStock(key, rest);
+        return rest;
     }
 
     void refundDose(Dose d) {
@@ -1299,7 +1551,16 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
             long amount = doseAmount(s, d.runs);
             SKey key = SKey.of(s);
             SeedState st = seeds.get(key);
-            if (st != null && st.owed > 0) {
+            if (d.pays(key)) {
+                if (st == null) continue;
+                long cut = Math.min(st.owed, amount);
+                st.owed -= cut;
+                long kept = Math.min(st.stock, amount - cut);
+                st.stock -= kept;
+                insertOrKeep(key, kept);
+                continue;
+            }
+            if (d.seed == null && st != null && st.owed > 0) {
                 long back = Math.min(st.owed, amount);
                 st.owed -= back;
                 addStock(key, back);
@@ -1334,6 +1595,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
             if (type == Actionable.MODULATE) {
                 st.owed -= take;
                 st.stock += take;
+                st.flight = Math.max(0, st.flight - take);
                 recountOwed();
                 markDirty();
             }
@@ -1380,9 +1642,9 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
 
     void recountOwed() {
         boolean any = false;
-        for (SeedState s : seeds.values()) if (s.owed > 0) {
-            any = true;
-            break;
+        for (SeedState s : seeds.values()) {
+            if (s.owed > 0) any = true;
+            else s.flight = 0;
         }
         hasOwed = any;
     }
@@ -1462,16 +1724,16 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
 
     void syncSeeds() {
         if (!getBaseMetaTileEntity().isServerSide() || !getProxy().isActive()) return;
+        Ledger l = new Ledger();
         Set<SKey> keys = new LinkedHashSet<>(seeds.keySet());
         keys.addAll(cyclicKeys());
         for (SKey k : keys) {
             SeedState st = seeds.get(k);
-            long stock = st == null ? 0 : st.stock, owed = st == null ? 0 : st.owed;
-            long have = stock > Long.MAX_VALUE - owed ? Long.MAX_VALUE : stock + owed;
-            long want = effectiveTarget(k);
+            long have = l.held(k), want = effectiveTarget(k), top = Math.max(want, l.target(k));
             if (have < want) pullSeed(k, want - have);
-            else if (have > want && stock > 0) {
-                long n = Math.min(stock, have - want);
+            else if (have > top && st != null) {
+                long n = Math.min(have - top, st.stock - l.pending(k));
+                if (n <= 0) continue;
                 st.stock -= n;
                 insertOrKeep(k, n);
             }
@@ -1480,7 +1742,41 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         markDirty();
     }
 
-    private void pullSeed(SKey k, long n) {
+    void balanceBorrowed() {
+        if (!getBaseMetaTileEntity().isServerSide() || !getProxy().isActive()) return;
+        Ledger l = new Ledger();
+        Set<SKey> keys = new LinkedHashSet<>(l.dynamic.keySet());
+        for (Map.Entry<SKey, SeedState> e : seeds.entrySet()) if (e.getValue().borrowed > 0) keys.add(e.getKey());
+        boolean changed = false;
+        for (SKey k : keys) {
+            long base = effectiveTarget(k), want = Math.max(base, l.target(k)), held = l.held(k);
+            if (want > base && held < want) {
+                long got = pullSeed(k, want - held);
+                if (got <= 0) continue;
+                SeedState st = seeds.get(k);
+                st.borrowed = satAdd(st.borrowed, got);
+                changed = true;
+                continue;
+            }
+            SeedState st = seeds.get(k);
+            if (st == null || st.borrowed <= 0) continue;
+            long n = Math.min(Math.min(st.borrowed, held - want), st.stock - l.pending(k));
+            if (n > 0) {
+                long rest = insertToMe(k, n);
+                st.stock -= n - rest;
+                st.borrowed -= n - rest;
+                changed |= rest < n;
+            }
+            long keep = Math.min(st.borrowed, Math.max(0, l.held(k) - base));
+            changed |= keep != st.borrowed;
+            st.borrowed = keep;
+        }
+        if (!changed) return;
+        uiCacheTick = -1;
+        markDirty();
+    }
+
+    private long pullSeed(SKey k, long n) {
         selfIo = true;
         try {
             IStorageGrid sg = getProxy().getStorage();
@@ -1495,43 +1791,34 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 sg.getItemInventory(),
                 (IAEItemStack) k.toAE(n),
                 seedSource());
-            if (got != null && got.getStackSize() > 0) addStock(k, got.getStackSize());
+            if (got != null && got.getStackSize() > 0) {
+                addStock(k, got.getStackSize());
+                return got.getStackSize();
+            }
         } catch (GridAccessException ignored) {} finally {
             selfIo = false;
         }
+        return 0;
     }
 
     void returnSeeds() {
         if (!getBaseMetaTileEntity().isServerSide()) return;
+        Ledger l = new Ledger();
         for (Map.Entry<SKey, SeedState> e : seeds.entrySet()) {
-            SKey k = e.getKey();
             SeedState st = e.getValue();
-            if (st.stock <= 0) continue;
-            selfIo = true;
-            try {
-                IStorageGrid sg = getProxy().getStorage();
-                IAEStack<?> rest;
-                if (k.isFluid()) rest = Platform.poweredInsert(
-                    getProxy().getEnergy(),
-                    sg.getFluidInventory(),
-                    (IAEFluidStack) k.toAE(st.stock),
-                    seedSource());
-                else rest = Platform.poweredInsert(
-                    getProxy().getEnergy(),
-                    sg.getItemInventory(),
-                    (IAEItemStack) k.toAE(st.stock),
-                    seedSource());
-                st.stock = rest == null ? 0 : Math.max(0, rest.getStackSize());
-            } catch (GridAccessException ignored) {} finally {
-                selfIo = false;
-            }
+            long n = st.stock - l.pending(e.getKey());
+            if (n <= 0) continue;
+            st.stock -= n - insertToMe(e.getKey(), n);
         }
         uiCacheTick = -1;
         markDirty();
     }
 
     void forgetOwed() {
-        for (SeedState s : seeds.values()) s.owed = 0;
+        for (SeedState s : seeds.values()) {
+            s.owed = 0;
+            s.flight = 0;
+        }
         recountOwed();
         uiCacheTick = -1;
         markDirty();
@@ -1543,7 +1830,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         unregisterInterceptor();
         for (Dose d : doses) {
             for (IAEStack<?> s : d.run) {
-                if (s == null || isCircuit(s)) continue;
+                if (s == null || isCircuit(s) || d.pays(SKey.of(s))) continue;
                 addStock(SKey.of(s), doseAmount(s, d.runs));
             }
         }
@@ -1634,6 +1921,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 nextAnalysisTick = t + DEBOUNCE;
             }
             if (analysisRun != null) driveAnalysis();
+            if (t % 10 == 0) balanceBorrowed();
             drainDoses();
             if (t % 20 == 0 || interceptorCheck) {
                 if (hasOwed || !monitors.isEmpty()) registerInterceptor();
@@ -1695,6 +1983,8 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                     .toNBTGeneric());
             c.setLong("stock", e.getValue().stock);
             c.setLong("owed", e.getValue().owed);
+            c.setLong("flight", e.getValue().flight);
+            c.setLong("borrowed", e.getValue().borrowed);
             sl.appendTag(c);
         }
         aNBT.setTag("cycSeeds", sl);
@@ -1703,6 +1993,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         aNBT.setBoolean("cycAutoSeed", autoSeed);
         aNBT.setInteger("cycAutoSeedMult", autoSeedMult);
         aNBT.setInteger("cycAutoSeedChanceMult", autoSeedChanceMult);
+        aNBT.setInteger("cycGrowth", growthPercent);
         aNBT.setIntArray("cycLanes", patternLane.clone());
         aNBT.setTag("cycLaneOffsets", writeLaneOffsets());
         aNBT.setIntArray("cycGroups", groupEnd.clone());
@@ -1716,10 +2007,41 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
             for (IAEStack<?> s : d.run) in.appendTag(s.toNBTGeneric());
             c.setTag("in", in);
             if (d.pattern != null) c.setTag("pattern", d.pattern.writeToNBT(new NBTTagCompound()));
+            if (d.seed != null) {
+                c.setBoolean("growth", d.growth);
+                c.setTag("seed", writeAmounts(d.seed));
+                c.setTag("yield", writeAmounts(d.yield));
+            }
+            if (d.batch != null) c.setString("batch", d.batch);
             dl.appendTag(c);
         }
         aNBT.setTag("cycDoses", dl);
         super.saveNBTData(aNBT);
+    }
+
+    private static NBTTagList writeAmounts(List<CycleAmount<SKey>> list) {
+        NBTTagList l = new NBTTagList();
+        for (CycleAmount<SKey> c : list) {
+            NBTTagCompound t = new NBTTagCompound();
+            t.setTag(
+                "k",
+                c.key.toAE(1)
+                    .toNBTGeneric());
+            t.setLong("n", c.amount);
+            l.appendTag(t);
+        }
+        return l;
+    }
+
+    private static List<CycleAmount<SKey>> readAmounts(NBTTagList l) {
+        List<CycleAmount<SKey>> ret = new ArrayList<>();
+        for (int i = 0; i < l.tagCount(); i++) {
+            NBTTagCompound t = l.getCompoundTagAt(i);
+            IAEStack<?> k = IAEStack.fromNBTGeneric(t.getCompoundTag("k"));
+            long n = t.getLong("n");
+            if (k != null && n > 0) ret.add(new CycleAmount<>(SKey.of(k), n));
+        }
+        return List.copyOf(ret);
     }
 
     @Override
@@ -1734,6 +2056,8 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 SeedState st = new SeedState();
                 st.stock = Math.max(0, c.getLong("stock"));
                 st.owed = Math.max(0, c.getLong("owed"));
+                st.flight = Math.max(0, c.getLong("flight"));
+                st.borrowed = Math.max(0, c.getLong("borrowed"));
                 seeds.put(SKey.of(k), st);
             }
             readSettings(aNBT.getTagList("cycSettings", 10));
@@ -1742,6 +2066,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
             if (aNBT.hasKey("cycAutoSeedMult")) autoSeedMult = Math.max(1, aNBT.getInteger("cycAutoSeedMult"));
             if (aNBT.hasKey("cycAutoSeedChanceMult"))
                 autoSeedChanceMult = Math.max(1, aNBT.getInteger("cycAutoSeedChanceMult"));
+            if (aNBT.hasKey("cycGrowth")) growthPercent = clampPercent(aNBT.getInteger("cycGrowth"));
             readPatternLanes(aNBT.getIntArray("cycLanes"));
             readLaneOffsets(aNBT.getTagList("cycLaneOffsets", 10));
             int[] ge = aNBT.getIntArray("cycGroups");
@@ -1761,8 +2086,12 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 if (run.isEmpty()) continue;
                 ItemStack pattern = c.hasKey("pattern") ? ItemStack.loadItemStackFromNBT(c.getCompoundTag("pattern"))
                     : null;
+                boolean paid = !c.hasKey("seed");
                 doses.add(new Dose(run, runs, Math.max(0, Math.min(LANES, c.getInteger("lane"))), pattern,
-                    c.getBoolean("circuitsPaid")));
+                    c.getBoolean("circuitsPaid"), !paid && c.getBoolean("growth"),
+                    paid ? null : readAmounts(c.getTagList("seed", 10)),
+                    paid ? null : readAmounts(c.getTagList("yield", 10)),
+                    c.hasKey("batch") ? c.getString("batch") : null));
             }
             recountOwed();
             analysisDirty = true;
@@ -1784,6 +2113,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         c.setBoolean("autoSeed", autoSeed);
         c.setInteger("autoSeedMult", autoSeedMult);
         c.setInteger("autoSeedChanceMult", autoSeedChanceMult);
+        c.setInteger("growth", growthPercent);
         c.setIntArray("lanes", patternLane.clone());
         c.setTag("laneOffsets", writeLaneOffsets());
         c.setIntArray("groups", groupEnd.clone());
@@ -1813,6 +2143,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 if (c.hasKey("autoSeedMult")) autoSeedMult = Math.max(1, c.getInteger("autoSeedMult"));
                 if (c.hasKey("autoSeedChanceMult"))
                     autoSeedChanceMult = Math.max(1, c.getInteger("autoSeedChanceMult"));
+                if (c.hasKey("growth")) growthPercent = clampPercent(c.getInteger("growth"));
                 int[] ge = c.getIntArray("groups");
                 if (ge.length == GROUPS - 1) setGroups(sanitizeGroups(ge));
                 if (doses.isEmpty()) {
@@ -2005,13 +2336,15 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         for (CycleBalancing<SKey> b : analysis[g].getBalancings()) {
             for (CycleAmount<SKey> c : b.getSeedNeed()) if (c.key.equals(k)) need = Math.max(need, c.amount);
         }
-        return enc(
+        String line = enc(
             "",
             "proghatches.cyclic.row",
             k.name(),
             st == null ? 0 : st.stock,
             st == null ? 0 : st.owed,
             need < 0 ? "-" : String.valueOf(need));
+        long growth = new Ledger().target(k);
+        return growth > effectiveTarget(k) ? line + "\n" + enc("", "proghatches.cyclic.row.growth", growth) : line;
     }
 
     private boolean groupEmpty(int g) {
@@ -2412,6 +2745,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
         setPatternLane(slot, Math.floorMod(patternLane[slot] + dir, LANES + 1));
     }
 
+    static final IDrawable HOVER = (context, x, y, w, h, theme) -> GuiDraw.drawRect(x, y, w, h, 0x40FFFFFF);
     static final UITexture SELF_ARROW = GTGuiTextures.PICTURE_ARROW_WHITE_DOWN.withColorOverride(0xFFFFFFFF);
     static final UITexture SELF_ARROW_SHADOW = GTGuiTextures.PICTURE_ARROW_WHITE_DOWN.withColorOverride(0xFF3F3F3F);
     static final IDrawable SELF_ICON = (context, x, y, w, h, theme) -> {
@@ -2506,7 +2840,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
             page.child(
                 new ButtonWidget<>().name("cyclic_lane_" + i).syncHandler(ih)
                     .background(IDrawable.EMPTY)
-                    .hoverBackground(new Rectangle().color(0x40FFFFFF))
+                    .hoverBackground(HOVER)
                     .tooltipDynamic(t -> laneSlotTooltip(ii, t))
                     .tooltipAutoUpdate(true)
                     .pos(x, y)
@@ -2541,7 +2875,6 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 .size(18, 18));
         String[] warn = new String[LANES + 1];
         long[] warnUntil = new long[LANES + 1];
-        Rectangle hover = new Rectangle().color(0x40FFFFFF);
         IDrawable stick = new ItemDrawable(ItemList.Tool_DataStick.get(1)).asIcon()
             .size(14, 14);
         for (int l = 1; l <= LANES; l++) {
@@ -2590,7 +2923,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 .size(14, 14);
             IDrawable unbound = IDrawable.of(GTGuiTextures.BUTTON_STANDARD, laneRing(l));
             IDrawable bound = IDrawable.of(GTGuiTextures.SLOT_ITEM_STANDARD, laneRing(l));
-            IDrawable unboundHover = IDrawable.of(unbound, hover), boundHover = IDrawable.of(bound, hover);
+            IDrawable unboundHover = IDrawable.of(unbound, HOVER), boundHover = IDrawable.of(bound, HOVER);
             page.child(
                 new ButtonWidget<>().name("cyclic_bind_" + l).syncHandler(bh)
                     .background(new DynamicDrawable(() -> clientLaneState(ll) == LANE_UNBOUND ? unbound : bound))
@@ -2960,7 +3293,7 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
             IKey.lang("proghatches.cyclic.multiplier.short")
                 .asWidget()
                 .pos(3, 140)
-                .size(PAGE_W - 6, 9));
+                .size(36, 9));
         page.child(
             new TextFieldWidget().value(new IntSyncValue(() -> cycMultiplier, v -> {
                 if (isServer()) setCycMultiplier(v);
@@ -2972,7 +3305,24 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
                 .background(GTGuiTextures.BACKGROUND_TEXT_FIELD)
                 .tooltipBuilder(t -> addLangLines(t, "proghatches.cyclic.multiplier"))
                 .pos(3, 150)
-                .size(PAGE_W - 6, 16));
+                .size(36, 16));
+        page.child(
+            IKey.lang("proghatches.cyclic.growth.short")
+                .asWidget()
+                .pos(41, 140)
+                .size(34, 9));
+        page.child(
+            new TextFieldWidget().value(new IntSyncValue(() -> growthPercent, v -> {
+                growthPercent = clampPercent(v);
+                if (isServer()) markDirty();
+            }).allowC2S())
+                .formatAsInteger(true)
+                .numbersInt(0, 100)
+                .setTextColor(Color.WHITE.main)
+                .background(GTGuiTextures.BACKGROUND_TEXT_FIELD)
+                .tooltipBuilder(t -> addLangLines(t, "proghatches.cyclic.growth"))
+                .pos(41, 150)
+                .size(34, 16));
         return page;
     }
 }

@@ -1597,7 +1597,7 @@ int off=0;
                 .syncedPanel("lpcp_parallel", true, (m, h) -> createParallelPanel(multiplySync));
 
             return super.createLeftPanelGapRow(parent, syncManager)
-                .child(new com.cleanroommc.modularui.widgets.ButtonWidget<>().onMousePressed(b -> {
+                .child(new com.cleanroommc.modularui.widgets.ButtonWidget<>().name("lpcp_open_parallel").onMousePressed(b -> {
                     if (!parallelPanel.isPanelOpen()) parallelPanel.openPanel();
                     else parallelPanel.closePanel();
                     return true;
@@ -1611,7 +1611,7 @@ int off=0;
                         t -> t.addLine(
                             com.cleanroommc.modularui.api.drawable.IKey
                                 .str(StatCollector.translateToLocal("proghatches.largepcp.parallel")))))
-                .child(new com.cleanroommc.modularui.widgets.CycleButtonWidget().stateCount(2)
+                .child(new com.cleanroommc.modularui.widgets.CycleButtonWidget().name("lpcp_cleanup").stateCount(2)
                     .value(
                         (com.cleanroommc.modularui.value.sync.IntSyncValue) new com.cleanroommc.modularui.value.sync.IntSyncValue(
                             () -> multiblock.removeStorageCircuit ? 1 : 0,
@@ -1633,7 +1633,7 @@ int off=0;
             com.cleanroommc.modularui.screen.ModularPanel p = new com.cleanroommc.modularui.screen.ModularPanel(
                 "lpcp_parallel");
             p.size(18 * 6 + 6, 18 + 6);
-            p.child(new com.cleanroommc.modularui.widgets.textfield.TextFieldWidget().value(multiplySync)
+            p.child(new com.cleanroommc.modularui.widgets.textfield.TextFieldWidget().name("lpcp_multiplier").value(multiplySync)
                 .formatAsInteger(true)
                 .numbersInt(1, Integer.MAX_VALUE)
                 .setTextColor(com.cleanroommc.modularui.utils.Color.WHITE.main)

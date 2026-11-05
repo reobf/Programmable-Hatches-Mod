@@ -603,7 +603,7 @@ public class PartAmountMaintainer extends PartBasicState
             .addTooltipLine(StatCollector.translateToLocal("proghatches.amountmaintainer.memorycard")));
 
         ItemStackHandler iss = new ItemStackHandler(mark);
-        panel.child(new PhantomItemSlot().syncHandler(new PhantomItemSlotSH(new ModularSlot(iss, 0)) {
+        panel.child(new PhantomItemSlot().name("maintainer_mark").syncHandler(new PhantomItemSlotSH(new ModularSlot(iss, 0)) {
 
             @Override
             protected void phantomClick(MouseData mouseData, ItemStack cursorStack) {
@@ -625,7 +625,7 @@ public class PartAmountMaintainer extends PartBasicState
             .addTooltipLine(StatCollector.translateToLocal("proghatches.amountmaintainer.phantomslot")));
 
         panel.child(
-            new TextFieldWidget().value(new LongSyncValue(() -> amount, val -> amount = val).allowC2S())
+            new TextFieldWidget().name("maintainer_amount").value(new LongSyncValue(() -> amount, val -> amount = val).allowC2S())
                 .formatAsInteger(true)
                 .numbersLong(1, 9_007_199_254_740_991L)
                 .setScrollValues(1, 4, 64)
@@ -746,7 +746,7 @@ public class PartAmountMaintainer extends PartBasicState
                 .addTooltipLine(StatCollector.translateToLocal("proghatches.amountmaintainer.craftcard")));
 
         panel.child(
-            new TextFieldWidget().value(new IntSyncValue(() -> interval, val -> interval = val).allowC2S())
+            new TextFieldWidget().name("maintainer_interval").value(new IntSyncValue(() -> interval, val -> interval = val).allowC2S())
                 .formatAsInteger(true)
                 .numbersInt(1, 400)
                 .setScrollValues(1, 4, 64)

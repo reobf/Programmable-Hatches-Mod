@@ -77,6 +77,7 @@ import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
 import reobf.proghatches.gt.metatileentity.chance.ChanceData;
 import reobf.proghatches.gt.metatileentity.chance.ChanceView;
+import reobf.proghatches.gt.metatileentity.chance.ChanceViewNbt;
 
 /**
  * Keeps the outputs chance patterns roll beyond what is expected, taking them in as they reach the network, and
@@ -106,6 +107,12 @@ public class TileChanceController extends AENetworkTile
     private static final int PRIORITY = Integer.MAX_VALUE - 1;
     /** Ticks before an input whose order could not be calculated or placed is ordered again. */
     private static final int RETRY_TICKS = 100;
+
+    private NBTTagCompound guideSnapshot;
+
+    public NBTTagCompound guideSnapshot() {
+        return guideSnapshot == null ? new NBTTagCompound() : (NBTTagCompound) guideSnapshot.copy();
+    }
 
     private RefillMode mode = RefillMode.STOCK;
     private int pendingMode;
@@ -852,7 +859,7 @@ public class TileChanceController extends AENetworkTile
         panel.child(lines);
 
         panel.child(
-            new ButtonWidget<>().pos(38, H - 38)
+            new ButtonWidget<>().name("chance_mode").pos(38, H - 38)
                 .size(112, 14)
                 .overlay(IKey.dynamic(() -> StatCollector.translateToLocal("proghatches.chance.gui.mode." + chosen.getIntValue())))
                 .onMousePressed(button -> {
@@ -875,7 +882,7 @@ public class TileChanceController extends AENetworkTile
                 })
                 .tooltipAutoUpdate(true));
         panel.child(
-            new ButtonWidget<>().pos(154, H - 38)
+            new ButtonWidget<>().name("chance_apply").pos(154, H - 38)
                 .size(48, 14)
                 .overlay(IKey.lang("proghatches.chance.gui.apply"))
                 .tooltipDynamic(t -> lines(t, StatCollector.translateToLocal("proghatches.chance.gui.apply.tooltip")))
@@ -1057,6 +1064,7 @@ public class TileChanceController extends AENetworkTile
 
     @TileEvent(TileEventType.WORLD_NBT_WRITE)
     public void writeToNBT_ChanceController(NBTTagCompound data) {
+        if (guideSnapshot != null) data.setTag(ChanceViewNbt.KEY, guideSnapshot.copy());
         data.setTag("phDeposits", writeList(deposits));
         data.setTag("phPending", writeList(pending));
         data.setTag("phHeld", writeList(held));
@@ -1067,6 +1075,8 @@ public class TileChanceController extends AENetworkTile
 
     @TileEvent(TileEventType.WORLD_NBT_READ)
     public void readFromNBT_ChanceController(NBTTagCompound data) {
+        guideSnapshot = data.hasKey(ChanceViewNbt.KEY)
+            ? (NBTTagCompound) data.getCompoundTag(ChanceViewNbt.KEY).copy() : null;
         readList(data, "phDeposits", deposits);
         readList(data, "phPending", pending);
         readList(data, "phHeld", held);

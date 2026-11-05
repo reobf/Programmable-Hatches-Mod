@@ -1,0 +1,225 @@
+{
+  "$schema": "guidenh://schema/ponder.json",
+  "totalTime": 1000,
+  "keyframes": [
+    {
+      "time": 0,
+      "labelKey": "proghatches.guide.stock.label.overview",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.stock.overview",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 120,
+      "labelKey": "proghatches.guide.stock.label.mark",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.stock.mark",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 180,
+      "labelKey": "proghatches.guide.stock.label.target",
+      "annotations": []
+    },
+    {
+      "time": 260,
+      "labelKey": "proghatches.guide.stock.label.configured",
+      "annotations": [],
+      "mergeTileNBT": [
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1,
+          "nbt": "{__guidenh_encoded_keys_v1:[0:{v:{id:\"appliedenergistics2:item.ItemMultiPart\",Count:1b,Damage:16s},k:\"def:6\"},1:{v:{amount:64L,freq:0L,interval:1,mode:0,redstone:0,lastredstone:0b,rsmode:0,mark:{id:\"minecraft:iron_ingot\",Count:1b,Damage:0s},part:{g:0L,p:-1,k:-1L},interval_count:0},k:\"extra:5\"},2:{v:{part:{g:0L,p:-1,k:-1L}},k:\"extra:6\"},3:{v:{id:\"programmablehatches:amountmaintainer\",Count:1b,Damage:0s},k:\"def:5\"}],y:1,hasRedstone:2,id:\"BlockCableBus\",z:1,x:1}"
+        }
+      ],
+      "modifyTileNBT": [
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1,
+          "path": "def:6",
+          "value": "{id:\"appliedenergistics2:item.ItemMultiPart\",Count:1b,Damage:16s}"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1,
+          "path": "extra:5",
+          "value": "{amount:64L,freq:0L,interval:1,mode:0,redstone:0,lastredstone:0b,rsmode:0,mark:{id:\"minecraft:iron_ingot\",Count:1b,Damage:0s},part:{g:0L,p:-1,k:-1L},interval_count:0}"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1,
+          "path": "extra:6",
+          "value": "{part:{g:0L,p:-1,k:-1L}}"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1,
+          "path": "def:5",
+          "value": "{id:\"programmablehatches:amountmaintainer\",Count:1b,Damage:0s}"
+        }
+      ]
+    },
+    {
+      "time": 360,
+      "labelKey": "proghatches.guide.stock.label.filled",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.stock.filled",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1,
+          "nbt": "{Items:[0:{Slot:0b,Damage:0s,Count:64b,id:\"minecraft:iron_ingot\"},1:{Slot:8b,Damage:0s,Count:3b,id:\"minecraft:gold_ingot\"}],x:2,id:\"Chest\",z:1,y:1}"
+        }
+      ],
+      "modifyTileNBT": []
+    },
+    {
+      "time": 440,
+      "labelKey": "proghatches.guide.stock.label.used",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.stock.used",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1,
+          "nbt": "{Items:[0:{Slot:0b,Damage:0s,Count:48b,id:\"minecraft:iron_ingot\"},1:{Slot:8b,Damage:0s,Count:3b,id:\"minecraft:gold_ingot\"}],x:2,id:\"Chest\",z:1,y:1}"
+        }
+      ],
+      "modifyTileNBT": []
+    },
+    {
+      "time": 540,
+      "labelKey": "proghatches.guide.stock.label.restored",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.stock.restored",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1,
+          "nbt": "{Items:[0:{Slot:0b,Damage:0s,Count:64b,id:\"minecraft:iron_ingot\"},1:{Slot:8b,Damage:0s,Count:3b,id:\"minecraft:gold_ingot\"}],x:2,id:\"Chest\",z:1,y:1}"
+        }
+      ],
+      "modifyTileNBT": []
+    },
+    {
+      "time": 620,
+      "labelKey": "proghatches.guide.stock.label.excess",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.stock.excess",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1,
+          "nbt": "{Items:[0:{Slot:0b,Damage:0s,Count:64b,id:\"minecraft:iron_ingot\"},1:{Slot:1b,Damage:0s,Count:16b,id:\"minecraft:iron_ingot\"},2:{Slot:8b,Damage:0s,Count:3b,id:\"minecraft:gold_ingot\"}],x:2,id:\"Chest\",z:1,y:1}"
+        }
+      ],
+      "modifyTileNBT": []
+    },
+    {
+      "time": 720,
+      "labelKey": "proghatches.guide.stock.label.returned",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.stock.returned",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1,
+          "nbt": "{Items:[0:{Slot:0b,Damage:0s,Count:48b,id:\"minecraft:iron_ingot\"},1:{Slot:1b,Damage:0s,Count:16b,id:\"minecraft:iron_ingot\"},2:{Slot:8b,Damage:0s,Count:3b,id:\"minecraft:gold_ingot\"}],x:2,id:\"Chest\",z:1,y:1}"
+        }
+      ],
+      "modifyTileNBT": []
+    },
+    {
+      "time": 820,
+      "labelKey": "proghatches.guide.stock.label.other",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.stock.other",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 920,
+      "labelKey": "proghatches.guide.stock.label.done",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.stock.done",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1381 @@
+{
+  "$schema": "guidenh://schema/ponder.json",
+  "totalTime": 1100,
+  "keyframes": [
+    {
+      "time": 0,
+      "labelKey": "proghatches.guide.large.label.overview",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.large.overview",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 60,
+      "labelKey": "proghatches.guide.large.label.clear",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.large.clear",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "blockChanges": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 5,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 5,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 5,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 5,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 5,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 5,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 5,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "z": 4,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 5,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 5,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "z": 5,
+          "block": "minecraft:air",
+          "particles": false
+        }
+      ]
+    },
+    {
+      "time": 125,
+      "labelKey": "proghatches.guide.large.label.front",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.large.front",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "blockChanges": [
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 2,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 2,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 2,
+          "nbt": "{mWasShutdown:0b,mRotation:0b,x:2,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:49,nbtVersion:509054264,mOwnerName:\"\"\"\",z:2,mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:15497,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},y:1,texturePage:0,mRedstone:0b,mFacing:2s}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 2,
+          "nbt": "{patternCache29:{Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},patternCache3:{tag:{targetCircuit:{Count:1b,Damage:32353s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},mWasShutdown:0b,patternCache16:{tag:{targetCircuit:{Count:1b,Damage:32365s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},mEUt:-768,chip:0b,mInputDisabled:0b,multiply:1,proxy:{g:4L,p:-1,k:-1L},patternCache28:{tag:{targetCircuit:{Count:1b,Damage:32306s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},mSoftMallet:1b,checkRecipeResultID:\"simple_result\",z:2,makePowerfailEvents:1b,patternCache27:{tag:{targetCircuit:{Count:1b,Damage:32377s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},mLockedToSingleRecipe:0b,mSolderingTool:1b,patternCache22:{tag:{targetCircuit:{Count:1b,Damage:32371s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},mCrowbar:1b,patternCache21:{tag:{targetCircuit:{Count:1b,Damage:32370s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},patternCache20:{tag:{targetCircuit:{Count:1b,Damage:32369s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},mWrench:1b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},patternCache1:{tag:{targetCircuit:{Count:1b,Damage:32350s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},patternCache30:{tag:{targetCircuit:{Count:1b,Damage:32301s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},patternCache5:{tag:{targetCircuit:{Count:1b,Damage:32352s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},mOwnerName:\"\"\"\",patternCache9:{tag:{targetCircuit:{Count:1b,Damage:32358s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},alwaysMaxParallel:1b,patternCache26:{tag:{targetCircuit:{Count:1b,Damage:32375s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},patternCache31:{Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},mMuffler:0b,mEfficiency:10000,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mColor:0b,mID:22116,mEfficiencyIncrease:0,Inventory:[],patternCache2:{tag:{targetCircuit:{Count:1b,Damage:32354s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},y:1,usesTurbine:0b,patternCache4:{tag:{targetCircuit:{Count:1b,Damage:32351s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},mActive:1b,patternCache8:{tag:{targetCircuit:{Count:1b,Damage:32357s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},patternCache6:{tag:{targetCircuit:{Count:1b,Damage:32355s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},removeStorageCircuit:0b,mFacing:2s,mRedstone:0b,ret:[],inputSeparation:0b,mProgresstime:0,patternCache7:{tag:{targetCircuit:{Count:1b,Damage:32356s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},batchMode:0b,x:3,mWorks:0b,mStoredEnergy:0L,eFlip:0b,patternCache13:{tag:{targetCircuit:{Count:1b,Damage:32362s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},mOutputDisabled:0b,patternCache12:{tag:{targetCircuit:{Count:1b,Damage:32361s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},voidingMode:\"all\",mHardHammer:1b,patternCache0:{tag:{targetCircuit:{Count:1b,Damage:32373s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},mStoredSteam:0L,mOtherUpgrades:0b,canBeMuffled:1b,mLightValue:0b,mLastWorkingTick:0L,mTotalRunTime:102L,patternCache25:{tag:{targetCircuit:{Count:1b,Damage:32376s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},patternCache24:{tag:{targetCircuit:{Count:1b,Damage:32374s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},patternCache23:{tag:{targetCircuit:{Count:1b,Damage:32372s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},cacheState:1,eRotation:0b,nbtVersion:509054264,patternCache15:{tag:{targetCircuit:{Count:1b,Damage:32364s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},patternCache14:{tag:{targetCircuit:{Count:1b,Damage:32363s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},patternCache10:{tag:{targetCircuit:{Count:1b,Damage:32359s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},mScrewdriver:1b,patternCache11:{tag:{targetCircuit:{Count:1b,Damage:32360s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},checkRecipeResult:{success:1b,persistsOnShutdown:0b,key:\"proghatches.largepcp.running\"},mRuntime:0,mLockUpgrade:0b,id:\"BaseMetaTileEntity\",shutDownReason:{wasCritical:0b,key:\"none\"},patternCache18:{tag:{targetCircuit:{Count:1b,Damage:32367s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},patternCache17:{tag:{targetCircuit:{Count:1b,Damage:32366s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},patternCache19:{tag:{targetCircuit:{Count:1b,Damage:32368s,string_id:\"gregtech:gt.metaitem.01\"}},Damage:0s,Count:1b,id:\"programmablehatches:prog_circuit\"},powerPanelMaxParallel:1,recipesDone:0L,mPollution:0,mMaxProgresstime:100}"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 2,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 3,
+          "nbt": "{mWasShutdown:0b,debugAmperage:2,x:4,mWorks:0b,mStoredEnergy:9223372036854775807L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,refillInterval:600,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},debugVTier:4,textureIndex:49,nbtVersion:509054264,mOwnerName:\"\"\"\",z:2,mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:11304,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},y:1,texturePage:0,mRedstone:0b,mFacing:2s}"
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 2,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 2,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "z": 2,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        }
+      ]
+    },
+    {
+      "time": 190,
+      "labelKey": "proghatches.guide.large.label.body",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.large.body",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "blockChanges": [
+        {
+          "x": 2,
+          "y": 0,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 4,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 4,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 4,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 3,
+          "block": "appliedenergistics2:tile.BlockCraftingUnit",
+          "meta": 2,
+          "nbt": "{core:0b,x:3,orientation_up:\"UNKNOWN\",id:\"BlockAdvancedCraftingUnit\",z:3,y:1,orientation_forward:\"UNKNOWN\",proxy:{g:6L,p:-1,k:-1L}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 4,
+          "block": "appliedenergistics2:tile.BlockCraftingUnit",
+          "nbt": "{core:0b,x:3,orientation_up:\"UNKNOWN\",id:\"BlockAdvancedCraftingUnit\",z:4,y:1,orientation_forward:\"UNKNOWN\",proxy:{g:5L,p:-1,k:-1L}}"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 4,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 4,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 4,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "z": 4,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        }
+      ]
+    },
+    {
+      "time": 255,
+      "labelKey": "proghatches.guide.large.label.back",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.large.back",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "blockChanges": [
+        {
+          "x": 2,
+          "y": 0,
+          "z": 5,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 5,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 5,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 5,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 5,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 5,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 5,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "z": 5,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "z": 5,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 1
+        }
+      ]
+    },
+    {
+      "time": 320,
+      "labelKey": "proghatches.guide.large.label.providers",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.large.providers",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "blockChanges": [
+        {
+          "x": 2,
+          "y": 1,
+          "z": 3,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 2,
+          "nbt": "{mWasShutdown:0b,proxy:{g:1L,p:-1,k:-1L},x:2,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,disabled:1b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,additionalConnection:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:49,nbtVersion:509054264,mOwnerName:\"\"\"\",z:3,mColor:0b,legacy:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:22048,Inventory:[0:{id:\"gregtech:gt.metaitem.01\",IntSlot:0,Count:1b,Damage:32306s}],tech:1,id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:1b,shutDownReason:{wasCritical:0b,key:\"none\"},y:1,texturePage:0,ret:[],mRedstone:0b,mFacing:4s}"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 3,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 1,
+          "nbt": "{mWasShutdown:0b,x:4,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:49,nbtVersion:509054264,mOwnerName:\"\"\"\",z:3,mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:22146,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:1b,shutDownReason:{wasCritical:0b,key:\"none\"},y:1,texturePage:0,mRedstone:0b,mFacing:5s}"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 4,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 1,
+          "nbt": "{mWasShutdown:0b,proxy:{g:3L,p:-1,k:-1L},x:2,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:49,nbtVersion:509054264,mOwnerName:\"\"\"\",z:4,mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:22117,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:1b,shutDownReason:{wasCritical:0b,key:\"none\"},y:1,texturePage:0,mRedstone:0b,mFacing:4s}"
+        }
+      ]
+    },
+    {
+      "time": 385,
+      "labelKey": "proghatches.guide.large.label.networks",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.large.networks",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "blockChanges": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "block": "appliedenergistics2:tile.BlockCraftingUnit",
+          "meta": 12,
+          "nbt": "{orientation_up:\"UNKNOWN\",x:0,waitingFor:[],proxy:{g:4L,p:-1,k:-1L},craftStatusListeners:{},waitingForMissing:[],finalOutput:{fakeCrafting:0b,patternOutputs:[],outputs:[],originalOutput:{}},remainingItemCount:0L,waiting:0b,isMissingMode:0b,elapsedTime:0L,onCancelListeners:{},inventory:[],z:0,usedStorage:0L,isComplete:1b,orientation_forward:\"UNKNOWN\",tasks:[],core:1b,suspended:0b,id:\"BlockAdvancedCraftingUnit\",y:0,craftCompleteListeners:{},craftingAllowMode:0,startItemCount:0L}"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0,
+          "block": "appliedenergistics2:tile.BlockCraftingStorage",
+          "meta": 12,
+          "nbt": "{core:0b,x:0,orientation_up:\"UNKNOWN\",id:\"BlockSingularityCraftingStorage\",z:0,y:1,orientation_forward:\"UNKNOWN\",proxy:{g:4L,p:-1,k:-1L}}"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1,
+          "block": "appliedenergistics2:tile.BlockDrive",
+          "nbt": "{inv:{item3:{},item4:{},item0:{tag:{},Damage:0s,Count:1b,id:\"appliedenergistics2:item.ItemBasicStorageCell.64k\"},item2:{},item1:{},item6:{},item5:{},item9:{},item7:{},item8:{}},priority:0,paintedColor:16b,id:\"BlockDrive\",orientation_up:\"UNKNOWN\",y:1,x:0,proxy:{g:4L,p:-1,k:-1L},orientation_forward:\"UNKNOWN\",RESHUFFLE_ACCESS:\"READ_WRITE\",z:1}"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1,
+          "block": "appliedenergistics2:tile.BlockCableBus",
+          "nbt": "{__guidenh_encoded_keys_v1:[0:{v:{Damage:16s,Count:1b,id:\"appliedenergistics2:item.ItemMultiPart\"},k:\"def:6\"},1:{v:{part:{g:4L,p:-1,k:-1L}},k:\"extra:6\"}],y:1,z:1,id:\"BlockCableBus\",hasRedstone:2,x:1}"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1,
+          "block": "appliedenergistics2:tile.BlockCableBus",
+          "nbt": "{__guidenh_encoded_keys_v1:[0:{v:{Damage:16s,Count:1b,id:\"appliedenergistics2:item.ItemMultiPart\"},k:\"def:6\"},1:{v:{part:{g:4L,p:-1,k:-1L}},k:\"extra:6\"}],y:1,z:1,id:\"BlockCableBus\",hasRedstone:2,x:2}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 1,
+          "block": "appliedenergistics2:tile.BlockCableBus",
+          "nbt": "{__guidenh_encoded_keys_v1:[0:{v:{Damage:16s,Count:1b,id:\"appliedenergistics2:item.ItemMultiPart\"},k:\"def:6\"},1:{v:{part:{g:4L,p:-1,k:-1L}},k:\"extra:6\"}],y:1,z:1,id:\"BlockCableBus\",hasRedstone:2,x:3}"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2,
+          "block": "appliedenergistics2:tile.BlockCreativeEnergyController",
+          "meta": 1,
+          "nbt": "{inv:{},internalCurrentPower:\"9.22337203685477E14d\",id:\"BlockCreativeEnergyController\",orientation_up:\"UNKNOWN\",paintedColor:16b,y:1,x:0,proxy:{g:4L,p:-1,k:-1L},orientation_forward:\"UNKNOWN\",controllerAnimation:\"ORIGINAL_RAINBOW\",z:2}"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2,
+          "block": "appliedenergistics2:tile.BlockCableBus",
+          "nbt": "{__guidenh_encoded_keys_v1:[0:{v:{Damage:16s,Count:1b,id:\"appliedenergistics2:item.ItemMultiPart\"},k:\"def:6\"},1:{v:{part:{g:4L,p:-1,k:-1L}},k:\"extra:6\"}],y:1,z:2,id:\"BlockCableBus\",hasRedstone:2,x:1}"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 4,
+          "block": "appliedenergistics2:tile.BlockCreativeEnergyController",
+          "meta": 1,
+          "nbt": "{inv:{},internalCurrentPower:\"9.22337203685477E14d\",id:\"BlockCreativeEnergyController\",orientation_up:\"UNKNOWN\",paintedColor:16b,y:1,x:0,proxy:{g:3L,p:-1,k:-1L},orientation_forward:\"UNKNOWN\",controllerAnimation:\"ORIGINAL_RAINBOW\",z:4}"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 4,
+          "block": "appliedenergistics2:tile.BlockCableBus",
+          "nbt": "{__guidenh_encoded_keys_v1:[0:{v:{Damage:16s,Count:1b,id:\"appliedenergistics2:item.ItemMultiPart\"},k:\"def:6\"},1:{v:{part:{g:3L,p:-1,k:-1L}},k:\"extra:6\"}],y:1,z:4,id:\"BlockCableBus\",hasRedstone:2,x:1}"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 5,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 2,
+          "nbt": "{mWasShutdown:0b,proxy:{g:3L,p:-1,k:-1L},x:0,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,disabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,additionalConnection:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:0,nbtVersion:509054264,mOwnerName:\"\"\"\",z:5,mColor:0b,legacy:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:22048,Inventory:[0:{id:\"gregtech:gt.metaitem.01\",IntSlot:0,Count:1b,Damage:32301s}],tech:1,id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:1b,shutDownReason:{wasCritical:0b,key:\"none\"},y:1,texturePage:0,ret:[],mRedstone:0b,mFacing:2s}"
+        }
+      ]
+    },
+    {
+      "time": 420,
+      "labelKey": "proghatches.guide.large.label.template",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.large.template",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 500,
+      "labelKey": "proghatches.guide.large.label.prefab",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.large.prefab",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 580,
+      "labelKey": "proghatches.guide.large.label.access",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.large.access",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 660,
+      "labelKey": "proghatches.guide.large.label.main",
+      "annotations": []
+    },
+    {
+      "time": 720,
+      "labelKey": "proghatches.guide.large.label.parallel",
+      "annotations": []
+    },
+    {
+      "time": 820,
+      "labelKey": "proghatches.guide.large.label.chip",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.large.chip",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "nbt": "{patternCache29:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s},patternCache3:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32353s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mWasShutdown:0b,mInputDisabled:0b,chip:1b,mEUt:-768,patternCache16:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32365s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},multiply:4,proxy:{g:4L,p:-1,k:-1L},patternCache28:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32306s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mSoftMallet:1b,checkRecipeResultID:\"simple_result\",alwaysMaxParallel:1b,makePowerfailEvents:1b,patternCache27:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32377s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mLockedToSingleRecipe:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},patternCache21:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32370s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mCrowbar:1b,patternCache22:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32371s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache20:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32369s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mWrench:1b,mSolderingTool:1b,patternCache1:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32350s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache30:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32301s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache5:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32352s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mOwnerName:\"\",patternCache9:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32358s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},z:2,patternCache26:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32375s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache31:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s},mMuffler:0b,mEfficiency:10000,mOwnerUuid:\"\",shutDownReasonID:\"simple_result\",mColor:0b,mID:22116,mEfficiencyIncrease:0,Inventory:[],patternCache2:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32354s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},y:1,usesTurbine:0b,patternCache4:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mActive:1b,patternCache8:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32357s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache6:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32355s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},removeStorageCircuit:0b,ret:[],mRedstone:0b,mFacing:2s,mProgresstime:10,inputSeparation:0b,mStoredEnergy:0L,batchMode:0b,x:3,mWorks:0b,patternCache7:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32356s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},eFlip:0b,patternCache13:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32362s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache12:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32361s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mOutputDisabled:0b,patternCache0:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32373s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mHardHammer:1b,voidingMode:\"all\",mStoredSteam:0L,mOtherUpgrades:0b,canBeMuffled:1b,mLightValue:0b,patternCache24:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32374s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mTotalRunTime:112L,patternCache25:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32376s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mLastWorkingTick:0L,patternCache23:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32372s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},cacheState:1,eRotation:0b,nbtVersion:509054264,patternCache15:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32364s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache14:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32363s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache10:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32359s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mScrewdriver:1b,patternCache11:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32360s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mRuntime:10,checkRecipeResult:{success:1b,key:\"proghatches.largepcp.running\",persistsOnShutdown:0b},shutDownReason:{wasCritical:0b,key:\"none\"},patternCache17:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32366s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache18:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32367s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache19:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32368s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mMaxProgresstime:100,mPollution:0,recipesDone:0L,powerPanelMaxParallel:1}"
+        }
+      ],
+      "modifyTileNBT": [
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache3",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32353s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache29",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache16",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32365s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "proxy",
+          "value": "{g:4L,p:-1,k:-1L}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache28",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32306s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache27",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32377s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache22",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32371s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache21",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32370s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache20",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32369s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache1",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32350s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache30",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32301s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache5",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32352s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache9",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32358s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache26",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32375s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache31",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache2",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32354s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache4",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache8",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32357s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache6",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32355s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache7",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32356s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache13",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32362s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache12",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32361s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache0",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32373s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache25",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32376s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache24",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32374s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache23",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32372s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache15",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32364s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache14",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32363s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache10",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32359s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache11",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32360s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "checkRecipeResult",
+          "value": "{success:1b,key:\"proghatches.largepcp.running\",persistsOnShutdown:0b}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "shutDownReason",
+          "value": "{wasCritical:0b,key:\"none\"}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache18",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32367s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache17",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32366s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache19",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32368s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        }
+      ]
+    },
+    {
+      "time": 920,
+      "labelKey": "proghatches.guide.large.label.cleanup",
+      "annotations": []
+    },
+    {
+      "time": 1000,
+      "labelKey": "proghatches.guide.large.label.done",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.large.done",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "nbt": "{patternCache29:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s},patternCache3:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32353s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mWasShutdown:0b,mInputDisabled:0b,chip:1b,mEUt:-768,patternCache16:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32365s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},multiply:4,proxy:{g:4L,p:-1,k:-1L},patternCache28:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32306s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mSoftMallet:1b,checkRecipeResultID:\"simple_result\",alwaysMaxParallel:1b,makePowerfailEvents:1b,patternCache27:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32377s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mLockedToSingleRecipe:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},patternCache21:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32370s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mCrowbar:1b,patternCache22:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32371s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache20:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32369s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mWrench:1b,mSolderingTool:1b,patternCache1:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32350s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache30:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32301s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache5:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32352s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mOwnerName:\"\",patternCache9:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32358s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},z:2,patternCache26:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32375s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache31:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s},mMuffler:0b,mEfficiency:10000,mOwnerUuid:\"\",shutDownReasonID:\"simple_result\",mColor:0b,mID:22116,mEfficiencyIncrease:0,Inventory:[],patternCache2:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32354s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},y:1,usesTurbine:0b,patternCache4:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mActive:1b,patternCache8:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32357s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache6:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32355s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},removeStorageCircuit:1b,ret:[],mRedstone:0b,mFacing:2s,mProgresstime:48,inputSeparation:0b,mStoredEnergy:0L,batchMode:0b,x:3,mWorks:0b,patternCache7:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32356s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},eFlip:0b,patternCache13:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32362s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache12:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32361s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mOutputDisabled:0b,patternCache0:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32373s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mHardHammer:1b,voidingMode:\"all\",mStoredSteam:0L,mOtherUpgrades:0b,canBeMuffled:1b,mLightValue:0b,patternCache24:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32374s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mTotalRunTime:150L,patternCache25:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32376s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mLastWorkingTick:0L,patternCache23:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32372s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},cacheState:1,eRotation:0b,nbtVersion:509054264,patternCache15:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32364s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache14:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32363s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache10:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32359s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mScrewdriver:1b,patternCache11:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32360s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mRuntime:48,checkRecipeResult:{success:1b,key:\"proghatches.largepcp.running\",persistsOnShutdown:0b},shutDownReason:{wasCritical:0b,key:\"none\"},patternCache17:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32366s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache18:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32367s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},patternCache19:{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32368s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}},mMaxProgresstime:100,mPollution:0,recipesDone:0L,powerPanelMaxParallel:1}"
+        }
+      ],
+      "modifyTileNBT": [
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache3",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32353s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache29",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache16",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32365s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "proxy",
+          "value": "{g:4L,p:-1,k:-1L}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache28",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32306s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache27",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32377s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache22",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32371s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache21",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32370s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache20",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32369s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache1",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32350s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache30",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32301s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache5",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32352s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache9",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32358s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache26",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32375s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache31",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache2",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32354s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache4",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32351s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache8",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32357s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache6",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32355s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache7",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32356s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache13",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32362s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache12",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32361s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache0",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32373s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache25",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32376s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache24",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32374s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache23",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32372s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache15",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32364s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache14",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32363s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache10",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32359s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache11",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32360s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "checkRecipeResult",
+          "value": "{success:1b,key:\"proghatches.largepcp.running\",persistsOnShutdown:0b}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "shutDownReason",
+          "value": "{wasCritical:0b,key:\"none\"}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache18",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32367s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache17",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32366s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "path": "patternCache19",
+          "value": "{id:\"programmablehatches:prog_circuit\",Count:1b,Damage:0s,tag:{targetCircuit:{Damage:32368s,Count:1b,string_id:\"gregtech:gt.metaitem.01\"}}}"
+        }
+      ]
+    }
+  ]
+}

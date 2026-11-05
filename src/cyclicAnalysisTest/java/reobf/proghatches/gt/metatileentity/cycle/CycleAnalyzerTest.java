@@ -41,7 +41,54 @@ public final class CycleAnalyzerTest {
         t20Lp();
         t21Oracle();
         t22Sliced();
+        t23GrowthFirst();
         System.out.println("CycleAnalyzerTest passed");
+    }
+
+    private static void t23GrowthFirst() {
+        List<CyclePattern<String>> ps = pats(
+            pat(0, l(amt("A", 1), amt("B", 1)), l(amt("A", 2))),
+            pat(1, l(amt("A", 1), amt("D", 1)), l(amt("C", 1))));
+        CycleAnalysis<String> a = CycleAnalyzer.analyze(ps, map("A", set(1, false, 0)), 1, null);
+        eq(1, a.getBalancings().size(), "T23 balancings");
+        CycleBalancing<String> b = a.getBalancings().get(0);
+        runs(b, "T23", 1, 1);
+        eq(l(amt("A", 2)), b.getSeeds(), "T23 seeds");
+        eq(l(amt("A", 1)), b.getStart(), "T23 start");
+        eq(l(amt("A", 1)), b.getSeedNeed(), "T23 need");
+        check(b.isGrowth(0) && !b.isGrowth(1) && b.hasGrowth(), "T23 growth members");
+        check(b.isPublishable(), "T23 publishable with one seed");
+        eq(l(amt("A", 3)), CycleAnalyzer.analyze(ps, map("A", set(3, false, 0)), 3, null)
+            .getBalancings()
+            .get(0)
+            .getSeedNeed(), "T23 need with multiplier 3");
+
+        ps = pats(pat(0, l(amt("B", 1)), l(amt("A", 1))), pat(1, l(amt("A", 1)), l(amt("C", 1))));
+        b = CycleAnalyzer.analyze(ps, map("A", set(0, false, 0)), 1, null)
+            .getBalancings()
+            .get(0);
+        eq(l(amt("A", 1)), b.getSeeds(), "T23 source seeds");
+        eq(l(), b.getStart(), "T23 source start");
+        check(b.isPublishable(), "T23 source publishable with no seeds");
+
+        ps = pats(
+            pat(0, l(amt("A", 1), amt("B", 1)), l(amt("A", 2), amt("E", 1))),
+            pat(1, l(amt("A", 3), amt("E", 1)), l(amt("C", 1))));
+        Map<String, CycleItemSetting> st = new HashMap<>();
+        st.put("A", new CycleItemSetting(0, false, true, 0));
+        b = CycleAnalyzer.analyze(ps, st, 1, null)
+            .getBalancings()
+            .get(0);
+        runs(b, "T23 input", 1, 1);
+        eq(l(amt("A", 2), amt("B", 1)), b.getNetInputs(), "T23 input net inputs");
+        eq(l(amt("A", 2), amt("E", 1)), b.getSeeds(), "T23 input seeds");
+        eq(l(), b.getStart(), "T23 input start");
+
+        b = CycleAnalyzer.analyze(example1(), map("C", set(10, true, 0), "E", set(10, true, 0)), 1, null)
+            .getBalancings()
+            .get(0);
+        check(!b.hasGrowth(), "T23 converters only");
+        eq(b.getSeeds(), b.getStart(), "T23 converters start with every member's seeds");
     }
 
     private static void t22Sliced() {

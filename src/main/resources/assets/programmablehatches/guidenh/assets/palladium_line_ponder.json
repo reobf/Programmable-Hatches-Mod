@@ -2020,7 +2020,11 @@
           "hlMaxZ": 10.0,
           "highlightColor": "0x607FC47F"
         }
-      ]
+      ],
+      "camera": {
+        "rotY": 90.0
+      },
+      "cameraEaseTicks": 20
     },
     {
       "time": 500,
@@ -2084,18 +2088,10 @@
           "type": "text",
           "textKey": "proghatches.guide.pd.guiMain",
           "text": "Open the Cyclic Pattern Crafting Input Buffer, then click the plus button",
-          "x": 1.5,
-          "y": 2.3,
-          "z": 7.5,
-          "maxWidth": 160,
-          "color": "0xFF7FC47F",
-          "hlMinX": 1.0,
-          "hlMinY": 1.0,
-          "hlMinZ": 7.0,
-          "hlMaxX": 2.0,
-          "hlMaxY": 2.0,
-          "hlMaxZ": 8.0,
-          "highlightColor": "0x607FC47F"
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
         }
       ],
       "modifyTileNBT": [
@@ -2124,13 +2120,16 @@
           "type": "text",
           "textKey": "proghatches.guide.pd.guiOpen",
           "text": "Open the pattern popup: the precipitation pattern is in the first slot",
-          "x": 1.5,
-          "y": 2.3,
-          "z": 7.5,
-          "maxWidth": 160,
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
           "color": "0xFF7FC47F"
         }
-      ]
+      ],
+      "camera": {
+        "rotY": 135.0
+      },
+      "cameraEaseTicks": 20
     },
     {
       "time": 740,
@@ -2140,18 +2139,10 @@
           "type": "text",
           "textKey": "proghatches.guide.pd.guiSifter",
           "text": "Place the chance sifting pattern in the next slot of the same group",
-          "x": 1.5,
-          "y": 2.3,
-          "z": 7.5,
-          "maxWidth": 160,
-          "color": "0xFF7FC47F",
-          "hlMinX": 1.0,
-          "hlMinY": 1.0,
-          "hlMinZ": 7.0,
-          "hlMaxX": 2.0,
-          "hlMaxY": 2.0,
-          "hlMaxZ": 8.0,
-          "highlightColor": "0x607FC47F"
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
         }
       ],
       "modifyTileNBT": [
@@ -2172,18 +2163,10 @@
           "type": "text",
           "textKey": "proghatches.guide.pd.guiEnrich",
           "text": "Place the ammonia recycling pattern in the third slot",
-          "x": 1.5,
-          "y": 2.3,
-          "z": 7.5,
-          "maxWidth": 160,
-          "color": "0xFF7FC47F",
-          "hlMinX": 1.0,
-          "hlMinY": 1.0,
-          "hlMinZ": 7.0,
-          "hlMaxX": 2.0,
-          "hlMaxY": 2.0,
-          "hlMaxZ": 8.0,
-          "highlightColor": "0x607FC47F"
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
         }
       ],
       "modifyTileNBT": [
@@ -2204,10 +2187,9 @@
           "type": "text",
           "textKey": "proghatches.guide.pd.guiLanes",
           "text": "All three patterns start on lane 0, running in this hatch",
-          "x": 1.5,
-          "y": 2.3,
-          "z": 7.5,
-          "maxWidth": 160,
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
           "color": "0xFF7FC47F"
         }
       ]
@@ -2220,10 +2202,9 @@
           "type": "text",
           "textKey": "proghatches.guide.pd.guiLaneHint",
           "text": "Scroll or click to change lanes; left-click the sifting pattern to select lane 1",
-          "x": 1.5,
-          "y": 2.3,
-          "z": 7.5,
-          "maxWidth": 160,
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
           "color": "0xFF7FC47F"
         }
       ]
@@ -2236,10 +2217,9 @@
           "type": "text",
           "textKey": "proghatches.guide.pd.guiLaneSet",
           "text": "The sifting slot turns blue for lane 1; both chemical patterns remain on lane 0",
-          "x": 1.5,
-          "y": 2.3,
-          "z": 7.5,
-          "maxWidth": 160,
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
           "color": "0xFF7FC47F"
         }
       ]
@@ -2252,10 +2232,9 @@
           "type": "text",
           "textKey": "proghatches.guide.pd.guiBind",
           "text": "Open lane bindings; lane 1 is waiting for a target input hatch",
-          "x": 1.5,
-          "y": 2.3,
-          "z": 7.5,
-          "maxWidth": 160,
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
           "color": "0xFF7FC47F"
         }
       ]
@@ -2268,10 +2247,9 @@
           "type": "text",
           "textKey": "proghatches.guide.pd.guiBindHint",
           "text": "The data stick stores the sifter input hatch position; carry it onto the lane 1 binding slot",
-          "x": 1.5,
-          "y": 2.3,
-          "z": 7.5,
-          "maxWidth": 160,
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
           "color": "0xFF7FC47F"
         }
       ]
@@ -2284,10 +2262,9 @@
           "type": "text",
           "textKey": "proghatches.guide.pd.guiBindDone",
           "text": "Lane 1 is bound; its slot shows the target icon and the connected state",
-          "x": 1.5,
-          "y": 2.3,
-          "z": 7.5,
-          "maxWidth": 160,
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
           "color": "0xFF7FC47F"
         }
       ]
@@ -2300,10 +2277,9 @@
           "type": "text",
           "textKey": "proghatches.guide.pd.guiLanesBound",
           "text": "Sifting goes to the sifter through blue lane 1; precipitation and ammonia recycling run in this hatch",
-          "x": 1.5,
-          "y": 2.3,
-          "z": 7.5,
-          "maxWidth": 160,
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
           "color": "0xFF7FC47F"
         }
       ]
@@ -2316,10 +2292,9 @@
           "type": "text",
           "textKey": "proghatches.guide.pd.guiConfig",
           "text": "The configuration page shows the cycle multiplier and chance seed multiplier",
-          "x": 1.5,
-          "y": 2.3,
-          "z": 7.5,
-          "maxWidth": 160,
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
           "color": "0xFF7FC47F"
         }
       ]

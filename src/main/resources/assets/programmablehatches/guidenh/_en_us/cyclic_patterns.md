@@ -7,6 +7,7 @@ navigation:
     - cyclic pattern
     - balancing
     - seed
+    - growth
     - chance pattern
     - palladium
 item_ids:
@@ -52,7 +53,9 @@ Enriched ammonia from upstream precious-metal processing is the net feed. Ammoni
 
 The diagram fits its panel initially. Scroll to zoom, drag to pan, and double-click to fit again. Hover over materials for item tooltips. Link quantities describe one round.
 
-**Palladium metallic powder has two destinations, forming two loops:**
+The cyclic hatch computes these quantities itself: once configured, it finds a feasible balancing by linear optimization.
+
+**Palladium metallic powder has two destinations, forming two loops**:
 
 - **Precipitation loop** (orange): metallic powder and enriched ammonia undergo **precipitation**, making reprecipitated palladium and palladium salt. **Sifting** returns the salt to metallic powder.
 - **Ammonia recycling loop** (green): another portion of metallic powder reacts with ammonia, returning to enriched ammonia for precipitation.
@@ -60,6 +63,8 @@ The diagram fits its panel initially. Scroll to zoom, drag to pan, and double-cl
 The precipitation and sifting branch consumes 9 metallic powder and returns 15, a gain of 6. **Ammonia recycling gives this growing stock a return path** into enriched ammonia.
 
 The cyclic hatch calculates the run counts of all three patterns and divides the powder between both paths. It keeps net surplus within the configured tolerance, reducing accumulation and waste. Of the 15 powder returned by sifting, 9 go to precipitation and 6 to ammonia recycling. The recycled 6000 L enriched ammonia joins 3000 L supplied upstream to feed precipitation. Each round also consumes 6000 L ammonia; reprecipitated palladium is the net product.
+
+For chance marking, refill modes and deposits, see [Gravel to flint](chance_sifter.md).
 
 ## The three patterns
 
@@ -71,15 +76,19 @@ The cyclic hatch calculates the run counts of all three patterns and divides the
 
 <RecipeFor id="bartworks:gt.bwMetaGenerateddust:55" handlerId="gt.recipe.largechemicalreactor" input="bartworks:gt.bwMetaGenerateddust:53" fallbackText="Precipitation recipe: 9 palladium metallic powder and 9000 L palladium enriched ammonia, circuit 9." />
 
+<RecipeUsage id="bartworks:gt.bwMetaGenerateddust:53" handlerId="gt.recipe.largechemicalreactor" output="!bartworks:gt.bwMetaGenerateddust:55" fallbackText="Ammonia recycling recipe: 1 palladium metallic powder and 1000 L ammonia, circuit 1, giving 1000 L palladium enriched ammonia." />
+
 <RecipeFor id="bartworks:gt.bwMetaGenerateddust:53" handlerId="gt.recipe.sifter" fallbackText="Sift recipe: 1 palladium salt rolls palladium metallic powder by chance." />
 
-**Set a chance pattern's output slightly below the actual expected yield.** Each salt yields 0.95 metallic powder on average, so 16 salt have an expected yield of 15.2. Write 15 powder into the sifting pattern.
+**Set a chance pattern's output slightly below the actual expected yield**. Each salt yields 0.95 metallic powder on average, so 16 salt have an expected yield of 15.2. Write 15 powder into the sifting pattern.
 
 The cyclic hatch balances against that promise of 15. When a roll falls short, the Chance Pattern Controller first credits stored surplus, then refills the sifter to cover the remaining deficit. Output beyond the promise goes into its deposit for later runs. The published cycle therefore returns a fixed powder amount, while extra output is accounted for separately and reused.
 
 The hatch's balancing runs the ammonia recycling pattern 6 times and the precipitation and sifting patterns once each. The published pattern turns 3000 L enriched ammonia and 6000 L ammonia into 2 <ItemLink id="bartworks:gt.bwMetaGenerateddust:54" showIcon="left" />.
 
 Programming circuits are execution inputs supplied by ME stock or a circuit provider. They are excluded from material balancing, then added to the published inputs according to the run counts: one circuit configured to 9 and six configured to 1 per round. The crafting multiplier scales these quantities as well. After receiving the complete inputs, the hatch applies each circuit configuration to its recipe buffer.
+
+For encoding, provider templates and virtual slots, see [Programmed inputs: circuits and molds](programmed_inputs.md).
 
 ## Setup
 
@@ -91,7 +100,7 @@ Programming circuits are execution inputs supplied by ME stock or a circuit prov
 
 Below is the whole line as the in-game test builds it. The scene opens on the overview; press play to see it step by step: ME network, reactor, reactor hatches, sifter, sifter hatches, network link. Fluix ME glass cables connect the hatches to the network. The test uses a self-powered ME controller; supply power to the ME network and both machines when building the line.
 
-<GameScene width="277" height="198" zoom={1.4} interactive={true}>
+<GameScene width="277" height="198" zoom={1.4} rotateY={135} interactive={true}>
   <ImportStructure src="/assets/palladium_line.snbt" formed={true} />
   <ImportPonder src="/assets/palladium_line_ponder.json" />
   <MUI2Gui x="1" y="1" z="7" from="620" to="1480" scale="2">
@@ -142,7 +151,7 @@ Open the "Balancing" page <FloatingImage src="gregtech:textures/gui/overlay_butt
 
 Hover a group button or the group title to see the balancings and warnings. Once the settings are done, one balancing shows: 3000 L enriched ammonia and 6000 L ammonia into 2 reprecipitated palladium.
 
-**Keep metallic powder as an internal intermediate with 0% tolerance.** The balancing is precipitation ×1, ammonia recycling ×6 and sifting ×1. The two paths consume 9 + 6 = 15 metallic powder and sifting returns 15, giving zero net consumption and zero surplus. Net inputs are 3000 L enriched ammonia and 6000 L ammonia; the output is 2 reprecipitated palladium.
+**Keep metallic powder as an internal intermediate with 0% tolerance**. The balancing is precipitation ×1, ammonia recycling ×6 and sifting ×1. The two paths consume 9 + 6 = 15 metallic powder and sifting returns 15, giving zero net consumption and zero surplus. Net inputs are 3000 L enriched ammonia and 6000 L ammonia; the output is 2 reprecipitated palladium.
 
 A 5% powder tolerance produces the same minimum batch for these patterns. Setting it to 0% explicitly closes the powder balance. Excess chance output is kept by the Chance Pattern Controller and credited toward later runs.
 
@@ -169,6 +178,17 @@ Order reprecipitated palladium in AE. Every craft takes 3000 L enriched ammonia,
 2. When the products enter ME, the hatch takes back the round's seeds and the reprecipitated palladium goes to AE's crafting job.
 3. When the sifter makes fewer than 15 palladium metallic powder, the Chance Pattern Controller takes palladium salt from ME and refills the sifter until 15 are produced. The controller refills from storage by default, so keep some palladium salt in ME.
 4. Extra palladium metallic powder is stored in the Chance Pattern Controller and pays the expected amount of later rounds. "Return deposits" in the controller's screen puts the deposits back into ME.
+
+## Growth patterns
+
+A pattern that only raises cyclic items is a growth pattern. A balancing with growth patterns runs in order: every craft pushes its growth patterns first and the other patterns once the cyclic items the growth patterns make are back, so one craft needs only the seeds the growth patterns take.
+
+"Growth" on the config page sets the growth priority, from 0 to 100%, 50% by default:
+
+- Growth target = growth priority × the cyclic items the queued other patterns consume.
+- While the growth output kept is below the growth target, growth patterns are pushed first; at the growth target, the other patterns are.
+- Above 0, seeds for one craft are enough and the hatch keeps accepting crafts of such balancings; the part of the growth target above the seed target is borrowed from ME and returned once the crafts are done.
+- At 0, the hatch accepts crafts as its seed stock covers them.
 
 ## Checks
 

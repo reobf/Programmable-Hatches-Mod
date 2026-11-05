@@ -1,0 +1,918 @@
+{
+  "$schema": "guidenh://schema/ponder.json",
+  "totalTime": 980,
+  "keyframes": [
+    {
+      "time": 0,
+      "labelKey": "proghatches.guide.distributor.label.overview",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.distributor.overview",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 60,
+      "labelKey": "proghatches.guide.distributor.label.clear",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.distributor.clear",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "blockChanges": [
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "z": 1,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "z": 2,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "z": 3,
+          "block": "minecraft:air",
+          "particles": false
+        }
+      ]
+    },
+    {
+      "time": 140,
+      "labelKey": "proghatches.guide.distributor.label.head",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.distributor.head",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "blockChanges": [
+        {
+          "x": 5,
+          "y": 0,
+          "z": 1,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "z": 1,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 2,
+          "nbt": "{mWasShutdown:0b,mRotation:0b,x:6,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:48,nbtVersion:509054264,mOwnerName:\"\"\"\",z:1,mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:15497,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},y:0,texturePage:0,mRedstone:0b,mFacing:2s}"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 2,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 2,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "z": 2,
+          "block": "gregtech:gt.blockframes",
+          "meta": 72
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 1,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 1,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 2,
+          "nbt": "{mPollution:0,powerPanelMaxParallel:1,mWasShutdown:0b,mMaxProgresstime:0,mEUt:0,isLiteVersion:0b,mInputDisabled:0b,mSoftMallet:0b,checkRecipeResultID:\"simple_result\",mLockedToSingleRecipe:0b,mCrowbar:0b,mWrench:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},mSolderingTool:0b,z:1,emptyRun:0b,makePowerfailEvents:1b,lockRecipe:0b,mOwnerName:\"\"\"\",alwaysMaxParallel:1b,cdmax:1,mMuffler:0b,shutDownReasonID:\"simple_result\",mOwnerUuid:\"\"\"\",mEfficiency:0,mColor:0b,mID:22142,Inventory:[],mEfficiencyIncrease:0,usesTurbine:0b,mActive:0b,y:1,ready:0,mFacing:2s,mRedstone:0b,allMEHatch:0b,inputSeparation:0b,mProgresstime:0,batchMode:0b,x:5,mWorks:1b,mStoredEnergy:0L,eFlip:0b,mOutputDisabled:0b,mHardHammer:0b,voidingMode:\"all\",mStoredSteam:0L,blocking:0b,mOtherUpgrades:0b,canBeMuffled:1b,mLightValue:0b,mTotalRunTime:1L,count:0,mLastWorkingTick:0L,cd:0,eRotation:0b,nbtVersion:509054264,mScrewdriver:0b,id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mRuntime:0,checkRecipeResult:{success:0b,persistsOnShutdown:0b,key:\"none\"},shutDownReason:{wasCritical:0b,key:\"none\"},recipesDone:0L}"
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "z": 1,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 3,
+          "nbt": "{mWasShutdown:0b,debugAmperage:2,x:6,mWorks:0b,mStoredEnergy:9223372036854775807L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,refillInterval:600,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},debugVTier:4,textureIndex:48,nbtVersion:509054264,mOwnerName:\"\"\"\",z:1,mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:11304,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},y:1,texturePage:0,mRedstone:0b,mFacing:2s}"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 2,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 2,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "z": 2,
+          "block": "gregtech:gt.blockframes",
+          "meta": 72
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "z": 1,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "z": 1,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "z": 1,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "z": 2,
+          "block": "gregtech:gt.blockframes",
+          "meta": 72
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "z": 2,
+          "block": "gregtech:gt.blockframes",
+          "meta": 72
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "z": 2,
+          "block": "gregtech:gt.blockframes",
+          "meta": 72
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4",
+          "meta": 12
+        }
+      ]
+    },
+    {
+      "time": 220,
+      "labelKey": "proghatches.guide.distributor.label.outputs",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.distributor.outputs",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "blockChanges": [
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2,
+          "block": "gregtech:gt.blockcasings4"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2,
+          "block": "gregtech:gt.blockcasings4"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 2,
+          "block": "gregtech:gt.blockcasings4"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 3,
+          "block": "gregtech:gt.blockcasings4"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2,
+          "block": "gregtech:gt.blockframes",
+          "meta": 72
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2,
+          "block": "gregtech:gt.blockframes",
+          "meta": 72
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "z": 2,
+          "block": "gregtech:gt.blockframes",
+          "meta": 72
+        }
+      ]
+    },
+    {
+      "time": 300,
+      "labelKey": "proghatches.guide.distributor.label.end",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.distributor.end",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "blockChanges": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2,
+          "block": "gregtech:gt.blockframes",
+          "meta": 72
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2,
+          "block": "gregtech:gt.blockframes",
+          "meta": 72
+        }
+      ]
+    },
+    {
+      "time": 380,
+      "labelKey": "proghatches.guide.distributor.label.hatches",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.distributor.hatches",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "blockChanges": [
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 1,
+          "nbt": "{mWasShutdown:0b,x:1,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:48,nbtVersion:509054264,mOwnerName:\"\"\"\",z:1,mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:81,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},y:0,texturePage:0,mRedstone:0b,mFacing:2s}"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 1,
+          "nbt": "{mWasShutdown:0b,x:2,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:48,nbtVersion:509054264,mOwnerName:\"\"\"\",z:1,mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:81,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},y:0,texturePage:0,mRedstone:0b,mFacing:2s}"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 1,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 1,
+          "nbt": "{mWasShutdown:0b,x:3,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:48,nbtVersion:509054264,mOwnerName:\"\"\"\",z:1,mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:81,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},y:0,texturePage:0,mRedstone:0b,mFacing:2s}"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 1,
+          "nbt": "{mWasShutdown:0b,disableSort:1b,x:4,mFluid2:{Empty:\"\"\"\"},mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,disableLimited:1b,mOutputDisabled:0b,mFluid1:{Empty:\"\"\"\"},mStoredSteam:0L,mOtherUpgrades:0b,mFluid3:{Empty:\"\"\"\"},mLightValue:0b,fluidLimit:1,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},mOwnerName:\"\"\"\",textureIndex:48,nbtVersion:509054264,migrationCircuitSlot:1b,z:1,shared:{manualFluidUpgrades:0,fluidCapUpgrades:0,manualItems:{len:0},fluidMEUpgrades:0,itemMEUpgrades:0,infbufUpgrades:0,manualFluids:{len:0},markedItems:{len:0},circuitUpgrades:0,markedFluid:{len:0},circuitInv:{len:0},manualUpgrades:0},mColor:0b,mFluid0:{Empty:\"\"\"\"},mMultiFluid:1b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:22019,program:1b,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},y:0,texturePage:0,disableFilter:1b,mRedstone:0b,mFacing:2s}"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 3,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 1,
+          "nbt": "{mWasShutdown:0b,x:2,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mMode:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:48,nbtVersion:509054264,mOwnerName:\"\"\"\",z:3,mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:61,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},y:0,texturePage:0,mRedstone:0b,mFacing:3s}"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 3,
+          "block": "gregtech:gt.blockmachines",
+          "meta": 1,
+          "nbt": "{mWasShutdown:0b,x:3,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mMode:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:48,nbtVersion:509054264,mOwnerName:\"\"\"\",z:3,mColor:0b,mOwnerUuid:\"\"\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:61,Inventory:[],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},y:0,texturePage:0,mRedstone:0b,mFacing:3s}"
+        }
+      ]
+    },
+    {
+      "time": 440,
+      "labelKey": "proghatches.guide.distributor.label.input",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.distributor.input",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "nbt": "{mWasShutdown:0b,disableSort:1b,x:4,mFluid2:{Empty:\"\"},mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,disableLimited:1b,mOutputDisabled:0b,mFluid1:{Amount:500,FluidName:\"lava\"},mStoredSteam:0L,mOtherUpgrades:0b,mFluid3:{Empty:\"\"},mLightValue:0b,fluidLimit:1,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},nbtVersion:509054264,textureIndex:48,mOwnerName:\"\",z:1,migrationCircuitSlot:1b,mID:22019,mMuffler:0b,shutDownReasonID:\"simple_result\",mMultiFluid:1b,mOwnerUuid:\"\",mFluid0:{Amount:1000,FluidName:\"water\"},mColor:0b,shared:{manualFluidUpgrades:0,fluidCapUpgrades:0,manualItems:{len:0},fluidMEUpgrades:0,itemMEUpgrades:0,infbufUpgrades:0,manualFluids:{len:0},markedItems:{len:0},circuitUpgrades:0,circuitInv:{len:0},markedFluid:{len:0},manualUpgrades:0},program:1b,Inventory:[0:{Damage:0s,Count:2,IntSlot:0,id:\"minecraft:iron_ingot\"},1:{Damage:0s,Count:3,IntSlot:1,id:\"minecraft:gold_ingot\"},2:{Damage:0s,Count:5,IntSlot:2,id:\"minecraft:iron_ingot\"}],mActive:0b,mLockUpgrade:0b,id:\"BaseMetaTileEntity\",shutDownReason:{wasCritical:0b,key:\"none\"},y:0,texturePage:0,mRedstone:0b,disableFilter:1b,mFacing:2s}"
+        }
+      ],
+      "modifyTileNBT": [
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "path": "mFluid2",
+          "value": "{Empty:\"\"}"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "path": "mFluid1",
+          "value": "{Amount:500,FluidName:\"lava\"}"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "path": "mFluid3",
+          "value": "{Empty:\"\"}"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "path": "mFluid0",
+          "value": "{Amount:1000,FluidName:\"water\"}"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "path": "shared",
+          "value": "{manualFluidUpgrades:0,fluidCapUpgrades:0,manualItems:{len:0},fluidMEUpgrades:0,itemMEUpgrades:0,infbufUpgrades:0,manualFluids:{len:0},markedItems:{len:0},circuitUpgrades:0,circuitInv:{len:0},markedFluid:{len:0},manualUpgrades:0}"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "path": "shutDownReason",
+          "value": "{wasCritical:0b,key:\"none\"}"
+        }
+      ]
+    },
+    {
+      "time": 600,
+      "labelKey": "proghatches.guide.distributor.label.distributed",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.distributor.distributed",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ],
+      "mergeTileNBT": [
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "nbt": "{mWasShutdown:0b,disableSort:1b,x:4,mFluid2:{Empty:\"\"},mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,disableLimited:1b,mOutputDisabled:0b,mFluid1:{Empty:\"\"},mStoredSteam:0L,mOtherUpgrades:0b,mFluid3:{Empty:\"\"},mLightValue:0b,fluidLimit:1,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},nbtVersion:509054264,textureIndex:48,mOwnerName:\"\",z:1,migrationCircuitSlot:1b,mID:22019,mMuffler:0b,shutDownReasonID:\"simple_result\",mMultiFluid:1b,mOwnerUuid:\"\",mFluid0:{Empty:\"\"},mColor:0b,shared:{manualFluidUpgrades:0,fluidCapUpgrades:0,manualItems:{len:0},fluidMEUpgrades:0,itemMEUpgrades:0,infbufUpgrades:0,manualFluids:{len:0},markedItems:{len:0},circuitUpgrades:0,circuitInv:{len:0},markedFluid:{len:0},manualUpgrades:0},program:1b,Inventory:[],mActive:0b,mLockUpgrade:0b,id:\"BaseMetaTileEntity\",shutDownReason:{wasCritical:0b,key:\"none\"},y:0,texturePage:0,mRedstone:0b,disableFilter:1b,mFacing:2s}"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 1,
+          "nbt": "{mWasShutdown:0b,x:3,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:48,nbtVersion:509054264,mOwnerName:\"\",z:1,mColor:0b,mOwnerUuid:\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:81,Inventory:[0:{Damage:0s,Count:2b,IntSlot:0,id:\"minecraft:iron_ingot\"}],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},y:0,texturePage:0,mRedstone:0b,mFacing:2s}"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1,
+          "nbt": "{mWasShutdown:0b,x:2,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:48,nbtVersion:509054264,mOwnerName:\"\",z:1,mColor:0b,mOwnerUuid:\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:81,Inventory:[0:{Damage:0s,Count:3b,IntSlot:0,id:\"minecraft:gold_ingot\"}],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},y:0,texturePage:0,mRedstone:0b,mFacing:2s}"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1,
+          "nbt": "{mWasShutdown:0b,x:1,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:48,nbtVersion:509054264,mOwnerName:\"\",z:1,mColor:0b,mOwnerUuid:\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:81,Inventory:[0:{Damage:0s,Count:5b,IntSlot:0,id:\"minecraft:iron_ingot\"}],id:\"BaseMetaTileEntity\",mLockUpgrade:0b,mActive:0b,shutDownReason:{wasCritical:0b,key:\"none\"},y:0,texturePage:0,mRedstone:0b,mFacing:2s}"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 3,
+          "nbt": "{mWasShutdown:0b,mFluid:{Amount:1000,FluidName:\"water\"},x:3,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mMode:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:48,nbtVersion:509054264,mOwnerName:\"\",z:3,mColor:0b,mOwnerUuid:\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:61,Inventory:[],mActive:0b,mLockUpgrade:0b,id:\"BaseMetaTileEntity\",shutDownReason:{wasCritical:0b,key:\"none\"},y:0,texturePage:0,mRedstone:0b,mFacing:3s}"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 3,
+          "nbt": "{mWasShutdown:0b,mFluid:{Amount:500,FluidName:\"lava\"},x:2,mWorks:0b,mStoredEnergy:0L,mInputDisabled:0b,mOutputDisabled:0b,mMode:0b,mStoredSteam:0L,mOtherUpgrades:0b,mLightValue:0b,mRedstoneSided:{__guidenh_byte_array_v1:[0,0,0,0,0,0,]},textureIndex:48,nbtVersion:509054264,mOwnerName:\"\",z:3,mColor:0b,mOwnerUuid:\"\",shutDownReasonID:\"simple_result\",mMuffler:0b,mID:61,Inventory:[],mActive:0b,mLockUpgrade:0b,id:\"BaseMetaTileEntity\",shutDownReason:{wasCritical:0b,key:\"none\"},y:0,texturePage:0,mRedstone:0b,mFacing:3s}"
+        }
+      ],
+      "modifyTileNBT": [
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "path": "mFluid2",
+          "value": "{Empty:\"\"}"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "path": "mFluid1",
+          "value": "{Empty:\"\"}"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "path": "mFluid3",
+          "value": "{Empty:\"\"}"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "path": "mFluid0",
+          "value": "{Empty:\"\"}"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "path": "shared",
+          "value": "{manualFluidUpgrades:0,fluidCapUpgrades:0,manualItems:{len:0},fluidMEUpgrades:0,itemMEUpgrades:0,infbufUpgrades:0,manualFluids:{len:0},markedItems:{len:0},circuitUpgrades:0,circuitInv:{len:0},markedFluid:{len:0},manualUpgrades:0}"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "z": 1,
+          "path": "shutDownReason",
+          "value": "{wasCritical:0b,key:\"none\"}"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 1,
+          "path": "shutDownReason",
+          "value": "{wasCritical:0b,key:\"none\"}"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1,
+          "path": "shutDownReason",
+          "value": "{wasCritical:0b,key:\"none\"}"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1,
+          "path": "shutDownReason",
+          "value": "{wasCritical:0b,key:\"none\"}"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 3,
+          "path": "mFluid",
+          "value": "{Amount:1000,FluidName:\"water\"}"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "z": 3,
+          "path": "shutDownReason",
+          "value": "{wasCritical:0b,key:\"none\"}"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 3,
+          "path": "mFluid",
+          "value": "{Amount:500,FluidName:\"lava\"}"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 3,
+          "path": "shutDownReason",
+          "value": "{wasCritical:0b,key:\"none\"}"
+        }
+      ]
+    },
+    {
+      "time": 760,
+      "labelKey": "proghatches.guide.distributor.label.sameItem",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.distributor.sameItem",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    },
+    {
+      "time": 900,
+      "labelKey": "proghatches.guide.distributor.label.done",
+      "annotations": [
+        {
+          "type": "text",
+          "textKey": "proghatches.guide.distributor.done",
+          "independent": true,
+          "yOffset": 1000,
+          "maxWidth": 250,
+          "color": "0xFF7FC47F"
+        }
+      ]
+    }
+  ]
+}

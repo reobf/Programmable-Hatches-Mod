@@ -297,17 +297,35 @@ public final class CycleAnalyzer {
                         else surplus.add(new CycleAmount<>(key, net[k]));
                     }
                 }
-                List<CycleAmount<K>> seeds = new ArrayList<>(), need = new ArrayList<>();
+                boolean[] growth = new boolean[n];
+                for (int i = 0; i < n; i++) {
+                    if (x[i] <= 0) continue;
+                    boolean up = false, down = false;
+                    for (int k : cyc) {
+                        if (s[k][i] > 0) up = true;
+                        else if (s[k][i] < 0) down = true;
+                    }
+                    growth[i] = up && !down;
+                }
+                List<CycleAmount<K>> seeds = new ArrayList<>(), start = new ArrayList<>(), need = new ArrayList<>();
                 List<CycleWarning<K>> balWarnings = new ArrayList<>();
                 boolean publishable = true;
                 for (int k : cyc) {
                     long back = net[k] < 0 ? seedIn[k] + net[k] : seedIn[k];
-                    if (back <= 0) continue;
                     K key = items.get(k);
-                    seeds.add(new CycleAmount<>(key, back));
+                    long gIn = 0, gOut = 0;
+                    for (int i = 0; i < n; i++) if (growth[i]) {
+                        gIn = Math.addExact(gIn, Math.multiplyExact(in[k][i], x[i]));
+                        gOut = Math.addExact(gOut, Math.multiplyExact(out[k][i], x[i]));
+                    }
+                    long first = Math.max(gIn, seedIn[k] - gOut);
+                    if (net[k] < 0) first = Math.max(0, first + net[k]);
+                    if (back > 0) seeds.add(new CycleAmount<>(key, back));
+                    if (first <= 0) continue;
+                    start.add(new CycleAmount<>(key, first));
                     long v;
                     try {
-                        v = Math.multiplyExact(back, multiplier);
+                        v = Math.multiplyExact(first, multiplier);
                     } catch (ArithmeticException e) {
                         v = Long.MAX_VALUE;
                         publishable = false;
@@ -327,7 +345,8 @@ public final class CycleAnalyzer {
                     }
                 }
                 warnings.addAll(balWarnings);
-                balancings.add(new CycleBalancing<>(x, ids, netIn, netOut, surplus, seeds, need, prods.get(b), publishable));
+                balancings.add(new CycleBalancing<>(x, ids, netIn, netOut, surplus, seeds, start, need, growth,
+                    prods.get(b), publishable));
             }
             result = new CycleAnalysis<>(items, cyclicKeys, productKeys, balancings, unsolved, warnings, sv.lpSolves + enumNodes, n);
         }

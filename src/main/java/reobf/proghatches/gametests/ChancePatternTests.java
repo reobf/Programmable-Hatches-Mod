@@ -579,7 +579,7 @@ public class ChancePatternTests {
     }
 
     /** One built sifter with its network, its own input item and a trace of every change. */
-    private static final class Fixture {
+    static final class Fixture {
 
         final GameTestHelper helper;
         final ItemStack input;

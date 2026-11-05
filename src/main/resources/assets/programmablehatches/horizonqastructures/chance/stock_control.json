@@ -1,0 +1,53 @@
+{
+  "format_version": 2,
+  "size": [
+    4,
+    3,
+    3
+  ],
+  "palette": {
+    "C": {
+      "name": "appliedenergistics2:tile.BlockCreativeEnergyController",
+      "meta": 1
+    },
+    "D": {
+      "name": "appliedenergistics2:tile.BlockDrive",
+      "meta": 0
+    },
+    "B": {
+      "name": "minecraft:chest",
+      "meta": 0
+    }
+  },
+  "layers": [
+    [
+      "....",
+      "....",
+      "...."
+    ],
+    [
+      "....",
+      "C.B.",
+      "D..."
+    ],
+    [
+      "....",
+      "....",
+      "...."
+    ]
+  ],
+  "annotations": {
+    "labels": {
+      "chest": [
+        2,
+        1,
+        1
+      ],
+      "drive": [
+        0,
+        1,
+        2
+      ]
+    }
+  }
+}

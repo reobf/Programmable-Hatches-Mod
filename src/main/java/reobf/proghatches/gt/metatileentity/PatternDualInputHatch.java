@@ -1378,67 +1378,48 @@ public int getCircuitSlot() {
 
 	@Override
 	public void optimize(ItemStackMap<Pair<Object, Integer>> lookupMap) {
-		IInventory patternInv = this.getPatterns();
+		if (!optimizePatterns(getPatterns(), multiplier, normalopt, getBaseMetaTileEntity().getWorld(), lookupMap)) return;
+		markDirty();
+		onPatternChange();
+		refresh();
+	}
 
+	/** Applies the optimizer's shifts to the named slots: with normalopt to the pattern, otherwise to the multiplier. */
+	static boolean optimizePatterns(IInventory patternInv, int[] multiplier, boolean normalopt,
+		net.minecraft.world.World world, ItemStackMap<Pair<Object, Integer>> lookupMap) {
+		boolean changed = false;
 		for (int i = 0; i < patternInv.getSizeInventory(); i++) {
 			ItemStack raw = patternInv.getStackInSlot(i);
-
-			if (raw == null) {
-				continue;
-			}
-			ItemStack stack = raw;
-			if(multiplier[i]>1){
+			if (raw == null) continue;
+			ItemStack key = raw;
+			if (multiplier[i] > 1) {
 				ICraftingPatternDetails details = null;
 				try {
-					details = ((ICraftingPatternItem) raw.getItem()).getPatternForItem(raw, this.getBaseMetaTileEntity().getWorld());
+					details = ((ICraftingPatternItem) raw.getItem()).getPatternForItem(raw, world);
 				} catch (Exception ignored) {}
 				if (details == null) continue;
-				stack = new PatternDualInputHatch.DA(details, multiplier[i]).getPattern();
+				key = new DA(details, multiplier[i]).getPattern();
 			}
-			/*if ((stack.getItem() instanceof ItemFakePattern) && (stack.hasTagCompound() == true)
-					&& (3 == stack.getTagCompound().getInteger("type"))) {
-				PatternDualInputHatch.DA parent = (DA) ((ItemFakePattern) stack.getItem()).getPatternForItem(stack,
-						null);
-				ICraftingPatternDetails wrapped = parent.p;
-
-				stack = wrapped.getPattern();
-			}*/
-			
-			
-
-			Pair<Object, Integer> pair = lookupMap.get(stack);
-			if (pair == null)
-				continue;
-			Integer bitMultiplier = pair.getValue();
-			if (bitMultiplier == 0)
-				continue;
-			boolean isDividing = false;
-			if (bitMultiplier < 0) {
-				isDividing = true;
-				bitMultiplier = -bitMultiplier;
-			}
-			if(normalopt) {
-				 ItemStack modified = raw.copy();
-				 PatternMultiplierHelper.applyModification(modified, isDividing ? -bitMultiplier : bitMultiplier);
-				 patternInv.setInventorySlotContents(i, modified);
-			}
-			else {
-			multiplier[i] = isDividing ? multiplier[i] >> bitMultiplier : multiplier[i] << bitMultiplier;
-			if (multiplier[i] <= 0) {
-				multiplier[i] = 1;
-			}
-			}
-			markDirty();
-			onPatternChange(); 
-			refresh();
-			/*
-			 * ItemStack sCopy = sdtack.copy();
-			 * pair.getKey().applyModification(sCopy, pair.getValue());
-			 * patternInv.setInventorySlotContents(i, sCopy);
-			 */
-
+			Pair<Object, Integer> pair = lookupMap.get(key);
+			if (pair == null || pair.getValue() == 0) continue;
+			int bits = pair.getValue();
+			if (normalopt) {
+				ItemStack modified = raw.copy();
+				PatternMultiplierHelper.applyModification(modified, bits);
+				patternInv.setInventorySlotContents(i, modified);
+			} else multiplier[i] = shiftMultiplier(multiplier[i], bits);
+			changed = true;
 		}
+		return changed;
+	}
 
+	/** The multiplier doubled or halved bits times, kept within int: shifts past the limit stop at the last fit. */
+	static int shiftMultiplier(int current, int bits) {
+		int base = Math.max(1, current);
+		if (bits < 0) return bits <= -31 ? 1 : Math.max(1, base >> -bits);
+		int k = Math.min(bits, 30);
+		while (k > 0 && ((long) base << k) > Integer.MAX_VALUE) k--;
+		return (int) ((long) base << k);
 	}
 	@Override
 	public void blacklist(ItemStackSet black) {

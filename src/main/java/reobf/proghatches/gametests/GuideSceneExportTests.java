@@ -29,7 +29,7 @@ import com.hfstudio.guidenh.guide.internal.structure.GuideTextNbtCodec;
 
 import reobf.proghatches.main.MyMod;
 
-@GameTestHolder(value = MyMod.MODID, templatePrefix = "chance")
+@GameTestHolder(value = MyMod.MODID, templatePrefix = "chance", requiredMods = {"guidenh"})
 public class GuideSceneExportTests {
 
     private static final int SX = 6, SY = 6, SZ = 10;
@@ -177,7 +177,8 @@ public class GuideSceneExportTests {
                 "sifterHatches",
                 stages.get("sifterHatches"),
                 text("sifterHatches", 1.5, 2.3, 2.5, new double[] { 1, 1, 2, 2, 2, 3 })));
-        keyframes.add(frame(460, "link", stages.get("link"), text("link", 0.5, 2.3, 7.0, new double[] { 0, 1, 4, 1, 2, 10 })));
+        keyframes.add(camera(frame(460, "link", stages.get("link"),
+            text("link", 0.5, 2.3, 7.0, new double[] { 0, 1, 4, 1, 2, 10 })), 90, 20));
         JsonObject recordTarget = frame(500, "recordTarget", null,
             text("recordTarget", 1.5, 2.8, 2.5, new double[] { 1, 1, 2, 2, 2, 3 }));
         JsonObject input = new JsonObject();
@@ -202,17 +203,17 @@ public class GuideSceneExportTests {
         initialLanes.setTag("cycLaneOffsets", new NBTTagList());
         guiPatch(opening, initialLanes);
         keyframes.add(opening);
-        keyframes.add(frame(680, "guiOpen", null, text("guiOpen", 1.5, 2.3, 7.5, null)));
+        keyframes.add(camera(frame(680, "guiOpen", null, caption("guiOpen")), 135, 20));
         keyframes.add(guiFrame(740, "guiSifter", "patternSlots.i4", patternSlots.getCompoundTag("i4")));
         keyframes.add(guiFrame(800, "guiEnrich", "patternSlots.i8", patternSlots.getCompoundTag("i8")));
-        keyframes.add(frame(880, "guiLanes", null, text("guiLanes", 1.5, 2.3, 7.5, null)));
-        keyframes.add(frame(940, "guiLaneHint", null, text("guiLaneHint", 1.5, 2.3, 7.5, null)));
-        keyframes.add(frame(980, "guiLaneSet", null, text("guiLaneSet", 1.5, 2.3, 7.5, null)));
-        keyframes.add(frame(1060, "guiBind", null, text("guiBind", 1.5, 2.3, 7.5, null)));
-        keyframes.add(frame(1120, "guiBindHint", null, text("guiBindHint", 1.5, 2.3, 7.5, null)));
-        keyframes.add(frame(1180, "guiBindDone", null, text("guiBindDone", 1.5, 2.3, 7.5, null)));
-        keyframes.add(frame(1260, "guiLanesBound", null, text("guiLanesBound", 1.5, 2.3, 7.5, null)));
-        keyframes.add(frame(1360, "guiConfig", null, text("guiConfig", 1.5, 2.3, 7.5, null)));
+        keyframes.add(frame(880, "guiLanes", null, caption("guiLanes")));
+        keyframes.add(frame(940, "guiLaneHint", null, caption("guiLaneHint")));
+        keyframes.add(frame(980, "guiLaneSet", null, caption("guiLaneSet")));
+        keyframes.add(frame(1060, "guiBind", null, caption("guiBind")));
+        keyframes.add(frame(1120, "guiBindHint", null, caption("guiBindHint")));
+        keyframes.add(frame(1180, "guiBindDone", null, caption("guiBindDone")));
+        keyframes.add(frame(1260, "guiLanesBound", null, caption("guiLanesBound")));
+        keyframes.add(frame(1360, "guiConfig", null, caption("guiConfig")));
         JsonObject closing = frame(1480, "guiClose", null, text("guiClose", 1.5, 2.3, 7.5, null));
         guiPatch(closing, laneState);
         keyframes.add(closing);
@@ -241,7 +242,7 @@ public class GuideSceneExportTests {
     }
 
     private static JsonObject guiFrame(int time, String key, String path, NBTTagCompound value) {
-        JsonObject frame = frame(time, key, null, text(key, 1.5, 2.3, 7.5, new double[] { 1, 1, 7, 2, 2, 8 }));
+        JsonObject frame = frame(time, key, null, caption(key));
         JsonObject change = new JsonObject();
         change.addProperty("x", 1);
         change.addProperty("y", 1);
@@ -284,6 +285,26 @@ public class GuideSceneExportTests {
         notes.add(annotation);
         k.add("annotations", notes);
         return k;
+    }
+
+    private static JsonObject camera(JsonObject frame, float rotY, int easeTicks) {
+        JsonObject camera = new JsonObject();
+        camera.addProperty("rotY", rotY);
+        frame.add("camera", camera);
+        frame.addProperty("cameraEaseTicks", easeTicks);
+        return frame;
+    }
+
+    private static JsonObject caption(String key) {
+        JsonObject t = new JsonObject();
+        t.addProperty("type", "text");
+        t.addProperty("textKey", "proghatches.guide.pd." + key);
+        t.addProperty("text", FALLBACK.get(key));
+        t.addProperty("independent", true);
+        t.addProperty("yOffset", 1000);
+        t.addProperty("maxWidth", 250);
+        t.addProperty("color", "0xFF7FC47F");
+        return t;
     }
 
     private static JsonObject text(String key, double x, double y, double z, double[] box) {

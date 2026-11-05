@@ -3334,6 +3334,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			GenericSyncValue<ChanceView.Buffer, ?> chance = chanceSync(syncManager, "sync_chance_" + id, id);
 
 			com.cleanroommc.modularui.widgets.ButtonWidget button=new com.cleanroommc.modularui.widgets.ButtonWidget<>()
+            .name("open_buffer_" + id)
 			.onMousePressed(s->{
 				panel.openPanel();
 				return panel.isPanelOpen();

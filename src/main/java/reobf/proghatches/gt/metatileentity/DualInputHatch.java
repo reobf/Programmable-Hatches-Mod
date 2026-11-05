@@ -332,11 +332,19 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 	/** Contiguous mirror of every tank's content (null = empty); see buildFluidTanks. */
 	public FluidStack[] mStoredFluidBack = new FluidStack[0];
 
+	/** Recorded ME stock for guide scenes; ordinary hatches have no snapshot. */
+	private NBTTagCompound guideFluidStock;
+
+	public NBTTagCompound guideFluidStock() {
+		return guideFluidStock == null ? new NBTTagCompound() : (NBTTagCompound) guideFluidStock.copy();
+	}
+
 	@Override
 	public void saveNBTData(NBTTagCompound aNBT) {
 		super.saveNBTData(aNBT);
 
 		aNBT.setTag("shared", shared.ser());
+		if (guideFluidStock != null) aNBT.setTag("phGuideFluidStock", guideFluidStock.copy());
 		aNBT.setInteger("fluidLimit", fluidLimit);
 		aNBT.setBoolean("program", program);
 		aNBT.setBoolean("mMultiFluid", mMultiFluid);
@@ -368,6 +376,8 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			return;
 		super.loadNBTData(aNBT);
 		shared.deser(aNBT.getCompoundTag("shared"));
+		guideFluidStock = aNBT.hasKey("phGuideFluidStock", 10)
+			? (NBTTagCompound) aNBT.getCompoundTag("phGuideFluidStock").copy() : null;
 		fluidLimit = aNBT.getInteger("fluidLimit");
 		program = aNBT.getBoolean("program");
 		mMultiFluid = aNBT.getBoolean("mMultiFluid");
@@ -2272,7 +2282,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 																											// client
 
 			if (!shared.isDummy()) {
-				builder.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>().onUpdateListener(s -> {
+				builder.child(new com.cleanroommc.modularui.widgets.ButtonWidget<>().name("open_shared").onUpdateListener(s -> {
 					s.background(GTGuiTextures.BUTTON_STANDARD,
 
 							mInventory[getCircuitSlot()] == null ? GTGuiTextures.OVERLAY_SLOT_INT_CIRCUIT :
@@ -2703,7 +2713,7 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 			}
 			for (int i = 0; i < shared.fluidMEUpgrades; i++) {
 				final int fi = i;
-				builder.child(markSlot(shared.markedFluid, i).pos(8 - 1 + 18 + 4, 8 - 1 + 18 * posoffset));
+				builder.child(markSlot(shared.markedFluid, i).name("shared_fluid_mark_" + i).pos(8 - 1 + 18 + 4, 8 - 1 + 18 * posoffset));
 				builder.child(
 						new com.cleanroommc.modularui.api.drawable.IDrawable.DrawableWidget(GuiTextures.MOVE_RIGHT)
 								.pos(8 - 1 + 18 * 2 + 4, 8 - 1 + 18 * posoffset).size(18, 18));
@@ -2726,7 +2736,15 @@ public class DualInputHatch extends MTEHatchInputBus implements IConfigurationCi
 				};
 				syncManager.syncValue("shared_fluid:" + i, hd);
 
-				builder.child(new FluidSlot()
+				builder.child(new FluidSlot() {
+					@Override
+					protected void addToolTip(com.cleanroommc.modularui.screen.RichTooltip tooltip) {
+						FluidStack fluid = getFluidStack();
+						if (fluid != null) tooltip.addFromFluid(fluid);
+						tooltip.addLine(com.cleanroommc.modularui.api.drawable.IKey.lang(
+							"programmable_hatches.gt.fluid.me.stock", String.format("%,d", fluid == null ? 0 : fluid.amount)));
+					}
+				}.name("shared_fluid_stock_" + i)
 				.syncHandler(
 						new FluidSlotSyncHandler(new FluidTank(1))
 						{

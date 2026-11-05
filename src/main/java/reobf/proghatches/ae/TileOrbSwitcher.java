@@ -208,7 +208,7 @@ public class TileOrbSwitcher extends TileEntity implements IActionHost, IGridPro
         if (meta) if (a.getItemDamage() != b.getItemDamage()) {
             return false;
         }
-        if (nbt) if (Objects.equal(a.getTagCompound(), b.getTagCompound())) {
+        if (nbt) if (!Objects.equal(a.getTagCompound(), b.getTagCompound())) {
             return false;
         }
         return true;

@@ -7,6 +7,7 @@ import com.gtnewhorizon.gtnhmixins.ILateMixinLoader;
 import com.gtnewhorizon.gtnhmixins.LateMixin;
 
 import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import reobf.proghatches.main.MyMod;
 
 @LateMixin
@@ -50,6 +51,8 @@ public class LateMixinPlugin implements ILateMixinLoader {
         
         MixinPlugin.retLate.add("part2.MixinProcessLogicDoNotCache");
         MyMod.newGTCache = true;
+        if (FMLLaunchHandler.side().isClient() && loadedMods.contains("guidenh"))
+            MixinPlugin.retLate.add("part2.MixinGuideTooltipWidth");
         return MixinPlugin.retLate;
     }
 

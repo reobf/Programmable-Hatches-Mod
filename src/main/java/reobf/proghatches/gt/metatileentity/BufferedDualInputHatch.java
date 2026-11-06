@@ -1642,43 +1642,70 @@ public class BufferedDualInputHatch extends DualInputHatch
         long itemCap = Math.min(itemLimit(), singleSlotLimit());
         for (int ix = 0; ix < theBuffer.i;) {
             int end = theBuffer.itemRun(ix);
-            long left = 0;
-            if (theBuffer.itemCounted(ix)) for (int k = ix; k < end; k++)
-                left = Math.addExact(left, Math.multiplyExact(theBuffer.mStoredItemInternalSingle[k].getStackSize(), todo));
-            for (int k = ix; k < end && left > 0; k++) {
-                ItemStackG stored = theBuffer.mStoredItemInternal[k];
-                long now = stored == null ? 0 : stored.stackSize();
-                long put = k == end - 1 ? left : Math.min(left, Math.max(0, itemCap - now));
-                if (put <= 0) continue;
-                if (stored == null) theBuffer.mStoredItemInternal[k] =
-                    LongStacks.itemGroup(theBuffer.mStoredItemInternalSingle[k].copy().setStackSize(put));
-                else stored.stackSizeInc(new LongWrapper(put));
-                left -= put;
+            if (theBuffer.itemCounted(ix)) {
+                long[] put = new long[end - ix];
+                for (int k = ix; k < end; k++)
+                    put[k - ix] = Math.multiplyExact(theBuffer.mStoredItemInternalSingle[k].getStackSize(), todo);
+                long[] now = new long[end - ix];
+                for (int k = ix; k < end; k++)
+                    now[k - ix] = theBuffer.mStoredItemInternal[k] == null ? 0 : theBuffer.mStoredItemInternal[k].stackSize();
+                spill(put, now, itemCap);
+                for (int k = ix; k < end; k++) {
+                    long n = put[k - ix];
+                    if (n <= 0) continue;
+                    ItemStackG stored = theBuffer.mStoredItemInternal[k];
+                    if (stored == null) theBuffer.mStoredItemInternal[k] =
+                        LongStacks.itemGroup(theBuffer.mStoredItemInternalSingle[k].copy().setStackSize(n));
+                    else stored.stackSizeInc(new LongWrapper(n));
+                }
             }
             ix = end;
         }
         long fluidCap = Math.min(fluidLimit(), singleSlotLimit());
         for (int ix = 0; ix < theBuffer.f;) {
             int end = theBuffer.fluidRun(ix);
-            long left = 0;
-            if (theBuffer.fluidCounted(ix)) for (int k = ix; k < end; k++)
-                left = Math.addExact(left, Math.multiplyExact(theBuffer.mStoredFluidInternalSingle[k].getStackSize(), todo));
-            for (int k = ix; k < end && left > 0; k++) {
-                FluidTankG stored = theBuffer.mStoredFluidInternal[k];
-                long put = k == end - 1 ? left : Math.min(left, Math.max(0, fluidCap - stored.getFluidAmount()));
-                if (put <= 0) continue;
-                if (stored.getFluid() == null) {
-                    FluidStack type = theBuffer.mStoredFluidInternalSingle[k].getFluidStack();
-                    type.amount = 0;
-                    stored.setFluid(type);
+            if (theBuffer.fluidCounted(ix)) {
+                long[] put = new long[end - ix];
+                for (int k = ix; k < end; k++)
+                    put[k - ix] = Math.multiplyExact(theBuffer.mStoredFluidInternalSingle[k].getStackSize(), todo);
+                long[] now = new long[end - ix];
+                for (int k = ix; k < end; k++) now[k - ix] = theBuffer.mStoredFluidInternal[k].getFluidAmount();
+                spill(put, now, fluidCap);
+                for (int k = ix; k < end; k++) {
+                    long n = put[k - ix];
+                    if (n <= 0) continue;
+                    FluidTankG stored = theBuffer.mStoredFluidInternal[k];
+                    if (stored.getFluid() == null) {
+                        FluidStack type = theBuffer.mStoredFluidInternalSingle[k].getFluidStack();
+                        type.amount = 0;
+                        stored.setFluid(type);
+                    }
+                    stored.amountAcc(n);
                 }
-                stored.amountAcc(put);
-                left -= put;
             }
             ix = end;
         }
         theBuffer.nonempty = true;
 
+	}
+
+	/** Each slot of a run keeps its own share; what exceeds a slot's capacity moves to the run's other slots. */
+	static void spill(long[] put, long[] now, long cap) {
+		long over = 0;
+		for (int k = 0; k < put.length; k++) {
+			long room = Math.max(0, cap - now[k]);
+			if (put[k] > room) {
+				over += put[k] - room;
+				put[k] = room;
+			}
+		}
+		for (int k = 0; k < put.length && over > 0; k++) {
+			long room = Math.max(0, cap - now[k] - put[k]);
+			long add = Math.min(room, over);
+			put[k] += add;
+			over -= add;
+		}
+		if (over > 0) put[put.length - 1] += over;
 	}
 
 	/** One run cut into this hatch's input slots, or null if it does not fit them. */

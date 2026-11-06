@@ -117,6 +117,36 @@ public class SplitPushTests {
         h.succeed();
     }
 
+    // A recipe recorded with the same item in two slots keeps both slots growing by their own amount per run.
+    @GameTest(template = "sifter", timeoutTicks = 200)
+    public static void extraRunsKeepTheRecordedSlotShares(GameTestHelper h) {
+        BufferedDualInputHatch hatch = place(h, Config.metaTileEntityOffset + Registration.BufferedDualInputHatchOffset + 6);
+        ItemStack wire = new ItemStack(Blocks.stained_hardened_clay, 1, 8), rod = new ItemStack(Blocks.stained_hardened_clay, 1, 9);
+        List<PushStaging.Part> run = List.of(PushStaging.Part.item(wire, 64), PushStaging.Part.item(wire, 64),
+            PushStaging.Part.item(rod, 1));
+        h.assertEquals(10L, takeRuns(hatch, run, 10), "Ten runs fit the buffer");
+        ItemStackG[] stored = (ItemStackG[]) LongInputBufferTests.field(hatch.inv0.get(0), "mStoredItemInternal");
+        h.assertEquals(640L, stored[0].stackSize(), "The first wire slot holds its share of every run");
+        h.assertEquals(640L, stored[1].stackSize(), "The second wire slot holds its share of every run");
+        h.assertEquals(10L, stored[2].stackSize(), "The rod slot holds one per run");
+        h.assertEquals(10L, copies(hatch, hatch.inv0.get(0)), "The buffer holds ten runs");
+        h.succeed();
+    }
+
+    @GameTest(template = "sifter", timeoutTicks = 200)
+    public static void extraRunsSpillOnlyPastASlotsCapacity(GameTestHelper h) {
+        BufferedDualInputHatch hatch = hatch(h);
+        ItemStack type = new ItemStack(Blocks.stained_hardened_clay, 1, 10);
+        long cap = hatch.itemLimit();
+        List<PushStaging.Part> run = List.of(PushStaging.Part.item(type, 8), PushStaging.Part.item(type, 56));
+        h.assertEquals(6L, takeRuns(hatch, run, 6), "Six runs fit the shared capacity");
+        ItemStackG[] stored = (ItemStackG[]) LongInputBufferTests.field(hatch.inv0.get(0), "mStoredItemInternal");
+        h.assertEquals(cap, stored[1].stackSize(), "The large slot stops at its capacity");
+        h.assertEquals(6L * 64 - cap, stored[0].stackSize(), "The small slot takes what the large one cannot");
+        h.assertEquals(6L, copies(hatch, hatch.inv0.get(0)), "The buffer holds six runs");
+        h.succeed();
+    }
+
     private static void assertRecorded(GameTestHelper h, BufferedDualInputHatch hatch, long... chunks) {
         IAEItemStack[] single = (IAEItemStack[]) LongInputBufferTests.field(hatch.inv0.get(0), "mStoredItemInternalSingle");
         for (int ix = 0; ix < chunks.length; ix++)

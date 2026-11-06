@@ -438,7 +438,9 @@ public class BufferedDualInputHatch extends DualInputHatch
 		public boolean full() {
 
             if (!nonempty && emptyopt) return false;
-            return space() <= 0;
+            for (int ix = 0; ix < i; ix++) if (itemCounted(ix)) return space() <= 0;
+            for (int ix = 0; ix < f; ix++) if (fluidCounted(ix)) return space() <= 0;
+            return false;
 
 	}
 
@@ -448,10 +450,12 @@ public class BufferedDualInputHatch extends DualInputHatch
 				if ((mStoredItemInternal[i] != null && mStoredItemInternal[i].stackSize() <= 0)||mStoredItemInternal[i] == null) {
 					mStoredItemInternal[i] = null;
 				}else {nonempty=true;}
-			for (int i = 0; i < this.f; i++)
-				if (Optional.ofNullable(mStoredFluidInternal[i].getFluid()).filter(s -> s.amount == 0).isPresent()) {
-					mStoredFluidInternal[i].setFluid(null);
-				}else {nonempty=true;}
+			for (int i = 0; i < this.f; i++) {
+				FluidStack fluid = mStoredFluidInternal[i].getFluid();
+				if (fluid == null) continue;
+				if (fluid.amount <= 0) mStoredFluidInternal[i].setFluid(null);
+				else nonempty = true;
+			}
 
 		}
 

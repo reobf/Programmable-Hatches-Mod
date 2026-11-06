@@ -154,6 +154,23 @@ public class SplitPushTests {
         h.assertNull(single[chunks.length], "No further slot is recorded");
     }
 
+    @GameTest(template = "sifter", timeoutTicks = 200)
+    public static void aBufferWithNothingRecordedIsNotFull(GameTestHelper h) {
+        BufferedDualInputHatch hatch = hatch(h);
+        DualInvBuffer buffer = hatch.inv0.get(0);
+        buffer.updateSlots();
+        h.assertFalse(buffer.full(), "A buffer with nothing recorded is not full");
+        h.assertTrue(buffer.isEmpty(), "A buffer with nothing recorded is empty");
+        ItemStack type = new ItemStack(Blocks.stained_hardened_clay, 1, 10);
+        List<PushStaging.Part> run = List.of(PushStaging.Part.item(type, 8), PushStaging.Part.item(type, 56));
+        long runs = 2 * hatch.itemLimit() / 64;
+        h.assertEquals(runs, takeRuns(hatch, run, runs), "The runs that fill the shared capacity are taken");
+        buffer.updateSlots();
+        h.assertTrue(buffer.full(), "A buffer at its capacity is full");
+        h.assertFalse(buffer.isEmpty(), "A stocked buffer is not empty");
+        h.succeed();
+    }
+
     private static BufferedDualInputHatch hatch(GameTestHelper h) {
         return place(h, Config.metaTileEntityOffset + Registration.BufferedDualInputHatchOffset + 4);
     }

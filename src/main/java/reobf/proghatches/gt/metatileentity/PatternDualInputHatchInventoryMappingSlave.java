@@ -843,6 +843,23 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
     }
 
     @Override
+    public ItemStack getDisplayRep() {
+        T m = getMaster();
+        ItemStack rep;
+        if (m == null) {
+            rep = getStackForm(1);
+        } else if (m instanceof IInterfaceViewable viewable && viewable.getDisplayRep() != null) {
+            rep = viewable.getDisplayRep()
+                .copy();
+        } else {
+            ItemStack icon = m.getMachineCraftingIcon();
+            rep = (icon != null ? icon : m.getStackForm(1)).copy();
+        }
+        if (hasCustomName()) rep.setStackDisplayName(getCustomName());
+        return rep;
+    }
+
+    @Override
     public TileEntity getTileEntity() {
         return (TileEntity) getBaseMetaTileEntity();
     }

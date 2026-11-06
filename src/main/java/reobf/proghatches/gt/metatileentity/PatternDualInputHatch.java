@@ -809,6 +809,13 @@ public int page() {
     }
 
     @Override
+    public ItemStack getDisplayRep() {
+        ItemStack rep = getCrafterIcon().copy();
+        if (hasCustomName()) rep.setStackDisplayName(getCustomName());
+        return rep;
+    }
+
+    @Override
     public TileEntity getTileEntity() {
         return (TileEntity) getBaseMetaTileEntity();
     }

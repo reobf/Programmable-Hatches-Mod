@@ -108,7 +108,6 @@ public class Config {
             if (in == null) {
                 if (defaulted) {
                     obj.addMachineType("!!!error!!! failed to translate");
-                    // obj.getClass().getMethod("toolTipFinisher", String.class).invoke(obj,);
                     finisher(obj, "do not remove en_US folder!");
 
                     return;
@@ -158,26 +157,8 @@ public class Config {
         if (Config.appendAddedBy) finisher(obj, LangManager.translateToLocal("programmable_hatches.addedby"));;
     }
 
-    private static void finisher(Object obj, String str) {
-        try {
-
-            obj.getClass()
-                .getMethod("toolTipFinisher", String.class)
-                .invoke(obj, str);
-        } catch (Exception e) {
-            try {
-                MyMod.LOG.warn("toolTipFinisher with String arg not found.");
-                MyMod.LOG.warn("Try toolTipFinisher with String[] arg.");
-                // e.printStackTrace();
-                obj.getClass()
-                    .getMethod("toolTipFinisher", String[].class)
-                    .invoke(obj, new Object[] { new String[] { str } });
-            } catch (Exception ee) {
-                MyMod.LOG.fatal("????");
-                ee.printStackTrace();
-            }
-            // e.printStackTrace();
-        }
+    private static void finisher(MultiblockTooltipBuilder obj, String str) {
+        obj.toolTipFinisher(str);
     }
 
     private static void call(Object callee, String args, MethodHandle virtual, MethodType type) {

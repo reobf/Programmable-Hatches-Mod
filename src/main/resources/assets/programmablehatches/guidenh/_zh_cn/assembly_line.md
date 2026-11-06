@@ -8,12 +8,10 @@ navigation:
     - "原料分配器"
     - "诱骗输入总线"
     - "装配线"
-    - "状态总线"
     - "Ingredient Distributor"
     - "decoy"
 item_ids:
   - "<gregtech:gt.blockmachines:22142>"
-  - "<gregtech:gt.blockmachines:22170>"
   - "<gregtech:gt.blockmachines:22171>"
   - "<gregtech:gt.blockmachines:22172>"
   - "<gregtech:gt.blockmachines:22173>"
@@ -70,9 +68,3 @@ item_ids:
 5. 用包含重复材料的小订单确认每个子网均正确扣料。
 
 诱骗输入仓提供对应的流体处理方式。优先级过滤输入仓／总线可用于明确限制其他输入位置访问的存储优先级。
-
-## 多台分配器协调
-
-状态总线通讯端口用于分配器之间的占用、让渡和配方锁定协调。先完成单台分配器的阻挡模式配置，再接入通讯端口与相应红石状态线路。
-
-观察 GUI 中“空闲、占据、已锁定、已让渡”的变化，确保一组输出被当前批次占用时，其他主机等待。输出清空后再允许下一组材料进入。

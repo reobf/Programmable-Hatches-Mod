@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -43,12 +42,12 @@ import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.enums.TierEU;
 import gregtech.api.recipe.RecipeMaps;
-import gregtech.api.recipe.RecipeMetadataKey;
 import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTRecipe;
 import gregtech.api.util.GTRecipeBuilder;
 import gregtech.api.util.GTRecipeConstants;
 import gregtech.api.util.GTUtility;
+import gregtech.api.util.recipe.Scanning;
 import gtPlusPlus.xmod.gregtech.api.enums.GregtechItemList;
 import reobf.proghatches.item.ItemProgrammingCircuit;
 import reobf.proghatches.main.Config;
@@ -61,21 +60,7 @@ import thaumcraft.common.config.ConfigItems;
 // spotless:off
 public class PHRecipes implements Runnable {
     public static <T extends GTRecipeBuilder> T setScan(T a, int time) {
-        try {
-            RecipeMetadataKey x = (RecipeMetadataKey) GTRecipeConstants.class.getField("RESEARCH_TIME")
-                .get(null);
-            a.metadata(x, time);
-        } catch (Exception e) {}
-        try {
-            RecipeMetadataKey x = (RecipeMetadataKey) GTRecipeConstants.class.getField("SCANNING")
-                .get(null);
-            Object scanning = Class.forName("gregtech.api.util.recipe.Scanning")
-                .getConstructor(int.class, long.class)
-                .newInstance(time, 32);
-
-            a.metadata(x, scanning);
-        } catch (Exception e) {}
-
+        a.metadata(GTRecipeConstants.SCANNING, new Scanning(time, 32));
         return a;
     }
 
@@ -83,15 +68,8 @@ public class PHRecipes implements Runnable {
         Robot_Arm_LV.get(1), Robot_Arm_MV.get(1), Robot_Arm_HV.get(1), Robot_Arm_EV.get(1), Robot_Arm_IV.get(1),
         Robot_Arm_LuV.get(1), Robot_Arm_ZPM.get(1), Robot_Arm_UV.get(1), Robot_Arm_UHV.get(1), Robot_Arm_UEV.get(1),
         Robot_Arm_UIV.get(1), Robot_Arm_UMV.get(1), Robot_Arm_UXV.get(1), Robot_Arm_MAX.get(1) };
-    Materials[][] mat = null;
-
-    Supplier<Materials[][]> metget = () -> new Materials[][] { {ULV}, {LV}, {MV}, {HV},
-        {EV}, {IV}, {LuV}, {ZPM}, { UV }, {UHV}, {UEV},
-        {UIV/* ,Nano, */ }, { Piko/* ,Exotic, */ }, // dreamcraft circuit
-        { Piko /* Quantum,Cosmic, */ }, { Piko /* Quantum Transcendent */ } };
-
     @SuppressWarnings("deprecation")
-    Materials[][] matNewVersion = { {ULV}, {LV}, {MV}, {HV}, {EV}, {IV}, {LuV},
+    Materials[][] mat = { {ULV}, {LV}, {MV}, {HV}, {EV}, {IV}, {LuV},
         {ZPM}, { UV }, {UHV}, {UEV}, {UIV}, {UMV}, {UXV},
         {UXV/* Transcendent */ } };
 
@@ -300,16 +278,6 @@ public class PHRecipes implements Runnable {
     public void run() {
 
         if (Config.skipRecipeAdding) return;
-
-        if (GameRegistry.findItem("dreamcraft", "item.PolychromePikoCircuit") != null) {
-            MyMod.LOG.info("Found new dreamcraft Nano-Piko-Quantum circuit, use oredict: Exotic-Cosmic-Transcendent.");
-            mat = matNewVersion;
-        } else {
-            mat = metget.get();
-            MyMod.LOG.info("Good ol' version.");
-
-        }
-        // You just like breaking changes, isn't that true, GTNH dev?
 
         IRecipe rec = new ShapedOreRecipe(
             new ItemStack(MyMod.plunger),
@@ -792,6 +760,98 @@ public class PHRecipes implements Runnable {
             .duration(20 * SECONDS)
             .eut(GTValues.VP[9])
             .addTo(RecipeMaps.assemblerRecipes);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                new ItemStack(GregTechAPI.sBlockMachines, 1, Config.metaTileEntityOffset + Registration.PatternOffset),
+                Api.INSTANCE.definitions()
+                    .blocks()
+                    .craftingAccelerator()
+                    .maybeStack(4)
+                    .get(),
+                Api.INSTANCE.definitions()
+                    .blocks()
+                    .craftingStorage64k()
+                    .maybeStack(1)
+                    .get(),
+                Robot_Arm_UV.get(2))
+            .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
+            .itemOutputs(
+                new ItemStack(
+                    GregTechAPI.sBlockMachines,
+                    1,
+                    Config.metaTileEntityOffset + Registration.CyclicPatternOffset))
+            .duration(20 * SECONDS)
+            .eut(GTValues.VP[9])
+            .addTo(RecipeMaps.assemblerRecipes);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                new ItemStack(
+                    GregTechAPI.sBlockMachines,
+                    1,
+                    Config.metaTileEntityOffset + Registration.ExPatternOffset),
+                new ItemStack(MyMod.toolkit, 0, OreDictionary.WILDCARD_VALUE),
+                Api.INSTANCE.definitions()
+                    .parts()
+                    .patternTerminal()
+                    .maybeStack(1)
+                    .get(),
+                Tool_DataOrb.get(16))
+            .fluidInputs(Materials.GlueAdvanced.getFluid(4000))
+            .itemOutputs(
+                new ItemStack(
+                    GregTechAPI.sBlockMachines,
+                    1,
+                    Config.metaTileEntityOffset + Registration.ExPatternOffsetAutogen))
+            .duration(20 * SECONDS)
+            .eut(GTValues.VP[9])
+            .addTo(RecipeMaps.assemblerRecipes);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                Api.INSTANCE.definitions()
+                    .blocks()
+                    .iface()
+                    .maybeStack(2)
+                    .get(),
+                Api.INSTANCE.definitions()
+                    .parts()
+                    .storageBus()
+                    .maybeStack(2)
+                    .get(),
+                new ItemStack(MyMod.toolkit, 0, OreDictionary.WILDCARD_VALUE),
+                Robot_Arm_IV.get(1))
+            .itemOutputs(new ItemStack(MyMod.orbswitcher))
+            .duration(20 * SECONDS)
+            .eut(GTValues.VP[5])
+            .addTo(RecipeMaps.assemblerRecipes);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                Api.INSTANCE.definitions()
+                    .blocks()
+                    .energyAcceptor()
+                    .maybeStack(1)
+                    .get(),
+                Api.INSTANCE.definitions()
+                    .blocks()
+                    .energyCellDense()
+                    .maybeStack(1)
+                    .get(),
+                Emitter_EV.get(1),
+                GTOreDictUnificator.get(OrePrefixes.circuit.get(Materials.EV), 2))
+            .itemOutputs(new ItemStack(MyMod.exciter))
+            .duration(20 * SECONDS)
+            .eut(GTValues.VP[4])
+            .addTo(RecipeMaps.assemblerRecipes);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(Quantum_Chest_EV.get(1), Quantum_Tank_EV.get(1), Materials.Steel.getPlates(1))
+            .itemOutputs(new ItemStack(MyMod.upgrades, 1, 3))
+            .duration(100 * SECONDS)
+            .eut(480 * 4 * 4)
+            .addTo(RecipeMaps.formingPressRecipes);
 
         GTValues.RA.stdBuilder()
             .itemInputs(Hatch_CraftingInput_Bus_ME_ItemOnly.get(1), new ItemStack(MyMod.smartarm, 4, 6))

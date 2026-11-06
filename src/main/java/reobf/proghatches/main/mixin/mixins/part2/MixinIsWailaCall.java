@@ -24,8 +24,7 @@ import reobf.proghatches.eucrafting.AECover;
 		
 		//value = GregtechTEWailaDataProvider.class
 targets={
-		"gregtech.crossmod.waila.GregtechTEWailaDataProvider",
-		"gregtech.crossmod.waila.GregtechWailaDataProvider"//喜欢改名字?
+		"gregtech.crossmod.waila.GregtechTEWailaDataProvider"
 		
 }
 

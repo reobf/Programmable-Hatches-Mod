@@ -227,9 +227,6 @@ public static boolean loaded;
             	
             	//  wo/ fluid
                 retLate.add("MixinPatternEncodingCiruitSpecialTreatment2"); 
-                //  with fluid
-               //legacy
-                retLate.add("part2.MixinPatternEncodingCiruitSpecialTreatmentNeo");
                 
                 
             }

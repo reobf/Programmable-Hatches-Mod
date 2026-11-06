@@ -1,14 +1,11 @@
 package reobf.proghatches.eucrafting;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.init.Blocks;
@@ -38,6 +35,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTETieredMachineBlock;
 import reobf.proghatches.main.Config;
 import tectech.mechanics.pipe.IConnectsToEnergyTunnel;
+import tectech.thing.metaTileEntity.pipe.MTEPipeLaser;
 
 public class PartLazerP2P<S extends MetaTileEntity & IConnectsToEnergyTunnel, D extends MetaTileEntity & IConnectsToEnergyTunnel>
 
@@ -45,53 +43,6 @@ public class PartLazerP2P<S extends MetaTileEntity & IConnectsToEnergyTunnel, D 
 
     public PartLazerP2P(ItemStack is) {
         super(is);
-
-    }
-
-    static Class c;
-    static Function<Object, Integer> getConn;
-    static Consumer<Object> mark;
-
-    static {
-        if (c == null) {
-            try {
-                c = Class.forName("tectech.thing.metaTileEntity.pipe.MTEPipeEnergy");
-            } catch (ClassNotFoundException e) {}
-        }
-
-        if (c == null) {
-            try {
-                c = Class.forName("tectech.thing.metaTileEntity.pipe.MTEPipeLaser");
-            } catch (ClassNotFoundException e) {}
-        }
-        if (c == null) {
-            throw new AssertionError("no lazer class found");
-        }
-
-        try {
-            Method f = c.getMethod("markUsed");
-            mark = s -> {
-
-                try {
-                    f.invoke(s);
-                } catch (Exception e) {
-                    throw new AssertionError(e);
-                }
-            };
-
-            Field f2 = c.getDeclaredField("connectionCount");
-            getConn = sp -> {
-
-                try {
-                    return ((Byte) f2.get(sp)).intValue();
-                } catch (Exception e) {
-                    throw new AssertionError(e);
-                }
-
-            };
-        } catch (Exception e1) {
-            throw new AssertionError(e1);
-        }
 
     }
 
@@ -235,11 +186,11 @@ public class PartLazerP2P<S extends MetaTileEntity & IConnectsToEnergyTunnel, D 
                         ) {
 
                             return (S) (aMetaTileEntity);
-                        } else if (c.isInstance(aMetaTileEntity)/* aMetaTileEntity instanceof MTEPipeEnergy */) {
-                            if (getConn.apply(aMetaTileEntity) < 2) {
+                        } else if (aMetaTileEntity instanceof MTEPipeLaser) {
+                            if (((MTEPipeLaser) aMetaTileEntity).connectionCount < 2) {
                                 return null;
                             } else {
-                                mark.accept(aMetaTileEntity);
+                                ((MTEPipeLaser) aMetaTileEntity).markUsed();
                             }
                             continue;
                         }
@@ -286,11 +237,11 @@ public class PartLazerP2P<S extends MetaTileEntity & IConnectsToEnergyTunnel, D 
                         // && opposite.getOpposite() == tGTTileEntity.getFrontFacing()
                         ) {
                             return (aMetaTileEntity);
-                        } else if (c.isInstance(aMetaTileEntity)) {
-                            if (getConn.apply(aMetaTileEntity) < 2) {
+                        } else if (aMetaTileEntity instanceof MTEPipeLaser) {
+                            if (((MTEPipeLaser) aMetaTileEntity).connectionCount < 2) {
                                 return null;
                             } else {
-                                mark.accept(aMetaTileEntity);
+                                ((MTEPipeLaser) aMetaTileEntity).markUsed();
                             }
                             continue;
                         }

@@ -1,7 +1,6 @@
 package reobf.proghatches.gt.metatileentity;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -517,25 +516,8 @@ public class DataHatchME extends MTEHatchDataAccess implements IPowerChannelStat
         }
         if (cachedRecipes == null) {
             cachedRecipes = new ArrayList<>();
-            Method f = null;
-            try {
-                f = AssemblyLineUtils.class.getDeclaredMethod("findALRecipeFromDataStick", ItemStack.class);
-            } catch (Exception e) {}
-            try {
-                f = AssemblyLineUtils.class.getDeclaredMethod("findAssemblyLineRecipeFromDataStick", ItemStack.class);
-            } catch (Exception e) {}
-
-            if (f == null) throw new AssertionError();
             for (int i = 0; i < getSizeInventory(); i++) {
-                try {
-                    cachedRecipes.addAll(
-
-                        (Collection<? extends RecipeAssemblyLine>) f.invoke(null, getStackInSlot(i))
-
-                    );
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                cachedRecipes.addAll(AssemblyLineUtils.findALRecipeFromDataStick(getStackInSlot(i)));
             }
         }
 

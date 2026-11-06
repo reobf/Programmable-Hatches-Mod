@@ -60,6 +60,7 @@ import gregtech.api.modularui2.CoverGuiData;
 import gregtech.common.covers.Cover;
 import gregtech.common.covers.CoverLegacyData;
 import gregtech.common.gui.modularui.cover.base.CoverBaseGui;
+import gregtech.crossmod.waila.GregtechTEWailaDataProvider;
 //import gregtech.crossmod.waila.GregtechTEWailaDataProvider;
 //import gregtech.crossmod.waila.GregtechWailaDataProvider;
 import io.netty.buffer.ByteBuf;
@@ -1016,21 +1017,7 @@ public ModularUIContainer createCoverContainer(EntityPlayer player) {
     }
     
     
-    private static Class theClass;
     public static Class getProviderClass() {
-    if(theClass==null) {
-		    	try {
-		    	theClass=Class.forName("gregtech.crossmod.waila.GregtechWailaDataProvider");
-			} catch (ClassNotFoundException e) {}
-		    
-		    try {
-			theClass=Class.forName("gregtech.crossmod.waila.GregtechTEWailaDataProvider");
-			} catch (ClassNotFoundException e) {}
-    }
-    
-    if(theClass==null)throw new AssertionError("null");
-	return theClass;
-    	
-    	
+        return GregtechTEWailaDataProvider.class;
     }
 }

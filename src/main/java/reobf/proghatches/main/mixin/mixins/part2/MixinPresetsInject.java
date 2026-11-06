@@ -117,10 +117,7 @@ public class MixinPresetsInject {
             );
 
         } catch (Exception e) {
-            MyMod.LOG.info(
-                "Failed to add collapseable item info to NEI. Safe to ignore if you are playing with 2.6.1 or less.");
-            e.printStackTrace();
-            // 270 only, nothing to worry about~
+            MyMod.LOG.error("Failed to add collapseable item info to NEI.", e);
         }
 
     }

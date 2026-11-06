@@ -8,12 +8,10 @@ navigation:
     - "原料分配器"
     - "诱骗输入总线"
     - "装配线"
-    - "状态总线"
     - "Ingredient Distributor"
     - "decoy"
 item_ids:
   - "<gregtech:gt.blockmachines:22142>"
-  - "<gregtech:gt.blockmachines:22170>"
   - "<gregtech:gt.blockmachines:22171>"
   - "<gregtech:gt.blockmachines:22172>"
   - "<gregtech:gt.blockmachines:22173>"
@@ -70,9 +68,3 @@ For this topology:
 5. Use a small recipe with repeated ingredients and verify deductions in every subnet.
 
 The decoy fluid hatch provides the corresponding fluid handling. Priority-filtered stocking inputs can restrict other positions to the intended storage priority.
-
-## Coordinate multiple distributors
-
-Communication ports coordinate occupation, yielding and recipe locking between distributors. Establish a working single-machine blocking setup before adding the ports and their redstone state connection.
-
-Observe idle, acquiring, locked and yielded states. Other machines should wait while the current batch owns an output set, then proceed after those outputs are empty.

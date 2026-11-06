@@ -16,7 +16,6 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -859,52 +858,14 @@ int off=0;
     // ArrayList<ItemStack> toReturn = new ArrayList<>();
     private appeng.util.item.ItemList ret = new appeng.util.item.ItemList();
 
-    @SuppressWarnings({ "deprecation", "unchecked" })
     public static void shut(MTEMultiBlockBase thiz, String reason) {
-        if (shut == null) {
-
-            try {
-                Class.forName("gregtech.api.util.shutdown.ShutDownReason");
-                // 2.6.0+
-                MyMod.LOG.info("Use ShutDownReason");
-                // lazy-load class
-                Class<?> c = Class.forName(
-                    "reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider$NewShutRunnable");
-                shut = (BiConsumer<MTEMultiBlockBase, String>) c.getConstructors()[0].newInstance();
-            } catch (Exception e) {
-                // 2.5.1
-                MyMod.LOG.info("ShutDownReason.class not found, use 0-arg stopMachine.");
-                shut = (a, s) -> {
-                    if (s == null) {
-                        a.criticalStopMachine();
-                        return;
-                    }
-                    a.stopMachine();
-                };
-            }
-
+        if (reason == null) {
+            thiz.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
+            return;
         }
-
-        shut.accept(thiz, reason);
+        thiz.stopMachine(new SimpleShutDownReason(reason, true));
     }
 
-    static public class NewShutRunnable implements BiConsumer<MTEMultiBlockBase, String> {
-
-        public NewShutRunnable() {}
-
-        // MTEMultiBlockBase thiz;
-        @Override
-        public void accept(MTEMultiBlockBase a, String reason) {
-            if (reason == null) {
-                a.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
-                return;
-            }
-            a.stopMachine(new SimpleShutDownReason(reason/* "proghatch.access_loop" */, true));
-        }
-
-    }
-
-    static public BiConsumer<MTEMultiBlockBase, String> shut;
     public int multiply = 1;
 
     @Override

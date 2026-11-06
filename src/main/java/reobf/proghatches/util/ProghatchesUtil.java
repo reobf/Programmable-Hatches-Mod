@@ -348,11 +348,6 @@ public class ProghatchesUtil {
 
     private static Method m;
 
-    public static void handleUse(Object player, Object tile, Object priorityHost, Object actionHost, Object stack,
-        Object side) {
-        // dummy, for version that has no piority card
-    }
-
     public static boolean handleUse(EntityPlayer player, /* SuperChestME */MetaTileEntity te) {
         if (player.getHeldItem() == null) {
             return false;
@@ -377,8 +372,7 @@ public class ProghatchesUtil {
         IActionHost actionHost, ItemStack stack, ForgeDirection side) {
 
         if (m == null) try {
-            Class<?> z = Class.forName("appeng.items.tools.ToolPriorityCard");
-            m = z.getDeclaredMethod(
+            m = ToolPriorityCard.class.getDeclaredMethod(
                 "handleUse",
                 EntityPlayer.class,
                 TileEntity.class,
@@ -389,21 +383,7 @@ public class ProghatchesUtil {
             m.setAccessible(true);
 
         } catch (Exception e) {
-            MyMod.LOG.warn("PriorityCard not found, this is normal and safe to ignore if you're using pack v2.5.1.");
-            MyMod.LOG.catching(e);
-            // e.printStackTrace();
-            try {
-                m = ProghatchesUtil.class.getDeclaredMethod(
-                    "handleUse",
-                    Object.class,
-                    Object.class,
-                    Object.class,
-                    Object.class,
-                    Object.class,
-                    Object.class);
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
+            throw new AssertionError(e);
         }
 
         try {
@@ -420,20 +400,7 @@ public class ProghatchesUtil {
     public static List<ItemStack> allCircuits() {
 
         if (allc == null) {
-            try {
-                allc = (List<ItemStack>) GTUtility.class.getDeclaredMethod("getAllIntegratedCircuits")
-                    .invoke(null);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        if (allc == null) {
-            try {
-                allc = (List<ItemStack>) GregTechAPI.class.getDeclaredMethod("getConfigurationCircuitList", int.class)
-                    .invoke(null, 100);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            allc = GTUtility.getAllIntegratedCircuits();
         }
 
         return allc;

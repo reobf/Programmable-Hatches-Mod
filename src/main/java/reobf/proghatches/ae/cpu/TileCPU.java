@@ -14,7 +14,6 @@ import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,7 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -518,31 +516,6 @@ public void repRemOP(int remainingOperations, int old) {
 	used[0]+=usedt;
 	
 }
-static public Method addOutputPartial;
-static public BiConsumer<TileCPU,ItemStack> addOutputPartialX;
-static{
-try{
-	addOutputPartial=MTEMultiBlockBase.class.getMethod("addOutputPartial", ItemStack.class,boolean.class);
-
-		addOutputPartialX=(a,b)->{try {
-			addOutputPartial.invoke(a, b,false);
-		} catch (Exception e) {
-			
-			e.printStackTrace();
-		}};
-	
-}catch(Exception e){}
-
-try{
-addOutputPartial=MTEMultiBlockBase.class.getMethod("addOutputPartial", ItemStack.class);
-addOutputPartialX=(a,b)->{try {
-	addOutputPartial.invoke(a, b);
-} catch (Exception e) {
-	
-	e.printStackTrace();
-}};
-}catch(Exception e){}
-}
 
 
 
@@ -582,8 +555,7 @@ public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
 	refunds.forEach(s->{
 		ItemStack get = s.getItemStack();
 		int old=get.stackSize;
-		//this.addOutputPartial(get, false);
-		addOutputPartialX.accept(this, get);
+		this.addOutputPartial(get);
 		
 		
 		

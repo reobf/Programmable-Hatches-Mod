@@ -769,16 +769,14 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         if (m == null) {
             return getLocalName();
         }
-        StringBuilder name = new StringBuilder();
-        String masterName;
-        if (m instanceof IInterfaceViewable) {
-            masterName = ((IInterfaceViewable) m).getName();
-        } else {
-            masterName = Optional.ofNullable(m.getMachineCraftingIcon())
-                .map(ItemStack::getDisplayName)
-                .orElse(m.getLocalName() == null ? getLocalName() : m.getLocalName());
+        if (m instanceof IInterfaceViewable viewable) {
+            return viewable.getName() + "(Mapped)";
         }
-        name.append(masterName);
+        StringBuilder name = new StringBuilder();
+        name.append(
+            Optional.ofNullable(m.getMachineCraftingIcon())
+                .map(ItemStack::getDisplayName)
+                .orElse(m.getLocalName() == null ? getLocalName() : m.getLocalName()));
         name.append("(Mapped)");
         if (m.mInventory[m.getCircuitSlot()] != null) {
             name.append(" - ");
@@ -827,6 +825,8 @@ public class PatternDualInputHatchInventoryMappingSlave<T extends DualInputHatch
         if (m instanceof IInterfaceViewable viewable) {
             IChatComponent master = viewable.getNameSuffix();
             if (master != null) suffix.appendSibling(master);
+            suffix.appendText("(Mapped)");
+            return suffix;
         }
         suffix.appendText("(Mapped)");
         ItemStack circuit = m.mInventory[m.getCircuitSlot()];

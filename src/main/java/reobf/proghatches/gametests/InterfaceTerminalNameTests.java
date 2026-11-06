@@ -117,12 +117,14 @@ public class InterfaceTerminalNameTests {
             mirror.trySetMasterFromCoord(master.x(), master.y(), master.z()),
             "The mirror links to the hatch");
 
+        hatch.setInventorySlotContents(hatch.getCircuitSlot(), GTUtility.getIntegratedCircuit(7));
         ItemStack sifter = ItemList.LargeSifter.get(1);
         helper.assertEquals(hatch.getRawName(), mirror.getRawName(), "The mirror sends its master's key");
-        helper.assertTrue(
-            text(mirror.getNameSuffix())
-                .contains("(Mapped)"),
-            "The mirror's suffix marks it as mapped");
+        helper.assertEquals(" - 7(Mapped)", text(mirror.getNameSuffix()), "The mirror's suffix lists the circuit once");
+        helper.assertEquals(
+            sifter.getDisplayName() + " - 7(Mapped)",
+            mirror.getName(),
+            "The mirror's server-side name reads the same");
         helper.assertEquals(
             sifter.getItemDamage(),
             mirror.getDisplayRep()

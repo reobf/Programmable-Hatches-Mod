@@ -998,6 +998,7 @@ public class BufferedDualInputHatch extends DualInputHatch
 			 * 1]; bruh[before_size] = additional; System.arraycopy(condensed,
 			 * 0, bruh, 0, before_size); return bruh;
 			 */
+			ChanceTracker.visit(this);
 			ItemStack[] flat = flat(mStoredItemInternal);
 			// nonempty=false means "100% empty", so one empty SIDE is not enough: an item-only
 			// buffer used to be flagged false by getFluidInputs (and vice versa), making it

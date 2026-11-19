@@ -15,7 +15,6 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
 import com.google.common.collect.ImmutableMap;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.forge.IItemHandlerModifiable;
@@ -46,6 +45,14 @@ import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.util.item.AEItemStack;
+import net.minecraft.init.Items;
+import net.minecraft.world.World;
+import appeng.api.storage.data.IAEFluidStack;
+import appeng.api.storage.data.IAEStack;
+import appeng.util.Platform;
+import appeng.util.item.AEFluidStack;
+import reobf.proghatches.eucrafting.IInputMightBeEmptyPattern;
+import reobf.proghatches.gt.metatileentity.util.IDisallowOptimize;
 import gregtech.api.GregTechAPI;
 import gregtech.api.gui.modularui.GTUIInfos;
 import gregtech.api.interfaces.ITexture;
@@ -103,7 +110,9 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
     // item returned in ae tick will not be recognized, delay to the next
     // onPostTick() call
     // ArrayList<ItemStack> toReturn = new ArrayList<>();
-    private appeng.util.item.ItemList ret = new appeng.util.item.ItemList();
+    private IItemList<IAEFluidStack> ret = AEApi.instance()
+        .storage()
+        .createFluidList();
 
     @Override
     public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table) {
@@ -127,12 +136,10 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
         } catch (GridAccessException e) {
 
         }
-        ItemStack circuitItem = (patternDetails.getOutput(
-            table,
-            this.getBaseMetaTileEntity()
-                .getWorld()));
-
-        ret.add(AEItemStack.create(circuitItem));
+        for (IAEStack<?> out : patternDetails.getCondensedAEOutputs()) {
+            IAEStack<?> s = out instanceof IAEItemStack ais ? Platform.convertStack(ais) : out;
+            if (s instanceof IAEFluidStack fluid) ret.add(fluid.copy());
+        }
         return true;
     }
 
@@ -175,10 +182,14 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
     }
 
     public void returnItems() {
-        ret.forEach(
-            s -> getStorageGrid().getItemInventory()
+        if (ret.isEmpty()) return;
+        IItemList<IAEFluidStack> pending = ret;
+        ret = AEApi.instance()
+            .storage()
+            .createFluidList();
+        pending.forEach(
+            s -> getStorageGrid().getFluidInventory()
                 .injectItems(s, Actionable.MODULATE, new MachineSource((IActionHost) getBaseMetaTileEntity())));
-        ret.clear();
 
     }
 
@@ -318,11 +329,7 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
 
         doSnapshot();
         {
-            craftingTracker.addCraftingOption(
-                this,
-                new ProgrammingCircuitProvider.CircuitProviderPatternDetial(
-
-                    ItemFluidDrop.newStack(new FluidStack(FluidRegistry.WATER, 0 + 100_000_000))));
+            craftingTracker.addCraftingOption(this, new WaterPatternDetail(new FluidStack(FluidRegistry.WATER, 1000)));
 
         }
 
@@ -423,16 +430,6 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
                 .setPos(3, 3));
     }
 
-    private NBTTagCompound writeItem(final IAEItemStack finalOutput2) {
-        final NBTTagCompound out = new NBTTagCompound();
-
-        if (finalOutput2 != null) {
-            finalOutput2.writeToNBT(out);
-        }
-
-        return out;
-    }
-
     private appeng.util.item.ItemList readList(final NBTTagList tag) {
         final appeng.util.item.ItemList out = new appeng.util.item.ItemList();
 
@@ -450,23 +447,13 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
         return out;
     }
 
-    private NBTTagList writeList(final IItemList<IAEItemStack> myList) {
-        final NBTTagList out = new NBTTagList();
-
-        for (final IAEItemStack ais : myList) {
-            out.appendTag(this.writeItem(ais));
-        }
-
-        return out;
-    }
-
     @Override
     public void saveNBTData(NBTTagCompound aNBT) {
 
         super.saveNBTData(aNBT);
 
         int[] count = new int[1];
-        aNBT.setTag("ret", this.writeList(this.ret));
+        aNBT.setTag("retFluid", Platform.writeAEStackListNBT(this.ret));
         getProxy().writeToNBT(aNBT);
         Optional.ofNullable(customName)
             .ifPresent(s -> aNBT.setString("customName", s));
@@ -480,7 +467,15 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
     public void loadNBTData(NBTTagCompound aNBT) {
         if (aNBT.hasKey("x") == false) return;
         super.loadNBTData(aNBT);
-        this.ret = this.readList((NBTTagList) aNBT.getTag("ret"));
+        this.ret = AEApi.instance()
+            .storage()
+            .createFluidList();
+        for (IAEItemStack old : this.readList((NBTTagList) aNBT.getTag("ret"))) {
+            IAEStack<?> s = Platform.convertStack(old);
+            if (s instanceof IAEFluidStack fluid) this.ret.add(fluid);
+        }
+        for (IAEStack<?> s : Platform.readAEStackListNBT((NBTTagList) aNBT.getTag("retFluid")))
+            if (s instanceof IAEFluidStack fluid) this.ret.add(fluid);
         int[] count = new int[1];
         NBTTagCompound c;
 
@@ -724,5 +719,100 @@ public class WaterProvider extends MTEHatch implements IAddUIWidgets, IPowerChan
     public boolean allowsPatternOptimization() {
 
         return false;
+    }
+
+    public static class WaterPatternDetail implements ICraftingPatternDetails, IInputMightBeEmptyPattern, IDisallowOptimize {
+
+        private final FluidStack out;
+
+        public WaterPatternDetail(FluidStack out) {
+            this.out = out.copy();
+        }
+
+        private IAEFluidStack output() {
+            return AEFluidStack.create(out);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof WaterPatternDetail o && out.isFluidStackIdentical(o.out);
+        }
+
+        @Override
+        public int hashCode() {
+            return out.getFluid()
+                .getName()
+                .hashCode() * 31 + out.amount;
+        }
+
+        @Override
+        public ItemStack getPattern() {
+            ItemStack pattern = new ItemStack(MyMod.fakepattern);
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setByte("type", (byte) 4);
+            tag.setTag("f", out.writeToNBT(new NBTTagCompound()));
+            pattern.setTagCompound(tag);
+            return pattern;
+        }
+
+        @Override
+        public boolean isValidItemForSlot(int slotIndex, ItemStack itemStack, World world) {
+            throw new IllegalStateException("workbench crafting");
+        }
+
+        @Override
+        public boolean isCraftable() {
+            return false;
+        }
+
+        @Override
+        public IAEItemStack[] getInputs() {
+            return new IAEItemStack[] { AEApi.instance()
+                .storage()
+                .createItemStack(new ItemStack(Items.apple, 0)) };
+        }
+
+        @Override
+        public IAEItemStack[] getCondensedInputs() {
+            return getInputs();
+        }
+
+        @Override
+        public IAEItemStack[] getCondensedOutputs() {
+            return new IAEItemStack[] { Platform.stackConvert(output()) };
+        }
+
+        @Override
+        public IAEItemStack[] getOutputs() {
+            return getCondensedOutputs();
+        }
+
+        @Override
+        public IAEStack<?>[] getCondensedAEOutputs() {
+            return new IAEStack<?>[] { output() };
+        }
+
+        @Override
+        public IAEStack<?>[] getAEOutputs() {
+            return getCondensedAEOutputs();
+        }
+
+        @Override
+        public boolean canSubstitute() {
+            return false;
+        }
+
+        @Override
+        public ItemStack getOutput(InventoryCrafting craftingInv, World world) {
+            return null;
+        }
+
+        @Override
+        public int getPriority() {
+            return Integer.MAX_VALUE - 10;
+        }
+
+        @Override
+        public void setPriority(int priority) {}
     }
 }

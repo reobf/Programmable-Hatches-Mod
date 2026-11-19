@@ -7,6 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
@@ -14,6 +15,7 @@ import appeng.items.misc.ItemEncodedPattern;
 
 import reobf.proghatches.gt.metatileentity.PatternDualInputHatch;
 import reobf.proghatches.gt.metatileentity.ProgrammingCircuitProvider.CircuitProviderPatternDetial;
+import reobf.proghatches.gt.metatileentity.WaterProvider;
 
 /**
  * for ae2 crafting visualizer
@@ -78,6 +80,13 @@ public class ItemFakePattern extends Item implements ICraftingPatternItem {
 
             }
 
+            if (is.getTagCompound()
+                .getByte("type") == 4) {
+                return new WaterProvider.WaterPatternDetail(
+                    FluidStack.loadFluidStackFromNBT(
+                        is.getTagCompound()
+                            .getCompoundTag("f")));
+            }
             ItemStack iss = ItemStack.loadItemStackFromNBT(is.getTagCompound());
             if (is.getTagCompound() != null && is.getTagCompound()
                 .hasKey("icount"))

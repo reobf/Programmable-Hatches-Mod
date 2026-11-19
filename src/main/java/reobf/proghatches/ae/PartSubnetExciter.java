@@ -34,8 +34,6 @@ import appeng.client.texture.CableBusTextures;
 import appeng.me.GridAccessException;
 import appeng.parts.PartBasicState;
 import appeng.parts.networking.PartQuartzFiber;
-import appeng.tile.misc.TileCharger;
-import appeng.tile.storage.TileChest;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
@@ -116,12 +114,16 @@ public class PartSubnetExciter extends PartBasicState implements IAEPowerStorage
     
     
     
-Class TileCharger;{ try {
-	TileCharger=Class.forName("appeng.tile.misc.TileCharger");
-} catch (ClassNotFoundException e) {
-throw new AssertionError(e);
-}}
+    private static final Class<?> ME_CHEST = loadClass("appeng.tile.storage.TileChest");
+    private static final Class<?> CHARGER = loadClass("appeng.tile.misc.TileCharger");
 
+    private static Class<?> loadClass(String name) {
+        try {
+            return Class.forName(name, false, PartSubnetExciter.class.getClassLoader());
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(name, e);
+        }
+    }
     public void check(@Nullable IGridNode exept/* this node is not checked */) {
 
         boolean prevok = ok;
@@ -151,12 +153,12 @@ throw new AssertionError(e);
 
                 }
 
-                if (/*mach instanceof TileCharger*/TileCharger.isInstance(mach)) {
+                if (CHARGER.isInstance(mach)) {
                     ok = false;
                 }
                 if (mach instanceof IAEPowerStorage) {
                     IAEPowerStorage pw = (IAEPowerStorage) mach;
-                    if (pw.isAEPublicPowerStorage() && !(mach instanceof TileChest && pw.getPowerFlow() == AccessRestriction.WRITE)) {
+                    if (pw.isAEPublicPowerStorage() && !(ME_CHEST.isInstance(mach) && pw.getPowerFlow() == AccessRestriction.WRITE)) {
                         ok = false;
 
                     }

@@ -1,7 +1,9 @@
 package reobf.proghatches.gt.metatileentity.chance;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
@@ -12,7 +14,6 @@ import appeng.me.GridAccessException;
 import appeng.me.helpers.IGridProxyable;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.util.GTRecipe;
-import gregtech.common.tileentities.machines.IDualInputInventory;
 import reobf.proghatches.ae.TileChanceController;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch;
 import reobf.proghatches.gt.metatileentity.BufferedDualInputHatch.DualInvBuffer;
@@ -22,6 +23,8 @@ public final class ChanceTracker {
 
     private static GTRecipe applied;
     private static double appliedChanceMult = 1;
+    private static final Map<DualInvBuffer, List<IAEStack<?>>> visited = new LinkedHashMap<>();
+    private static Thread tracking;
 
     private ChanceTracker() {}
 
@@ -31,18 +34,30 @@ public final class ChanceTracker {
         appliedChanceMult = chanceMult;
     }
 
-    public static Object before(IDualInputInventory slot) {
-        if (!(slot instanceof DualInvBuffer b) || b.chance == null) return null;
+    public static void begin() {
+        visited.clear();
+        tracking = Thread.currentThread();
         applied = null;
         appliedChanceMult = 1;
-        return b.chanceContents();
     }
 
-    @SuppressWarnings("unchecked")
-    public static Object after(IDualInputInventory slot, Object snapshot, int parallels) {
-        DualInvBuffer b = (DualInvBuffer) slot;
-        if (b.chance == null) return null;
-        List<IAEStack<?>> before = (List<IAEStack<?>>) snapshot, now = b.chanceContents(), diff = new ArrayList<>();
+    public static void visit(DualInvBuffer b) {
+        if (tracking == Thread.currentThread() && b.chance != null && !visited.containsKey(b))
+            visited.put(b, b.chanceContents());
+    }
+
+    public static Object end(boolean success, int parallels) {
+        tracking = null;
+        Object consumed = null;
+        if (success) for (Map.Entry<DualInvBuffer, List<IAEStack<?>>> e : visited.entrySet())
+            if (after(e.getKey(), e.getValue(), parallels)) consumed = e.getKey();
+        visited.clear();
+        return consumed;
+    }
+
+    private static boolean after(DualInvBuffer b, List<IAEStack<?>> before, int parallels) {
+        if (b.chance == null) return false;
+        List<IAEStack<?>> now = b.chanceContents(), diff = new ArrayList<>();
         for (IAEStack<?> s : before) {
             long n = s.getStackSize() - ChanceData.amountOf(now, s);
             if (n <= 0) continue;
@@ -50,10 +65,11 @@ public final class ChanceTracker {
             d.setStackSize(n);
             diff.add(d);
         }
+        if (diff.isEmpty()) return false;
         b.chance.onConsumed(diff, parallels);
         b.chance.lastRecipe = applied;
         b.chance.lastChanceMult = appliedChanceMult;
-        return b;
+        return true;
     }
 
     public static void settle(MTEMultiBlockBase controller, Object token) {

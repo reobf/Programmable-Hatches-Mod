@@ -2,6 +2,7 @@ package reobf.proghatches.main.mixin.mixins.part2;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import net.minecraft.item.ItemStack;
 
@@ -25,7 +26,6 @@ import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.energy.IEnergyGrid;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.MachineSource;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.container.ContainerNull;
@@ -35,7 +35,6 @@ import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.tile.crafting.TileCraftingTile;
 import appeng.util.Platform;
 import appeng.util.inv.MEInventoryCrafting;
-import appeng.util.item.AEItemStack;
 import reobf.proghatches.ae.ICondenser;
 import reobf.proghatches.ae.cpu.IExternalManagerHolder;
 import reobf.proghatches.gt.metatileentity.multi.LargeProgrammingCircuitProvider;
@@ -252,92 +251,34 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
 
             /* final */ long max = getMaxSkips();
             if (inf) max = Integer.MAX_VALUE - 1;
-            if (max <= 0) return;
-            // int now = temp1.getOrDefault(detail, 0);
+            if (max <= 0 || detail.isCraftable()) return;
+            List<IAEStack<?>> inputs = getExpandedInputs(detail, cc);
+            if (inputs == null) return;
 
-            stop: for (int i = 0; i < max; i = (i < Integer.MAX_VALUE - 10) ? (i + 1) : i) {
-                if (MixinCallback.getter.apply(e.getValue()) <= 1) {
-                    break stop;
-                }
-                if (medium.isBusy()) {
-                    break stop;
-                }
-
-                if (detail.isCraftable()) {
-                    break stop;// that's impossible to be done in same tick
-                }
-                MEInventoryCrafting ic = detail.isCraftable() ? new MEInventoryCrafting(new ContainerNull(), 3, 3)
-                		 : new MEInventoryCrafting(new ContainerNull(), detail.getAEInputs().length, 1);
-                @SuppressWarnings("deprecation")
-				final IAEItemStack[] input = detail.getInputs();
-                boolean found = true;
-               /* for (int x = 0; x < input.length; x++) {
-                    // System.out.println(input[x]);
-                    if (input[x] != null && input[x].getStackSize() > 0) {
-                        found = false;
-                        for (IAEItemStack ias : getExtractItems(input[x], detail)) {
-                            // System.out.println(ias);
-                            final IAEStack ais = this.inventory
-                                .extractItems(ias, Actionable.MODULATE, this.machineSrc);
-                            final ItemStack is = ais == null ? null : ais.getItemStack();
-                            // System.out.println(ais);
-                            if (ias.getStackSize() != ((is == null) ? 0 : is.stackSize)) continue;
-
-                            found = true;
-                            ic.setInventorySlotContents(x, is);
-                            if (!detail.canBeSubstitute() && is.stackSize == input[x].getStackSize()) {
-                                this.postChange(input[x], this.machineSrc);
-                                break;
-                            } else {
-                                this.postChange(AEItemStack.create(is), this.machineSrc);
-                            }
-                        }
-                        if (!found) {
-                            break;
-                        }
+            for (long i = 0; i < max; i++) {
+                if (MixinCallback.getter.apply(e.getValue()) <= 1 || medium.isBusy()) break;
+                MEInventoryCrafting ic = new MEInventoryCrafting(new ContainerNull(), inputs.size(), 1);
+                boolean complete = true;
+                for (int slot = 0; slot < inputs.size(); slot++) {
+                    IAEStack<?> ingredient = inputs.get(slot);
+                    if (ingredient == null) continue;
+                    boolean filled = false;
+                    for (IAEStack<?> candidate : getExtractItems(ingredient, detail)) {
+                        IAEStack<?> taken = this.inventory.extractItems(candidate.copy(), Actionable.MODULATE);
+                        if (taken == null) continue;
+                        ic.setInventorySlotContents(slot, taken);
+                        this.postChange(taken, this.machineSrc);
+                        filled = taken.getStackSize() == ingredient.getStackSize();
+                        break;
                     }
-                }*/
-                for (int x = 0; x < input.length; x++) {
-                    if (input[x] != null) {
-                        found = false;
-                        for (IAEStack ias : getExtractItems(input[x], detail)) {
-                            IAEStack tempStack = ias.copy();
-                            /*if (detail.isCraftable()
-                                    && !detail.isValidItemForSlot(x, tempStack, this.getWorld()))
-                                continue;
-*/
-                            final IAEStack<?> aes = this.inventory.extractItems(tempStack, Actionable.MODULATE);
-                            if (aes != null) {
-                                found = true;
-                                ic.setInventorySlotContents(x, aes);
-                                if (!detail.canBeSubstitute()
-                                        && aes.getStackSize() == input[x].getStackSize()) {
-                                    this.postChange(input[x], this.machineSrc);
-                                    break;
-                                } else {
-                                    this.postChange(aes, this.machineSrc);
-                                }
-                            }
-                        }
-                        if (!found) {
-                            break;
-                        }
+                    if (!filled) {
+                        complete = false;
+                        break;
                     }
                 }
-                // System.out.println(found);
-                if (!found) {
-                    // put stuff back..
-                    for (int x = 0; x < ic.getSizeInventory(); x++) {
-                        // Roll back with the SAME type the CPU handed over: injecting a fluid as an
-                        // ItemFluidDrop put it into the CPU's item list, so the fluid it had extracted was
-                        // never returned and a phantom drop was left behind.
-                        IAEStack<?> back = typedSlot(ic, x);
-                        if (back != null) {
-                            this.inventory.injectItems(back, Actionable.MODULATE, this.machineSrc);
-                        }
-                    }
-                    ic = null;
-                    break stop;
+                if (!complete) {
+                    returnItems(ic);
+                    break;
                 }
                 if (medium.pushPattern(detail, ic)) {
                     MixinCallback.setter.accept(e.getValue(), MixinCallback.getter.apply(e.getValue()) - 1);
@@ -348,17 +289,8 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
                         this.postCraftingStatusChange(out.copy());
                     }
                 } else {
-                    if (ic != null) {
-                        // put stuff back..
-                        for (int x = 0; x < ic.getSizeInventory(); x++) {
-                            // same typed rollback as above
-                            IAEStack<?> back = typedSlot(ic, x);
-                            if (back != null) {
-                                this.inventory.injectItems(back, Actionable.MODULATE, this.machineSrc);
-                            }
-                        }
-                    }
-                    break stop;
+                    returnItems(ic);
+                    break;
 
                 }
 
@@ -367,6 +299,12 @@ public abstract class MixinMultiPattern<T extends ICraftingMedium> {
         }
 
     }
+
+    @Shadow
+    protected abstract List<IAEStack<?>> getExpandedInputs(ICraftingPatternDetails details, CraftingGridCache cache);
+
+    @Shadow
+    protected abstract void returnItems(MEInventoryCrafting inventory);
 
     @Shadow
     private ArrayList<IAEStack<?>> getExtractItems(IAEStack ingredient, ICraftingPatternDetails patternDetails) {

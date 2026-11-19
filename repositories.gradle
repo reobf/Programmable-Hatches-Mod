@@ -1,5 +1,14 @@
 // Add any additional repositories for your dependencies here.
 repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "CentralMirrorForJetBrainsAnnotations"
+                url = uri("https://maven-central.storage-download.googleapis.com/maven2/")
+            }
+        }
+        filter { includeVersion("org.jetbrains", "annotations", "23.0.0") }
+    }
     mavenLocal()
     maven {
         url = uri("https://jitpack.io")

@@ -35,6 +35,7 @@ import appeng.me.GridAccessException;
 import appeng.parts.PartBasicState;
 import appeng.parts.networking.PartQuartzFiber;
 import appeng.tile.misc.TileCharger;
+import appeng.tile.storage.TileChest;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
@@ -155,7 +156,7 @@ throw new AssertionError(e);
                 }
                 if (mach instanceof IAEPowerStorage) {
                     IAEPowerStorage pw = (IAEPowerStorage) mach;
-                    if (pw.isAEPublicPowerStorage()) {
+                    if (pw.isAEPublicPowerStorage() && !(mach instanceof TileChest && pw.getPowerFlow() == AccessRestriction.WRITE)) {
                         ok = false;
 
                     }

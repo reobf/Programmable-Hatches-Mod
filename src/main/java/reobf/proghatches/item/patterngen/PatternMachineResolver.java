@@ -95,6 +95,28 @@ public final class PatternMachineResolver {
         return translated == null || translated.isEmpty() ? id : translated;
     }
 
+    /**
+     * Best-effort mode identifier for presets. GT's multiblocks use a public
+     * {@code machineMode} field, but not every machine has one, so a missing field is normal.
+     * This only reads the prototype; it never changes machine state.
+     */
+    public static int machineMode(ItemStack machine) {
+        if (machine == null || machine.getItem() == null) return -1;
+        try {
+            IMetaTileEntity mte = ItemMachines.getMetaTileEntity(machine);
+            if (mte == null) return -1;
+            for (Class<?> type = mte.getClass(); type != null; type = type.getSuperclass()) {
+                try {
+                    java.lang.reflect.Field field = type.getDeclaredField("machineMode");
+                    if (field.getType() != int.class) return -1;
+                    field.setAccessible(true);
+                    return field.getInt(mte);
+                } catch (NoSuchFieldException ignored) {}
+            }
+        } catch (Throwable ignored) {}
+        return -1;
+    }
+
     private static void add(Map<String, RecipeMap<?>> unique, RecipeMap<?> map) {
         if (map == null || map.unlocalizedName == null) return;
         unique.putIfAbsent(map.unlocalizedName, map);

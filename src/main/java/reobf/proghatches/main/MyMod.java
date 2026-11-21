@@ -661,6 +661,7 @@ public class MyMod {
     public void tick(final TickEvent.ServerTickEvent event) {
         while (scheduled.isEmpty() == false) scheduled.removeLast()
             .run();
+        if (event.phase == Phase.END) reobf.proghatches.item.patterngen.PatternGeneratorFillQueue.tick();
     }
     
     

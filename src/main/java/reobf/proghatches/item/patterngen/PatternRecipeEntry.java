@@ -20,6 +20,8 @@ public final class PatternRecipeEntry {
     public final String ncLabel;
     public final List<PatternIngredient> inputs;
     public final List<PatternIngredient> outputs;
+    /** First shared output key in only-conflict mode, empty otherwise. */
+    public String conflictKey = "";
 
     private PatternRecipeEntry(GTRecipe recipe, String id, String mapId, String mapName, int circuit, String ncLabel,
         List<PatternIngredient> inputs, List<PatternIngredient> outputs) {

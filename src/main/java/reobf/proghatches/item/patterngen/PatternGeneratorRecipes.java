@@ -2,6 +2,7 @@ package reobf.proghatches.item.patterngen;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -107,6 +108,7 @@ public final class PatternGeneratorRecipes {
         if (problems.isEmpty()) {
             for (PatternRecipeEntry entry : all) {
                 if (!matchesCircuit(entry.circuit, settings.circuit)) continue;
+                if (!matchesVoltage(entry.recipe.mEUt, settings.minVoltage, settings.maxVoltage)) continue;
                 if (!filters.accepts(entry)) continue;
                 filtered.add(entry);
             }
@@ -153,7 +155,10 @@ public final class PatternGeneratorRecipes {
                 .thenComparing(conflict -> conflict.entry.id));
 
         List<PatternRecipeEntry> result = new ArrayList<>(conflicts.size());
-        for (ConflictEntry conflict : conflicts) result.add(conflict.entry);
+        for (ConflictEntry conflict : conflicts) {
+            conflict.entry.conflictKey = conflict.key;
+            result.add(conflict.entry);
+        }
         return result;
     }
 
@@ -185,51 +190,49 @@ public final class PatternGeneratorRecipes {
         if (collection.hasFilterProblem()) return GenerationResult.filterProblem(collection.firstFilterProblem());
 
         List<PatternRecipeEntry> entries = new ArrayList<>();
-        boolean selectionChanged = false;
         if (selectedOnly) {
             if (settings.selectedRecipes.isEmpty()) return GenerationResult.error(ERR_NOTHING_SELECTED);
-            LinkedHashSet<String> pruned = PatternRecipeSelection.prune(settings.selectedRecipes, collection.allIds());
-            if (!pruned.equals(settings.selectedRecipes)) {
-                settings.selectedRecipes.clear();
-                settings.selectedRecipes.addAll(pruned);
-                selectionChanged = true;
-            }
-            if (pruned.isEmpty()) {
-                if (selectionChanged) persist(settings, tool, player);
-                return GenerationResult.error(ERR_NOTHING_SELECTED);
-            }
-            for (PatternRecipeEntry entry : collection.all) {
-                if (pruned.contains(entry.id)) entries.add(entry);
+            LinkedHashSet<String> effective = PatternRecipeSelection
+                .prune(settings.selectedRecipes, collection.filteredIds());
+            if (effective.isEmpty()) return GenerationResult.error(ERR_NOTHING_SELECTED);
+            for (PatternRecipeEntry entry : collection.filtered) {
+                if (effective.contains(entry.id)) entries.add(entry);
             }
         } else {
             entries.addAll(collection.filtered);
         }
 
         if (entries.isEmpty()) {
-            if (selectionChanged) persist(settings, tool, player);
             return GenerationResult.error(ERR_NO_RECIPES);
         }
 
+        int generated = generateEntries(player, entries, settings);
+        int skipped = entries.size() - generated;
+        return new GenerationResult(0, generated, entries.size(), skipped, null);
+    }
+
+    /**
+     * Encodes and delivers entries with the normal player-inventory overflow behavior. Shared
+     * by inventory generation and by the direct-fill queue when it has to return leftovers.
+     */
+    public static int generateEntries(EntityPlayerMP player, List<PatternRecipeEntry> entries,
+        PatternGeneratorSettings settings) {
+        if (player == null || entries == null || entries.isEmpty()) return 0;
         int generated = 0;
-        int skipped = 0;
         for (PatternRecipeEntry entry : entries) {
             ItemStack pattern;
             try {
-                pattern = encode(entry.recipe, player);
+                pattern = encode(entry, player, settings);
             } catch (Throwable ignored) {
                 pattern = null;
             }
-            if (pattern == null) {
-                skipped++;
-                continue;
-            }
+            if (pattern == null) continue;
             if (!player.inventory.addItemStackToInventory(pattern)) {
                 player.dropPlayerItemWithRandomChoice(pattern, false);
             }
             generated++;
         }
-        if (selectionChanged) persist(settings, tool, player);
-        return new GenerationResult(0, generated, entries.size(), skipped, null);
+        return generated;
     }
 
     private static void persist(PatternGeneratorSettings settings, ItemStack tool, EntityPlayerMP player) {
@@ -248,6 +251,17 @@ public final class PatternGeneratorRecipes {
     private static boolean matchesCircuit(int recipeCircuit, int wanted) {
         if (wanted < 0) return true;
         return wanted == 0 ? recipeCircuit < 0 : recipeCircuit == wanted;
+    }
+
+    /**
+     * Recipe voltage is the absolute EU/t, so generator recipes with negative {@code mEUt} are
+     * filtered by their output voltage. {@code -1} means "no bound" and {@code 0} is the
+     * explicit "None (0 EU/t)" selection below ULV.
+     */
+    static boolean matchesVoltage(int eut, int minVoltage, int maxVoltage) {
+        long voltage = Math.abs((long) eut);
+        if (minVoltage >= 0 && voltage < minVoltage) return false;
+        return maxVoltage < 0 || voltage <= maxVoltage;
     }
 
     private static final class FilterSet {
@@ -369,8 +383,25 @@ public final class PatternGeneratorRecipes {
         return false;
     }
 
-    public static ItemStack encode(GTRecipe recipe, EntityPlayer player) {
-        if (recipe == null) return null;
+    /**
+     * Selects the outputs written into the pattern. The preview list is already ordered as
+     * guaranteed item outputs followed by fluid outputs, so "first" is the first item when one
+     * exists, otherwise the first fluid. Turning the option off returns the preview list.
+     */
+    public static List<PatternIngredient> outputsForEncoding(List<PatternIngredient> previewOutputs,
+        boolean firstOutputOnly) {
+        if (previewOutputs == null || previewOutputs.isEmpty()) return Collections.emptyList();
+        if (!firstOutputOnly) return previewOutputs;
+        for (PatternIngredient output : previewOutputs) {
+            if (output != null && !output.isFluid()) return Collections.singletonList(output);
+        }
+        return Collections.singletonList(previewOutputs.get(0));
+    }
+
+    public static ItemStack encode(PatternRecipeEntry entry, EntityPlayer player,
+        PatternGeneratorSettings settings) {
+        if (entry == null || entry.recipe == null) return null;
+        GTRecipe recipe = entry.recipe;
 
         NBTTagList inputs = new NBTTagList();
         NBTTagList outputs = new NBTTagList();
@@ -397,19 +428,13 @@ public final class PatternGeneratorRecipes {
             }
         }
 
-        if (recipe.mOutputs != null) {
-            for (int i = 0; i < recipe.mOutputs.length; i++) {
-                ItemStack stack = recipe.mOutputs[i];
-                if (stack == null || stack.getItem() == null || stack.stackSize <= 0) continue;
-                if (isWildcard(stack)) return null;
-                // AE2 patterns cannot express random outputs.
-                if (recipe.getOutputChance(i) < 10000) continue;
-                appendItem(outputs, stack, stack.stackSize);
-            }
-        }
-        if (recipe.mFluidOutputs != null) {
-            for (FluidStack fluid : recipe.mFluidOutputs) {
-                if (fluid != null && fluid.amount > 0) appendFluid(outputs, fluid, fluid.amount);
+        boolean firstOutputOnly = settings != null && settings.firstOutputOnly;
+        for (PatternIngredient output : outputsForEncoding(entry.outputs, firstOutputOnly)) {
+            if (output == null) continue;
+            if (output.item != null) {
+                appendItem(outputs, output.item, output.amount);
+            } else if (output.fluid != null) {
+                appendFluid(outputs, output.fluid, output.amount);
             }
         }
 
@@ -429,10 +454,10 @@ public final class PatternGeneratorRecipes {
         tag.setBoolean("crafting", false);
         tag.setBoolean("substitute", false);
         tag.setBoolean("beSubstitute", false);
-        if (player != null) {
-            tag.setString("author", player.getCommandSenderName());
-            tag.setLong("encodedAt", System.currentTimeMillis());
-        }
+        String author = settings == null ? "" : settings.author == null ? "" : settings.author.trim();
+        if (author.isEmpty() && player != null) author = player.getCommandSenderName();
+        if (!author.isEmpty()) tag.setString("author", author);
+        tag.setLong("encodedAt", System.currentTimeMillis());
         pattern.setTagCompound(tag);
 
         // Parse it once before handing it out; an invalid pattern is worse than no pattern.

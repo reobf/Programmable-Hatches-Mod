@@ -20,9 +20,7 @@ import net.minecraft.nbt.NBTTagString;
 public final class PatternGeneratorSettings {
 
     private static final String ROOT = "PHPatternGenerator";
-    public static final int CURRENT_SCHEMA = 3;
-    private static final int LEGACY_SCHEMA_1 = 1;
-    private static final int LEGACY_SCHEMA_2 = 2;
+    public static final int CURRENT_SCHEMA = 1;
 
     private static final int MAX_MAP_ID = 128;
     private static final int MAX_REGEX = 2048;
@@ -172,17 +170,7 @@ public final class PatternGeneratorSettings {
 
     static PatternGeneratorSettings fromTag(NBTTagCompound tag) {
         PatternGeneratorSettings settings = new PatternGeneratorSettings();
-        if (tag == null) return settings;
-        int schema = tag.getInteger("schema");
-        if (schema == LEGACY_SCHEMA_1) {
-            settings.readMachine(tag);
-            settings.recipeMapId = safeString(tag.getString("recipeMap"), MAX_MAP_ID);
-            settings.circuit = clampCircuit(tag.getInteger("circuit"));
-            settings.inputInclude = migrateLegacyFilter(tag.getString("inputFilter"));
-            settings.outputInclude = migrateLegacyFilter(tag.getString("outputFilter"));
-            return settings;
-        }
-        if (schema != LEGACY_SCHEMA_2 && schema != CURRENT_SCHEMA) return settings;
+        if (tag == null || tag.getInteger("schema") != CURRENT_SCHEMA) return settings;
 
         settings.readMachine(tag);
         settings.recipeMapId = safeString(tag.getString("recipeMap"), MAX_MAP_ID);
@@ -199,7 +187,7 @@ public final class PatternGeneratorSettings {
         if (tag.hasKey("minVoltage")) settings.minVoltage = clampVoltage(tag.getInteger("minVoltage"));
         if (tag.hasKey("maxVoltage")) settings.maxVoltage = clampVoltage(tag.getInteger("maxVoltage"));
         settings.readSelected(tag);
-        if (schema >= CURRENT_SCHEMA) settings.readPhaseC(tag);
+        settings.readFillState(tag);
         return settings;
     }
 
@@ -273,7 +261,7 @@ public final class PatternGeneratorSettings {
         }
     }
 
-    private void readPhaseC(NBTTagCompound tag) {
+    private void readFillState(NBTTagCompound tag) {
         this.firstOutputOnly = tag.getBoolean("firstOutputOnly");
         this.author = safeString(tag.getString("author"), MAX_AUTHOR);
         this.fillArmed = tag.getBoolean("fillArmed");
@@ -292,11 +280,6 @@ public final class PatternGeneratorSettings {
             this.pendingY = tag.getInteger("pendingY");
             this.pendingZ = tag.getInteger("pendingZ");
         }
-    }
-
-    private static String migrateLegacyFilter(String value) {
-        String trimmed = value == null ? "" : value.trim();
-        return trimmed.isEmpty() ? "" : safeRegex(PatternFilterRules.quoteLiteral(trimmed));
     }
 
     private static int clampCircuit(int value) {

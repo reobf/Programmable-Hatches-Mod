@@ -26,8 +26,6 @@ public final class PatternGeneratorLogicTest {
         selectionIsPruned();
         regexSectionsWork();
         settingsRoundTrip();
-        legacySettingsMigrate();
-        schemaTwoSettingsMigrate();
         encoderOutputSelection();
         voltageBoundsWork();
         blankPatternsAreCountedAndConsumed();
@@ -201,63 +199,7 @@ public final class PatternGeneratorLogicTest {
         eq(0, loaded.pendingDim, "pending dimension");
         eq(Arrays.asList("abc123", "def456"), loaded.selectedRecipeList(), "selected recipes round-trip");
         check(loaded.machine == null, "no machine tag");
-    }
-
-    private static void legacySettingsMigrate() {
-        NBTTagCompound legacy = new NBTTagCompound();
-        legacy.setInteger("schema", 1);
-        legacy.setString("recipeMap", "gt.recipe.macerator");
-        legacy.setInteger("circuit", 3);
-        legacy.setString("inputFilter", "Iron Ingot");
-        legacy.setString("outputFilter", "Copper*");
-        PatternGeneratorSettings loaded = PatternGeneratorSettings.fromTag(legacy);
-        eq("gt.recipe.macerator", loaded.recipeMapId, "legacy map");
-        eq(3, loaded.circuit, "legacy circuit");
-        eq(
-            PatternFilterRules.quoteLiteral("Iron Ingot"),
-            loaded.inputInclude,
-            "legacy input becomes a quoted literal");
-        eq(
-            PatternFilterRules.quoteLiteral("Copper*"),
-            loaded.outputInclude,
-            "legacy output becomes a quoted literal");
-        eq(PatternGeneratorSettings.FilterMode.NAME, loaded.inputIncludeMode, "legacy mode is Name");
-        check(!loaded.onlyConflict, "legacy only-conflict defaults to off");
-        check(!loaded.firstOutputOnly, "legacy first-output-only defaults to off");
-        eq(-1, loaded.minVoltage, "legacy minimum voltage defaults to any");
-        eq(-1, loaded.maxVoltage, "legacy maximum voltage defaults to any");
-        check(loaded.selectedRecipes.isEmpty(), "legacy selection is empty");
-        check(loaded.pendingRecipes.isEmpty(), "legacy pending queue is empty");
-        eq(
-            PatternGeneratorSettings.CURRENT_SCHEMA,
-            loaded.toTag()
-                .getInteger("schema"),
-            "migration writes the current schema");
-    }
-
-    private static void schemaTwoSettingsMigrate() {
-        NBTTagCompound v2 = new NBTTagCompound();
-        v2.setInteger("schema", 2);
-        v2.setString("recipeMap", "gt.recipe.compressor");
-        v2.setInteger("circuit", 5);
-        v2.setString("inputInclude", "iron");
-        v2.setString("outputInclude", "plate");
-        v2.setBoolean("onlyConflict", true);
-        PatternGeneratorSettings loaded = PatternGeneratorSettings.fromTag(v2);
-        eq("gt.recipe.compressor", loaded.recipeMapId, "schema-2 map");
-        eq(5, loaded.circuit, "schema-2 circuit");
-        eq("iron", loaded.inputInclude, "schema-2 include");
-        check(loaded.onlyConflict, "schema-2 only-conflict");
-        check(!loaded.firstOutputOnly, "schema-2 first-output-only defaults to off");
-        eq(-1, loaded.minVoltage, "schema-2 minimum voltage defaults to any");
-        eq(-1, loaded.maxVoltage, "schema-2 maximum voltage defaults to any");
-        eq("", loaded.author, "schema-2 author defaults to empty");
-        check(loaded.pendingRecipes.isEmpty(), "schema-2 pending queue is empty");
-        eq(
-            PatternGeneratorSettings.CURRENT_SCHEMA,
-            loaded.toTag()
-                .getInteger("schema"),
-            "schema-2 migration writes the current schema");
+        eq(PatternGeneratorSettings.CURRENT_SCHEMA, settings.toTag().getInteger("schema"), "schema round-trip");
     }
 
     private static void encoderOutputSelection() {
@@ -394,7 +336,7 @@ public final class PatternGeneratorLogicTest {
 
             Files.write(new File(dir, "broken.dat").toPath(), new byte[] { 1, 2, 3, 4 });
             NBTTagCompound wrongSchema = new NBTTagCompound();
-            wrongSchema.setInteger("schema", 2);
+            wrongSchema.setInteger("schema", PatternGeneratorSettings.CURRENT_SCHEMA + 1);
             wrongSchema.setString("name", "old");
             try (FileOutputStream out = new FileOutputStream(new File(dir, "wrong.dat"))) {
                 CompressedStreamTools.writeCompressed(wrongSchema, out);

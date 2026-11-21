@@ -1,5 +1,6 @@
 package reobf.proghatches.item.patterngen;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,6 +21,9 @@ import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 
+import me.eigenraven.lwjgl3ify.api.InputEvents;
+import org.lwjgl.input.Keyboard;
+
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.value.IStringValue;
 import com.cleanroommc.modularui.api.value.IValue;
@@ -27,6 +32,8 @@ import com.cleanroommc.modularui.drawable.Rectangle;
 import com.cleanroommc.modularui.factory.GuiData;
 import com.cleanroommc.modularui.integration.recipeviewer.RecipeViewerGhostIngredientSlot;
 import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.viewport.ModularGuiContext;
+import com.cleanroommc.modularui.theme.TextFieldTheme;
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.cleanroommc.modularui.utils.serialization.ByteBufAdapters;
@@ -38,6 +45,7 @@ import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.value.sync.StringSyncValue;
 import com.cleanroommc.modularui.widget.ParentWidget;
 import com.cleanroommc.modularui.widget.Widget;
+import com.cleanroommc.modularui.widget.scroll.VerticalScrollData;
 import com.cleanroommc.modularui.widgets.ButtonWidget;
 import com.cleanroommc.modularui.widgets.FluidDisplayWidget;
 import com.cleanroommc.modularui.widgets.ItemDisplayWidget;
@@ -2514,16 +2522,31 @@ public final class PatternGeneratorPanel {
         }
     }
 
+    /**
+     * Multiline filter field with vertical scrolling.
+     * <p>
+     * Top alignment is required: ModularUI2's {@code TextFieldRenderer.getCursorPos} treats the
+     * line count as a pixel height, so with the default center alignment the click-to-line
+     * mapping drifts as soon as the text overflows the field. It also means the scroll offset is
+     * the only vertical movement, which keeps clicks and the caret in the same coordinate space.
+     */
     private static final class SyncedTextEditor extends TextEditorWidget {
+
+        private static final int SCROLLBAR_THICKNESS = 4;
+        private static final int PADDING_Y = 2;
 
         private final IStringValue<?> value;
         private boolean syncing;
+        private int lastCursorLine = -1;
 
         private SyncedTextEditor(IStringValue<?> value) {
             this.value = value;
             // BaseTextFieldWidget's renderer assumes at least one line before the first pull.
             this.handler.getText()
                 .add("");
+            setTextAlignment(Alignment.TopLeft);
+            padding(4, PADDING_Y);
+            getScrollArea().setScrollDataY(new VerticalScrollData(false, SCROLLBAR_THICKNESS));
         }
 
         @Override
@@ -2535,13 +2558,133 @@ public final class PatternGeneratorPanel {
         @Override
         public void onUpdate() {
             super.onUpdate();
-            if (!isFocused()) pull();
+            if (isFocused()) {
+                keepCursorVisible();
+            } else {
+                pull();
+            }
+        }
+
+        @Override
+        public Interactable.Result onKeyPressed(char character, int keyCode) {
+            if (isFocused()) {
+                if (keyCode == Keyboard.KEY_BACK || keyCode == Keyboard.KEY_DELETE) {
+                    if (deleteMultiLineSelection()) return Interactable.Result.SUCCESS;
+                } else if (Interactable.isKeyComboCtrlX(keyCode) && this.handler.hasTextMarked()) {
+                    // Cut must remove the exact selection; the base delete leaves the second
+                    // line of a two-line range in place.
+                    GuiScreen.setClipboardString(this.handler.getSelectedText());
+                    if (deleteMultiLineSelection()) return Interactable.Result.SUCCESS;
+                } else if (keyCode == Keyboard.KEY_RETURN || keyCode == Keyboard.KEY_NUMPADENTER
+                    || (character >= ' ' && character != 127)) {
+                    // Typing, Enter and paste must replace a multi-line selection before the
+                    // base handler reaches the two-line delete bug.
+                    deleteMultiLineSelection();
+                }
+            }
+            return super.onKeyPressed(character, keyCode);
+        }
+
+        @Override
+        public boolean onTextInput(InputEvents.TextEvent event) {
+            deleteMultiLineSelection();
+            return super.onTextInput(event);
+        }
+
+        /**
+         * FIXME: remove this method and the interception in {@link #onKeyPressed} /
+         * {@link #onTextInput} once https://github.com/GTNewHorizons/ModularUI2/pull/180 is
+         * merged and the ModularUI2 dependency is updated.
+         * <p>
+         * ModularUI2 2.3.94 TextFieldHandler.delete only removes intermediate lines when the
+         * selection spans three or more lines. A selection spanning exactly two lines leaves the
+         * second line in place and duplicates its tail after the first line. Handle that case
+         * before the base handler sees the selection.
+         */
+        private boolean deleteMultiLineSelection() {
+            if (!this.handler.hasTextMarked()) return false;
+            Point min = this.handler.getStartCursor();
+            Point max = this.handler.getEndCursor();
+            if (min.y == max.y) return false;
+            List<String> lines = this.handler.getText();
+            if (min.y < 0 || max.y >= lines.size()) return false;
+            String first = lines.get(min.y);
+            String last = lines.get(max.y);
+            int from = Math.max(0, Math.min(min.x, first.length()));
+            int to = Math.max(0, Math.min(max.x, last.length()));
+            lines.set(min.y, first.substring(0, from) + last.substring(to));
+            lines.subList(min.y + 1, max.y + 1)
+                .clear();
+            this.handler.setCursor(min.y, from, false);
+            if (getScrollArea().getScrollX() != null) getScrollArea().getScrollX()
+                .clamp(getScrollArea());
+            this.handler.onChanged();
+            return true;
+        }
+
+        @Override
+        public void onFocus(ModularGuiContext context) {
+            super.onFocus(context);
+            this.lastCursorLine = -1;
+        }
+
+        @Override
+        public void onRemoveFocus(ModularGuiContext context) {
+            super.onRemoveFocus(context);
+            VerticalScrollData scroll = getScrollArea().getScrollY();
+            if (scroll != null) scroll.scrollTo(getScrollArea(), 0);
+            this.lastCursorLine = -1;
+        }
+
+        @Override
+        protected void drawText(ModularGuiContext context, TextFieldTheme widgetTheme) {
+            super.drawText(context, widgetTheme);
+            updateVerticalScrollSize();
         }
 
         @Override
         protected void onTextChanged() {
             super.onTextChanged();
             if (!this.syncing && this.value != null) this.value.setStringValue(this.handler.getTextAsString());
+        }
+
+        private void updateVerticalScrollSize() {
+            VerticalScrollData scroll = getScrollArea().getScrollY();
+            if (scroll == null) return;
+            // Include the vertical padding so the scrollbar clamps at the padded content edge.
+            scroll.setScrollSize(
+                this.handler.getText()
+                    .size() * lineHeight() + PADDING_Y * 2);
+            scroll.clamp(getScrollArea());
+        }
+
+        /**
+         * Only react to caret moves so the mouse wheel can still inspect other lines while the
+         * field stays focused.
+         */
+        private void keepCursorVisible() {
+            VerticalScrollData scroll = getScrollArea().getScrollY();
+            if (scroll == null) return;
+            updateVerticalScrollSize();
+            Point cursor = this.handler.getMainCursor();
+            if (cursor.y == this.lastCursorLine) return;
+            this.lastCursorLine = cursor.y;
+            int height = lineHeight();
+            int top = cursor.y * height;
+            // getFullVisibleSize already removes an active horizontal scrollbar.
+            int visible = Math.max(
+                height,
+                scroll.getFullVisibleSize(getScrollArea()) - PADDING_Y * 2);
+            int current = scroll.getScroll();
+            if (top < current) {
+                scroll.scrollTo(getScrollArea(), top);
+            } else if (top + height > current + visible) {
+                scroll.scrollTo(getScrollArea(), top + height - visible);
+            }
+        }
+
+        private int lineHeight() {
+            return Math.max(1, (int) this.renderer.getFontHeight());
         }
 
         private void pull() {
@@ -2557,6 +2700,8 @@ public final class PatternGeneratorPanel {
                 for (String line : current.split("\\n", -1)) this.handler.getText()
                     .add(line);
                 this.handler.clampCursors();
+                VerticalScrollData scroll = getScrollArea().getScrollY();
+                if (scroll != null) scroll.scrollTo(getScrollArea(), 0);
             } finally {
                 this.syncing = false;
             }

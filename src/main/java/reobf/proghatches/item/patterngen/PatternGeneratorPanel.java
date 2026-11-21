@@ -1969,7 +1969,14 @@ public final class PatternGeneratorPanel {
 
     private void applyGenerationStatus(PatternGeneratorRecipes.GenerationResult result, boolean selectedOnly) {
         if (result.error != 0) {
-            if (result.error == PatternGeneratorRecipes.ERR_INVALID_FILTER && result.filterProblem != null) {
+            if (result.error == PatternGeneratorRecipes.ERR_NEED_BLANK) {
+                setStatus(
+                    fmt(
+                        "proghatches.pattern_generator.status.need_blank",
+                        result.blanksRequired,
+                        result.blanksAvailable));
+            } else if (result.error == PatternGeneratorRecipes.ERR_INVALID_FILTER
+                && result.filterProblem != null) {
                 setStatus(
                     fmt(
                         "proghatches.pattern_generator.filter.invalid.status",

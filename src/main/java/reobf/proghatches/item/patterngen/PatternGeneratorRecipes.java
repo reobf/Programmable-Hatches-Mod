@@ -42,6 +42,7 @@ public final class PatternGeneratorRecipes {
     public static final int ERR_NO_RECIPES = -3;
     public static final int ERR_INVALID_FILTER = -4;
     public static final int ERR_NOTHING_SELECTED = -5;
+    public static final int ERR_NEED_BLANK = -7;
 
     private PatternGeneratorRecipes() {}
 
@@ -52,22 +53,30 @@ public final class PatternGeneratorRecipes {
         public final int requested;
         public final int skipped;
         public final PatternRecipeCollection.FilterProblem filterProblem;
+        public final int blanksAvailable;
+        public final int blanksRequired;
 
         private GenerationResult(int error, int generated, int requested, int skipped,
-            PatternRecipeCollection.FilterProblem filterProblem) {
+            PatternRecipeCollection.FilterProblem filterProblem, int blanksAvailable, int blanksRequired) {
             this.error = error;
             this.generated = generated;
             this.requested = requested;
             this.skipped = skipped;
             this.filterProblem = filterProblem;
+            this.blanksAvailable = blanksAvailable;
+            this.blanksRequired = blanksRequired;
         }
 
         public static GenerationResult error(int error) {
-            return new GenerationResult(error, 0, 0, 0, null);
+            return new GenerationResult(error, 0, 0, 0, null, 0, 0);
         }
 
         public static GenerationResult filterProblem(PatternRecipeCollection.FilterProblem problem) {
-            return new GenerationResult(ERR_INVALID_FILTER, 0, 0, 0, problem);
+            return new GenerationResult(ERR_INVALID_FILTER, 0, 0, 0, problem, 0, 0);
+        }
+
+        public static GenerationResult missingBlanks(int available, int required) {
+            return new GenerationResult(ERR_NEED_BLANK, 0, 0, 0, null, available, required);
         }
     }
 
@@ -205,15 +214,22 @@ public final class PatternGeneratorRecipes {
         if (entries.isEmpty()) {
             return GenerationResult.error(ERR_NO_RECIPES);
         }
+        if (PatternGeneratorBlankPatterns.costs(player)) {
+            int available = PatternGeneratorBlankPatterns.countInventory(player);
+            if (available < entries.size()) {
+                return GenerationResult.missingBlanks(available, entries.size());
+            }
+        }
 
         int generated = generateEntries(player, entries, settings);
         int skipped = entries.size() - generated;
-        return new GenerationResult(0, generated, entries.size(), skipped, null);
+        return new GenerationResult(0, generated, entries.size(), skipped, null, 0, 0);
     }
 
     /**
-     * Encodes and delivers entries with the normal player-inventory overflow behavior. Shared
-     * by inventory generation and by the direct-fill queue when it has to return leftovers.
+     * Encodes and delivers entries with the normal player-inventory overflow behavior. Each
+     * delivered pattern costs one blank pattern in survival; callers that need an all-or-nothing
+     * check must verify the count first. Direct fill has its own blank handling.
      */
     public static int generateEntries(EntityPlayerMP player, List<PatternRecipeEntry> entries,
         PatternGeneratorSettings settings) {
@@ -227,12 +243,18 @@ public final class PatternGeneratorRecipes {
                 pattern = null;
             }
             if (pattern == null) continue;
-            if (!player.inventory.addItemStackToInventory(pattern)) {
-                player.dropPlayerItemWithRandomChoice(pattern, false);
-            }
+            if (!PatternGeneratorBlankPatterns.tryConsumeInventory(player)) break;
+            deliver(player, pattern);
             generated++;
         }
         return generated;
+    }
+
+    public static void deliver(EntityPlayerMP player, ItemStack pattern) {
+        if (player == null || pattern == null) return;
+        if (!player.inventory.addItemStackToInventory(pattern)) {
+            player.dropPlayerItemWithRandomChoice(pattern, false);
+        }
     }
 
     private static void persist(PatternGeneratorSettings settings, ItemStack tool, EntityPlayerMP player) {

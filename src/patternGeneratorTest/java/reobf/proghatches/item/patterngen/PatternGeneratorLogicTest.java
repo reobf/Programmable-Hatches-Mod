@@ -30,6 +30,7 @@ public final class PatternGeneratorLogicTest {
         schemaTwoSettingsMigrate();
         encoderOutputSelection();
         voltageBoundsWork();
+        blankPatternsAreCountedAndConsumed();
         presetsRoundTrip();
         System.out.println("PatternGeneratorLogicTest passed");
     }
@@ -321,6 +322,23 @@ public final class PatternGeneratorLogicTest {
         check(!PatternGeneratorRecipes.matchesVoltage(16, 32, 128), "below minimum rejects");
         check(!PatternGeneratorRecipes.matchesVoltage(256, 32, 128), "above maximum rejects");
         check(PatternGeneratorRecipes.matchesVoltage(128, 32, 128), "bounds are inclusive");
+    }
+
+    private static void blankPatternsAreCountedAndConsumed() {
+        Item blankItem = new Item();
+        ItemStack blank = new ItemStack(blankItem, 1, 3);
+        ItemStack[] slots = { new ItemStack(blankItem, 2, 3), null, new ItemStack(blankItem, 3, 4),
+            new ItemStack(blankItem, 1, 3), new ItemStack(new Item(), 4, 3) };
+        eq(3, PatternGeneratorBlankPatterns.count(slots, blank), "blank count matches item and damage only");
+        check(PatternGeneratorBlankPatterns.consume(slots, blank), "consume the first stack");
+        eq(1, slots[0].stackSize, "the first stack is decremented");
+        eq(2, PatternGeneratorBlankPatterns.count(slots, blank), "count follows the decrement");
+        check(PatternGeneratorBlankPatterns.consume(slots, blank), "consume the last item of the first stack");
+        check(slots[0] == null, "an emptied stack is cleared");
+        check(PatternGeneratorBlankPatterns.consume(slots, blank), "consume the last matching stack");
+        eq(3, slots[2].stackSize, "the wrong-damage stack is untouched");
+        eq(0, PatternGeneratorBlankPatterns.count(slots, blank), "no blanks remain");
+        check(!PatternGeneratorBlankPatterns.consume(slots, blank), "consuming with no blanks fails");
     }
 
     private static void presetsRoundTrip() throws Exception {

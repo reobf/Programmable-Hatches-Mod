@@ -28,8 +28,8 @@ import reobf.proghatches.main.MyMod;
 /**
  * Generates AE2 processing patterns from the recipe map of a GT machine item.
  * <p>
- * Blank patterns are not consumed. Circuits and NC items are encoded as PH virtual items so a
- * Programming Circuit Provider can supply them.
+ * Survival generation costs one blank pattern per encoded pattern; creative is free. Circuits
+ * and NC items are encoded as PH virtual items so a Programming Circuit Provider can supply them.
  */
 public class ItemPatternGenerator extends Item implements IGuiHolder<GuiData> {
 

@@ -261,6 +261,12 @@ public final class PatternGeneratorFillQueue {
                 rearmAfterFull(player, tool, settings);
                 return;
             }
+            // Keep the pending id and target when blanks run out, so Resume can continue
+            // after the player restocks. Creative mode consumes nothing.
+            if (!PatternGeneratorBlankPatterns.tryConsume(player, target)) {
+                pause(player, "proghatches.pattern_generator.target.need_blank");
+                return;
+            }
             // Persist the removal before the actual insertion. A crash can lose this one
             // pattern, but the queue can never insert it a second time.
             settings.pendingRecipes.remove(0);
@@ -312,6 +318,13 @@ public final class PatternGeneratorFillQueue {
             }
         }
         int returned = returnPending(player, settings, collection);
+        if (settings.hasPending()) {
+            // The inventory ran out of blanks before every leftover could be returned.
+            // Keep the remaining progress; Resume returns it after restocking.
+            save(player, tool, settings);
+            pause(player, "proghatches.pattern_generator.target.need_blank");
+            return;
+        }
         settings.clearPending();
         save(player, tool, settings);
         String reason = StatCollector.translateToLocal(reasonKey);
@@ -324,12 +337,30 @@ public final class PatternGeneratorFillQueue {
         if (collection == null || collection.error != 0 || collection.hasFilterProblem()) return 0;
         Map<String, PatternRecipeEntry> byId = new LinkedHashMap<>();
         for (PatternRecipeEntry entry : collection.all) byId.put(entry.id, entry);
-        List<PatternRecipeEntry> leftovers = new ArrayList<>();
-        for (String id : settings.pendingRecipes) {
+        int returned = 0;
+        while (!settings.pendingRecipes.isEmpty()) {
+            String id = settings.pendingRecipes.get(0);
             PatternRecipeEntry entry = byId.get(id);
-            if (entry != null) leftovers.add(entry);
+            if (entry == null) {
+                settings.pendingRecipes.remove(0);
+                continue;
+            }
+            ItemStack pattern;
+            try {
+                pattern = PatternGeneratorRecipes.encode(entry, player, settings);
+            } catch (Throwable ignored) {
+                pattern = null;
+            }
+            if (pattern == null) {
+                settings.pendingRecipes.remove(0);
+                continue;
+            }
+            if (!PatternGeneratorBlankPatterns.tryConsumeInventory(player)) break;
+            PatternGeneratorRecipes.deliver(player, pattern);
+            settings.pendingRecipes.remove(0);
+            returned++;
         }
-        return PatternGeneratorRecipes.generateEntries(player, leftovers, settings);
+        return returned;
     }
 
     private static void rearmAfterFull(EntityPlayerMP player, ItemStack tool, PatternGeneratorSettings settings) {

@@ -11,7 +11,9 @@ import appeng.api.config.SecurityPermissions;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
+import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.ISecurityGrid;
+import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.parts.IPartHost;
 import appeng.api.parts.SelectedPart;
 import appeng.api.util.DimensionalCoord;
@@ -69,6 +71,29 @@ public final class PatternGeneratorTarget {
                 } catch (Throwable ignored) {}
             }
         return Math.max(0, size);
+    }
+
+    /**
+     * Storage cache of the AE grid the pattern storage belongs to, or null for plain
+     * inventories and unpowered/unconnected targets.
+     */
+    public IStorageGrid storageGrid() {
+        IGridNode node = nodeOf(this.holder);
+        if (node == null) node = nodeOf(this.tile);
+        if (node == null) return null;
+        try {
+            IGrid grid = node.getGrid();
+            return grid == null ? null : grid.getCache(IStorageGrid.class);
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    /** Action host used to attribute network extraction to this pattern storage. */
+    public IActionHost actionHost() {
+        if (this.holder instanceof IActionHost host) return host;
+        if (this.tile instanceof IActionHost host) return host;
+        return null;
     }
 
     public static PatternGeneratorTarget resolve(World world, int x, int y, int z, float hitX, float hitY,

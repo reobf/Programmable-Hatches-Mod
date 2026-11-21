@@ -273,6 +273,7 @@ public class MyMod {
     public static SimpleNetworkWrapper net = new SimpleNetworkWrapper(MyMod.MODID);
     public static Item progcircuit;
     public static Item toolkit;
+    public static Item pattern_generator;
 
     // static {CraftingCPUCluster.class.getDeclaredFields();}
     @SidedProxy(clientSide = "reobf.proghatches.main.ClientProxy", serverSide = "reobf.proghatches.main.CommonProxy")

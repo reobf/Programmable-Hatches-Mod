@@ -94,3 +94,20 @@ val testCyclicAnalysis by tasks.registering(JavaExec::class) {
 tasks.check {
     dependsOn(testCyclicAnalysis)
 }
+
+// Pattern generator logic needs the Minecraft NBT classes for the settings round-trip.
+val patternGeneratorTest by sourceSets.creating {
+    compileClasspath = sourceSets.main.get().output + sourceSets.main.get().compileClasspath
+    runtimeClasspath = output + compileClasspath
+}
+val testPatternGeneratorLogic by tasks.registering(JavaExec::class) {
+    group = "verification"
+    description = "Checks recipe ids, selection pruning, regex rules and settings NBT."
+    dependsOn(tasks.named(patternGeneratorTest.classesTaskName))
+    classpath = patternGeneratorTest.runtimeClasspath
+    mainClass.set("reobf.proghatches.item.patterngen.PatternGeneratorLogicTest")
+    javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
+}
+tasks.check {
+    dependsOn(testPatternGeneratorLogic)
+}

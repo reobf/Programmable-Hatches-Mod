@@ -2396,6 +2396,16 @@ public class PHRecipes implements Runnable {
             .duration(1)
             .eut(30*4*4*4*4)
             .addTo(RecipeMaps.assemblerRecipes);
+
+            GTValues.RA.stdBuilder()
+                .itemInputs(
+                    ItemList.Circuit_Good.get(1),
+                    Materials.Steel.getPlates(1),
+                    new ItemStack(MyMod.toolkit, 1, OreDictionary.WILDCARD_VALUE))
+                .itemOutputs(new ItemStack(MyMod.pattern_generator))
+                .duration(20 * SECONDS)
+                .eut(30)
+                .addTo(RecipeMaps.assemblerRecipes);
     }
 
 }

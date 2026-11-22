@@ -1843,7 +1843,8 @@ public final class PatternGeneratorPanel {
             this.pageData = new NBTTagCompound();
             setStatus(fmt(PatternGeneratorRecipes.statusKey(result.error)));
             this.machineErrorActive = result.error == PatternGeneratorRecipes.ERR_NO_MACHINE
-                || result.error == PatternGeneratorRecipes.ERR_NO_MAP;
+                || result.error == PatternGeneratorRecipes.ERR_NO_MAP
+                || result.error == PatternGeneratorRecipes.ERR_DYNAMIC_UNSUPPORTED;
             this.problemActive = false;
             publishCounts();
             publishPage();

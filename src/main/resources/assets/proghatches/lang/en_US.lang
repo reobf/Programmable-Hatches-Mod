@@ -169,6 +169,7 @@ proghatches.pattern_generator.status.none_selected=No recipes selected
 proghatches.pattern_generator.status.no_machine=Select a GT machine first
 proghatches.pattern_generator.status.no_map=This machine has no enumerable recipe map
 proghatches.pattern_generator.status.no_recipes=No matching recipes
+proghatches.pattern_generator.status.dynamic_unsupported=This recipe map builds recipes at runtime and cannot be listed
 proghatches.pattern_generator.status.need_blank=Need %1$s blank patterns, but only %2$s are in your inventory
 programmable_hatches.cover.smart.io.true=Internal to Adjacent
 programmable_hatches.cover.smart.io.false=Adjacent to Internal

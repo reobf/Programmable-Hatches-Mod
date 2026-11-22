@@ -168,6 +168,7 @@ proghatches.pattern_generator.status.none_selected=没有已选配方
 proghatches.pattern_generator.status.no_machine=请先选择 GT 机器
 proghatches.pattern_generator.status.no_map=该机器没有可枚举的配方表
 proghatches.pattern_generator.status.no_recipes=没有匹配的配方
+proghatches.pattern_generator.status.dynamic_unsupported=该配方表在运行时动态生成，无法枚举
 proghatches.pattern_generator.status.need_blank=需要 %1$s 个空白样板，背包中只有 %2$s 个
 programmable_hatches.cover.smart.io.true=内部 向 外部
 programmable_hatches.cover.smart.io.false=外部 向 内部

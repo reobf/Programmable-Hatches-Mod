@@ -43,6 +43,7 @@ public final class PatternGeneratorRecipes {
     public static final int ERR_INVALID_FILTER = -4;
     public static final int ERR_NOTHING_SELECTED = -5;
     public static final int ERR_NEED_BLANK = -7;
+    public static final int ERR_DYNAMIC_UNSUPPORTED = -8;
 
     private PatternGeneratorRecipes() {}
 
@@ -99,16 +100,18 @@ public final class PatternGeneratorRecipes {
         } catch (Throwable ignored) {
             recipes = null;
         }
-        if (recipes != null) {
-            for (GTRecipe recipe : recipes) {
-                try {
-                    if (!isUsable(recipe)) continue;
-                    PatternRecipeEntry entry = PatternRecipeEntry.of(recipe, map.unlocalizedName, mapName);
-                    if (entry != null) all.add(entry);
-                } catch (Throwable ignored) {
-                    // A malformed addon recipe must not take the whole preview down.
-                }
-            }
+        if (recipes != null) addEntries(all, recipes, map.unlocalizedName, mapName);
+
+        // Dynamic maps (furnace, microwave, EFR blasting/smoking) keep getAllRecipes() empty and
+        // resolve from a live registry at lookup time, so their recipes have to be enumerated
+        // separately. A null result means the dynamic backend has no enumerable source.
+        List<GTRecipe> dynamic = null;
+        try {
+            dynamic = PatternDynamicRecipes.collect(map);
+        } catch (Throwable ignored) {}
+        if (dynamic != null) addEntries(all, dynamic, map.unlocalizedName, mapName);
+        else if (all.isEmpty() && PatternDynamicRecipes.isDynamic(map)) {
+            return PatternRecipeCollection.error(ERR_DYNAMIC_UNSUPPORTED);
         }
 
         List<PatternRecipeCollection.FilterProblem> problems = new ArrayList<>();
@@ -130,6 +133,19 @@ public final class PatternGeneratorRecipes {
             all,
             filtered,
             problems);
+    }
+
+    private static void addEntries(List<PatternRecipeEntry> target, Collection<GTRecipe> recipes, String mapId,
+        String mapName) {
+        for (GTRecipe recipe : recipes) {
+            try {
+                if (!isUsable(recipe)) continue;
+                PatternRecipeEntry entry = PatternRecipeEntry.of(recipe, mapId, mapName);
+                if (entry != null) target.add(entry);
+            } catch (Throwable ignored) {
+                // A malformed addon recipe must not take the whole preview down.
+            }
+        }
     }
 
     /**
@@ -533,6 +549,7 @@ public final class PatternGeneratorRecipes {
         if (value == ERR_NO_RECIPES) return "proghatches.pattern_generator.status.no_recipes";
         if (value == ERR_INVALID_FILTER) return "proghatches.pattern_generator.filter.invalid.status";
         if (value == ERR_NOTHING_SELECTED) return "proghatches.pattern_generator.status.none_selected";
+        if (value == ERR_DYNAMIC_UNSUPPORTED) return "proghatches.pattern_generator.status.dynamic_unsupported";
         return null;
     }
 

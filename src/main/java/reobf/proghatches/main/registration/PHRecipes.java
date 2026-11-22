@@ -2399,7 +2399,7 @@ public class PHRecipes implements Runnable {
 
             GTValues.RA.stdBuilder()
                 .itemInputs(
-                    ItemList.Circuit_Good.get(1),
+                    new Object[] { OrePrefixes.circuit.get(Materials.MV), 1 },
                     Materials.Steel.getPlates(1),
                     new ItemStack(MyMod.toolkit, 1, OreDictionary.WILDCARD_VALUE))
                 .itemOutputs(new ItemStack(MyMod.pattern_generator))

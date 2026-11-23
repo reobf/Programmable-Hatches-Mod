@@ -76,6 +76,7 @@ import reobf.proghatches.item.ItemFixer;
 import reobf.proghatches.item.ItemFixer2;
 import reobf.proghatches.item.ItemMEPlunger;
 import reobf.proghatches.item.ItemProgrammingCircuit;
+import reobf.proghatches.item.ItemPatternGenerator;
 import reobf.proghatches.item.ItemProgrammingToolkit;
 import reobf.proghatches.item.ItemSmartArm;
 import reobf.proghatches.item.ItemUpgrades;
@@ -146,6 +147,10 @@ public class CommonProxy {
             MyMod.toolkit = new ItemProgrammingToolkit().setUnlocalizedName("prog_toolkit")
                 .setTextureName("NOTSET"),
             "prog_toolkit");
+        GameRegistry.registerItem(
+            MyMod.pattern_generator = new ItemPatternGenerator().setUnlocalizedName("pattern_generator")
+                .setTextureName("proghatches:pattern_generator"),
+            "pattern_generator");
         GameRegistry.registerItem(
             MyMod.chance_toolkit = new ItemChanceToolkit().setUnlocalizedName("chance_toolkit")
                 .setTextureName("NOTSET"),

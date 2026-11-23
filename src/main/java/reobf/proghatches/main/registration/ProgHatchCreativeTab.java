@@ -38,6 +38,7 @@ public class ProgHatchCreativeTab extends CreativeTabs {
             .forEach(p_78018_1_::add);
         p_78018_1_.add(new ItemStack(MyMod.fixer));
         p_78018_1_.add(new ItemStack(MyMod.toolkit));
+        p_78018_1_.add(new ItemStack(MyMod.pattern_generator));
         p_78018_1_.add(new ItemStack(MyMod.fixer2));
         for (int i = 0; i < 15; i++) {
             p_78018_1_.add(new ItemStack(MyMod.smartarm, 1, i));

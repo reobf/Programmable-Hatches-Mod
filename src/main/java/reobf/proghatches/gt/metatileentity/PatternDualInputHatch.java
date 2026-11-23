@@ -1034,7 +1034,7 @@ public int page() {
                so = p.getOutput(craftingInv, world);
                if (so != null) {
                    so = so.copy();
-                   so.stackSize *= m;
+                   so.stackSize = (int) Math.min(Integer.MAX_VALUE, (long) so.stackSize * m);
                }
            }
            return so;

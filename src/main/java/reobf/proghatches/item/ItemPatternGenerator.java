@@ -92,5 +92,6 @@ public class ItemPatternGenerator extends Item implements IGuiHolder<GuiData> {
         lines.add(LangManager.translateToLocal("item.pattern_generator.name.tooltip.2"));
         lines.add(LangManager.translateToLocal("item.pattern_generator.name.tooltip.3"));
         lines.add(LangManager.translateToLocal("item.pattern_generator.name.tooltip.4"));
+        lines.add(LangManager.translateToLocal("item.pattern_generator.author"));
     }
 }

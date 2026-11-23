@@ -3,7 +3,6 @@ package reobf.proghatches.item;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -15,17 +14,13 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.glodblock.github.common.item.ItemFluidEncodedPattern;
 
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.IInterfaceViewable;
-import appeng.core.localization.GuiText;
 import appeng.items.misc.ItemEncodedPattern;
 import appeng.me.helpers.IGridProxyable;
-import appeng.util.item.AEItemStack;
 import reobf.proghatches.main.MyMod;
 import reobf.proghatches.main.mixin.MixinCallback;
 
@@ -110,66 +105,28 @@ public class ItemFixer extends Item {
         return true;
     }
 
-    public IAEItemStack fixCircuit(IAEItemStack gs, Runnable succ) {
-        if (gs.getItem() != MyMod.progcircuit) return null;
-        gs = gs.copy();
-        int ver = ItemProgrammingCircuit.isNew(gs.getItemStack());
-        if (ver == 0 || ver == 1) {
-            NBTTagCompound tag = gs.getTagCompound()
-                .getNBTTagCompoundCopy();
-            if (MixinCallback.fixCircuitTag(tag)) {
-                ItemStack is = gs.getItemStack();
-                is.stackTagCompound = (NBTTagCompound) tag.copy();
-                gs = AEItemStack.create(is);
-                succ.run();
+    private static void migrateInputs(NBTTagList inputs, Runnable success) {
+        for (int slot = 0; slot < inputs.tagCount(); slot++) {
+            NBTTagCompound entry = inputs.getCompoundTagAt(slot);
+            ItemStack item = ItemStack.loadItemStackFromNBT(entry);
+            if (item == null || item.getItem() != MyMod.progcircuit) continue;
+            if (MixinCallback.fixCircuitTag(entry.getCompoundTag("tag"))) success.run();
+            if (entry.hasKey("Cnt")) {
+                if (entry.getLong("Cnt") <= 0) entry.setLong("Cnt", 1);
+            } else if (entry.getLong("Count") <= 0) {
+                entry.setInteger("Count", 1);
             }
         }
-        return gs;
     }
 
-    public ItemStack fix(ItemStack is, Runnable succ) {
-        // ICraftingPatternItem item=(ICraftingPatternItem) is.getItem();
-        final ItemStack unknownItem = new ItemStack(Blocks.fire);
-        unknownItem.setStackDisplayName(GuiText.UnknownItem.getLocal());
-        is = is.copy();
-        // item.getPatternForItem(is, null);
-
-        boolean fluid = is.getItem() instanceof ItemFluidEncodedPattern;
-        final NBTTagCompound encodedValue = (NBTTagCompound) is.getTagCompound();
-        NBTTagList in = encodedValue.getTagList("in", 10);
-        for (int x = 0; x < in.tagCount(); x++) {
-            IAEItemStack gs = AEItemStack.loadItemStackFromNBT(in.getCompoundTagAt(x));
-            if (gs == null) continue;
-            gs = fixCircuit(gs, succ);
-            if (gs == null) continue;
-            gs = gs.copy();
-            if (gs.getStackSize() <= 0) gs.setStackSize(1);
-
-            if (fluid) {
-                NBTTagCompound t = new NBTTagCompound();
-                gs.writeToNBT(t);
-                in.func_150304_a(x, t);
-            } else {
-                in.func_150304_a(
-                    x,
-                    gs.getItemStack()
-                        .writeToNBT(new NBTTagCompound()));
-
-            }
+    public ItemStack fix(ItemStack is, Runnable success) {
+        ItemStack fixed = is.copy();
+        NBTTagCompound tag = fixed.getTagCompound();
+        if (tag != null) {
+            migrateInputs(tag.getTagList("in", 10), success);
+            if (tag.hasKey("Inputs", 9)) migrateInputs(tag.getTagList("Inputs", 10), () -> {});
         }
-
-        if (fluid) {
-            // your shits, my pain
-            is.getTagCompound()
-                .setTag(
-                    "Inputs",
-                    encodedValue.getTagList("in", 10)
-                        .copy());
-        }
-
-        // System.out.println(is.getTagCompound());
-
-        return is.copy();
+        return fixed;
     }
 
     public void fix(IInterfaceViewable iface, Runnable succ) {

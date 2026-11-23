@@ -33,6 +33,8 @@ public final class PushStaging {
     public static long realSize(InventoryCrafting table, int slot, ItemStack view) {
         IAEStack<?> ae = table instanceof MEInventoryCrafting ? ((MEInventoryCrafting) table).getAEStackInSlot(slot)
             : null;
+        if (ae != null && !(ae instanceof IAEItemStack || ae instanceof IAEFluidStack)) return -1;
+        if (view == null) return ae == null ? 0 : -1;
         if (view.getItem() instanceof ItemFluidPacket) {
             if (ae instanceof IAEFluidStack) return ae.getStackSize();
             // a packet carried as an item: getFluidStack clamps to int, the packet's NBT holds the long amount
@@ -56,12 +58,12 @@ public final class PushStaging {
         PushStaging ret = new PushStaging();
         for (int slot = 0; slot < table.getSizeInventory(); slot++) {
             ItemStack view = table.getStackInSlot(slot);
-            if (view == null) continue;
             long rest = realSize(table, slot, view);
             if (rest < 0) return null;
+            if (view == null) continue;
             if (view.getItem() instanceof ItemFluidPacket) {
                 FluidStack type = ItemFluidPacket.getFluidStack(view);
-                if (type == null) continue;
+                if (type == null) return null;
                 if (!ret.addFluidChunks(type, rest, fluidLimit, splitFluids, fluidSlots)) return null;
             } else {
                 if (!ret.addItemChunks(view, rest, itemLimit, splitItems, validItemSlot)) return null;
@@ -76,8 +78,9 @@ public final class PushStaging {
         List<Part> parts = new ArrayList<>();
         for (int slot = 0; slot < table.getSizeInventory(); slot++) {
             ItemStack view = table.getStackInSlot(slot);
-            if (view == null) continue;
             long amount = realSize(table, slot, view);
+            if (amount < 0) return null;
+            if (view == null) continue;
             if (view.getItem() instanceof ItemFluidPacket) {
                 FluidStack fluid = ItemFluidPacket.getFluidStack(view);
                 if (fluid == null || amount <= 0) return null;

@@ -31,6 +31,7 @@ item.pattern_generator.name.tooltip.1=从 NEI 拖入机器物品到机器槽
 item.pattern_generator.name.tooltip.2=右键打开。生存模式下每个样板消耗 1 个空白样板
 item.pattern_generator.name.tooltip.3=电路与 NC 物品会编码为编程器电路
 item.pattern_generator.name.tooltip.4=目标页可准备直接填充，可移除副产物
+item.pattern_generator.author=作者：§6foxwhite25§r
 proghatches.pattern_generator.machine=机器
 proghatches.pattern_generator.machine.tooltip=将 GT 机器物品拖到这里
 proghatches.pattern_generator.machine.tooltip.nei=支持 NEI 拖拽，不会消耗该物品

@@ -1437,7 +1437,7 @@ public class TileIOHub extends TileEntity implements li.cil.oc.api.network.Envir
 	
 
 		@Override
-		public int fluidTransferRate() {
+		public long fluidTransferRate() {
 		
 			return 1;
 		}

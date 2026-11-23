@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.Future;
 import java.util.stream.IntStream;
+import java.util.function.Function;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
@@ -22,10 +23,13 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
-import reobf.proghatches.ae.PatternCraftingJob;
+import reobf.proghatches.gt.metatileentity.util.PushStaging;
+import appeng.api.storage.data.IAEStack;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import com.glodblock.github.common.item.ItemFluidDrop;
-import com.glodblock.github.common.item.ItemFluidPacket;
+
 import com.google.common.collect.ImmutableSet;
 import com.gtnewhorizons.modularui.api.ModularUITextures;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
@@ -43,7 +47,7 @@ import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.IMEInventory;
-import appeng.api.storage.IMEMonitor;
+
 import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
@@ -54,7 +58,7 @@ import appeng.util.item.AEFluidStack;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 import gregtech.api.gui.modularui.GTUITextures;
-import gregtech.api.util.GTUtility;
+
 
 public abstract class RequestTunnel implements ICraftingMachine, ICraftingRequester, ISidedInventory, IFluidHandler {
 	final IActionHost parent;final private BaseActionSource source ;
@@ -62,8 +66,7 @@ public abstract class RequestTunnel implements ICraftingMachine, ICraftingReques
 this.parent=parent;source = new MachineSource(this.parent);
     }
 
-    public ArrayList<ItemStack> cache = new ArrayList<>();
-    public ArrayList<FluidStack> cacheF = new ArrayList<>();
+    private final Map<IAEStack<?>, Long> pendingInputs = new LinkedHashMap<>();
     public HashMap<AEItemStack, Long> waiting = new HashMap<>();
     public ArrayList<ItemStack> cacheR = new ArrayList<>();
     public ArrayList<FluidStack> cacheFR = new ArrayList<>();
@@ -72,33 +75,25 @@ this.parent=parent;source = new MachineSource(this.parent);
     public boolean pushPattern(ICraftingPatternDetails patternDetails, InventoryCrafting table,
         ForgeDirection ejectionDirection) {
 
-    	 try {
-			PatternCraftingJob job = new PatternCraftingJob(patternDetails, getProxy().getStorage());
-		getProxy().getCrafting().getCraftingPatterns();
-    	 } catch (GridAccessException e) {
-		}
-
-
-        for (int i = 0; i < table.getSizeInventory(); i++) {
-            ItemStack is = table.getStackInSlot(i);
-            if (is != null) {
-                if (is.getItem() instanceof ItemFluidPacket) {
-                    cacheF.add(ItemFluidPacket.getFluidStack(is));
-                } else {
-                    cache.add((is));
-                }
-
+        PushStaging staged = PushStaging.logical(table, Long.MAX_VALUE, slot -> true, Long.MAX_VALUE, Integer.MAX_VALUE);
+        if (staged == null) return false;
+        Map<IAEStack<?>, Long> inputs = new LinkedHashMap<>(pendingInputs);
+        Map<AEItemStack, Long> outputs = new HashMap<>(waiting);
+        try {
+            for (IAEItemStack item : staged.longItems) inputs.merge(item, item.getStackSize(), Math::addExact);
+            for (IAEFluidStack fluid : staged.longFluids) inputs.merge(fluid, fluid.getStackSize(), Math::addExact);
+            for (IAEStack<?> out : patternDetails.getCondensedAEOutputs()) {
+                if (out == null) continue;
+                IAEItemStack key = Platform.stackConvert(out);
+                if (!(key instanceof AEItemStack item)) return false;
+                outputs.merge(item, out.getStackSize(), Math::addExact);
             }
+        } catch (ArithmeticException overflow) {
+            return false;
         }
+        pendingInputs.putAll(inputs);
+        waiting.putAll(outputs);
         dump();
-
-        for (IAEItemStack item : patternDetails.getCondensedOutputs()) {
-            if (waiting.get(item) == null) {
-                waiting.put((AEItemStack) item, 0l);
-            } ;
-            waiting.put((AEItemStack) item, waiting.get(item) + item.getStackSize());
-        }
-
         return true;
     }
 
@@ -108,28 +103,21 @@ this.parent=parent;source = new MachineSource(this.parent);
     	returnAll=data.getBoolean("returnAll");
     	if(data.hasKey("mode"))
       	mode=data.getByte("mode" );
-    	cache.clear();
-        {
-            NBTTagList t = (NBTTagList) data.getTag("cache");
-            for (int i = 0; i < t.tagCount(); i++) {
-                cache.add(ItemStack.loadItemStackFromNBT(t.getCompoundTagAt(i)));
-
-            }
-        }
-        cacheF.clear();
-        {
-            NBTTagList t = (NBTTagList) data.getTag("cacheF");
-            for (int i = 0; i < t.tagCount(); i++) {
-                cacheF.add(FluidStack.loadFluidStackFromNBT(t.getCompoundTagAt(i)));
-
-            }
-        }
+        pendingInputs.clear();
+        NBTTagList inputs = data.getTagList("pendingInputs", 10);
+        for (int i = 0; i < inputs.tagCount(); i++) restoreInput(IAEStack.fromNBTGeneric(inputs.getCompoundTagAt(i)));
+        NBTTagList oldItems = data.getTagList("cache", 10);
+        for (int i = 0; i < oldItems.tagCount(); i++)
+            restoreInput(AEItemStack.create(Platform.loadItemStackFromNBT(oldItems.getCompoundTagAt(i))));
+        NBTTagList oldFluids = data.getTagList("cacheF", 10);
+        for (int i = 0; i < oldFluids.tagCount(); i++)
+            restoreInput(AEFluidStack.create(FluidStack.loadFluidStackFromNBT(oldFluids.getCompoundTagAt(i))));
 
         cacheR.clear();
         {
             NBTTagList t = (NBTTagList) data.getTag("cacheR");
             for (int i = 0; i < t.tagCount(); i++) {
-                cacheR.add(ItemStack.loadItemStackFromNBT(t.getCompoundTagAt(i)));
+                cacheR.add(Platform.loadItemStackFromNBT(t.getCompoundTagAt(i)));
 
             }
         }
@@ -165,20 +153,15 @@ this.parent=parent;source = new MachineSource(this.parent);
     public void writeToNBT_AENetworkX(NBTTagCompound data) {
     	data.setBoolean("returnAll", returnAll);
     	data.setByte("mode", (byte) mode);
-        NBTTagList list = new NBTTagList();
-        cache.stream()
-            .map(s -> s.writeToNBT(new NBTTagCompound()))
-            .forEach(s -> list.appendTag(s));
-        data.setTag("cache", list);
-        NBTTagList listF = new NBTTagList();
-        cacheF.stream()
-            .map(s -> s.writeToNBT(new NBTTagCompound()))
-            .forEach(s -> listF.appendTag(s));
-        data.setTag("cacheF", listF);
+        NBTTagList inputs = new NBTTagList();
+        pendingInputs.forEach((key, amount) -> inputs.appendTag(key.copy().setStackSize(amount).toNBTGeneric()));
+        data.setTag("pendingInputs", inputs);
+        data.removeTag("cache");
+        data.removeTag("cacheF");
         {
             NBTTagList listR = new NBTTagList();
             cacheR.stream()
-                .map(s -> s.writeToNBT(new NBTTagCompound()))
+                .map(s -> Platform.writeItemStackToNBT(s, new NBTTagCompound()))
                 .forEach(s -> listR.appendTag(s));
             data.setTag("cacheR", listR);
             NBTTagList listFR = new NBTTagList();
@@ -211,38 +194,27 @@ this.parent=parent;source = new MachineSource(this.parent);
 
     }
 
+    private void restoreInput(IAEStack<?> stack) {
+        if (stack != null && stack.getStackSize() > 0)
+            pendingInputs.merge(stack, stack.getStackSize(), Math::addExact);
+    }
+
+    @SuppressWarnings("unchecked")
     private void dump() {
+        if (pendingInputs.isEmpty()) return;
         try {
-            IMEMonitor<IAEItemStack> i = getProxy().getStorage()
-                .getItemInventory();
-            cache.removeIf(s -> {
-                IAEItemStack left = i.injectItems(AEItemStack.create(s), Actionable.MODULATE, new MachineSource(this.parent));
-                if (left == null || left.getStackSize() <= 0) {
-                    return true;
-                }
-                s.stackSize = (int) left.getStackSize();
-                return false;
-            });
-        } catch (GridAccessException e) {
-
-        }
-
-        try {
-            IMEMonitor<IAEFluidStack> i = getProxy().getStorage()
-                .getFluidInventory();
-            cacheF.removeIf(s -> {
-                IAEFluidStack left = i
-                    .injectItems(AEFluidStack.create(s), Actionable.MODULATE, new MachineSource(this.parent));
-                if (left == null || left.getStackSize() <= 0) {
-                    return true;
-                }
-                s.amount = (int) left.getStackSize();
-                return false;
-            });
-        } catch (GridAccessException e) {
-
-        }
-
+            var grid = getProxy().getStorage();
+            var it = pendingInputs.entrySet().iterator();
+            while (it.hasNext()) {
+                var entry = it.next();
+                IAEStack<?> stack = entry.getKey().copy().setStackSize(entry.getValue());
+                IMEInventory store = grid.getMEMonitor(stack.getStackType());
+                if (store == null) continue;
+                IAEStack<?> left = store.injectItems(stack, Actionable.MODULATE, source);
+                if (left == null || left.getStackSize() == 0) it.remove();
+                else entry.setValue(left.getStackSize());
+            }
+        } catch (GridAccessException ignored) {}
     }
 
     @Override
@@ -286,52 +258,17 @@ boolean returnAll=true;
 
     @Override
     public IAEItemStack injectCraftedItems(ICraftingLink link, IAEItemStack items, Actionable mode) {
-        if (mode == Actionable.SIMULATE) {
-
-            return null;
+        long owed = waiting.getOrDefault(items, 0L);
+        long take = Math.min(Integer.MAX_VALUE, returnAll ? items.getStackSize() : Math.min(owed, items.getStackSize()));
+        if (take <= 0) return items;
+        if (mode == Actionable.MODULATE) {
+            IAEItemStack accepted = items.copy().setStackSize(take);
+            if (items.getItem() instanceof ItemFluidDrop) cacheFR.add(ItemFluidDrop.getAeFluidStack(accepted).getFluidStack());
+            else cacheR.add(accepted.getItemStack());
+            if (owed <= take) waiting.remove(items);
+            else waiting.put((AEItemStack) items, owed - take);
         }
-
-        AEItemStack left = null;
-
-        Long get = waiting.get((items));
-        if (get != null) {
-            long tmp;
-            waiting.put((AEItemStack) items, tmp = Math.max(0, get - items.getStackSize()));
-            if (tmp <= 0) waiting.remove(items);
-
-            /*if ((this.mode & 1) != 0)*/ {
-                if (get < items.getStackSize()) {// inject more than waiting for?
-                    items = items.copy()
-                        .setStackSize(get);// that's the part we need
-                    left = (AEItemStack) items.copy();
-                    left.decStackSize(get);// that's the rest
-                }
-            }
-
-        } else {
-            /*if ((this.mode & 1) != 0)*/
-            	if(!returnAll)
-                return items;// not waiting, just return items as unwanted
-
-
-        }
-        if(returnAll){
-        	//merge left into items
-        	if(left!=null){
-			long size=left.getStackSize();
-        	left.decStackSize(size);
-        	items.incStackSize(size);}
-        }
-        if (items.getItem() instanceof ItemFluidDrop) {
-            cacheFR.add(
-                ItemFluidDrop.getAeFluidStack(items)
-                    .getFluidStack());
-        } else {
-            cacheR.add(items.getItemStack());
-
-        }
-		if(left!=null&&left.getStackSize()==0)left=null;
-        return left;
+        return take == items.getStackSize() ? null : items.copy().setStackSize(items.getStackSize() - take);
     }
 
     HashMap<StorageChannel, IMEInventory> inv = new HashMap();
@@ -406,8 +343,6 @@ boolean returnAll=true;
         	dump();
             fillStacksIntoFirstSlots(cacheR);
             fillStacksIntoFirstSlotsF(cacheFR);
-            fillStacksIntoFirstSlots(cache);
-            fillStacksIntoFirstSlotsF(cacheF);
 
         }
         if (waiting.isEmpty() == false && job == null) {
@@ -457,77 +392,27 @@ boolean returnAll=true;
     }
 
     protected void fillStacksIntoFirstSlotsF(ArrayList<FluidStack> mInventory) {
-        final int L = mInventory.size();
-        HashMap<Fluid, Integer> slots = new HashMap<>(L);
-        HashMap<Fluid, FluidStack> stacks = new HashMap<>(L);
-        List<Fluid> order = new ArrayList<>(L);
-        List<Integer> validSlots = new ArrayList<>(L);
-        for (int i = 0; i < L; i++) {
-
-            validSlots.add(i);
-            FluidStack s = mInventory.get(i);
-            if (s == null) continue;
-            Fluid sID = s.getFluid();
-            slots.merge(sID, s.amount, Integer::sum);
-            if (!stacks.containsKey(sID)) stacks.put(sID, s);
-            order.add(sID);
-            mInventory.set(i, null);
-        }
-        int slotindex = 0;
-        for (Fluid sID : order) {
-            int toSet = slots.get(sID);
-            if (toSet == 0) continue;
-            int slot = validSlots.get(slotindex);
-            slotindex++;
-            mInventory.set(
-                slot,
-                stacks.get(sID)
-                    .copy());
-            // toSet = Math.min(toSet, mInventory[slot].getMaxStackSize());
-            mInventory.get(slot).amount = toSet;
-            slots.merge(sID, toSet, (a, b) -> a - b);
-        }
-        while (mInventory.size() >= 1 && mInventory.get(mInventory.size() - 1) == null) {
-            mInventory.remove(mInventory.size() - 1);
-        }
-
+        compact(mInventory, AEFluidStack::create, IAEFluidStack::getFluidStack);
     }
 
     protected void fillStacksIntoFirstSlots(ArrayList<ItemStack> mInventory) {
-        final int L = mInventory.size();
-        HashMap<GTUtility.ItemId, Integer> slots = new HashMap<>(L);
-        HashMap<GTUtility.ItemId, ItemStack> stacks = new HashMap<>(L);
-        List<GTUtility.ItemId> order = new ArrayList<>(L);
-        List<Integer> validSlots = new ArrayList<>(L);
-        for (int i = 0; i < L; i++) {
+        compact(mInventory, AEItemStack::create, IAEItemStack::getItemStack);
+    }
 
-            validSlots.add(i);
-            ItemStack s = mInventory.get(i);
-            if (s == null) continue;
-            GTUtility.ItemId sID = GTUtility.ItemId.createNoCopy(s);
-            slots.merge(sID, s.stackSize, Integer::sum);
-            if (!stacks.containsKey(sID)) stacks.put(sID, s);
-            order.add(sID);
-            mInventory.set(i, null);
+    private static <S, A extends IAEStack<A>> void compact(List<S> slots, Function<S, A> encode, Function<A, S> decode) {
+        Map<A, Long> amounts = new LinkedHashMap<>();
+        for (S slot : slots) {
+            A stack = encode.apply(slot);
+            if (stack != null && stack.getStackSize() > 0) amounts.merge(stack, stack.getStackSize(), Long::sum);
         }
-        int slotindex = 0;
-        for (GTUtility.ItemId sID : order) {
-            int toSet = slots.get(sID);
-            if (toSet == 0) continue;
-            int slot = validSlots.get(slotindex);
-            slotindex++;
-            mInventory.set(
-                slot,
-                stacks.get(sID)
-                    .copy());
-            // toSet = Math.min(toSet, mInventory[slot].getMaxStackSize());
-            mInventory.get(slot).stackSize = toSet;
-            slots.merge(sID, toSet, (a, b) -> a - b);
-        }
-        while (mInventory.size() >= 1 && mInventory.get(mInventory.size() - 1) == null) {
-            mInventory.remove(mInventory.size() - 1);
-        }
-
+        slots.clear();
+        amounts.forEach((stack, total) -> {
+            for (long left = total; left > 0;) {
+                long chunk = Math.min(left, Integer.MAX_VALUE);
+                slots.add(decode.apply(stack.copy().setStackSize(chunk)));
+                left -= chunk;
+            }
+        });
     }
 
     int mode;
@@ -544,7 +429,7 @@ boolean returnAll=true;
 
             IAEItemStack val = e.getKey()
                 .copy()
-                .setStackSize(e.getValue());
+                .setStackSize(Math.min(Integer.MAX_VALUE, e.getValue()));
 
             if (val.getItem() instanceof ItemFluidDrop) try {
                 IAEFluidStack ext = getProxy().getStorage()
@@ -602,6 +487,7 @@ boolean returnAll=true;
         if (cacheR.get(index) == null) {
             return null;
         }
+        count = Math.min(count, cacheR.get(index).stackSize);
         cacheR.get(index).stackSize -= count;
         ItemStack ret = cacheR.get(index)
             .copy();
@@ -696,38 +582,33 @@ boolean returnAll=true;
 
     @Override
     public FluidStack drain(ForgeDirection from, FluidStack resource, boolean doDrain) {
-        int all = cacheFR.stream()
-            .filter(s -> s.getFluid() == resource.getFluid())
-            .mapToInt(s -> s.amount)
-            .sum();
-        if (doDrain) {
-            dirtyF = true;
-            int[] todo = new int[] { all };
-            cacheFR.stream()
-                .filter(s -> s.getFluid() == resource.getFluid())
-                .forEach(s -> {
-                    int real = Math.min(todo[0], s.amount);
-                    s.amount -= real;
-                    todo[0] -= real;
-                });
-
+        int remaining = resource.amount;
+        if (remaining <= 0) return null;
+        for (FluidStack stack : cacheFR) {
+            if (!stack.isFluidEqual(resource) || stack.amount <= 0) continue;
+            int taken = Math.min(remaining, stack.amount);
+            if (doDrain) {
+                stack.amount -= taken;
+                dirtyF = true;
+            }
+            remaining -= taken;
+            if (remaining == 0) break;
         }
-
+        if (remaining == resource.amount) return null;
         FluidStack cp = resource.copy();
-        cp.amount = all;
-        if (cp.amount == 0) cp = null;
+        cp.amount -= remaining;
         return cp;
     }
 
     @Override
     public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain) {
-        if (cacheFR.size() == 0) {
-            return null;
+        for (FluidStack fluid : cacheFR) {
+            if (fluid.amount <= 0) continue;
+            FluidStack request = fluid.copy();
+            request.amount = maxDrain;
+            return drain(from, request, doDrain);
         }
-        FluidStack cp = cacheFR.get(0)
-            .copy();
-        cp.amount = maxDrain;
-        return drain(from, cp, doDrain);
+        return null;
     }
 
     @Override

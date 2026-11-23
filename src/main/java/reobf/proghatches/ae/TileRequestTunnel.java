@@ -145,7 +145,7 @@ public class TileRequestTunnel extends AENetworkTile
                 {
                     NBTTagList t = (NBTTagList) data.getTag("cacheR");
                     for (int i = 0; i < t.tagCount(); i++) {
-                        cacheR.add(ItemStack.loadItemStackFromNBT(t.getCompoundTagAt(i)));
+                        cacheR.add(Platform.loadItemStackFromNBT(t.getCompoundTagAt(i)));
 
                     }
                 }
@@ -216,7 +216,7 @@ public class TileRequestTunnel extends AENetworkTile
             {
                 NBTTagList listR = new NBTTagList();
                 thiz.internal.cacheR.stream()
-                    .map(s -> s.writeToNBT(new NBTTagCompound()))
+                    .map(s -> Platform.writeItemStackToNBT(s, new NBTTagCompound()))
                     .forEach(s -> listR.appendTag(s));
                 data.setTag("cacheR", listR);
                 NBTTagList listFR = new NBTTagList();

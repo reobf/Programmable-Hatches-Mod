@@ -1,6 +1,7 @@
 package reobf.proghatches.ae;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -11,7 +12,8 @@ import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.storage.IStorageGrid;
-import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.IMEInventory;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.crafting.CraftBranchFailure;
 import appeng.crafting.MECraftingInventory;
@@ -57,10 +59,9 @@ public class PatternCraftingJob implements ICraftingJob {
     }
 
     @Override
-    public IAEItemStack getOutput() {
-        for (IAEItemStack is : target.getOutputs()) {
-            if (is != null) return is.copy()
-                .setStackSize(times * is.getStackSize());
+    public IAEStack<?> getOutput() {
+        for (IAEStack<?> stack : target.getAEOutputs()) {
+            if (stack != null) return stack.copy().setStackSize(Math.multiplyExact(stack.getStackSize(), times));
         }
         return null;
     }
@@ -81,23 +82,18 @@ public class PatternCraftingJob implements ICraftingJob {
         int max = Integer.MAX_VALUE;
         try {
             IStorageGrid g = gg.getStorage();
-            gg.getCrafting()
-                .getCraftingPatterns()
-                .containsValue(target);
-            for (IAEItemStack is : target.getCondensedInputs()) {
-                IAEItemStack ext = g.getItemInventory()
-                    .extractItems(
-                        is.copy()
-                            .setStackSize(Integer.MAX_VALUE),
-                        Actionable.SIMULATE,
-                        src);
-                if (ext == null) {
-                    return 0;
-                }
-                if (ext.getStackSize() >= is.getStackSize()) {
-                    max = Math.min((int) (ext.getStackSize() / is.getStackSize()), max);
-                } else return 0;
-
+            for (IAEStack<?> out : target.getCondensedAEOutputs()) {
+                if (out != null && out.getStackSize() > 0)
+                    max = (int) Math.min(max, Long.MAX_VALUE / out.getStackSize());
+            }
+            for (IAEStack<?> in : target.getCondensedAEInputs()) {
+                if (in == null || in.getStackSize() == 0) continue;
+                if (in.getStackSize() < 0) return 0;
+                IMEInventory store = g.getMEMonitor(in.getStackType());
+                if (store == null) return 0;
+                IAEStack<?> available = store.extractItems(in.copy().setStackSize(Long.MAX_VALUE), Actionable.SIMULATE, src);
+                if (available == null) return 0;
+                max = (int) Math.min(max, available.getStackSize() / in.getStackSize());
             }
             return max;
         } catch (GridAccessException E) {
@@ -109,63 +105,25 @@ public class PatternCraftingJob implements ICraftingJob {
 
     @Override
     public void startCrafting(MECraftingInventory storage, ICraftingCPU craftingCPUCluster, BaseActionSource src) {
-        ((CraftingCPUCluster) craftingCPUCluster).addCrafting(target, times);
-        IAEItemStack failing = null;
-        boolean success = true;
-        LinkedList<IAEItemStack> all = new LinkedList<>();
-        for (IAEItemStack is : target.getCondensedInputs()) {
-            is = is.copy()
-                .setStackSize(is.getStackSize() * times);
-
-            IAEItemStack ext = context.getItemInventory()
-                .extractItems(is, Actionable.MODULATE, src);
-            if (ext == null) {
-                success = false;
-                failing = is;
-            } else if (ext.getStackSize() != is.getStackSize()) {
-                success = false;
-                failing = is;
+        List<IAEStack<?>> withdrawn = new ArrayList<>();
+        try {
+            for (IAEStack<?> in : target.getCondensedAEInputs()) {
+                if (in == null || in.getStackSize() == 0) continue;
+                IAEStack<?> need = in.copy().setStackSize(Math.multiplyExact(in.getStackSize(), times));
+                IMEInventory store = context.getMEMonitor(in.getStackType());
+                IAEStack<?> got = store == null ? null : store.extractItems(need, Actionable.MODULATE, src);
+                if (got != null) withdrawn.add(got);
+                if (got == null || got.getStackSize() != need.getStackSize()) throw new CraftBranchFailure(need, 0);
             }
-
-            if (ext != null) all.add(ext);
-
-            if (!success) break;
+        } catch (RuntimeException e) {
+            for (IAEStack<?> s : withdrawn) {
+                IMEInventory store = context.getMEMonitor(s.getStackType());
+                store.injectItems(s, Actionable.MODULATE, src);
+            }
+            throw e;
         }
-
-        if (!success) {
-            all.forEach(
-                s -> context.getItemInventory()
-                    .injectItems(s, Actionable.MODULATE, src));
-
-            throw new CraftBranchFailure(failing, 0);
-        } else {
-            all.forEach(s -> ((CraftingCPUCluster) craftingCPUCluster).addStorage(s));
-
-        }
-
+        CraftingCPUCluster cpu = (CraftingCPUCluster) craftingCPUCluster;
+        for (IAEStack<?> s : withdrawn) cpu.addStorage(s);
+        cpu.addCrafting(target, times);
     }
-    /*
-     * private ArrayList<IAEItemStack> getExtractItems(IAEItemStack ingredient, ICraftingPatternDetails patternDetails)
-     * {
-     * ArrayList<IAEItemStack> list = new ArrayList<>();
-     * {
-     * final IAEItemStack extractItems = this.inventory
-     * .extractItems(ingredient, Actionable.SIMULATE, this.machineSrc);
-     * final ItemStack is = extractItems == null ? null : extractItems.getItemStack();
-     * if (is != null && is.stackSize == ingredient.getStackSize()) {
-     * list.add(extractItems);
-     * return list;
-     * }
-     * }
-     * return list;
-     * }
-     * private boolean canCraft(final ICraftingPatternDetails details, final IAEItemStack[] condensedInputs) {
-     * for (IAEItemStack g : condensedInputs) {
-     * if (getExtractItems(g, details).isEmpty()) {
-     * return false;
-     * }
-     * }
-     * return true;
-     * }
-     */
 }

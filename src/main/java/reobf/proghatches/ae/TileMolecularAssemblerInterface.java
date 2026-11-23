@@ -1,6 +1,6 @@
 package reobf.proghatches.ae;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
@@ -14,7 +14,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 
-import com.glodblock.github.common.item.ItemFluidPacket;
+import reobf.proghatches.gt.metatileentity.util.PushStaging;
 
 import appeng.api.implementations.tiles.ICraftingMachine;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
@@ -34,28 +34,11 @@ public class TileMolecularAssemblerInterface extends TileEntity implements ICraf
 
         TileEntity te = getTarget(ejectionDirection.getOpposite());
         if (te == null) return false;
-        ArrayList<ItemStack> item = new ArrayList<>(table.getSizeInventory());
-        ArrayList<FluidStack> fluid = new ArrayList<>(1);
-
-        for (int i = 0; i < table.getSizeInventory(); i++) {
-
-            ItemStack is = table.getStackInSlot(i);
-            if (is == null) {
-                continue;
-            }
-
-            if (is.getItem() instanceof ItemFluidPacket) {
-                FluidStack fs = ItemFluidPacket.getFluidStack(is);
-                if (fs == null) {
-                    continue;
-                }
-                fluid.add(fs);
-            } else {
-
-                item.add(is);
-            }
-
-        }
+        PushStaging staged = PushStaging.split(table, Integer.MAX_VALUE, false, slot -> true,
+            Integer.MAX_VALUE, false, 1);
+        if (staged == null) return false;
+        List<ItemStack> item = staged.items;
+        List<FluidStack> fluid = staged.fluids;
 
         if (itemCheck(te, item, false, ejectionDirection.ordinal()) >= 0) return false;
         if (fluidCheck(te, fluid, false, ejectionDirection) >= 0) return false;
@@ -174,7 +157,7 @@ public class TileMolecularAssemblerInterface extends TileEntity implements ICraf
 
     // -1 pass
     // >=0 first index in inputs that won't fit
-    public int itemCheck(TileEntity t, ArrayList<ItemStack> item, boolean doInject, int side) {
+    public int itemCheck(TileEntity t, List<ItemStack> item, boolean doInject, int side) {
         if (item.isEmpty()) return -1; // nothing to push: a fluid-only target is fine
         if (t instanceof IInventory == false) {
             return Integer.MAX_VALUE;
@@ -221,7 +204,7 @@ public class TileMolecularAssemblerInterface extends TileEntity implements ICraf
         return -1;
     }
 
-    public int fluidCheck(TileEntity t, ArrayList<FluidStack> fluid, boolean doInject, ForgeDirection side) {
+    public int fluidCheck(TileEntity t, List<FluidStack> fluid, boolean doInject, ForgeDirection side) {
         if (fluid.isEmpty()) return -1; // nothing to push: an item-only target is fine
         if (t instanceof IFluidHandler == false) {
             return Integer.MAX_VALUE;

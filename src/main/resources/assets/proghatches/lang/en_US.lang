@@ -32,6 +32,7 @@ item.pattern_generator.name.tooltip.1=Drag a machine from NEI into the machine s
 item.pattern_generator.name.tooltip.2=Right-click to open. Survival generation consumes one blank pattern each
 item.pattern_generator.name.tooltip.3=Circuits and NC items are encoded as Programming Circuits
 item.pattern_generator.name.tooltip.4=Target tab arms direct fill, byproducts can be removed
+item.pattern_generator.author=Author: §6foxwhite25§r
 proghatches.pattern_generator.machine=Machine
 proghatches.pattern_generator.machine.tooltip=Drag a GT machine item here
 proghatches.pattern_generator.machine.tooltip.nei=NEI drag works, the item is not consumed

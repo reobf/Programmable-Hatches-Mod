@@ -1159,9 +1159,10 @@ public class CyclicPatternDualInputHatch extends PatternDualInputHatch {
             Map<SKey, Long> got = new HashMap<>();
             for (int slot = 0; slot < table.getSizeInventory(); slot++) {
                 ItemStack view = table.getStackInSlot(slot);
-                if (view == null) continue;
                 IAEStack<?> ae = table instanceof MEInventoryCrafting me ? me.getAEStackInSlot(slot) : null;
                 long amt = PushStaging.realSize(table, slot, view);
+                if (amt < 0) return 0;
+                if (view == null) continue;
                 SKey key;
                 if (ae instanceof IAEFluidStack) {
                     key = SKey.of(ae);

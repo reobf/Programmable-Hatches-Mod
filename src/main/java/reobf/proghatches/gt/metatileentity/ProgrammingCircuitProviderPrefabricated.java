@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableMap;
 
 import bartworks.system.material.Werkstoff;
 import bartworks.system.material.WerkstoffLoader;
+import ggfab.items.SingleUseTool;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
@@ -166,6 +167,10 @@ public class ProgrammingCircuitProviderPrefabricated extends MTEHatch implements
                     .map(s -> s.get(1))
                     .collect(Collectors.toList()));
 
+        }
+
+        for (SingleUseTool tool : SingleUseTool.values()) {
+            prefab.get(1).add(ItemProgrammingCircuit.wrap(tool.mold.get(1L)));
         }
 
         ArrayList<ItemStack> is = new ArrayList<>();
